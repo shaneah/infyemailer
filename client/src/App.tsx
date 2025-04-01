@@ -8,6 +8,7 @@ import Campaigns from "@/pages/Campaigns";
 import Contacts from "@/pages/Contacts";
 import Templates from "@/pages/Templates";
 import Analytics from "@/pages/Analytics";
+import ABTesting from "@/pages/ABTesting";
 import Sidebar from "@/components/Sidebar";
 import Navbar from "@/components/Navbar";
 import { useState } from "react";
@@ -29,6 +30,8 @@ function App() {
                 <Route path="/contacts" component={Contacts} />
                 <Route path="/templates" component={Templates} />
                 <Route path="/analytics" component={Analytics} />
+                <Route path="/ab-testing" component={ABTesting} />
+                <Route path="/ab-testing/:id" component={ABTesting} />
                 <Route component={NotFound} />
               </Switch>
             </main>

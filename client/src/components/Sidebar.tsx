@@ -67,6 +67,12 @@ const Sidebar = ({ open }: SidebarProps) => {
             </Link>
           </li>
           <li className="nav-item">
+            <Link href="/ab-testing" className={`nav-link ${location.startsWith('/ab-testing') ? 'active text-white' : 'text-white-50'}`}>
+              <i className="bi bi-shuffle me-2"></i>
+              A/B Testing
+            </Link>
+          </li>
+          <li className="nav-item">
             <Link href="/settings" className={`nav-link ${location === '/settings' ? 'active text-white' : 'text-white-50'}`}>
               <i className="bi bi-gear me-2"></i>
               Settings
