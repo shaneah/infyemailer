@@ -1,6 +1,7 @@
 import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import { generateSubjectLines } from "./services/openai";
 import { 
   insertContactSchema, 
   insertListSchema, 
@@ -790,6 +791,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error removing domain from campaign:', error);
       res.status(500).json({ error: 'Failed to remove domain from campaign' });
+    }
+  });
+
+  // Generate AI-powered subject lines for emails
+  app.post('/api/generate-subject-lines', async (req: Request, res: Response) => {
+    try {
+      const { emailContent, emailType, targetAudience, keywords, count } = req.body;
+      
+      if (!emailContent || !emailType || !targetAudience) {
+        return res.status(400).json({ 
+          error: 'Missing required parameters. Please provide emailContent, emailType, and targetAudience.' 
+        });
+      }
+      
+      const subjectLines = await generateSubjectLines(
+        emailContent,
+        emailType,
+        targetAudience,
+        keywords || '',
+        count || 5
+      );
+      
+      res.json({ subjectLines });
+    } catch (error) {
+      console.error('Error generating subject lines:', error);
+      res.status(500).json({ 
+        error: 'Failed to generate subject lines. Please ensure your OpenAI API key is valid.'
+      });
     }
   });
 

@@ -26,10 +26,12 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import SubjectLineGenerator from '@/components/emails/SubjectLineGenerator';
 
 const Emails = () => {
   const [activeTab, setActiveTab] = useState('inbox');
   const [isComposeOpen, setIsComposeOpen] = useState(false);
+  const [showAiSubjectGenerator, setShowAiSubjectGenerator] = useState(false);
   const [emailForm, setEmailForm] = useState({
     to: '',
     subject: '',
@@ -92,6 +94,12 @@ const Emails = () => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setEmailForm(prev => ({ ...prev, [name]: value }));
+  };
+  
+  // Handle dialog close
+  const handleDialogClose = () => {
+    setIsComposeOpen(false);
+    setShowAiSubjectGenerator(false);
   };
   
   // Sample email data for inbox
@@ -280,7 +288,7 @@ const Emails = () => {
       </Tabs>
       
       {/* Compose Email Dialog */}
-      <Dialog open={isComposeOpen} onOpenChange={setIsComposeOpen}>
+      <Dialog open={isComposeOpen} onOpenChange={handleDialogClose}>
         <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
             <DialogTitle>Compose New Email</DialogTitle>
@@ -307,15 +315,39 @@ const Emails = () => {
                 <Label htmlFor="subject" className="text-right">
                   Subject:
                 </Label>
-                <Input
-                  id="subject"
-                  name="subject"
-                  value={emailForm.subject}
-                  onChange={handleChange}
-                  className="col-span-3"
-                  required
-                />
+                <div className="relative col-span-3">
+                  <Input
+                    id="subject"
+                    name="subject"
+                    value={emailForm.subject}
+                    onChange={handleChange}
+                    className="w-full pr-[6.5rem]"
+                    required
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="absolute right-0 top-0 h-full bg-gradient-to-l from-primary/10 to-transparent hover:from-primary/20 hover:bg-transparent hover:text-primary border-l rounded-l-none"
+                    onClick={() => setShowAiSubjectGenerator(!showAiSubjectGenerator)}
+                  >
+                    {showAiSubjectGenerator ? 'Hide AI' : 'AI Assist'}
+                  </Button>
+                </div>
               </div>
+              
+              {showAiSubjectGenerator && (
+                <div className="grid grid-cols-4 gap-4">
+                  <div className="col-start-2 col-span-3">
+                    <SubjectLineGenerator 
+                      emailContent={emailForm.content}
+                      onSelectSubjectLine={(subjectLine) => {
+                        setEmailForm(prev => ({ ...prev, subject: subjectLine }));
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
               <div className="grid grid-cols-4 items-start gap-4">
                 <Label htmlFor="content" className="text-right pt-2">
                   Content:
@@ -357,7 +389,7 @@ const Emails = () => {
               </div>
             </div>
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setIsComposeOpen(false)}>
+              <Button type="button" variant="outline" onClick={handleDialogClose}>
                 Cancel
               </Button>
               <Button type="submit" disabled={isPending}>
