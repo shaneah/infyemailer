@@ -8,30 +8,45 @@
   }
 
   body {
-    @apply font-sans antialiased bg-background text-foreground;
+    @apply font-sans antialiased bg-gray-50 text-foreground;
     overflow-x: hidden;
   }
   
   h1, h2, h3, h4, h5, h6 {
-    @apply font-medium tracking-tight text-gray-900;
+    @apply font-semibold tracking-tight text-gray-900;
   }
   
   h1 {
-    @apply text-2xl md:text-3xl;
+    @apply text-2xl md:text-3xl mb-4;
+    background: linear-gradient(to right, hsl(213, 85%, 45%), hsl(213, 85%, 60%));
+    @apply bg-clip-text text-transparent;
   }
   
   h2 {
-    @apply text-xl md:text-2xl;
+    @apply text-xl md:text-2xl mb-3 text-gray-800;
   }
   
   h3 {
-    @apply text-lg md:text-xl;
+    @apply text-lg md:text-xl mb-2 text-gray-800;
+  }
+
+  /* Add subtle pattern to background */
+  body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%232563eb' fill-opacity='0.02' fill-rule='evenodd'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: -1;
   }
 }
 
 /* Bootstrap Classes with Updated Theme */
 .bg-primary {
-  background-color: hsl(210, 100%, 50%) !important;
+  background-color: hsl(213, 85%, 45%) !important;
 }
 
 .bg-secondary {
@@ -63,7 +78,7 @@
 }
 
 .text-primary {
-  color: hsl(210, 100%, 50%) !important;
+  color: hsl(213, 85%, 45%) !important;
 }
 
 .text-secondary {
@@ -99,31 +114,32 @@
 }
 
 .border-primary {
-  border-color: hsl(210, 100%, 50%) !important;
+  border-color: hsl(213, 85%, 45%) !important;
 }
 
 .btn-primary {
-  background-color: hsl(210, 100%, 50%);
-  border-color: hsl(210, 100%, 50%);
+  background-color: hsl(213, 85%, 45%);
+  border-color: hsl(213, 85%, 45%);
   color: white;
   transition: all 0.2s ease;
 }
 
 .btn-primary:hover {
-  background-color: hsl(210, 100%, 45%);
-  border-color: hsl(210, 100%, 45%);
-  box-shadow: 0 2px 5px rgba(13, 110, 253, 0.2);
+  background-color: hsl(213, 85%, 40%);
+  border-color: hsl(213, 85%, 40%);
+  box-shadow: 0 3px 8px rgba(37, 99, 235, 0.2);
 }
 
 .btn-outline-primary {
-  color: hsl(210, 100%, 50%);
-  border-color: hsl(210, 100%, 50%);
+  color: hsl(213, 85%, 45%);
+  border-color: hsl(213, 85%, 45%);
   transition: all 0.2s ease;
 }
 
 .btn-outline-primary:hover {
-  background-color: hsl(210, 100%, 50%);
+  background-color: hsl(213, 85%, 45%);
   color: white;
+  box-shadow: 0 2px 5px rgba(37, 99, 235, 0.15);
 }
 
 .btn-success {
@@ -219,10 +235,19 @@
 .card {
   @apply rounded-md shadow-sm border border-gray-200;
   background: white;
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
 }
 
 .card-header {
   @apply font-medium p-4 border-b border-gray-200 bg-white rounded-t-md;
+}
+
+.card-header h3, .card-header h4 {
+  color: hsl(213, 85%, 45%);
 }
 
 .card-body {
@@ -375,12 +400,14 @@
 }
 
 .template-card:hover {
-  border-color: hsl(210, 100%, 50%);
+  border-color: hsl(213, 85%, 45%);
+  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.1);
+  transform: translateY(-2px);
 }
 
 .template-card.selected {
-  border: 2px solid hsl(210, 100%, 50%);
-  box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.15);
+  border: 2px solid hsl(213, 85%, 45%);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
 }
 
 .campaign-progress {
@@ -389,4 +416,39 @@
 
 .content-wrapper {
   transition: margin-left 0.3s;
+}
+
+/* Button animation effects */
+.btn {
+  @apply inline-flex items-center justify-center px-4 py-2 font-medium rounded-md text-sm;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+.btn::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 150%;
+  height: 150%;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  transition: transform 0.4s ease-out;
+  z-index: 0;
+}
+
+.btn:hover::before {
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.btn > * {
+  position: relative;
+  z-index: 1;
 }
