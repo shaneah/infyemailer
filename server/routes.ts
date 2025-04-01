@@ -357,6 +357,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ error: 'Failed to send email' });
     }
   });
+  
+  // Get all emails
+  app.get('/api/emails', async (req: Request, res: Response) => {
+    try {
+      const emails = await storage.getEmails();
+      res.json(emails);
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to fetch emails' });
+    }
+  });
 
   // Get audience growth data
   app.get('/api/audience/growth', (req: Request, res: Response) => {

@@ -9,6 +9,7 @@ import Contacts from "@/pages/Contacts";
 import Templates from "@/pages/Templates";
 import Analytics from "@/pages/Analytics";
 import ABTesting from "@/pages/ABTesting";
+import Emails from "@/pages/Emails";
 import Sidebar from "@/components/Sidebar";
 import Navbar from "@/components/Navbar";
 import { useState } from "react";
@@ -32,6 +33,7 @@ function App() {
                 <Route path="/analytics" component={Analytics} />
                 <Route path="/ab-testing" component={ABTesting} />
                 <Route path="/ab-testing/:id" component={ABTesting} />
+                <Route path="/emails" component={Emails} />
                 <Route component={NotFound} />
               </Switch>
             </main>
