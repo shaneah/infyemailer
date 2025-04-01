@@ -9,11 +9,21 @@ import {
   CampaignVariant, InsertCampaignVariant,
   VariantAnalytics, InsertVariantAnalytics,
   Domain, InsertDomain,
-  CampaignDomain, InsertCampaignDomain
+  CampaignDomain, InsertCampaignDomain,
+  Client, InsertClient
 } from "@shared/schema";
 
 // Interface for storage operations
 export interface IStorage {
+  // Client methods
+  getClients(): Promise<Client[]>;
+  getClient(id: number): Promise<Client | undefined>;
+  getClientByEmail(email: string): Promise<Client | undefined>;
+  createClient(client: InsertClient): Promise<Client>;
+  updateClient(id: number, client: Partial<Client>): Promise<Client | undefined>;
+  deleteClient(id: number): Promise<boolean>;
+  getClientCampaigns(clientId: number): Promise<Campaign[]>;
+
   // Contact methods
   getContacts(): Promise<Contact[]>;
   getContact(id: number): Promise<Contact | undefined>;
@@ -104,6 +114,11 @@ export class MemStorage implements IStorage {
   private emails: Map<number, Email>;
   private templates: Map<number, Template>;
   private analytics: Map<number, Analytics>;
+  private clients: Map<number, Client>;
+  private domains: Map<number, Domain>;
+  private campaignDomains: Map<number, CampaignDomain>;
+  private campaignVariants: Map<number, CampaignVariant>;
+  private variantAnalytics: Map<number, VariantAnalytics>;
 
   private contactId: number;
   private listId: number;
@@ -112,6 +127,11 @@ export class MemStorage implements IStorage {
   private emailId: number;
   private templateId: number;
   private analyticId: number;
+  private clientId: number;
+  private domainId: number;
+  private campaignDomainId: number;
+  private campaignVariantId: number;
+  private variantAnalyticId: number;
 
   constructor() {
     this.contacts = new Map();
@@ -121,6 +141,11 @@ export class MemStorage implements IStorage {
     this.emails = new Map();
     this.templates = new Map();
     this.analytics = new Map();
+    this.clients = new Map();
+    this.domains = new Map();
+    this.campaignDomains = new Map();
+    this.campaignVariants = new Map();
+    this.variantAnalytics = new Map();
 
     this.contactId = 1;
     this.listId = 1;
@@ -129,6 +154,11 @@ export class MemStorage implements IStorage {
     this.emailId = 1;
     this.templateId = 1;
     this.analyticId = 1;
+    this.clientId = 1;
+    this.domainId = 1;
+    this.campaignDomainId = 1;
+    this.campaignVariantId = 1;
+    this.variantAnalyticId = 1;
 
     // Initialize with some default data
     this.initializeData();
@@ -308,6 +338,95 @@ export class MemStorage implements IStorage {
         date: "Ongoing"
       }
     });
+    // Add sample clients
+    this.createClient({
+      name: "John Doe",
+      email: "john@techcompany.com",
+      company: "Tech Company Inc.",
+      status: "active",
+      industry: "Technology",
+      totalSpend: 15000,
+      avatar: "https://ui-avatars.com/api/?name=John+Doe&background=0D8ABC&color=fff",
+      metadata: { 
+        notes: "Enterprise client",
+        tags: ["tech", "enterprise"],
+        contactPreference: "email"
+      }
+    });
+    
+    this.createClient({
+      name: "Jane Smith",
+      email: "jane@fashionbrand.com",
+      company: "Fashion Brand LLC",
+      status: "active",
+      industry: "Fashion",
+      totalSpend: 8500,
+      avatar: "https://ui-avatars.com/api/?name=Jane+Smith&background=8A2BE2&color=fff",
+      metadata: { 
+        notes: "Seasonal campaigns",
+        tags: ["fashion", "retail"],
+        contactPreference: "phone"
+      }
+    });
+    
+    this.createClient({
+      name: "Robert Johnson",
+      email: "robert@foodservice.com",
+      company: "Food Service Co.",
+      status: "inactive",
+      industry: "Food & Beverage",
+      totalSpend: 5200,
+      avatar: "https://ui-avatars.com/api/?name=Robert+Johnson&background=FF7F50&color=fff",
+      metadata: { 
+        notes: "On hold until Q3",
+        tags: ["food", "service"],
+        contactPreference: "email"
+      }
+    });
+  }
+
+  // Client methods
+  async getClients(): Promise<Client[]> {
+    return Array.from(this.clients.values());
+  }
+
+  async getClient(id: number): Promise<Client | undefined> {
+    return this.clients.get(id);
+  }
+
+  async getClientByEmail(email: string): Promise<Client | undefined> {
+    return Array.from(this.clients.values()).find(client => client.email === email);
+  }
+
+  async createClient(client: InsertClient): Promise<Client> {
+    const id = this.clientId++;
+    const now = new Date();
+    const newClient: Client = {
+      ...client,
+      id,
+      createdAt: now,
+      lastCampaignAt: null
+    };
+    this.clients.set(id, newClient);
+    return newClient;
+  }
+
+  async updateClient(id: number, client: Partial<Client>): Promise<Client | undefined> {
+    const existingClient = this.clients.get(id);
+    if (!existingClient) return undefined;
+
+    const updatedClient = { ...existingClient, ...client };
+    this.clients.set(id, updatedClient);
+    return updatedClient;
+  }
+
+  async deleteClient(id: number): Promise<boolean> {
+    return this.clients.delete(id);
+  }
+
+  async getClientCampaigns(clientId: number): Promise<Campaign[]> {
+    return Array.from(this.campaigns.values())
+      .filter(campaign => campaign.clientId === clientId);
   }
 
   // Contact methods
@@ -616,10 +735,6 @@ export class MemStorage implements IStorage {
   }
 
   // Domain methods
-  private domains: Map<number, Domain> = new Map();
-  private domainId: number = 1;
-
-  
   async getDomains(): Promise<Domain[]> {
     return Array.from(this.domains.values());
   }
@@ -681,8 +796,6 @@ export class MemStorage implements IStorage {
   }
   
   // Campaign-Domain methods
-  private campaignDomains: Map<number, CampaignDomain> = new Map();
-  private campaignDomainId: number = 1;
   
   async assignDomainToCampaign(campaignDomain: InsertCampaignDomain): Promise<CampaignDomain> {
     const id = this.campaignDomainId++;

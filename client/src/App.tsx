@@ -12,6 +12,7 @@ import ABTesting from "@/pages/ABTesting";
 import Emails from "@/pages/Emails";
 import Domains from "@/pages/Domains";
 import EmailPerformance from "@/pages/EmailPerformance";
+import Clients from "@/pages/Clients";
 import Sidebar from "@/components/Sidebar";
 import Navbar from "@/components/Navbar";
 import { useState } from "react";
@@ -38,6 +39,7 @@ function App() {
                 <Route path="/emails" component={Emails} />
                 <Route path="/domains" component={Domains} />
                 <Route path="/email-performance" component={EmailPerformance} />
+                <Route path="/clients" component={Clients} />
                 <Route component={NotFound} />
               </Switch>
             </main>

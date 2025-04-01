@@ -12,7 +12,8 @@ import {
   insertCampaignVariantSchema,
   insertVariantAnalyticsSchema,
   insertDomainSchema,
-  insertCampaignDomainSchema
+  insertCampaignDomainSchema,
+  insertClientSchema
 } from "@shared/schema";
 import { ZodError } from "zod";
 import { fromZodError } from "zod-validation-error";
@@ -657,6 +658,132 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error setting winning variant:', error);
       res.status(500).json({ error: 'Failed to set winning variant' });
+    }
+  });
+
+  // Client routes
+  app.get('/api/clients', async (req: Request, res: Response) => {
+    try {
+      const clients = await storage.getClients();
+      
+      // Format client data for frontend
+      const formattedClients = clients.map(client => {
+        const metadata = client.metadata as any || {};
+        return {
+          id: client.id,
+          name: client.name,
+          email: client.email,
+          company: client.company,
+          status: {
+            label: client.status.charAt(0).toUpperCase() + client.status.slice(1),
+            color: client.status === 'active' ? 'success' : 
+                  client.status === 'inactive' ? 'warning' : 'secondary'
+          },
+          industry: client.industry || 'N/A',
+          totalSpend: client.totalSpend || 0,
+          avatar: client.avatar || null,
+          lastCampaign: client.lastCampaignAt ? new Date(client.lastCampaignAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A',
+          metadata
+        };
+      });
+      
+      res.json(formattedClients);
+    } catch (error) {
+      console.error('Error fetching clients:', error);
+      res.status(500).json({ error: 'Failed to fetch clients' });
+    }
+  });
+
+  app.get('/api/clients/:id', async (req: Request, res: Response) => {
+    try {
+      const clientId = parseInt(req.params.id);
+      const client = await storage.getClient(clientId);
+      
+      if (!client) {
+        return res.status(404).json({ error: 'Client not found' });
+      }
+      
+      // Get campaigns for this client
+      const campaigns = await storage.getClientCampaigns(clientId);
+      
+      res.json({
+        ...client,
+        campaigns: campaigns.map(campaign => {
+          const metadata = campaign.metadata as any || {};
+          return {
+            id: campaign.id,
+            name: campaign.name,
+            status: campaign.status,
+            openRate: metadata.openRate || 0,
+            clickRate: metadata.clickRate || 0,
+            sentDate: campaign.sentAt ? new Date(campaign.sentAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A'
+          };
+        })
+      });
+    } catch (error) {
+      console.error('Error fetching client:', error);
+      res.status(500).json({ error: 'Failed to fetch client' });
+    }
+  });
+
+  app.post('/api/clients', async (req: Request, res: Response) => {
+    const validatedData = validate(insertClientSchema, req.body);
+    if ('error' in validatedData) {
+      return res.status(400).json({ error: validatedData.error });
+    }
+
+    try {
+      // Check if client with email already exists
+      const existing = await storage.getClientByEmail(validatedData.email);
+      if (existing) {
+        return res.status(400).json({ error: 'A client with this email already exists' });
+      }
+      
+      const client = await storage.createClient(validatedData);
+      res.status(201).json(client);
+    } catch (error) {
+      console.error('Error creating client:', error);
+      res.status(500).json({ error: 'Failed to create client' });
+    }
+  });
+
+  app.patch('/api/clients/:id', async (req: Request, res: Response) => {
+    try {
+      const clientId = parseInt(req.params.id);
+      
+      // If email is being updated, check if it's already in use
+      if (req.body.email) {
+        const existing = await storage.getClientByEmail(req.body.email);
+        if (existing && existing.id !== clientId) {
+          return res.status(400).json({ error: 'This email is already used by another client' });
+        }
+      }
+      
+      const client = await storage.updateClient(clientId, req.body);
+      if (!client) {
+        return res.status(404).json({ error: 'Client not found' });
+      }
+      
+      res.json(client);
+    } catch (error) {
+      console.error('Error updating client:', error);
+      res.status(500).json({ error: 'Failed to update client' });
+    }
+  });
+
+  app.delete('/api/clients/:id', async (req: Request, res: Response) => {
+    try {
+      const clientId = parseInt(req.params.id);
+      const success = await storage.deleteClient(clientId);
+      
+      if (!success) {
+        return res.status(404).json({ error: 'Client not found' });
+      }
+      
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Error deleting client:', error);
+      res.status(500).json({ error: 'Failed to delete client' });
     }
   });
 

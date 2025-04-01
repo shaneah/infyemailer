@@ -2,6 +2,35 @@ import { pgTable, text, serial, integer, boolean, timestamp, json } from "drizzl
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
+// Client schema
+export const clients = pgTable("clients", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  email: text("email").notNull(),
+  company: text("company").notNull(),
+  status: text("status").notNull().default("active"),
+  industry: text("industry"),
+  createdAt: timestamp("created_at").defaultNow(),
+  totalSpend: integer("total_spend").default(0),
+  lastCampaignAt: timestamp("last_campaign_at"),
+  avatar: text("avatar"),
+  metadata: json("metadata")
+});
+
+export const insertClientSchema = createInsertSchema(clients).pick({
+  name: true,
+  email: true,
+  company: true,
+  status: true,
+  industry: true,
+  totalSpend: true,
+  avatar: true,
+  metadata: true,
+});
+
+export type InsertClient = z.infer<typeof insertClientSchema>;
+export type Client = typeof clients.$inferSelect;
+
 // User schema
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
@@ -86,6 +115,7 @@ export const campaigns = pgTable("campaigns", {
   updatedAt: timestamp("updated_at").defaultNow(),
   isAbTest: boolean("is_ab_test").default(false),
   winningVariantId: integer("winning_variant_id"),
+  clientId: integer("client_id"),
   metadata: json("metadata")
 });
 
@@ -100,6 +130,7 @@ export const insertCampaignSchema = createInsertSchema(campaigns).pick({
   scheduledAt: true,
   isAbTest: true,
   winningVariantId: true,
+  clientId: true,
   metadata: true,
 });
 

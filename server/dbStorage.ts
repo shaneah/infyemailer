@@ -10,8 +10,9 @@ import {
   VariantAnalytics, InsertVariantAnalytics,
   Domain, InsertDomain,
   CampaignDomain, InsertCampaignDomain,
+  Client, InsertClient,
   users, contacts, lists, contactLists, campaigns, emails, templates, analytics,
-  campaignVariants, variantAnalytics, domains, campaignDomains
+  campaignVariants, variantAnalytics, domains, campaignDomains, clients
 } from '@shared/schema';
 import { IStorage } from './storage';
 import { db } from './db';
@@ -21,6 +22,46 @@ import { log } from './vite';
 export class DbStorage implements IStorage {
   constructor() {
     log('PostgreSQL storage initialized', 'db');
+  }
+
+  // Client methods
+  async getClients(): Promise<Client[]> {
+    return await db.select().from(clients);
+  }
+
+  async getClient(id: number): Promise<Client | undefined> {
+    const result = await db.select().from(clients).where(eq(clients.id, id));
+    return result[0];
+  }
+
+  async getClientByEmail(email: string): Promise<Client | undefined> {
+    const result = await db.select().from(clients).where(eq(clients.email, email));
+    return result[0];
+  }
+
+  async createClient(client: InsertClient): Promise<Client> {
+    const result = await db.insert(clients).values({
+      ...client,
+      status: client.status || 'active'
+    }).returning();
+    return result[0];
+  }
+
+  async updateClient(id: number, client: Partial<Client>): Promise<Client | undefined> {
+    const result = await db.update(clients)
+      .set(client)
+      .where(eq(clients.id, id))
+      .returning();
+    return result[0];
+  }
+
+  async deleteClient(id: number): Promise<boolean> {
+    const result = await db.delete(clients).where(eq(clients.id, id)).returning();
+    return result.length > 0;
+  }
+
+  async getClientCampaigns(clientId: number): Promise<Campaign[]> {
+    return await db.select().from(campaigns).where(eq(campaigns.clientId, clientId));
   }
 
   // Contact methods

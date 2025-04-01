@@ -61,6 +61,12 @@ const Sidebar = ({ open }: SidebarProps) => {
             </Link>
           </li>
           <li className="nav-item">
+            <Link href="/clients" className={`nav-link ${location === '/clients' ? 'active text-white' : 'text-white-50'}`}>
+              <i className="bi bi-building me-2"></i>
+              Clients
+            </Link>
+          </li>
+          <li className="nav-item">
             <Link href="/analytics" className={`nav-link ${location === '/analytics' ? 'active text-white' : 'text-white-50'}`}>
               <i className="bi bi-graph-up me-2"></i>
               Analytics
