@@ -84,6 +84,8 @@ export const campaigns = pgTable("campaigns", {
   sentAt: timestamp("sent_at"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
+  isAbTest: boolean("is_ab_test").default(false),
+  winningVariantId: integer("winning_variant_id"),
   metadata: json("metadata")
 });
 
@@ -96,6 +98,8 @@ export const insertCampaignSchema = createInsertSchema(campaigns).pick({
   content: true,
   status: true,
   scheduledAt: true,
+  isAbTest: true,
+  winningVariantId: true,
   metadata: true,
 });
 
@@ -171,3 +175,58 @@ export const insertAnalyticsSchema = createInsertSchema(analytics).pick({
 
 export type InsertAnalytics = z.infer<typeof insertAnalyticsSchema>;
 export type Analytics = typeof analytics.$inferSelect;
+
+// Campaign Variants for A/B Testing
+export const campaignVariants = pgTable("campaign_variants", {
+  id: serial("id").primaryKey(),
+  campaignId: integer("campaign_id").notNull(),
+  name: text("name").notNull(),
+  subject: text("subject").notNull(),
+  previewText: text("preview_text"),
+  content: text("content"),
+  weight: integer("weight").notNull().default(50), // percentage of recipients who will receive this variant
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  metadata: json("metadata")
+});
+
+export const insertCampaignVariantSchema = createInsertSchema(campaignVariants).pick({
+  campaignId: true,
+  name: true,
+  subject: true,
+  previewText: true,
+  content: true,
+  weight: true,
+  metadata: true,
+});
+
+export type InsertCampaignVariant = z.infer<typeof insertCampaignVariantSchema>;
+export type CampaignVariant = typeof campaignVariants.$inferSelect;
+
+// Variant Analytics for A/B Testing
+export const variantAnalytics = pgTable("variant_analytics", {
+  id: serial("id").primaryKey(),
+  variantId: integer("variant_id").notNull(),
+  campaignId: integer("campaign_id").notNull(),
+  recipients: integer("recipients").notNull().default(0),
+  opens: integer("opens").notNull().default(0),
+  clicks: integer("clicks").notNull().default(0),
+  bounces: integer("bounces").notNull().default(0),
+  unsubscribes: integer("unsubscribes").notNull().default(0),
+  date: timestamp("date").defaultNow(),
+  metadata: json("metadata")
+});
+
+export const insertVariantAnalyticsSchema = createInsertSchema(variantAnalytics).pick({
+  variantId: true,
+  campaignId: true,
+  recipients: true,
+  opens: true,
+  clicks: true,
+  bounces: true,
+  unsubscribes: true,
+  metadata: true,
+});
+
+export type InsertVariantAnalytics = z.infer<typeof insertVariantAnalyticsSchema>;
+export type VariantAnalytics = typeof variantAnalytics.$inferSelect;

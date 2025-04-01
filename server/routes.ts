@@ -1,7 +1,16 @@
 import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertContactSchema, insertListSchema, insertCampaignSchema, insertEmailSchema, insertTemplateSchema, insertAnalyticsSchema } from "@shared/schema";
+import { 
+  insertContactSchema, 
+  insertListSchema, 
+  insertCampaignSchema, 
+  insertEmailSchema, 
+  insertTemplateSchema, 
+  insertAnalyticsSchema,
+  insertCampaignVariantSchema,
+  insertVariantAnalyticsSchema
+} from "@shared/schema";
 import { ZodError } from "zod";
 import { fromZodError } from "zod-validation-error";
 
@@ -428,6 +437,213 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(201).json(analytic);
     } catch (error) {
       res.status(500).json({ error: 'Failed to record analytic' });
+    }
+  });
+
+  // A/B Testing routes
+  app.get('/api/ab-testing/campaigns', async (req: Request, res: Response) => {
+    try {
+      const campaigns = await storage.getAbTestCampaigns();
+      res.json(campaigns);
+    } catch (error) {
+      console.error('Error fetching A/B test campaigns:', error);
+      res.status(500).json({ error: 'Failed to fetch A/B test campaigns' });
+    }
+  });
+  
+  app.get('/api/ab-testing/campaigns/:id', async (req: Request, res: Response) => {
+    try {
+      const campaignId = parseInt(req.params.id);
+      const campaign = await storage.getCampaign(campaignId);
+      
+      if (!campaign) {
+        return res.status(404).json({ error: 'Campaign not found' });
+      }
+      
+      if (!campaign.isAbTest) {
+        return res.status(400).json({ error: 'Campaign is not an A/B test' });
+      }
+      
+      const variants = await storage.getCampaignVariants(campaignId);
+      
+      res.json({
+        campaign,
+        variants
+      });
+    } catch (error) {
+      console.error('Error fetching A/B test campaign:', error);
+      res.status(500).json({ error: 'Failed to fetch A/B test campaign' });
+    }
+  });
+  
+  app.get('/api/ab-testing/campaigns/:id/analytics', async (req: Request, res: Response) => {
+    try {
+      const campaignId = parseInt(req.params.id);
+      const campaign = await storage.getCampaign(campaignId);
+      
+      if (!campaign) {
+        return res.status(404).json({ error: 'Campaign not found' });
+      }
+      
+      if (!campaign.isAbTest) {
+        return res.status(400).json({ error: 'Campaign is not an A/B test' });
+      }
+      
+      const variants = await storage.getCampaignVariants(campaignId);
+      const analytics = await storage.getVariantAnalyticsByCampaign(campaignId);
+      
+      // Group analytics by variant
+      const variantAnalytics = variants.map(variant => {
+        const variantData = analytics.filter(a => a.variantId === variant.id);
+        return {
+          variant,
+          analytics: variantData
+        };
+      });
+      
+      res.json({
+        campaign,
+        variantAnalytics
+      });
+    } catch (error) {
+      console.error('Error fetching A/B test campaign analytics:', error);
+      res.status(500).json({ error: 'Failed to fetch A/B test campaign analytics' });
+    }
+  });
+  
+  // Create a new campaign variant
+  app.post('/api/ab-testing/campaigns/:id/variants', async (req: Request, res: Response) => {
+    try {
+      const campaignId = parseInt(req.params.id);
+      const campaign = await storage.getCampaign(campaignId);
+      
+      if (!campaign) {
+        return res.status(404).json({ error: 'Campaign not found' });
+      }
+      
+      if (!campaign.isAbTest) {
+        return res.status(400).json({ error: 'Campaign is not an A/B test' });
+      }
+      
+      const validatedData = validate(insertCampaignVariantSchema, {
+        ...req.body,
+        campaignId
+      });
+      
+      if ('error' in validatedData) {
+        return res.status(400).json({ error: validatedData.error });
+      }
+      
+      const variant = await storage.createCampaignVariant(validatedData);
+      
+      res.status(201).json(variant);
+    } catch (error) {
+      console.error('Error creating campaign variant:', error);
+      res.status(500).json({ error: 'Failed to create campaign variant' });
+    }
+  });
+  
+  // Update a campaign variant
+  app.patch('/api/ab-testing/variants/:id', async (req: Request, res: Response) => {
+    try {
+      const variantId = parseInt(req.params.id);
+      const variant = await storage.getCampaignVariant(variantId);
+      
+      if (!variant) {
+        return res.status(404).json({ error: 'Variant not found' });
+      }
+      
+      const updatedVariant = await storage.updateCampaignVariant(variantId, req.body);
+      
+      res.json(updatedVariant);
+    } catch (error) {
+      console.error('Error updating campaign variant:', error);
+      res.status(500).json({ error: 'Failed to update campaign variant' });
+    }
+  });
+  
+  // Delete a campaign variant
+  app.delete('/api/ab-testing/variants/:id', async (req: Request, res: Response) => {
+    try {
+      const variantId = parseInt(req.params.id);
+      const variant = await storage.getCampaignVariant(variantId);
+      
+      if (!variant) {
+        return res.status(404).json({ error: 'Variant not found' });
+      }
+      
+      const success = await storage.deleteCampaignVariant(variantId);
+      
+      res.json({ success });
+    } catch (error) {
+      console.error('Error deleting campaign variant:', error);
+      res.status(500).json({ error: 'Failed to delete campaign variant' });
+    }
+  });
+  
+  // Record variant analytics
+  app.post('/api/ab-testing/variants/:id/analytics', async (req: Request, res: Response) => {
+    try {
+      const variantId = parseInt(req.params.id);
+      const variant = await storage.getCampaignVariant(variantId);
+      
+      if (!variant) {
+        return res.status(404).json({ error: 'Variant not found' });
+      }
+      
+      const validatedData = validate(insertVariantAnalyticsSchema, {
+        ...req.body,
+        variantId,
+        campaignId: variant.campaignId
+      });
+      
+      if ('error' in validatedData) {
+        return res.status(400).json({ error: validatedData.error });
+      }
+      
+      const analytic = await storage.recordVariantAnalytic(validatedData);
+      
+      res.status(201).json(analytic);
+    } catch (error) {
+      console.error('Error recording variant analytics:', error);
+      res.status(500).json({ error: 'Failed to record variant analytics' });
+    }
+  });
+  
+  // Set winning variant for an A/B test campaign
+  app.post('/api/ab-testing/campaigns/:id/winner', async (req: Request, res: Response) => {
+    try {
+      const campaignId = parseInt(req.params.id);
+      const { variantId } = req.body;
+      
+      if (!variantId) {
+        return res.status(400).json({ error: 'Variant ID is required' });
+      }
+      
+      const campaign = await storage.getCampaign(campaignId);
+      
+      if (!campaign) {
+        return res.status(404).json({ error: 'Campaign not found' });
+      }
+      
+      if (!campaign.isAbTest) {
+        return res.status(400).json({ error: 'Campaign is not an A/B test' });
+      }
+      
+      const variant = await storage.getCampaignVariant(parseInt(variantId));
+      if (!variant) {
+        return res.status(404).json({ error: 'Variant not found' });
+      }
+      
+      const updatedCampaign = await storage.setWinningVariant(campaignId, parseInt(variantId));
+      
+      res.json({
+        success: true,
+        campaign: updatedCampaign
+      });
+    } catch (error) {
+      console.error('Error setting winning variant:', error);
+      res.status(500).json({ error: 'Failed to set winning variant' });
     }
   });
 

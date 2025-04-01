@@ -6,7 +6,10 @@ import {
   Email, InsertEmail,
   Template, InsertTemplate,
   Analytics, InsertAnalytics,
-  users, contacts, lists, contactLists, campaigns, emails, templates, analytics
+  CampaignVariant, InsertCampaignVariant,
+  VariantAnalytics, InsertVariantAnalytics,
+  users, contacts, lists, contactLists, campaigns, emails, templates, analytics,
+  campaignVariants, variantAnalytics
 } from '@shared/schema';
 import { IStorage } from './storage';
 import { db } from './db';
@@ -257,6 +260,60 @@ export class DbStorage implements IStorage {
     const result = await db.insert(analytics).values(analytic).returning();
     return result[0];
   }
+  
+  // Campaign Variant methods for A/B Testing
+  async getCampaignVariants(campaignId: number): Promise<CampaignVariant[]> {
+    return await db.select().from(campaignVariants).where(eq(campaignVariants.campaignId, campaignId));
+  }
+  
+  async getCampaignVariant(id: number): Promise<CampaignVariant | undefined> {
+    const result = await db.select().from(campaignVariants).where(eq(campaignVariants.id, id));
+    return result[0];
+  }
+  
+  async createCampaignVariant(variant: InsertCampaignVariant): Promise<CampaignVariant> {
+    const result = await db.insert(campaignVariants).values(variant).returning();
+    return result[0];
+  }
+  
+  async updateCampaignVariant(id: number, variant: Partial<CampaignVariant>): Promise<CampaignVariant | undefined> {
+    const result = await db.update(campaignVariants)
+      .set({
+        ...variant,
+        updatedAt: new Date()
+      })
+      .where(eq(campaignVariants.id, id))
+      .returning();
+    return result[0];
+  }
+  
+  async deleteCampaignVariant(id: number): Promise<boolean> {
+    const result = await db.delete(campaignVariants).where(eq(campaignVariants.id, id)).returning();
+    return result.length > 0;
+  }
+  
+  // Variant Analytics methods for A/B Testing
+  async getVariantAnalytics(variantId: number): Promise<VariantAnalytics[]> {
+    return await db.select().from(variantAnalytics).where(eq(variantAnalytics.variantId, variantId));
+  }
+  
+  async getVariantAnalyticsByCampaign(campaignId: number): Promise<VariantAnalytics[]> {
+    return await db.select().from(variantAnalytics).where(eq(variantAnalytics.campaignId, campaignId));
+  }
+  
+  async recordVariantAnalytic(analytic: InsertVariantAnalytics): Promise<VariantAnalytics> {
+    const result = await db.insert(variantAnalytics).values(analytic).returning();
+    return result[0];
+  }
+  
+  // A/B Test specific methods
+  async setWinningVariant(campaignId: number, variantId: number): Promise<Campaign | undefined> {
+    return await this.updateCampaign(campaignId, { winningVariantId: variantId });
+  }
+  
+  async getAbTestCampaigns(): Promise<Campaign[]> {
+    return await db.select().from(campaigns).where(eq(campaigns.isAbTest, true));
+  }
 
   // Initialize the database with sample data
   async initializeWithSampleData() {
@@ -391,6 +448,48 @@ export class DbStorage implements IStorage {
           clickRate: 27.5,
           date: "Ongoing"
         }
+      });
+      
+      // Create a sample A/B test campaign
+      const abTestCampaign = await this.createCampaign({
+        name: "Summer Sale A/B Test",
+        subject: "Summer Specials Inside",
+        previewText: "Check out our best summer deals",
+        senderName: "Your Company",
+        replyToEmail: "info@example.com",
+        content: "<h1>Summer Sale</h1><p>Our main summer deals content...</p>",
+        status: "draft",
+        isAbTest: true,
+        scheduledAt: new Date("2023-06-15T09:00:00"),
+        metadata: {
+          icon: { name: "sun-fill", color: "warning" },
+          subtitle: "A/B Test",
+          recipients: 0,
+          openRate: 0,
+          clickRate: 0,
+          date: "June 15, 2023"
+        }
+      });
+      
+      // Create two variants for the A/B test
+      await this.createCampaignVariant({
+        campaignId: abTestCampaign.id,
+        name: "Variant A - Discount Focus",
+        subject: "Summer Sale: 30% OFF Everything",
+        previewText: "Limited time summer discounts inside",
+        content: "<h1>SUMMER SALE - 30% OFF</h1><p>Get huge discounts on all our summer products...</p>",
+        weight: 50,
+        metadata: { variantType: "discount" }
+      });
+      
+      await this.createCampaignVariant({
+        campaignId: abTestCampaign.id,
+        name: "Variant B - Scarcity Focus",
+        subject: "Summer Collection: Limited Stock",
+        previewText: "Exclusive summer items before they're gone",
+        content: "<h1>SUMMER COLLECTION - LIMITED STOCK</h1><p>Get our exclusive summer items before they sell out...</p>",
+        weight: 50,
+        metadata: { variantType: "scarcity" }
       });
 
       log('Sample data initialization completed', 'db');

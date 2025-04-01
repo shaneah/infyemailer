@@ -5,7 +5,9 @@ import {
   Campaign, InsertCampaign,
   Email, InsertEmail,
   Template, InsertTemplate,
-  Analytics, InsertAnalytics
+  Analytics, InsertAnalytics,
+  CampaignVariant, InsertCampaignVariant,
+  VariantAnalytics, InsertVariantAnalytics
 } from "@shared/schema";
 
 // Interface for storage operations
@@ -58,6 +60,22 @@ export interface IStorage {
   getAnalytics(): Promise<Analytics[]>;
   getAnalyticsByCampaign(campaignId: number): Promise<Analytics[]>;
   recordAnalytic(analytic: InsertAnalytics): Promise<Analytics>;
+  
+  // Campaign Variant methods for A/B Testing
+  getCampaignVariants(campaignId: number): Promise<CampaignVariant[]>;
+  getCampaignVariant(id: number): Promise<CampaignVariant | undefined>;
+  createCampaignVariant(variant: InsertCampaignVariant): Promise<CampaignVariant>;
+  updateCampaignVariant(id: number, variant: Partial<CampaignVariant>): Promise<CampaignVariant | undefined>;
+  deleteCampaignVariant(id: number): Promise<boolean>;
+  
+  // Variant Analytics methods for A/B Testing
+  getVariantAnalytics(variantId: number): Promise<VariantAnalytics[]>;
+  getVariantAnalyticsByCampaign(campaignId: number): Promise<VariantAnalytics[]>;
+  recordVariantAnalytic(analytic: InsertVariantAnalytics): Promise<VariantAnalytics>;
+  
+  // A/B Test specific methods
+  setWinningVariant(campaignId: number, variantId: number): Promise<Campaign | undefined>;
+  getAbTestCampaigns(): Promise<Campaign[]>;
 }
 
 // In-memory implementation of storage
@@ -484,6 +502,49 @@ export class MemStorage implements IStorage {
     };
     this.analytics.set(id, newAnalytic);
     return newAnalytic;
+  }
+  
+  // Campaign Variant methods for A/B Testing (stub implementation)
+  async getCampaignVariants(campaignId: number): Promise<CampaignVariant[]> {
+    return [];
+  }
+  
+  async getCampaignVariant(id: number): Promise<CampaignVariant | undefined> {
+    return undefined;
+  }
+  
+  async createCampaignVariant(variant: InsertCampaignVariant): Promise<CampaignVariant> {
+    throw new Error("A/B testing requires database storage. Please switch to DbStorage.");
+  }
+  
+  async updateCampaignVariant(id: number, variant: Partial<CampaignVariant>): Promise<CampaignVariant | undefined> {
+    return undefined;
+  }
+  
+  async deleteCampaignVariant(id: number): Promise<boolean> {
+    return false;
+  }
+  
+  // Variant Analytics methods for A/B Testing (stub implementation)
+  async getVariantAnalytics(variantId: number): Promise<VariantAnalytics[]> {
+    return [];
+  }
+  
+  async getVariantAnalyticsByCampaign(campaignId: number): Promise<VariantAnalytics[]> {
+    return [];
+  }
+  
+  async recordVariantAnalytic(analytic: InsertVariantAnalytics): Promise<VariantAnalytics> {
+    throw new Error("A/B testing requires database storage. Please switch to DbStorage.");
+  }
+  
+  // A/B Test specific methods (stub implementation)
+  async setWinningVariant(campaignId: number, variantId: number): Promise<Campaign | undefined> {
+    return undefined;
+  }
+  
+  async getAbTestCampaigns(): Promise<Campaign[]> {
+    return [];
   }
 }
 
