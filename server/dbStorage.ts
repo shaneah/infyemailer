@@ -8,8 +8,10 @@ import {
   Analytics, InsertAnalytics,
   CampaignVariant, InsertCampaignVariant,
   VariantAnalytics, InsertVariantAnalytics,
+  Domain, InsertDomain,
+  CampaignDomain, InsertCampaignDomain,
   users, contacts, lists, contactLists, campaigns, emails, templates, analytics,
-  campaignVariants, variantAnalytics
+  campaignVariants, variantAnalytics, domains, campaignDomains
 } from '@shared/schema';
 import { IStorage } from './storage';
 import { db } from './db';
@@ -314,6 +316,130 @@ export class DbStorage implements IStorage {
   async getAbTestCampaigns(): Promise<Campaign[]> {
     return await db.select().from(campaigns).where(eq(campaigns.isAbTest, true));
   }
+  
+  // Domain methods
+  async getDomains(): Promise<Domain[]> {
+    return await db.select().from(domains);
+  }
+  
+  async getDomain(id: number): Promise<Domain | undefined> {
+    const result = await db.select().from(domains).where(eq(domains.id, id));
+    return result[0];
+  }
+  
+  async getDomainByName(name: string): Promise<Domain | undefined> {
+    const result = await db.select().from(domains).where(eq(domains.name, name));
+    return result[0];
+  }
+  
+  async createDomain(domain: InsertDomain): Promise<Domain> {
+    const result = await db.insert(domains).values(domain).returning();
+    return result[0];
+  }
+  
+  async updateDomain(id: number, domain: Partial<Domain>): Promise<Domain | undefined> {
+    // If this domain is set as default, unset default for all other domains
+    if (domain.defaultDomain === true) {
+      await db.update(domains)
+        .set({ defaultDomain: false })
+        .where(db.sql`${domains.id} != ${id}`);
+    }
+    
+    const result = await db.update(domains)
+      .set(domain)
+      .where(eq(domains.id, id))
+      .returning();
+    
+    return result[0];
+  }
+  
+  async deleteDomain(id: number): Promise<boolean> {
+    const result = await db.delete(domains).where(eq(domains.id, id)).returning();
+    return result.length > 0;
+  }
+  
+  async setDefaultDomain(id: number): Promise<Domain | undefined> {
+    // Unset default for all domains
+    await db.update(domains).set({ defaultDomain: false });
+    
+    // Set this domain as default
+    const result = await db.update(domains)
+      .set({ defaultDomain: true })
+      .where(eq(domains.id, id))
+      .returning();
+    
+    return result[0];
+  }
+  
+  // Campaign-Domain methods
+  async assignDomainToCampaign(campaignDomain: InsertCampaignDomain): Promise<CampaignDomain> {
+    // Update the lastUsedAt field of the domain
+    await db.update(domains)
+      .set({ lastUsedAt: new Date() })
+      .where(eq(domains.id, campaignDomain.domainId));
+    
+    const result = await db.insert(campaignDomains).values(campaignDomain).returning();
+    return result[0];
+  }
+  
+  async removeDomainFromCampaign(campaignId: number, domainId: number): Promise<boolean> {
+    const result = await db.delete(campaignDomains)
+      .where(
+        and(
+          eq(campaignDomains.campaignId, campaignId),
+          eq(campaignDomains.domainId, domainId)
+        )
+      )
+      .returning();
+    
+    return result.length > 0;
+  }
+  
+  async getCampaignDomains(campaignId: number): Promise<Domain[]> {
+    const relations = await db.select()
+      .from(campaignDomains)
+      .where(eq(campaignDomains.campaignId, campaignId));
+    
+    if (relations.length === 0) {
+      return [];
+    }
+    
+    const domainIds = relations.map(relation => relation.domainId);
+    const domainResults = [];
+    
+    // Fetch each domain one by one
+    for (const id of domainIds) {
+      const domain = await this.getDomain(id);
+      if (domain) {
+        domainResults.push(domain);
+      }
+    }
+    
+    return domainResults;
+  }
+  
+  async getDomainCampaigns(domainId: number): Promise<Campaign[]> {
+    const relations = await db.select()
+      .from(campaignDomains)
+      .where(eq(campaignDomains.domainId, domainId));
+    
+    if (relations.length === 0) {
+      return [];
+    }
+    
+    const campaignIds = relations.map(relation => relation.campaignId);
+    const campaignResults = [];
+    
+    // Fetch each campaign one by one
+    for (const id of campaignIds) {
+      const campaign = await this.getCampaign(id);
+      if (campaign) {
+        campaignResults.push(campaign);
+      }
+    }
+    
+    return campaignResults;
+  }
 
   // Initialize the database with sample data
   async initializeWithSampleData() {
@@ -492,6 +618,62 @@ export class DbStorage implements IStorage {
         metadata: { variantType: "scarcity" }
       });
 
+      // Add default domains
+      await this.createDomain({
+        name: "marketing.example.com",
+        status: "active",
+        verified: true,
+        defaultDomain: true,
+        metadata: { 
+          type: "primary",
+          dkimVerified: true,
+          spfVerified: true
+        }
+      });
+      
+      await this.createDomain({
+        name: "newsletters.example.com",
+        status: "active",
+        verified: true,
+        defaultDomain: false,
+        metadata: { 
+          type: "newsletters",
+          dkimVerified: true,
+          spfVerified: true
+        }
+      });
+      
+      await this.createDomain({
+        name: "promos.example.com",
+        status: "active",
+        verified: true,
+        defaultDomain: false,
+        metadata: { 
+          type: "promotions",
+          dkimVerified: true,
+          spfVerified: true
+        }
+      });
+      
+      // Add domains to campaigns
+      await this.assignDomainToCampaign({
+        campaignId: 1, // Monthly Newsletter
+        domainId: 2,   // newsletters.example.com
+        metadata: { primary: true }
+      });
+      
+      await this.assignDomainToCampaign({
+        campaignId: 2, // Product Launch
+        domainId: 1,   // marketing.example.com
+        metadata: { primary: true }
+      });
+      
+      await this.assignDomainToCampaign({
+        campaignId: 3, // Spring Sale
+        domainId: 3,   // promos.example.com
+        metadata: { primary: true }
+      });
+      
       log('Sample data initialization completed', 'db');
     } catch (error) {
       console.error('Error initializing sample data:', error);

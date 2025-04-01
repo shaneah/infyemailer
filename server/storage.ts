@@ -7,7 +7,9 @@ import {
   Template, InsertTemplate,
   Analytics, InsertAnalytics,
   CampaignVariant, InsertCampaignVariant,
-  VariantAnalytics, InsertVariantAnalytics
+  VariantAnalytics, InsertVariantAnalytics,
+  Domain, InsertDomain,
+  CampaignDomain, InsertCampaignDomain
 } from "@shared/schema";
 
 // Interface for storage operations
@@ -76,6 +78,21 @@ export interface IStorage {
   // A/B Test specific methods
   setWinningVariant(campaignId: number, variantId: number): Promise<Campaign | undefined>;
   getAbTestCampaigns(): Promise<Campaign[]>;
+  
+  // Domain methods
+  getDomains(): Promise<Domain[]>;
+  getDomain(id: number): Promise<Domain | undefined>;
+  getDomainByName(name: string): Promise<Domain | undefined>;
+  createDomain(domain: InsertDomain): Promise<Domain>;
+  updateDomain(id: number, domain: Partial<Domain>): Promise<Domain | undefined>;
+  deleteDomain(id: number): Promise<boolean>;
+  setDefaultDomain(id: number): Promise<Domain | undefined>;
+  
+  // Campaign-Domain methods
+  assignDomainToCampaign(campaignDomain: InsertCampaignDomain): Promise<CampaignDomain>;
+  removeDomainFromCampaign(campaignId: number, domainId: number): Promise<boolean>;
+  getCampaignDomains(campaignId: number): Promise<Domain[]>;
+  getDomainCampaigns(domainId: number): Promise<Campaign[]>;
 }
 
 // In-memory implementation of storage
@@ -545,6 +562,174 @@ export class MemStorage implements IStorage {
   
   async getAbTestCampaigns(): Promise<Campaign[]> {
     return [];
+  }
+
+  // Domain methods
+  private domains: Map<number, Domain> = new Map();
+  private domainId: number = 1;
+  
+  // Initialize with sample domains
+  constructor() {
+    // Add sample domains if Map is empty
+    if (this.domains.size === 0) {
+      this.domains.set(1, {
+        id: 1,
+        name: "marketing.mailflow.com",
+        status: "active",
+        verified: true,
+        defaultDomain: true,
+        createdAt: new Date("2024-02-15"),
+        lastUsedAt: new Date("2024-03-28"),
+        metadata: {
+          type: "system",
+          dkimVerified: true,
+          spfVerified: true
+        }
+      });
+      
+      this.domains.set(2, {
+        id: 2,
+        name: "newsletter.mailflow.com",
+        status: "active",
+        verified: true,
+        defaultDomain: false,
+        createdAt: new Date("2024-01-20"),
+        lastUsedAt: new Date("2024-03-25"),
+        metadata: {
+          type: "system",
+          dkimVerified: true,
+          spfVerified: true
+        }
+      });
+      
+      this.domains.set(3, {
+        id: 3,
+        name: "promo.mailflow.com",
+        status: "pending",
+        verified: false,
+        defaultDomain: false,
+        createdAt: new Date("2024-03-15"),
+        lastUsedAt: null,
+        metadata: {
+          type: "system",
+          dkimVerified: false,
+          spfVerified: false
+        }
+      });
+      
+      // Update domain counter
+      this.domainId = 4;
+    }
+  }
+  
+  async getDomains(): Promise<Domain[]> {
+    return Array.from(this.domains.values());
+  }
+  
+  async getDomain(id: number): Promise<Domain | undefined> {
+    return this.domains.get(id);
+  }
+  
+  async getDomainByName(name: string): Promise<Domain | undefined> {
+    return Array.from(this.domains.values()).find(domain => domain.name === name);
+  }
+  
+  async createDomain(domain: InsertDomain): Promise<Domain> {
+    const id = this.domainId++;
+    const now = new Date();
+    const newDomain: Domain = {
+      ...domain,
+      id,
+      createdAt: now,
+      lastUsedAt: null
+    };
+    this.domains.set(id, newDomain);
+    return newDomain;
+  }
+  
+  async updateDomain(id: number, domain: Partial<Domain>): Promise<Domain | undefined> {
+    const existingDomain = this.domains.get(id);
+    if (!existingDomain) return undefined;
+    
+    const updatedDomain = { ...existingDomain, ...domain };
+    
+    // If this domain is set as default, unset default for all other domains
+    if (domain.defaultDomain === true) {
+      for (const [domainId, domainValue] of this.domains.entries()) {
+        if (domainId !== id) {
+          this.domains.set(domainId, { ...domainValue, defaultDomain: false });
+        }
+      }
+    }
+    
+    this.domains.set(id, updatedDomain);
+    return updatedDomain;
+  }
+  
+  async deleteDomain(id: number): Promise<boolean> {
+    return this.domains.delete(id);
+  }
+  
+  async setDefaultDomain(id: number): Promise<Domain | undefined> {
+    const domain = await this.getDomain(id);
+    if (!domain) return undefined;
+    
+    // Unset default for all domains
+    for (const [domainId, domainValue] of this.domains.entries()) {
+      this.domains.set(domainId, { ...domainValue, defaultDomain: domainId === id });
+    }
+    
+    return this.getDomain(id);
+  }
+  
+  // Campaign-Domain methods
+  private campaignDomains: Map<number, CampaignDomain> = new Map();
+  private campaignDomainId: number = 1;
+  
+  async assignDomainToCampaign(campaignDomain: InsertCampaignDomain): Promise<CampaignDomain> {
+    const id = this.campaignDomainId++;
+    const now = new Date();
+    const newCampaignDomain: CampaignDomain = {
+      ...campaignDomain,
+      id,
+      createdAt: now
+    };
+    this.campaignDomains.set(id, newCampaignDomain);
+    
+    // Update the lastUsedAt field of the domain
+    const domain = await this.getDomain(campaignDomain.domainId);
+    if (domain) {
+      await this.updateDomain(domain.id, { lastUsedAt: now });
+    }
+    
+    return newCampaignDomain;
+  }
+  
+  async removeDomainFromCampaign(campaignId: number, domainId: number): Promise<boolean> {
+    for (const [cdId, cd] of this.campaignDomains.entries()) {
+      if (cd.campaignId === campaignId && cd.domainId === domainId) {
+        return this.campaignDomains.delete(cdId);
+      }
+    }
+    return false;
+  }
+  
+  async getCampaignDomains(campaignId: number): Promise<Domain[]> {
+    const domainIds = Array.from(this.campaignDomains.values())
+      .filter(cd => cd.campaignId === campaignId)
+      .map(cd => cd.domainId);
+    
+    return Array.from(this.domains.values())
+      .filter(domain => domainIds.includes(domain.id));
+  }
+  
+  async getDomainCampaigns(domainId: number): Promise<Campaign[]> {
+    const campaignIds = Array.from(this.campaignDomains.values())
+      .filter(cd => cd.domainId === domainId)
+      .map(cd => cd.campaignId);
+    
+    return Array.from(this.campaigns.values())
+      .filter(campaign => campaignIds.includes(campaign.id));
   }
 }
 

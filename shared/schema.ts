@@ -230,3 +230,44 @@ export const insertVariantAnalyticsSchema = createInsertSchema(variantAnalytics)
 
 export type InsertVariantAnalytics = z.infer<typeof insertVariantAnalyticsSchema>;
 export type VariantAnalytics = typeof variantAnalytics.$inferSelect;
+
+// Domains for sending emails
+export const domains = pgTable("domains", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull().unique(),
+  status: text("status").notNull().default("active"), // active, inactive, pending, failed
+  verified: boolean("verified").notNull().default(false),
+  defaultDomain: boolean("default_domain").notNull().default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+  lastUsedAt: timestamp("last_used_at"),
+  metadata: json("metadata")
+});
+
+export const insertDomainSchema = createInsertSchema(domains).pick({
+  name: true,
+  status: true,
+  verified: true,
+  defaultDomain: true,
+  metadata: true,
+});
+
+export type InsertDomain = z.infer<typeof insertDomainSchema>;
+export type Domain = typeof domains.$inferSelect;
+
+// Campaign and Domain relationship
+export const campaignDomains = pgTable("campaign_domains", {
+  id: serial("id").primaryKey(),
+  campaignId: integer("campaign_id").notNull().references(() => campaigns.id),
+  domainId: integer("domain_id").notNull().references(() => domains.id),
+  createdAt: timestamp("created_at").defaultNow(),
+  metadata: json("metadata")
+});
+
+export const insertCampaignDomainSchema = createInsertSchema(campaignDomains).pick({
+  campaignId: true,
+  domainId: true,
+  metadata: true,
+});
+
+export type InsertCampaignDomain = z.infer<typeof insertCampaignDomainSchema>;
+export type CampaignDomain = typeof campaignDomains.$inferSelect;

@@ -9,7 +9,9 @@ import {
   insertTemplateSchema, 
   insertAnalyticsSchema,
   insertCampaignVariantSchema,
-  insertVariantAnalyticsSchema
+  insertVariantAnalyticsSchema,
+  insertDomainSchema,
+  insertCampaignDomainSchema
 } from "@shared/schema";
 import { ZodError } from "zod";
 import { fromZodError } from "zod-validation-error";
@@ -654,6 +656,140 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error setting winning variant:', error);
       res.status(500).json({ error: 'Failed to set winning variant' });
+    }
+  });
+
+  // Domain routes
+  app.get('/api/domains', async (req: Request, res: Response) => {
+    try {
+      const domains = await storage.getDomains();
+      res.json(domains);
+    } catch (error) {
+      console.error('Error fetching domains:', error);
+      res.status(500).json({ error: 'Failed to fetch domains' });
+    }
+  });
+
+  app.get('/api/domains/:id', async (req: Request, res: Response) => {
+    try {
+      const domainId = parseInt(req.params.id);
+      const domain = await storage.getDomain(domainId);
+      
+      if (!domain) {
+        return res.status(404).json({ error: 'Domain not found' });
+      }
+      
+      res.json(domain);
+    } catch (error) {
+      console.error('Error fetching domain:', error);
+      res.status(500).json({ error: 'Failed to fetch domain' });
+    }
+  });
+
+  app.post('/api/domains', async (req: Request, res: Response) => {
+    const validatedData = validate(insertDomainSchema, req.body);
+    if ('error' in validatedData) {
+      return res.status(400).json({ error: validatedData.error });
+    }
+
+    try {
+      const domain = await storage.createDomain(validatedData);
+      res.status(201).json(domain);
+    } catch (error) {
+      console.error('Error creating domain:', error);
+      res.status(500).json({ error: 'Failed to create domain' });
+    }
+  });
+
+  app.patch('/api/domains/:id', async (req: Request, res: Response) => {
+    try {
+      const domainId = parseInt(req.params.id);
+      const domain = await storage.updateDomain(domainId, req.body);
+      
+      if (!domain) {
+        return res.status(404).json({ error: 'Domain not found' });
+      }
+      
+      res.json(domain);
+    } catch (error) {
+      console.error('Error updating domain:', error);
+      res.status(500).json({ error: 'Failed to update domain' });
+    }
+  });
+
+  app.delete('/api/domains/:id', async (req: Request, res: Response) => {
+    try {
+      const domainId = parseInt(req.params.id);
+      const success = await storage.deleteDomain(domainId);
+      
+      if (!success) {
+        return res.status(404).json({ error: 'Domain not found' });
+      }
+      
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Error deleting domain:', error);
+      res.status(500).json({ error: 'Failed to delete domain' });
+    }
+  });
+
+  app.post('/api/domains/:id/set-default', async (req: Request, res: Response) => {
+    try {
+      const domainId = parseInt(req.params.id);
+      const domain = await storage.setDefaultDomain(domainId);
+      
+      if (!domain) {
+        return res.status(404).json({ error: 'Domain not found' });
+      }
+      
+      res.json(domain);
+    } catch (error) {
+      console.error('Error setting default domain:', error);
+      res.status(500).json({ error: 'Failed to set default domain' });
+    }
+  });
+
+  app.get('/api/domains/:id/campaigns', async (req: Request, res: Response) => {
+    try {
+      const domainId = parseInt(req.params.id);
+      const campaigns = await storage.getDomainCampaigns(domainId);
+      res.json(campaigns);
+    } catch (error) {
+      console.error('Error fetching domain campaigns:', error);
+      res.status(500).json({ error: 'Failed to fetch domain campaigns' });
+    }
+  });
+
+  app.post('/api/campaigns/:campaignId/domains', async (req: Request, res: Response) => {
+    const validatedData = validate(insertCampaignDomainSchema, req.body);
+    if ('error' in validatedData) {
+      return res.status(400).json({ error: validatedData.error });
+    }
+
+    try {
+      const campaignDomain = await storage.assignDomainToCampaign(validatedData);
+      res.status(201).json(campaignDomain);
+    } catch (error) {
+      console.error('Error assigning domain to campaign:', error);
+      res.status(500).json({ error: 'Failed to assign domain to campaign' });
+    }
+  });
+
+  app.delete('/api/campaigns/:campaignId/domains/:domainId', async (req: Request, res: Response) => {
+    try {
+      const campaignId = parseInt(req.params.campaignId);
+      const domainId = parseInt(req.params.domainId);
+      
+      const success = await storage.removeDomainFromCampaign(campaignId, domainId);
+      
+      if (!success) {
+        return res.status(404).json({ error: 'Campaign domain association not found' });
+      }
+      
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Error removing domain from campaign:', error);
+      res.status(500).json({ error: 'Failed to remove domain from campaign' });
     }
   });
 

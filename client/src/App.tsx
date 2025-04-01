@@ -10,6 +10,7 @@ import Templates from "@/pages/Templates";
 import Analytics from "@/pages/Analytics";
 import ABTesting from "@/pages/ABTesting";
 import Emails from "@/pages/Emails";
+import Domains from "@/pages/Domains";
 import Sidebar from "@/components/Sidebar";
 import Navbar from "@/components/Navbar";
 import { useState } from "react";
@@ -34,6 +35,7 @@ function App() {
                 <Route path="/ab-testing" component={ABTesting} />
                 <Route path="/ab-testing/:id" component={ABTesting} />
                 <Route path="/emails" component={Emails} />
+                <Route path="/domains" component={Domains} />
                 <Route component={NotFound} />
               </Switch>
             </main>
