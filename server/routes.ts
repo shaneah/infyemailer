@@ -822,5 +822,252 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Email Performance Dashboard routes
+  app.get('/api/email-performance/metrics', (req: Request, res: Response) => {
+    const timeframe = req.query.timeframe as string || '7days';
+    const campaignId = req.query.campaign as string;
+    
+    // Mock metrics data based on timeframe and campaign
+    const baseOpenRate = 24.8;
+    const baseClickRate = 3.6;
+    const baseConversionRate = 1.2;
+    const baseBounceRate = 0.8;
+    
+    // Apply small variations based on timeframe
+    let metrics = {
+      openRate: {
+        value: baseOpenRate,
+        industryAvg: 21.5,
+        trend: 'up',
+        trendValue: '3.2%'
+      },
+      clickRate: {
+        value: baseClickRate,
+        industryAvg: 2.7,
+        trend: 'up',
+        trendValue: '0.9%'
+      },
+      conversionRate: {
+        value: baseConversionRate,
+        goal: 1.5,
+        trend: 'down',
+        trendValue: '0.3%'
+      },
+      bounceRate: {
+        value: baseBounceRate,
+        industryAvg: 1.2,
+        trend: 'up',
+        trendValue: '0.4%'
+      },
+      totalSent: 42857,
+      totalOpens: 10628,
+      totalClicks: 1543,
+      unsubscribes: 38
+    };
+    
+    // Apply variations based on timeframe
+    if (timeframe === 'today') {
+      metrics.openRate.value = baseOpenRate - 2.1;
+      metrics.clickRate.value = baseClickRate - 0.5;
+      metrics.totalSent = 1250;
+      metrics.totalOpens = 285;
+      metrics.totalClicks = 42;
+      metrics.unsubscribes = 2;
+    } else if (timeframe === 'yesterday') {
+      metrics.openRate.value = baseOpenRate - 1.5;
+      metrics.clickRate.value = baseClickRate - 0.3;
+      metrics.totalSent = 1450;
+      metrics.totalOpens = 348;
+      metrics.totalClicks = 48;
+      metrics.unsubscribes = 3;
+    } else if (timeframe === '30days') {
+      metrics.openRate.value = baseOpenRate + 0.7;
+      metrics.clickRate.value = baseClickRate + 0.2;
+      metrics.totalSent = 154250;
+      metrics.totalOpens = 38870;
+      metrics.totalClicks = 5553;
+      metrics.unsubscribes = 124;
+    } else if (timeframe === '90days') {
+      metrics.openRate.value = baseOpenRate + 1.2;
+      metrics.clickRate.value = baseClickRate + 0.4;
+      metrics.totalSent = 421850;
+      metrics.totalOpens = 107572;
+      metrics.totalClicks = 15187;
+      metrics.unsubscribes = 352;
+    }
+    
+    // Apply variations based on campaign if specified
+    if (campaignId && campaignId !== 'all') {
+      const campaignVariation = (parseInt(campaignId) % 5) / 10;
+      metrics.openRate.value = baseOpenRate + campaignVariation * 5;
+      metrics.clickRate.value = baseClickRate + campaignVariation * 2;
+      metrics.conversionRate.value = baseConversionRate + campaignVariation;
+    }
+    
+    res.json(metrics);
+  });
+  
+  app.get('/api/email-performance/charts', (req: Request, res: Response) => {
+    const timeframe = req.query.timeframe as string || '7days';
+    const campaignId = req.query.campaign as string;
+    
+    // Mock chart data
+    const charts = {
+      weeklyPerformance: [
+        { day: 'Mon', opens: 120, clicks: 45, conversions: 12 },
+        { day: 'Tue', opens: 140, clicks: 55, conversions: 15 },
+        { day: 'Wed', opens: 180, clicks: 70, conversions: 18 },
+        { day: 'Thu', opens: 190, clicks: 65, conversions: 20 },
+        { day: 'Fri', opens: 210, clicks: 80, conversions: 22 },
+        { day: 'Sat', opens: 150, clicks: 45, conversions: 14 },
+        { day: 'Sun', opens: 130, clicks: 40, conversions: 10 },
+      ],
+      deviceBreakdown: [
+        { name: 'Desktop', value: 45 },
+        { name: 'Mobile', value: 40 },
+        { name: 'Tablet', value: 15 },
+      ],
+      clickDistribution: [
+        { link: 'Product Link', clicks: 423 },
+        { link: 'Pricing Page', clicks: 312 },
+        { link: 'Blog Post', clicks: 287 },
+        { link: 'Contact Us', clicks: 196 },
+        { link: 'Social Media', clicks: 152 },
+      ],
+      engagementOverTime: [
+        { date: '01/04', open: 24.2, click: 3.1, conversion: 0.9 },
+        { date: '02/04', open: 25.1, click: 3.3, conversion: 1.0 },
+        { date: '03/04', open: 23.8, click: 3.0, conversion: 0.8 },
+        { date: '04/04', open: 24.5, click: 3.2, conversion: 1.1 },
+        { date: '05/04', open: 26.3, click: 3.7, conversion: 1.2 },
+        { date: '06/04', open: 28.1, click: 3.9, conversion: 1.4 },
+        { date: '07/04', open: 27.5, click: 3.8, conversion: 1.3 },
+      ],
+      engagementByTimeOfDay: [
+        { hour: '6am-9am', opens: 1240 },
+        { hour: '9am-12pm', opens: 2180 },
+        { hour: '12pm-3pm', opens: 3150 },
+        { hour: '3pm-6pm', opens: 2870 },
+        { hour: '6pm-9pm', opens: 1950 },
+        { hour: '9pm-12am', opens: 1050 },
+        { hour: '12am-6am', opens: 420 },
+      ],
+      emailClientDistribution: [
+        { name: 'Gmail', value: 45 },
+        { name: 'Apple Mail', value: 28 },
+        { name: 'Outlook', value: 15 },
+        { name: 'Yahoo', value: 7 },
+        { name: 'Other', value: 5 },
+      ],
+      campaignComparison: [
+        { name: 'Summer Sale', open: 26.2, click: 4.1, conversion: 1.2 },
+        { name: 'Product Launch', open: 31.8, click: 5.7, conversion: 1.8 },
+        { name: 'Weekly Newsletter', open: 22.4, click: 2.8, conversion: 0.7 },
+        { name: 'Re-engagement', open: 18.5, click: 3.2, conversion: 1.1 },
+      ],
+      subjectLinePerformance: [
+        { type: 'Question-based', rate: 28.4 },
+        { type: 'Personalized', rate: 31.2 },
+        { type: 'Curiosity', rate: 26.8 },
+        { type: 'Urgency', rate: 25.3 },
+        { type: 'Value-prop', rate: 24.1 },
+        { type: 'Announcement', rate: 22.7 },
+      ],
+      sendTimeEffectiveness: [
+        { day: 'Mon', morning: 22.4, afternoon: 25.3, evening: 21.1 },
+        { day: 'Tue', morning: 24.1, afternoon: 26.8, evening: 22.5 },
+        { day: 'Wed', morning: 25.7, afternoon: 28.4, evening: 23.9 },
+        { day: 'Thu', morning: 23.5, afternoon: 27.2, evening: 22.8 },
+        { day: 'Fri', morning: 21.9, afternoon: 24.6, evening: 20.3 },
+        { day: 'Sat', morning: 18.6, afternoon: 20.4, evening: 19.2 },
+        { day: 'Sun', morning: 19.2, afternoon: 21.5, evening: 23.1 },
+      ],
+      geographicalDistribution: [
+        { country: 'United States', opens: 5240 },
+        { country: 'United Kingdom', opens: 1820 },
+        { country: 'Canada', opens: 1350 },
+        { country: 'Australia', opens: 980 },
+        { country: 'Germany', opens: 780 },
+        { country: 'France', opens: 650 },
+        { country: 'Other', opens: 1540 },
+      ],
+      deviceOverTime: [
+        { month: 'Jan', desktop: 48, mobile: 40, tablet: 12 },
+        { month: 'Feb', desktop: 47, mobile: 41, tablet: 12 },
+        { month: 'Mar', desktop: 46, mobile: 42, tablet: 12 },
+        { month: 'Apr', desktop: 45, mobile: 43, tablet: 12 },
+        { month: 'May', desktop: 43, mobile: 45, tablet: 12 },
+        { month: 'Jun', desktop: 42, mobile: 47, tablet: 11 },
+      ],
+      subscriberEngagementSegments: [
+        { segment: 'Highly Engaged (3+ clicks/email)', value: 15, count: 3658 },
+        { segment: 'Engaged (1-2 clicks/email)', value: 28, count: 6789 },
+        { segment: 'Passive (opens only)', value: 32, count: 7865 },
+        { segment: 'Dormant (no opens in 30 days)', value: 18, count: 4321 },
+        { segment: 'At Risk (no opens in 60 days)', value: 7, count: 1654 },
+      ],
+    };
+    
+    // Apply variations based on timeframe
+    if (timeframe === 'today' || timeframe === 'yesterday') {
+      // For today/yesterday, only show a subset of data points
+      charts.weeklyPerformance = charts.weeklyPerformance.slice(0, 3);
+      charts.engagementOverTime = charts.engagementOverTime.slice(0, 3);
+    } else if (timeframe === '30days') {
+      // For 30 days, increase the data variance slightly
+      charts.weeklyPerformance = charts.weeklyPerformance.map(item => ({
+        ...item,
+        opens: Math.round(item.opens * 3.2),
+        clicks: Math.round(item.clicks * 3.2),
+        conversions: Math.round(item.conversions * 3.2)
+      }));
+    } else if (timeframe === '90days') {
+      // For 90 days, increase the data variance significantly
+      charts.weeklyPerformance = charts.weeklyPerformance.map(item => ({
+        ...item,
+        opens: Math.round(item.opens * 8.5),
+        clicks: Math.round(item.clicks * 8.5),
+        conversions: Math.round(item.conversions * 8.5)
+      }));
+    }
+    
+    // Apply variations based on campaign if specified
+    if (campaignId && campaignId !== 'all') {
+      const campaignMultiplier = 1 + (parseInt(campaignId) % 5) / 10;
+      
+      charts.weeklyPerformance = charts.weeklyPerformance.map(item => ({
+        ...item,
+        opens: Math.round(item.opens * campaignMultiplier),
+        clicks: Math.round(item.clicks * campaignMultiplier),
+        conversions: Math.round(item.conversions * campaignMultiplier)
+      }));
+      
+      charts.clickDistribution = charts.clickDistribution.map(item => ({
+        ...item,
+        clicks: Math.round(item.clicks * campaignMultiplier)
+      }));
+    }
+    
+    res.json(charts);
+  });
+  
+  app.get('/api/email-performance/realtime', (req: Request, res: Response) => {
+    // Mock real-time activity data
+    const activities = [
+      { time: '2 mins ago', type: 'open', email: 'Weekly Newsletter', user: 'john.doe@example.com' },
+      { time: '5 mins ago', type: 'click', email: 'Product Launch', user: 'maria.smith@example.com' },
+      { time: '8 mins ago', type: 'conversion', email: 'Summer Sale', user: 'robert.jones@example.com' },
+      { time: '15 mins ago', type: 'open', email: 'Weekly Newsletter', user: 'alice.johnson@example.com' },
+      { time: '18 mins ago', type: 'click', email: 'Customer Re-engagement', user: 'david.wilson@example.com' },
+      { time: '24 mins ago', type: 'open', email: 'Product Update', user: 'sarah.brown@example.com' },
+      { time: '30 mins ago', type: 'click', email: 'Weekly Newsletter', user: 'michael.taylor@example.com' },
+      { time: '35 mins ago', type: 'conversion', email: 'Product Launch', user: 'emily.white@example.com' },
+      { time: '42 mins ago', type: 'open', email: 'Summer Sale', user: 'james.martin@example.com' },
+      { time: '50 mins ago', type: 'click', email: 'Summer Sale', user: 'olivia.clark@example.com' }
+    ];
+    
+    res.json(activities);
+  });
+
   return httpServer;
 }
