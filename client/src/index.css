@@ -1,0 +1,298 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+    overflow-x: hidden;
+  }
+}
+
+/* Bootstrap Classes */
+.bg-primary {
+  background-color: #0d6efd !important;
+}
+
+.bg-secondary {
+  background-color: #6c757d !important;
+}
+
+.bg-success {
+  background-color: #198754 !important;
+}
+
+.bg-danger {
+  background-color: #dc3545 !important;
+}
+
+.bg-warning {
+  background-color: #ffc107 !important;
+}
+
+.bg-info {
+  background-color: #0dcaf0 !important;
+}
+
+.bg-light {
+  background-color: #f8f9fa !important;
+}
+
+.bg-dark {
+  background-color: #212529 !important;
+}
+
+.text-primary {
+  color: #0d6efd !important;
+}
+
+.text-secondary {
+  color: #6c757d !important;
+}
+
+.text-success {
+  color: #198754 !important;
+}
+
+.text-danger {
+  color: #dc3545 !important;
+}
+
+.text-warning {
+  color: #ffc107 !important;
+}
+
+.text-info {
+  color: #0dcaf0 !important;
+}
+
+.text-white {
+  color: #fff !important;
+}
+
+.text-white-50 {
+  color: rgba(255, 255, 255, 0.5) !important;
+}
+
+.text-muted {
+  color: #6c757d !important;
+}
+
+.border-primary {
+  border-color: #0d6efd !important;
+}
+
+.btn-primary {
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+  color: white;
+}
+
+.btn-outline-primary {
+  color: #0d6efd;
+  border-color: #0d6efd;
+}
+
+.btn-success {
+  background-color: #198754;
+  border-color: #198754;
+  color: white;
+}
+
+.btn-outline-success {
+  color: #198754;
+  border-color: #198754;
+}
+
+.btn-warning {
+  background-color: #ffc107;
+  border-color: #ffc107;
+  color: #212529;
+}
+
+.btn-outline-warning {
+  color: #ffc107;
+  border-color: #ffc107;
+}
+
+.btn-info {
+  background-color: #0dcaf0;
+  border-color: #0dcaf0;
+  color: white;
+}
+
+.btn-outline-info {
+  color: #0dcaf0;
+  border-color: #0dcaf0;
+}
+
+.btn-outline-secondary {
+  color: #6c757d;
+  border-color: #6c757d;
+}
+
+.card {
+  @apply rounded-md shadow-sm border;
+}
+
+.card-header {
+  @apply font-medium p-4 border-b bg-white;
+}
+
+.card-body {
+  @apply p-4;
+}
+
+.card-footer {
+  @apply p-4 border-t bg-white;
+}
+
+.form-label {
+  @apply block mb-2 text-sm font-medium;
+}
+
+.form-control {
+  @apply px-3 py-2 bg-white border border-gray-300 rounded-md w-full;
+}
+
+.form-select {
+  @apply px-3 py-2 bg-white border border-gray-300 rounded-md w-full;
+}
+
+.form-check {
+  @apply flex items-start;
+}
+
+.form-check-input {
+  @apply mr-2 mt-1;
+}
+
+.form-check-label {
+  @apply text-sm;
+}
+
+.form-text {
+  @apply text-xs text-gray-500 mt-1;
+}
+
+.input-group {
+  @apply flex w-full;
+}
+
+.input-group-text {
+  @apply flex items-center px-3 py-2 text-sm bg-gray-100 border border-gray-300 rounded-l-md;
+}
+
+.input-group .form-control {
+  @apply rounded-l-none;
+}
+
+.nav-tabs {
+  @apply flex border-b;
+}
+
+.nav-link {
+  @apply px-4 py-2 font-medium border-b-2 border-transparent;
+}
+
+.nav-link.active {
+  @apply border-primary text-primary;
+}
+
+.table {
+  @apply min-w-full divide-y divide-gray-200;
+}
+
+.table-light {
+  @apply bg-gray-50;
+}
+
+.table th {
+  @apply px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider;
+}
+
+.table td {
+  @apply px-4 py-3 text-sm;
+}
+
+.progress {
+  @apply bg-gray-200 rounded-full overflow-hidden;
+}
+
+.progress-bar {
+  @apply bg-primary text-white text-center;
+}
+
+.badge {
+  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+}
+
+.badge-bg-success {
+  @apply bg-green-100 text-green-800;
+}
+
+.badge-bg-warning {
+  @apply bg-yellow-100 text-yellow-800;
+}
+
+.badge-bg-primary {
+  @apply bg-blue-100 text-blue-800;
+}
+
+.badge-bg-danger {
+  @apply bg-red-100 text-red-800;
+}
+
+.sidebar {
+  transition: all 0.3s;
+}
+
+@media (max-width: 767.98px) {
+  .sidebar {
+    width: 100%;
+    position: fixed;
+    z-index: 1050;
+    left: -100%;
+  }
+  .sidebar.show {
+    left: 0;
+  }
+}
+
+.hover-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s;
+}
+
+.notification-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+}
+
+.template-card {
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.template-card:hover {
+  border-color: #0d6efd;
+}
+
+.template-card.selected {
+  border: 2px solid #0d6efd;
+  box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.25);
+}
+
+.campaign-progress {
+  height: 8px;
+}
+
+.content-wrapper {
+  transition: margin-left 0.3s;
+}
