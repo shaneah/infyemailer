@@ -4,11 +4,36 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
+interface Template {
+  id: number;
+  name: string;
+  description: string;
+  icon: string;
+  iconColor: string;
+  content: string;
+  category: string;
+  lastUsed?: string;
+  selected?: boolean;
+  new?: boolean;
+  metadata?: any;
+}
+
 export default function Templates() {
   const [activeTab, setActiveTab] = useState("all");
   
-  const { data: templates, isLoading } = useQuery({
+  const { data: templates = [], isLoading } = useQuery({
     queryKey: ['/api/templates', activeTab],
+    queryFn: async ({ queryKey }) => {
+      const [url, category] = queryKey;
+      const endpoint = category && category !== 'all' 
+        ? `${url}?category=${category}` 
+        : url;
+      const response = await fetch(endpoint);
+      if (!response.ok) {
+        throw new Error('Failed to fetch templates');
+      }
+      return response.json();
+    }
   });
 
   return (
@@ -48,7 +73,7 @@ export default function Templates() {
                 </div>
               ))
             ) : (
-              templates?.map((template) => (
+              templates?.map((template: Template) => (
                 <div className="col" key={template.id}>
                   <div className={`card template-card ${template.selected ? 'selected' : ''}`}>
                     <div className="position-relative">
@@ -98,7 +123,7 @@ export default function Templates() {
                     </div>
                   ))
                 ) : (
-                  templates?.slice(0, 3).map((template) => (
+                  templates?.slice(0, 3).map((template: Template) => (
                     <div className="list-group-item d-flex align-items-center gap-3" key={template.id}>
                       <div className={`bg-${template.iconColor} bg-opacity-10 p-2 rounded`}>
                         <i className={`bi bi-${template.icon} text-${template.iconColor}`}></i>

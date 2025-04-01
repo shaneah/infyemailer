@@ -143,6 +143,57 @@ export class MemStorage implements IStorage {
       category: "newsletter",
       metadata: { icon: "file-earmark-text", iconColor: "primary" }
     });
+    
+    // Add sample domains
+    if (this.domains.size === 0) {
+      this.domains.set(1, {
+        id: 1,
+        name: "marketing.mailflow.com",
+        status: "active",
+        verified: true,
+        defaultDomain: true,
+        createdAt: new Date("2024-02-15"),
+        lastUsedAt: new Date("2024-03-28"),
+        metadata: {
+          type: "system",
+          dkimVerified: true,
+          spfVerified: true
+        }
+      });
+      
+      this.domains.set(2, {
+        id: 2,
+        name: "newsletter.mailflow.com",
+        status: "active",
+        verified: true,
+        defaultDomain: false,
+        createdAt: new Date("2024-01-20"),
+        lastUsedAt: new Date("2024-03-25"),
+        metadata: {
+          type: "system",
+          dkimVerified: true,
+          spfVerified: true
+        }
+      });
+      
+      this.domains.set(3, {
+        id: 3,
+        name: "promo.mailflow.com",
+        status: "pending",
+        verified: false,
+        defaultDomain: false,
+        createdAt: new Date("2024-03-15"),
+        lastUsedAt: null,
+        metadata: {
+          type: "system",
+          dkimVerified: false,
+          spfVerified: false
+        }
+      });
+      
+      // Update domain counter
+      this.domainId = 4;
+    }
 
     this.createTemplate({
       name: "Promotional",
@@ -567,60 +618,7 @@ export class MemStorage implements IStorage {
   // Domain methods
   private domains: Map<number, Domain> = new Map();
   private domainId: number = 1;
-  
-  // Initialize with sample domains
-  constructor() {
-    // Add sample domains if Map is empty
-    if (this.domains.size === 0) {
-      this.domains.set(1, {
-        id: 1,
-        name: "marketing.mailflow.com",
-        status: "active",
-        verified: true,
-        defaultDomain: true,
-        createdAt: new Date("2024-02-15"),
-        lastUsedAt: new Date("2024-03-28"),
-        metadata: {
-          type: "system",
-          dkimVerified: true,
-          spfVerified: true
-        }
-      });
-      
-      this.domains.set(2, {
-        id: 2,
-        name: "newsletter.mailflow.com",
-        status: "active",
-        verified: true,
-        defaultDomain: false,
-        createdAt: new Date("2024-01-20"),
-        lastUsedAt: new Date("2024-03-25"),
-        metadata: {
-          type: "system",
-          dkimVerified: true,
-          spfVerified: true
-        }
-      });
-      
-      this.domains.set(3, {
-        id: 3,
-        name: "promo.mailflow.com",
-        status: "pending",
-        verified: false,
-        defaultDomain: false,
-        createdAt: new Date("2024-03-15"),
-        lastUsedAt: null,
-        metadata: {
-          type: "system",
-          dkimVerified: false,
-          spfVerified: false
-        }
-      });
-      
-      // Update domain counter
-      this.domainId = 4;
-    }
-  }
+
   
   async getDomains(): Promise<Domain[]> {
     return Array.from(this.domains.values());
