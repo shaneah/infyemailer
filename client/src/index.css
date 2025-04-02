@@ -17,8 +17,8 @@
   }
   
   h1 {
-    @apply text-2xl md:text-3xl mb-4;
-    background: linear-gradient(to right, hsl(210, 80%, 45%), hsl(210, 80%, 55%));
+    @apply text-2xl md:text-3xl mb-4 font-bold;
+    background: linear-gradient(to right, hsl(215, 50%, 23%), hsl(215, 50%, 33%));
     @apply bg-clip-text text-transparent;
   }
   
@@ -143,59 +143,59 @@
 
 /* Bootstrap Classes with Updated Theme */
 .bg-primary {
-  background-color: hsl(210, 80%, 50%) !important;
+  background-color: hsl(215, 50%, 23%) !important;
 }
 
 .bg-secondary {
-  background-color: #6c757d !important;
+  background-color: #64748b !important;
 }
 
 .bg-success {
-  background-color: #28a745 !important;
+  background-color: #0f766e !important;
 }
 
 .bg-danger {
-  background-color: #dc3545 !important;
+  background-color: #b91c1c !important;
 }
 
 .bg-warning {
-  background-color: #ffc107 !important;
+  background-color: #b45309 !important;
 }
 
 .bg-info {
-  background-color: #17a2b8 !important;
+  background-color: #1e40af !important;
 }
 
 .bg-light {
-  background-color: #f8f9fa !important;
+  background-color: #f8fafc !important;
 }
 
 .bg-dark {
-  background-color: #343a40 !important;
+  background-color: #1e293b !important;
 }
 
 .text-primary {
-  color: hsl(210, 80%, 50%) !important;
+  color: hsl(215, 50%, 23%) !important;
 }
 
 .text-secondary {
-  color: #6c757d !important;
+  color: #64748b !important;
 }
 
 .text-success {
-  color: #28a745 !important;
+  color: #0f766e !important;
 }
 
 .text-danger {
-  color: #dc3545 !important;
+  color: #b91c1c !important;
 }
 
 .text-warning {
-  color: #ffc107 !important;
+  color: #b45309 !important;
 }
 
 .text-info {
-  color: #17a2b8 !important;
+  color: #1e40af !important;
 }
 
 .text-white {
@@ -211,32 +211,32 @@
 }
 
 .border-primary {
-  border-color: hsl(210, 80%, 50%) !important;
+  border-color: hsl(215, 50%, 23%) !important;
 }
 
 .btn-primary {
-  background-color: hsl(210, 80%, 50%);
-  border-color: hsl(210, 80%, 45%);
+  background-color: hsl(215, 50%, 23%);
+  border-color: hsl(215, 50%, 20%);
   color: white;
   transition: all 0.2s ease;
 }
 
 .btn-primary:hover {
-  background-color: hsl(210, 80%, 42%);
-  border-color: hsl(210, 80%, 40%);
-  box-shadow: 0 3px 8px rgba(33, 133, 208, 0.2);
+  background-color: hsl(215, 50%, 18%);
+  border-color: hsl(215, 50%, 15%);
+  box-shadow: 0 3px 8px rgba(27, 49, 76, 0.2);
 }
 
 .btn-outline-primary {
-  color: hsl(210, 80%, 50%);
-  border-color: hsl(210, 80%, 50%);
+  color: hsl(215, 50%, 23%);
+  border-color: hsl(215, 50%, 23%);
   transition: all 0.2s ease;
 }
 
 .btn-outline-primary:hover {
-  background-color: hsl(210, 80%, 50%);
+  background-color: hsl(215, 50%, 23%);
   color: white;
-  box-shadow: 0 2px 5px rgba(33, 133, 208, 0.15);
+  box-shadow: 0 2px 5px rgba(27, 49, 76, 0.15);
 }
 
 .btn-success {
@@ -344,7 +344,7 @@
 }
 
 .card-header h3, .card-header h4 {
-  color: hsl(210, 80%, 50%);
+  color: hsl(215, 50%, 23%);
 }
 
 .card-body {
@@ -497,14 +497,14 @@
 }
 
 .template-card:hover {
-  border-color: hsl(210, 80%, 50%);
-  box-shadow: 0 4px 10px rgba(33, 133, 208, 0.1);
+  border-color: hsl(215, 50%, 23%);
+  box-shadow: 0 4px 10px rgba(27, 49, 76, 0.1);
   transform: translateY(-2px);
 }
 
 .template-card.selected {
-  border: 2px solid hsl(210, 80%, 50%);
-  box-shadow: 0 0 0 3px rgba(33, 133, 208, 0.15);
+  border: 2px solid hsl(215, 50%, 23%);
+  box-shadow: 0 0 0 3px rgba(27, 49, 76, 0.15);
 }
 
 .campaign-progress {
