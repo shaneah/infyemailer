@@ -13,7 +13,9 @@ import {
   insertVariantAnalyticsSchema,
   insertDomainSchema,
   insertCampaignDomainSchema,
-  insertClientSchema
+  insertClientSchema,
+  insertUserSchema,
+  userLoginSchema
 } from "@shared/schema";
 import { ZodError } from "zod";
 import { fromZodError } from "zod-validation-error";
@@ -658,6 +660,82 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error setting winning variant:', error);
       res.status(500).json({ error: 'Failed to set winning variant' });
+    }
+  });
+
+  // User/Admin routes
+  app.post('/api/login', async (req: Request, res: Response) => {
+    const validatedData = validate(userLoginSchema, req.body);
+    if ('error' in validatedData) {
+      return res.status(400).json({ error: validatedData.error });
+    }
+
+    try {
+      const { usernameOrEmail, password } = validatedData;
+      const user = await storage.verifyUserLogin(usernameOrEmail, password);
+      
+      if (!user) {
+        return res.status(401).json({ error: 'Invalid credentials' });
+      }
+      
+      // Store user in session (you'd use req.session.user in a real app)
+      // For now, we'll just return the user without the password
+      const { password: _, ...userWithoutPassword } = user;
+      
+      res.json({ 
+        ...userWithoutPassword, 
+        lastLogin: new Date().toISOString() 
+      });
+    } catch (error) {
+      console.error('Login error:', error);
+      res.status(500).json({ error: 'Login failed. Please try again.' });
+    }
+  });
+  
+  app.get('/api/users', async (req: Request, res: Response) => {
+    try {
+      const users = await storage.getUsers();
+      // Don't send passwords to the client
+      const safeUsers = users.map(user => {
+        const { password, ...userWithoutPassword } = user;
+        return userWithoutPassword;
+      });
+      
+      res.json(safeUsers);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      res.status(500).json({ error: 'Failed to fetch users' });
+    }
+  });
+
+  app.post('/api/users', async (req: Request, res: Response) => {
+    const validatedData = validate(insertUserSchema, req.body);
+    if ('error' in validatedData) {
+      return res.status(400).json({ error: validatedData.error });
+    }
+
+    try {
+      // Check if user already exists
+      const existingByUsername = await storage.getUserByUsername(validatedData.username);
+      if (existingByUsername) {
+        return res.status(400).json({ error: 'Username already exists' });
+      }
+      
+      const existingByEmail = await storage.getUserByEmail(validatedData.email);
+      if (existingByEmail) {
+        return res.status(400).json({ error: 'Email already exists' });
+      }
+      
+      // In a real app, you would hash the password here
+      const user = await storage.createUser(validatedData);
+      
+      // Don't send password back to client
+      const { password, ...userWithoutPassword } = user;
+      
+      res.status(201).json(userWithoutPassword);
+    } catch (error) {
+      console.error('Error creating user:', error);
+      res.status(500).json({ error: 'Failed to create user' });
     }
   });
 

@@ -31,18 +31,41 @@ export const insertClientSchema = createInsertSchema(clients).pick({
 export type InsertClient = z.infer<typeof insertClientSchema>;
 export type Client = typeof clients.$inferSelect;
 
-// User schema
+// User schema (for administrators)
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   username: text("username").notNull().unique(),
+  email: text("email").notNull().unique(),
   password: text("password").notNull(),
+  firstName: text("first_name"),
+  lastName: text("last_name"),
+  role: text("role").notNull().default("admin"),
+  status: text("status").notNull().default("active"),
+  lastLoginAt: timestamp("last_login_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+  avatarUrl: text("avatar_url"),
+  metadata: json("metadata")
 });
 
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
+  email: true,
   password: true,
+  firstName: true,
+  lastName: true,
+  role: true,
+  status: true,
+  avatarUrl: true,
+  metadata: true,
 });
 
+export const userLoginSchema = z.object({
+  usernameOrEmail: z.string().min(1, "Username or email is required"),
+  password: z.string().min(1, "Password is required"),
+  rememberMe: z.boolean().optional()
+});
+
+export type UserLogin = z.infer<typeof userLoginSchema>;
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 
@@ -323,5 +346,12 @@ export const insertClientUserSchema = createInsertSchema(clientUsers).pick({
   metadata: true,
 });
 
+export const clientUserLoginSchema = z.object({
+  username: z.string().min(1, "Username is required"),
+  password: z.string().min(1, "Password is required"),
+  rememberMe: z.boolean().optional()
+});
+
+export type ClientUserLogin = z.infer<typeof clientUserLoginSchema>;
 export type InsertClientUser = z.infer<typeof insertClientUserSchema>;
 export type ClientUser = typeof clientUsers.$inferSelect;

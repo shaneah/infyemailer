@@ -11,11 +11,22 @@ import {
   Domain, InsertDomain,
   CampaignDomain, InsertCampaignDomain,
   Client, InsertClient,
-  ClientUser, InsertClientUser
+  ClientUser, InsertClientUser,
+  User, InsertUser
 } from "@shared/schema";
 
 // Interface for storage operations
 export interface IStorage {
+  // User methods (admin)
+  getUsers(): Promise<User[]>;
+  getUser(id: number): Promise<User | undefined>;
+  getUserByUsername(username: string): Promise<User | undefined>;
+  getUserByEmail(email: string): Promise<User | undefined>;
+  createUser(user: InsertUser): Promise<User>;
+  updateUser(id: number, user: Partial<User>): Promise<User | undefined>;
+  deleteUser(id: number): Promise<boolean>;
+  verifyUserLogin(usernameOrEmail: string, password: string): Promise<User | undefined>;
+
   // Client methods
   getClients(): Promise<Client[]>;
   getClient(id: number): Promise<Client | undefined>;
@@ -131,6 +142,7 @@ export class MemStorage implements IStorage {
   private campaignVariants: Map<number, CampaignVariant>;
   private variantAnalytics: Map<number, VariantAnalytics>;
   private clientUsers: Map<number, ClientUser>;
+  private users: Map<number, User>;
 
   private contactId: number;
   private listId: number;
@@ -145,6 +157,7 @@ export class MemStorage implements IStorage {
   private campaignVariantId: number;
   private variantAnalyticId: number;
   private clientUserId: number;
+  private userId: number;
 
   constructor() {
     this.contacts = new Map();
@@ -160,6 +173,7 @@ export class MemStorage implements IStorage {
     this.campaignVariants = new Map();
     this.variantAnalytics = new Map();
     this.clientUsers = new Map();
+    this.users = new Map();
 
     this.contactId = 1;
     this.listId = 1;
@@ -174,12 +188,35 @@ export class MemStorage implements IStorage {
     this.campaignVariantId = 1;
     this.variantAnalyticId = 1;
     this.clientUserId = 1;
+    this.userId = 1;
 
     // Initialize with some default data
     this.initializeData();
   }
 
   private initializeData() {
+    // Create default admin user
+    if (this.users.size === 0) {
+      this.users.set(1, {
+        id: 1,
+        username: "admin",
+        email: "admin@infymailer.com",
+        password: "admin123", // In a real app, this would be hashed
+        firstName: "Admin",
+        lastName: "User",
+        role: "admin",
+        status: "active",
+        lastLoginAt: null,
+        createdAt: new Date("2024-01-01"),
+        avatarUrl: null,
+        metadata: {
+          permissions: ["all"],
+          theme: "light"
+        }
+      });
+      this.userId = 2;
+    }
+    
     // Add default templates
     this.createTemplate({
       name: "Newsletter",
@@ -916,10 +953,74 @@ export class MemStorage implements IStorage {
     
     return undefined;
   }
+
+  // User methods (admin)
+  async getUsers(): Promise<User[]> {
+    return Array.from(this.users.values());
+  }
+
+  async getUser(id: number): Promise<User | undefined> {
+    return this.users.get(id);
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    return Array.from(this.users.values()).find(user => user.username === username);
+  }
+
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    return Array.from(this.users.values()).find(user => user.email === email);
+  }
+
+  async createUser(user: InsertUser): Promise<User> {
+    const id = this.userId++;
+    const now = new Date();
+    const newUser: User = {
+      ...user,
+      id,
+      createdAt: now,
+      lastLoginAt: null,
+      avatarUrl: user.avatarUrl || null
+    };
+    this.users.set(id, newUser);
+    return newUser;
+  }
+
+  async updateUser(id: number, user: Partial<User>): Promise<User | undefined> {
+    const existingUser = this.users.get(id);
+    if (!existingUser) return undefined;
+
+    const updatedUser = { ...existingUser, ...user };
+    this.users.set(id, updatedUser);
+    return updatedUser;
+  }
+
+  async deleteUser(id: number): Promise<boolean> {
+    return this.users.delete(id);
+  }
+
+  async verifyUserLogin(usernameOrEmail: string, password: string): Promise<User | undefined> {
+    const user = Array.from(this.users.values()).find(
+      user => (user.username === usernameOrEmail || user.email === usernameOrEmail) && 
+              user.password === password && 
+              user.status === "active"
+    );
+    
+    if (user) {
+      // Update last login timestamp
+      user.lastLoginAt = new Date();
+      this.users.set(user.id, user);
+      return user;
+    }
+    
+    return undefined;
+  }
 }
 
 // Import the database storage implementation
 import { dbStorage } from './dbStorage';
 
-// Use the database storage implementation instead of memory storage
-export const storage = dbStorage;
+// Create an instance of MemStorage for in-memory storage
+const memStorage = new MemStorage();
+
+// Use the memory storage implementation for development
+export const storage = memStorage;
