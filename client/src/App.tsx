@@ -13,6 +13,7 @@ import Emails from "@/pages/Emails";
 import Domains from "@/pages/Domains";
 import EmailPerformance from "@/pages/EmailPerformance";
 import Clients from "@/pages/Clients";
+import Settings from "@/pages/Settings";
 import Sidebar from "@/components/Sidebar";
 import Navbar from "@/components/Navbar";
 import { useState } from "react";
@@ -40,12 +41,7 @@ function App() {
                 <Route path="/domains" component={Domains} />
                 <Route path="/email-performance" component={EmailPerformance} />
                 <Route path="/clients" component={Clients} />
-                <Route path="/settings" component={() => (
-                  <div className="p-4">
-                    <h1 className="text-2xl font-bold mb-4">Account Settings</h1>
-                    <p>Settings page is currently under development. This section will include account management, user preferences, and platform configurations.</p>
-                  </div>
-                )} />
+                <Route path="/settings" component={Settings} />
                 <Route path="/:rest*" component={NotFound} />
               </Switch>
             </main>
