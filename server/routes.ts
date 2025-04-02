@@ -744,6 +744,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  app.post('/api/logout', (req: Request, res: Response) => {
+    // In a real app with sessions, you would clear the session here
+    // req.session.destroy();
+    
+    console.log('User logged out');
+    res.status(200).json({ success: true, message: 'Logged out successfully' });
+  });
+  
   app.get('/api/users', async (req: Request, res: Response) => {
     try {
       const users = await storage.getUsers();

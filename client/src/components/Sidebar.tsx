@@ -1,13 +1,26 @@
 import { Link, useLocation } from "wouter";
-import { Mail, LayoutDashboard, Megaphone, FileText, Users, Building, BarChart2, Activity, Split, Globe, Settings as SettingsIcon, ShieldCheck } from "lucide-react";
+import { Mail, LayoutDashboard, Megaphone, FileText, Users, Building, BarChart2, Activity, Split, Globe, Settings as SettingsIcon, ShieldCheck, LogOut } from "lucide-react";
 import infyLogo from "../assets/Logo-white.png";
+import { apiRequest } from "../lib/queryClient";
 
 interface SidebarProps {
   open: boolean;
 }
 
 const Sidebar = ({ open }: SidebarProps) => {
-  const [location] = useLocation();
+  const [location, setLocation] = useLocation();
+  
+  const handleLogout = async () => {
+    try {
+      await apiRequest('POST', '/api/logout');
+      // Clear any stored user data
+      localStorage.removeItem('user');
+      // Redirect to login page
+      setLocation('/auth');
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  };
   
   return (
     <nav id="sidebar" className={`col-md-3 col-lg-2 d-md-block bg-[#2c2f33] sidebar ${open ? 'show' : ''}`} style={{ width: '205px', fontSize: '14px' }}>
@@ -173,7 +186,7 @@ const Sidebar = ({ open }: SidebarProps) => {
         </ul>
         
         {/* Storage */}
-        <div className="px-4 mb-6 mt-4">
+        <div className="px-4 mb-4 mt-4">
           <div className="bg-primary/20 rounded-md p-4">
             <div className="text-white font-medium mb-2">Storage</div>
             <div className="bg-white/20 h-1.5 rounded-full mb-2">
@@ -181,6 +194,17 @@ const Sidebar = ({ open }: SidebarProps) => {
             </div>
             <div className="text-gray-300 text-xs">65% of 10GB used</div>
           </div>
+        </div>
+        
+        {/* Logout Button */}
+        <div className="px-4 mb-6">
+          <button
+            onClick={handleLogout}
+            className="flex items-center justify-center w-full px-4 py-2 rounded-md text-white bg-red-600 hover:bg-red-700 transition-colors"
+          >
+            <LogOut className="h-4 w-4 mr-2" />
+            Logout
+          </button>
         </div>
       </div>
     </nav>
