@@ -37,10 +37,10 @@ const Sidebar = ({ open }: SidebarProps) => {
         <div className="px-4 mb-4">
           <div className="flex items-center text-white">
             <div className="rounded-full bg-gray-500 w-9 h-9 flex items-center justify-center mr-3 text-sm font-medium">
-              JS
+              AM
             </div>
             <div>
-              <div className="font-medium">John Smith</div>
+              <div className="font-medium">Aadi Mughal</div>
               <div className="text-xs text-gray-400">Pro Plan</div>
             </div>
           </div>
