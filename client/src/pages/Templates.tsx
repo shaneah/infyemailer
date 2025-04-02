@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Link } from "wouter";
+import AITemplateGenerator from "@/components/AITemplateGenerator";
 
 interface Template {
   id: number;
@@ -107,6 +108,15 @@ export default function Templates() {
           </div>
         </CardContent>
       </Card>
+
+      <div className="row g-4 mb-4">
+        <div className="col-12">
+          <AITemplateGenerator onTemplateGenerated={(template) => {
+            // Handle generated template if needed
+            console.log("Template generated:", template);
+          }} />
+        </div>
+      </div>
 
       <div className="row g-4">
         <div className="col-md-6">
