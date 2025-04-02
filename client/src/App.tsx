@@ -15,6 +15,7 @@ import EmailPerformance from "@/pages/EmailPerformance";
 import Clients from "@/pages/Clients";
 import Settings from "@/pages/Settings";
 import AdminPanel from "@/pages/AdminPanel";
+import TemplateBuilder from "@/pages/TemplateBuilder";
 import Sidebar from "@/components/Sidebar";
 import Navbar from "@/components/Navbar";
 import { useState } from "react";
@@ -35,6 +36,8 @@ function App() {
                 <Route path="/campaigns" component={Campaigns} />
                 <Route path="/contacts" component={Contacts} />
                 <Route path="/templates" component={Templates} />
+                <Route path="/template-builder" component={TemplateBuilder} />
+                <Route path="/template-builder/:id" component={TemplateBuilder} />
                 <Route path="/analytics" component={Analytics} />
                 <Route path="/ab-testing" component={ABTesting} />
                 <Route path="/ab-testing/:id" component={ABTesting} />

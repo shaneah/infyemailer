@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Link } from "wouter";
 
 interface Template {
   id: number;
@@ -41,9 +42,11 @@ export default function Templates() {
       <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
         <h1 className="h2">Email Templates</h1>
         <div className="btn-toolbar mb-2 mb-md-0">
-          <button type="button" className="btn btn-sm btn-primary">
-            <i className="bi bi-plus-lg me-1"></i> Create Template
-          </button>
+          <Link href="/template-builder">
+            <button type="button" className="btn btn-sm btn-primary">
+              <i className="bi bi-plus-lg me-1"></i> Create Template
+            </button>
+          </Link>
         </div>
       </div>
 
@@ -91,7 +94,9 @@ export default function Templates() {
                       <h6 className="card-title">{template.name}</h6>
                       <p className="card-text small text-muted">{template.description}</p>
                       <div className="d-flex gap-2 mt-3">
-                        <button className="btn btn-sm btn-primary flex-grow-1">Use</button>
+                        <Link href={`/template-builder/${template.id}`} className="flex-grow-1">
+                          <button className="btn btn-sm btn-primary w-100">Use</button>
+                        </Link>
                         <button className="btn btn-sm btn-outline-secondary flex-grow-1">Preview</button>
                       </div>
                     </div>
@@ -132,7 +137,9 @@ export default function Templates() {
                         <div className="fw-medium">{template.name}</div>
                         <small className="text-muted">Last used: {template.lastUsed}</small>
                       </div>
-                      <button className="btn btn-sm btn-outline-primary">Use</button>
+                      <Link href={`/template-builder/${template.id}`}>
+                        <button className="btn btn-sm btn-outline-primary">Use</button>
+                      </Link>
                     </div>
                   ))
                 )}
