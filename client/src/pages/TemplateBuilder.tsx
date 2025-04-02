@@ -511,6 +511,7 @@ export default function TemplateBuilder() {
   ]);
   const [selectedComponentId, setSelectedComponentId] = useState<string | null>(null);
   const [htmlOutput, setHtmlOutput] = useState<string>("");
+  const [htmlEditorContent, setHtmlEditorContent] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const previewFrameRef = useRef<HTMLIFrameElement>(null);
@@ -855,13 +856,23 @@ export default function TemplateBuilder() {
     setIsLoading(true);
     
     // Prepare the template data
+    let templateContent;
+    
+    // If we have HTML content from the editor or import, use that directly
+    if (htmlEditorContent) {
+      templateContent = htmlEditorContent;
+    } else {
+      // Otherwise use the sections data
+      templateContent = JSON.stringify({
+        sections: sections
+      });
+    }
+    
     const templateData = {
       name: templateName,
-      content: JSON.stringify({
-        sections: sections
-      }),
+      content: templateContent,
       description: `Email template for ${templateName}`,
-      category: 'custom'
+      category: htmlEditorContent ? 'imported' : 'custom'
     };
     
     // Save the template
@@ -1134,25 +1145,124 @@ export default function TemplateBuilder() {
           <TabsContent value="code">
             <Card className="border-gray-200 shadow-sm">
               <CardContent className="p-4">
-                <h3 className="font-medium mb-3 text-gray-700">HTML Source Code</h3>
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="font-medium text-gray-700">HTML Source Code</h3>
+                  <div className="flex gap-2">
+                    <label className="cursor-pointer">
+                      <div className="flex items-center px-3 py-1.5 text-sm border rounded-md hover:bg-gray-50 border-gray-300">
+                        <svg className="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                        </svg>
+                        Import HTML
+                      </div>
+                      <input 
+                        type="file" 
+                        accept=".html,.htm" 
+                        className="hidden" 
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            const reader = new FileReader();
+                            reader.onload = (event) => {
+                              try {
+                                const htmlContent = event.target?.result as string;
+                                // Update the preview with the imported HTML
+                                if (previewFrameRef.current && previewFrameRef.current.contentWindow) {
+                                  const doc = previewFrameRef.current.contentWindow.document;
+                                  doc.open();
+                                  doc.write(htmlContent);
+                                  doc.close();
+                                }
+                                
+                                // Update the HTML editor with the imported content
+                                setHtmlOutput(htmlContent);
+                                setHtmlEditorContent(htmlContent);
+                                
+                                // Switch to preview tab
+                                setActiveTab('preview');
+                                
+                                toast({
+                                  title: "HTML Imported",
+                                  description: "HTML file was imported successfully. You can view it in the Preview tab."
+                                });
+                              } catch (error) {
+                                console.error("Error parsing HTML:", error);
+                                toast({
+                                  title: "Import Error",
+                                  description: "The HTML file could not be parsed. Please check the file format.",
+                                  variant: "destructive"
+                                });
+                              }
+                            };
+                            reader.readAsText(file);
+                          }
+                        }}
+                      />
+                    </label>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="bg-white border-gray-300"
+                      onClick={() => {
+                        navigator.clipboard.writeText(htmlOutput);
+                        toast({
+                          title: "Copied!",
+                          description: "HTML code copied to clipboard",
+                        });
+                      }}
+                    >
+                      Copy
+                    </Button>
+                  </div>
+                </div>
                 <div className="relative">
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="absolute right-2 top-2 bg-white border-gray-300"
-                    onClick={() => {
-                      navigator.clipboard.writeText(htmlOutput);
-                      toast({
-                        title: "Copied!",
-                        description: "HTML code copied to clipboard",
-                      });
-                    }}
-                  >
-                    Copy
-                  </Button>
-                  <pre className="bg-gray-900 text-gray-100 p-4 rounded-md overflow-auto max-h-[600px] text-sm">
-                    {htmlOutput}
-                  </pre>
+                  <div className="bg-gray-900 text-gray-100 p-4 rounded-md overflow-auto max-h-[500px]">
+                    <textarea 
+                      value={htmlEditorContent !== null ? htmlEditorContent : htmlOutput} 
+                      onChange={(e) => setHtmlEditorContent(e.target.value)}
+                      className="w-full h-[400px] bg-transparent border-none outline-none text-sm font-mono resize-none"
+                      placeholder="Paste or edit your HTML code here..."
+                    />
+                  </div>
+                  <div className="mt-4 flex justify-between">
+                    <p className="text-sm text-gray-500">
+                      <svg className="inline-block h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      You can edit HTML directly or import a file
+                    </p>
+                    <Button 
+                      onClick={() => {
+                        if (htmlEditorContent) {
+                          // Update the preview with the custom HTML
+                          if (previewFrameRef.current && previewFrameRef.current.contentWindow) {
+                            const doc = previewFrameRef.current.contentWindow.document;
+                            doc.open();
+                            doc.write(htmlEditorContent);
+                            doc.close();
+                          }
+                          
+                          // Store the HTML content for saving
+                          setHtmlOutput(htmlEditorContent);
+                          
+                          // Switch to preview tab
+                          setActiveTab('preview');
+                          
+                          toast({
+                            title: "HTML Applied",
+                            description: "Custom HTML has been applied to the template. Don't forget to save your template."
+                          });
+                        }
+                      }}
+                      disabled={!htmlEditorContent}
+                      size="sm"
+                    >
+                      <svg className="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      Apply Changes
+                    </Button>
+                  </div>
                 </div>
               </CardContent>
             </Card>
