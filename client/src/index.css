@@ -17,8 +17,8 @@
   }
   
   h1 {
-    @apply text-2xl md:text-3xl mb-4 font-bold;
-    background: linear-gradient(to right, hsl(215, 50%, 23%), hsl(215, 50%, 33%));
+    @apply text-2xl md:text-3xl mb-4;
+    background: linear-gradient(to right, hsl(160, 84%, 35%), hsl(160, 84%, 45%));
     @apply bg-clip-text text-transparent;
   }
   
@@ -43,9 +43,9 @@
     z-index: -1;
   }
   
-  /* Additional Mailchimp-inspired styles */
+  /* Additional InfyMailer-inspired styles */
   .mailchimp-gradient {
-    background: linear-gradient(135deg, hsl(210, 80%, 55%), hsl(210, 80%, 45%));
+    background: linear-gradient(135deg, hsl(160, 84%, 45%), hsl(160, 84%, 35%));
   }
   
   /* Improved button styling */
@@ -143,7 +143,7 @@
 
 /* Bootstrap Classes with Updated Theme */
 .bg-primary {
-  background-color: hsl(215, 50%, 23%) !important;
+  background-color: hsl(160, 84%, 39%) !important;
 }
 
 .bg-secondary {
@@ -151,19 +151,19 @@
 }
 
 .bg-success {
-  background-color: #0f766e !important;
+  background-color: #059669 !important;
 }
 
 .bg-danger {
-  background-color: #b91c1c !important;
+  background-color: #dc2626 !important;
 }
 
 .bg-warning {
-  background-color: #b45309 !important;
+  background-color: #f59e0b !important;
 }
 
 .bg-info {
-  background-color: #1e40af !important;
+  background-color: #0284c7 !important;
 }
 
 .bg-light {
@@ -171,11 +171,11 @@
 }
 
 .bg-dark {
-  background-color: #1e293b !important;
+  background-color: #334155 !important;
 }
 
 .text-primary {
-  color: hsl(215, 50%, 23%) !important;
+  color: hsl(160, 84%, 39%) !important;
 }
 
 .text-secondary {
@@ -183,19 +183,19 @@
 }
 
 .text-success {
-  color: #0f766e !important;
+  color: #059669 !important;
 }
 
 .text-danger {
-  color: #b91c1c !important;
+  color: #dc2626 !important;
 }
 
 .text-warning {
-  color: #b45309 !important;
+  color: #f59e0b !important;
 }
 
 .text-info {
-  color: #1e40af !important;
+  color: #0284c7 !important;
 }
 
 .text-white {
@@ -211,32 +211,32 @@
 }
 
 .border-primary {
-  border-color: hsl(215, 50%, 23%) !important;
+  border-color: hsl(160, 84%, 39%) !important;
 }
 
 .btn-primary {
-  background-color: hsl(215, 50%, 23%);
-  border-color: hsl(215, 50%, 20%);
+  background-color: hsl(160, 84%, 39%);
+  border-color: hsl(160, 84%, 35%);
   color: white;
   transition: all 0.2s ease;
 }
 
 .btn-primary:hover {
-  background-color: hsl(215, 50%, 18%);
-  border-color: hsl(215, 50%, 15%);
-  box-shadow: 0 3px 8px rgba(27, 49, 76, 0.2);
+  background-color: hsl(160, 84%, 33%);
+  border-color: hsl(160, 84%, 30%);
+  box-shadow: 0 3px 8px rgba(16, 185, 129, 0.2);
 }
 
 .btn-outline-primary {
-  color: hsl(215, 50%, 23%);
-  border-color: hsl(215, 50%, 23%);
+  color: hsl(160, 84%, 39%);
+  border-color: hsl(160, 84%, 39%);
   transition: all 0.2s ease;
 }
 
 .btn-outline-primary:hover {
-  background-color: hsl(215, 50%, 23%);
+  background-color: hsl(160, 84%, 39%);
   color: white;
-  box-shadow: 0 2px 5px rgba(27, 49, 76, 0.15);
+  box-shadow: 0 2px 5px rgba(16, 185, 129, 0.15);
 }
 
 .btn-success {
@@ -344,7 +344,7 @@
 }
 
 .card-header h3, .card-header h4 {
-  color: hsl(215, 50%, 23%);
+  color: hsl(160, 84%, 39%);
 }
 
 .card-body {
@@ -365,7 +365,7 @@
 
 .form-control:focus {
   @apply border-primary outline-none;
-  box-shadow: 0 0 0 3px rgba(33, 133, 208, 0.15);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
 }
 
 .form-select {
@@ -374,7 +374,7 @@
 
 .form-select:focus {
   @apply border-primary outline-none;
-  box-shadow: 0 0 0 3px rgba(33, 133, 208, 0.15);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
 }
 
 .form-check {
@@ -454,7 +454,7 @@
 }
 
 .badge-bg-primary {
-  @apply bg-blue-100 text-blue-800;
+  @apply bg-green-100 text-green-800;
 }
 
 .badge-bg-danger {
@@ -497,14 +497,14 @@
 }
 
 .template-card:hover {
-  border-color: hsl(215, 50%, 23%);
-  box-shadow: 0 4px 10px rgba(27, 49, 76, 0.1);
+  border-color: hsl(160, 84%, 39%);
+  box-shadow: 0 4px 10px rgba(16, 185, 129, 0.1);
   transform: translateY(-2px);
 }
 
 .template-card.selected {
-  border: 2px solid hsl(215, 50%, 23%);
-  box-shadow: 0 0 0 3px rgba(27, 49, 76, 0.15);
+  border: 2px solid hsl(160, 84%, 39%);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
 }
 
 .campaign-progress {
