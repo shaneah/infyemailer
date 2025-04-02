@@ -1,7 +1,7 @@
 import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { generateSubjectLines } from "./services/openai";
+import { generateSubjectLines, generateEmailTemplate } from "./services/openai";
 import { 
   insertContactSchema, 
   insertListSchema, 
@@ -945,6 +945,68 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error('Error generating subject lines:', error);
       res.status(500).json({ 
         error: 'Failed to generate subject lines. Please ensure your OpenAI API key is valid.'
+      });
+    }
+  });
+  
+  app.post('/api/generate-template', async (req: Request, res: Response) => {
+    try {
+      const { templateType, industry, purpose, targetAudience, brandTone, keyPoints } = req.body;
+      
+      if (!templateType || !industry || !purpose || !targetAudience) {
+        return res.status(400).json({ 
+          error: 'Missing required parameters. Please provide templateType, industry, purpose, and targetAudience.' 
+        });
+      }
+      
+      const generatedTemplate = await generateEmailTemplate(
+        templateType,
+        industry,
+        purpose,
+        targetAudience,
+        brandTone || 'professional',
+        keyPoints || ''
+      );
+      
+      // If storage is requested, save the template
+      if (req.body.saveTemplate === true) {
+        try {
+          const template = await storage.createTemplate({
+            name: generatedTemplate.name,
+            content: generatedTemplate.content,
+            description: generatedTemplate.description,
+            category: templateType.toLowerCase(),
+            metadata: {
+              icon: 'robot',
+              iconColor: 'success',
+              new: true,
+              generatedByAI: true
+            }
+          });
+          
+          return res.status(201).json({ 
+            template,
+            message: 'Template successfully generated and saved' 
+          });
+        } catch (storageError) {
+          console.error('Error saving generated template:', storageError);
+          return res.status(201).json({ 
+            template: generatedTemplate,
+            message: 'Template generated successfully but could not be saved',
+            saveError: 'Failed to save template to storage'
+          });
+        }
+      }
+      
+      // If no storage requested, just return the generated template
+      res.status(201).json({ 
+        template: generatedTemplate,
+        message: 'Template successfully generated' 
+      });
+    } catch (error) {
+      console.error('Error generating email template:', error);
+      res.status(500).json({ 
+        error: 'Failed to generate email template. Please ensure your OpenAI API key is valid.'
       });
     }
   });
