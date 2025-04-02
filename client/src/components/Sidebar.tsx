@@ -96,6 +96,12 @@ const Sidebar = ({ open }: SidebarProps) => {
               Settings
             </Link>
           </li>
+          <li className="nav-item">
+            <Link href="/admin" className={`nav-link ${location === '/admin' ? 'active text-white' : 'text-white-50'}`}>
+              <i className="bi bi-shield-lock me-2"></i>
+              Admin Panel
+            </Link>
+          </li>
         </ul>
         <hr className="text-white-50" />
         <div className="px-3 mt-auto mb-3">
