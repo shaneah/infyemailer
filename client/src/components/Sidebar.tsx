@@ -1,5 +1,6 @@
 import { Link, useLocation } from "wouter";
 import { Mail, LayoutDashboard, Megaphone, FileText, Users, Building, BarChart2, Activity, Split, Globe, Settings as SettingsIcon, ShieldCheck } from "lucide-react";
+import infyLogo from "../assets/infy.png";
 
 interface SidebarProps {
   open: boolean;
@@ -13,9 +14,9 @@ const Sidebar = ({ open }: SidebarProps) => {
       <div className="h-full flex flex-col">
         {/* Logo */}
         <div className="px-4 py-4">
-          <Link href="/" className="text-white font-bold text-lg flex items-center">
-            <Mail className="mr-2 h-5 w-5" />
-            InfyMailer
+          <Link href="/" className="text-white font-bold text-lg flex flex-col items-center">
+            <img src={infyLogo} alt="Infinity Tech Logo" className="h-16 mb-2" />
+            <span className="text-center">InfyMailer</span>
           </Link>
         </div>
         
