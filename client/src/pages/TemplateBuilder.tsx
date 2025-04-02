@@ -42,25 +42,29 @@ interface ComponentToolboxItemProps {
 const Section = ({ id, components, onDrop, onComponentClick, selected }: SectionProps) => {
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
+    e.dataTransfer.dropEffect = "copy";
   };
 
   return (
     <div 
-      className={`p-6 min-h-[120px] border-2 rounded-md mb-4 transition-all ${
+      className={`p-6 min-h-[140px] rounded-md mb-6 transition-all ${
         selected 
-          ? "border-primary bg-primary/5 border-dashed" 
+          ? "outline outline-2 outline-primary bg-primary/5" 
           : components.length === 0 
-            ? "border-gray-300 border-dashed bg-gray-50" 
-            : "border-transparent shadow-sm"
+            ? "border-2 border-dashed border-gray-300 bg-gray-50 hover:border-primary/50 hover:bg-gray-100/80" 
+            : "border border-gray-200 shadow-sm hover:shadow-md hover:border-primary/30"
       }`}
       onDrop={(e) => onDrop(e, id)}
       onDragOver={handleDragOver}
       onClick={() => onComponentClick(id)}
     >
       {components.length === 0 ? (
-        <div className="text-center text-gray-500 py-8 flex flex-col items-center justify-center">
-          <ArrowDown className="h-6 w-6 mb-2 text-gray-400" />
-          <p>Drop elements here to build your email</p>
+        <div className="text-center text-gray-500 py-10 flex flex-col items-center justify-center">
+          <div className="bg-gray-100 rounded-full p-3 mb-3 border border-gray-200">
+            <ArrowDown className="h-5 w-5 text-primary" />
+          </div>
+          <p className="font-medium text-gray-600 mb-1">Drop content here</p>
+          <p className="text-xs text-gray-400">Drag elements from the left panel</p>
         </div>
       ) : (
         <div className="space-y-4">
@@ -203,11 +207,18 @@ const EmailComponentRenderer = ({ component, onClick }: { component: EmailCompon
 const ComponentToolboxItem = ({ type, icon, label, onDragStart }: ComponentToolboxItemProps) => {
   return (
     <div
-      className="p-4 border border-gray-200 rounded-md flex flex-col items-center justify-center gap-3 hover:bg-gray-50 cursor-grab transition-all hover:border-primary hover:shadow-md"
+      className="relative p-4 border border-gray-200 rounded-lg flex flex-col items-center justify-center gap-2.5 hover:bg-primary/5 cursor-grab transition-all hover:border-primary hover:shadow-md group"
       draggable
       onDragStart={(e) => onDragStart(e, type)}
+      data-element-type={type}
     >
-      <div className="bg-primary/10 text-primary p-3 rounded-full">{icon}</div>
+      <div className="absolute inset-0 rounded-lg border border-primary/25 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+      <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="bg-primary/10 rounded-full w-5 h-5 flex items-center justify-center">
+          <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><polyline points="16 3 21 3 21 8"></polyline><line x1="4" y1="20" x2="21" y2="3"></line><polyline points="21 16 21 21 16 21"></polyline><line x1="15" y1="15" x2="21" y2="21"></line><line x1="4" y1="4" x2="9" y2="9"></line></svg>
+        </div>
+      </div>
+      <div className="bg-primary/10 text-primary p-3 rounded-full shadow-sm">{icon}</div>
       <span className="text-sm font-medium text-gray-700">{label}</span>
     </div>
   );
@@ -950,20 +961,22 @@ export default function TemplateBuilder() {
             <div className="grid grid-cols-12 gap-6">
               {/* Components Toolbox */}
               <div className="col-span-12 lg:col-span-3">
-                <Card className="border-gray-200 shadow-sm sticky top-24">
-                  <CardContent className="p-4">
-                    <h3 className="font-medium mb-3 text-gray-700 text-lg">Elements</h3>
-                    <div className="grid grid-cols-3 gap-3">
+                <Card className="border-primary/20 shadow-md sticky top-24 overflow-hidden">
+                  <div className="bg-primary/10 py-3 px-4 border-b border-primary/20">
+                    <h3 className="font-semibold text-primary text-lg">Email Elements</h3>
+                  </div>
+                  <CardContent className="p-5">
+                    <div className="grid grid-cols-2 gap-3">
                       <ComponentToolboxItem 
                         type="header" 
                         icon={<Type className="h-5 w-5" />} 
-                        label="Header" 
+                        label="Heading" 
                         onDragStart={handleDragStart} 
                       />
                       <ComponentToolboxItem 
                         type="text" 
                         icon={<AlignLeft className="h-5 w-5" />} 
-                        label="Paragraph" 
+                        label="Text" 
                         onDragStart={handleDragStart} 
                       />
                       <ComponentToolboxItem 
@@ -994,20 +1007,30 @@ export default function TemplateBuilder() {
                     
                     <Separator className="my-4" />
                     
-                    <h3 className="font-medium mb-3 text-gray-700 text-lg">Layout</h3>
-                    <Button 
-                      variant="outline" 
-                      className="w-full border-gray-300 bg-gray-50 hover:bg-gray-100 py-6" 
-                      onClick={addSection}
-                    >
-                      <Rows className="mr-2 h-5 w-5" />
-                      Add Section
-                    </Button>
+                    <div className="mb-4">
+                      <h3 className="font-semibold mb-3 text-gray-700">Layout</h3>
+                      <Button 
+                        className="w-full bg-primary/10 text-primary border-primary/25 hover:bg-primary/20 hover:text-primary hover:border-primary/40 py-5" 
+                        variant="outline"
+                        onClick={addSection}
+                      >
+                        <Rows className="mr-2 h-5 w-5" />
+                        Add New Section
+                      </Button>
+                    </div>
                     
-                    <div className="mt-4 p-3 bg-blue-50 border border-blue-100 rounded-md">
-                      <p className="text-blue-600 text-sm">
-                        <strong>Tip:</strong> Drag elements from above and drop them into the content area to build your email.
-                      </p>
+                    <div className="mt-5 p-4 bg-amber-50 border border-amber-200 rounded-md">
+                      <div className="flex items-start">
+                        <div className="mr-2 mt-1 text-amber-500">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                        </div>
+                        <div>
+                          <p className="text-amber-800 text-sm font-medium mb-1">How to use</p>
+                          <p className="text-amber-700 text-xs">
+                            Drag elements from above and drop them into the sections on the canvas to build your email template.
+                          </p>
+                        </div>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
@@ -1041,7 +1064,10 @@ export default function TemplateBuilder() {
               
               {/* Property Editor */}
               <div className="col-span-12 lg:col-span-3">
-                <Card className="border-gray-200 shadow-sm sticky top-24">
+                <Card className="border-primary/20 shadow-md sticky top-24 overflow-hidden">
+                  <div className="bg-primary/10 py-3 px-4 border-b border-primary/20">
+                    <h3 className="font-semibold text-primary text-lg">Element Properties</h3>
+                  </div>
                   <CardContent className="p-0">
                     <PropertyEditor 
                       selectedComponent={selectedComponent} 
