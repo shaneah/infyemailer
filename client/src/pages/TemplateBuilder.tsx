@@ -12,7 +12,7 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { 
   AlignLeft, AlignCenter, AlignRight, Bold, Italic, Underline, Image, 
   Link, List, ListOrdered, Type, Grid, Layout, Columns, Rows, Save, 
-  ArrowLeft, Loader2, SeparatorHorizontal, X
+  ArrowLeft, Loader2, SeparatorHorizontal, X, ArrowDown, Settings
 } from "lucide-react";
 
 // Define types for our email components
@@ -46,19 +46,24 @@ const Section = ({ id, components, onDrop, onComponentClick, selected }: Section
 
   return (
     <div 
-      className={`p-4 min-h-[100px] border-2 border-dashed rounded-md mb-4 transition-all ${
-        selected ? "border-primary bg-primary/5" : "border-gray-300"
+      className={`p-6 min-h-[120px] border-2 rounded-md mb-4 transition-all ${
+        selected 
+          ? "border-primary bg-primary/5 border-dashed" 
+          : components.length === 0 
+            ? "border-gray-300 border-dashed bg-gray-50" 
+            : "border-transparent shadow-sm"
       }`}
       onDrop={(e) => onDrop(e, id)}
       onDragOver={handleDragOver}
       onClick={() => onComponentClick(id)}
     >
       {components.length === 0 ? (
-        <div className="text-center text-gray-400 py-8">
-          Drop elements here
+        <div className="text-center text-gray-500 py-8 flex flex-col items-center justify-center">
+          <ArrowDown className="h-6 w-6 mb-2 text-gray-400" />
+          <p>Drop elements here to build your email</p>
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-4">
           {components.map((component) => (
             <EmailComponentRenderer 
               key={component.id} 
@@ -76,45 +81,74 @@ const Section = ({ id, components, onDrop, onComponentClick, selected }: Section
 const EmailComponentRenderer = ({ component, onClick }: { component: EmailComponent; onClick: () => void }) => {
   const { type, content, styles } = component;
 
-  const componentStyles = {
-    padding: "8px",
-    cursor: "pointer",
-    border: "1px solid #e5e7eb",
-    borderRadius: "4px",
-    position: "relative" as const,
-    transition: "all 0.2s",
-  };
+  const baseClass = "group relative transition-all duration-200 rounded-md hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50";
 
   switch (type) {
     case 'header':
       return (
-        <div onClick={onClick} style={componentStyles} className="hover:shadow-md hover:border-primary">
-          <div className="absolute top-2 right-2 bg-white opacity-0 group-hover:opacity-100 transition-opacity rounded-full p-1">
-            <X className="h-4 w-4 text-gray-500" />
+        <div onClick={onClick} className={`${baseClass} p-4 border border-gray-200 hover:border-primary`}>
+          <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <div className="bg-white shadow-sm rounded-full p-1 border border-gray-200">
+              <Settings className="h-3.5 w-3.5 text-gray-500" />
+            </div>
           </div>
-          <h1 style={{ fontSize: styles.fontSize, textAlign: styles.textAlign, color: styles.color, marginTop: "8px", marginBottom: "8px" }}>{content.text}</h1>
+          <h1 
+            style={{ 
+              fontSize: styles.fontSize, 
+              textAlign: styles.textAlign as any, 
+              color: styles.color,
+              margin: 0
+            }}
+          >
+            {content.text}
+          </h1>
         </div>
       );
     case 'text':
       return (
-        <div onClick={onClick} style={componentStyles} className="hover:shadow-md hover:border-primary">
-          <p style={{ fontSize: styles.fontSize, textAlign: styles.textAlign, color: styles.color, marginTop: "4px", marginBottom: "4px" }}>{content.text}</p>
+        <div onClick={onClick} className={`${baseClass} p-4 border border-gray-200 hover:border-primary`}>
+          <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <div className="bg-white shadow-sm rounded-full p-1 border border-gray-200">
+              <Settings className="h-3.5 w-3.5 text-gray-500" />
+            </div>
+          </div>
+          <p 
+            style={{ 
+              fontSize: styles.fontSize, 
+              textAlign: styles.textAlign as any, 
+              color: styles.color,
+              margin: 0,
+              lineHeight: 1.5
+            }}
+          >
+            {content.text}
+          </p>
         </div>
       );
     case 'image':
       return (
-        <div onClick={onClick} style={componentStyles} className="hover:shadow-md hover:border-primary">
+        <div onClick={onClick} className={`${baseClass} p-3 border border-gray-200 hover:border-primary`}>
+          <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <div className="bg-white shadow-sm rounded-full p-1 border border-gray-200">
+              <Settings className="h-3.5 w-3.5 text-gray-500" />
+            </div>
+          </div>
           <img 
-            src={content.src || "https://via.placeholder.com/400x200?text=Add+Your+Image"} 
+            src={content.src || "https://via.placeholder.com/600x300?text=Add+Your+Image"} 
             alt={content.alt || "Email image"} 
             style={{ width: '100%', maxWidth: styles.maxWidth || '100%' }}
-            className="rounded-sm"
+            className="rounded-md"
           />
         </div>
       );
     case 'button':
       return (
-        <div onClick={onClick} style={componentStyles} className="hover:shadow-md hover:border-primary text-center">
+        <div onClick={onClick} className={`${baseClass} p-4 border border-gray-200 hover:border-primary text-center`}>
+          <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <div className="bg-white shadow-sm rounded-full p-1 border border-gray-200">
+              <Settings className="h-3.5 w-3.5 text-gray-500" />
+            </div>
+          </div>
           <button 
             style={{ 
               backgroundColor: styles.backgroundColor,
@@ -126,6 +160,7 @@ const EmailComponentRenderer = ({ component, onClick }: { component: EmailCompon
               display: 'inline-block',
               fontWeight: 500,
             }}
+            onClick={(e) => e.stopPropagation()} // Prevent the parent onClick from firing
           >
             {content.text}
           </button>
@@ -133,19 +168,29 @@ const EmailComponentRenderer = ({ component, onClick }: { component: EmailCompon
       );
     case 'divider':
       return (
-        <div onClick={onClick} style={componentStyles} className="hover:shadow-md hover:border-primary">
-          <hr style={{ borderTop: `${styles.thickness || 1}px solid ${styles.color || '#dddddd'}`, margin: "10px 0" }} />
+        <div onClick={onClick} className={`${baseClass} py-4 px-4 border border-gray-200 hover:border-primary`}>
+          <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <div className="bg-white shadow-sm rounded-full p-1 border border-gray-200">
+              <Settings className="h-3.5 w-3.5 text-gray-500" />
+            </div>
+          </div>
+          <hr style={{ borderTop: `${styles.thickness || 1}px solid ${styles.color || '#dddddd'}`, margin: "4px 0" }} />
         </div>
       );
     case 'spacer':
       return (
         <div 
           onClick={onClick} 
-          style={{ ...componentStyles, height: `${styles.height || 30}px` }} 
-          className="hover:shadow-md hover:border-primary bg-gray-50 flex items-center justify-center"
+          className={`${baseClass} px-4 border border-gray-200 hover:border-primary bg-gray-50 flex items-center justify-center`}
+          style={{ height: `${styles.height || 30}px` }}
         >
-          <div className="text-center text-xs text-gray-400">
-            Spacer: {styles.height || 30}px
+          <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <div className="bg-white shadow-sm rounded-full p-1 border border-gray-200">
+              <Settings className="h-3.5 w-3.5 text-gray-500" />
+            </div>
+          </div>
+          <div className="text-center text-xs text-gray-500 font-medium">
+            {styles.height || 30}px spacer
           </div>
         </div>
       );
@@ -158,12 +203,12 @@ const EmailComponentRenderer = ({ component, onClick }: { component: EmailCompon
 const ComponentToolboxItem = ({ type, icon, label, onDragStart }: ComponentToolboxItemProps) => {
   return (
     <div
-      className="p-3 border border-gray-200 rounded-md flex flex-col items-center justify-center gap-2 hover:bg-gray-50 cursor-grab transition-colors hover:border-primary hover:shadow-sm"
+      className="p-4 border border-gray-200 rounded-md flex flex-col items-center justify-center gap-3 hover:bg-gray-50 cursor-grab transition-all hover:border-primary hover:shadow-md"
       draggable
       onDragStart={(e) => onDragStart(e, type)}
     >
-      <div className="text-primary">{icon}</div>
-      <span className="text-xs font-medium text-gray-700">{label}</span>
+      <div className="bg-primary/10 text-primary p-3 rounded-full">{icon}</div>
+      <span className="text-sm font-medium text-gray-700">{label}</span>
     </div>
   );
 };
@@ -904,11 +949,11 @@ export default function TemplateBuilder() {
           <TabsContent value="editor">
             <div className="grid grid-cols-12 gap-6">
               {/* Components Toolbox */}
-              <div className="col-span-12 lg:col-span-2">
+              <div className="col-span-12 lg:col-span-3">
                 <Card className="border-gray-200 shadow-sm sticky top-24">
                   <CardContent className="p-4">
-                    <h3 className="font-medium mb-3 text-gray-700">Content Blocks</h3>
-                    <div className="grid grid-cols-2 gap-2">
+                    <h3 className="font-medium mb-3 text-gray-700 text-lg">Elements</h3>
+                    <div className="grid grid-cols-3 gap-3">
                       <ComponentToolboxItem 
                         type="header" 
                         icon={<Type className="h-5 w-5" />} 
@@ -918,7 +963,7 @@ export default function TemplateBuilder() {
                       <ComponentToolboxItem 
                         type="text" 
                         icon={<AlignLeft className="h-5 w-5" />} 
-                        label="Text" 
+                        label="Paragraph" 
                         onDragStart={handleDragStart} 
                       />
                       <ComponentToolboxItem 
@@ -949,16 +994,20 @@ export default function TemplateBuilder() {
                     
                     <Separator className="my-4" />
                     
-                    <h3 className="font-medium mb-3 text-gray-700">Layout</h3>
-                    <div className="space-y-2">
-                      <Button 
-                        variant="outline" 
-                        className="w-full border-gray-300" 
-                        onClick={addSection}
-                      >
-                        <Rows className="mr-2 h-4 w-4" />
-                        Add Section
-                      </Button>
+                    <h3 className="font-medium mb-3 text-gray-700 text-lg">Layout</h3>
+                    <Button 
+                      variant="outline" 
+                      className="w-full border-gray-300 bg-gray-50 hover:bg-gray-100 py-6" 
+                      onClick={addSection}
+                    >
+                      <Rows className="mr-2 h-5 w-5" />
+                      Add Section
+                    </Button>
+                    
+                    <div className="mt-4 p-3 bg-blue-50 border border-blue-100 rounded-md">
+                      <p className="text-blue-600 text-sm">
+                        <strong>Tip:</strong> Drag elements from above and drop them into the content area to build your email.
+                      </p>
                     </div>
                   </CardContent>
                 </Card>
