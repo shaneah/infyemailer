@@ -214,6 +214,25 @@ export class MemStorage implements IStorage {
           theme: "light"
         }
       });
+      
+      // Add a new admin user for testing
+      this.users.set(2, {
+        id: 2,
+        username: "admin",
+        email: "admin@infymailer.com",
+        password: "admin123", // In a real app, this would be hashed
+        firstName: "Admin",
+        lastName: "User",
+        role: "admin",
+        status: "active",
+        lastLoginAt: null,
+        createdAt: new Date("2024-01-01"),
+        avatarUrl: null,
+        metadata: {
+          permissions: ["all"],
+          theme: "light"
+        }
+      });
       this.userId = 2;
     }
     
