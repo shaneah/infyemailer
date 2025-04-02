@@ -503,7 +503,7 @@ export default function AdminPanel() {
                     <CardContent className="p-4">
                       <h3 className="text-sm font-medium text-gray-500">Monthly Recurring Revenue</h3>
                       <div className="mt-2">
-                        <p className="text-2xl font-semibold">$48,254.00</p>
+                        <p className="text-2xl font-semibold">AED 177,092.00</p>
                         <p className="text-sm text-green-600">+12.5% from last month</p>
                       </div>
                     </CardContent>
@@ -512,7 +512,7 @@ export default function AdminPanel() {
                     <CardContent className="p-4">
                       <h3 className="text-sm font-medium text-gray-500">Average Revenue Per Client</h3>
                       <div className="mt-2">
-                        <p className="text-2xl font-semibold">$258.04</p>
+                        <p className="text-2xl font-semibold">AED 947.01</p>
                         <p className="text-sm text-green-600">+5.3% from last month</p>
                       </div>
                     </CardContent>
@@ -553,7 +553,7 @@ export default function AdminPanel() {
                     <TableBody>
                       <TableRow>
                         <TableCell className="font-medium">Acme Corporation</TableCell>
-                        <TableCell>$599.00</TableCell>
+                        <TableCell>AED 2,198.33</TableCell>
                         <TableCell>Enterprise</TableCell>
                         <TableCell>Apr 1, 2025</TableCell>
                         <TableCell><Badge className="bg-green-100 text-green-800">Paid</Badge></TableCell>
@@ -563,7 +563,7 @@ export default function AdminPanel() {
                       </TableRow>
                       <TableRow>
                         <TableCell className="font-medium">Globex Industries</TableCell>
-                        <TableCell>$199.00</TableCell>
+                        <TableCell>AED 730.33</TableCell>
                         <TableCell>Professional</TableCell>
                         <TableCell>Apr 1, 2025</TableCell>
                         <TableCell><Badge className="bg-green-100 text-green-800">Paid</Badge></TableCell>
@@ -573,7 +573,7 @@ export default function AdminPanel() {
                       </TableRow>
                       <TableRow>
                         <TableCell className="font-medium">Stark Enterprises</TableCell>
-                        <TableCell>$99.00</TableCell>
+                        <TableCell>AED 363.33</TableCell>
                         <TableCell>Business</TableCell>
                         <TableCell>Mar 31, 2025</TableCell>
                         <TableCell><Badge className="bg-red-100 text-red-800">Failed</Badge></TableCell>
@@ -583,7 +583,7 @@ export default function AdminPanel() {
                       </TableRow>
                       <TableRow>
                         <TableCell className="font-medium">Wayne Industries</TableCell>
-                        <TableCell>$599.00</TableCell>
+                        <TableCell>AED 2,198.33</TableCell>
                         <TableCell>Enterprise</TableCell>
                         <TableCell>Mar 30, 2025</TableCell>
                         <TableCell><Badge className="bg-green-100 text-green-800">Paid</Badge></TableCell>

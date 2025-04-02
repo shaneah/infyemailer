@@ -15,7 +15,9 @@ import {
   insertCampaignDomainSchema,
   insertClientSchema,
   insertUserSchema,
-  userLoginSchema
+  userLoginSchema,
+  clientUserLoginSchema,
+  insertClientUserSchema
 } from "@shared/schema";
 import { ZodError } from "zod";
 import { fromZodError } from "zod-validation-error";
@@ -736,6 +738,110 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error creating user:', error);
       res.status(500).json({ error: 'Failed to create user' });
+    }
+  });
+
+  // Client User routes
+  app.post('/api/client-login', async (req: Request, res: Response) => {
+    const validatedData = validate(clientUserLoginSchema, req.body);
+    if ('error' in validatedData) {
+      return res.status(400).json({ error: validatedData.error });
+    }
+
+    try {
+      const { username, password } = validatedData;
+      const clientUser = await storage.verifyClientLogin(username, password);
+      
+      if (!clientUser) {
+        return res.status(401).json({ error: 'Invalid credentials' });
+      }
+      
+      // Get the associated client for this user
+      const client = await storage.getClient(clientUser.clientId);
+      
+      if (!client) {
+        return res.status(500).json({ error: 'Client account not found' });
+      }
+      
+      // Don't send password back to the client
+      const { password: _, ...clientUserWithoutPassword } = clientUser;
+      
+      res.json({ 
+        ...clientUserWithoutPassword,
+        clientName: client.name,
+        clientCompany: client.company,
+        lastLogin: new Date().toISOString() 
+      });
+    } catch (error) {
+      console.error('Client login error:', error);
+      res.status(500).json({ error: 'Login failed. Please try again.' });
+    }
+  });
+  
+  app.get('/api/client-users', async (req: Request, res: Response) => {
+    try {
+      const clientUsers = await storage.getClientUsers();
+      
+      // Don't send passwords back to client
+      const safeClientUsers = clientUsers.map(user => {
+        const { password, ...userWithoutPassword } = user;
+        return userWithoutPassword;
+      });
+      
+      res.json(safeClientUsers);
+    } catch (error) {
+      console.error('Error fetching client users:', error);
+      res.status(500).json({ error: 'Failed to fetch client users' });
+    }
+  });
+  
+  app.get('/api/clients/:clientId/users', async (req: Request, res: Response) => {
+    try {
+      const clientId = parseInt(req.params.clientId);
+      const clientUsers = await storage.getClientUsersByClientId(clientId);
+      
+      // Don't send passwords back to client
+      const safeClientUsers = clientUsers.map(user => {
+        const { password, ...userWithoutPassword } = user;
+        return userWithoutPassword;
+      });
+      
+      res.json(safeClientUsers);
+    } catch (error) {
+      console.error('Error fetching client users:', error);
+      res.status(500).json({ error: 'Failed to fetch client users' });
+    }
+  });
+  
+  app.post('/api/client-users', async (req: Request, res: Response) => {
+    const validatedData = validate(insertClientUserSchema, req.body);
+    if ('error' in validatedData) {
+      return res.status(400).json({ error: validatedData.error });
+    }
+
+    try {
+      // Check if username already exists
+      const existing = await storage.getClientUserByUsername(validatedData.username);
+      if (existing) {
+        return res.status(400).json({ error: 'Username already exists' });
+      }
+      
+      // Check if client exists
+      const client = await storage.getClient(validatedData.clientId);
+      if (!client) {
+        return res.status(400).json({ error: 'Client not found' });
+      }
+      
+      // In a real app, you would hash the password here
+      const clientUser = await storage.createClientUser(validatedData);
+      
+      // Don't send password back to client
+      const { password, ...clientUserWithoutPassword } = clientUser;
+      
+      res.status(201).json(clientUserWithoutPassword);
+    } catch (error) {
+      console.error('Error creating client user:', error);
+      res.status(500).json({ error: 'Failed to create client user' });
     }
   });
 

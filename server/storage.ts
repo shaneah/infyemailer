@@ -199,11 +199,11 @@ export class MemStorage implements IStorage {
     if (this.users.size === 0) {
       this.users.set(1, {
         id: 1,
-        username: "admin",
-        email: "admin@infymailer.com",
-        password: "admin123", // In a real app, this would be hashed
-        firstName: "Admin",
-        lastName: "User",
+        username: "aadimughal",
+        email: "aadimughal@infymailer.com",
+        password: "Aadi@786", // In a real app, this would be hashed
+        firstName: "Aadi",
+        lastName: "Mughal",
         role: "admin",
         status: "active",
         lastLoginAt: null,
