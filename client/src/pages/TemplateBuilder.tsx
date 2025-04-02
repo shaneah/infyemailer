@@ -1086,7 +1086,7 @@ export default function TemplateBuilder() {
                         {/* Email Footer */}
                         <div className="email-footer">
                           <div className="mb-2">
-                            <span className="text-primary font-medium">MailFlow</span> Email Marketing
+                            <span className="text-primary font-medium">InfyMailer</span> Email Marketing
                           </div>
                           <p className="text-xs text-gray-400">
                             Sent with our Email Marketing Platform • <a href="#" className="text-primary hover:underline">Unsubscribe</a>

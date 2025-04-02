@@ -9,7 +9,7 @@ const Navbar = ({ sidebarOpen, setSidebarOpen }: NavbarProps) => {
       <div className="container-fluid">
         <a className="navbar-brand" href="/">
           <i className="bi bi-envelope-fill me-2"></i>
-          MailFlow
+          InfyMailer
         </a>
         <button 
           id="sidebarToggle" 

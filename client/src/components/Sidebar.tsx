@@ -15,7 +15,7 @@ const Sidebar = ({ open }: SidebarProps) => {
         <div className="px-4 py-4">
           <Link href="/" className="text-white font-bold text-lg flex items-center">
             <Mail className="mr-2 h-5 w-5" />
-            MailFlow
+            InfyMailer
           </Link>
         </div>
         

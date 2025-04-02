@@ -193,7 +193,7 @@ export class MemStorage implements IStorage {
     if (this.domains.size === 0) {
       this.domains.set(1, {
         id: 1,
-        name: "marketing.mailflow.com",
+        name: "marketing.infymailer.com",
         status: "active",
         verified: true,
         defaultDomain: true,
@@ -208,7 +208,7 @@ export class MemStorage implements IStorage {
       
       this.domains.set(2, {
         id: 2,
-        name: "newsletter.mailflow.com",
+        name: "newsletter.infymailer.com",
         status: "active",
         verified: true,
         defaultDomain: false,
@@ -223,7 +223,7 @@ export class MemStorage implements IStorage {
       
       this.domains.set(3, {
         id: 3,
-        name: "promo.mailflow.com",
+        name: "promo.infymailer.com",
         status: "pending",
         verified: false,
         defaultDomain: false,
