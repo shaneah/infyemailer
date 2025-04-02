@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useMutation } from "@tanstack/react-query";
-import { useLocation } from "wouter";
+import { useLocation, Link } from "wouter";
 import { apiRequest } from "@/lib/queryClient";
 import { useState } from "react";
 import infyLogo from "../assets/Logo-white.png";
@@ -138,11 +138,22 @@ export default function Login() {
             </form>
           </Form>
         </CardContent>
-        <CardFooter className="flex justify-center">
+        <CardFooter className="flex flex-col space-y-4">
           <div className="text-sm text-center">
             <a href="#" className="font-medium text-primary hover:text-primary-dark">
               Forgot your password?
             </a>
+          </div>
+          <div className="text-sm text-center">
+            <span>Don't have an account? </span>
+            <Link to="/register" className="font-medium text-primary hover:text-primary-dark">
+              Register here
+            </Link>
+          </div>
+          <div className="text-sm text-center">
+            <Link to="/client-login" className="font-medium text-primary hover:text-primary-dark">
+              Client Login
+            </Link>
           </div>
         </CardFooter>
       </Card>

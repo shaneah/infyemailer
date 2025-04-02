@@ -666,6 +666,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // User/Admin routes
+  app.post('/api/register', async (req: Request, res: Response) => {
+    const validatedData = validate(insertUserSchema, req.body);
+    if ('error' in validatedData) {
+      return res.status(400).json({ error: validatedData.error });
+    }
+
+    try {
+      // Check if username already exists
+      const existingUser = await storage.getUserByUsername(validatedData.username);
+      if (existingUser) {
+        return res.status(400).json({ error: 'Username already taken' });
+      }
+
+      // Check if email already exists
+      const existingEmail = await storage.getUserByEmail(validatedData.email);
+      if (existingEmail) {
+        return res.status(400).json({ error: 'Email already in use' });
+      }
+
+      // Create new user
+      const newUser = await storage.createUser(validatedData);
+      
+      // Return user without password
+      const { password: _, ...userWithoutPassword } = newUser;
+      
+      res.status(201).json(userWithoutPassword);
+    } catch (error) {
+      console.error('Registration error:', error);
+      res.status(500).json({ error: 'Registration failed. Please try again.' });
+    }
+  });
+
   app.post('/api/login', async (req: Request, res: Response) => {
     const validatedData = validate(userLoginSchema, req.body);
     if ('error' in validatedData) {

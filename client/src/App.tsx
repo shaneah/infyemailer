@@ -17,6 +17,7 @@ import Settings from "@/pages/Settings";
 import AdminPanel from "@/pages/AdminPanel";
 import TemplateBuilder from "@/pages/TemplateBuilder";
 import Login from "@/pages/Login";
+import Register from "@/pages/Register";
 import ClientLogin from "@/pages/ClientLogin";
 import Sidebar from "@/components/Sidebar";
 import Navbar from "@/components/Navbar";
@@ -29,8 +30,8 @@ function App() {
   const [isClientUser, setIsClientUser] = useState(false);
   const [isAdminUser, setIsAdminUser] = useState(false);
   
-  // Check if we're on a login page
-  const isLoginPage = location === "/login" || location === "/client-login";
+  // Check if we're on a login or register page
+  const isLoginPage = location === "/login" || location === "/client-login" || location === "/register";
   
   // Check for user authentication on component mount and route changes
   useEffect(() => {
@@ -130,10 +131,11 @@ function App() {
           </>
         )}
         
-        {/* Login routes */}
+        {/* Login and Register routes */}
         {isLoginPage && (
           <Switch>
             <Route path="/login" component={Login} />
+            <Route path="/register" component={Register} />
             <Route path="/client-login" component={ClientLogin} />
           </Switch>
         )}
