@@ -10,7 +10,8 @@ import {
   VariantAnalytics, InsertVariantAnalytics,
   Domain, InsertDomain,
   CampaignDomain, InsertCampaignDomain,
-  Client, InsertClient
+  Client, InsertClient,
+  ClientUser, InsertClientUser
 } from "@shared/schema";
 
 // Interface for storage operations
@@ -103,6 +104,16 @@ export interface IStorage {
   removeDomainFromCampaign(campaignId: number, domainId: number): Promise<boolean>;
   getCampaignDomains(campaignId: number): Promise<Domain[]>;
   getDomainCampaigns(domainId: number): Promise<Campaign[]>;
+  
+  // Client User methods
+  getClientUsers(): Promise<ClientUser[]>;
+  getClientUser(id: number): Promise<ClientUser | undefined>;
+  getClientUserByUsername(username: string): Promise<ClientUser | undefined>;
+  getClientUsersByClientId(clientId: number): Promise<ClientUser[]>;
+  createClientUser(clientUser: InsertClientUser): Promise<ClientUser>;
+  updateClientUser(id: number, clientUser: Partial<ClientUser>): Promise<ClientUser | undefined>;
+  deleteClientUser(id: number): Promise<boolean>;
+  verifyClientLogin(username: string, password: string): Promise<ClientUser | undefined>;
 }
 
 // In-memory implementation of storage
@@ -119,6 +130,7 @@ export class MemStorage implements IStorage {
   private campaignDomains: Map<number, CampaignDomain>;
   private campaignVariants: Map<number, CampaignVariant>;
   private variantAnalytics: Map<number, VariantAnalytics>;
+  private clientUsers: Map<number, ClientUser>;
 
   private contactId: number;
   private listId: number;
@@ -132,6 +144,7 @@ export class MemStorage implements IStorage {
   private campaignDomainId: number;
   private campaignVariantId: number;
   private variantAnalyticId: number;
+  private clientUserId: number;
 
   constructor() {
     this.contacts = new Map();
@@ -146,6 +159,7 @@ export class MemStorage implements IStorage {
     this.campaignDomains = new Map();
     this.campaignVariants = new Map();
     this.variantAnalytics = new Map();
+    this.clientUsers = new Map();
 
     this.contactId = 1;
     this.listId = 1;
@@ -159,6 +173,7 @@ export class MemStorage implements IStorage {
     this.campaignDomainId = 1;
     this.campaignVariantId = 1;
     this.variantAnalyticId = 1;
+    this.clientUserId = 1;
 
     // Initialize with some default data
     this.initializeData();
@@ -841,6 +856,65 @@ export class MemStorage implements IStorage {
     
     return Array.from(this.campaigns.values())
       .filter(campaign => campaignIds.includes(campaign.id));
+  }
+  
+  // Client User methods
+  async getClientUsers(): Promise<ClientUser[]> {
+    return Array.from(this.clientUsers.values());
+  }
+  
+  async getClientUser(id: number): Promise<ClientUser | undefined> {
+    return this.clientUsers.get(id);
+  }
+  
+  async getClientUserByUsername(username: string): Promise<ClientUser | undefined> {
+    return Array.from(this.clientUsers.values()).find(user => user.username === username);
+  }
+  
+  async getClientUsersByClientId(clientId: number): Promise<ClientUser[]> {
+    return Array.from(this.clientUsers.values())
+      .filter(user => user.clientId === clientId);
+  }
+  
+  async createClientUser(clientUser: InsertClientUser): Promise<ClientUser> {
+    const id = this.clientUserId++;
+    const now = new Date();
+    const newClientUser: ClientUser = {
+      ...clientUser,
+      id,
+      createdAt: now,
+      lastLoginAt: null
+    };
+    this.clientUsers.set(id, newClientUser);
+    return newClientUser;
+  }
+  
+  async updateClientUser(id: number, clientUser: Partial<ClientUser>): Promise<ClientUser | undefined> {
+    const existingUser = this.clientUsers.get(id);
+    if (!existingUser) return undefined;
+    
+    const updatedUser = { ...existingUser, ...clientUser };
+    this.clientUsers.set(id, updatedUser);
+    return updatedUser;
+  }
+  
+  async deleteClientUser(id: number): Promise<boolean> {
+    return this.clientUsers.delete(id);
+  }
+  
+  async verifyClientLogin(username: string, password: string): Promise<ClientUser | undefined> {
+    const user = await this.getClientUserByUsername(username);
+    if (!user) return undefined;
+    
+    // In a real implementation, we would use bcrypt to compare hashed passwords
+    if (user.password === password) {
+      // Update last login timestamp
+      user.lastLoginAt = new Date();
+      this.clientUsers.set(user.id, user);
+      return user;
+    }
+    
+    return undefined;
   }
 }
 

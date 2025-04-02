@@ -11,8 +11,9 @@ import {
   Domain, InsertDomain,
   CampaignDomain, InsertCampaignDomain,
   Client, InsertClient,
+  ClientUser, InsertClientUser,
   users, contacts, lists, contactLists, campaigns, emails, templates, analytics,
-  campaignVariants, variantAnalytics, domains, campaignDomains, clients
+  campaignVariants, variantAnalytics, domains, campaignDomains, clients, clientUsers
 } from '@shared/schema';
 import { IStorage } from './storage';
 import { db } from './db';
@@ -480,6 +481,57 @@ export class DbStorage implements IStorage {
     }
     
     return campaignResults;
+  }
+  
+  // Client User methods
+  async getClientUsers(): Promise<ClientUser[]> {
+    return await db.select().from(clientUsers);
+  }
+  
+  async getClientUser(id: number): Promise<ClientUser | undefined> {
+    const result = await db.select().from(clientUsers).where(eq(clientUsers.id, id));
+    return result[0];
+  }
+  
+  async getClientUserByUsername(username: string): Promise<ClientUser | undefined> {
+    const result = await db.select().from(clientUsers).where(eq(clientUsers.username, username));
+    return result[0];
+  }
+  
+  async getClientUsersByClientId(clientId: number): Promise<ClientUser[]> {
+    return await db.select().from(clientUsers).where(eq(clientUsers.clientId, clientId));
+  }
+  
+  async createClientUser(clientUser: InsertClientUser): Promise<ClientUser> {
+    const result = await db.insert(clientUsers).values(clientUser).returning();
+    return result[0];
+  }
+  
+  async updateClientUser(id: number, clientUser: Partial<ClientUser>): Promise<ClientUser | undefined> {
+    const result = await db.update(clientUsers)
+      .set(clientUser)
+      .where(eq(clientUsers.id, id))
+      .returning();
+    return result[0];
+  }
+  
+  async deleteClientUser(id: number): Promise<boolean> {
+    const result = await db.delete(clientUsers).where(eq(clientUsers.id, id)).returning();
+    return result.length > 0;
+  }
+  
+  async verifyClientLogin(username: string, password: string): Promise<ClientUser | undefined> {
+    const user = await this.getClientUserByUsername(username);
+    if (!user) return undefined;
+    
+    // In a real implementation, we would use bcrypt to compare hashed passwords
+    if (user.password === password) {
+      // Update last login timestamp
+      await this.updateClientUser(user.id, { lastLoginAt: new Date() });
+      return user;
+    }
+    
+    return undefined;
   }
 
   // Initialize the database with sample data

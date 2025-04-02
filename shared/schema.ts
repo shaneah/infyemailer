@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, timestamp, json } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, json, foreignKey } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -302,3 +302,26 @@ export const insertCampaignDomainSchema = createInsertSchema(campaignDomains).pi
 
 export type InsertCampaignDomain = z.infer<typeof insertCampaignDomainSchema>;
 export type CampaignDomain = typeof campaignDomains.$inferSelect;
+
+// Client User credentials for client login
+export const clientUsers = pgTable("client_users", {
+  id: serial("id").primaryKey(),
+  clientId: integer("client_id").notNull().references(() => clients.id),
+  username: text("username").notNull().unique(),
+  password: text("password").notNull(),
+  lastLoginAt: timestamp("last_login_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+  status: text("status").notNull().default("active"), // active, inactive, suspended
+  metadata: json("metadata")
+});
+
+export const insertClientUserSchema = createInsertSchema(clientUsers).pick({
+  clientId: true,
+  username: true,
+  password: true,
+  status: true,
+  metadata: true,
+});
+
+export type InsertClientUser = z.infer<typeof insertClientUserSchema>;
+export type ClientUser = typeof clientUsers.$inferSelect;
