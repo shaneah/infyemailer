@@ -667,26 +667,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // User/Admin routes
   app.post('/api/register', async (req: Request, res: Response) => {
-    const validatedData = validate(insertUserSchema, req.body);
-    if ('error' in validatedData) {
-      return res.status(400).json({ error: validatedData.error });
-    }
-
+    console.log('Registration request received:', req.body);
+    
     try {
+      const validatedData = validate(insertUserSchema, req.body);
+      if ('error' in validatedData) {
+        console.log('Validation error:', validatedData.error);
+        return res.status(400).json({ error: validatedData.error });
+      }
+
+      console.log('Validated data:', validatedData);
+      
       // Check if username already exists
       const existingUser = await storage.getUserByUsername(validatedData.username);
       if (existingUser) {
+        console.log('Username already exists:', validatedData.username);
         return res.status(400).json({ error: 'Username already taken' });
       }
 
       // Check if email already exists
       const existingEmail = await storage.getUserByEmail(validatedData.email);
       if (existingEmail) {
+        console.log('Email already exists:', validatedData.email);
         return res.status(400).json({ error: 'Email already in use' });
       }
 
+      // Ensure necessary fields exist with proper defaults
+      const userData = {
+        ...validatedData,
+        status: validatedData.status || 'active',
+        role: validatedData.role || 'admin',
+        metadata: validatedData.metadata || {}
+      };
+      
+      console.log('Creating user with data:', userData);
+      
       // Create new user
-      const newUser = await storage.createUser(validatedData);
+      const newUser = await storage.createUser(userData);
+      console.log('User created successfully:', newUser.id);
       
       // Return user without password
       const { password: _, ...userWithoutPassword } = newUser;
@@ -694,7 +712,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(201).json(userWithoutPassword);
     } catch (error) {
       console.error('Registration error:', error);
-      res.status(500).json({ error: 'Registration failed. Please try again.' });
+      res.status(500).json({ error: error instanceof Error ? error.message : 'Registration failed. Please try again.' });
     }
   });
 
