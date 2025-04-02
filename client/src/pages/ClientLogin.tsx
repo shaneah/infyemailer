@@ -11,6 +11,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { apiRequest } from "@/lib/queryClient";
 import { useState } from "react";
+import infyLogo from "../assets/infy.png";
 
 const clientLoginSchema = z.object({
   username: z.string().min(1, "Username is required"),
@@ -76,7 +77,7 @@ export default function ClientLogin() {
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <div className="flex justify-center mb-6">
-            <img src="/logo.svg" alt="InfyMailer Logo" className="h-12" />
+            <img src={infyLogo} alt="InfyMailer Logo" className="h-16" />
           </div>
           <CardTitle className="text-2xl font-bold text-center">Client Portal</CardTitle>
           <CardDescription className="text-center">

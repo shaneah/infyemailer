@@ -77,7 +77,7 @@ export default function Login() {
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <div className="flex justify-center mb-6">
-            <img src="/logo.svg" alt="InfyMailer Logo" className="h-12" />
+            <img src={infyLogo} alt="InfyMailer Logo" className="h-16" />
           </div>
           <CardTitle className="text-2xl font-bold text-center">Admin Login</CardTitle>
           <CardDescription className="text-center">
@@ -94,7 +94,7 @@ export default function Login() {
                   <FormItem>
                     <FormLabel>Username or Email</FormLabel>
                     <FormControl>
-                      <Input placeholder="admin@example.com" {...field} />
+                      <Input placeholder="aadimughal" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
