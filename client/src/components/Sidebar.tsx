@@ -1,6 +1,6 @@
 import { Link, useLocation } from "wouter";
 import { Mail, LayoutDashboard, Megaphone, FileText, Users, Building, BarChart2, Activity, Split, Globe, Settings as SettingsIcon, ShieldCheck } from "lucide-react";
-import infyLogo from "../assets/infy.png";
+import infyLogo from "../assets/Logo-white.png";
 
 interface SidebarProps {
   open: boolean;

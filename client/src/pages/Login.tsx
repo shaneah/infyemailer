@@ -11,7 +11,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { apiRequest } from "@/lib/queryClient";
 import { useState } from "react";
-import infyLogo from "../assets/infy.png";
+import infyLogo from "../assets/Logo-white.png";
 
 const loginSchema = z.object({
   usernameOrEmail: z.string().min(1, "Username or email is required"),
@@ -37,10 +37,8 @@ export default function Login() {
 
   const loginMutation = useMutation({
     mutationFn: async (data: LoginFormValues) => {
-      return apiRequest('/api/login', {
-        method: 'POST',
-        body: JSON.stringify(data),
-      });
+      const response = await apiRequest('POST', '/api/login', data);
+      return response.json();
     },
     onSuccess: (data) => {
       toast({
