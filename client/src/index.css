@@ -67,6 +67,78 @@
   [draggable]:active {
     cursor: grabbing;
   }
+  
+  /* Enhanced tabs styling (for TemplateBuilder) */
+  .tabs-container {
+    @apply border-b mb-6 pb-1;
+  }
+  
+  .tabs-list {
+    @apply bg-transparent border-0 p-0 gap-6;
+  }
+  
+  .tab-trigger {
+    @apply rounded-none border-0 pb-2 px-1 data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none text-base font-medium data-[state=active]:text-primary;
+  }
+  
+  /* Email canvas improvements */
+  .email-canvas {
+    @apply bg-gray-50 p-6 min-h-[600px] max-h-[600px] overflow-auto;
+    background-image: linear-gradient(45deg, #f0f0f0 25%, transparent 25%, transparent 75%, #f0f0f0 75%, #f0f0f0), 
+                      linear-gradient(45deg, #f0f0f0 25%, transparent 25%, transparent 75%, #f0f0f0 75%, #f0f0f0);
+    background-size: 20px 20px;
+    background-position: 0 0, 10px 10px;
+  }
+  
+  .email-container {
+    @apply max-w-[600px] mx-auto bg-white shadow-lg rounded-md overflow-hidden border border-gray-200;
+  }
+  
+  .email-header {
+    @apply bg-primary/10 px-6 py-4 border-b border-primary/20;
+  }
+  
+  .email-content {
+    @apply px-2 py-2 bg-white;
+  }
+  
+  .email-footer {
+    @apply bg-gray-100 py-4 px-4 text-center text-gray-500 text-sm border-t border-gray-200;
+  }
+  
+  /* Component toolbox improvements */
+  .toolbox-item {
+    @apply flex flex-col items-center justify-center p-3 rounded-md bg-white border border-gray-200 transition-all hover:border-primary/50 hover:bg-primary/5;
+  }
+  
+  .property-card {
+    @apply border-primary/20 shadow-md overflow-hidden;
+  }
+  
+  .property-header {
+    @apply bg-primary/10 py-3 px-4 border-b border-primary/20 font-semibold text-primary text-lg;
+  }
+  
+  /* Visual appearance improvements */
+  .preview-window {
+    @apply rounded-lg overflow-hidden border border-gray-200 shadow-sm;
+  }
+  
+  .preview-header {
+    @apply border-b border-gray-200 px-4 py-3 flex items-center justify-between bg-white;
+  }
+  
+  .preview-dots {
+    @apply flex space-x-1;
+  }
+  
+  .preview-dot {
+    @apply w-3 h-3 rounded-full;
+  }
+  
+  .preview-container {
+    @apply p-6 overflow-auto min-h-[600px] max-h-[600px];
+  }
 }
 
 /* Bootstrap Classes with Updated Theme */

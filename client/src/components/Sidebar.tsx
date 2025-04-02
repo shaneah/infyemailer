@@ -1,4 +1,5 @@
 import { Link, useLocation } from "wouter";
+import { Mail, LayoutDashboard, Megaphone, FileText, Users, Building, BarChart2, Activity, Split, Globe, Settings as SettingsIcon, ShieldCheck } from "lucide-react";
 
 interface SidebarProps {
   open: boolean;
@@ -8,111 +9,176 @@ const Sidebar = ({ open }: SidebarProps) => {
   const [location] = useLocation();
   
   return (
-    <nav id="sidebar" className={`col-md-3 col-lg-2 d-md-block bg-dark sidebar ${open ? 'show' : ''}`}>
-      <div className="position-sticky pt-3 h-100">
-        <div className="d-flex align-items-center justify-content-between px-3 mb-4 d-none d-md-flex">
-          <Link href="/" className="text-decoration-none text-white fs-4 fw-bold">
-            <i className="bi bi-envelope-fill me-2"></i>MailFlow
+    <nav id="sidebar" className={`col-md-3 col-lg-2 d-md-block bg-[#2c2f33] sidebar ${open ? 'show' : ''}`} style={{ width: '205px', fontSize: '14px' }}>
+      <div className="h-full flex flex-col">
+        {/* Logo */}
+        <div className="px-4 py-4">
+          <Link href="/" className="text-white font-bold text-lg flex items-center">
+            <Mail className="mr-2 h-5 w-5" />
+            MailFlow
           </Link>
         </div>
-        <div className="px-3 mb-4">
-          <div className="d-flex align-items-center text-white mb-3">
-            <div className="rounded-circle me-2 bg-gray-500 w-8 h-8 flex items-center justify-center">JS</div>
+        
+        {/* User Profile */}
+        <div className="px-4 mb-4">
+          <div className="flex items-center text-white">
+            <div className="rounded-full bg-gray-500 w-9 h-9 flex items-center justify-center mr-3 text-sm font-medium">
+              JS
+            </div>
             <div>
-              <div className="fw-bold">John Smith</div>
-              <small className="text-muted">Pro Plan</small>
+              <div className="font-medium">John Smith</div>
+              <div className="text-xs text-gray-400">Pro Plan</div>
             </div>
           </div>
         </div>
-        <ul className="nav flex-column">
-          <li className="nav-item">
-            <Link href="/" className={`nav-link ${location === '/' ? 'active text-white' : 'text-white-50'}`}>
-              <i className="bi bi-speedometer2 me-2"></i>
+        
+        {/* Navigation */}
+        <ul className="space-y-1 px-2 flex-grow">
+          <li>
+            <Link 
+              href="/" 
+              className={`flex items-center px-2 py-2 rounded-md ${location === '/' 
+                ? 'text-white border-l-4 border-primary bg-primary/10' 
+                : 'text-gray-300 hover:bg-gray-700/30'}`}
+            >
+              <LayoutDashboard className="h-5 w-5 mr-3" />
               Dashboard
             </Link>
           </li>
-          <li className="nav-item">
-            <Link href="/campaigns" className={`nav-link ${location === '/campaigns' ? 'active text-white' : 'text-white-50'}`}>
-              <i className="bi bi-megaphone me-2"></i>
+          <li>
+            <Link 
+              href="/campaigns" 
+              className={`flex items-center px-2 py-2 rounded-md ${location === '/campaigns' 
+                ? 'text-white border-l-4 border-primary bg-primary/10' 
+                : 'text-gray-300 hover:bg-gray-700/30'}`}
+            >
+              <Megaphone className="h-5 w-5 mr-3" />
               Campaigns
             </Link>
           </li>
-          <li className="nav-item">
-            <Link href="/emails" className={`nav-link ${location === '/emails' ? 'active text-white' : 'text-white-50'}`}>
-              <i className="bi bi-envelope me-2"></i>
+          <li>
+            <Link 
+              href="/emails" 
+              className={`flex items-center px-2 py-2 rounded-md ${location === '/emails' 
+                ? 'text-white border-l-4 border-primary bg-primary/10' 
+                : 'text-gray-300 hover:bg-gray-700/30'}`}
+            >
+              <Mail className="h-5 w-5 mr-3" />
               Emails
-              <span className="position-relative">
-                <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                  3
-                </span>
+              <span className="ml-auto bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                3
               </span>
             </Link>
           </li>
-          <li className="nav-item">
-            <Link href="/templates" className={`nav-link ${location === '/templates' ? 'active text-white' : 'text-white-50'}`}>
-              <i className="bi bi-file-earmark-text me-2"></i>
+          <li>
+            <Link 
+              href="/templates" 
+              className={`flex items-center px-2 py-2 rounded-md ${location === '/templates' || location.includes('/template-builder')
+                ? 'text-white border-l-4 border-primary bg-primary/10' 
+                : 'text-gray-300 hover:bg-gray-700/30'}`}
+            >
+              <FileText className="h-5 w-5 mr-3" />
               Templates
             </Link>
           </li>
-          <li className="nav-item">
-            <Link href="/contacts" className={`nav-link ${location === '/contacts' ? 'active text-white' : 'text-white-50'}`}>
-              <i className="bi bi-people me-2"></i>
+          <li>
+            <Link 
+              href="/contacts" 
+              className={`flex items-center px-2 py-2 rounded-md ${location === '/contacts' 
+                ? 'text-white border-l-4 border-primary bg-primary/10' 
+                : 'text-gray-300 hover:bg-gray-700/30'}`}
+            >
+              <Users className="h-5 w-5 mr-3" />
               Contacts
             </Link>
           </li>
-          <li className="nav-item">
-            <Link href="/clients" className={`nav-link ${location === '/clients' ? 'active text-white' : 'text-white-50'}`}>
-              <i className="bi bi-building me-2"></i>
+          <li>
+            <Link 
+              href="/clients" 
+              className={`flex items-center px-2 py-2 rounded-md ${location === '/clients' 
+                ? 'text-white border-l-4 border-primary bg-primary/10' 
+                : 'text-gray-300 hover:bg-gray-700/30'}`}
+            >
+              <Building className="h-5 w-5 mr-3" />
               Clients
             </Link>
           </li>
-          <li className="nav-item">
-            <Link href="/analytics" className={`nav-link ${location === '/analytics' ? 'active text-white' : 'text-white-50'}`}>
-              <i className="bi bi-graph-up me-2"></i>
+          <li>
+            <Link 
+              href="/analytics" 
+              className={`flex items-center px-2 py-2 rounded-md ${location === '/analytics' 
+                ? 'text-white border-l-4 border-primary bg-primary/10' 
+                : 'text-gray-300 hover:bg-gray-700/30'}`}
+            >
+              <BarChart2 className="h-5 w-5 mr-3" />
               Analytics
             </Link>
           </li>
-          <li className="nav-item">
-            <Link href="/email-performance" className={`nav-link ${location === '/email-performance' ? 'active text-white' : 'text-white-50'}`}>
-              <i className="bi bi-activity me-2"></i>
-              Email Performance
+          <li>
+            <Link 
+              href="/email-performance" 
+              className={`flex items-center px-2 py-2 rounded-md ${location === '/email-performance' 
+                ? 'text-white border-l-4 border-primary bg-primary/10' 
+                : 'text-gray-300 hover:bg-gray-700/30'}`}
+            >
+              <Activity className="h-5 w-5 mr-3" />
+              <span className="flex-wrap">Email Performance</span>
             </Link>
           </li>
-          <li className="nav-item">
-            <Link href="/ab-testing" className={`nav-link ${location.startsWith('/ab-testing') ? 'active text-white' : 'text-white-50'}`}>
-              <i className="bi bi-shuffle me-2"></i>
+          <li>
+            <Link 
+              href="/ab-testing" 
+              className={`flex items-center px-2 py-2 rounded-md ${location.startsWith('/ab-testing') 
+                ? 'text-white border-l-4 border-primary bg-primary/10' 
+                : 'text-gray-300 hover:bg-gray-700/30'}`}
+            >
+              <Split className="h-5 w-5 mr-3" />
               A/B Testing
             </Link>
           </li>
-          <li className="nav-item">
-            <Link href="/domains" className={`nav-link ${location === '/domains' ? 'active text-white' : 'text-white-50'}`}>
-              <i className="bi bi-globe me-2"></i>
+          <li>
+            <Link 
+              href="/domains" 
+              className={`flex items-center px-2 py-2 rounded-md ${location === '/domains' 
+                ? 'text-white border-l-4 border-primary bg-primary/10' 
+                : 'text-gray-300 hover:bg-gray-700/30'}`}
+            >
+              <Globe className="h-5 w-5 mr-3" />
               Domains
             </Link>
           </li>
-          <li className="nav-item">
-            <Link href="/settings" className={`nav-link ${location === '/settings' ? 'active text-white' : 'text-white-50'}`}>
-              <i className="bi bi-gear me-2"></i>
+          <li>
+            <Link 
+              href="/settings" 
+              className={`flex items-center px-2 py-2 rounded-md ${location === '/settings' 
+                ? 'text-white border-l-4 border-primary bg-primary/10' 
+                : 'text-gray-300 hover:bg-gray-700/30'}`}
+            >
+              <SettingsIcon className="h-5 w-5 mr-3" />
               Settings
             </Link>
           </li>
-          <li className="nav-item">
-            <Link href="/admin" className={`nav-link ${location === '/admin' ? 'active text-white' : 'text-white-50'}`}>
-              <i className="bi bi-shield-lock me-2"></i>
+          <li>
+            <Link 
+              href="/admin" 
+              className={`flex items-center px-2 py-2 rounded-md ${location === '/admin' 
+                ? 'text-white border-l-4 border-primary bg-primary/10' 
+                : 'text-gray-300 hover:bg-gray-700/30'}`}
+            >
+              <ShieldCheck className="h-5 w-5 mr-3" />
               Admin Panel
             </Link>
           </li>
         </ul>
-        <hr className="text-white-50" />
-        <div className="px-3 mt-auto mb-3">
-          <div className="card bg-primary bg-opacity-10 border-0">
-            <div className="card-body p-3">
-              <h6 className="text-white mb-2">Storage</h6>
-              <div className="progress mb-2" style={{ height: '6px' }}>
-                <div className="progress-bar" role="progressbar" style={{ width: '65%' }} aria-valuenow={65} aria-valuemin={0} aria-valuemax={100}></div>
-              </div>
-              <small className="text-white-50">65% of 10GB used</small>
+        
+        {/* Storage */}
+        <div className="px-4 mb-6 mt-4">
+          <div className="bg-primary/20 rounded-md p-4">
+            <div className="text-white font-medium mb-2">Storage</div>
+            <div className="bg-white/20 h-1.5 rounded-full mb-2">
+              <div className="bg-white h-1.5 rounded-full" style={{ width: '65%' }}></div>
             </div>
+            <div className="text-gray-300 text-xs">65% of 10GB used</div>
           </div>
         </div>
       </div>

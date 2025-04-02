@@ -207,7 +207,7 @@ const EmailComponentRenderer = ({ component, onClick }: { component: EmailCompon
 const ComponentToolboxItem = ({ type, icon, label, onDragStart }: ComponentToolboxItemProps) => {
   return (
     <div
-      className="relative p-4 border border-gray-200 rounded-lg flex flex-col items-center justify-center gap-2.5 hover:bg-primary/5 cursor-grab transition-all hover:border-primary hover:shadow-md group"
+      className="toolbox-item group"
       draggable
       onDragStart={(e) => onDragStart(e, type)}
       data-element-type={type}
@@ -936,33 +936,35 @@ export default function TemplateBuilder() {
 
       <div className="container mx-auto py-6 px-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="mb-6 w-full lg:w-auto bg-white border shadow-sm">
-            <TabsTrigger 
-              value="editor" 
-              className="data-[state=active]:bg-primary data-[state=active]:text-white px-6 py-2"
-            >
-              Editor
-            </TabsTrigger>
-            <TabsTrigger 
-              value="preview"
-              className="data-[state=active]:bg-primary data-[state=active]:text-white px-6 py-2"
-            >
-              Preview
-            </TabsTrigger>
-            <TabsTrigger 
-              value="code"
-              className="data-[state=active]:bg-primary data-[state=active]:text-white px-6 py-2"
-            >
-              HTML Code
-            </TabsTrigger>
-          </TabsList>
+          <div className="border-b mb-6 pb-1">
+            <TabsList className="bg-transparent border-0 p-0 gap-6">
+              <TabsTrigger 
+                value="editor" 
+                className="rounded-none border-0 pb-2 px-1 data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none text-base font-medium data-[state=active]:text-primary"
+              >
+                Design
+              </TabsTrigger>
+              <TabsTrigger 
+                value="preview" 
+                className="rounded-none border-0 pb-2 px-1 data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none text-base font-medium data-[state=active]:text-primary"
+              >
+                Preview
+              </TabsTrigger>
+              <TabsTrigger 
+                value="code" 
+                className="rounded-none border-0 pb-2 px-1 data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none text-base font-medium data-[state=active]:text-primary"
+              >
+                HTML
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
           <TabsContent value="editor">
             <div className="grid grid-cols-12 gap-6">
               {/* Components Toolbox */}
               <div className="col-span-12 lg:col-span-3">
-                <Card className="border-primary/20 shadow-md sticky top-24 overflow-hidden">
-                  <div className="bg-primary/10 py-3 px-4 border-b border-primary/20">
+                <Card className="property-card sticky top-24">
+                  <div className="property-header">
                     <h3 className="font-semibold text-primary text-lg">Email Elements</h3>
                   </div>
                   <CardContent className="p-5">
@@ -1036,27 +1038,61 @@ export default function TemplateBuilder() {
                 </Card>
               </div>
               
-              {/* Email Canvas - Mailchimp-style with checkerboard background */}
+              {/* Email Canvas - Professional design */}
               <div className="col-span-12 lg:col-span-7">
-                <div 
-                  className="bg-gray-100 border rounded-md p-6 shadow-sm" 
-                  style={{backgroundImage: 'linear-gradient(45deg, #f0f0f0 25%, transparent 25%, transparent 75%, #f0f0f0 75%, #f0f0f0), linear-gradient(45deg, #f0f0f0 25%, transparent 25%, transparent 75%, #f0f0f0 75%, #f0f0f0)', backgroundSize: '20px 20px', backgroundPosition: '0 0, 10px 10px'}}
-                >
-                  <div className="max-w-[600px] mx-auto bg-white shadow-md rounded-md overflow-hidden">
-                    {sections.map((section) => (
-                      <Section 
-                        key={section.id}
-                        id={section.id}
-                        components={section.components}
-                        onDrop={handleDrop}
-                        onComponentClick={handleComponentClick}
-                        selected={selectedComponentId === section.id}
-                      />
-                    ))}
+                <div className="flex flex-col h-full">
+                  <div className="preview-window">
+                    <div className="preview-header">
+                      <div className="flex items-center space-x-3">
+                        <div className="preview-dots">
+                          <div className="preview-dot bg-red-500"></div>
+                          <div className="preview-dot bg-yellow-500"></div>
+                          <div className="preview-dot bg-green-500"></div>
+                        </div>
+                        <div className="text-sm font-medium text-gray-700">
+                          Email Template Preview
+                        </div>
+                      </div>
+                      <div className="text-sm text-gray-500 hidden md:block">
+                        <span className="px-2 py-1 bg-gray-100 rounded-md border border-gray-200 text-xs font-mono">
+                          width: 600px
+                        </span>
+                      </div>
+                    </div>
                     
-                    {/* Add a footer to the email template */}
-                    <div className="bg-gray-100 py-4 px-4 text-center text-gray-500 text-sm border-t">
-                      <p>Email sent with our Email Marketing Platform</p>
+                    <div className="email-canvas">
+                      <div className="email-container">
+                        {/* Email Header */}
+                        <div className="email-header">
+                          <div className="font-medium text-center text-primary text-lg">
+                            {templateName || "Untitled Template"}
+                          </div>
+                        </div>
+                        
+                        {/* Email Content */}
+                        <div className="email-content">
+                          {sections.map((section) => (
+                            <Section 
+                              key={section.id}
+                              id={section.id}
+                              components={section.components}
+                              onDrop={handleDrop}
+                              onComponentClick={handleComponentClick}
+                              selected={selectedComponentId === section.id}
+                            />
+                          ))}
+                        </div>
+                        
+                        {/* Email Footer */}
+                        <div className="email-footer">
+                          <div className="mb-2">
+                            <span className="text-primary font-medium">MailFlow</span> Email Marketing
+                          </div>
+                          <p className="text-xs text-gray-400">
+                            Sent with our Email Marketing Platform • <a href="#" className="text-primary hover:underline">Unsubscribe</a>
+                          </p>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1064,8 +1100,8 @@ export default function TemplateBuilder() {
               
               {/* Property Editor */}
               <div className="col-span-12 lg:col-span-3">
-                <Card className="border-primary/20 shadow-md sticky top-24 overflow-hidden">
-                  <div className="bg-primary/10 py-3 px-4 border-b border-primary/20">
+                <Card className="property-card sticky top-24">
+                  <div className="property-header">
                     <h3 className="font-semibold text-primary text-lg">Element Properties</h3>
                   </div>
                   <CardContent className="p-0">
