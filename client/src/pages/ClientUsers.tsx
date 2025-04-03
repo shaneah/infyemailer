@@ -85,7 +85,7 @@ function ClientSelector({ onSelect, selectedClientId }: ClientSelectorProps) {
 
   return (
     <div className="mb-6">
-      <FormLabel className="mb-2 block">Select Client</FormLabel>
+      <div className="mb-2 block font-medium">Select Client</div>
       <Select 
         value={selectedClientId?.toString() || ''} 
         onValueChange={(value) => onSelect(parseInt(value))}
