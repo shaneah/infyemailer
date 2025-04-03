@@ -591,102 +591,108 @@ export default function ClientUsers() {
             </div>
           )}
 
+          {/* Content area conditionally rendered based on client selection */}
           {!selectedClientId ? (
+            // No client selected
             <div className="text-center p-10 border border-dashed rounded-lg">
               <Shield className="mx-auto h-10 w-10 text-muted-foreground mb-2" />
               <h3 className="text-lg font-medium mb-1">Select a Client</h3>
               <p className="text-muted-foreground mb-4">Please select a client from the dropdown above to manage their users.</p>
             </div>
           ) : isLoading ? (
-              <div className="space-y-4">
-                {[1, 2, 3].map((i) => (
-                  <div key={i} className="flex items-center space-x-4">
-                    <Skeleton className="h-12 w-12 rounded-full" />
-                    <div className="space-y-2">
-                      <Skeleton className="h-4 w-[250px]" />
-                      <Skeleton className="h-4 w-[200px]" />
-                    </div>
+            // Loading state
+            <div className="space-y-4">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="flex items-center space-x-4">
+                  <Skeleton className="h-12 w-12 rounded-full" />
+                  <div className="space-y-2">
+                    <Skeleton className="h-4 w-[250px]" />
+                    <Skeleton className="h-4 w-[200px]" />
                   </div>
-                ))}
-              </div>
-            ) : isError ? (
-              <div className="text-center p-4">
-                <p className="text-red-500 mb-2">Failed to load client users</p>
-                <Button onClick={() => refetch()}>Retry</Button>
-              </div>
-            ) : clientUsers && clientUsers.length === 0 ? (
-              <div className="text-center p-10 border border-dashed rounded-lg">
-                <User className="mx-auto h-10 w-10 text-muted-foreground mb-2" />
-                <h3 className="text-lg font-medium mb-1">No users found</h3>
-                <p className="text-muted-foreground mb-4">This client doesn't have any portal users yet.</p>
-                <Button onClick={() => setIsNewUserOpen(true)}>Add First User</Button>
-              </div>
-            ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Username</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Created</TableHead>
-                    <TableHead>Last Login</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                </div>
+              ))}
+            </div>
+          ) : isError ? (
+            // Error state
+            <div className="text-center p-4">
+              <p className="text-red-500 mb-2">Failed to load client users</p>
+              <Button onClick={() => refetch()}>Retry</Button>
+            </div>
+          ) : clientUsers && clientUsers.length === 0 ? (
+            // Empty state
+            <div className="text-center p-10 border border-dashed rounded-lg">
+              <User className="mx-auto h-10 w-10 text-muted-foreground mb-2" />
+              <h3 className="text-lg font-medium mb-1">No users found</h3>
+              <p className="text-muted-foreground mb-4">This client doesn't have any portal users yet.</p>
+              <Button onClick={() => setIsNewUserOpen(true)}>Add First User</Button>
+            </div>
+          ) : (
+            // Users table
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Username</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Created</TableHead>
+                  <TableHead>Last Login</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {clientUsers && clientUsers.map((user) => (
+                  <TableRow key={user.id}>
+                    <TableCell className="font-medium">{user.username}</TableCell>
+                    <TableCell>
+                      <Badge variant={user.status === "active" ? "default" : "secondary"}>
+                        {user.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : "N/A"}
+                    </TableCell>
+                    <TableCell>
+                      {user.lastLoginAt ? new Date(user.lastLoginAt).toLocaleDateString() : "Never"}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-2">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleEditUser(user)}
+                        >
+                          <Edit size={16} />
+                        </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="ghost" size="icon" className="text-red-500 hover:text-red-700">
+                              <Trash2 size={16} />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                This will permanently delete the user "{user.username}" and cannot be undone.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction 
+                                onClick={() => handleDeleteUser(user.id)}
+                                className="bg-red-500 hover:bg-red-600"
+                              >
+                                Delete
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
+                    </TableCell>
                   </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {clientUsers && clientUsers.map((user) => (
-                    <TableRow key={user.id}>
-                      <TableCell className="font-medium">{user.username}</TableCell>
-                      <TableCell>
-                        <Badge variant={user.status === "active" ? "default" : "secondary"}>
-                          {user.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : "N/A"}
-                      </TableCell>
-                      <TableCell>
-                        {user.lastLoginAt ? new Date(user.lastLoginAt).toLocaleDateString() : "Never"}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleEditUser(user)}
-                          >
-                            <Edit size={16} />
-                          </Button>
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <Button variant="ghost" size="icon" className="text-red-500 hover:text-red-700">
-                                <Trash2 size={16} />
-                              </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  This will permanently delete the user "{user.username}" and cannot be undone.
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction 
-                                  onClick={() => handleDeleteUser(user.id)}
-                                  className="bg-red-500 hover:bg-red-600"
-                                >
-                                  Delete
-                                </AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            )}
+                ))}
+              </TableBody>
+            </Table>
+          )}
 
           {/* Edit User Dialog */}
           <Dialog open={isEditUserOpen} onOpenChange={setIsEditUserOpen}>
