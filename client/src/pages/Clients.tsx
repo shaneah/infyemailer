@@ -51,12 +51,24 @@ const ClientsPage: React.FC = () => {
 
   // Add client mutation
   const addClientMutation = useMutation({
-    mutationFn: (newClient: ClientFormValues) => 
-      apiRequest('/api/clients', {
-        method: 'POST',
-        body: JSON.stringify(newClient),
-        headers: { 'Content-Type': 'application/json' }
-      }),
+    mutationFn: async (newClient: ClientFormValues) => {
+      console.log('Sending client data:', newClient);
+      
+      try {
+        const response = await apiRequest('/api/clients', {
+          method: 'POST',
+          body: JSON.stringify(newClient),
+          headers: { 'Content-Type': 'application/json' }
+        });
+        
+        const responseData = await response.json();
+        console.log('Server response:', responseData);
+        return responseData;
+      } catch (error) {
+        console.error('Error in API request:', error);
+        throw error;
+      }
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/clients'] });
       toast({
@@ -66,6 +78,7 @@ const ClientsPage: React.FC = () => {
       setIsNewClientOpen(false);
     },
     onError: (error) => {
+      console.error('Mutation error:', error);
       toast({
         title: "Error",
         description: `Failed to add client: ${error instanceof Error ? error.message : 'Unknown error'}`,
