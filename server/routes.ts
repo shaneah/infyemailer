@@ -3,6 +3,8 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { generateSubjectLines, generateEmailTemplate } from "./services/openai";
 import { setupAuth } from "./auth";
+import { EmailValidationService } from "./services/emailValidation";
+import { emailSchema } from "../shared/validation";
 import { 
   insertContactSchema, 
   insertListSchema, 
@@ -1254,6 +1256,55 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ 
         error: 'Failed to generate email template. Please ensure your OpenAI API key is valid.'
       });
+    }
+  });
+
+  // Email Validation routes
+  app.post('/api/email-validation/single', async (req: Request, res: Response) => {
+    try {
+      const { email } = req.body;
+      
+      if (!email || typeof email !== 'string') {
+        return res.status(400).json({ error: 'Valid email is required' });
+      }
+      
+      const result = await EmailValidationService.validateSingleEmail(email);
+      res.json(result);
+    } catch (error) {
+      console.error('Email validation error:', error);
+      res.status(500).json({ error: 'Error validating email' });
+    }
+  });
+
+  app.post('/api/email-validation/batch', async (req: Request, res: Response) => {
+    try {
+      const { emails } = req.body;
+      
+      if (!Array.isArray(emails)) {
+        return res.status(400).json({ error: 'Emails must be provided as an array' });
+      }
+      
+      const result = await EmailValidationService.validateEmailBatch(emails);
+      res.json(result);
+    } catch (error) {
+      console.error('Batch email validation error:', error);
+      res.status(500).json({ error: 'Error validating email batch' });
+    }
+  });
+
+  app.post('/api/email-validation/health-check', async (req: Request, res: Response) => {
+    try {
+      const { email } = req.body;
+      
+      if (!email || typeof email !== 'string') {
+        return res.status(400).json({ error: 'Valid email is required' });
+      }
+      
+      const result = await EmailValidationService.checkEmailHealth(email);
+      res.json(result);
+    } catch (error) {
+      console.error('Email health check error:', error);
+      res.status(500).json({ error: 'Error checking email health' });
     }
   });
 
