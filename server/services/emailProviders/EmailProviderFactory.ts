@@ -2,8 +2,9 @@ import { IEmailProvider } from './IEmailProvider';
 import { SendGridProvider } from './SendGridProvider';
 import { MailgunProvider } from './MailgunProvider';
 import { AmazonSESProvider } from './AmazonSESProvider';
+import { SendCleanProvider } from './SendCleanProvider';
 
-export type EmailProviderType = 'sendgrid' | 'mailgun' | 'amazonses';
+export type EmailProviderType = 'sendgrid' | 'mailgun' | 'amazonses' | 'sendclean';
 
 /**
  * Factory for creating email provider instances
@@ -36,6 +37,12 @@ export class EmailProviderFactory {
           config.region || 'us-east-1'
         );
         
+      case 'sendclean':
+        if (!config.apiKey) {
+          throw new Error('SendClean API key is required');
+        }
+        return new SendCleanProvider(config.apiKey);
+        
       default:
         throw new Error(`Unsupported email provider: ${providerType}`);
     }
@@ -48,7 +55,8 @@ export class EmailProviderFactory {
     return [
       { id: 'sendgrid', name: 'SendGrid' },
       { id: 'mailgun', name: 'Mailgun' },
-      { id: 'amazonses', name: 'Amazon SES' }
+      { id: 'amazonses', name: 'Amazon SES' },
+      { id: 'sendclean', name: 'SendClean' }
     ];
   }
 }

@@ -53,7 +53,7 @@ export async function registerEmailProviderRoutes(app: any) {
       // Validate the request body
       const schema = z.object({
         name: z.string().min(1),
-        provider: z.enum(['sendgrid', 'mailgun', 'amazonses']),
+        provider: z.enum(['sendgrid', 'mailgun', 'amazonses', 'sendclean']),
         config: z.record(z.any()),
         isDefault: z.boolean().optional().default(false)
       });
@@ -81,7 +81,7 @@ export async function registerEmailProviderRoutes(app: any) {
       // Validate the request body
       const schema = z.object({
         name: z.string().min(1).optional(),
-        provider: z.enum(['sendgrid', 'mailgun', 'amazonses']).optional(),
+        provider: z.enum(['sendgrid', 'mailgun', 'amazonses', 'sendclean']).optional(),
         config: z.record(z.any()).optional(),
         isDefault: z.boolean().optional()
       });
@@ -230,7 +230,7 @@ export async function registerEmailProviderRoutes(app: any) {
       const type = req.params.type as any;
       
       // Validate the provider type
-      if (!['sendgrid', 'mailgun', 'amazonses'].includes(type)) {
+      if (!['sendgrid', 'mailgun', 'amazonses', 'sendclean'].includes(type)) {
         return res.status(400).json({ error: 'Invalid provider type' });
       }
       
@@ -245,6 +245,8 @@ export async function registerEmailProviderRoutes(app: any) {
       } else if (type === 'amazonses') {
         dummyConfig.accessKey = 'dummy';
         dummyConfig.secretKey = 'dummy';
+      } else if (type === 'sendclean') {
+        dummyConfig.apiKey = 'dummy';
       }
       
       const provider = EmailProviderFactory.createProvider(type, dummyConfig);
