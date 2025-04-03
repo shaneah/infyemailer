@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { useAuth } from '@/hooks/use-auth';
 import { Button } from '@/components/ui/button';
@@ -31,10 +31,12 @@ export default function AuthPage() {
   });
   
   // If user is already logged in, redirect to dashboard
-  if (user) {
-    navigate('/dashboard');
-    return null;
-  }
+  // We use useEffect to avoid React state updates during render
+  useEffect(() => {
+    if (user) {
+      navigate('/dashboard');
+    }
+  }, [user, navigate]);
 
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
