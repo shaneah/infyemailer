@@ -23,6 +23,7 @@ import Settings from "@/pages/Settings";
 import AdminPanel from "@/pages/AdminPanel";
 import EmailValidation from "@/pages/EmailValidation";
 import Emails from "@/pages/Emails";
+import Reporting from "@/pages/Reporting";
 
 function App() {
   const [location] = useLocation();
@@ -63,6 +64,7 @@ function App() {
                   <ProtectedRoute path="/admin" component={AdminPanel} />
                   <ProtectedRoute path="/email-validation" component={EmailValidation} />
                   <ProtectedRoute path="/emails" component={Emails} />
+                  <ProtectedRoute path="/reporting" component={Reporting} />
                   <Route path="/auth" component={AuthPage} />
                   <Route component={NotFound} />
                 </Switch>
