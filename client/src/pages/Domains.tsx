@@ -34,12 +34,17 @@ interface Domain {
   status: string;
   verified: boolean;
   defaultDomain: boolean;
+  dkimVerified: boolean;
+  spfVerified: boolean;
+  dmarcVerified: boolean;
+  dkimSelector: string;
+  dkimValue: string | null;
+  spfValue: string | null;
+  dmarcValue: string | null;
   createdAt: string;
   lastUsedAt: string | null;
   metadata: {
     type?: string;
-    dkimVerified?: boolean;
-    spfVerified?: boolean;
     [key: string]: any;
   };
 }
@@ -66,6 +71,13 @@ export default function Domains() {
     status: "active",
     verified: false,
     defaultDomain: false,
+    dkimVerified: false,
+    spfVerified: false,
+    dmarcVerified: false,
+    dkimSelector: "infy",
+    dkimValue: null,
+    spfValue: null,
+    dmarcValue: null,
   });
 
   // Fetch domains
@@ -93,6 +105,13 @@ export default function Domains() {
         status: "active",
         verified: false,
         defaultDomain: false,
+        dkimVerified: false,
+        spfVerified: false,
+        dmarcVerified: false,
+        dkimSelector: "infy",
+        dkimValue: null,
+        spfValue: null,
+        dmarcValue: null,
       });
       toast({
         title: "Domain created",
@@ -342,15 +361,21 @@ export default function Domains() {
                   </Badge>
                 )}
                 
-                {domain.metadata?.dkimVerified && (
+                {domain.dkimVerified && (
                   <Badge variant="outline" className="bg-primary">
                     DKIM
                   </Badge>
                 )}
                 
-                {domain.metadata?.spfVerified && (
+                {domain.spfVerified && (
                   <Badge variant="outline" className="bg-primary">
                     SPF
+                  </Badge>
+                )}
+                
+                {domain.dmarcVerified && (
+                  <Badge variant="outline" className="bg-primary">
+                    DMARC
                   </Badge>
                 )}
                 
@@ -404,57 +429,121 @@ export default function Domains() {
 
       {/* Create Domain Dialog */}
       <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[525px]">
           <DialogHeader>
             <DialogTitle>Add a New Domain</DialogTitle>
           </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid gap-2">
-              <Label htmlFor="domain-name">Domain Name</Label>
-              <Input
-                id="domain-name"
-                placeholder="yourdomain.com"
-                value={newDomain.name}
-                onChange={(e) => setNewDomain({...newDomain, name: e.target.value})}
-              />
-              <p className="text-xs text-muted-foreground">
-                Enter the domain name you want to use for sending emails
-              </p>
-            </div>
+          
+          <Tabs defaultValue="basic" className="w-full">
+            <TabsList className="grid w-full grid-cols-2 mb-4">
+              <TabsTrigger value="basic">Basic Info</TabsTrigger>
+              <TabsTrigger value="authentication">Authentication</TabsTrigger>
+            </TabsList>
             
-            <div className="grid gap-2">
-              <Label htmlFor="domain-status">Status</Label>
-              <select
-                id="domain-status"
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                value={newDomain.status}
-                onChange={(e) => setNewDomain({...newDomain, status: e.target.value})}
-              >
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
-                <option value="pending">Pending</option>
-              </select>
-            </div>
+            <TabsContent value="basic">
+              <div className="grid gap-4 py-2">
+                <div className="grid gap-2">
+                  <Label htmlFor="domain-name">Domain Name</Label>
+                  <Input
+                    id="domain-name"
+                    placeholder="yourdomain.com"
+                    value={newDomain.name}
+                    onChange={(e) => setNewDomain({...newDomain, name: e.target.value})}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Enter the domain name you want to use for sending emails
+                  </p>
+                </div>
+                
+                <div className="grid gap-2">
+                  <Label htmlFor="domain-status">Status</Label>
+                  <select
+                    id="domain-status"
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                    value={newDomain.status}
+                    onChange={(e) => setNewDomain({...newDomain, status: e.target.value})}
+                  >
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                    <option value="pending">Pending</option>
+                  </select>
+                </div>
+                
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="verified"
+                    checked={newDomain.verified}
+                    onCheckedChange={(checked) => setNewDomain({...newDomain, verified: checked})}
+                  />
+                  <Label htmlFor="verified">Verified</Label>
+                </div>
+                
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="default-domain"
+                    checked={newDomain.defaultDomain}
+                    onCheckedChange={(checked) => setNewDomain({...newDomain, defaultDomain: checked})}
+                  />
+                  <Label htmlFor="default-domain">Set as Default Domain</Label>
+                </div>
+              </div>
+            </TabsContent>
             
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="verified"
-                checked={newDomain.verified}
-                onCheckedChange={(checked) => setNewDomain({...newDomain, verified: checked})}
-              />
-              <Label htmlFor="verified">Verified</Label>
-            </div>
-            
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="default-domain"
-                checked={newDomain.defaultDomain}
-                onCheckedChange={(checked) => setNewDomain({...newDomain, defaultDomain: checked})}
-              />
-              <Label htmlFor="default-domain">Set as Default Domain</Label>
-            </div>
-          </div>
-          <DialogFooter>
+            <TabsContent value="authentication">
+              <div className="space-y-4">
+                <div className="border rounded-lg p-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <Label htmlFor="dkim-selector" className="font-medium">DKIM Settings</Label>
+                    <Switch
+                      id="dkim-verified"
+                      checked={newDomain.dkimVerified}
+                      onCheckedChange={(checked) => setNewDomain({...newDomain, dkimVerified: checked})}
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="dkim-selector" className="text-xs">DKIM Selector</Label>
+                    <Input
+                      id="dkim-selector"
+                      placeholder="infy"
+                      value={newDomain.dkimSelector}
+                      onChange={(e) => setNewDomain({...newDomain, dkimSelector: e.target.value})}
+                    />
+                    <p className="text-xs text-muted-foreground">This selector will be used in DNS setup</p>
+                  </div>
+                </div>
+                
+                <div className="border rounded-lg p-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <Label htmlFor="spf-verified" className="font-medium">SPF Verification</Label>
+                    <Switch
+                      id="spf-verified"
+                      checked={newDomain.spfVerified}
+                      onCheckedChange={(checked) => setNewDomain({...newDomain, spfVerified: checked})}
+                    />
+                  </div>
+                  <p className="text-xs text-muted-foreground">SPF records help prevent email spoofing</p>
+                </div>
+                
+                <div className="border rounded-lg p-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <Label htmlFor="dmarc-verified" className="font-medium">DMARC Verification</Label>
+                    <Switch
+                      id="dmarc-verified"
+                      checked={newDomain.dmarcVerified}
+                      onCheckedChange={(checked) => setNewDomain({...newDomain, dmarcVerified: checked})}
+                    />
+                  </div>
+                  <p className="text-xs text-muted-foreground">DMARC lets you control what happens to emails that fail SPF and DKIM checks</p>
+                </div>
+              </div>
+              
+              <div className="mt-4 rounded-md bg-muted p-3">
+                <p className="text-xs">You can set up these authentication methods after creating the domain</p>
+              </div>
+            </TabsContent>
+          </Tabs>
+          
+          <DialogFooter className="mt-4">
             <Button variant="outline" onClick={() => setCreateDialogOpen(false)}>Cancel</Button>
             <Button onClick={handleCreateDomain} disabled={!newDomain.name}>Create Domain</Button>
           </DialogFooter>
@@ -470,8 +559,9 @@ export default function Domains() {
           
           {selectedDomain && (
             <Tabs defaultValue="details" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
+              <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="details">Domain Details</TabsTrigger>
+                <TabsTrigger value="authentication">Authentication</TabsTrigger>
                 <TabsTrigger value="campaigns">Campaigns</TabsTrigger>
               </TabsList>
               
@@ -523,6 +613,160 @@ export default function Domains() {
                 <DialogFooter className="mt-4">
                   <Button variant="outline" onClick={() => setEditDialogOpen(false)}>Cancel</Button>
                   <Button onClick={handleUpdateDomain}>Update Domain</Button>
+                </DialogFooter>
+              </TabsContent>
+              
+              <TabsContent value="authentication" className="mt-4">
+                <div className="space-y-4">
+                  <div className="bg-muted p-4 rounded-lg">
+                    <h3 className="text-sm font-semibold mb-2 flex items-center">
+                      <span className="mr-2">DKIM Settings</span>
+                      {selectedDomain.dkimVerified ? (
+                        <Badge variant="outline" className="bg-success text-white ml-auto">
+                          <Check className="mr-1 h-3 w-3" />
+                          Verified
+                        </Badge>
+                      ) : (
+                        <Badge variant="outline" className="bg-warning text-white ml-auto">
+                          <Clock className="mr-1 h-3 w-3" />
+                          Not Verified
+                        </Badge>
+                      )}
+                    </h3>
+                    
+                    <div className="space-y-2 text-sm">
+                      <div>
+                        <Label htmlFor="dkim-selector" className="text-xs">DKIM Selector</Label>
+                        <Input 
+                          id="dkim-selector" 
+                          value={selectedDomain.dkimSelector || 'infy'}
+                          onChange={(e) => setSelectedDomain({...selectedDomain, dkimSelector: e.target.value})}
+                          className="mt-1"
+                        />
+                      </div>
+                      
+                      <div>
+                        <Label className="text-xs">DNS Record Type</Label>
+                        <div className="bg-background p-2 rounded border mt-1">TXT</div>
+                      </div>
+                      
+                      <div>
+                        <Label className="text-xs">DNS Host Name</Label>
+                        <div className="bg-background p-2 rounded border mt-1">{selectedDomain.dkimSelector}._domainkey.{selectedDomain.name}</div>
+                      </div>
+                      
+                      <div>
+                        <Label className="text-xs">DNS Record Value</Label>
+                        <div className="bg-background p-2 rounded border mt-1 break-all text-xs">
+                          {selectedDomain.dkimValue || 'v=DKIM1; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA0Vg9dQN8RLhZX5k2J...'}
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center space-x-2 mt-2">
+                        <Switch
+                          id="dkim-verified"
+                          checked={selectedDomain.dkimVerified}
+                          onCheckedChange={(checked) => setSelectedDomain({...selectedDomain, dkimVerified: checked})}
+                        />
+                        <Label htmlFor="dkim-verified">Mark as Verified</Label>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-muted p-4 rounded-lg">
+                    <h3 className="text-sm font-semibold mb-2 flex items-center">
+                      <span className="mr-2">SPF Settings</span>
+                      {selectedDomain.spfVerified ? (
+                        <Badge variant="outline" className="bg-success text-white ml-auto">
+                          <Check className="mr-1 h-3 w-3" />
+                          Verified
+                        </Badge>
+                      ) : (
+                        <Badge variant="outline" className="bg-warning text-white ml-auto">
+                          <Clock className="mr-1 h-3 w-3" />
+                          Not Verified
+                        </Badge>
+                      )}
+                    </h3>
+                    
+                    <div className="space-y-2 text-sm">
+                      <div>
+                        <Label className="text-xs">DNS Record Type</Label>
+                        <div className="bg-background p-2 rounded border mt-1">TXT</div>
+                      </div>
+                      
+                      <div>
+                        <Label className="text-xs">DNS Host Name</Label>
+                        <div className="bg-background p-2 rounded border mt-1">{selectedDomain.name}</div>
+                      </div>
+                      
+                      <div>
+                        <Label className="text-xs">DNS Record Value</Label>
+                        <div className="bg-background p-2 rounded border mt-1 break-all text-xs">
+                          {selectedDomain.spfValue || 'v=spf1 include:_spf.infymailer.com ~all'}
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center space-x-2 mt-2">
+                        <Switch
+                          id="spf-verified"
+                          checked={selectedDomain.spfVerified}
+                          onCheckedChange={(checked) => setSelectedDomain({...selectedDomain, spfVerified: checked})}
+                        />
+                        <Label htmlFor="spf-verified">Mark as Verified</Label>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-muted p-4 rounded-lg">
+                    <h3 className="text-sm font-semibold mb-2 flex items-center">
+                      <span className="mr-2">DMARC Settings</span>
+                      {selectedDomain.dmarcVerified ? (
+                        <Badge variant="outline" className="bg-success text-white ml-auto">
+                          <Check className="mr-1 h-3 w-3" />
+                          Verified
+                        </Badge>
+                      ) : (
+                        <Badge variant="outline" className="bg-warning text-white ml-auto">
+                          <Clock className="mr-1 h-3 w-3" />
+                          Not Verified
+                        </Badge>
+                      )}
+                    </h3>
+                    
+                    <div className="space-y-2 text-sm">
+                      <div>
+                        <Label className="text-xs">DNS Record Type</Label>
+                        <div className="bg-background p-2 rounded border mt-1">TXT</div>
+                      </div>
+                      
+                      <div>
+                        <Label className="text-xs">DNS Host Name</Label>
+                        <div className="bg-background p-2 rounded border mt-1">_dmarc.{selectedDomain.name}</div>
+                      </div>
+                      
+                      <div>
+                        <Label className="text-xs">DNS Record Value</Label>
+                        <div className="bg-background p-2 rounded border mt-1 break-all text-xs">
+                          {selectedDomain.dmarcValue || 'v=DMARC1; p=none; pct=100; rua=mailto:dmarc@infymailer.com'}
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center space-x-2 mt-2">
+                        <Switch
+                          id="dmarc-verified"
+                          checked={selectedDomain.dmarcVerified}
+                          onCheckedChange={(checked) => setSelectedDomain({...selectedDomain, dmarcVerified: checked})}
+                        />
+                        <Label htmlFor="dmarc-verified">Mark as Verified</Label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <DialogFooter className="mt-4">
+                  <Button variant="outline" onClick={() => setEditDialogOpen(false)}>Cancel</Button>
+                  <Button onClick={handleUpdateDomain}>Update Authentication</Button>
                 </DialogFooter>
               </TabsContent>
               

@@ -293,6 +293,13 @@ export const domains = pgTable("domains", {
   status: text("status").notNull().default("active"), // active, inactive, pending, failed
   verified: boolean("verified").notNull().default(false),
   defaultDomain: boolean("default_domain").notNull().default(false),
+  dkimVerified: boolean("dkim_verified").default(false),
+  spfVerified: boolean("spf_verified").default(false),
+  dmarcVerified: boolean("dmarc_verified").default(false),
+  dkimSelector: text("dkim_selector").default("infy"),
+  dkimValue: text("dkim_value"),
+  spfValue: text("spf_value"),
+  dmarcValue: text("dmarc_value"),
   createdAt: timestamp("created_at").defaultNow(),
   lastUsedAt: timestamp("last_used_at"),
   metadata: json("metadata")
@@ -303,6 +310,13 @@ export const insertDomainSchema = createInsertSchema(domains).pick({
   status: true,
   verified: true,
   defaultDomain: true,
+  dkimVerified: true,
+  spfVerified: true,
+  dmarcVerified: true,
+  dkimSelector: true,
+  dkimValue: true,
+  spfValue: true,
+  dmarcValue: true,
   metadata: true,
 });
 
