@@ -69,12 +69,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const loginMutation = useMutation({
     mutationFn: async (credentials: LoginData) => {
-      const res = await apiRequest("POST", "/api/login", credentials);
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || "Login failed");
+      try {
+        // Don't use apiRequest helper here since we need to handle the response carefully
+        const res = await fetch("/api/login", {
+          method: "POST",
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(credentials),
+          credentials: "include",
+        });
+        
+        // Check if response is OK
+        if (!res.ok) {
+          const errorData = await res.json();
+          throw new Error(errorData.message || "Login failed");
+        }
+        
+        // Parse the response only once
+        return await res.json();
+      } catch (error) {
+        console.error("Login error:", error);
+        throw error;
       }
-      return await res.json();
     },
     onSuccess: (user: User) => {
       queryClient.setQueryData(["/api/user"], user);
@@ -98,12 +115,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const registerMutation = useMutation({
     mutationFn: async (credentials: InsertUser) => {
-      const res = await apiRequest("POST", "/api/register", credentials);
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || "Registration failed");
+      try {
+        // Don't use apiRequest helper here since we need to handle the response carefully
+        const res = await fetch("/api/register", {
+          method: "POST",
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(credentials),
+          credentials: "include",
+        });
+        
+        // Check if response is OK
+        if (!res.ok) {
+          const errorData = await res.json();
+          throw new Error(errorData.message || "Registration failed");
+        }
+        
+        // Parse the response only once
+        return await res.json();
+      } catch (error) {
+        console.error("Registration error:", error);
+        throw error;
       }
-      return await res.json();
     },
     onSuccess: (user: User) => {
       queryClient.setQueryData(["/api/user"], user);
