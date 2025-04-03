@@ -26,54 +26,48 @@ function App() {
   const [location] = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   
-  // If we're at the auth page, show just that
-  if (location === "/auth") {
-    return (
-      <QueryClientProvider client={queryClient}>
-        <AuthProvider>
+  return (
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        {location === "/auth" ? (
+          // Auth page layout
           <div className="bg-background min-h-screen">
             <AuthPage />
             <Toaster />
           </div>
-        </AuthProvider>
-      </QueryClientProvider>
-    );
-  }
-  
-  // Otherwise show the app with sidebar and routing
-  return (
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <div className="flex h-screen bg-background">
-          <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />
-          
-          <div className="flex-1 flex flex-col overflow-hidden">
-            <Navbar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+        ) : (
+          // Main app layout with sidebar and routing
+          <div className="flex h-screen bg-background">
+            <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />
             
-            <main className="flex-1 overflow-y-auto p-4">
-              <Switch>
-                <ProtectedRoute path="/" component={Dashboard} />
-                <ProtectedRoute path="/dashboard" component={Dashboard} />
-                <ProtectedRoute path="/campaigns" component={Campaigns} />
-                <ProtectedRoute path="/templates" component={Templates} />
-                <ProtectedRoute path="/contacts" component={Contacts} />
-                <ProtectedRoute path="/ab-testing" component={ABTesting} />
-                <ProtectedRoute path="/email-performance" component={EmailPerformance} />
-                <ProtectedRoute path="/template-builder" component={TemplateBuilder} />
-                <ProtectedRoute path="/template-builder/:id" component={TemplateBuilder} />
-                <ProtectedRoute path="/domains" component={Domains} />
-                <ProtectedRoute path="/analytics" component={Analytics} />
-                <ProtectedRoute path="/clients" component={Clients} />
-                <ProtectedRoute path="/settings" component={Settings} />
-                <ProtectedRoute path="/admin" component={AdminPanel} />
-                <Route path="/auth" component={AuthPage} />
-                <Route component={NotFound} />
-              </Switch>
-            </main>
+            <div className="flex-1 flex flex-col overflow-hidden">
+              <Navbar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+              
+              <main className="flex-1 overflow-y-auto p-4">
+                <Switch>
+                  <ProtectedRoute path="/" component={Dashboard} />
+                  <ProtectedRoute path="/dashboard" component={Dashboard} />
+                  <ProtectedRoute path="/campaigns" component={Campaigns} />
+                  <ProtectedRoute path="/templates" component={Templates} />
+                  <ProtectedRoute path="/contacts" component={Contacts} />
+                  <ProtectedRoute path="/ab-testing" component={ABTesting} />
+                  <ProtectedRoute path="/email-performance" component={EmailPerformance} />
+                  <ProtectedRoute path="/template-builder" component={TemplateBuilder} />
+                  <ProtectedRoute path="/template-builder/:id" component={TemplateBuilder} />
+                  <ProtectedRoute path="/domains" component={Domains} />
+                  <ProtectedRoute path="/analytics" component={Analytics} />
+                  <ProtectedRoute path="/clients" component={Clients} />
+                  <ProtectedRoute path="/settings" component={Settings} />
+                  <ProtectedRoute path="/admin" component={AdminPanel} />
+                  <Route path="/auth" component={AuthPage} />
+                  <Route component={NotFound} />
+                </Switch>
+              </main>
+            </div>
+            
+            <Toaster />
           </div>
-          
-          <Toaster />
-        </div>
+        )}
       </AuthProvider>
     </QueryClientProvider>
   );

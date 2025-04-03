@@ -30,11 +30,11 @@ export default function AuthPage() {
     confirmPassword: '',
   });
   
-  // If user is already logged in, redirect to dashboard
+  // If user is already logged in, redirect to home
   // We use useEffect to avoid React state updates during render
   useEffect(() => {
     if (user) {
-      navigate('/dashboard');
+      navigate('/');
     }
   }, [user, navigate]);
 
@@ -53,8 +53,10 @@ export default function AuthPage() {
     console.log("Login data:", loginData);
     
     try {
-      await loginMutation.mutateAsync(loginData);
-      navigate('/dashboard');
+      const result = await loginMutation.mutateAsync(loginData);
+      if (result) {
+        navigate('/'); // Navigate after successful login
+      }
     } catch (error) {
       console.error("Login error:", error);
       // Error handling is done in the useAuth hook
@@ -83,13 +85,15 @@ export default function AuthPage() {
     }
     
     try {
-      await registerMutation.mutateAsync({
+      const result = await registerMutation.mutateAsync({
         username: registerData.username,
         email: registerData.email,
         password: registerData.password,
         role: 'user',
       });
-      navigate('/dashboard');
+      if (result) {
+        navigate('/'); // Navigate after successful registration
+      }
     } catch (error) {
       // Error handling is done in the useAuth hook
     }

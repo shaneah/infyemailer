@@ -98,7 +98,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setIsAuthenticated(true);
       setIsAdminUser(user.role === 'admin');
       setIsClientUser(user.role === 'client');
-      setLocation('/');
+      // Don't auto-redirect here - let the component handle navigation
       toast({
         title: "Login successful",
         description: `Welcome back, ${user.username}!`,
@@ -144,7 +144,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setIsAuthenticated(true);
       setIsAdminUser(user.role === 'admin');
       setIsClientUser(user.role === 'client');
-      setLocation('/');
+      // Don't auto-redirect here - let the component handle navigation
       toast({
         title: "Registration successful",
         description: `Welcome, ${user.username}!`,
