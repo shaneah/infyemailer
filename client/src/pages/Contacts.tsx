@@ -2,6 +2,11 @@ import { useState, useRef } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+
+// UI Components
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -35,9 +40,6 @@ import {
   TableHeader,
   TableRow
 } from "@/components/ui/table";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { 
   FileUp, 
@@ -49,6 +51,167 @@ import {
   RefreshCw 
 } from "lucide-react";
 
+// Contact Row Component
+interface ContactRowProps {
+  contact: any;
+  onUpdate: (data: any) => void;
+  onDelete: () => void;
+}
+
+function ContactTableRow({ contact, onUpdate, onDelete }: ContactRowProps) {
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const { toast } = useToast();
+  
+  // Create a form instance for this contact
+  const editForm = useForm({
+    defaultValues: {
+      name: contact.name || '',
+      email: contact.email,
+      status: contact.status?.value || 'active'
+    }
+  });
+  
+  return (
+    <TableRow>
+      <TableCell>{contact.name || '-'}</TableCell>
+      <TableCell className="font-medium">{contact.email}</TableCell>
+      <TableCell>
+        {contact.status?.label ? (
+          <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+            contact.status.color === 'success' ? 'bg-green-100 text-green-800' :
+            contact.status.color === 'warning' ? 'bg-yellow-100 text-yellow-800' :
+            contact.status.color === 'danger' ? 'bg-red-100 text-red-800' :
+            'bg-blue-100 text-blue-800'
+          }`}>
+            {contact.status.label}
+          </span>
+        ) : '-'}
+      </TableCell>
+      <TableCell>
+        <div className="flex flex-wrap gap-1">
+          {contact.lists?.length ? 
+            contact.lists.map((list: any) => (
+              <span key={list.id} className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium">
+                {list.name}
+              </span>
+            )) : 
+            <span className="text-muted-foreground text-sm">No lists</span>
+          }
+        </div>
+      </TableCell>
+      <TableCell>
+        {contact.addedOn || '-'}
+      </TableCell>
+      <TableCell className="text-right">
+        <div className="flex justify-end">
+          {/* Edit Dialog */}
+          <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+            <DialogTrigger asChild>
+              <Button variant="ghost" size="icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-pencil">
+                  <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
+                  <path d="m15 5 4 4"/>
+                </svg>
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Edit Contact</DialogTitle>
+                <DialogDescription>
+                  Update the contact information below.
+                </DialogDescription>
+              </DialogHeader>
+              <form onSubmit={editForm.handleSubmit(data => {
+                onUpdate(data);
+                setEditDialogOpen(false);
+              })}>
+                <div className="grid gap-4 py-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="name">Name</Label>
+                    <Input id="name" {...editForm.register('name')} />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="email">Email</Label>
+                    <Input id="email" {...editForm.register('email')} disabled />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="status">Status</Label>
+                    <Select 
+                      defaultValue={editForm.getValues().status}
+                      onValueChange={value => editForm.setValue('status', value)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="active">Active</SelectItem>
+                        <SelectItem value="inactive">Inactive</SelectItem>
+                        <SelectItem value="bounced">Bounced</SelectItem>
+                        <SelectItem value="unsubscribed">Unsubscribed</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button variant="outline" type="button" onClick={() => setEditDialogOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button type="submit">Save Changes</Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
+          
+          {/* Delete Dialog */}
+          <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+            <DialogTrigger asChild>
+              <Button variant="ghost" size="icon" className="text-red-500 hover:text-red-600">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-trash-2">
+                  <path d="M3 6h18"/>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/>
+                  <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                  <line x1="10" x2="10" y1="11" y2="17"/>
+                  <line x1="14" x2="14" y1="11" y2="17"/>
+                </svg>
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Delete Contact</DialogTitle>
+                <DialogDescription>
+                  Are you sure you want to delete this contact? This action cannot be undone.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <div className="border rounded-md p-4">
+                  <p className="text-sm font-medium">{contact.name}</p>
+                  <p className="text-sm">{contact.email}</p>
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
+                  Cancel
+                </Button>
+                <Button 
+                  variant="destructive" 
+                  onClick={() => {
+                    onDelete();
+                    setDeleteDialogOpen(false);
+                  }}
+                >
+                  Delete Contact
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </div>
+      </TableCell>
+    </TableRow>
+  );
+}
+
+// Main Contacts Component
 const contactFormSchema = z.object({
   name: z.string().min(2, {
     message: "Name must be at least 2 characters.",
@@ -61,7 +224,10 @@ const contactFormSchema = z.object({
   }),
 });
 
+type ContactFormValues = z.infer<typeof contactFormSchema>;
+
 export default function Contacts() {
+  // State
   const [open, setOpen] = useState(false);
   const [importDialogOpen, setImportDialogOpen] = useState(false);
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
@@ -77,9 +243,11 @@ export default function Contacts() {
     duplicates: number;
     details: string[];
   } | null>(null);
+  
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   
+  // Queries
   const { data: contacts, isLoading: isLoadingContacts } = useQuery({
     queryKey: ['/api/contacts'],
   });
@@ -88,7 +256,8 @@ export default function Contacts() {
     queryKey: ['/api/lists'],
   });
   
-  const form = useForm<z.infer<typeof contactFormSchema>>({
+  // Forms
+  const form = useForm<ContactFormValues>({
     resolver: zodResolver(contactFormSchema),
     defaultValues: {
       name: "",
@@ -97,8 +266,9 @@ export default function Contacts() {
     },
   });
   
+  // Mutations
   const addContactMutation = useMutation({
-    mutationFn: (values: z.infer<typeof contactFormSchema>) => {
+    mutationFn: (values: ContactFormValues) => {
       return apiRequest("POST", "/api/contacts", values);
     },
     onSuccess: () => {
@@ -110,7 +280,7 @@ export default function Contacts() {
       setOpen(false);
       form.reset();
     },
-    onError: (error) => {
+    onError: (error: any) => {
       toast({
         title: "Error",
         description: `Failed to add contact: ${error.message}`,
@@ -124,7 +294,7 @@ export default function Contacts() {
     mutationFn: async (data: { emails: string[]; format: string; listId?: string }) => {
       return apiRequest("POST", "/api/contacts/import", data);
     },
-    onSuccess: (data) => {
+    onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: ['/api/contacts'] });
       setImportResults({
         total: data.total || 0,
@@ -140,7 +310,7 @@ export default function Contacts() {
         description: `Successfully imported ${data.valid} contacts.`,
       });
     },
-    onError: (error) => {
+    onError: (error: any) => {
       setImportProcessing(false);
       setProcessProgress(0);
       toast({
@@ -156,7 +326,7 @@ export default function Contacts() {
     mutationFn: async (format: string) => {
       return apiRequest("GET", `/api/contacts/export?format=${format}`);
     },
-    onSuccess: (data) => {
+    onSuccess: (data: any) => {
       // Create and download file
       const blob = new Blob([data.content], { type: getContentType(exportFormat) });
       const url = window.URL.createObjectURL(blob);
@@ -174,7 +344,7 @@ export default function Contacts() {
         description: `Successfully exported ${data.count} contacts.`,
       });
     },
-    onError: (error) => {
+    onError: (error: any) => {
       toast({
         title: "Export failed",
         description: `Failed to export contacts: ${error.message}`,
@@ -182,7 +352,35 @@ export default function Contacts() {
       });
     }
   });
+  
+  // Update and delete contact mutations
+  const updateContactMutation = useMutation({
+    mutationFn: ({ id, data }: { id: number, data: any }) => {
+      return apiRequest("PATCH", `/api/contacts/${id}`, data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/contacts'] });
+      toast({
+        title: "Contact updated",
+        description: "Contact has been updated successfully.",
+      });
+    }
+  });
+  
+  const deleteContactMutation = useMutation({
+    mutationFn: (id: number) => {
+      return apiRequest("DELETE", `/api/contacts/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/contacts'] });
+      toast({
+        title: "Contact deleted",
+        description: "Contact has been deleted successfully.",
+      });
+    }
+  });
 
+  // Helper functions
   function getContentType(format: string): string {
     switch (format) {
       case 'csv': return 'text/csv';
@@ -221,8 +419,8 @@ export default function Contacts() {
         try {
           const parsed = JSON.parse(importText);
           emails = Array.isArray(parsed) 
-            ? parsed.map(item => typeof item === 'string' ? item : item.email || '') 
-            : Object.values(parsed).map(item => typeof item === 'string' ? item : (item as any).email || '');
+            ? parsed.map((item: any) => typeof item === 'string' ? item : item.email || '') 
+            : Object.values(parsed).map((item: any) => typeof item === 'string' ? item : item.email || '');
         } catch (e) {
           throw new Error('Invalid JSON format');
         }
@@ -248,7 +446,7 @@ export default function Contacts() {
         listId: form.getValues().list || undefined
       });
       
-    } catch (error) {
+    } catch (error: any) {
       setImportProcessing(false);
       setProcessProgress(0);
       toast({
@@ -263,7 +461,7 @@ export default function Contacts() {
     exportContactsMutation.mutate(exportFormat);
   }
 
-  function onSubmit(values: z.infer<typeof contactFormSchema>) {
+  function onSubmit(values: ContactFormValues) {
     addContactMutation.mutate(values);
   }
 
@@ -312,7 +510,7 @@ export default function Contacts() {
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="">None</SelectItem>
-                          {lists?.map((list) => (
+                          {lists?.map((list: any) => (
                             <SelectItem key={list.id} value={list.id.toString()}>
                               {list.name}
                             </SelectItem>
@@ -469,7 +667,7 @@ export default function Contacts() {
                     <SelectContent>
                       <SelectItem value="txt">TXT - One email per line</SelectItem>
                       <SelectItem value="csv">CSV - Comma-separated values</SelectItem>
-                      <SelectItem value="json">JSON - Complete contact data</SelectItem>
+                      <SelectItem value="json">JSON - Detailed contact data</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -479,21 +677,9 @@ export default function Contacts() {
                 <Button variant="outline" onClick={() => setExportDialogOpen(false)}>
                   Cancel
                 </Button>
-                <Button 
-                  onClick={handleExport}
-                  disabled={exportContactsMutation.isPending}
-                >
-                  {exportContactsMutation.isPending ? (
-                    <>
-                      <RefreshCw size={16} className="mr-2 animate-spin" />
-                      Exporting...
-                    </>
-                  ) : (
-                    <>
-                      <Download size={16} className="mr-2" />
-                      Export
-                    </>
-                  )}
+                <Button onClick={handleExport}>
+                  <FileDown size={16} className="mr-2" />
+                  Export Contacts
                 </Button>
               </DialogFooter>
             </DialogContent>
@@ -501,19 +687,21 @@ export default function Contacts() {
           
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-              <button type="button" className="btn btn-sm btn-primary">
-                <i className="bi bi-plus-lg me-1"></i> Add Contact
-              </button>
+              <Button className="flex items-center gap-2">
+                <UserPlus size={16} />
+                Add Contact
+              </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
               <DialogHeader>
                 <DialogTitle>Add New Contact</DialogTitle>
                 <DialogDescription>
-                  Add a new contact to your mailing list.
+                  Add a new contact to your list. Fill in the details below.
                 </DialogDescription>
               </DialogHeader>
+              
               <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                   <FormField
                     control={form.control}
                     name="name"
@@ -527,6 +715,7 @@ export default function Contacts() {
                       </FormItem>
                     )}
                   />
+                  
                   <FormField
                     control={form.control}
                     name="email"
@@ -540,37 +729,37 @@ export default function Contacts() {
                       </FormItem>
                     )}
                   />
+                  
                   <FormField
                     control={form.control}
                     name="list"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>List</FormLabel>
-                        <FormControl>
-                          <select 
-                            className="form-select" 
-                            {...field}
-                            disabled={isLoadingLists}
-                          >
-                            <option value="">Select a list</option>
-                            {lists?.map((list) => (
-                              <option key={list.id} value={list.id}>
-                                {list.name} ({list.count})
-                              </option>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a list" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {lists?.map((list: any) => (
+                              <SelectItem key={list.id} value={list.id.toString()}>
+                                {list.name}
+                              </SelectItem>
                             ))}
-                          </select>
-                        </FormControl>
+                          </SelectContent>
+                        </Select>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
+                  
                   <DialogFooter>
-                    <Button 
-                      type="submit" 
-                      disabled={addContactMutation.isPending}
-                    >
-                      {addContactMutation.isPending ? 'Adding...' : 'Add Contact'}
+                    <Button variant="outline" type="button" onClick={() => setOpen(false)}>
+                      Cancel
                     </Button>
+                    <Button type="submit">Add Contact</Button>
                   </DialogFooter>
                 </form>
               </Form>
@@ -629,7 +818,7 @@ export default function Contacts() {
                 </div>
               ))
             ) : (
-              lists?.map((list) => (
+              lists?.map((list: any) => (
                 <div key={list.id} className="border rounded-lg p-4 hover:bg-accent transition-colors">
                   <div className="flex justify-between items-start">
                     <h6 className="font-medium">{list.name}</h6>
@@ -701,165 +890,21 @@ export default function Contacts() {
                   </TableRow>
                 ))
               ) : contacts?.length ? (
-                contacts.map((contact) => {
-                  const [editDialogOpen, setEditDialogOpen] = useState(false);
-                  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-                  
-                  // Create a form instance for this contact
-                  const editForm = useForm({
-                    defaultValues: {
-                      name: contact.name || '',
-                      email: contact.email,
-                      status: contact.status?.value || 'active'
-                    }
-                  });
-                  
-                  return (
-                    <TableRow key={contact.id}>
-                      <TableCell>{contact.name || '-'}</TableCell>
-                      <TableCell className="font-medium">{contact.email}</TableCell>
-                      <TableCell>
-                        {contact.status?.label ? (
-                          <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                            contact.status.color === 'success' ? 'bg-green-100 text-green-800' :
-                            contact.status.color === 'warning' ? 'bg-yellow-100 text-yellow-800' :
-                            contact.status.color === 'danger' ? 'bg-red-100 text-red-800' :
-                            'bg-blue-100 text-blue-800'
-                          }`}>
-                            {contact.status.label}
-                          </span>
-                        ) : '-'}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex flex-wrap gap-1">
-                          {contact.lists?.length ? 
-                            contact.lists.map((list, i) => (
-                              <span key={list.id} className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium">
-                                {list.name}
-                              </span>
-                            )) : 
-                            <span className="text-muted-foreground text-sm">No lists</span>
-                          }
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        {contact.addedOn || '-'}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end">
-                          {/* Edit Dialog */}
-                          <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
-                            <DialogTrigger asChild>
-                              <Button variant="ghost" size="icon">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-pencil">
-                                  <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
-                                  <path d="m15 5 4 4"/>
-                                </svg>
-                              </Button>
-                            </DialogTrigger>
-                            <DialogContent>
-                              <DialogHeader>
-                                <DialogTitle>Edit Contact</DialogTitle>
-                                <DialogDescription>
-                                  Update the contact information below.
-                                </DialogDescription>
-                              </DialogHeader>
-                              <form onSubmit={editForm.handleSubmit(data => {
-                                // Call update API
-                                toast({
-                                  title: "Contact updated",
-                                  description: `${contact.email} has been updated.`
-                                });
-                                setEditDialogOpen(false);
-                              })}>
-                                <div className="grid gap-4 py-4">
-                                  <div className="grid gap-2">
-                                    <Label htmlFor="name">Name</Label>
-                                    <Input id="name" {...editForm.register('name')} />
-                                  </div>
-                                  <div className="grid gap-2">
-                                    <Label htmlFor="email">Email</Label>
-                                    <Input id="email" {...editForm.register('email')} disabled />
-                                  </div>
-                                  <div className="grid gap-2">
-                                    <Label htmlFor="status">Status</Label>
-                                    <Select 
-                                      defaultValue={editForm.getValues().status}
-                                      onValueChange={value => editForm.setValue('status', value)}
-                                    >
-                                      <SelectTrigger>
-                                        <SelectValue placeholder="Select status" />
-                                      </SelectTrigger>
-                                      <SelectContent>
-                                        <SelectItem value="active">Active</SelectItem>
-                                        <SelectItem value="inactive">Inactive</SelectItem>
-                                        <SelectItem value="bounced">Bounced</SelectItem>
-                                        <SelectItem value="unsubscribed">Unsubscribed</SelectItem>
-                                      </SelectContent>
-                                    </Select>
-                                  </div>
-                                </div>
-                                <DialogFooter>
-                                  <Button variant="outline" type="button" onClick={() => setEditDialogOpen(false)}>
-                                    Cancel
-                                  </Button>
-                                  <Button type="submit">Save Changes</Button>
-                                </DialogFooter>
-                              </form>
-                            </DialogContent>
-                          </Dialog>
-                          
-                          {/* Delete Dialog */}
-                          <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-                            <DialogTrigger asChild>
-                              <Button variant="ghost" size="icon" className="text-red-500 hover:text-red-600">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-trash-2">
-                                  <path d="M3 6h18"/>
-                                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/>
-                                  <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                                  <line x1="10" x2="10" y1="11" y2="17"/>
-                                  <line x1="14" x2="14" y1="11" y2="17"/>
-                                </svg>
-                              </Button>
-                            </DialogTrigger>
-                            <DialogContent>
-                              <DialogHeader>
-                                <DialogTitle>Delete Contact</DialogTitle>
-                                <DialogDescription>
-                                  Are you sure you want to delete this contact? This action cannot be undone.
-                                </DialogDescription>
-                              </DialogHeader>
-                              <div className="grid gap-4 py-4">
-                                <div className="border rounded-md p-4">
-                                  <p className="text-sm font-medium">{contact.name}</p>
-                                  <p className="text-sm">{contact.email}</p>
-                                </div>
-                              </div>
-                              <DialogFooter>
-                                <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
-                                  Cancel
-                                </Button>
-                                <Button 
-                                  variant="destructive" 
-                                  onClick={() => {
-                                    // Call delete API
-                                    toast({
-                                      title: "Contact deleted",
-                                      description: `${contact.email} has been deleted.`
-                                    });
-                                    setDeleteDialogOpen(false);
-                                  }}
-                                >
-                                  Delete Contact
-                                </Button>
-                              </DialogFooter>
-                            </DialogContent>
-                          </Dialog>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })
+                contacts.map((contact: any) => (
+                  <ContactTableRow 
+                    key={contact.id} 
+                    contact={contact} 
+                    onUpdate={(data) => {
+                      updateContactMutation.mutate({
+                        id: contact.id,
+                        data
+                      });
+                    }}
+                    onDelete={() => {
+                      deleteContactMutation.mutate(contact.id);
+                    }}
+                  />
+                ))
               ) : (
                 <TableRow>
                   <TableCell colSpan={6} className="text-center py-8">
