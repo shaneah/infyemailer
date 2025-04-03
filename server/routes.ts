@@ -6,6 +6,7 @@ import { setupAuth, hashPassword, comparePasswords } from "./auth";
 import { EmailValidationService } from "./services/emailValidation";
 import { trackingService } from "./services/trackingService";
 import { emailSchema } from "../shared/validation";
+import { registerEmailProviderRoutes } from "./routes/emailProviders";
 import { 
   insertContactSchema, 
   insertListSchema, 
@@ -45,6 +46,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Set up authentication
   setupAuth(app);
+  
+  // Register email provider routes
+  await registerEmailProviderRoutes(app);
 
   // Mock data for dashboard stats
   app.get('/api/stats', (req: Request, res: Response) => {
