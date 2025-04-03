@@ -20,7 +20,7 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
   return (
     <div
       id="sidebar"
-      className={`${open ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 transition-transform duration-300 transform fixed z-40 left-0 top-0 lg:static lg:left-auto lg:top-auto lg:w-64 h-screen bg-[#1a2542] overflow-y-auto no-scrollbar shrink-0`}
+      className={`${open ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 transition-transform duration-300 transform fixed z-40 left-0 top-0 lg:static lg:left-auto lg:top-auto lg:w-64 h-screen bg-[#0c2f6c] overflow-y-auto no-scrollbar shrink-0`}
     >
       <div className="h-full flex flex-col">
         {/* Logo */}
@@ -50,8 +50,8 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
             <Link 
               href="/" 
               className={`flex items-center px-2 py-2 rounded-md ${location === '/' 
-                ? 'text-white border-l-4 border-primary bg-primary/10' 
-                : 'text-gray-300 hover:bg-gray-700/30'}`}
+                ? 'text-white border-l-4 border-white bg-white/10' 
+                : 'text-gray-300 hover:bg-white/5'}`}
             >
               <LayoutDashboard className="h-5 w-5 mr-3" />
               Dashboard
@@ -61,8 +61,8 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
             <Link 
               href="/campaigns" 
               className={`flex items-center px-2 py-2 rounded-md ${location === '/campaigns' 
-                ? 'text-white border-l-4 border-primary bg-primary/10' 
-                : 'text-gray-300 hover:bg-gray-700/30'}`}
+                ? 'text-white border-l-4 border-white bg-white/10' 
+                : 'text-gray-300 hover:bg-white/5'}`}
             >
               <Megaphone className="h-5 w-5 mr-3" />
               Campaigns
@@ -72,8 +72,8 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
             <Link 
               href="/emails" 
               className={`flex items-center px-2 py-2 rounded-md ${location === '/emails' 
-                ? 'text-white border-l-4 border-primary bg-primary/10' 
-                : 'text-gray-300 hover:bg-gray-700/30'}`}
+                ? 'text-white border-l-4 border-white bg-white/10' 
+                : 'text-gray-300 hover:bg-white/5'}`}
             >
               <Mail className="h-5 w-5 mr-3" />
               Emails
@@ -86,8 +86,8 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
             <Link 
               href="/templates" 
               className={`flex items-center px-2 py-2 rounded-md ${location === '/templates' || location.includes('/template-builder')
-                ? 'text-white border-l-4 border-primary bg-primary/10' 
-                : 'text-gray-300 hover:bg-gray-700/30'}`}
+                ? 'text-white border-l-4 border-white bg-white/10' 
+                : 'text-gray-300 hover:bg-white/5'}`}
             >
               <FileText className="h-5 w-5 mr-3" />
               Templates
@@ -97,8 +97,8 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
             <Link 
               href="/contacts" 
               className={`flex items-center px-2 py-2 rounded-md ${location === '/contacts' 
-                ? 'text-white border-l-4 border-primary bg-primary/10' 
-                : 'text-gray-300 hover:bg-gray-700/30'}`}
+                ? 'text-white border-l-4 border-white bg-white/10' 
+                : 'text-gray-300 hover:bg-white/5'}`}
             >
               <Users className="h-5 w-5 mr-3" />
               Contacts
@@ -108,8 +108,8 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
             <Link 
               href="/clients" 
               className={`flex items-center px-2 py-2 rounded-md ${location === '/clients' 
-                ? 'text-white border-l-4 border-primary bg-primary/10' 
-                : 'text-gray-300 hover:bg-gray-700/30'}`}
+                ? 'text-white border-l-4 border-white bg-white/10' 
+                : 'text-gray-300 hover:bg-white/5'}`}
             >
               <Building className="h-5 w-5 mr-3" />
               Clients
@@ -119,8 +119,8 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
             <Link 
               href="/client-users" 
               className={`flex items-center px-2 py-2 rounded-md ${location === '/client-users' 
-                ? 'text-white border-l-4 border-primary bg-primary/10' 
-                : 'text-gray-300 hover:bg-gray-700/30'}`}
+                ? 'text-white border-l-4 border-white bg-white/10' 
+                : 'text-gray-300 hover:bg-white/5'}`}
             >
               <Users className="h-5 w-5 mr-3" />
               Client Users
@@ -130,8 +130,8 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
             <Link 
               href="/analytics" 
               className={`flex items-center px-2 py-2 rounded-md ${location === '/analytics' 
-                ? 'text-white border-l-4 border-primary bg-primary/10' 
-                : 'text-gray-300 hover:bg-gray-700/30'}`}
+                ? 'text-white border-l-4 border-white bg-white/10' 
+                : 'text-gray-300 hover:bg-white/5'}`}
             >
               <BarChart2 className="h-5 w-5 mr-3" />
               Analytics
@@ -141,8 +141,8 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
             <Link 
               href="/reporting" 
               className={`flex items-center px-2 py-2 rounded-md ${location === '/reporting' 
-                ? 'text-white border-l-4 border-primary bg-primary/10' 
-                : 'text-gray-300 hover:bg-gray-700/30'}`}
+                ? 'text-white border-l-4 border-white bg-white/10' 
+                : 'text-gray-300 hover:bg-white/5'}`}
             >
               <FileText className="h-5 w-5 mr-3" />
               Reporting
@@ -152,8 +152,8 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
             <Link 
               href="/email-performance" 
               className={`flex items-center px-2 py-2 rounded-md ${location === '/email-performance' 
-                ? 'text-white border-l-4 border-primary bg-primary/10' 
-                : 'text-gray-300 hover:bg-gray-700/30'}`}
+                ? 'text-white border-l-4 border-white bg-white/10' 
+                : 'text-gray-300 hover:bg-white/5'}`}
             >
               <Activity className="h-5 w-5 mr-3" />
               <span className="flex-wrap">Email Performance</span>
@@ -163,8 +163,8 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
             <Link 
               href="/ab-testing" 
               className={`flex items-center px-2 py-2 rounded-md ${location.startsWith('/ab-testing') 
-                ? 'text-white border-l-4 border-primary bg-primary/10' 
-                : 'text-gray-300 hover:bg-gray-700/30'}`}
+                ? 'text-white border-l-4 border-white bg-white/10' 
+                : 'text-gray-300 hover:bg-white/5'}`}
             >
               <Split className="h-5 w-5 mr-3" />
               A/B Testing
@@ -174,8 +174,8 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
             <Link 
               href="/domains" 
               className={`flex items-center px-2 py-2 rounded-md ${location === '/domains' 
-                ? 'text-white border-l-4 border-primary bg-primary/10' 
-                : 'text-gray-300 hover:bg-gray-700/30'}`}
+                ? 'text-white border-l-4 border-white bg-white/10' 
+                : 'text-gray-300 hover:bg-white/5'}`}
             >
               <Globe className="h-5 w-5 mr-3" />
               Domains
@@ -185,8 +185,8 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
             <Link 
               href="/settings" 
               className={`flex items-center px-2 py-2 rounded-md ${location === '/settings' 
-                ? 'text-white border-l-4 border-primary bg-primary/10' 
-                : 'text-gray-300 hover:bg-gray-700/30'}`}
+                ? 'text-white border-l-4 border-white bg-white/10' 
+                : 'text-gray-300 hover:bg-white/5'}`}
             >
               <SettingsIcon className="h-5 w-5 mr-3" />
               Settings
@@ -196,8 +196,8 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
             <Link 
               href="/email-validation" 
               className={`flex items-center px-2 py-2 rounded-md ${location === '/email-validation' 
-                ? 'text-white border-l-4 border-primary bg-primary/10' 
-                : 'text-gray-300 hover:bg-gray-700/30'}`}
+                ? 'text-white border-l-4 border-white bg-white/10' 
+                : 'text-gray-300 hover:bg-white/5'}`}
             >
               <CheckCircle2 className="h-5 w-5 mr-3" />
               Email Validation
@@ -207,8 +207,8 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
             <Link 
               href="/admin" 
               className={`flex items-center px-2 py-2 rounded-md ${location === '/admin' 
-                ? 'text-white border-l-4 border-primary bg-primary/10' 
-                : 'text-gray-300 hover:bg-gray-700/30'}`}
+                ? 'text-white border-l-4 border-white bg-white/10' 
+                : 'text-gray-300 hover:bg-white/5'}`}
             >
               <ShieldCheck className="h-5 w-5 mr-3" />
               Admin Panel
@@ -218,7 +218,7 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
         
         {/* Storage */}
         <div className="px-4 mb-4 mt-4">
-          <div className="bg-primary/20 rounded-md p-4">
+          <div className="bg-white/10 rounded-md p-4">
             <div className="text-white font-medium mb-2">Storage</div>
             <div className="bg-white/20 h-1.5 rounded-full mb-2">
               <div className="bg-white h-1.5 rounded-full" style={{ width: '65%' }}></div>

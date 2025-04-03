@@ -1,0 +1,51 @@
+className={`flex items-center px-2 py-2 rounded-md ${location === '/emails' 
+                ? 'text-white border-l-4 border-white bg-white/10' 
+                : 'text-gray-300 hover:bg-white/5'}`}
+
+className={`flex items-center px-2 py-2 rounded-md ${location === '/templates' || location.includes('/template-builder')
+                ? 'text-white border-l-4 border-white bg-white/10' 
+                : 'text-gray-300 hover:bg-white/5'}`}
+
+className={`flex items-center px-2 py-2 rounded-md ${location === '/contacts' 
+                ? 'text-white border-l-4 border-white bg-white/10' 
+                : 'text-gray-300 hover:bg-white/5'}`}
+
+className={`flex items-center px-2 py-2 rounded-md ${location === '/clients' 
+                ? 'text-white border-l-4 border-white bg-white/10' 
+                : 'text-gray-300 hover:bg-white/5'}`}
+
+className={`flex items-center px-2 py-2 rounded-md ${location === '/client-users' 
+                ? 'text-white border-l-4 border-white bg-white/10' 
+                : 'text-gray-300 hover:bg-white/5'}`}
+
+className={`flex items-center px-2 py-2 rounded-md ${location === '/analytics' 
+                ? 'text-white border-l-4 border-white bg-white/10' 
+                : 'text-gray-300 hover:bg-white/5'}`}
+
+className={`flex items-center px-2 py-2 rounded-md ${location === '/reporting' 
+                ? 'text-white border-l-4 border-white bg-white/10' 
+                : 'text-gray-300 hover:bg-white/5'}`}
+
+className={`flex items-center px-2 py-2 rounded-md ${location === '/email-performance' 
+                ? 'text-white border-l-4 border-white bg-white/10' 
+                : 'text-gray-300 hover:bg-white/5'}`}
+
+className={`flex items-center px-2 py-2 rounded-md ${location.startsWith('/ab-testing') 
+                ? 'text-white border-l-4 border-white bg-white/10' 
+                : 'text-gray-300 hover:bg-white/5'}`}
+
+className={`flex items-center px-2 py-2 rounded-md ${location === '/domains' 
+                ? 'text-white border-l-4 border-white bg-white/10' 
+                : 'text-gray-300 hover:bg-white/5'}`}
+
+className={`flex items-center px-2 py-2 rounded-md ${location === '/settings' 
+                ? 'text-white border-l-4 border-white bg-white/10' 
+                : 'text-gray-300 hover:bg-white/5'}`}
+
+className={`flex items-center px-2 py-2 rounded-md ${location === '/email-validation' 
+                ? 'text-white border-l-4 border-white bg-white/10' 
+                : 'text-gray-300 hover:bg-white/5'}`}
+
+className={`flex items-center px-2 py-2 rounded-md ${location === '/admin' 
+                ? 'text-white border-l-4 border-white bg-white/10' 
+                : 'text-gray-300 hover:bg-white/5'}`}
