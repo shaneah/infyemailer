@@ -79,7 +79,18 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-primary/5 to-primary/10">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-primary/10 via-primary/5 to-white/80 relative overflow-hidden">
+      {/* Background decorative elements */}
+      <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
+        <div className="absolute top-[-15%] left-[-10%] w-[50%] h-[40%] rounded-full bg-gradient-to-br from-primary/20 to-primary/5 blur-3xl"></div>
+        <div className="absolute bottom-[-10%] right-[-5%] w-[40%] h-[40%] rounded-full bg-gradient-to-tl from-primary/20 to-primary/5 blur-3xl"></div>
+        <div className="absolute top-[20%] right-[15%] w-[30%] h-[25%] rounded-full bg-gradient-to-bl from-primary/10 to-primary/5 blur-3xl"></div>
+        
+        {/* Subtle animated floating particles */}
+        <div className="absolute top-1/4 left-1/3 w-2 h-2 rounded-full bg-primary/30 animate-pulse" style={{animationDuration: '4s'}}></div>
+        <div className="absolute top-2/3 left-1/5 w-3 h-3 rounded-full bg-primary/20 animate-pulse" style={{animationDuration: '6s'}}></div>
+        <div className="absolute top-1/2 right-1/4 w-2 h-2 rounded-full bg-primary/30 animate-pulse" style={{animationDuration: '5s'}}></div>
+      </div>
       <div className="flex-1 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-5xl w-full space-y-8 flex flex-col lg:flex-row gap-8">
           {/* Left side - Card with form */}
