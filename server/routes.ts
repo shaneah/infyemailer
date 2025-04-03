@@ -2,7 +2,7 @@ import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { generateSubjectLines, generateEmailTemplate } from "./services/openai";
-import { setupAuth } from "./auth";
+import { setupAuth, hashPassword, comparePasswords } from "./auth";
 import { EmailValidationService } from "./services/emailValidation";
 import { trackingService } from "./services/trackingService";
 import { emailSchema } from "../shared/validation";
