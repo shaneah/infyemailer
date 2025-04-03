@@ -330,78 +330,82 @@ const NewCampaignModal = ({ onClose }: NewCampaignModalProps) => {
                 
                 {activeTab === 'settings' && (
                   <div>
-                    <div className="mb-3">
-                      <label className="form-label">When to Send</label>
-                      <div className="form-check mb-2">
-                        <input 
-                          className="form-check-input" 
-                          type="radio" 
-                          name="sendOptions" 
-                          id="sendNow" 
-                          checked={sendOption === 'now'}
-                          onChange={() => setSendOption('now')}
-                        />
-                        <label className="form-check-label" htmlFor="sendNow">
-                          Send immediately
-                        </label>
-                      </div>
-                      <div className="form-check">
-                        <input 
-                          className="form-check-input" 
-                          type="radio" 
-                          name="sendOptions" 
-                          id="scheduleDate" 
-                          checked={sendOption === 'schedule'}
-                          onChange={() => setSendOption('schedule')}
-                        />
-                        <label className="form-check-label" htmlFor="scheduleDate">
-                          Schedule for later
-                        </label>
-                      </div>
-                    </div>
-                    
-                    {sendOption === 'schedule' && (
-                      <div className="row mb-3">
-                        <div className="col-md-6">
-                          <FormField
-                            control={form.control}
-                            name="scheduledDate"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel htmlFor="scheduleDate">Date</FormLabel>
-                                <FormControl>
-                                  <Input 
-                                    {...field} 
-                                    id="scheduleDate" 
-                                    type="date"
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
+                    <Form {...form}>
+                      <form>
+                        <div className="mb-3">
+                          <label className="form-label">When to Send</label>
+                          <div className="form-check mb-2">
+                            <input 
+                              className="form-check-input" 
+                              type="radio" 
+                              name="sendOptions" 
+                              id="sendNow" 
+                              checked={sendOption === 'now'}
+                              onChange={() => setSendOption('now')}
+                            />
+                            <label className="form-check-label" htmlFor="sendNow">
+                              Send immediately
+                            </label>
+                          </div>
+                          <div className="form-check">
+                            <input 
+                              className="form-check-input" 
+                              type="radio" 
+                              name="sendOptions" 
+                              id="scheduleDate" 
+                              checked={sendOption === 'schedule'}
+                              onChange={() => setSendOption('schedule')}
+                            />
+                            <label className="form-check-label" htmlFor="scheduleDate">
+                              Schedule for later
+                            </label>
+                          </div>
                         </div>
-                        <div className="col-md-6">
-                          <FormField
-                            control={form.control}
-                            name="scheduledTime"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel htmlFor="scheduleTime">Time</FormLabel>
-                                <FormControl>
-                                  <Input 
-                                    {...field} 
-                                    id="scheduleTime" 
-                                    type="time"
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-                      </div>
-                    )}
+                        
+                        {sendOption === 'schedule' && (
+                          <div className="row mb-3">
+                            <div className="col-md-6">
+                              <FormField
+                                control={form.control}
+                                name="scheduledDate"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel htmlFor="scheduleDate">Date</FormLabel>
+                                    <FormControl>
+                                      <Input 
+                                        {...field} 
+                                        id="scheduleDate" 
+                                        type="date"
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+                            <div className="col-md-6">
+                              <FormField
+                                control={form.control}
+                                name="scheduledTime"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel htmlFor="scheduleTime">Time</FormLabel>
+                                    <FormControl>
+                                      <Input 
+                                        {...field} 
+                                        id="scheduleTime" 
+                                        type="time"
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+                          </div>
+                        )}
+                      </form>
+                    </Form>
                     
                     <div className="mb-3">
                       <label className="form-label">Tracking Options</label>
