@@ -109,20 +109,20 @@ export default function ClientSidebar({ open, setOpen }: ClientSidebarProps) {
       )}
       
       <aside
-        className={`bg-primary text-white h-screen flex flex-col fixed lg:static top-0 left-0 z-40 transition-all duration-300 shadow-xl ${
+        className={`bg-[#1E0A46] text-white h-screen flex flex-col fixed lg:static top-0 left-0 z-40 transition-all duration-300 shadow-xl ${
           open ? 'w-[280px]' : 'w-0 lg:w-[70px] overflow-hidden'
         }`}
       >
         {/* Sidebar Header */}
-        <div className="p-4 flex items-center justify-between border-b border-white/20">
+        <div className="p-4 flex items-center justify-between border-b border-white/30 bg-[#2D1164]">
           <div className={`flex items-center ${!open && 'lg:hidden'}`}>
             <img src={Logo} alt="InfyMailer Logo" className="h-8" />
-            {open && <span className="ml-3 font-bold text-lg">InfyMailer</span>}
+            {open && <span className="ml-3 font-bold text-lg text-white">InfyMailer</span>}
           </div>
           <Button
             variant="ghost"
             size="sm"
-            className="text-white hover:bg-white/20 lg:hidden"
+            className="text-white hover:bg-white/30 lg:hidden"
             onClick={() => setOpen(false)}
           >
             <ChevronLeft size={20} />
@@ -138,8 +138,8 @@ export default function ClientSidebar({ open, setOpen }: ClientSidebarProps) {
                   <div
                     className={`flex items-center px-4 py-3 rounded-lg transition-colors cursor-pointer font-medium ${
                       location === link.href
-                        ? 'bg-white/20 text-white'
-                        : 'text-white/80 hover:bg-white/10 hover:text-white'
+                        ? 'bg-[#4A1DAE] text-white'
+                        : 'text-white hover:bg-[#341788]/70 hover:text-white'
                     }`}
                   >
                     <span className="text-xl">{link.icon}</span>
@@ -152,14 +152,14 @@ export default function ClientSidebar({ open, setOpen }: ClientSidebarProps) {
         </div>
 
         {/* Sidebar Footer */}
-        <div className="p-4 border-t border-white/20">
-          <div className={`text-white/80 mb-3 ${!open && 'lg:hidden'}`}>
+        <div className="p-4 border-t border-white/30 bg-[#2D1164]">
+          <div className={`text-white mb-3 ${!open && 'lg:hidden'}`}>
             <div className="font-medium">{clientUser.clientName}</div>
-            <div className="text-xs">{clientUser.clientCompany}</div>
+            <div className="text-xs text-white/90">{clientUser.clientCompany}</div>
           </div>
           <button
             onClick={handleLogout}
-            className="w-full px-4 py-2 text-sm bg-white/10 rounded-lg text-white hover:bg-white/20 transition-colors font-medium"
+            className="w-full px-4 py-2 text-sm bg-[#4A1DAE] rounded-lg text-white hover:bg-[#5F30CF] transition-colors font-medium"
           >
             {open ? 'Logout' : <span className="lg:block hidden">🚪</span>}
           </button>

@@ -156,26 +156,30 @@ export default function ClientDashboard() {
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
-        <header className="bg-primary text-white shadow-md">
+        <header className="bg-[#2D1164] text-white shadow-md">
           <div className="container mx-auto py-5 px-6">
             <div className="flex justify-between items-center">
               <div className="flex items-center gap-4">
                 <Button 
                   variant="ghost" 
                   size="lg"
-                  className="lg:hidden text-white hover:bg-white/10"
+                  className="lg:hidden text-white hover:bg-[#4A1DAE]"
                   onClick={() => setSidebarOpen(true)}
                 >
                   <Menu size={24} />
                 </Button>
                 <div>
-                  <h1 className="text-2xl font-bold tracking-tight">InfyMailer Client Portal</h1>
-                  <p className="text-sm font-medium text-white/80">{clientData.clientCompany}</p>
+                  <h1 className="text-2xl font-bold tracking-tight text-white">InfyMailer Client Portal</h1>
+                  <p className="text-sm font-medium text-white">{clientData.clientCompany}</p>
                 </div>
               </div>
               <div className="flex items-center gap-4 lg:hidden">
                 <span className="hidden sm:inline font-medium">Welcome, {clientData.clientName}</span>
-                <Button variant="outline" onClick={handleLogout} className="text-white border-white hover:bg-white/20 font-medium">
+                <Button 
+                  variant="outline" 
+                  onClick={handleLogout} 
+                  className="text-white border-white hover:bg-[#4A1DAE] font-medium"
+                >
                   Logout
                 </Button>
               </div>
@@ -190,44 +194,55 @@ export default function ClientDashboard() {
             
             {/* Stats Overview */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              <Card className="shadow-md hover:shadow-lg transition-shadow">
+              <Card className="shadow-md hover:shadow-lg transition-shadow border-t-4 border-[#4A1DAE]">
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-base font-semibold text-gray-700">Active Campaigns</CardTitle>
-                  <Activity className="h-5 w-5 text-primary" />
+                  <CardTitle className="text-base font-bold text-gray-800">Active Campaigns</CardTitle>
+                  <div className="h-10 w-10 rounded-full bg-purple-100 flex items-center justify-center">
+                    <Activity className="h-5 w-5 text-[#4A1DAE]" />
+                  </div>
                 </CardHeader>
                 <CardContent>
                   <div className="text-3xl font-bold text-gray-900">{clientData.stats.activeCampaigns}</div>
-                  <p className="text-sm text-gray-500 mt-1">Currently running email campaigns</p>
+                  <p className="text-sm text-gray-600 mt-1 font-medium">Currently running email campaigns</p>
                 </CardContent>
               </Card>
-              <Card className="shadow-md hover:shadow-lg transition-shadow">
+              <Card className="shadow-md hover:shadow-lg transition-shadow border-t-4 border-[#4A1DAE]">
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-base font-semibold text-gray-700">Total Emails</CardTitle>
-                  <Inbox className="h-5 w-5 text-primary" />
+                  <CardTitle className="text-base font-bold text-gray-800">Total Emails</CardTitle>
+                  <div className="h-10 w-10 rounded-full bg-purple-100 flex items-center justify-center">
+                    <Inbox className="h-5 w-5 text-[#4A1DAE]" />
+                  </div>
                 </CardHeader>
                 <CardContent>
                   <div className="text-3xl font-bold text-gray-900">{clientData.stats.totalEmails.toLocaleString()}</div>
-                  <p className="text-sm text-gray-500 mt-1">Sent across all campaigns</p>
+                  <p className="text-sm text-gray-600 mt-1 font-medium">Sent across all campaigns</p>
                 </CardContent>
               </Card>
-              <Card className="shadow-md hover:shadow-lg transition-shadow">
+              <Card className="shadow-md hover:shadow-lg transition-shadow border-t-4 border-[#4A1DAE]">
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-base font-semibold text-gray-700">Open Rate</CardTitle>
-                  <MailCheck className="h-5 w-5 text-primary" />
+                  <CardTitle className="text-base font-bold text-gray-800">Open Rate</CardTitle>
+                  <div className="h-10 w-10 rounded-full bg-purple-100 flex items-center justify-center">
+                    <MailCheck className="h-5 w-5 text-[#4A1DAE]" />
+                  </div>
                 </CardHeader>
                 <CardContent>
                   <div className="text-3xl font-bold text-gray-900">{clientData.stats.openRate}%</div>
-                  <p className="text-sm text-gray-500 mt-1">Average across all campaigns</p>
+                  <p className="text-sm text-gray-600 mt-1 font-medium">Average across all campaigns</p>
                 </CardContent>
               </Card>
             </div>
 
             {/* Charts */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-              <Card className="col-span-1 shadow-md hover:shadow-lg transition-shadow">
+              <Card className="col-span-1 shadow-md hover:shadow-lg transition-shadow border-t-4 border-[#4A1DAE]">
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-xl font-bold text-gray-800">Email Performance</CardTitle>
-                  <CardDescription className="text-gray-600">
+                  <div className="flex items-center mb-2">
+                    <div className="h-8 w-8 rounded-full bg-purple-100 flex items-center justify-center mr-3">
+                      <BarChart className="h-4 w-4 text-[#4A1DAE]" />
+                    </div>
+                    <CardTitle className="text-xl font-bold text-gray-800">Email Performance</CardTitle>
+                  </div>
+                  <CardDescription className="text-gray-600 font-medium">
                     Open and click rates over the last 6 months
                   </CardDescription>
                 </CardHeader>
@@ -253,17 +268,22 @@ export default function ClientDashboard() {
                           boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
                         }}
                       />
-                      <Bar dataKey="opens" fill="#4f46e5" name="Opens" radius={[4, 4, 0, 0]} />
-                      <Bar dataKey="clicks" fill="#10b981" name="Clicks" radius={[4, 4, 0, 0]} />
+                      <Bar dataKey="opens" fill="#4A1DAE" name="Opens" radius={[4, 4, 0, 0]} />
+                      <Bar dataKey="clicks" fill="#7C3AED" name="Clicks" radius={[4, 4, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 </CardContent>
               </Card>
 
-              <Card className="col-span-1 shadow-md hover:shadow-lg transition-shadow">
+              <Card className="col-span-1 shadow-md hover:shadow-lg transition-shadow border-t-4 border-[#4A1DAE]">
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-xl font-bold text-gray-800">Device Breakdown</CardTitle>
-                  <CardDescription className="text-gray-600">
+                  <div className="flex items-center mb-2">
+                    <div className="h-8 w-8 rounded-full bg-purple-100 flex items-center justify-center mr-3">
+                      <PieChart className="h-4 w-4 text-[#4A1DAE]" />
+                    </div>
+                    <CardTitle className="text-xl font-bold text-gray-800">Device Breakdown</CardTitle>
+                  </div>
+                  <CardDescription className="text-gray-600 font-medium">
                     Email opens by device type
                   </CardDescription>
                 </CardHeader>
@@ -284,7 +304,9 @@ export default function ClientDashboard() {
                         {clientData.deviceData.map((entry: any, index: number) => (
                           <Cell 
                             key={`cell-${index}`} 
-                            fill={COLORS[index % COLORS.length]} 
+                            fill={[
+                              "#4A1DAE", "#7C3AED", "#8B5CF6", "#A78BFA", "#C4B5FD"
+                            ][index % 5]} 
                             stroke="#fff"
                             strokeWidth={2}
                           />
@@ -305,7 +327,7 @@ export default function ClientDashboard() {
             </div>
 
             {/* Recent Campaigns */}
-            <Card className="shadow-md hover:shadow-lg transition-shadow">
+            <Card className="shadow-md hover:shadow-lg transition-shadow border-t-4 border-[#4A1DAE]">
               <CardHeader className="pb-2">
                 <CardTitle className="text-xl font-bold text-gray-800">Recent Campaigns</CardTitle>
                 <CardDescription className="text-gray-600">
