@@ -66,7 +66,16 @@ const ClientLogin = () => {
         username: userData.username,
         clientId: userData.clientId,
         clientName: userData.clientName || 'Client User',
-        clientCompany: userData.clientCompany || 'Company'
+        clientCompany: userData.clientCompany || 'Company',
+        permissions: userData.permissions || {
+          emailValidation: false,
+          campaigns: false,
+          contacts: false,
+          templates: false,
+          reporting: false,
+          domains: false,
+          abTesting: false
+        }
       };
       
       sessionStorage.setItem('clientUser', JSON.stringify(userToStore));

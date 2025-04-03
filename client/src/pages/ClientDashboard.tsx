@@ -3,18 +3,20 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { useLocation } from "wouter";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
-import { Activity, Inbox, BarChart3, Users, Calendar, MailCheck } from "lucide-react";
+import { Activity, Inbox, BarChart3, Users, Calendar, MailCheck, Menu } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import ClientSidebar from "@/components/ClientSidebar";
 
 type ClientDashboardProps = {
   clientId?: string;
 };
 
 export default function ClientDashboard({ clientId }: ClientDashboardProps) {
-  const [_, setLocation] = useLocation();
+  const [location, setLocation] = useLocation();
   const { toast } = useToast();
   const [clientData, setClientData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Get client user info from session/localStorage
   const getClientUser = () => {
@@ -143,167 +145,186 @@ export default function ClientDashboard({ clientId }: ClientDashboardProps) {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="bg-primary text-white shadow-md">
-        <div className="container mx-auto py-6 px-4">
-          <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-2xl font-bold">InfyMailer Client Portal</h1>
-              <p className="text-sm opacity-80">{clientData.clientCompany}</p>
-            </div>
-            <div className="flex items-center gap-4">
-              <span>Welcome, {clientData.clientName}</span>
-              <Button variant="outline" onClick={handleLogout} className="text-white border-white hover:bg-white/20">
-                Logout
-              </Button>
+    <div className="flex h-screen bg-background">
+      {/* Client Sidebar */}
+      <ClientSidebar open={sidebarOpen} setOpen={setSidebarOpen} />
+      
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Header */}
+        <header className="bg-primary text-white shadow-md">
+          <div className="container mx-auto py-4 px-4">
+            <div className="flex justify-between items-center">
+              <div className="flex items-center gap-4">
+                <Button 
+                  variant="ghost" 
+                  className="lg:hidden text-white hover:bg-white/10"
+                  onClick={() => setSidebarOpen(true)}
+                >
+                  <Menu size={24} />
+                </Button>
+                <div>
+                  <h1 className="text-2xl font-bold">InfyMailer Client Portal</h1>
+                  <p className="text-sm opacity-80">{clientData.clientCompany}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-4 lg:hidden">
+                <span className="hidden sm:inline">Welcome, {clientData.clientName}</span>
+                <Button variant="outline" onClick={handleLogout} className="text-white border-white hover:bg-white/20">
+                  Logout
+                </Button>
+              </div>
             </div>
           </div>
-        </div>
-      </header>
+        </header>
 
-      {/* Dashboard Content */}
-      <main className="container mx-auto py-8 px-4">
-        {/* Stats Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Active Campaigns</CardTitle>
-              <Activity className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{clientData.stats.activeCampaigns}</div>
-              <p className="text-xs text-muted-foreground">Currently running email campaigns</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Total Emails</CardTitle>
-              <Inbox className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{clientData.stats.totalEmails.toLocaleString()}</div>
-              <p className="text-xs text-muted-foreground">Sent across all campaigns</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Open Rate</CardTitle>
-              <MailCheck className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{clientData.stats.openRate}%</div>
-              <p className="text-xs text-muted-foreground">Average across all campaigns</p>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Charts */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          <Card className="col-span-1">
-            <CardHeader>
-              <CardTitle>Email Performance</CardTitle>
-              <CardDescription>
-                Open and click rates over the last 6 months
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="h-[300px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  data={clientData.performanceData}
-                  margin={{
-                    top: 5,
-                    right: 30,
-                    left: 20,
-                    bottom: 5
-                  }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="opens" fill="#8884d8" name="Opens" />
-                  <Bar dataKey="clicks" fill="#82ca9d" name="Clicks" />
-                </BarChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-
-          <Card className="col-span-1">
-            <CardHeader>
-              <CardTitle>Device Breakdown</CardTitle>
-              <CardDescription>
-                Email opens by device type
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="h-[300px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={clientData.deviceData}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                    outerRadius={80}
-                    fill="#8884d8"
-                    dataKey="value"
-                  >
-                    {clientData.deviceData.map((entry: any, index: number) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Recent Campaigns */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Campaigns</CardTitle>
-            <CardDescription>
-              Your latest email marketing campaigns
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b">
-                    <th className="text-left py-3 px-4">Campaign</th>
-                    <th className="text-left py-3 px-4">Date</th>
-                    <th className="text-left py-3 px-4">Status</th>
-                    <th className="text-left py-3 px-4">Opens</th>
-                    <th className="text-left py-3 px-4">Clicks</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {clientData.recentCampaigns.map((campaign: any) => (
-                    <tr key={campaign.id} className="border-b">
-                      <td className="py-3 px-4">{campaign.name}</td>
-                      <td className="py-3 px-4">{new Date(campaign.date).toLocaleDateString()}</td>
-                      <td className="py-3 px-4">
-                        <span className={`px-2 py-1 rounded-full text-xs ${
-                          campaign.status === "Completed" ? "bg-green-100 text-green-800" :
-                          campaign.status === "Ongoing" ? "bg-blue-100 text-blue-800" :
-                          "bg-yellow-100 text-yellow-800"
-                        }`}>
-                          {campaign.status}
-                        </span>
-                      </td>
-                      <td className="py-3 px-4">{campaign.opens.toLocaleString()}</td>
-                      <td className="py-3 px-4">{campaign.clicks.toLocaleString()}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+        {/* Dashboard Content */}
+        <main className="flex-1 overflow-y-auto p-4">
+          <div className="container mx-auto py-4">
+            <h2 className="text-2xl font-bold mb-6">Dashboard</h2>
+            
+            {/* Stats Overview */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-sm font-medium">Active Campaigns</CardTitle>
+                  <Activity className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{clientData.stats.activeCampaigns}</div>
+                  <p className="text-xs text-muted-foreground">Currently running email campaigns</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-sm font-medium">Total Emails</CardTitle>
+                  <Inbox className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{clientData.stats.totalEmails.toLocaleString()}</div>
+                  <p className="text-xs text-muted-foreground">Sent across all campaigns</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-sm font-medium">Open Rate</CardTitle>
+                  <MailCheck className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{clientData.stats.openRate}%</div>
+                  <p className="text-xs text-muted-foreground">Average across all campaigns</p>
+                </CardContent>
+              </Card>
             </div>
-          </CardContent>
-        </Card>
-      </main>
+
+            {/* Charts */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+              <Card className="col-span-1">
+                <CardHeader>
+                  <CardTitle>Email Performance</CardTitle>
+                  <CardDescription>
+                    Open and click rates over the last 6 months
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="h-[300px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart
+                      data={clientData.performanceData}
+                      margin={{
+                        top: 5,
+                        right: 30,
+                        left: 20,
+                        bottom: 5
+                      }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="name" />
+                      <YAxis />
+                      <Tooltip />
+                      <Bar dataKey="opens" fill="#8884d8" name="Opens" />
+                      <Bar dataKey="clicks" fill="#82ca9d" name="Clicks" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+
+              <Card className="col-span-1">
+                <CardHeader>
+                  <CardTitle>Device Breakdown</CardTitle>
+                  <CardDescription>
+                    Email opens by device type
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="h-[300px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={clientData.deviceData}
+                        cx="50%"
+                        cy="50%"
+                        labelLine={false}
+                        label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                        outerRadius={80}
+                        fill="#8884d8"
+                        dataKey="value"
+                      >
+                        {clientData.deviceData.map((entry: any, index: number) => (
+                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        ))}
+                      </Pie>
+                      <Tooltip />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Recent Campaigns */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Recent Campaigns</CardTitle>
+                <CardDescription>
+                  Your latest email marketing campaigns
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b">
+                        <th className="text-left py-3 px-4">Campaign</th>
+                        <th className="text-left py-3 px-4">Date</th>
+                        <th className="text-left py-3 px-4">Status</th>
+                        <th className="text-left py-3 px-4">Opens</th>
+                        <th className="text-left py-3 px-4">Clicks</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {clientData.recentCampaigns.map((campaign: any) => (
+                        <tr key={campaign.id} className="border-b">
+                          <td className="py-3 px-4">{campaign.name}</td>
+                          <td className="py-3 px-4">{new Date(campaign.date).toLocaleDateString()}</td>
+                          <td className="py-3 px-4">
+                            <span className={`px-2 py-1 rounded-full text-xs ${
+                              campaign.status === "Completed" ? "bg-green-100 text-green-800" :
+                              campaign.status === "Ongoing" ? "bg-blue-100 text-blue-800" :
+                              "bg-yellow-100 text-yellow-800"
+                            }`}>
+                              {campaign.status}
+                            </span>
+                          </td>
+                          <td className="py-3 px-4">{campaign.opens.toLocaleString()}</td>
+                          <td className="py-3 px-4">{campaign.clicks.toLocaleString()}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </main>
+      </div>
     </div>
   );
 }
