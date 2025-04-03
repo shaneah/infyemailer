@@ -12,6 +12,7 @@ import {
   CampaignDomain, InsertCampaignDomain,
   Client, InsertClient,
   ClientUser, InsertClientUser,
+  User, InsertUser,
   users, contacts, lists, contactLists, campaigns, emails, templates, analytics,
   campaignVariants, variantAnalytics, domains, campaignDomains, clients, clientUsers
 } from '@shared/schema';
@@ -23,6 +24,92 @@ import { log } from './vite';
 export class DbStorage implements IStorage {
   constructor() {
     log('PostgreSQL storage initialized', 'db');
+  }
+  
+  // Helper method to hash passwords
+  async hashPassword(password: string) {
+    const { scrypt, randomBytes } = await import('crypto');
+    const { promisify } = await import('util');
+    const scryptAsync = promisify(scrypt);
+    
+    const salt = randomBytes(16).toString("hex");
+    const buf = (await scryptAsync(password, salt, 64)) as Buffer;
+    return `${buf.toString("hex")}.${salt}`;
+  }
+
+  // Helper method to compare passwords
+  async comparePasswords(supplied: string, stored: string) {
+    const { scrypt } = await import('crypto');
+    const { promisify } = await import('util');
+    const { timingSafeEqual } = await import('crypto');
+    const scryptAsync = promisify(scrypt);
+    
+    const [hashed, salt] = stored.split(".");
+    const hashedBuf = Buffer.from(hashed, "hex");
+    const suppliedBuf = (await scryptAsync(supplied, salt, 64)) as Buffer;
+    return timingSafeEqual(hashedBuf, suppliedBuf);
+  }
+
+  // User methods (admin)
+  async getUsers(): Promise<User[]> {
+    return await db.select().from(users);
+  }
+
+  async getUser(id: number): Promise<User | undefined> {
+    const result = await db.select().from(users).where(eq(users.id, id));
+    return result[0];
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const result = await db.select().from(users).where(eq(users.username, username));
+    return result[0];
+  }
+
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const result = await db.select().from(users).where(eq(users.email, email));
+    return result[0];
+  }
+
+  async createUser(user: InsertUser): Promise<User> {
+    const result = await db.insert(users).values({
+      ...user,
+      status: user.status || 'active'
+    }).returning();
+    return result[0];
+  }
+
+  async updateUser(id: number, user: Partial<User>): Promise<User | undefined> {
+    const result = await db.update(users)
+      .set(user)
+      .where(eq(users.id, id))
+      .returning();
+    return result[0];
+  }
+
+  async deleteUser(id: number): Promise<boolean> {
+    const result = await db.delete(users).where(eq(users.id, id)).returning();
+    return result.length > 0;
+  }
+
+  async verifyUserLogin(usernameOrEmail: string, password: string): Promise<User | undefined> {
+    let user = await this.getUserByUsername(usernameOrEmail);
+    if (!user) {
+      user = await this.getUserByEmail(usernameOrEmail);
+    }
+    
+    if (!user) {
+      return undefined;
+    }
+    
+    const isMatch = await this.comparePasswords(password, user.password);
+    if (!isMatch) {
+      return undefined;
+    }
+    
+    // Update last login time
+    await this.updateUser(user.id, { lastLoginAt: new Date() });
+    
+    return user;
   }
 
   // Client methods
@@ -384,7 +471,7 @@ export class DbStorage implements IStorage {
     if (domain.defaultDomain === true) {
       await db.update(domains)
         .set({ defaultDomain: false })
-        .where(db.sql`${domains.id} != ${id}`);
+        .where(eq(domains.id, id).not());
     }
     
     const result = await db.update(domains)
@@ -524,14 +611,23 @@ export class DbStorage implements IStorage {
     const user = await this.getClientUserByUsername(username);
     if (!user) return undefined;
     
-    // In a real implementation, we would use bcrypt to compare hashed passwords
-    if (user.password === password) {
-      // Update last login timestamp
-      await this.updateClientUser(user.id, { lastLoginAt: new Date() });
-      return user;
+    // Check if the password is hashed (contains a period which separates hash and salt)
+    if (user.password.includes('.')) {
+      // Use our secure hash comparison
+      const isMatch = await this.comparePasswords(password, user.password);
+      if (!isMatch) {
+        return undefined;
+      }
+    } else {
+      // Fallback for plain text passwords (legacy compatibility)
+      if (user.password !== password) {
+        return undefined;
+      }
     }
     
-    return undefined;
+    // Update last login timestamp
+    await this.updateClientUser(user.id, { lastLoginAt: new Date() });
+    return user;
   }
 
   // Initialize the database with sample data
@@ -539,7 +635,31 @@ export class DbStorage implements IStorage {
     try {
       log('Initializing database with sample data', 'db');
       
-      // Check if we already have data
+      // Check if we already have users
+      const existingUsers = await this.getUsers();
+      if (existingUsers.length === 0) {
+        // Create admin user with hashed password
+        log('Creating default admin user', 'db');
+        const hashedPassword = await this.hashPassword('admin123');
+        await this.createUser({
+          username: 'admin',
+          email: 'admin@infymailer.com',
+          password: hashedPassword,
+          firstName: 'Admin',
+          lastName: 'User',
+          role: 'admin',
+          status: 'active',
+          avatarUrl: null,
+          metadata: {
+            permissions: ['all'],
+            theme: 'light'
+          }
+        });
+      } else {
+        log('Admin user already exists, skipping user creation', 'db');
+      }
+      
+      // Check if we already have templates
       const existingTemplates = await this.getTemplates();
       if (existingTemplates.length > 0) {
         log('Database already has data, skipping initialization', 'db');

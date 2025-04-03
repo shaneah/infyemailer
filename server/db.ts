@@ -18,12 +18,26 @@ export async function runMigrations() {
   try {
     // Only use this in development mode
     if (process.env.NODE_ENV !== 'production') {
+      const fs = await import('fs');
+      const path = await import('path');
+      
+      // Check if the drizzle folder exists
+      const migrationFolder = 'drizzle';
+      const journalPath = path.join(migrationFolder, '_journal.json');
+      
+      // Skip migrations if the journal doesn't exist to avoid errors
+      if (!fs.existsSync(journalPath)) {
+        log('No migration journal found, skipping migrations', 'db');
+        return;
+      }
+
       log('Running migrations...', 'db');
-      await migrate(db, { migrationsFolder: 'drizzle' });
+      await migrate(db, { migrationsFolder: migrationFolder });
       log('Migrations completed successfully', 'db');
     }
   } catch (error) {
     console.error('Error running migrations:', error);
+    // Continue execution even if migrations fail
   }
 }
 
@@ -32,6 +46,13 @@ export async function initializeDatabase() {
   try {
     log('Initializing database connection', 'db');
     await runMigrations();
+    
+    // Import dbStorage only after initialization to avoid circular dependencies
+    const { dbStorage } = await import('./dbStorage');
+    
+    // Initialize with sample data (including admin user)
+    await dbStorage.initializeWithSampleData();
+    
     return true;
   } catch (error) {
     console.error('Failed to initialize database:', error);
