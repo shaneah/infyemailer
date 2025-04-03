@@ -254,6 +254,192 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Create a new contact
+  // Import contacts
+  app.post('/api/contacts/import', async (req: Request, res: Response) => {
+    const { emails, format, listId } = req.body;
+    
+    if (!Array.isArray(emails)) {
+      return res.status(400).json({ error: 'Invalid emails array' });
+    }
+
+    try {
+      const results = {
+        total: emails.length,
+        valid: 0,
+        invalid: 0,
+        duplicates: 0,
+        details: [] as string[]
+      };
+
+      // Process emails in batches to avoid overloading the server
+      for (const email of emails) {
+        // Basic email validation
+        const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        
+        if (!isValidEmail) {
+          results.invalid++;
+          results.details.push(`Invalid format: ${email}`);
+          continue;
+        }
+
+        // Check for duplicates
+        const existing = await storage.getContactByEmail(email);
+        if (existing) {
+          results.duplicates++;
+          results.details.push(`Duplicate: ${email}`);
+          continue;
+        }
+
+        // Add valid contact
+        const contact = await storage.createContact({
+          email,
+          name: email.split('@')[0], // Use first part of email as name
+          status: 'active',
+          metadata: { source: `import-${format}`, importDate: new Date().toISOString() }
+        });
+
+        // Add to list if specified
+        if (listId && contact) {
+          await storage.addContactToList({
+            contactId: contact.id,
+            listId: parseInt(listId, 10)
+          });
+        }
+
+        results.valid++;
+      }
+
+      res.status(200).json(results);
+    } catch (error) {
+      console.error('Import contacts error:', error);
+      res.status(500).json({ error: 'Failed to import contacts' });
+    }
+  });
+
+  // Export contacts
+  app.get('/api/contacts/export', async (req: Request, res: Response) => {
+    const format = req.query.format as string || 'txt';
+    const listId = req.query.listId ? parseInt(req.query.listId as string, 10) : undefined;
+    
+    try {
+      // Get contacts, possibly filtered by list
+      const contacts = listId 
+        ? await storage.getContactsByList(listId)
+        : await storage.getContacts();
+        
+      let content = '';
+      
+      // Format according to requested format
+      if (format === 'json') {
+        content = JSON.stringify(contacts, null, 2);
+      } else if (format === 'csv') {
+        // CSV header
+        content = 'Email,Name,Status,Added On\n';
+        // CSV rows
+        contacts.forEach(contact => {
+          content += `${contact.email},${contact.name || ''},${contact.status || ''},${contact.createdAt || ''}\n`;
+        });
+      } else {
+        // Plain text - one email per line
+        content = contacts.map(contact => contact.email).join('\n');
+      }
+      
+      res.status(200).json({ 
+        content,
+        count: contacts.length
+      });
+    } catch (error) {
+      console.error('Export contacts error:', error);
+      res.status(500).json({ error: 'Failed to export contacts' });
+    }
+  });
+  
+  // Update a contact
+  app.patch('/api/contacts/:id', async (req: Request, res: Response) => {
+    const id = parseInt(req.params.id, 10);
+    
+    try {
+      const contact = await storage.getContact(id);
+      if (!contact) {
+        return res.status(404).json({ error: 'Contact not found' });
+      }
+      
+      const updated = await storage.updateContact(id, req.body);
+      res.json(updated);
+    } catch (error) {
+      console.error('Update contact error:', error);
+      res.status(500).json({ error: 'Failed to update contact' });
+    }
+  });
+  
+  // Delete a contact
+  app.delete('/api/contacts/:id', async (req: Request, res: Response) => {
+    const id = parseInt(req.params.id, 10);
+    
+    try {
+      const contact = await storage.getContact(id);
+      if (!contact) {
+        return res.status(404).json({ error: 'Contact not found' });
+      }
+      
+      const success = await storage.deleteContact(id);
+      if (success) {
+        res.status(200).json({ message: 'Contact deleted successfully' });
+      } else {
+        res.status(500).json({ error: 'Failed to delete contact' });
+      }
+    } catch (error) {
+      console.error('Delete contact error:', error);
+      res.status(500).json({ error: 'Failed to delete contact' });
+    }
+  });
+  
+  // Add contact to a list
+  app.post('/api/contacts/:contactId/lists/:listId', async (req: Request, res: Response) => {
+    const contactId = parseInt(req.params.contactId, 10);
+    const listId = parseInt(req.params.listId, 10);
+    
+    try {
+      const contact = await storage.getContact(contactId);
+      if (!contact) {
+        return res.status(404).json({ error: 'Contact not found' });
+      }
+      
+      const list = await storage.getList(listId);
+      if (!list) {
+        return res.status(404).json({ error: 'List not found' });
+      }
+      
+      await storage.addContactToList({
+        contactId,
+        listId
+      });
+      
+      res.status(200).json({ message: 'Contact added to list successfully' });
+    } catch (error) {
+      console.error('Add contact to list error:', error);
+      res.status(500).json({ error: 'Failed to add contact to list' });
+    }
+  });
+  
+  // Remove contact from a list
+  app.delete('/api/contacts/:contactId/lists/:listId', async (req: Request, res: Response) => {
+    const contactId = parseInt(req.params.contactId, 10);
+    const listId = parseInt(req.params.listId, 10);
+    
+    try {
+      const success = await storage.removeContactFromList(contactId, listId);
+      if (success) {
+        res.status(200).json({ message: 'Contact removed from list successfully' });
+      } else {
+        res.status(500).json({ error: 'Failed to remove contact from list' });
+      }
+    } catch (error) {
+      console.error('Remove contact from list error:', error);
+      res.status(500).json({ error: 'Failed to remove contact from list' });
+    }
+  });
+
   app.post('/api/contacts', async (req: Request, res: Response) => {
     const validatedData = validate(insertContactSchema, req.body);
     if ('error' in validatedData) {
