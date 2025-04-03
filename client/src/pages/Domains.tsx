@@ -83,10 +83,7 @@ export default function Domains() {
   // Create a new domain
   const createMutation = useMutation({
     mutationFn: async (domain: Omit<Domain, 'id' | 'createdAt' | 'lastUsedAt'>) => {
-      return apiRequest('/api/domains', {
-        method: 'POST',
-        body: JSON.stringify(domain),
-      });
+      return apiRequest('POST', '/api/domains', domain);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/domains'] });
@@ -114,10 +111,7 @@ export default function Domains() {
   // Update a domain
   const updateMutation = useMutation({
     mutationFn: async (domain: Partial<Domain> & { id: number }) => {
-      return apiRequest(`/api/domains/${domain.id}`, {
-        method: 'PATCH',
-        body: JSON.stringify(domain),
-      });
+      return apiRequest('PATCH', `/api/domains/${domain.id}`, domain);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/domains'] });
@@ -140,9 +134,7 @@ export default function Domains() {
   // Delete a domain
   const deleteMutation = useMutation({
     mutationFn: async (id: number) => {
-      return apiRequest(`/api/domains/${id}`, {
-        method: 'DELETE',
-      });
+      return apiRequest('DELETE', `/api/domains/${id}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/domains'] });
@@ -163,9 +155,7 @@ export default function Domains() {
   // Set a domain as default
   const setDefaultMutation = useMutation({
     mutationFn: async (id: number) => {
-      return apiRequest(`/api/domains/${id}/set-default`, {
-        method: 'POST',
-      });
+      return apiRequest('POST', `/api/domains/${id}/set-default`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/domains'] });
