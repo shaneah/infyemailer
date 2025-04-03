@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { Badge } from "@/components/ui/badge";
 
 export default function Settings() {
   const { toast } = useToast();
@@ -35,9 +36,6 @@ export default function Settings() {
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="mb-4 w-full lg:w-auto">
               <TabsTrigger value="account">Account</TabsTrigger>
-              <TabsTrigger value="api">API Keys</TabsTrigger>
-              <TabsTrigger value="smtp">SMTP Configuration</TabsTrigger>
-              <TabsTrigger value="branding">Branding</TabsTrigger>
               <TabsTrigger value="team">Team Members</TabsTrigger>
               <TabsTrigger value="billing">Billing</TabsTrigger>
             </TabsList>
@@ -151,243 +149,6 @@ export default function Settings() {
                   </Button>
                 </div>
               </div>
-            </TabsContent>
-
-            {/* API Keys Settings */}
-            <TabsContent value="api">
-              <Card>
-                <CardHeader>
-                  <CardTitle>API Keys</CardTitle>
-                  <CardDescription>
-                    Manage API keys that allow external services to access your account
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-6">
-                    <div className="space-y-2">
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <h3 className="font-medium">Production API Key</h3>
-                          <p className="text-sm text-gray-500">Use this key for your production environment</p>
-                        </div>
-                        <Button variant="outline" size="sm">Regenerate</Button>
-                      </div>
-                      <div className="flex">
-                        <Input readOnly value="••••••••••••••••••••••••••••••" className="rounded-r-none" />
-                        <Button variant="secondary" className="rounded-l-none">
-                          Copy
-                        </Button>
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <h3 className="font-medium">Test API Key</h3>
-                          <p className="text-sm text-gray-500">Use this key for testing and development</p>
-                        </div>
-                        <Button variant="outline" size="sm">Regenerate</Button>
-                      </div>
-                      <div className="flex">
-                        <Input readOnly value="••••••••••••••••••••••••••••••" className="rounded-r-none" />
-                        <Button variant="secondary" className="rounded-l-none">
-                          Copy
-                        </Button>
-                      </div>
-                    </div>
-                    <div className="pt-4">
-                      <h3 className="font-medium mb-2">Webhook URL</h3>
-                      <p className="text-sm text-gray-500 mb-2">Receive real-time updates about email events</p>
-                      <Input placeholder="https://yourapp.com/webhooks/email-events" />
-                    </div>
-                    <div className="mt-4">
-                      <Button variant="default" onClick={handleSave} disabled={loading}>
-                        {loading ? "Saving..." : "Save Settings"}
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            {/* SMTP Configuration Settings */}
-            <TabsContent value="smtp">
-              <Card>
-                <CardHeader>
-                  <CardTitle>SMTP Configuration</CardTitle>
-                  <CardDescription>
-                    Configure your SMTP settings for sending emails
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="smtp_provider">SMTP Provider</Label>
-                        <Select defaultValue="mailflow">
-                          <SelectTrigger id="smtp_provider">
-                            <SelectValue placeholder="Select provider" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="mailflow">MailFlow (Default)</SelectItem>
-                            <SelectItem value="sendgrid">SendGrid</SelectItem>
-                            <SelectItem value="mailgun">Mailgun</SelectItem>
-                            <SelectItem value="ses">Amazon SES</SelectItem>
-                            <SelectItem value="custom">Custom SMTP</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="smtp_host">SMTP Host</Label>
-                        <Input id="smtp_host" placeholder="smtp.example.com" />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="smtp_port">SMTP Port</Label>
-                        <Input id="smtp_port" placeholder="587" />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="smtp_security">Connection Security</Label>
-                        <Select defaultValue="tls">
-                          <SelectTrigger id="smtp_security">
-                            <SelectValue placeholder="Select security" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="none">None</SelectItem>
-                            <SelectItem value="ssl">SSL</SelectItem>
-                            <SelectItem value="tls">TLS</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="smtp_username">Username</Label>
-                        <Input id="smtp_username" placeholder="username@example.com" />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="smtp_password">Password</Label>
-                        <Input id="smtp_password" type="password" placeholder="••••••••••••" />
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="from_email">Default From Email</Label>
-                      <Input id="from_email" placeholder="noreply@yourdomain.com" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="reply_to">Default Reply-To Email</Label>
-                      <Input id="reply_to" placeholder="support@yourdomain.com" />
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Switch id="enable_dkim" defaultChecked={true} />
-                      <div>
-                        <Label htmlFor="enable_dkim">Enable DKIM Signing</Label>
-                        <p className="text-sm text-gray-500">Improves email deliverability and authenticity</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Switch id="enable_spf" defaultChecked={true} />
-                      <div>
-                        <Label htmlFor="enable_spf">Enable SPF Validation</Label>
-                        <p className="text-sm text-gray-500">Helps prevent spoofing of your domain</p>
-                      </div>
-                    </div>
-                    <div className="mt-4">
-                      <Button variant="outline" className="mr-2">
-                        Test Connection
-                      </Button>
-                      <Button variant="default" onClick={handleSave} disabled={loading}>
-                        {loading ? "Saving..." : "Save Settings"}
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            {/* Branding Settings */}
-            <TabsContent value="branding">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Branding Settings</CardTitle>
-                  <CardDescription>
-                    Customize how your emails and landing pages look to recipients
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="space-y-2">
-                        <Label htmlFor="company_name">Company Name</Label>
-                        <Input id="company_name" defaultValue="MailFlow Inc." />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="logo_url">Logo URL</Label>
-                        <Input id="logo_url" placeholder="https://example.com/logo.png" />
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label>Company Logo</Label>
-                      <div className="border-2 border-dashed border-gray-300 rounded-md p-6 text-center">
-                        <div className="mx-auto w-24 h-24 bg-gray-100 rounded-md flex items-center justify-center mb-2">
-                          <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242" />
-                            <path d="M12 12v9" />
-                            <path d="m16 16-4-4-4 4" />
-                          </svg>
-                        </div>
-                        <p className="text-sm text-gray-500">Drag and drop your logo here, or click to select</p>
-                        <p className="text-xs text-gray-400 mt-1">PNG, JPG or SVG (max. 2MB)</p>
-                        <Button variant="outline" size="sm" className="mt-2">
-                          Select File
-                        </Button>
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="primary_color">Brand Primary Color</Label>
-                      <div className="flex">
-                        <div className="w-10 h-10 rounded-l border border-gray-300 flex items-center justify-center bg-gray-100">
-                          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <circle cx="12" cy="12" r="5" />
-                            <path d="m12 7 1.5-2.9a1 1 0 0 1 1.7-.1L16.6 6" />
-                            <path d="m12 7-1.5-2.9a1 1 0 0 0-1.7-.1L7.4 6" />
-                            <path d="M17 12h3.2c.5 0 .9.3 1 .7l.8 2.4a1 1 0 0 1-.5 1.2L18 18" />
-                            <path d="M7 12H3.8a1 1 0 0 0-1 .7l-.8 2.4a1 1 0 0 0 .5 1.2L6 18" />
-                            <path d="m12 17 1.5 2.9a1 1 0 0 0 1.7.1l1.4-1.9" />
-                            <path d="m12 17-1.5 2.9a1 1 0 0 1-1.7.1l-1.4-1.9" />
-                          </svg>
-                        </div>
-                        <Input id="primary_color" defaultValue="#0070f3" className="rounded-l-none" />
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="secondary_color">Brand Secondary Color</Label>
-                      <div className="flex">
-                        <div className="w-10 h-10 rounded-l border border-gray-300 flex items-center justify-center bg-gray-100">
-                          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <circle cx="12" cy="12" r="5" />
-                            <path d="m12 7 1.5-2.9a1 1 0 0 1 1.7-.1L16.6 6" />
-                            <path d="m12 7-1.5-2.9a1 1 0 0 0-1.7-.1L7.4 6" />
-                            <path d="M17 12h3.2c.5 0 .9.3 1 .7l.8 2.4a1 1 0 0 1-.5 1.2L18 18" />
-                            <path d="M7 12H3.8a1 1 0 0 0-1 .7l-.8 2.4a1 1 0 0 0 .5 1.2L6 18" />
-                            <path d="m12 17 1.5 2.9a1 1 0 0 0 1.7.1l1.4-1.9" />
-                            <path d="m12 17-1.5 2.9a1 1 0 0 1-1.7.1l-1.4-1.9" />
-                          </svg>
-                        </div>
-                        <Input id="secondary_color" defaultValue="#f5f5f5" className="rounded-l-none" />
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="footer_text">Default Email Footer Text</Label>
-                      <Input id="footer_text" defaultValue="© 2025 MailFlow Inc. All rights reserved." />
-                    </div>
-
-                    <div className="mt-4">
-                      <Button variant="default" onClick={handleSave} disabled={loading}>
-                        {loading ? "Saving..." : "Save Branding"}
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
             </TabsContent>
 
             {/* Team Members Settings */}
@@ -581,41 +342,110 @@ export default function Settings() {
                         <div className="rounded-md border">
                           <div className="p-3 border-b flex items-center justify-between">
                             <div>
-                              <p className="font-medium">April 2025</p>
-                              <p className="text-sm text-gray-500">Professional Plan</p>
+                              <p className="font-medium">Apr 1, 2025</p>
+                              <p className="text-sm text-gray-500">Professional Plan - Monthly</p>
                             </div>
                             <div className="text-right">
                               <p className="font-medium">$79.00</p>
-                              <Button variant="ghost" size="sm" className="h-6 px-2">
-                                Download
-                              </Button>
+                              <p className="text-xs text-green-600">Paid</p>
                             </div>
                           </div>
                           <div className="p-3 border-b flex items-center justify-between">
                             <div>
-                              <p className="font-medium">March 2025</p>
-                              <p className="text-sm text-gray-500">Professional Plan</p>
+                              <p className="font-medium">Mar 1, 2025</p>
+                              <p className="text-sm text-gray-500">Professional Plan - Monthly</p>
                             </div>
                             <div className="text-right">
                               <p className="font-medium">$79.00</p>
-                              <Button variant="ghost" size="sm" className="h-6 px-2">
-                                Download
-                              </Button>
+                              <p className="text-xs text-green-600">Paid</p>
                             </div>
                           </div>
                           <div className="p-3 flex items-center justify-between">
                             <div>
-                              <p className="font-medium">February 2025</p>
-                              <p className="text-sm text-gray-500">Professional Plan</p>
+                              <p className="font-medium">Feb 1, 2025</p>
+                              <p className="text-sm text-gray-500">Professional Plan - Monthly</p>
                             </div>
                             <div className="text-right">
                               <p className="font-medium">$79.00</p>
-                              <Button variant="ghost" size="sm" className="h-6 px-2">
-                                Download
-                              </Button>
+                              <p className="text-xs text-green-600">Paid</p>
                             </div>
                           </div>
                         </div>
+                        <div className="mt-2 text-right">
+                          <Button variant="link" size="sm" className="h-auto p-0">View all invoices</Button>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Billing Details</CardTitle>
+                    <CardDescription>
+                      Manage your billing information and tax settings
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="billing_name">Name</Label>
+                          <Input id="billing_name" defaultValue="John Smith" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="billing_email">Email</Label>
+                          <Input id="billing_email" type="email" defaultValue="john@example.com" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="company_name">Company Name</Label>
+                          <Input id="company_name" defaultValue="MailFlow Inc." />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="tax_id">Tax ID / VAT Number</Label>
+                          <Input id="tax_id" defaultValue="US123456789" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="address_line1">Address Line 1</Label>
+                          <Input id="address_line1" defaultValue="123 Mail Street" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="address_line2">Address Line 2</Label>
+                          <Input id="address_line2" defaultValue="Suite 101" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="city">City</Label>
+                          <Input id="city" defaultValue="San Francisco" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="state">State / Province</Label>
+                          <Input id="state" defaultValue="CA" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="zip_code">ZIP / Postal Code</Label>
+                          <Input id="zip_code" defaultValue="94103" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="country">Country</Label>
+                          <Select defaultValue="us">
+                            <SelectTrigger id="country">
+                              <SelectValue placeholder="Select country" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="us">United States</SelectItem>
+                              <SelectItem value="ca">Canada</SelectItem>
+                              <SelectItem value="uk">United Kingdom</SelectItem>
+                              <SelectItem value="au">Australia</SelectItem>
+                              <SelectItem value="de">Germany</SelectItem>
+                              <SelectItem value="fr">France</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                      <div className="mt-4">
+                        <Button variant="default" onClick={handleSave} disabled={loading}>
+                          {loading ? "Saving..." : "Save Billing Details"}
+                        </Button>
                       </div>
                     </div>
                   </CardContent>
@@ -628,15 +458,3 @@ export default function Settings() {
     </div>
   );
 }
-
-// Helper components
-const Badge = ({ children, className, ...props }: React.HTMLAttributes<HTMLDivElement>) => {
-  return (
-    <div
-      className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ${className}`}
-      {...props}
-    >
-      {children}
-    </div>
-  );
-};
