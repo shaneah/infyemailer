@@ -79,161 +79,167 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen flex">
-      {/* Left side - Hero/Marketing content */}
-      <div className="hidden lg:flex lg:flex-col lg:w-1/2 bg-primary p-10 text-white">
-        <div>
-          <img src={infyLogo} alt="InfyMailer Logo" className="h-14 mb-6" />
-          <h1 className="text-4xl font-bold">InfyMailer Platform</h1>
-          <p className="mt-4 text-lg opacity-80">
-            The comprehensive email marketing solution for businesses of all sizes
-          </p>
-        </div>
-        
-        <div className="flex-grow flex items-center">
-          <div className="space-y-8">
-            <div className="space-y-6">
-              <div className="flex items-start space-x-3">
-                <div className="bg-white/20 p-1 rounded-full">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-5 h-5">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                </div>
-                <div>
-                  <h3 className="font-medium">Advanced Email Marketing</h3>
-                  <p className="text-sm opacity-80">Create and send beautiful emails that convert</p>
-                </div>
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-primary/5 to-primary/10">
+      <div className="flex-1 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-5xl w-full space-y-8 flex flex-col lg:flex-row gap-8">
+          {/* Left side - Card with form */}
+          <div className="flex-1 bg-white rounded-2xl shadow-xl overflow-hidden">
+            <div className="px-6 py-8 sm:px-10">
+              <div className="mb-8 text-center">
+                <img src={infyLogo} alt="InfyMailer Logo" className="h-14 mx-auto mb-6" />
+                <h2 className="text-3xl font-extrabold text-gray-900 mb-1">
+                  Admin Login
+                </h2>
+                <p className="text-sm text-gray-600">
+                  Sign in to access your admin dashboard
+                </p>
               </div>
-              <div className="flex items-start space-x-3">
-                <div className="bg-white/20 p-1 rounded-full">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-5 h-5">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                </div>
-                <div>
-                  <h3 className="font-medium">Intelligent Analytics</h3>
-                  <p className="text-sm opacity-80">Track performance with detailed analytics and reports</p>
-                </div>
-              </div>
-              <div className="flex items-start space-x-3">
-                <div className="bg-white/20 p-1 rounded-full">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-5 h-5">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                </div>
-                <div>
-                  <h3 className="font-medium">A/B Testing</h3>
-                  <p className="text-sm opacity-80">Optimize your campaigns with powerful testing tools</p>
-                </div>
-              </div>
-              <div className="flex items-start space-x-3">
-                <div className="bg-white/20 p-1 rounded-full">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-5 h-5">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                </div>
-                <div>
-                  <h3 className="font-medium">Multi-domain Support</h3>
-                  <p className="text-sm opacity-80">Manage multiple sending domains for better deliverability</p>
-                </div>
+              
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                  <FormField
+                    control={form.control}
+                    name="usernameOrEmail"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-gray-700 font-medium">Username or Email</FormLabel>
+                        <FormControl>
+                          <Input 
+                            placeholder="admin" 
+                            {...field} 
+                            className="rounded-lg border-gray-300 focus:ring-2 focus:ring-primary/50" 
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="password"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-gray-700 font-medium">Password</FormLabel>
+                        <FormControl>
+                          <Input 
+                            type="password" 
+                            placeholder="••••••••" 
+                            {...field} 
+                            className="rounded-lg border-gray-300 focus:ring-2 focus:ring-primary/50" 
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <div className="flex items-center justify-between">
+                    <FormField
+                      control={form.control}
+                      name="rememberMe"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-start space-x-2 space-y-0">
+                          <FormControl>
+                            <Checkbox
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                              className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                            />
+                          </FormControl>
+                          <div className="space-y-1 leading-none">
+                            <FormLabel className="font-normal text-gray-700">Remember me</FormLabel>
+                          </div>
+                        </FormItem>
+                      )}
+                    />
+                    <div className="text-sm">
+                      <a href="#" className="font-medium text-primary hover:text-primary-dark">
+                        Forgot password?
+                      </a>
+                    </div>
+                  </div>
+                  <Button 
+                    type="submit" 
+                    className="w-full py-2.5 bg-primary hover:bg-primary/90 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? (
+                      <>
+                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Signing in...
+                      </>
+                    ) : "Sign in"}
+                  </Button>
+                  
+                  <div className="bg-primary/5 rounded-lg p-3 text-xs text-gray-700 text-center">
+                    <p className="mb-1 font-medium">For demo purposes:</p>
+                    <p>Username: <strong>admin</strong> | Password: <strong>admin123</strong></p>
+                  </div>
+                </form>
+              </Form>
+              
+              <div className="mt-6 text-sm text-center">
+                <Link to="/client-login" className="font-medium text-primary hover:text-primary-dark">
+                  Switch to Client Login
+                </Link>
               </div>
             </div>
           </div>
-        </div>
-        
-        <div className="text-sm opacity-70">
-          &copy; {new Date().getFullYear()} InfyMailer. All rights reserved.
-        </div>
-      </div>
-      
-      {/* Right side - Login form */}
-      <div className="flex-1 flex items-center justify-center p-6 bg-background">
-        <Card className="w-full max-w-md">
-          <CardHeader className="space-y-1 items-center">
-            <div className="lg:hidden mb-6">
-              <img src={infyLogo} alt="InfyMailer Logo" className="h-14" />
-            </div>
-            <CardTitle className="text-2xl font-bold text-center">Admin Login</CardTitle>
-            <CardDescription className="text-center">
-              Sign in to access your admin dashboard
-            </CardDescription>
-          </CardHeader>
           
-          <CardContent>
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                <FormField
-                  control={form.control}
-                  name="usernameOrEmail"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Username or Email</FormLabel>
-                      <FormControl>
-                        <Input placeholder="admin" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Password</FormLabel>
-                      <FormControl>
-                        <Input type="password" placeholder="••••••••" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="rememberMe"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                      <FormControl>
-                        <Checkbox
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                      <div className="space-y-1 leading-none">
-                        <FormLabel>Remember me</FormLabel>
-                      </div>
-                    </FormItem>
-                  )}
-                />
-                <Button 
-                  type="submit" 
-                  className="w-full" 
-                  disabled={isLoading}
-                >
-                  {isLoading ? "Signing in..." : "Sign in"}
-                </Button>
-                
-                <div className="text-xs text-muted-foreground text-center">
-                  <p className="mb-1">For demo purposes:</p>
-                  <p>Username: <strong>admin</strong> | Password: <strong>admin123</strong></p>
+          {/* Right side - Features/Marketing */}
+          <div className="hidden lg:flex lg:flex-col lg:justify-between lg:flex-1 bg-primary rounded-2xl shadow-xl p-10 text-white">
+            <div>
+              <h1 className="text-3xl font-extrabold leading-tight">
+                InfyMailer Platform
+              </h1>
+              <p className="mt-3 text-lg text-white/80">
+                The comprehensive email marketing solution for growing businesses
+              </p>
+            </div>
+            
+            <div className="space-y-6 my-8">
+              <div className="flex items-start">
+                <div className="bg-white/20 p-2 rounded-full mr-4">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
                 </div>
-              </form>
-            </Form>
-          </CardContent>
-          
-          <CardFooter className="flex flex-col space-y-4">
-            <div className="text-sm text-center">
-              <a href="#" className="font-medium text-primary hover:text-primary-dark">
-                Forgot your password?
-              </a>
+                <div>
+                  <h3 className="text-lg font-bold">Advanced Email Marketing</h3>
+                  <p className="text-white/80">Create and send beautiful emails that convert</p>
+                </div>
+              </div>
+              <div className="flex items-start">
+                <div className="bg-white/20 p-2 rounded-full mr-4">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold">Intelligent Analytics</h3>
+                  <p className="text-white/80">Track performance with detailed analytics and reports</p>
+                </div>
+              </div>
+              <div className="flex items-start">
+                <div className="bg-white/20 p-2 rounded-full mr-4">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zm0 8a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zm12 0a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold">A/B Testing</h3>
+                  <p className="text-white/80">Optimize your campaigns with powerful testing tools</p>
+                </div>
+              </div>
             </div>
-            <div className="text-sm text-center">
-              <Link to="/client-login" className="font-medium text-primary hover:text-primary-dark">
-                Client Login
-              </Link>
+            
+            <div className="pt-6 border-t border-white/20 text-sm text-white/60">
+              &copy; {new Date().getFullYear()} InfyMailer. All rights reserved.
             </div>
-          </CardFooter>
-        </Card>
+          </div>
+        </div>
       </div>
     </div>
   );
