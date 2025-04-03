@@ -591,8 +591,13 @@ export default function ClientUsers() {
             </div>
           )}
 
-          {selectedClientId ? (
-            isLoading ? (
+          {!selectedClientId ? (
+            <div className="text-center p-10 border border-dashed rounded-lg">
+              <Shield className="mx-auto h-10 w-10 text-muted-foreground mb-2" />
+              <h3 className="text-lg font-medium mb-1">Select a Client</h3>
+              <p className="text-muted-foreground mb-4">Please select a client from the dropdown above to manage their users.</p>
+            </div>
+          ) : isLoading ? (
               <div className="space-y-4">
                 {[1, 2, 3].map((i) => (
                   <div key={i} className="flex items-center space-x-4">
@@ -681,16 +686,7 @@ export default function ClientUsers() {
                   ))}
                 </TableBody>
               </Table>
-            )
-          ) : (
-            <div className="text-center p-10 border border-dashed rounded-lg">
-              <Shield className="mx-auto h-10 w-10 text-muted-foreground mb-2" />
-              <h3 className="text-lg font-medium mb-1">Select a Client</h3>
-              <p className="text-muted-foreground">
-                Please select a client to manage their portal users.
-              </p>
-            </div>
-          )}
+            )}
 
           {/* Edit User Dialog */}
           <Dialog open={isEditUserOpen} onOpenChange={setIsEditUserOpen}>
