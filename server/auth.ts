@@ -1,19 +1,31 @@
 import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
-import { Express } from "express";
+import { Express, Request, Response, NextFunction } from "express";
 import session from "express-session";
 import { scrypt, randomBytes, timingSafeEqual } from "crypto";
 import { promisify } from "util";
-import { User } from "@shared/schema";
 import { storage } from "./storage";
-import connectPg from "connect-pg-simple";
-import { sql } from "./db";
-
-const PostgresSessionStore = connectPg(session);
+import memorystore from "memorystore";
 
 declare global {
   namespace Express {
-    interface User extends User {}
+    // Define a user interface that is compatible with our user schema
+    interface User {
+      id: number;
+      username: string;
+      email: string;
+      password: string;
+      firstName?: string | null;
+      lastName?: string | null;
+      role?: string;
+      status?: string;
+      avatarUrl?: string | null;
+      metadata?: any;
+      createdAt?: Date | null;
+      updatedAt?: Date | null;
+      lastLoginAt?: Date | null;
+      [key: string]: any; // Allow any additional properties
+    }
   }
 }
 
@@ -26,17 +38,31 @@ async function hashPassword(password: string) {
 }
 
 async function comparePasswords(supplied: string, stored: string) {
-  const [hashed, salt] = stored.split(".");
-  const hashedBuf = Buffer.from(hashed, "hex");
-  const suppliedBuf = (await scryptAsync(supplied, salt, 64)) as Buffer;
-  return timingSafeEqual(hashedBuf, suppliedBuf);
+  // Make sure we have a properly formatted stored password
+  if (!stored || !stored.includes('.')) {
+    return false;
+  }
+  
+  try {
+    const [hashed, salt] = stored.split(".");
+    if (!hashed || !salt) {
+      return false;
+    }
+    
+    const hashedBuf = Buffer.from(hashed, "hex");
+    const suppliedBuf = (await scryptAsync(supplied, salt, 64)) as Buffer;
+    return timingSafeEqual(hashedBuf, suppliedBuf);
+  } catch (error) {
+    console.error('Error comparing passwords:', error);
+    return false;
+  }
 }
 
 export function setupAuth(app: Express) {
-  const sessionStore = new PostgresSessionStore({ 
-    pool: { query: (text, params) => sql.unsafe(text, params) },
-    createTableIfMissing: true,
-    tableName: 'user_sessions'
+  // Use memory store for now to avoid database session table issues
+  const MemoryStore = memorystore(session);
+  const sessionStore = new MemoryStore({
+    checkPeriod: 86400000 // prune expired entries every 24h
   });
 
   const sessionSettings: session.SessionOptions = {
@@ -107,16 +133,16 @@ export function setupAuth(app: Express) {
   });
 
   app.post("/api/login", (req, res, next) => {
-    passport.authenticate("local", (err, user, info) => {
+    passport.authenticate("local", (err: any, user: Express.User | false | null, info: { message: string } | undefined) => {
       if (err) return next(err);
       if (!user) {
         return res.status(401).json({ message: info?.message || "Authentication failed" });
       }
       
-      req.login(user, (err) => {
+      req.login(user, (err: Error | null) => {
         if (err) return next(err);
         // Remove password from response
-        const { password, ...userWithoutPassword } = user;
+        const { password, ...userWithoutPassword } = user as any;
         res.status(200).json(userWithoutPassword);
       });
     })(req, res, next);
