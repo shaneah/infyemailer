@@ -996,6 +996,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Client User routes
   app.post('/api/client-login', async (req: Request, res: Response) => {
+    console.log('Client login request received:', req.body);
+    
     const validatedData = validate(clientUserLoginSchema, req.body);
     if ('error' in validatedData) {
       console.log('Client login validation error:', validatedData.error);
@@ -1008,15 +1010,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // First check if the user exists
       const user = await storage.getClientUserByUsername(username);
+      console.log(`getClientUserByUsername returned:`, user);
+      
       if (!user) {
         console.log(`Client user not found: ${username}`);
         return res.status(401).json({ error: 'Invalid credentials (user not found)' });
       }
       
       console.log(`Client user found. Password format: ${user.password.includes('.') ? 'hashed' : 'plain'}`);
+      console.log(`User metadata:`, user.metadata);
       
       // Verify password separately
       const clientUser = await storage.verifyClientLogin(username, password);
+      console.log(`verifyClientLogin returned:`, clientUser);
+      
       if (!clientUser) {
         console.log(`Password verification failed for client user: ${username}`);
         return res.status(401).json({ error: 'Invalid credentials (password mismatch)' });
@@ -1024,6 +1031,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Get the associated client for this user
       const client = await storage.getClient(clientUser.clientId);
+      console.log(`getClient returned:`, client);
       
       if (!client) {
         console.log(`Client account not found for user: ${username}, client ID: ${clientUser.clientId}`);
@@ -1035,12 +1043,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Don't send password back to the client
       const { password: _, ...clientUserWithoutPassword } = clientUser;
       
-      res.json({ 
+      const responseData = { 
         ...clientUserWithoutPassword,
         clientName: client.name,
         clientCompany: client.company,
         lastLogin: new Date().toISOString() 
-      });
+      };
+      
+      console.log(`Sending client login response:`, responseData);
+      
+      res.json(responseData);
     } catch (error) {
       console.error('Client login error:', error);
       res.status(500).json({ error: 'Login failed. Please try again.' });
