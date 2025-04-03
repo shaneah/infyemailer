@@ -35,10 +35,14 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        {location === "/auth" ? (
-          // Auth page layout
+        {location === "/auth" || location === "/client-login" || location === "/client-dashboard" ? (
+          // Auth page layout and client portal pages (no sidebar)
           <div className="bg-background min-h-screen">
-            <AuthPage />
+            <Switch>
+              <Route path="/auth" component={AuthPage} />
+              <Route path="/client-login" component={ClientLogin} />
+              <Route path="/client-dashboard" component={ClientDashboard} />
+            </Switch>
             <Toaster />
           </div>
         ) : (
@@ -69,9 +73,6 @@ function App() {
                   <ProtectedRoute path="/email-validation" component={EmailValidation} />
                   <ProtectedRoute path="/emails" component={Emails} />
                   <ProtectedRoute path="/reporting" component={Reporting} />
-                  <Route path="/auth" component={AuthPage} />
-                  <Route path="/client-login" component={ClientLogin} />
-                  <Route path="/client/dashboard" component={ClientDashboard} />
                   <Route component={NotFound} />
                 </Switch>
               </main>

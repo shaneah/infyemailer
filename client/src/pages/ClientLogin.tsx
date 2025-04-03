@@ -44,7 +44,7 @@ const ClientLogin = () => {
   const onSubmit = async (data: FormValues) => {
     setIsLoading(true);
     try {
-      // In a real app, this would make an API call to /api/client-login
+      console.log("Login data:", data);
       const response = await fetch('/api/client-login', {
         method: 'POST',
         headers: {
@@ -78,8 +78,9 @@ const ClientLogin = () => {
       });
       
       // Redirect to dashboard
-      setLocation('/client/dashboard');
+      setLocation('/client-dashboard');
     } catch (error) {
+      console.error("Login error:", error);
       toast({
         title: 'Login failed',
         description: error instanceof Error ? error.message : 'Invalid username or password',
