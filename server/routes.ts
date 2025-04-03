@@ -1776,6 +1776,86 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(activities);
   });
 
+  app.get('/api/email-performance/detailed-opens', async (req: Request, res: Response) => {
+    try {
+      // Fetch detailed open events from database or return sample data for now
+      // TODO: Replace with actual database query when open_events data is available
+      const detailedOpens = {
+        emails: [
+          { 
+            id: 1, 
+            emailName: 'Weekly Newsletter - April Edition',
+            recipient: 'john.doe@example.com',
+            openCount: 3,
+            lastOpenedAt: '2025-04-02 09:45:12',
+            device: 'Mobile - iPhone'
+          },
+          { 
+            id: 2, 
+            emailName: 'Special Promotion',
+            recipient: 'alice.johnson@example.com',
+            openCount: 2,
+            lastOpenedAt: '2025-04-02 11:23:45',
+            device: 'Desktop - Chrome'
+          },
+          { 
+            id: 3, 
+            emailName: 'Product Launch Announcement',
+            recipient: 'robert.smith@example.com',
+            openCount: 5,
+            lastOpenedAt: '2025-04-02 13:10:33',
+            device: 'Mobile - Android'
+          },
+          { 
+            id: 4, 
+            emailName: 'Monthly Report',
+            recipient: 'maria.garcia@example.com',
+            openCount: 1,
+            lastOpenedAt: '2025-04-02 15:42:19',
+            device: 'Tablet - iPad'
+          },
+          { 
+            id: 5, 
+            emailName: 'Spring Sale', 
+            recipient: 'david.wilson@example.com',
+            openCount: 4,
+            lastOpenedAt: '2025-04-02 16:30:05',
+            device: 'Desktop - Firefox'
+          },
+          { 
+            id: 6, 
+            emailName: 'Weekly Newsletter - April Edition',
+            recipient: 'emily.brown@example.com',
+            openCount: 2,
+            lastOpenedAt: '2025-04-02 17:12:38',
+            device: 'Mobile - iPhone'
+          },
+          { 
+            id: 7, 
+            emailName: 'Event Invitation',
+            recipient: 'michael.jones@example.com',
+            openCount: 3,
+            lastOpenedAt: '2025-04-03 09:05:22',
+            device: 'Desktop - Safari'
+          },
+          { 
+            id: 8, 
+            emailName: 'Special Promotion',
+            recipient: 'sarah.miller@example.com',
+            openCount: 1,
+            lastOpenedAt: '2025-04-03 10:33:47',
+            device: 'Mobile - Android'
+          }
+        ]
+      };
+      
+      res.json(detailedOpens);
+    } catch (error) {
+      console.error('Error fetching detailed opens:', error);
+      res.status(500).json({ error: 'Failed to fetch detailed email opens data' });
+    }
+  });
+
   // Email Tracking and Analytics API Endpoints
   
   // Record a click event

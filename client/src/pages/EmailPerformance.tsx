@@ -262,6 +262,7 @@ const EmailPerformance: React.FC = () => {
       <Tabs defaultValue="overview" className="space-y-4">
         <TabsList>
           <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="opens">Email Opens</TabsTrigger>
           <TabsTrigger value="engagement">Engagement Metrics</TabsTrigger>
           <TabsTrigger value="campaigns">Campaign Comparison</TabsTrigger>
           <TabsTrigger value="audience">Audience Insights</TabsTrigger>
@@ -351,6 +352,11 @@ const EmailPerformance: React.FC = () => {
               </CardContent>
             </Card>
           </div>
+        </TabsContent>
+
+        {/* Email Opens Tab */}
+        <TabsContent value="opens" className="space-y-4">
+          <DetailedOpens />
         </TabsContent>
         
         {/* Engagement Metrics Tab */}
@@ -687,6 +693,68 @@ const EmailPerformance: React.FC = () => {
         </CardContent>
       </Card>
     </div>
+  );
+};
+
+// Detailed Opens component to show which emails have been opened
+const DetailedOpens = () => {
+  // Using React Query to fetch detailed open data
+  const { data: openData, isLoading } = useQuery<{
+    emails: Array<{
+      id: number;
+      emailName: string;
+      recipient: string;
+      openCount: number;
+      lastOpenedAt: string;
+      device: string;
+    }>
+  }>({
+    queryKey: ['/api/email-performance/detailed-opens'],
+  });
+
+  return (
+    <Card className="h-full">
+      <CardHeader>
+        <CardTitle>Detailed Email Opens</CardTitle>
+        <CardDescription>Specific emails that have been opened</CardDescription>
+      </CardHeader>
+      <CardContent>
+        {isLoading ? (
+          <div className="text-center py-4 text-gray-400">Loading open data...</div>
+        ) : (
+          <div className="overflow-auto max-h-96">
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="border-b">
+                  <th className="text-left py-2 px-4 font-medium text-gray-500">Email</th>
+                  <th className="text-left py-2 px-4 font-medium text-gray-500">Recipient</th>
+                  <th className="text-center py-2 px-4 font-medium text-gray-500">Opens</th>
+                  <th className="text-left py-2 px-4 font-medium text-gray-500">Last Opened</th>
+                  <th className="text-left py-2 px-4 font-medium text-gray-500">Device</th>
+                </tr>
+              </thead>
+              <tbody>
+                {!openData?.emails || openData.emails.length === 0 ? (
+                  <tr>
+                    <td colSpan={5} className="text-center py-4 text-gray-400">No email open data available</td>
+                  </tr>
+                ) : (
+                  openData.emails.map((email) => (
+                    <tr key={email.id} className="border-b hover:bg-gray-50">
+                      <td className="py-3 px-4">{email.emailName}</td>
+                      <td className="py-3 px-4">{email.recipient}</td>
+                      <td className="py-3 px-4 text-center font-medium">{email.openCount}</td>
+                      <td className="py-3 px-4">{email.lastOpenedAt}</td>
+                      <td className="py-3 px-4">{email.device}</td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 };
 
