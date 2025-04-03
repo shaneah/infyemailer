@@ -27,7 +27,7 @@ const ClientLogin = () => {
   React.useEffect(() => {
     const clientUser = sessionStorage.getItem('clientUser') || localStorage.getItem('clientUser');
     if (clientUser) {
-      setLocation('/client/dashboard');
+      setLocation('client-dashboard');
     }
   }, [setLocation]);
 
@@ -86,8 +86,8 @@ const ClientLogin = () => {
         description: 'Welcome to InfyMailer client portal!'
       });
       
-      // Redirect to dashboard
-      setLocation('/client-dashboard');
+      // Redirect to dashboard - without leading slash to match the route in App.tsx
+      setLocation('client-dashboard');
     } catch (error) {
       console.error("Login error:", error);
       toast({
@@ -214,7 +214,7 @@ const ClientLogin = () => {
                   className="text-primary hover:underline"
                   onClick={(e) => {
                     e.preventDefault();
-                    setLocation('/auth');
+                    setLocation('auth');
                   }}
                 >
                   Admin Login

@@ -998,23 +998,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/client-login', async (req: Request, res: Response) => {
     const validatedData = validate(clientUserLoginSchema, req.body);
     if ('error' in validatedData) {
+      console.log('Client login validation error:', validatedData.error);
       return res.status(400).json({ error: validatedData.error });
     }
 
     try {
       const { username, password } = validatedData;
-      const clientUser = await storage.verifyClientLogin(username, password);
+      console.log(`Client login attempt for: ${username}`);
       
+      // First check if the user exists
+      const user = await storage.getClientUserByUsername(username);
+      if (!user) {
+        console.log(`Client user not found: ${username}`);
+        return res.status(401).json({ error: 'Invalid credentials (user not found)' });
+      }
+      
+      console.log(`Client user found. Password format: ${user.password.includes('.') ? 'hashed' : 'plain'}`);
+      
+      // Verify password separately
+      const clientUser = await storage.verifyClientLogin(username, password);
       if (!clientUser) {
-        return res.status(401).json({ error: 'Invalid credentials' });
+        console.log(`Password verification failed for client user: ${username}`);
+        return res.status(401).json({ error: 'Invalid credentials (password mismatch)' });
       }
       
       // Get the associated client for this user
       const client = await storage.getClient(clientUser.clientId);
       
       if (!client) {
+        console.log(`Client account not found for user: ${username}, client ID: ${clientUser.clientId}`);
         return res.status(500).json({ error: 'Client account not found' });
       }
+      
+      console.log(`Client login successful for: ${username}, client: ${client.name}`);
       
       // Don't send password back to the client
       const { password: _, ...clientUserWithoutPassword } = clientUser;
