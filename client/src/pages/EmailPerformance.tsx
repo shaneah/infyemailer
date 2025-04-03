@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { 
   Card, 
@@ -698,6 +698,14 @@ const EmailPerformance: React.FC = () => {
 
 // Detailed Opens component to show which emails have been opened
 const DetailedOpens = () => {
+  const [selectedCampaign, setSelectedCampaign] = useState<string>("all");
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  
+  // Fetch campaigns for the filter dropdown
+  const { data: campaignsData } = useQuery<Array<{ id: number; name: string }>>({
+    queryKey: ['/api/campaigns'],
+  });
+  
   // Using React Query to fetch detailed open data
   const { data: openData, isLoading } = useQuery<{
     emails: Array<{
@@ -707,16 +715,130 @@ const DetailedOpens = () => {
       openCount: number;
       lastOpenedAt: string;
       device: string;
+      campaignId: number;
+      campaignName: string;
     }>
   }>({
-    queryKey: ['/api/email-performance/detailed-opens'],
+    queryKey: ['/api/email-performance/detailed-opens', selectedCampaign],
+    queryFn: async () => {
+      const res = await fetch(`/api/email-performance/detailed-opens${selectedCampaign !== "all" ? `?campaignId=${selectedCampaign}` : ''}`);
+      if (!res.ok) throw new Error('Failed to fetch open data');
+      return res.json();
+    }
   });
+
+  // Define the EmailOpen type
+  type EmailOpen = {
+    id: number;
+    emailName: string;
+    recipient: string;
+    openCount: number;
+    lastOpenedAt: string;
+    device: string;
+    campaignId: number;
+    campaignName: string;
+  };
+
+  // Filter emails based on search term
+  const filteredEmails = useMemo(() => {
+    if (!openData?.emails) return [];
+    return openData.emails.filter((email: EmailOpen) => 
+      email.emailName.toLowerCase().includes(searchTerm.toLowerCase()) || 
+      email.recipient.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      email.campaignName.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [openData, searchTerm]);
+
+  // Function to download email opens data as CSV
+  const handleDownload = () => {
+    if (!filteredEmails || filteredEmails.length === 0) return;
+    
+    // Create CSV content
+    const headers = ["Email Name", "Recipient", "Opens", "Last Opened", "Device", "Campaign"];
+    const csvRows = [headers];
+    
+    filteredEmails.forEach((email: EmailOpen) => {
+      csvRows.push([
+        email.emailName,
+        email.recipient,
+        email.openCount.toString(),
+        email.lastOpenedAt,
+        email.device,
+        email.campaignName
+      ]);
+    });
+    
+    // Convert to CSV format
+    const csvContent = csvRows.map(row => row.join(",")).join("\n");
+    
+    // Create download link
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `email-opens-report-${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   return (
     <Card className="h-full">
       <CardHeader>
-        <CardTitle>Detailed Email Opens</CardTitle>
-        <CardDescription>Specific emails that have been opened</CardDescription>
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div>
+            <CardTitle>Detailed Email Opens</CardTitle>
+            <CardDescription>Specific emails that have been opened</CardDescription>
+          </div>
+          <Button onClick={handleDownload} variant="outline" size="sm" className="flex items-center">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="mr-2"
+            >
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            Download CSV
+          </Button>
+        </div>
+        <div className="flex flex-col sm:flex-row gap-4 pt-2">
+          <div className="flex-1">
+            <label htmlFor="search-opens" className="text-sm font-medium mb-1 block">Search</label>
+            <input
+              id="search-opens"
+              type="text"
+              placeholder="Search by email or recipient..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full px-3 py-2 border rounded-md text-sm"
+            />
+          </div>
+          <div>
+            <label htmlFor="campaign-filter" className="text-sm font-medium mb-1 block">Filter by Campaign</label>
+            <select
+              id="campaign-filter"
+              value={selectedCampaign}
+              onChange={(e) => setSelectedCampaign(e.target.value)}
+              className="w-full px-3 py-2 border rounded-md text-sm"
+            >
+              <option value="all">All Campaigns</option>
+              {campaignsData?.map(campaign => (
+                <option key={campaign.id} value={campaign.id.toString()}>
+                  {campaign.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
       </CardHeader>
       <CardContent>
         {isLoading ? (
@@ -731,21 +853,23 @@ const DetailedOpens = () => {
                   <th className="text-center py-2 px-4 font-medium text-gray-500">Opens</th>
                   <th className="text-left py-2 px-4 font-medium text-gray-500">Last Opened</th>
                   <th className="text-left py-2 px-4 font-medium text-gray-500">Device</th>
+                  <th className="text-left py-2 px-4 font-medium text-gray-500">Campaign</th>
                 </tr>
               </thead>
               <tbody>
-                {!openData?.emails || openData.emails.length === 0 ? (
+                {!filteredEmails || filteredEmails.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="text-center py-4 text-gray-400">No email open data available</td>
+                    <td colSpan={6} className="text-center py-4 text-gray-400">No email open data available</td>
                   </tr>
                 ) : (
-                  openData.emails.map((email) => (
+                  filteredEmails.map((email: EmailOpen) => (
                     <tr key={email.id} className="border-b hover:bg-gray-50">
                       <td className="py-3 px-4">{email.emailName}</td>
                       <td className="py-3 px-4">{email.recipient}</td>
                       <td className="py-3 px-4 text-center font-medium">{email.openCount}</td>
                       <td className="py-3 px-4">{email.lastOpenedAt}</td>
                       <td className="py-3 px-4">{email.device}</td>
+                      <td className="py-3 px-4">{email.campaignName}</td>
                     </tr>
                   ))
                 )}

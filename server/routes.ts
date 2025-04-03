@@ -1778,78 +1778,142 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/email-performance/detailed-opens', async (req: Request, res: Response) => {
     try {
-      // Fetch detailed open events from database or return sample data for now
-      // TODO: Replace with actual database query when open_events data is available
-      const detailedOpens = {
-        emails: [
-          { 
-            id: 1, 
-            emailName: 'Weekly Newsletter - April Edition',
-            recipient: 'john.doe@example.com',
-            openCount: 3,
-            lastOpenedAt: '2025-04-02 09:45:12',
-            device: 'Mobile - iPhone'
-          },
-          { 
-            id: 2, 
-            emailName: 'Special Promotion',
-            recipient: 'alice.johnson@example.com',
-            openCount: 2,
-            lastOpenedAt: '2025-04-02 11:23:45',
-            device: 'Desktop - Chrome'
-          },
-          { 
-            id: 3, 
-            emailName: 'Product Launch Announcement',
-            recipient: 'robert.smith@example.com',
-            openCount: 5,
-            lastOpenedAt: '2025-04-02 13:10:33',
-            device: 'Mobile - Android'
-          },
-          { 
-            id: 4, 
-            emailName: 'Monthly Report',
-            recipient: 'maria.garcia@example.com',
-            openCount: 1,
-            lastOpenedAt: '2025-04-02 15:42:19',
-            device: 'Tablet - iPad'
-          },
-          { 
-            id: 5, 
-            emailName: 'Spring Sale', 
-            recipient: 'david.wilson@example.com',
-            openCount: 4,
-            lastOpenedAt: '2025-04-02 16:30:05',
-            device: 'Desktop - Firefox'
-          },
-          { 
-            id: 6, 
-            emailName: 'Weekly Newsletter - April Edition',
-            recipient: 'emily.brown@example.com',
-            openCount: 2,
-            lastOpenedAt: '2025-04-02 17:12:38',
-            device: 'Mobile - iPhone'
-          },
-          { 
-            id: 7, 
-            emailName: 'Event Invitation',
-            recipient: 'michael.jones@example.com',
-            openCount: 3,
-            lastOpenedAt: '2025-04-03 09:05:22',
-            device: 'Desktop - Safari'
-          },
-          { 
-            id: 8, 
-            emailName: 'Special Promotion',
-            recipient: 'sarah.miller@example.com',
-            openCount: 1,
-            lastOpenedAt: '2025-04-03 10:33:47',
-            device: 'Mobile - Android'
-          }
-        ]
-      };
+      // Get the campaign ID from query parameters if provided
+      const campaignId = req.query.campaignId ? parseInt(req.query.campaignId as string) : undefined;
       
-      res.json(detailedOpens);
+      // In a real implementation, we would query the database for open_events
+      // filtered by campaignId if provided
+      
+      // Sample data - in a real implementation this would come from the database
+      const allOpens = [
+        { 
+          id: 1, 
+          emailName: 'Weekly Newsletter - April Edition',
+          recipient: 'john.doe@example.com',
+          openCount: 3,
+          lastOpenedAt: '2025-04-02 09:45:12',
+          device: 'Mobile - iPhone',
+          campaignId: 1,
+          campaignName: 'Monthly Newsletter'
+        },
+        { 
+          id: 2, 
+          emailName: 'Special Promotion',
+          recipient: 'alice.johnson@example.com',
+          openCount: 2,
+          lastOpenedAt: '2025-04-02 11:23:45',
+          device: 'Desktop - Chrome',
+          campaignId: 2,
+          campaignName: 'Product Launch'
+        },
+        { 
+          id: 3, 
+          emailName: 'Product Launch Announcement',
+          recipient: 'robert.smith@example.com',
+          openCount: 5,
+          lastOpenedAt: '2025-04-02 13:10:33',
+          device: 'Mobile - Android',
+          campaignId: 2,
+          campaignName: 'Product Launch'
+        },
+        { 
+          id: 4, 
+          emailName: 'Monthly Report',
+          recipient: 'maria.garcia@example.com',
+          openCount: 1,
+          lastOpenedAt: '2025-04-02 15:42:19',
+          device: 'Tablet - iPad',
+          campaignId: 3,
+          campaignName: 'Summer Sale'
+        },
+        { 
+          id: 5, 
+          emailName: 'Spring Sale', 
+          recipient: 'david.wilson@example.com',
+          openCount: 4,
+          lastOpenedAt: '2025-04-02 16:30:05',
+          device: 'Desktop - Firefox',
+          campaignId: 3,
+          campaignName: 'Summer Sale'
+        },
+        { 
+          id: 6, 
+          emailName: 'Weekly Newsletter - April Edition',
+          recipient: 'emily.brown@example.com',
+          openCount: 2,
+          lastOpenedAt: '2025-04-02 17:12:38',
+          device: 'Mobile - iPhone',
+          campaignId: 1,
+          campaignName: 'Monthly Newsletter'
+        },
+        { 
+          id: 7, 
+          emailName: 'Event Invitation',
+          recipient: 'michael.jones@example.com',
+          openCount: 3,
+          lastOpenedAt: '2025-04-03 09:05:22',
+          device: 'Desktop - Safari',
+          campaignId: 4,
+          campaignName: 'Event Series'
+        },
+        { 
+          id: 8, 
+          emailName: 'Special Promotion',
+          recipient: 'sarah.miller@example.com',
+          openCount: 1,
+          lastOpenedAt: '2025-04-03 10:33:47',
+          device: 'Mobile - Android',
+          campaignId: 2,
+          campaignName: 'Product Launch'
+        },
+        { 
+          id: 9, 
+          emailName: 'Webinar Invitation',
+          recipient: 'james.clark@example.com',
+          openCount: 2,
+          lastOpenedAt: '2025-04-03 11:15:36',
+          device: 'Desktop - Chrome',
+          campaignId: 4,
+          campaignName: 'Event Series'
+        },
+        { 
+          id: 10, 
+          emailName: 'Limited Time Offer',
+          recipient: 'jennifer.hall@example.com',
+          openCount: 4,
+          lastOpenedAt: '2025-04-03 13:23:58',
+          device: 'Mobile - iPhone',
+          campaignId: 3,
+          campaignName: 'Summer Sale'
+        },
+        { 
+          id: 11, 
+          emailName: 'Feedback Request',
+          recipient: 'thomas.wilson@example.com',
+          openCount: 1,
+          lastOpenedAt: '2025-04-03 14:42:11',
+          device: 'Desktop - Firefox',
+          campaignId: 5,
+          campaignName: 'Customer Feedback'
+        },
+        { 
+          id: 12, 
+          emailName: 'Product Update',
+          recipient: 'amanda.lewis@example.com',
+          openCount: 3,
+          lastOpenedAt: '2025-04-03 16:20:47',
+          device: 'Tablet - Android',
+          campaignId: 2,
+          campaignName: 'Product Launch'
+        }
+      ];
+      
+      // Filter by campaign ID if provided
+      const filteredOpens = campaignId 
+        ? allOpens.filter(open => open.campaignId === campaignId)
+        : allOpens;
+      
+      res.json({ emails: filteredOpens });
     } catch (error) {
       console.error('Error fetching detailed opens:', error);
       res.status(500).json({ error: 'Failed to fetch detailed email opens data' });
