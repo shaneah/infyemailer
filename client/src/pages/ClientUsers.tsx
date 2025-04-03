@@ -110,6 +110,23 @@ const clientUserSchema = z.object({
   username: z.string().min(3, { message: "Username must be at least 3 characters." }),
   password: z.string().min(6, { message: "Password must be at least 6 characters." }),
   status: z.enum(["active", "inactive"]),
+  permissions: z.object({
+    emailValidation: z.boolean().default(false),
+    campaigns: z.boolean().default(false),
+    contacts: z.boolean().default(false),
+    templates: z.boolean().default(false),
+    reporting: z.boolean().default(false),
+    domains: z.boolean().default(false),
+    abTesting: z.boolean().default(false)
+  }).default({
+    emailValidation: false,
+    campaigns: false,
+    contacts: false,
+    templates: false,
+    reporting: false,
+    domains: false,
+    abTesting: false
+  }),
   metadata: z.record(z.any()).optional()
 });
 
@@ -146,6 +163,14 @@ export default function ClientUsers() {
       username: "",
       password: "",
       status: "active",
+      permissions: {
+        emailValidation: false,
+        campaigns: false,
+        contacts: false,
+        templates: false,
+        reporting: false,
+        domains: false,
+      },
       metadata: {}
     }
   });
@@ -157,6 +182,14 @@ export default function ClientUsers() {
       username: "",
       password: "",
       status: "active",
+      permissions: {
+        emailValidation: false,
+        campaigns: false,
+        contacts: false,
+        templates: false,
+        reporting: false,
+        domains: false,
+      },
       metadata: {}
     }
   });
@@ -297,6 +330,15 @@ export default function ClientUsers() {
       username: user.username,
       password: "", // Don't populate password for security reasons
       status: user.status,
+      permissions: user.permissions || {
+        emailValidation: false,
+        campaigns: false,
+        contacts: false,
+        templates: false,
+        reporting: false,
+        domains: false,
+        abTesting: false
+      },
       metadata: user.metadata || {}
     });
     setIsEditUserOpen(true);
@@ -402,6 +444,138 @@ export default function ClientUsers() {
                           </FormItem>
                         )}
                       />
+                      
+                      <div className="border p-4 rounded-lg">
+                        <h3 className="font-medium mb-3">Feature Access</h3>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <FormField
+                            control={newUserForm.control}
+                            name="permissions.emailValidation"
+                            render={({ field }) => (
+                              <FormItem className="flex items-center space-x-2 space-y-0">
+                                <FormControl>
+                                  <input
+                                    type="checkbox"
+                                    className="h-4 w-4 rounded border-gray-300"
+                                    checked={field.value}
+                                    onChange={field.onChange}
+                                  />
+                                </FormControl>
+                                <FormLabel className="font-normal">Email Validation</FormLabel>
+                              </FormItem>
+                            )}
+                          />
+                          
+                          <FormField
+                            control={newUserForm.control}
+                            name="permissions.campaigns"
+                            render={({ field }) => (
+                              <FormItem className="flex items-center space-x-2 space-y-0">
+                                <FormControl>
+                                  <input
+                                    type="checkbox"
+                                    className="h-4 w-4 rounded border-gray-300"
+                                    checked={field.value}
+                                    onChange={field.onChange}
+                                  />
+                                </FormControl>
+                                <FormLabel className="font-normal">Campaigns</FormLabel>
+                              </FormItem>
+                            )}
+                          />
+                          
+                          <FormField
+                            control={newUserForm.control}
+                            name="permissions.contacts"
+                            render={({ field }) => (
+                              <FormItem className="flex items-center space-x-2 space-y-0">
+                                <FormControl>
+                                  <input
+                                    type="checkbox"
+                                    className="h-4 w-4 rounded border-gray-300"
+                                    checked={field.value}
+                                    onChange={field.onChange}
+                                  />
+                                </FormControl>
+                                <FormLabel className="font-normal">Contacts</FormLabel>
+                              </FormItem>
+                            )}
+                          />
+                          
+                          <FormField
+                            control={newUserForm.control}
+                            name="permissions.templates"
+                            render={({ field }) => (
+                              <FormItem className="flex items-center space-x-2 space-y-0">
+                                <FormControl>
+                                  <input
+                                    type="checkbox"
+                                    className="h-4 w-4 rounded border-gray-300"
+                                    checked={field.value}
+                                    onChange={field.onChange}
+                                  />
+                                </FormControl>
+                                <FormLabel className="font-normal">Templates</FormLabel>
+                              </FormItem>
+                            )}
+                          />
+                          
+                          <FormField
+                            control={newUserForm.control}
+                            name="permissions.reporting"
+                            render={({ field }) => (
+                              <FormItem className="flex items-center space-x-2 space-y-0">
+                                <FormControl>
+                                  <input
+                                    type="checkbox"
+                                    className="h-4 w-4 rounded border-gray-300"
+                                    checked={field.value}
+                                    onChange={field.onChange}
+                                  />
+                                </FormControl>
+                                <FormLabel className="font-normal">Reporting</FormLabel>
+                              </FormItem>
+                            )}
+                          />
+                          
+                          <FormField
+                            control={newUserForm.control}
+                            name="permissions.domains"
+                            render={({ field }) => (
+                              <FormItem className="flex items-center space-x-2 space-y-0">
+                                <FormControl>
+                                  <input
+                                    type="checkbox"
+                                    className="h-4 w-4 rounded border-gray-300"
+                                    checked={field.value}
+                                    onChange={field.onChange}
+                                  />
+                                </FormControl>
+                                <FormLabel className="font-normal">Domains</FormLabel>
+                              </FormItem>
+                            )}
+                          />
+                          
+                          <FormField
+                            control={newUserForm.control}
+                            name="permissions.abTesting"
+                            render={({ field }) => (
+                              <FormItem className="flex items-center space-x-2 space-y-0">
+                                <FormControl>
+                                  <input
+                                    type="checkbox"
+                                    className="h-4 w-4 rounded border-gray-300"
+                                    checked={field.value}
+                                    onChange={field.onChange}
+                                  />
+                                </FormControl>
+                                <FormLabel className="font-normal">A/B Testing</FormLabel>
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                      </div>
+                      
                       <DialogFooter>
                         <Button type="button" variant="outline" onClick={handleCloseNewUser}>
                           Cancel
@@ -582,6 +756,138 @@ export default function ClientUsers() {
                       </FormItem>
                     )}
                   />
+                  
+                  <div className="border p-4 rounded-lg">
+                    <h3 className="font-medium mb-3">Feature Access</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <FormField
+                        control={editUserForm.control}
+                        name="permissions.emailValidation"
+                        render={({ field }) => (
+                          <FormItem className="flex items-center space-x-2 space-y-0">
+                            <FormControl>
+                              <input
+                                type="checkbox"
+                                className="h-4 w-4 rounded border-gray-300"
+                                checked={field.value}
+                                onChange={field.onChange}
+                              />
+                            </FormControl>
+                            <FormLabel className="font-normal">Email Validation</FormLabel>
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <FormField
+                        control={editUserForm.control}
+                        name="permissions.campaigns"
+                        render={({ field }) => (
+                          <FormItem className="flex items-center space-x-2 space-y-0">
+                            <FormControl>
+                              <input
+                                type="checkbox"
+                                className="h-4 w-4 rounded border-gray-300"
+                                checked={field.value}
+                                onChange={field.onChange}
+                              />
+                            </FormControl>
+                            <FormLabel className="font-normal">Campaigns</FormLabel>
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <FormField
+                        control={editUserForm.control}
+                        name="permissions.contacts"
+                        render={({ field }) => (
+                          <FormItem className="flex items-center space-x-2 space-y-0">
+                            <FormControl>
+                              <input
+                                type="checkbox"
+                                className="h-4 w-4 rounded border-gray-300"
+                                checked={field.value}
+                                onChange={field.onChange}
+                              />
+                            </FormControl>
+                            <FormLabel className="font-normal">Contacts</FormLabel>
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <FormField
+                        control={editUserForm.control}
+                        name="permissions.templates"
+                        render={({ field }) => (
+                          <FormItem className="flex items-center space-x-2 space-y-0">
+                            <FormControl>
+                              <input
+                                type="checkbox"
+                                className="h-4 w-4 rounded border-gray-300"
+                                checked={field.value}
+                                onChange={field.onChange}
+                              />
+                            </FormControl>
+                            <FormLabel className="font-normal">Templates</FormLabel>
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <FormField
+                        control={editUserForm.control}
+                        name="permissions.reporting"
+                        render={({ field }) => (
+                          <FormItem className="flex items-center space-x-2 space-y-0">
+                            <FormControl>
+                              <input
+                                type="checkbox"
+                                className="h-4 w-4 rounded border-gray-300"
+                                checked={field.value}
+                                onChange={field.onChange}
+                              />
+                            </FormControl>
+                            <FormLabel className="font-normal">Reporting</FormLabel>
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <FormField
+                        control={editUserForm.control}
+                        name="permissions.domains"
+                        render={({ field }) => (
+                          <FormItem className="flex items-center space-x-2 space-y-0">
+                            <FormControl>
+                              <input
+                                type="checkbox"
+                                className="h-4 w-4 rounded border-gray-300"
+                                checked={field.value}
+                                onChange={field.onChange}
+                              />
+                            </FormControl>
+                            <FormLabel className="font-normal">Domains</FormLabel>
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <FormField
+                        control={editUserForm.control}
+                        name="permissions.abTesting"
+                        render={({ field }) => (
+                          <FormItem className="flex items-center space-x-2 space-y-0">
+                            <FormControl>
+                              <input
+                                type="checkbox"
+                                className="h-4 w-4 rounded border-gray-300"
+                                checked={field.value}
+                                onChange={field.onChange}
+                              />
+                            </FormControl>
+                            <FormLabel className="font-normal">A/B Testing</FormLabel>
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </div>
+                  
                   <DialogFooter>
                     <Button type="button" variant="outline" onClick={handleCloseEditUser}>
                       Cancel

@@ -336,6 +336,7 @@ export const clientUsers = pgTable("client_users", {
   lastLoginAt: timestamp("last_login_at"),
   createdAt: timestamp("created_at").defaultNow(),
   status: text("status").notNull().default("active"), // active, inactive, suspended
+  permissions: json("permissions").default({}), // Store feature permissions
   metadata: json("metadata")
 });
 
@@ -344,6 +345,7 @@ export const insertClientUserSchema = createInsertSchema(clientUsers).pick({
   username: true,
   password: true,
   status: true,
+  permissions: true,
   metadata: true,
 });
 
