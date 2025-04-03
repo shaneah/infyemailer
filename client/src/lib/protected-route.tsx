@@ -28,7 +28,7 @@ export function ProtectedRoute({
   if (!isAuthenticated) {
     return (
       <Route path={path}>
-        <Redirect to="/login" />
+        <Redirect to="/auth" />
       </Route>
     );
   }

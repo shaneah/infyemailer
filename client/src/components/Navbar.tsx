@@ -1,3 +1,5 @@
+import React from 'react';
+
 interface NavbarProps {
   sidebarOpen: boolean;
   setSidebarOpen: (open: boolean) => void;

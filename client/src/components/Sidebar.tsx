@@ -1,3 +1,4 @@
+import React from 'react';
 import { Link, useLocation } from "wouter";
 import { Mail, LayoutDashboard, Megaphone, FileText, Users, Building, BarChart2, Activity, Split, Globe, Settings as SettingsIcon, ShieldCheck, LogOut } from "lucide-react";
 import infyLogo from "../assets/Logo-white.png";
@@ -5,9 +6,10 @@ import { apiRequest } from "../lib/queryClient";
 
 interface SidebarProps {
   open: boolean;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const Sidebar = ({ open }: SidebarProps) => {
+const Sidebar = ({ open, setOpen }: SidebarProps) => {
   const [location, setLocation] = useLocation();
   
   const handleLogout = async () => {

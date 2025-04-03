@@ -168,7 +168,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setIsAuthenticated(false);
       setIsAdminUser(false);
       setIsClientUser(false);
-      setLocation('/login');
+      setLocation('/auth');
       toast({
         title: "Logout successful",
         description: "You have been logged out.",
