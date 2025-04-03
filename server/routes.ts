@@ -1307,6 +1307,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ error: 'Error checking email health' });
     }
   });
+  
+  app.post('/api/email-validation/analyze-bulk', async (req: Request, res: Response) => {
+    try {
+      const { emails } = req.body;
+      
+      if (!Array.isArray(emails)) {
+        return res.status(400).json({ error: 'Emails must be provided as an array' });
+      }
+      
+      const result = await EmailValidationService.analyzeBulkEmails(emails);
+      res.json(result);
+    } catch (error) {
+      console.error('Email bulk analysis error:', error);
+      res.status(500).json({ error: 'Error analyzing email batch' });
+    }
+  });
+  
+  app.post('/api/email-validation/typo-check', async (req: Request, res: Response) => {
+    try {
+      const { email } = req.body;
+      
+      if (!email || typeof email !== 'string') {
+        return res.status(400).json({ error: 'Valid email is required' });
+      }
+      
+      const result = EmailValidationService.checkForTypos(email);
+      res.json(result);
+    } catch (error) {
+      console.error('Email typo check error:', error);
+      res.status(500).json({ error: 'Error checking email for typos' });
+    }
+  });
 
   // Email Performance Dashboard routes
   app.get('/api/email-performance/metrics', (req: Request, res: Response) => {

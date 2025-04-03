@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from "wouter";
-import { Mail, LayoutDashboard, Megaphone, FileText, Users, Building, BarChart2, Activity, Split, Globe, Settings as SettingsIcon, ShieldCheck, LogOut } from "lucide-react";
+import { Mail, LayoutDashboard, Megaphone, FileText, Users, Building, BarChart2, Activity, Split, Globe, Settings as SettingsIcon, ShieldCheck, LogOut, CheckCircle2 } from "lucide-react";
 import infyLogo from "../assets/Logo-white.png";
 import { apiRequest } from "../lib/queryClient";
 
@@ -175,6 +175,17 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
             >
               <SettingsIcon className="h-5 w-5 mr-3" />
               Settings
+            </Link>
+          </li>
+          <li>
+            <Link 
+              href="/email-validation" 
+              className={`flex items-center px-2 py-2 rounded-md ${location === '/email-validation' 
+                ? 'text-white border-l-4 border-primary bg-primary/10' 
+                : 'text-gray-300 hover:bg-gray-700/30'}`}
+            >
+              <CheckCircle2 className="h-5 w-5 mr-3" />
+              Email Validation
             </Link>
           </li>
           <li>
