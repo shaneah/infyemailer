@@ -581,7 +581,12 @@ export class DbStorage implements IStorage {
   }
   
   async getClientUserByUsername(username: string): Promise<ClientUser | undefined> {
-    const result = await db.select().from(clientUsers).where(eq(clientUsers.username, username));
+    console.log(`Looking for client user with username: ${username}`);
+    // Query the database and print the raw SQL query
+    const query = db.select().from(clientUsers).where(eq(clientUsers.username, username));
+    console.log('Query:', query.toSQL());
+    const result = await query;
+    console.log('Query result:', result);
     return result[0];
   }
   
