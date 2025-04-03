@@ -1,4 +1,4 @@
-import { Route, Switch, useLocation, Redirect } from "wouter";
+import { Route, Switch, useLocation } from "wouter";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./lib/queryClient";
 import { Toaster } from "@/components/ui/toaster";
@@ -9,7 +9,6 @@ import Navbar from "@/components/Navbar";
 import { useState } from "react";
 import { AuthProvider } from "@/hooks/use-auth";
 import { ProtectedRoute } from "@/lib/protected-route";
-import { ClientProtectedRoute } from "@/lib/client-protected-route";
 import NotFound from "@/pages/not-found";
 import Campaigns from "@/pages/Campaigns";
 import Templates from "@/pages/Templates";
@@ -21,7 +20,6 @@ import Domains from "@/pages/Domains";
 import Analytics from "@/pages/Analytics";
 import Clients from "@/pages/Clients";
 import ClientUsers from "@/pages/ClientUsers";
-import ClientDashboard from "@/pages/ClientDashboard";
 import Settings from "@/pages/Settings";
 import AdminPanel from "@/pages/AdminPanel";
 import EmailValidation from "@/pages/EmailValidation";
@@ -35,57 +33,11 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        {location === "/auth" || location.startsWith("/client") ? (
-          // Auth page layout and client portal pages (no sidebar)
+        {location === "/auth" ? (
+          // Auth page layout
           <div className="bg-background min-h-screen">
             <Switch>
               <Route path="/auth" component={AuthPage} />
-              <Route path="/client-login">
-                <Redirect to="/auth" />
-              </Route>
-              <Route path="/client-dashboard">
-                <ClientDashboard />
-              </Route>
-              <ClientProtectedRoute 
-                path="/client-email-validation" 
-                component={() => <div className="p-8">Client Email Validation Page (Access based on permissions)</div>} 
-                requiredPermission="emailValidation"
-              />
-              <ClientProtectedRoute 
-                path="/client-campaigns" 
-                component={() => <div className="p-8">Client Campaigns Page (Access based on permissions)</div>} 
-                requiredPermission="campaigns"
-              />
-              <ClientProtectedRoute 
-                path="/client-contacts" 
-                component={() => <div className="p-8">Client Contacts Page (Access based on permissions)</div>} 
-                requiredPermission="contacts"
-              />
-              <ClientProtectedRoute 
-                path="/client-templates" 
-                component={() => <div className="p-8">Client Templates Page (Access based on permissions)</div>} 
-                requiredPermission="templates"
-              />
-              <ClientProtectedRoute 
-                path="/client-reporting" 
-                component={() => <div className="p-8">Client Reporting Page (Access based on permissions)</div>} 
-                requiredPermission="reporting"
-              />
-              <ClientProtectedRoute 
-                path="/client-domains" 
-                component={() => <div className="p-8">Client Domains Page (Access based on permissions)</div>} 
-                requiredPermission="domains"
-              />
-              <ClientProtectedRoute 
-                path="/client-ab-testing" 
-                component={() => <div className="p-8">Client A/B Testing Page (Access based on permissions)</div>} 
-                requiredPermission="abTesting"
-              />
-              <ClientProtectedRoute 
-                path="/client-settings" 
-                component={() => <div className="p-8">Client Settings Page</div>} 
-                requiredPermission={null}
-              />
             </Switch>
             <Toaster />
           </div>
