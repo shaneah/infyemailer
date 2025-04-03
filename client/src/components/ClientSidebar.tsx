@@ -122,21 +122,22 @@ export default function ClientSidebar({ open, setOpen }: ClientSidebarProps) {
       <div className="flex-1 overflow-y-auto py-4">
         <nav className="px-2 space-y-1">
           {filteredLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-            >
-              <a
-                className={`flex items-center px-4 py-3 text-sm rounded-md transition-colors ${
-                  location === link.href
-                    ? 'bg-primary-foreground/10 text-white'
-                    : 'text-primary-foreground/70 hover:bg-primary-foreground/10 hover:text-white'
-                }`}
+            <div key={link.href}>
+              <Link
+                href={link.href}
               >
-                <span className="mr-3">{link.icon}</span>
-                <span className={`${!open && 'lg:hidden'}`}>{link.title}</span>
-              </a>
-            </Link>
+                <div
+                  className={`flex items-center px-4 py-3 text-sm rounded-md transition-colors ${
+                    location === link.href
+                      ? 'bg-primary-foreground/10 text-white'
+                      : 'text-primary-foreground/70 hover:bg-primary-foreground/10 hover:text-white'
+                  } cursor-pointer`}
+                >
+                  <span className="mr-3">{link.icon}</span>
+                  <span className={`${!open && 'lg:hidden'}`}>{link.title}</span>
+                </div>
+              </Link>
+            </div>
           ))}
         </nav>
       </div>

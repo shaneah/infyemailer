@@ -37,8 +37,11 @@ export default function ClientDashboard() {
   const clientUser = getClientUser();
 
   useEffect(() => {
+    // Moved getClientUser inside the effect to avoid infinite loop
+    const currentClientUser = getClientUser();
+    
     // If no client user is logged in, redirect to client login
-    if (!clientUser) {
+    if (!currentClientUser) {
       toast({
         title: "Access denied",
         description: "Please log in to access your dashboard",
@@ -53,13 +56,13 @@ export default function ClientDashboard() {
       try {
         setLoading(true);
         // Simulated data - in a real app, this would fetch from the API
-        // const response = await fetch(`/api/client-dashboard/${clientUser.clientId}`);
+        // const response = await fetch(`/api/client-dashboard/${currentClientUser.clientId}`);
         // const data = await response.json();
         
         // For now, using mock data based on the logged-in client
         setClientData({
-          clientName: clientUser.clientName,
-          clientCompany: clientUser.clientCompany,
+          clientName: currentClientUser.clientName,
+          clientCompany: currentClientUser.clientCompany,
           stats: {
             activeCampaigns: 3,
             totalEmails: 12500,
@@ -99,7 +102,8 @@ export default function ClientDashboard() {
     };
 
     fetchClientData();
-  }, [clientUser, setLocation, toast]);
+    // removeClientUser from dependencies to avoid infinite loop
+  }, [setLocation, toast]);
 
   // For the pie chart
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28'];
