@@ -48,10 +48,13 @@ export default function AuthPage() {
       return;
     }
     
+    console.log("Login data:", loginData);
+    
     try {
       await loginMutation.mutateAsync(loginData);
       navigate('/dashboard');
     } catch (error) {
+      console.error("Login error:", error);
       // Error handling is done in the useAuth hook
     }
   };
