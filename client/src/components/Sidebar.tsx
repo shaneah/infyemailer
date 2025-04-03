@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, useLocation } from "wouter";
 import { Mail, LayoutDashboard, Megaphone, FileText, Users, Building, BarChart2, Activity, Split, Globe, Settings as SettingsIcon, ShieldCheck, LogOut, CheckCircle2 } from "lucide-react";
 import infyLogo from "../assets/Logo-white.png";
-import { apiRequest } from "../lib/queryClient";
+import { useAuth } from "@/hooks/use-auth";
 
 interface SidebarProps {
   open: boolean;
@@ -10,18 +10,11 @@ interface SidebarProps {
 }
 
 const Sidebar = ({ open, setOpen }: SidebarProps) => {
-  const [location, setLocation] = useLocation();
+  const [location] = useLocation();
+  const { logoutMutation } = useAuth();
   
-  const handleLogout = async () => {
-    try {
-      await apiRequest('POST', '/api/logout');
-      // Clear any stored user data
-      localStorage.removeItem('user');
-      // Redirect to login page
-      setLocation('/auth');
-    } catch (error) {
-      console.error('Logout failed:', error);
-    }
+  const handleLogout = () => {
+    logoutMutation.mutate();
   };
   
   return (
