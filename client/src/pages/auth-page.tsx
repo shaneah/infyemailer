@@ -18,7 +18,7 @@ export default function AuthPage() {
 
   // Login form state
   const [loginData, setLoginData] = useState({
-    username: '',
+    usernameOrEmail: '',
     password: '',
   });
 
@@ -39,10 +39,10 @@ export default function AuthPage() {
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!loginData.username || !loginData.password) {
+    if (!loginData.usernameOrEmail || !loginData.password) {
       toast({
         title: 'Error',
-        description: 'Please enter both username and password',
+        description: 'Please enter both username/email and password',
         variant: 'destructive',
       });
       return;
@@ -116,12 +116,12 @@ export default function AuthPage() {
               <form onSubmit={handleLoginSubmit}>
                 <CardContent className="space-y-4 pt-4">
                   <div className="space-y-2">
-                    <Label htmlFor="username">Username</Label>
+                    <Label htmlFor="usernameOrEmail">Username or Email</Label>
                     <Input 
-                      id="username" 
-                      placeholder="Enter your username" 
-                      value={loginData.username}
-                      onChange={(e) => setLoginData({ ...loginData, username: e.target.value })}
+                      id="usernameOrEmail" 
+                      placeholder="Enter your username or email" 
+                      value={loginData.usernameOrEmail}
+                      onChange={(e) => setLoginData({ ...loginData, usernameOrEmail: e.target.value })}
                       required
                     />
                   </div>

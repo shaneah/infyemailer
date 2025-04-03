@@ -21,7 +21,10 @@ type AuthContextType = {
   isClientUser: boolean;
 };
 
-type LoginData = Pick<InsertUser, "username" | "password">;
+interface LoginData {
+  usernameOrEmail: string;
+  password: string;
+}
 
 export const AuthContext = createContext<AuthContextType | null>(null);
 
