@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from "wouter";
-import { Mail, LayoutDashboard, Megaphone, FileText, Users, Building, BarChart2, Activity, Split, Globe, Settings as SettingsIcon, ShieldCheck, LogOut, CheckCircle2, FileBar } from "lucide-react";
+import { Mail, LayoutDashboard, Megaphone, FileText, Users, Building, BarChart2, Activity, Split, Globe, Settings as SettingsIcon, ShieldCheck, LogOut, CheckCircle2 } from "lucide-react";
 import infyLogo from "../assets/Logo-white.png";
 import { useAuth } from "@/hooks/use-auth";
 
@@ -20,7 +20,7 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
   return (
     <div
       id="sidebar"
-      className={`${open ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 transition-transform duration-300 transform fixed z-40 left-0 top-0 lg:static lg:left-auto lg:top-auto lg:w-64 h-screen bg-[#2c2f33] overflow-y-auto no-scrollbar shrink-0`}
+      className={`${open ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 transition-transform duration-300 transform fixed z-40 left-0 top-0 lg:static lg:left-auto lg:top-auto lg:w-64 h-screen bg-[#1a2542] overflow-y-auto no-scrollbar shrink-0`}
     >
       <div className="h-full flex flex-col">
         {/* Logo */}

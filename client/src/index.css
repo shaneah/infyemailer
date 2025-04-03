@@ -18,7 +18,7 @@
   
   h1 {
     @apply text-2xl md:text-3xl mb-4;
-    background: linear-gradient(to right, hsl(160, 84%, 35%), hsl(160, 84%, 45%));
+    background: linear-gradient(to right, hsl(220, 70%, 45%), hsl(220, 70%, 55%));
     @apply bg-clip-text text-transparent;
   }
   
@@ -45,7 +45,7 @@
   
   /* Additional InfyMailer-inspired styles */
   .mailchimp-gradient {
-    background: linear-gradient(135deg, hsl(160, 84%, 45%), hsl(160, 84%, 35%));
+    background: linear-gradient(135deg, hsl(220, 70%, 55%), hsl(220, 70%, 45%));
   }
   
   /* Improved button styling */
@@ -143,7 +143,7 @@
 
 /* Bootstrap Classes with Updated Theme */
 .bg-primary {
-  background-color: hsl(160, 84%, 39%) !important;
+  background-color: hsl(220, 70%, 50%) !important;
 }
 
 .bg-secondary {
@@ -175,7 +175,7 @@
 }
 
 .text-primary {
-  color: hsl(160, 84%, 39%) !important;
+  color: hsl(220, 70%, 50%) !important;
 }
 
 .text-secondary {
@@ -211,32 +211,32 @@
 }
 
 .border-primary {
-  border-color: hsl(160, 84%, 39%) !important;
+  border-color: hsl(220, 70%, 50%) !important;
 }
 
 .btn-primary {
-  background-color: hsl(160, 84%, 39%);
-  border-color: hsl(160, 84%, 35%);
+  background-color: hsl(220, 70%, 50%);
+  border-color: hsl(220, 70%, 45%);
   color: white;
   transition: all 0.2s ease;
 }
 
 .btn-primary:hover {
-  background-color: hsl(160, 84%, 33%);
-  border-color: hsl(160, 84%, 30%);
-  box-shadow: 0 3px 8px rgba(16, 185, 129, 0.2);
+  background-color: hsl(220, 70%, 45%);
+  border-color: hsl(220, 70%, 40%);
+  box-shadow: 0 3px 8px rgba(59, 130, 246, 0.2);
 }
 
 .btn-outline-primary {
-  color: hsl(160, 84%, 39%);
-  border-color: hsl(160, 84%, 39%);
+  color: hsl(220, 70%, 50%);
+  border-color: hsl(220, 70%, 50%);
   transition: all 0.2s ease;
 }
 
 .btn-outline-primary:hover {
-  background-color: hsl(160, 84%, 39%);
+  background-color: hsl(220, 70%, 50%);
   color: white;
-  box-shadow: 0 2px 5px rgba(16, 185, 129, 0.15);
+  box-shadow: 0 2px 5px rgba(59, 130, 246, 0.15);
 }
 
 .btn-success {
@@ -344,7 +344,7 @@
 }
 
 .card-header h3, .card-header h4 {
-  color: hsl(160, 84%, 39%);
+  color: hsl(220, 70%, 50%);
 }
 
 .card-body {
@@ -365,7 +365,7 @@
 
 .form-control:focus {
   @apply border-primary outline-none;
-  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
 }
 
 .form-select {
@@ -374,7 +374,7 @@
 
 .form-select:focus {
   @apply border-primary outline-none;
-  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
 }
 
 .form-check {
@@ -454,7 +454,7 @@
 }
 
 .badge-bg-primary {
-  @apply bg-green-100 text-green-800;
+  @apply bg-blue-100 text-blue-800;
 }
 
 .badge-bg-danger {
@@ -497,14 +497,14 @@
 }
 
 .template-card:hover {
-  border-color: hsl(160, 84%, 39%);
-  box-shadow: 0 4px 10px rgba(16, 185, 129, 0.1);
+  border-color: hsl(220, 70%, 50%);
+  box-shadow: 0 4px 10px rgba(59, 130, 246, 0.1);
   transform: translateY(-2px);
 }
 
 .template-card.selected {
-  border: 2px solid hsl(160, 84%, 39%);
-  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+  border: 2px solid hsl(220, 70%, 50%);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
 }
 
 /* Template preview hover effects */
@@ -547,8 +547,8 @@
 }
 
 .categories-list .list-group-item:hover:not(.active) {
-  background-color: rgba(16, 185, 129, 0.05);
-  color: hsl(160, 84%, 39%);
+  background-color: rgba(59, 130, 246, 0.05);
+  color: hsl(220, 70%, 50%);
 }
 
 /* Design mode cards */
