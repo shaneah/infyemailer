@@ -18,7 +18,7 @@
   
   h1 {
     @apply text-2xl md:text-3xl mb-4;
-    background: linear-gradient(to right, hsl(220, 85%, 15%), hsl(220, 85%, 25%));
+    background: linear-gradient(to right, hsl(210, 100%, 40%), hsl(210, 100%, 50%));
     @apply bg-clip-text text-transparent;
   }
   
@@ -45,7 +45,7 @@
   
   /* Additional InfyMailer-inspired styles */
   .mailchimp-gradient {
-    background: linear-gradient(135deg, hsl(220, 85%, 25%), hsl(220, 85%, 15%));
+    background: linear-gradient(135deg, hsl(210, 100%, 55%), hsl(210, 100%, 45%));
   }
   
   /* Improved button styling */
@@ -143,7 +143,7 @@
 
 /* Bootstrap Classes with Updated Theme */
 .bg-primary {
-  background-color: hsl(220, 85%, 15%) !important;
+  background-color: hsl(210, 100%, 50%) !important;
 }
 
 .bg-secondary {
@@ -175,7 +175,7 @@
 }
 
 .text-primary {
-  color: hsl(220, 85%, 15%) !important;
+  color: hsl(210, 100%, 50%) !important;
 }
 
 .text-secondary {
@@ -211,32 +211,32 @@
 }
 
 .border-primary {
-  border-color: hsl(220, 85%, 15%) !important;
+  border-color: hsl(210, 100%, 50%) !important;
 }
 
 .btn-primary {
-  background-color: hsl(220, 85%, 15%);
-  border-color: hsl(220, 85%, 10%);
+  background-color: hsl(210, 100%, 50%);
+  border-color: hsl(210, 100%, 45%);
   color: white;
   transition: all 0.2s ease;
 }
 
 .btn-primary:hover {
-  background-color: hsl(220, 85%, 10%);
-  border-color: hsl(220, 85%, 5%);
-  box-shadow: 0 3px 8px rgba(12, 47, 108, 0.2);
+  background-color: hsl(210, 100%, 45%);
+  border-color: hsl(210, 100%, 40%);
+  box-shadow: 0 3px 8px rgba(33, 150, 243, 0.3);
 }
 
 .btn-outline-primary {
-  color: hsl(220, 85%, 15%);
-  border-color: hsl(220, 85%, 15%);
+  color: hsl(210, 100%, 50%);
+  border-color: hsl(210, 100%, 50%);
   transition: all 0.2s ease;
 }
 
 .btn-outline-primary:hover {
-  background-color: hsl(220, 85%, 15%);
+  background-color: hsl(210, 100%, 50%);
   color: white;
-  box-shadow: 0 2px 5px rgba(12, 47, 108, 0.15);
+  box-shadow: 0 2px 5px rgba(33, 150, 243, 0.25);
 }
 
 .btn-success {
@@ -344,7 +344,7 @@
 }
 
 .card-header h3, .card-header h4 {
-  color: hsl(220, 85%, 15%);
+  color: hsl(210, 100%, 50%);
 }
 
 .card-body {
@@ -497,14 +497,14 @@
 }
 
 .template-card:hover {
-  border-color: hsl(220, 85%, 15%);
-  box-shadow: 0 4px 10px rgba(12, 47, 108, 0.1);
+  border-color: hsl(210, 100%, 50%);
+  box-shadow: 0 4px 10px rgba(33, 150, 243, 0.2);
   transform: translateY(-2px);
 }
 
 .template-card.selected {
-  border: 2px solid hsl(220, 85%, 15%);
-  box-shadow: 0 0 0 3px rgba(12, 47, 108, 0.15);
+  border: 2px solid hsl(210, 100%, 50%);
+  box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.15);
 }
 
 /* Template preview hover effects */
@@ -547,8 +547,8 @@
 }
 
 .categories-list .list-group-item:hover:not(.active) {
-  background-color: rgba(12, 47, 108, 0.05);
-  color: hsl(220, 85%, 15%);
+  background-color: rgba(33, 150, 243, 0.05);
+  color: hsl(210, 100%, 50%);
 }
 
 /* Design mode cards */
