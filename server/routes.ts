@@ -1113,8 +1113,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: 'Client not found' });
       }
       
-      // In a real app, you would hash the password here
-      const clientUser = await storage.createClientUser(validatedData);
+      // Password needs to be hashed
+      const hashedPassword = await hashPassword(validatedData.password);
+      const clientUserWithHashedPassword = {
+        ...validatedData,
+        password: hashedPassword
+      };
+      
+      const clientUser = await storage.createClientUser(clientUserWithHashedPassword);
       
       // Don't send password back to client
       const { password, ...clientUserWithoutPassword } = clientUser;
@@ -1123,6 +1129,62 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error creating client user:', error);
       res.status(500).json({ error: 'Failed to create client user' });
+    }
+  });
+  
+  // Update client user
+  app.patch('/api/client-users/:id', async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      const clientUser = await storage.getClientUser(id);
+      
+      if (!clientUser) {
+        return res.status(404).json({ error: 'Client user not found' });
+      }
+      
+      const data = req.body;
+      
+      // If updating password, hash it
+      if (data.password) {
+        data.password = await hashPassword(data.password);
+      }
+      
+      const updatedUser = await storage.updateClientUser(id, data);
+      
+      if (!updatedUser) {
+        return res.status(500).json({ error: 'Failed to update client user' });
+      }
+      
+      // Don't send password back to client
+      const { password, ...userWithoutPassword } = updatedUser;
+      
+      res.json(userWithoutPassword);
+    } catch (error) {
+      console.error('Error updating client user:', error);
+      res.status(500).json({ error: 'Failed to update client user' });
+    }
+  });
+  
+  // Delete client user
+  app.delete('/api/client-users/:id', async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      const clientUser = await storage.getClientUser(id);
+      
+      if (!clientUser) {
+        return res.status(404).json({ error: 'Client user not found' });
+      }
+      
+      const result = await storage.deleteClientUser(id);
+      
+      if (!result) {
+        return res.status(500).json({ error: 'Failed to delete client user' });
+      }
+      
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Error deleting client user:', error);
+      res.status(500).json({ error: 'Failed to delete client user' });
     }
   });
 
