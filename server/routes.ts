@@ -2,6 +2,7 @@ import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { generateSubjectLines, generateEmailTemplate } from "./services/openai";
+import { setupAuth } from "./auth";
 import { 
   insertContactSchema, 
   insertListSchema, 
@@ -36,6 +37,9 @@ function validate<T>(schema: any, data: any): T | { error: string } {
 
 export async function registerRoutes(app: Express): Promise<Server> {
   const httpServer = createServer(app);
+  
+  // Set up authentication
+  setupAuth(app);
 
   // Mock data for dashboard stats
   app.get('/api/stats', (req: Request, res: Response) => {

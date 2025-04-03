@@ -1,6 +1,7 @@
 import { pgTable, text, serial, integer, boolean, timestamp, json, foreignKey } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
+import { relations as defineRelations } from "drizzle-orm";
 
 // Client schema
 export const clients = pgTable("clients", {
@@ -109,8 +110,8 @@ export type List = typeof lists.$inferSelect;
 // Contact-List relationship
 export const contactLists = pgTable("contact_lists", {
   id: serial("id").primaryKey(),
-  contactId: integer("contact_id").notNull(),
-  listId: integer("list_id").notNull(),
+  contactId: integer("contact_id").notNull().references(() => contacts.id),
+  listId: integer("list_id").notNull().references(() => lists.id),
   addedAt: timestamp("added_at").defaultNow()
 });
 
@@ -209,7 +210,7 @@ export type Template = typeof templates.$inferSelect;
 // Analytics for campaign performance
 export const analytics = pgTable("analytics", {
   id: serial("id").primaryKey(),
-  campaignId: integer("campaign_id").notNull(),
+  campaignId: integer("campaign_id").notNull().references(() => campaigns.id),
   opens: integer("opens").notNull().default(0),
   clicks: integer("clicks").notNull().default(0),
   bounces: integer("bounces").notNull().default(0),
@@ -233,7 +234,7 @@ export type Analytics = typeof analytics.$inferSelect;
 // Campaign Variants for A/B Testing
 export const campaignVariants = pgTable("campaign_variants", {
   id: serial("id").primaryKey(),
-  campaignId: integer("campaign_id").notNull(),
+  campaignId: integer("campaign_id").notNull().references(() => campaigns.id),
   name: text("name").notNull(),
   subject: text("subject").notNull(),
   previewText: text("preview_text"),
@@ -260,8 +261,8 @@ export type CampaignVariant = typeof campaignVariants.$inferSelect;
 // Variant Analytics for A/B Testing
 export const variantAnalytics = pgTable("variant_analytics", {
   id: serial("id").primaryKey(),
-  variantId: integer("variant_id").notNull(),
-  campaignId: integer("campaign_id").notNull(),
+  variantId: integer("variant_id").notNull().references(() => campaignVariants.id),
+  campaignId: integer("campaign_id").notNull().references(() => campaigns.id),
   recipients: integer("recipients").notNull().default(0),
   opens: integer("opens").notNull().default(0),
   clicks: integer("clicks").notNull().default(0),
@@ -355,3 +356,60 @@ export const clientUserLoginSchema = z.object({
 export type ClientUserLogin = z.infer<typeof clientUserLoginSchema>;
 export type InsertClientUser = z.infer<typeof insertClientUserSchema>;
 export type ClientUser = typeof clientUsers.$inferSelect;
+
+// Define table relations
+export const usersRelations = defineRelations(users, {
+  // No relations for users yet
+});
+
+export const clientsRelations = defineRelations(clients, {
+  clientUsers: { relationName: "client_to_users", fields: [clients.id], references: [clientUsers.clientId] },
+  campaigns: { relationName: "client_to_campaigns", fields: [clients.id], references: [campaigns.clientId] }
+});
+
+export const contactsRelations = defineRelations(contacts, {
+  contactLists: { relationName: "contact_to_contactLists", fields: [contacts.id], references: [contactLists.contactId] }
+});
+
+export const listsRelations = defineRelations(lists, {
+  contactLists: { relationName: "list_to_contactLists", fields: [lists.id], references: [contactLists.listId] }
+});
+
+export const contactListsRelations = defineRelations(contactLists, {
+  contact: { relationName: "contactList_to_contact", fields: [contactLists.contactId], references: [contacts.id] },
+  list: { relationName: "contactList_to_list", fields: [contactLists.listId], references: [lists.id] }
+});
+
+export const campaignsRelations = defineRelations(campaigns, {
+  variants: { relationName: "campaign_to_variants", fields: [campaigns.id], references: [campaignVariants.campaignId] },
+  analytics: { relationName: "campaign_to_analytics", fields: [campaigns.id], references: [analytics.campaignId] },
+  campaignDomains: { relationName: "campaign_to_campaignDomains", fields: [campaigns.id], references: [campaignDomains.campaignId] },
+  client: { relationName: "campaign_to_client", fields: [campaigns.clientId], references: [clients.id] }
+});
+
+export const campaignVariantsRelations = defineRelations(campaignVariants, {
+  campaign: { relationName: "variant_to_campaign", fields: [campaignVariants.campaignId], references: [campaigns.id] },
+  variantAnalytics: { relationName: "variant_to_analytics", fields: [campaignVariants.id], references: [variantAnalytics.variantId] }
+});
+
+export const analyticsRelations = defineRelations(analytics, {
+  campaign: { relationName: "analytics_to_campaign", fields: [analytics.campaignId], references: [campaigns.id] }
+});
+
+export const variantAnalyticsRelations = defineRelations(variantAnalytics, {
+  variant: { relationName: "variantAnalytics_to_variant", fields: [variantAnalytics.variantId], references: [campaignVariants.id] },
+  campaign: { relationName: "variantAnalytics_to_campaign", fields: [variantAnalytics.campaignId], references: [campaigns.id] }
+});
+
+export const domainsRelations = defineRelations(domains, {
+  campaignDomains: { relationName: "domain_to_campaignDomains", fields: [domains.id], references: [campaignDomains.domainId] }
+});
+
+export const campaignDomainsRelations = defineRelations(campaignDomains, {
+  campaign: { relationName: "campaignDomain_to_campaign", fields: [campaignDomains.campaignId], references: [campaigns.id] },
+  domain: { relationName: "campaignDomain_to_domain", fields: [campaignDomains.domainId], references: [domains.id] }
+});
+
+export const clientUsersRelations = defineRelations(clientUsers, {
+  client: { relationName: "clientUser_to_client", fields: [clientUsers.clientId], references: [clients.id] }
+});

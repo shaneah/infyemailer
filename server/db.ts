@@ -8,7 +8,7 @@ const databaseUrl = process.env.DATABASE_URL!;
 log('Connecting to Postgres database', 'db');
 
 // Connect to PostgreSQL
-const sql = postgres(databaseUrl, { max: 10 });
+export const sql = postgres(databaseUrl, { max: 10 });
 
 // Create a Drizzle instance
 export const db = drizzle(sql);
