@@ -1,4 +1,4 @@
-import { Route, Switch, useLocation } from "wouter";
+import { Route, Switch, useLocation, Redirect } from "wouter";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./lib/queryClient";
 import { Toaster } from "@/components/ui/toaster";
@@ -21,7 +21,6 @@ import Domains from "@/pages/Domains";
 import Analytics from "@/pages/Analytics";
 import Clients from "@/pages/Clients";
 import ClientUsers from "@/pages/ClientUsers";
-import ClientLogin from "@/pages/ClientLogin";
 import ClientDashboard from "@/pages/ClientDashboard";
 import Settings from "@/pages/Settings";
 import AdminPanel from "@/pages/AdminPanel";
@@ -41,8 +40,12 @@ function App() {
           <div className="bg-background min-h-screen">
             <Switch>
               <Route path="/auth" component={AuthPage} />
-              <Route path="/client-login" component={ClientLogin} />
-              <Route path="/client-dashboard" component={ClientDashboard} />
+              <Route path="/client-login">
+                <Redirect to="/auth" />
+              </Route>
+              <Route path="/client-dashboard">
+                <ClientDashboard />
+              </Route>
               <ClientProtectedRoute 
                 path="/client-email-validation" 
                 component={() => <div className="p-8">Client Email Validation Page (Access based on permissions)</div>} 

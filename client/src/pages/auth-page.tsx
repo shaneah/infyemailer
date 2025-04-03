@@ -1,279 +1,356 @@
-import React, { useState, useEffect } from 'react';
-import { useLocation } from 'wouter';
-import { useAuth } from '@/hooks/use-auth';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Label } from '@/components/ui/label';
-import { useToast } from '@/hooks/use-toast';
-import { Loader2 } from 'lucide-react';
-import * as infyLogo from '@assets/infy.png';
+import { useState, useEffect } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useLocation } from "wouter";
+import { useAuth } from "@/hooks/use-auth";
+import Logo from "@/assets/Logo-white.png";
+
+// Admin login schema
+const adminLoginSchema = z.object({
+  usernameOrEmail: z.string().min(1, "Username or email is required"),
+  password: z.string().min(1, "Password is required"),
+  rememberMe: z.boolean().optional().default(false)
+});
+
+// Client login schema
+const clientLoginSchema = z.object({
+  username: z.string().min(1, { message: "Username is required" }),
+  password: z.string().min(1, { message: "Password is required" })
+});
+
+type AdminLoginFormValues = z.infer<typeof adminLoginSchema>;
+type ClientLoginFormValues = z.infer<typeof clientLoginSchema>;
 
 export default function AuthPage() {
-  const [activeTab, setActiveTab] = useState<string>('login');
-  const [location, navigate] = useLocation();
-  const { user, loginMutation, registerMutation } = useAuth();
   const { toast } = useToast();
+  const [_, setLocation] = useLocation();
+  const [isAdminLoading, setIsAdminLoading] = useState(false);
+  const [isClientLoading, setIsClientLoading] = useState(false);
+  const { user, loginMutation } = useAuth();
+  const [activeTab, setActiveTab] = useState<string>("admin");
 
-  // Login form state
-  const [loginData, setLoginData] = useState({
-    usernameOrEmail: '',
-    password: '',
-  });
-
-  // Register form state
-  const [registerData, setRegisterData] = useState({
-    username: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-  });
-  
-  // If user is already logged in, redirect to home
-  // We use useEffect to avoid React state updates during render
+  // Redirect if already logged in
   useEffect(() => {
     if (user) {
-      navigate('/');
+      setLocation("/");
     }
-  }, [user, navigate]);
 
-  const handleLoginSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!loginData.usernameOrEmail || !loginData.password) {
-      toast({
-        title: 'Error',
-        description: 'Please enter both username/email and password',
-        variant: 'destructive',
-      });
-      return;
+    // Check if client user is already logged in
+    const clientUser = sessionStorage.getItem('clientUser') || localStorage.getItem('clientUser');
+    if (clientUser) {
+      setLocation('/client-dashboard');
     }
-    
-    console.log("Login data:", loginData);
-    
-    try {
-      const result = await loginMutation.mutateAsync(loginData);
-      if (result) {
-        navigate('/'); // Navigate after successful login
-      }
-    } catch (error) {
-      console.error("Login error:", error);
-      // Error handling is done in the useAuth hook
-    }
-  };
+  }, [user, setLocation]);
 
-  const handleRegisterSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!registerData.username || !registerData.email || !registerData.password) {
-      toast({
-        title: 'Error',
-        description: 'Please fill in all required fields',
-        variant: 'destructive',
-      });
-      return;
+  // Admin login form
+  const adminForm = useForm<AdminLoginFormValues>({
+    resolver: zodResolver(adminLoginSchema),
+    defaultValues: {
+      usernameOrEmail: "",
+      password: "",
+      rememberMe: false
     }
-    
-    if (registerData.password !== registerData.confirmPassword) {
-      toast({
-        title: 'Error',
-        description: 'Passwords do not match',
-        variant: 'destructive',
-      });
-      return;
+  });
+
+  // Client login form
+  const clientForm = useForm<ClientLoginFormValues>({
+    resolver: zodResolver(clientLoginSchema),
+    defaultValues: {
+      username: "",
+      password: ""
     }
-    
-    try {
-      const result = await registerMutation.mutateAsync({
-        username: registerData.username,
-        email: registerData.email,
-        password: registerData.password,
-        role: 'user',
-      });
-      if (result) {
-        navigate('/'); // Navigate after successful registration
+  });
+
+  // Handle admin login
+  function onAdminSubmit(data: AdminLoginFormValues) {
+    setIsAdminLoading(true);
+    loginMutation.mutate(
+      {
+        usernameOrEmail: data.usernameOrEmail,
+        password: data.password
+      },
+      {
+        onSuccess: () => {
+          setLocation("/");
+        },
+        onSettled: () => {
+          setIsAdminLoading(false);
+        }
       }
+    );
+  }
+
+  // Handle client login
+  async function onClientSubmit(data: ClientLoginFormValues) {
+    setIsClientLoading(true);
+    try {
+      const response = await fetch('/api/client-login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Login failed');
+      }
+
+      const userData = await response.json();
+      
+      // Store user data in sessionStorage
+      const userToStore = {
+        id: userData.id,
+        username: userData.username,
+        clientId: userData.clientId,
+        clientName: userData.clientName || 'Client User',
+        clientCompany: userData.clientCompany || 'Company',
+        permissions: userData.metadata?.permissions || {
+          emailValidation: false,
+          campaigns: false,
+          contacts: false,
+          templates: false,
+          reporting: false,
+          domains: false,
+          abTesting: false
+        }
+      };
+      
+      sessionStorage.setItem('clientUser', JSON.stringify(userToStore));
+      
+      toast({
+        title: 'Login successful',
+        description: `Welcome ${userData.clientName || 'to InfyMailer client portal'}!`
+      });
+      
+      setLocation('client-dashboard');
     } catch (error) {
-      // Error handling is done in the useAuth hook
+      console.error("Client login error:", error);
+      toast({
+        title: 'Login failed',
+        description: error instanceof Error ? error.message : 'Invalid username or password',
+        variant: 'destructive'
+      });
+    } finally {
+      setIsClientLoading(false);
     }
-  };
+  }
 
   return (
-    <div className="flex min-h-screen">
-      {/* Auth form column */}
-      <div className="w-full md:w-1/2 flex items-center justify-center p-8">
-        <Card className="w-full max-w-md">
-          <CardHeader className="space-y-2 text-center">
-            <div className="flex justify-center mb-4">
-              <img src={infyLogo.default} alt="InfyMailer" className="h-12" />
-            </div>
-            <CardTitle className="text-3xl font-bold">InfyMailer</CardTitle>
-            <CardDescription>
-              Sign in to your account or create a new one to start managing your email campaigns
-            </CardDescription>
-          </CardHeader>
-          
-          <Tabs defaultValue="login" value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="login">Login</TabsTrigger>
-              <TabsTrigger value="register">Register</TabsTrigger>
-            </TabsList>
-            
-            {/* Login Form */}
-            <TabsContent value="login">
-              <form onSubmit={handleLoginSubmit}>
-                <CardContent className="space-y-4 pt-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="usernameOrEmail">Username or Email</Label>
-                    <Input 
-                      id="usernameOrEmail" 
-                      placeholder="Enter your username or email" 
-                      value={loginData.usernameOrEmail}
-                      onChange={(e) => setLoginData({ ...loginData, usernameOrEmail: e.target.value })}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="password">Password</Label>
-                    <Input 
-                      id="password" 
-                      type="password" 
-                      placeholder="Enter your password" 
-                      value={loginData.password}
-                      onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
-                      required
-                    />
-                  </div>
-                </CardContent>
-                <CardFooter>
-                  <Button 
-                    type="submit" 
-                    className="w-full" 
-                    disabled={loginMutation.isPending}
-                  >
-                    {loginMutation.isPending ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Signing in...
-                      </>
-                    ) : 'Sign In'}
-                  </Button>
-                </CardFooter>
-              </form>
-            </TabsContent>
-            
-            {/* Register Form */}
-            <TabsContent value="register">
-              <form onSubmit={handleRegisterSubmit}>
-                <CardContent className="space-y-4 pt-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="register-username">Username</Label>
-                    <Input 
-                      id="register-username" 
-                      placeholder="Choose a username" 
-                      value={registerData.username}
-                      onChange={(e) => setRegisterData({ ...registerData, username: e.target.value })}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
-                    <Input 
-                      id="email" 
-                      type="email" 
-                      placeholder="Enter your email" 
-                      value={registerData.email}
-                      onChange={(e) => setRegisterData({ ...registerData, email: e.target.value })}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="register-password">Password</Label>
-                    <Input 
-                      id="register-password" 
-                      type="password" 
-                      placeholder="Create a password" 
-                      value={registerData.password}
-                      onChange={(e) => setRegisterData({ ...registerData, password: e.target.value })}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="confirm-password">Confirm Password</Label>
-                    <Input 
-                      id="confirm-password" 
-                      type="password" 
-                      placeholder="Confirm your password" 
-                      value={registerData.confirmPassword}
-                      onChange={(e) => setRegisterData({ ...registerData, confirmPassword: e.target.value })}
-                      required
-                    />
-                  </div>
-                </CardContent>
-                <CardFooter>
-                  <Button 
-                    type="submit" 
-                    className="w-full" 
-                    disabled={registerMutation.isPending}
-                  >
-                    {registerMutation.isPending ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Creating account...
-                      </>
-                    ) : 'Create Account'}
-                  </Button>
-                </CardFooter>
-              </form>
-            </TabsContent>
-          </Tabs>
-        </Card>
-      </div>
-      
-      {/* Hero column - only shown on larger screens */}
-      <div className="hidden md:flex md:w-1/2 bg-gradient-to-br from-primary to-primary-800 text-white p-8 flex-col justify-center">
-        <div className="max-w-md mx-auto">
-          <h1 className="text-4xl font-bold mb-6">Welcome to InfyMailer</h1>
-          <p className="text-xl mb-8">
-            The comprehensive email marketing platform for creating, managing, and analyzing your email campaigns.
+    <div className="min-h-screen flex">
+      {/* Left side - Hero/Marketing content */}
+      <div className="hidden lg:flex lg:flex-col lg:w-1/2 bg-primary p-10 text-white">
+        <div>
+          <img src={Logo} alt="InfyMailer Logo" className="h-14 mb-6" />
+          <h1 className="text-4xl font-bold">InfyMailer Platform</h1>
+          <p className="mt-4 text-lg opacity-80">
+            The comprehensive email marketing solution for businesses of all sizes
           </p>
-          <div className="space-y-4">
-            <div className="flex items-start">
-              <div className="rounded-full bg-white/20 p-2 mr-4">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M4 11a9 9 0 0 1 9 9"></path><path d="M4 4a16 16 0 0 1 16 16"></path><circle cx="5" cy="19" r="1"></circle>
-                </svg>
+        </div>
+        
+        <div className="flex-grow flex items-center">
+          <div className="space-y-8">
+            <div className="space-y-6">
+              <div className="flex items-start space-x-3">
+                <div className="bg-white/20 p-1 rounded-full">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-5 h-5">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="font-medium">Advanced Email Marketing</h3>
+                  <p className="text-sm opacity-80">Create and send beautiful emails that convert</p>
+                </div>
               </div>
-              <div>
-                <h3 className="font-semibold text-lg">Campaign Management</h3>
-                <p>Create and manage email campaigns with ease</p>
+              <div className="flex items-start space-x-3">
+                <div className="bg-white/20 p-1 rounded-full">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-5 h-5">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="font-medium">Intelligent Analytics</h3>
+                  <p className="text-sm opacity-80">Track performance with detailed analytics and reports</p>
+                </div>
               </div>
-            </div>
-            <div className="flex items-start">
-              <div className="rounded-full bg-white/20 p-2 mr-4">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line>
-                </svg>
+              <div className="flex items-start space-x-3">
+                <div className="bg-white/20 p-1 rounded-full">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-5 h-5">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="font-medium">A/B Testing</h3>
+                  <p className="text-sm opacity-80">Optimize your campaigns with powerful testing tools</p>
+                </div>
               </div>
-              <div>
-                <h3 className="font-semibold text-lg">Template Builder</h3>
-                <p>Drag-and-drop email template builder</p>
-              </div>
-            </div>
-            <div className="flex items-start">
-              <div className="rounded-full bg-white/20 p-2 mr-4">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M12 20v-6M9 17l3 3 3-3M20 4v6M16 7l4 3 4-3M4 20v-6M1 17l3 3 3-3M4 4v6M7 7l-3 3-3-3"></path>
-                </svg>
-              </div>
-              <div>
-                <h3 className="font-semibold text-lg">Advanced Analytics</h3>
-                <p>Track campaign performance with detailed analytics</p>
+              <div className="flex items-start space-x-3">
+                <div className="bg-white/20 p-1 rounded-full">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-5 h-5">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="font-medium">Multi-domain Support</h3>
+                  <p className="text-sm opacity-80">Manage multiple sending domains for better deliverability</p>
+                </div>
               </div>
             </div>
           </div>
         </div>
+        
+        <div className="text-sm opacity-70">
+          &copy; {new Date().getFullYear()} InfyMailer. All rights reserved.
+        </div>
+      </div>
+      
+      {/* Right side - Login forms */}
+      <div className="flex-1 flex items-center justify-center p-6 bg-background">
+        <Card className="w-full max-w-md">
+          <CardHeader className="space-y-1 items-center">
+            <div className="lg:hidden mb-6">
+              <img src={Logo} alt="InfyMailer Logo" className="h-14" />
+            </div>
+            <CardTitle className="text-2xl font-bold text-center">Welcome to InfyMailer</CardTitle>
+            <CardDescription className="text-center">
+              Sign in to access your account
+            </CardDescription>
+          </CardHeader>
+          
+          <CardContent>
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <TabsList className="grid w-full grid-cols-2 mb-6">
+                <TabsTrigger value="admin">Admin/User</TabsTrigger>
+                <TabsTrigger value="client">Client Portal</TabsTrigger>
+              </TabsList>
+              
+              {/* Admin Login Form */}
+              <TabsContent value="admin">
+                <Form {...adminForm}>
+                  <form onSubmit={adminForm.handleSubmit(onAdminSubmit)} className="space-y-6">
+                    <FormField
+                      control={adminForm.control}
+                      name="usernameOrEmail"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Username or Email</FormLabel>
+                          <FormControl>
+                            <Input placeholder="admin" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={adminForm.control}
+                      name="password"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Password</FormLabel>
+                          <FormControl>
+                            <Input type="password" placeholder="••••••••" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={adminForm.control}
+                      name="rememberMe"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                          <FormControl>
+                            <Checkbox
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          </FormControl>
+                          <div className="space-y-1 leading-none">
+                            <FormLabel>Remember me</FormLabel>
+                          </div>
+                        </FormItem>
+                      )}
+                    />
+                    <Button 
+                      type="submit" 
+                      className="w-full" 
+                      disabled={isAdminLoading}
+                    >
+                      {isAdminLoading ? "Signing in..." : "Sign in as Admin/User"}
+                    </Button>
+                    
+                    <div className="text-xs text-muted-foreground text-center">
+                      <p className="mb-1">For demo purposes:</p>
+                      <p>Username: <strong>admin</strong> | Password: <strong>admin123</strong></p>
+                    </div>
+                  </form>
+                </Form>
+              </TabsContent>
+              
+              {/* Client Login Form */}
+              <TabsContent value="client">
+                <Form {...clientForm}>
+                  <form onSubmit={clientForm.handleSubmit(onClientSubmit)} className="space-y-6">
+                    <FormField
+                      control={clientForm.control}
+                      name="username"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Username</FormLabel>
+                          <FormControl>
+                            <Input placeholder="client1" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={clientForm.control}
+                      name="password"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Password</FormLabel>
+                          <FormControl>
+                            <Input type="password" placeholder="••••••••" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <Button 
+                      type="submit" 
+                      className="w-full" 
+                      disabled={isClientLoading}
+                    >
+                      {isClientLoading ? "Logging in..." : "Log in to Client Portal"}
+                    </Button>
+                    
+                    <div className="text-xs text-muted-foreground text-center">
+                      <p className="mb-1">For demo purposes:</p>
+                      <p>Full Access: <strong>client1</strong> | <strong>client123</strong></p>
+                      <p>Limited Access: <strong>email_validator</strong> | <strong>validator123</strong></p>
+                    </div>
+                  </form>
+                </Form>
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+          
+          <CardFooter className="flex flex-col space-y-4">
+            <div className="text-sm text-center text-muted-foreground">
+              <p>Contact support for assistance with your account</p>
+            </div>
+          </CardFooter>
+        </Card>
       </div>
     </div>
   );

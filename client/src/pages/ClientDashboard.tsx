@@ -11,7 +11,7 @@ type ClientDashboardProps = {
   clientId?: string;
 };
 
-export default function ClientDashboard({ clientId }: ClientDashboardProps) {
+export default function ClientDashboard() {
   const [location, setLocation] = useLocation();
   const { toast } = useToast();
   const [clientData, setClientData] = useState<any>(null);
