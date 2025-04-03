@@ -12,7 +12,11 @@ import {
   CampaignDomain, InsertCampaignDomain,
   Client, InsertClient,
   ClientUser, InsertClientUser,
-  User, InsertUser
+  User, InsertUser,
+  ClickEvent, InsertClickEvent,
+  OpenEvent, InsertOpenEvent,
+  EngagementMetrics, InsertEngagementMetrics,
+  LinkTracking, InsertLinkTracking
 } from "@shared/schema";
 
 // Interface for storage operations
@@ -125,6 +129,26 @@ export interface IStorage {
   updateClientUser(id: number, clientUser: Partial<ClientUser>): Promise<ClientUser | undefined>;
   deleteClientUser(id: number): Promise<boolean>;
   verifyClientLogin(username: string, password: string): Promise<ClientUser | undefined>;
+  
+  // Click Event methods
+  getClickEvents(campaignId: number, limit?: number): Promise<ClickEvent[]>;
+  createClickEvent(clickEvent: InsertClickEvent): Promise<ClickEvent>;
+  
+  // Open Event methods
+  getOpenEvents(campaignId: number, limit?: number): Promise<OpenEvent[]>;
+  createOpenEvent(openEvent: InsertOpenEvent): Promise<OpenEvent>;
+  
+  // Engagement Metrics methods
+  getEngagementMetrics(campaignId: number, days?: number): Promise<EngagementMetrics[]>;
+  createEngagementMetric(metric: InsertEngagementMetrics): Promise<EngagementMetrics>;
+  updateEngagementMetric(id: number, metric: Partial<EngagementMetrics>): Promise<EngagementMetrics | undefined>;
+  
+  // Link Tracking methods
+  getTrackingLinks(campaignId: number): Promise<LinkTracking[]>;
+  getTrackingLink(id: number): Promise<LinkTracking | undefined>;
+  getTrackingLinkByUrl(campaignId: number, originalUrl: string): Promise<LinkTracking | undefined>;
+  createTrackingLink(link: InsertLinkTracking): Promise<LinkTracking>;
+  updateTrackingLink(id: number, link: Partial<LinkTracking>): Promise<LinkTracking | undefined>;
 }
 
 // In-memory implementation of storage
@@ -143,6 +167,10 @@ export class MemStorage implements IStorage {
   private variantAnalytics: Map<number, VariantAnalytics>;
   private clientUsers: Map<number, ClientUser>;
   private users: Map<number, User>;
+  private clickEvents: Map<number, ClickEvent>;
+  private openEvents: Map<number, OpenEvent>;
+  private engagementMetrics: Map<number, EngagementMetrics>;
+  private linkTrackings: Map<number, LinkTracking>;
 
   private contactId: number;
   private listId: number;
@@ -158,6 +186,10 @@ export class MemStorage implements IStorage {
   private variantAnalyticId: number;
   private clientUserId: number;
   private userId: number;
+  private clickEventId: number;
+  private openEventId: number;
+  private engagementMetricId: number;
+  private linkTrackingId: number;
 
   constructor() {
     this.contacts = new Map();
@@ -174,6 +206,10 @@ export class MemStorage implements IStorage {
     this.variantAnalytics = new Map();
     this.clientUsers = new Map();
     this.users = new Map();
+    this.clickEvents = new Map();
+    this.openEvents = new Map();
+    this.engagementMetrics = new Map();
+    this.linkTrackings = new Map();
 
     this.contactId = 1;
     this.listId = 1;
@@ -189,6 +225,10 @@ export class MemStorage implements IStorage {
     this.variantAnalyticId = 1;
     this.clientUserId = 1;
     this.userId = 1;
+    this.clickEventId = 1;
+    this.openEventId = 1;
+    this.engagementMetricId = 1;
+    this.linkTrackingId = 1;
 
     // Initialize with some default data
     this.initializeData();
@@ -1032,6 +1072,116 @@ export class MemStorage implements IStorage {
     }
     
     return undefined;
+  }
+
+  // Click Event methods
+  async getClickEvents(campaignId: number, limit: number = 100): Promise<ClickEvent[]> {
+    return Array.from(this.clickEvents.values())
+      .filter(event => event.campaignId === campaignId)
+      .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+      .slice(0, limit);
+  }
+
+  async createClickEvent(clickEvent: InsertClickEvent): Promise<ClickEvent> {
+    const id = this.clickEventId++;
+    const now = new Date();
+    const newClickEvent: ClickEvent = {
+      ...clickEvent,
+      id,
+      timestamp: now
+    };
+    this.clickEvents.set(id, newClickEvent);
+    return newClickEvent;
+  }
+  
+  // Open Event methods
+  async getOpenEvents(campaignId: number, limit: number = 100): Promise<OpenEvent[]> {
+    return Array.from(this.openEvents.values())
+      .filter(event => event.campaignId === campaignId)
+      .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+      .slice(0, limit);
+  }
+
+  async createOpenEvent(openEvent: InsertOpenEvent): Promise<OpenEvent> {
+    const id = this.openEventId++;
+    const now = new Date();
+    const newOpenEvent: OpenEvent = {
+      ...openEvent,
+      id,
+      timestamp: now
+    };
+    this.openEvents.set(id, newOpenEvent);
+    return newOpenEvent;
+  }
+  
+  // Engagement Metrics methods
+  async getEngagementMetrics(campaignId: number, days: number = 30): Promise<EngagementMetrics[]> {
+    const cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - days);
+    
+    return Array.from(this.engagementMetrics.values())
+      .filter(metric => 
+        metric.campaignId === campaignId && 
+        new Date(metric.date) >= cutoffDate
+      )
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  }
+
+  async createEngagementMetric(metric: InsertEngagementMetrics): Promise<EngagementMetrics> {
+    const id = this.engagementMetricId++;
+    const now = new Date();
+    const newMetric: EngagementMetrics = {
+      ...metric,
+      id,
+      date: metric.date || now
+    };
+    this.engagementMetrics.set(id, newMetric);
+    return newMetric;
+  }
+
+  async updateEngagementMetric(id: number, metric: Partial<EngagementMetrics>): Promise<EngagementMetrics | undefined> {
+    const existingMetric = this.engagementMetrics.get(id);
+    if (!existingMetric) return undefined;
+
+    const updatedMetric = { ...existingMetric, ...metric };
+    this.engagementMetrics.set(id, updatedMetric);
+    return updatedMetric;
+  }
+  
+  // Link Tracking methods
+  async getTrackingLinks(campaignId: number): Promise<LinkTracking[]> {
+    return Array.from(this.linkTrackings.values())
+      .filter(link => link.campaignId === campaignId);
+  }
+
+  async getTrackingLink(id: number): Promise<LinkTracking | undefined> {
+    return this.linkTrackings.get(id);
+  }
+
+  async getTrackingLinkByUrl(campaignId: number, originalUrl: string): Promise<LinkTracking | undefined> {
+    return Array.from(this.linkTrackings.values())
+      .find(link => link.campaignId === campaignId && link.originalUrl === originalUrl);
+  }
+
+  async createTrackingLink(link: InsertLinkTracking): Promise<LinkTracking> {
+    const id = this.linkTrackingId++;
+    const now = new Date();
+    const newLink: LinkTracking = {
+      ...link,
+      id,
+      createdAt: now
+    };
+    this.linkTrackings.set(id, newLink);
+    return newLink;
+  }
+
+  async updateTrackingLink(id: number, link: Partial<LinkTracking>): Promise<LinkTracking | undefined> {
+    const existingLink = this.linkTrackings.get(id);
+    if (!existingLink) return undefined;
+
+    const updatedLink = { ...existingLink, ...link };
+    this.linkTrackings.set(id, updatedLink);
+    return updatedLink;
   }
 }
 

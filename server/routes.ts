@@ -4,6 +4,7 @@ import { storage } from "./storage";
 import { generateSubjectLines, generateEmailTemplate } from "./services/openai";
 import { setupAuth } from "./auth";
 import { EmailValidationService } from "./services/emailValidation";
+import { trackingService } from "./services/trackingService";
 import { emailSchema } from "../shared/validation";
 import { 
   insertContactSchema, 
@@ -18,6 +19,8 @@ import {
   insertCampaignDomainSchema,
   insertClientSchema,
   insertUserSchema,
+  insertClickEventSchema,
+  insertOpenEventSchema,
   userLoginSchema,
   clientUserLoginSchema,
   insertClientUserSchema
@@ -1771,6 +1774,242 @@ export async function registerRoutes(app: Express): Promise<Server> {
     ];
     
     res.json(activities);
+  });
+
+  // Email Tracking and Analytics API Endpoints
+  
+  // Record a click event
+  app.post('/api/track/click', async (req: Request, res: Response) => {
+    try {
+      const validatedData = validate(insertClickEventSchema, req.body);
+      if ('error' in validatedData) {
+        return res.status(400).json({ error: validatedData.error });
+      }
+      
+      // Add user agent info from request
+      const data = {
+        ...validatedData,
+        userAgent: req.headers['user-agent']
+      };
+      
+      const clickEvent = await trackingService.recordClickEvent(data);
+      res.status(201).json(clickEvent);
+    } catch (error) {
+      console.error('Click tracking error:', error);
+      res.status(500).json({ error: 'Failed to record click event' });
+    }
+  });
+  
+  // Process click via tracking URL
+  app.get('/api/track/click/:trackingToken', async (req: Request, res: Response) => {
+    try {
+      const trackingToken = req.params.trackingToken;
+      
+      // Decode the tracking token to extract campaign ID, URL, and possibly contact ID
+      // In a real implementation, you would use a more secure token mechanism
+      const decodedData = Buffer.from(trackingToken, 'base64').toString();
+      const [campaignId, originalUrl, _timestamp] = decodedData.split(':');
+      
+      if (!campaignId || !originalUrl) {
+        return res.status(400).json({ error: 'Invalid tracking token' });
+      }
+      
+      // Record the click event
+      await trackingService.recordClickEvent({
+        campaignId: parseInt(campaignId),
+        url: originalUrl,
+        userAgent: req.headers['user-agent'],
+        ipAddress: req.ip
+      });
+      
+      // Redirect to the original URL
+      res.redirect(originalUrl);
+    } catch (error) {
+      console.error('Click tracking redirect error:', error);
+      res.status(500).json({ error: 'Failed to process tracking link' });
+    }
+  });
+  
+  // Record an open event (usually triggered by a tracking pixel)
+  app.get('/api/track/open/:campaignId/:emailId?/:contactId?', async (req: Request, res: Response) => {
+    try {
+      const campaignId = parseInt(req.params.campaignId);
+      const emailId = req.params.emailId ? parseInt(req.params.emailId) : undefined;
+      const contactId = req.params.contactId ? parseInt(req.params.contactId) : undefined;
+      
+      // Record the open event
+      await trackingService.recordOpenEvent({
+        campaignId,
+        emailId,
+        contactId,
+        userAgent: req.headers['user-agent'],
+        ipAddress: req.ip
+      });
+      
+      // Return a 1x1 transparent pixel
+      res.set('Content-Type', 'image/gif');
+      res.send(Buffer.from('R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==', 'base64'));
+    } catch (error) {
+      console.error('Open tracking error:', error);
+      // Still return a pixel to avoid breaking email rendering
+      res.set('Content-Type', 'image/gif');
+      res.send(Buffer.from('R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==', 'base64'));
+    }
+  });
+  
+  // Get engagement metrics for a campaign
+  app.get('/api/campaigns/:id/engagement', async (req: Request, res: Response) => {
+    try {
+      const campaignId = parseInt(req.params.id);
+      const days = req.query.days ? parseInt(req.query.days as string) : 30;
+      
+      const metrics = await trackingService.getEngagementMetrics(campaignId, days);
+      res.json(metrics);
+    } catch (error) {
+      console.error('Engagement metrics error:', error);
+      res.status(500).json({ error: 'Failed to fetch engagement metrics' });
+    }
+  });
+  
+  // Get click events for a campaign
+  app.get('/api/campaigns/:id/clicks', async (req: Request, res: Response) => {
+    try {
+      const campaignId = parseInt(req.params.id);
+      const limit = req.query.limit ? parseInt(req.query.limit as string) : 100;
+      
+      const clicks = await trackingService.getClickEvents(campaignId, limit);
+      res.json(clicks);
+    } catch (error) {
+      console.error('Click events error:', error);
+      res.status(500).json({ error: 'Failed to fetch click events' });
+    }
+  });
+  
+  // Get open events for a campaign
+  app.get('/api/campaigns/:id/opens', async (req: Request, res: Response) => {
+    try {
+      const campaignId = parseInt(req.params.id);
+      const limit = req.query.limit ? parseInt(req.query.limit as string) : 100;
+      
+      const opens = await trackingService.getOpenEvents(campaignId, limit);
+      res.json(opens);
+    } catch (error) {
+      console.error('Open events error:', error);
+      res.status(500).json({ error: 'Failed to fetch open events' });
+    }
+  });
+  
+  // Get tracking links for a campaign
+  app.get('/api/campaigns/:id/links', async (req: Request, res: Response) => {
+    try {
+      const campaignId = parseInt(req.params.id);
+      
+      const links = await trackingService.getTrackingLinks(campaignId);
+      res.json(links);
+    } catch (error) {
+      console.error('Tracking links error:', error);
+      res.status(500).json({ error: 'Failed to fetch tracking links' });
+    }
+  });
+  
+  // Create a tracking link for a URL
+  app.post('/api/campaigns/:id/links', async (req: Request, res: Response) => {
+    try {
+      const campaignId = parseInt(req.params.id);
+      const { url } = req.body;
+      
+      if (!url) {
+        return res.status(400).json({ error: 'URL is required' });
+      }
+      
+      const trackingLink = await trackingService.createTrackingLink(campaignId, url);
+      res.status(201).json(trackingLink);
+    } catch (error) {
+      console.error('Create tracking link error:', error);
+      res.status(500).json({ error: 'Failed to create tracking link' });
+    }
+  });
+  
+  // Get email analytics dashboard data
+  app.get('/api/analytics/email', async (req: Request, res: Response) => {
+    try {
+      // Get campaign ID from query parameters or return all
+      const campaignId = req.query.campaignId ? parseInt(req.query.campaignId as string) : undefined;
+      const days = req.query.days ? parseInt(req.query.days as string) : 30;
+      
+      // Get all campaigns or a specific one
+      const campaigns = campaignId 
+        ? [await storage.getCampaign(campaignId)] 
+        : await storage.getCampaigns();
+      
+      if (!campaigns || (campaignId && !campaigns[0])) {
+        return res.status(404).json({ error: 'Campaign(s) not found' });
+      }
+      
+      // Filter out any undefined campaigns (in case a specific campaign wasn't found)
+      const validCampaigns = campaigns.filter(c => c !== undefined) as any[];
+      
+      // Prepare the response object with overview metrics
+      const result = {
+        overview: {
+          totalEmails: 0,
+          openRate: 0,
+          clickRate: 0,
+          bounceRate: 0,
+          unsubscribeRate: 0,
+        },
+        trends: [] as any[],
+        topLinks: [] as any[],
+        deviceBreakdown: [] as any[],
+        geoDistribution: [] as any[],
+        hourlyActivity: [] as any[],
+      };
+      
+      // Collect all metrics for the campaigns
+      const allMetrics = [];
+      for (const campaign of validCampaigns) {
+        const metrics = await trackingService.getEngagementMetrics(campaign.id, days);
+        allMetrics.push(...metrics);
+      }
+      
+      // Process overview metrics
+      if (allMetrics.length > 0) {
+        let totalOpens = 0, totalClicks = 0, totalBounces = 0, totalUnsubscribes = 0;
+        let totalUniqueOpens = 0, totalUniqueClicks = 0;
+        let emails = 0;
+        
+        // Sum all metrics
+        allMetrics.forEach(metric => {
+          totalOpens += metric.totalOpens || 0;
+          totalClicks += metric.totalClicks || 0;
+          totalUniqueOpens += metric.uniqueOpens || 0;
+          totalUniqueClicks += metric.uniqueClicks || 0;
+          
+          // Aggregate other metrics as needed
+        });
+        
+        // For demo purposes, we'll use some placeholder recipient counts
+        emails = validCampaigns.reduce((acc, campaign) => {
+          const metadata = campaign.metadata as any || {};
+          return acc + (metadata.recipients || 100); // Fallback to 100 if no recipients count
+        }, 0);
+        
+        // Calculate rates
+        result.overview = {
+          totalEmails: emails,
+          openRate: emails > 0 ? (totalUniqueOpens / emails) * 100 : 0,
+          clickRate: emails > 0 ? (totalUniqueClicks / emails) * 100 : 0,
+          bounceRate: emails > 0 ? (totalBounces / emails) * 100 : 0,
+          unsubscribeRate: emails > 0 ? (totalUnsubscribes / emails) * 100 : 0,
+        };
+      }
+      
+      // Return the analytics dashboard data
+      res.json(result);
+    } catch (error) {
+      console.error('Email analytics error:', error);
+      res.status(500).json({ error: 'Failed to fetch email analytics' });
+    }
   });
 
   return httpServer;

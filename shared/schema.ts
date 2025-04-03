@@ -413,3 +413,163 @@ export const campaignDomainsRelations = defineRelations(campaignDomains, {
 export const clientUsersRelations = defineRelations(clientUsers, {
   client: { relationName: "clientUser_to_client", fields: [clientUsers.clientId], references: [clients.id] }
 });
+
+// Advanced Analytics - Click Events (for tracking individual link clicks)
+export const clickEvents = pgTable("click_events", {
+  id: serial("id").primaryKey(),
+  campaignId: integer("campaign_id").notNull().references(() => campaigns.id),
+  emailId: integer("email_id").references(() => emails.id),
+  contactId: integer("contact_id").references(() => contacts.id),
+  url: text("url").notNull(),
+  timestamp: timestamp("timestamp").defaultNow().notNull(),
+  ipAddress: text("ip_address"),
+  userAgent: text("user_agent"),
+  deviceType: text("device_type"),
+  browser: text("browser"),
+  os: text("os"),
+  country: text("country"),
+  city: text("city"),
+  metadata: json("metadata")
+});
+
+export const insertClickEventSchema = createInsertSchema(clickEvents).pick({
+  campaignId: true,
+  emailId: true,
+  contactId: true,
+  url: true,
+  ipAddress: true,
+  userAgent: true,
+  deviceType: true,
+  browser: true,
+  os: true,
+  country: true,
+  city: true,
+  metadata: true,
+});
+
+export type InsertClickEvent = z.infer<typeof insertClickEventSchema>;
+export type ClickEvent = typeof clickEvents.$inferSelect;
+
+// Open Events (for tracking individual email opens)
+export const openEvents = pgTable("open_events", {
+  id: serial("id").primaryKey(),
+  campaignId: integer("campaign_id").notNull().references(() => campaigns.id),
+  emailId: integer("email_id").references(() => emails.id),
+  contactId: integer("contact_id").references(() => contacts.id),
+  timestamp: timestamp("timestamp").defaultNow().notNull(),
+  ipAddress: text("ip_address"),
+  userAgent: text("user_agent"),
+  deviceType: text("device_type"),
+  browser: text("browser"),
+  os: text("os"),
+  country: text("country"),
+  city: text("city"),
+  metadata: json("metadata")
+});
+
+export const insertOpenEventSchema = createInsertSchema(openEvents).pick({
+  campaignId: true,
+  emailId: true,
+  contactId: true,
+  ipAddress: true,
+  userAgent: true,
+  deviceType: true,
+  browser: true,
+  os: true,
+  country: true,
+  city: true,
+  metadata: true,
+});
+
+export type InsertOpenEvent = z.infer<typeof insertOpenEventSchema>;
+export type OpenEvent = typeof openEvents.$inferSelect;
+
+// Detailed Engagement Metrics (for aggregated engagement data)
+export const engagementMetrics = pgTable("engagement_metrics", {
+  id: serial("id").primaryKey(),
+  campaignId: integer("campaign_id").notNull().references(() => campaigns.id),
+  date: timestamp("date").defaultNow().notNull(),
+  totalOpens: integer("total_opens").default(0),
+  uniqueOpens: integer("unique_opens").default(0),
+  totalClicks: integer("total_clicks").default(0),
+  uniqueClicks: integer("unique_clicks").default(0),
+  clickThroughRate: integer("click_through_rate").default(0), // Stored as integer (percentage * 100)
+  averageEngagementTime: integer("average_engagement_time").default(0), // in seconds
+  engagementScore: integer("engagement_score").default(0), // 0-100
+  mostClickedLink: text("most_clicked_link"),
+  mostActiveHour: integer("most_active_hour"), // 0-23
+  mostActiveDevice: text("most_active_device"),
+  metadata: json("metadata")
+});
+
+export const insertEngagementMetricsSchema = createInsertSchema(engagementMetrics).pick({
+  campaignId: true,
+  date: true,
+  totalOpens: true,
+  uniqueOpens: true,
+  totalClicks: true,
+  uniqueClicks: true,
+  clickThroughRate: true,
+  averageEngagementTime: true,
+  engagementScore: true,
+  mostClickedLink: true,
+  mostActiveHour: true,
+  mostActiveDevice: true,
+  metadata: true,
+});
+
+export type InsertEngagementMetrics = z.infer<typeof insertEngagementMetricsSchema>;
+export type EngagementMetrics = typeof engagementMetrics.$inferSelect;
+
+// Link Tracking table for URLs in campaigns
+export const linkTracking = pgTable("link_tracking", {
+  id: serial("id").primaryKey(),
+  campaignId: integer("campaign_id").notNull().references(() => campaigns.id),
+  originalUrl: text("original_url").notNull(),
+  trackingUrl: text("tracking_url").notNull(),
+  clickCount: integer("click_count").default(0),
+  uniqueClickCount: integer("unique_click_count").default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+  metadata: json("metadata")
+});
+
+export const insertLinkTrackingSchema = createInsertSchema(linkTracking).pick({
+  campaignId: true,
+  originalUrl: true,
+  trackingUrl: true,
+  clickCount: true,
+  uniqueClickCount: true,
+  metadata: true,
+});
+
+export type InsertLinkTracking = z.infer<typeof insertLinkTrackingSchema>;
+export type LinkTracking = typeof linkTracking.$inferSelect;
+
+// Define relations for the new tables
+export const clickEventsRelations = defineRelations(clickEvents, {
+  campaign: { relationName: "clickEvent_to_campaign", fields: [clickEvents.campaignId], references: [campaigns.id] },
+  email: { relationName: "clickEvent_to_email", fields: [clickEvents.emailId], references: [emails.id] },
+  contact: { relationName: "clickEvent_to_contact", fields: [clickEvents.contactId], references: [contacts.id] }
+});
+
+export const openEventsRelations = defineRelations(openEvents, {
+  campaign: { relationName: "openEvent_to_campaign", fields: [openEvents.campaignId], references: [campaigns.id] },
+  email: { relationName: "openEvent_to_email", fields: [openEvents.emailId], references: [emails.id] },
+  contact: { relationName: "openEvent_to_contact", fields: [openEvents.contactId], references: [contacts.id] }
+});
+
+export const engagementMetricsRelations = defineRelations(engagementMetrics, {
+  campaign: { relationName: "engagementMetric_to_campaign", fields: [engagementMetrics.campaignId], references: [campaigns.id] }
+});
+
+export const linkTrackingRelations = defineRelations(linkTracking, {
+  campaign: { relationName: "linkTracking_to_campaign", fields: [linkTracking.campaignId], references: [campaigns.id] }
+});
+
+// Update campaigns relations to include tracking tables (added after those tables are defined)
+export const campaignsTrackingRelations = {
+  clickEvents: { relationName: "campaign_to_clickEvents", fields: [campaigns.id], references: [clickEvents.campaignId] },
+  openEvents: { relationName: "campaign_to_openEvents", fields: [campaigns.id], references: [openEvents.campaignId] },
+  engagementMetrics: { relationName: "campaign_to_engagementMetrics", fields: [campaigns.id], references: [engagementMetrics.campaignId] },
+  linkTracking: { relationName: "campaign_to_linkTracking", fields: [campaigns.id], references: [linkTracking.campaignId] }
+};
