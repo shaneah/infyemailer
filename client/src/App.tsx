@@ -57,6 +57,7 @@ function App() {
                   <ProtectedRoute path="/templates" component={Templates} />
                   <ProtectedRoute path="/contacts" component={Contacts} />
                   <ProtectedRoute path="/ab-testing" component={ABTesting} />
+                  <ProtectedRoute path="/ab-testing/:id" component={ABTesting} />
                   <ProtectedRoute path="/email-performance" component={EmailPerformance} />
                   <ProtectedRoute path="/template-builder" component={TemplateBuilder} />
                   <ProtectedRoute path="/template-builder/:id" component={TemplateBuilder} />
