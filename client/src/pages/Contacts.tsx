@@ -219,9 +219,7 @@ const contactFormSchema = z.object({
   email: z.string().email({
     message: "Please enter a valid email address.",
   }),
-  list: z.string().min(1, {
-    message: "Please select a list.",
-  }),
+  list: z.string().optional(),
 });
 
 type ContactFormValues = z.infer<typeof contactFormSchema>;
@@ -247,12 +245,36 @@ export default function Contacts() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   
+  // Types for API data
+  interface Contact {
+    id: number;
+    name: string;
+    email: string;
+    status?: {
+      label: string;
+      color: string;
+      value: string;
+    };
+    lists?: Array<{
+      id: number;
+      name: string;
+    }>;
+    addedOn?: string;
+  }
+
+  interface List {
+    id: number | string;
+    name: string;
+    count?: number;
+    lastUpdated?: string;
+  }
+
   // Queries
-  const { data: contacts, isLoading: isLoadingContacts } = useQuery({
+  const { data: contacts = [], isLoading: isLoadingContacts } = useQuery<Contact[]>({
     queryKey: ['/api/contacts'],
   });
   
-  const { data: lists, isLoading: isLoadingLists } = useQuery({
+  const { data: lists = [], isLoading: isLoadingLists } = useQuery<List[]>({
     queryKey: ['/api/lists'],
   });
   
@@ -262,13 +284,20 @@ export default function Contacts() {
     defaultValues: {
       name: "",
       email: "",
-      list: "",
+      list: "_none",
     },
   });
   
+  // Modified type to handle the optional list field
+  type ContactSubmitValues = {
+    name: string;
+    email: string;
+    list?: string;
+  };
+
   // Mutations
   const addContactMutation = useMutation({
-    mutationFn: (values: ContactFormValues) => {
+    mutationFn: (values: ContactSubmitValues) => {
       return apiRequest("POST", "/api/contacts", values);
     },
     onSuccess: () => {
@@ -440,10 +469,11 @@ export default function Contacts() {
       setProcessProgress(50);
       
       // Call API to process emails
+      const listId = form.getValues().list;
       importContactsMutation.mutate({ 
         emails, 
         format: importFormat,
-        listId: form.getValues().list || undefined
+        listId: listId && listId !== "_none" ? listId : undefined
       });
       
     } catch (error: any) {
@@ -462,7 +492,12 @@ export default function Contacts() {
   }
 
   function onSubmit(values: ContactFormValues) {
-    addContactMutation.mutate(values);
+    // If list is _none, we don't need to send it to the server
+    const submitValues = {
+      ...values,
+      list: values.list === "_none" ? undefined : values.list
+    };
+    addContactMutation.mutate(submitValues);
   }
 
   return (
@@ -509,7 +544,7 @@ export default function Contacts() {
                           <SelectValue placeholder="Select a list" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="">None</SelectItem>
+                          <SelectItem value="_none">None</SelectItem>
                           {lists?.map((list: any) => (
                             <SelectItem key={list.id} value={list.id.toString()}>
                               {list.name}
@@ -743,6 +778,7 @@ export default function Contacts() {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
+                            <SelectItem value="_none">None</SelectItem>
                             {lists?.map((list: any) => (
                               <SelectItem key={list.id} value={list.id.toString()}>
                                 {list.name}
