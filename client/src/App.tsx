@@ -19,6 +19,9 @@ import TemplateBuilder from "@/pages/TemplateBuilder";
 import Domains from "@/pages/Domains";
 import Analytics from "@/pages/Analytics";
 import Clients from "@/pages/Clients";
+import ClientUsers from "@/pages/ClientUsers";
+import ClientLogin from "@/pages/ClientLogin";
+import ClientDashboard from "@/pages/ClientDashboard";
 import Settings from "@/pages/Settings";
 import AdminPanel from "@/pages/AdminPanel";
 import EmailValidation from "@/pages/EmailValidation";
@@ -60,12 +63,15 @@ function App() {
                   <ProtectedRoute path="/domains" component={Domains} />
                   <ProtectedRoute path="/analytics" component={Analytics} />
                   <ProtectedRoute path="/clients" component={Clients} />
+                  <ProtectedRoute path="/client-users" component={ClientUsers} />
                   <ProtectedRoute path="/settings" component={Settings} />
                   <ProtectedRoute path="/admin" component={AdminPanel} />
                   <ProtectedRoute path="/email-validation" component={EmailValidation} />
                   <ProtectedRoute path="/emails" component={Emails} />
                   <ProtectedRoute path="/reporting" component={Reporting} />
                   <Route path="/auth" component={AuthPage} />
+                  <Route path="/client-login" component={ClientLogin} />
+                  <Route path="/client/dashboard" component={ClientDashboard} />
                   <Route component={NotFound} />
                 </Switch>
               </main>

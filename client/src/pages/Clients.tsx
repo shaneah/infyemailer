@@ -54,12 +54,24 @@ const ClientsPage: React.FC = () => {
     mutationFn: async (newClient: ClientFormValues) => {
       console.log('Sending client data:', newClient);
       
+      // Convert form fields to match API expectations
+      const clientData = {
+        ...newClient,
+        // Add any missing fields required by the API but not in the form
+        metadata: {}
+      };
+      
       try {
-        const response = await apiRequest('/api/clients', {
+        const response = await fetch('/api/clients', {
           method: 'POST',
-          body: JSON.stringify(newClient),
+          body: JSON.stringify(clientData),
           headers: { 'Content-Type': 'application/json' }
         });
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Failed to create client');
+        }
         
         const responseData = await response.json();
         console.log('Server response:', responseData);
@@ -76,6 +88,7 @@ const ClientsPage: React.FC = () => {
         description: "The client has been successfully added."
       });
       setIsNewClientOpen(false);
+      newClientForm.reset();
     },
     onError: (error) => {
       console.error('Mutation error:', error);

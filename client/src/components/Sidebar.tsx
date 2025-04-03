@@ -117,6 +117,17 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
           </li>
           <li>
             <Link 
+              href="/client-users" 
+              className={`flex items-center px-2 py-2 rounded-md ${location === '/client-users' 
+                ? 'text-white border-l-4 border-primary bg-primary/10' 
+                : 'text-gray-300 hover:bg-gray-700/30'}`}
+            >
+              <Users className="h-5 w-5 mr-3" />
+              Client Users
+            </Link>
+          </li>
+          <li>
+            <Link 
               href="/analytics" 
               className={`flex items-center px-2 py-2 rounded-md ${location === '/analytics' 
                 ? 'text-white border-l-4 border-primary bg-primary/10' 
