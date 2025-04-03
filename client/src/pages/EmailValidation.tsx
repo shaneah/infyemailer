@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -6,13 +6,20 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertCircle, CheckCircle2, XCircle, Upload, RefreshCw } from "lucide-react";
+import { AlertCircle, CheckCircle2, XCircle, Upload, RefreshCw, Download, FileUp, FileDown, FileType, FileJson, FileText as FileTextIcon } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from "@/components/ui/select";
 
 interface EmailValidationResult {
   isValid: boolean;
@@ -66,6 +73,8 @@ const EmailValidation = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showDetailedReport, setShowDetailedReport] = useState(false);
   const [processingStatus, setProcessingStatus] = useState({ current: 0, total: 0 });
+  const [exportFormat, setExportFormat] = useState<'txt'|'csv'|'json'>('txt');
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const validateSingleEmail = async () => {
     if (!singleEmail.trim()) {
@@ -209,14 +218,72 @@ const EmailValidation = () => {
     });
   };
 
+  const handleImportEmails = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+  
+  const processImportedFile = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    
+    reader.onload = (e) => {
+      const content = e.target?.result as string;
+      if (content) {
+        setBulkEmails(content);
+        toast({
+          title: "File imported",
+          description: `Successfully imported ${file.name}`,
+        });
+      }
+    };
+    
+    reader.onerror = () => {
+      toast({
+        title: "Import failed",
+        description: "Failed to read the file. Please try again.",
+        variant: "destructive"
+      });
+    };
+    
+    reader.readAsText(file);
+    
+    // Reset the input value so the same file can be selected again
+    if (event.target) {
+      event.target.value = '';
+    }
+  };
+
   const downloadValidEmails = () => {
     if (!bulkAnalysisResult || bulkAnalysisResult.validEmails.length === 0) return;
     
-    const blob = new Blob([bulkAnalysisResult.validEmails.join('\n')], { type: 'text/plain' });
+    let content = '';
+    let fileName = '';
+    let mimeType = '';
+    
+    if (exportFormat === 'csv') {
+      content = 'Email Address\n' + bulkAnalysisResult.validEmails.join('\n');
+      fileName = 'valid_emails.csv';
+      mimeType = 'text/csv';
+    } else if (exportFormat === 'json') {
+      content = JSON.stringify(bulkAnalysisResult.validEmails, null, 2);
+      fileName = 'valid_emails.json';
+      mimeType = 'application/json';
+    } else {
+      // Default to txt
+      content = bulkAnalysisResult.validEmails.join('\n');
+      fileName = 'valid_emails.txt';
+      mimeType = 'text/plain';
+    }
+    
+    const blob = new Blob([content], { type: mimeType });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'valid_emails.txt';
+    a.download = fileName;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -414,12 +481,35 @@ const EmailValidation = () => {
                     {isLoading ? <RefreshCw className="h-4 w-4 animate-spin mr-2" /> : null}
                     Validate & Clean Emails
                   </Button>
+                  <Button variant="outline" onClick={handleImportEmails} className="flex-1">
+                    <FileUp className="h-4 w-4 mr-2" />
+                    Import Emails
+                  </Button>
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    className="hidden"
+                    accept=".txt,.csv,.json"
+                    onChange={processImportedFile}
+                  />
                   {bulkAnalysisResult && (
                     <>
-                      <Button variant="outline" onClick={downloadValidEmails} className="flex-1">
-                        <Upload className="h-4 w-4 mr-2" />
-                        Download Valid Emails
-                      </Button>
+                      <div className="flex w-full sm:w-auto">
+                        <Select value={exportFormat} onValueChange={(value: any) => setExportFormat(value)}>
+                          <SelectTrigger className="w-[100px] rounded-r-none">
+                            <SelectValue placeholder="Format" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="txt">TXT</SelectItem>
+                            <SelectItem value="csv">CSV</SelectItem>
+                            <SelectItem value="json">JSON</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <Button variant="outline" onClick={downloadValidEmails} className="rounded-l-none flex-1">
+                          <Download className="h-4 w-4 mr-2" />
+                          Export Emails
+                        </Button>
+                      </div>
                     </>
                   )}
                 </div>
