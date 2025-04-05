@@ -117,25 +117,8 @@ const ClientsPage: React.FC = () => {
         metadata: {}
       };
       
-      try {
-        const response = await fetch('/api/clients', {
-          method: 'POST',
-          body: JSON.stringify(clientData),
-          headers: { 'Content-Type': 'application/json' }
-        });
-        
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || 'Failed to create client');
-        }
-        
-        const responseData = await response.json();
-        console.log('Server response:', responseData);
-        return responseData;
-      } catch (error) {
-        console.error('Error in API request:', error);
-        throw error;
-      }
+      const response = await apiRequest('POST', '/api/clients', clientData);
+      return await response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/clients'] });
@@ -159,11 +142,7 @@ const ClientsPage: React.FC = () => {
   // Update client mutation
   const updateClientMutation = useMutation({
     mutationFn: (client: ClientFormValues & { id: number }) => 
-      apiRequest(`/api/clients/${client.id}`, {
-        method: 'PATCH',
-        body: JSON.stringify(client),
-        headers: { 'Content-Type': 'application/json' }
-      }),
+      apiRequest('PATCH', `/api/clients/${client.id}`, client),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/clients'] });
       toast({
@@ -184,9 +163,7 @@ const ClientsPage: React.FC = () => {
   // Delete client mutation
   const deleteClientMutation = useMutation({
     mutationFn: (id: number) => 
-      apiRequest(`/api/clients/${id}`, {
-        method: 'DELETE'
-      }),
+      apiRequest('DELETE', `/api/clients/${id}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/clients'] });
       toast({
@@ -206,18 +183,8 @@ const ClientsPage: React.FC = () => {
   // Add credits mutation
   const addCreditsToClientMutation = useMutation({
     mutationFn: async ({ clientId, credits }: { clientId: number; credits: number }) => {
-      const response = await fetch(`/api/clients/${clientId}/email-credits/add`, {
-        method: 'POST',
-        body: JSON.stringify({ amount: credits }),
-        headers: { 'Content-Type': 'application/json' }
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to add credits');
-      }
-      
-      return response.json();
+      const response = await apiRequest('POST', `/api/clients/${clientId}/email-credits/add`, { amount: credits });
+      return await response.json();
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: [`/api/clients/${variables.clientId}/email-credits/remaining`] });
