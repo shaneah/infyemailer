@@ -39,14 +39,6 @@ const ClientsPage: React.FC = () => {
   const [isNewClientOpen, setIsNewClientOpen] = useState(false);
   const [isEditClientOpen, setIsEditClientOpen] = useState(false);
   const [selectedClient, setSelectedClient] = useState<any>(null);
-  
-  // Total system credits
-  const [totalSystemCredits, setTotalSystemCredits] = useState(1000000); // Example value, could be fetched from the API
-  const [availableCredits, setAvailableCredits] = useState(750000); // Example value
-  
-  // State for add credits dialog
-  const [isAddCreditsOpen, setIsAddCreditsOpen] = useState(false);
-  const [selectedClientForCredits, setSelectedClientForCredits] = useState<any>(null);
 
   // Fetch clients
   const { 
@@ -66,33 +58,6 @@ const ClientsPage: React.FC = () => {
       enabled: !!clientId, // Only run the query if clientId is provided
     });
   };
-  
-  // Add credits mutation
-  const addCreditsToClientMutation = useMutation({
-    mutationFn: async ({ clientId, credits }: { clientId: number; credits: number }) => {
-      return apiRequest(`/api/clients/${clientId}/email-credits/add`, {
-        method: 'POST',
-        body: JSON.stringify({ emailCredits: credits }),
-        headers: { 'Content-Type': 'application/json' }
-      });
-    },
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: [`/api/clients/${variables.clientId}/email-credits/remaining`] });
-      queryClient.invalidateQueries({ queryKey: ['/api/clients'] });
-      toast({
-        title: "Credits Added",
-        description: `${variables.credits} credits have been added to the client's account.`
-      });
-      setIsAddCreditsOpen(false);
-    },
-    onError: (error) => {
-      toast({
-        title: "Error",
-        description: `Failed to add credits: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        variant: "destructive"
-      });
-    }
-  });
   
   // Email Credits Display Component
   const EmailCreditsDisplay = ({ clientId }: { clientId: number }) => {
@@ -356,6 +321,41 @@ const ClientsPage: React.FC = () => {
     );
   }
 
+  // Add credits mutation
+  const addCreditsToClientMutation = useMutation({
+    mutationFn: async ({ clientId, credits }: { clientId: number; credits: number }) => {
+      return apiRequest(`/api/clients/${clientId}/email-credits/add`, {
+        method: 'POST',
+        body: JSON.stringify({ emailCredits: credits }),
+        headers: { 'Content-Type': 'application/json' }
+      });
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: [`/api/clients/${variables.clientId}/email-credits/remaining`] });
+      queryClient.invalidateQueries({ queryKey: ['/api/clients'] });
+      toast({
+        title: "Credits Added",
+        description: `${variables.credits} credits have been added to the client's account.`
+      });
+      setIsAddCreditsOpen(false);
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: `Failed to add credits: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        variant: "destructive"
+      });
+    }
+  });
+
+  // Total system credits
+  const [totalSystemCredits, setTotalSystemCredits] = useState(1000000); // Example value, could be fetched from the API
+  const [availableCredits, setAvailableCredits] = useState(750000); // Example value
+  
+  // State for add credits dialog
+  const [isAddCreditsOpen, setIsAddCreditsOpen] = useState(false);
+  const [selectedClientForCredits, setSelectedClientForCredits] = useState<any>(null);
+  
   // Form setup for adding credits
   const addCreditsForm = useForm({
     resolver: zodResolver(
