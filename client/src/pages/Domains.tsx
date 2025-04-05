@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { 
   Globe, 
   Shield, 
@@ -21,10 +22,13 @@ import {
   Clock, 
   Trash, 
   RefreshCw, 
-  Edit, 
+  Edit,
+  CheckCircle, 
   Plus, 
   ArrowRight, 
-  Check
+  Check,
+  ServerCog,
+  AlertCircle
 } from "lucide-react";
 
 // Type definition for Domain
@@ -60,12 +64,22 @@ interface Campaign {
   };
 }
 
+// Type definition for Email Provider
+interface EmailProvider {
+  id: number;
+  name: string;
+  provider: string;
+  isDefault: boolean;
+}
+
 export default function Domains() {
   const { toast } = useToast();
   const [tab, setTab] = useState("active");
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [verifyDialogOpen, setVerifyDialogOpen] = useState(false);
   const [selectedDomain, setSelectedDomain] = useState<Domain | null>(null);
+  const [selectedProvider, setSelectedProvider] = useState<string>("");
   const [newDomain, setNewDomain] = useState({
     name: "",
     status: "active",
@@ -78,6 +92,18 @@ export default function Domains() {
     dkimValue: null,
     spfValue: null,
     dmarcValue: null,
+  });
+  
+  // Fetch email providers
+  const { data: emailProviders = [] } = useQuery({
+    queryKey: ['/api/email-providers'],
+    queryFn: async () => {
+      const response = await fetch('/api/email-providers');
+      if (!response.ok) {
+        throw new Error('Failed to fetch email providers');
+      }
+      return response.json();
+    }
   });
 
   // Fetch domains
@@ -186,6 +212,29 @@ export default function Domains() {
     onError: (error) => {
       toast({
         title: "Error setting default domain",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  });
+  
+  // Verify a domain using an email provider
+  const verifyDomainMutation = useMutation({
+    mutationFn: async ({ domainId, providerId }: { domainId: number, providerId: string }) => {
+      return apiRequest('POST', `/api/domains/${domainId}/verify`, { providerId });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/domains'] });
+      setVerifyDialogOpen(false);
+      setSelectedProvider("");
+      toast({
+        title: "Domain verification initiated",
+        description: "The domain verification process has been started. Please check your DNS settings.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error verifying domain",
         description: error.message,
         variant: "destructive",
       });
@@ -362,19 +411,22 @@ export default function Domains() {
                 )}
                 
                 {domain.dkimVerified && (
-                  <Badge variant="outline" className="bg-primary">
+                  <Badge variant="outline" className="bg-success text-white">
+                    <CheckCircle className="mr-1 h-3 w-3" />
                     DKIM
                   </Badge>
                 )}
                 
                 {domain.spfVerified && (
-                  <Badge variant="outline" className="bg-primary">
+                  <Badge variant="outline" className="bg-success text-white">
+                    <CheckCircle className="mr-1 h-3 w-3" />
                     SPF
                   </Badge>
                 )}
                 
                 {domain.dmarcVerified && (
-                  <Badge variant="outline" className="bg-primary">
+                  <Badge variant="outline" className="bg-success text-white">
+                    <CheckCircle className="mr-1 h-3 w-3" />
                     DMARC
                   </Badge>
                 )}
@@ -592,12 +644,16 @@ export default function Domains() {
                   </div>
                   
                   <div className="flex items-center space-x-2">
-                    <Switch
-                      id="edit-verified"
-                      checked={selectedDomain.verified}
-                      onCheckedChange={(checked) => setSelectedDomain({...selectedDomain, verified: checked})}
-                    />
-                    <Label htmlFor="edit-verified">Verified</Label>
+                    <Button 
+                      variant="outline" 
+                      className="w-full"
+                      onClick={() => {
+                        setVerifyDialogOpen(true);
+                      }}
+                    >
+                      <CheckCircle className="mr-2 h-4 w-4" />
+                      Verify Domain
+                    </Button>
                   </div>
                   
                   <div className="flex items-center space-x-2">
@@ -621,17 +677,12 @@ export default function Domains() {
                   <div className="bg-muted p-4 rounded-lg">
                     <h3 className="text-sm font-semibold mb-2 flex items-center">
                       <span className="mr-2">DKIM Settings</span>
-                      {selectedDomain.dkimVerified ? (
-                        <Badge variant="outline" className="bg-success text-white ml-auto">
-                          <Check className="mr-1 h-3 w-3" />
-                          Verified
-                        </Badge>
-                      ) : (
-                        <Badge variant="outline" className="bg-warning text-white ml-auto">
-                          <Clock className="mr-1 h-3 w-3" />
-                          Not Verified
-                        </Badge>
-                      )}
+                      <Badge variant={selectedDomain.dkimVerified ? "success" : "outline"} className="ml-auto">
+                        {selectedDomain.dkimVerified ? 
+                          <><Check className="mr-1 h-3 w-3" /> Verified</> : 
+                          <><Clock className="mr-1 h-3 w-3" /> Pending</>
+                        }
+                      </Badge>
                     </h3>
                     
                     <div className="space-y-2 text-sm">
@@ -676,17 +727,12 @@ export default function Domains() {
                   <div className="bg-muted p-4 rounded-lg">
                     <h3 className="text-sm font-semibold mb-2 flex items-center">
                       <span className="mr-2">SPF Settings</span>
-                      {selectedDomain.spfVerified ? (
-                        <Badge variant="outline" className="bg-success text-white ml-auto">
-                          <Check className="mr-1 h-3 w-3" />
-                          Verified
-                        </Badge>
-                      ) : (
-                        <Badge variant="outline" className="bg-warning text-white ml-auto">
-                          <Clock className="mr-1 h-3 w-3" />
-                          Not Verified
-                        </Badge>
-                      )}
+                      <Badge variant={selectedDomain.spfVerified ? "success" : "outline"} className="ml-auto">
+                        {selectedDomain.spfVerified ? 
+                          <><Check className="mr-1 h-3 w-3" /> Verified</> : 
+                          <><Clock className="mr-1 h-3 w-3" /> Pending</>
+                        }
+                      </Badge>
                     </h3>
                     
                     <div className="space-y-2 text-sm">
@@ -721,17 +767,12 @@ export default function Domains() {
                   <div className="bg-muted p-4 rounded-lg">
                     <h3 className="text-sm font-semibold mb-2 flex items-center">
                       <span className="mr-2">DMARC Settings</span>
-                      {selectedDomain.dmarcVerified ? (
-                        <Badge variant="outline" className="bg-success text-white ml-auto">
-                          <Check className="mr-1 h-3 w-3" />
-                          Verified
-                        </Badge>
-                      ) : (
-                        <Badge variant="outline" className="bg-warning text-white ml-auto">
-                          <Clock className="mr-1 h-3 w-3" />
-                          Not Verified
-                        </Badge>
-                      )}
+                      <Badge variant={selectedDomain.dmarcVerified ? "success" : "outline"} className="ml-auto">
+                        {selectedDomain.dmarcVerified ? 
+                          <><Check className="mr-1 h-3 w-3" /> Verified</> : 
+                          <><Clock className="mr-1 h-3 w-3" /> Pending</>
+                        }
+                      </Badge>
                     </h3>
                     
                     <div className="space-y-2 text-sm">
@@ -803,6 +844,74 @@ export default function Domains() {
               </TabsContent>
             </Tabs>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Verify Domain Dialog */}
+      <Dialog open={verifyDialogOpen} onOpenChange={setVerifyDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Verify Domain with Email Provider</DialogTitle>
+            <p className="text-sm text-muted-foreground mt-2">
+              Select an email provider to verify your domain and set up authentication records.
+            </p>
+          </DialogHeader>
+          
+          <div className="py-4 space-y-4">
+            <div className="grid gap-2">
+              <Label htmlFor="email-provider">Email Provider</Label>
+              <Select 
+                value={selectedProvider} 
+                onValueChange={setSelectedProvider}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a provider" />
+                </SelectTrigger>
+                <SelectContent>
+                  {emailProviders.map((provider: EmailProvider) => (
+                    <SelectItem key={provider.id} value={provider.id.toString()}>
+                      {provider.name} ({provider.provider})
+                      {provider.isDefault && <span className="ml-2 text-primary">(Default)</span>}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="rounded-md bg-muted p-3 text-sm">
+              <div className="flex items-center gap-2">
+                <ServerCog className="h-4 w-4 text-muted-foreground" />
+                <p>The provider will verify DNS records for DKIM, SPF, and DMARC.</p>
+              </div>
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setVerifyDialogOpen(false)}>Cancel</Button>
+            <Button 
+              onClick={() => {
+                if (selectedDomain && selectedProvider) {
+                  verifyDomainMutation.mutate({ 
+                    domainId: selectedDomain.id, 
+                    providerId: selectedProvider 
+                  });
+                }
+              }}
+              disabled={!selectedProvider || verifyDomainMutation.isPending}
+            >
+              {verifyDomainMutation.isPending ? (
+                <>
+                  <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                  Verifying...
+                </>
+              ) : (
+                <>
+                  <CheckCircle className="mr-2 h-4 w-4" />
+                  Start Verification
+                </>
+              )}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
