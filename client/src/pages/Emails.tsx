@@ -28,7 +28,7 @@ import {
 } from "@/components/ui/dialog";
 import SubjectLineGenerator from '@/components/emails/SubjectLineGenerator';
 
-const Messages = () => {
+const Emails = () => {
   const [activeTab, setActiveTab] = useState('inbox');
   const [isComposeOpen, setIsComposeOpen] = useState(false);
   const [showAiSubjectGenerator, setShowAiSubjectGenerator] = useState(false);
