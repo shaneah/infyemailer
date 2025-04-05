@@ -198,12 +198,12 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
 
         
         {/* Logout Button */}
-        <div className="px-4 mb-6">
+        <div className="px-2 mt-4 mb-6">
           <button
             onClick={handleLogout}
-            className="flex items-center justify-center w-full px-4 py-2 rounded-md text-white bg-red-600 hover:bg-red-700 transition-colors"
+            className="flex items-center w-full px-2 py-2 rounded-md text-gray-300 hover:bg-white/5 hover:text-white transition-colors"
           >
-            <LogOut className="h-4 w-4 mr-2" />
+            <LogOut className="h-5 w-5 mr-3 text-gray-300" />
             Logout
           </button>
         </div>
