@@ -208,7 +208,7 @@ const ClientsPage: React.FC = () => {
     mutationFn: async ({ clientId, credits }: { clientId: number; credits: number }) => {
       const response = await fetch(`/api/clients/${clientId}/email-credits/add`, {
         method: 'POST',
-        body: JSON.stringify({ emailCredits: credits }),
+        body: JSON.stringify({ amount: credits }),
         headers: { 'Content-Type': 'application/json' }
       });
       
@@ -513,48 +513,7 @@ const ClientsPage: React.FC = () => {
         </Dialog>
       </div>
       
-      {/* Email Credits Overview Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg font-medium flex items-center">
-              <CreditCard className="mr-2 h-5 w-5 text-primary" />
-              Available Email Credits
-            </CardTitle>
-            <CardDescription>System-wide email credits available for allocation</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between">
-              <div className="text-3xl font-bold">{availableCredits.toLocaleString()}</div>
-              <div className="text-sm text-muted-foreground">of {totalSystemCredits.toLocaleString()} total</div>
-            </div>
-            <Progress 
-              className="h-2 mt-2" 
-              value={(availableCredits / totalSystemCredits) * 100} 
-            />
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg font-medium flex items-center">
-              <Mail className="mr-2 h-5 w-5 text-primary" />
-              Assigned Email Credits
-            </CardTitle>
-            <CardDescription>Credits currently allocated to clients</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between">
-              <div className="text-3xl font-bold">{(totalSystemCredits - availableCredits).toLocaleString()}</div>
-              <div className="text-sm text-muted-foreground">{((totalSystemCredits - availableCredits) / totalSystemCredits * 100).toFixed(1)}% allocated</div>
-            </div>
-            <Progress 
-              className="h-2 mt-2" 
-              value={((totalSystemCredits - availableCredits) / totalSystemCredits) * 100} 
-            />
-          </CardContent>
-        </Card>
-      </div>
+      {/* Client Management Section */}
       
       <Card>
         <CardHeader>
