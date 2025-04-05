@@ -76,7 +76,7 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
                 : 'text-gray-300 hover:bg-white/5'}`}
             >
               <Mail className="h-5 w-5 mr-3" />
-              Emails
+              Messages
               <span className="ml-auto bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                 3
               </span>
@@ -156,7 +156,7 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
                 : 'text-gray-300 hover:bg-white/5'}`}
             >
               <Activity className="h-5 w-5 mr-3" />
-              <span className="flex-wrap">Email Performance</span>
+              <span className="flex-wrap">Performance Analytics</span>
             </Link>
           </li>
           <li>
@@ -200,7 +200,7 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
                 : 'text-gray-300 hover:bg-white/5'}`}
             >
               <CheckCircle2 className="h-5 w-5 mr-3" />
-              Email Validation
+              Address Validation
             </Link>
           </li>
           <li>
