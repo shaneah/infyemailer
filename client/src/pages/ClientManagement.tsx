@@ -330,29 +330,35 @@ const ClientManagement = () => {
     });
   };
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
+  const getStatusBadge = (status: string | undefined | null) => {
+    // Make sure we have a string and not an object or null/undefined
+    const statusStr = typeof status === 'string' ? status : 'unknown';
+    
+    switch (statusStr.toLowerCase()) {
       case 'active':
-        return <Badge className="bg-green-500">Active</Badge>;
+        return <Badge className="bg-green-500 text-white">Active</Badge>;
       case 'inactive':
         return <Badge variant="outline">Inactive</Badge>;
       case 'suspended':
         return <Badge variant="destructive">Suspended</Badge>;
       default:
-        return <Badge variant="secondary">{status}</Badge>;
+        return <Badge variant="secondary">{typeof statusStr === 'string' ? statusStr : 'Unknown'}</Badge>;
     }
   };
 
-  const getOperationBadge = (operation: string) => {
-    switch (operation) {
+  const getOperationBadge = (operation: string | undefined | null) => {
+    // Make sure we have a string and not an object or null/undefined
+    const operationStr = typeof operation === 'string' ? operation : 'unknown';
+    
+    switch (operationStr.toLowerCase()) {
       case 'add':
-        return <Badge className="bg-green-500">Added</Badge>;
+        return <Badge className="bg-green-500 text-white">Added</Badge>;
       case 'deduct':
         return <Badge variant="destructive">Deducted</Badge>;
       case 'set':
         return <Badge variant="secondary">Set</Badge>;
       default:
-        return <Badge>{operation}</Badge>;
+        return <Badge>{typeof operationStr === 'string' ? operationStr : 'Unknown'}</Badge>;
     }
   };
 
@@ -420,7 +426,7 @@ const ClientManagement = () => {
                       <div className="flex items-center justify-between">
                         <span className="text-sm font-medium text-gray-500">Email Credits:</span>
                         <span className="text-sm font-semibold">
-                          {client.emailCredits !== null ? client.emailCredits.toLocaleString() : 'N/A'}
+                          {client.emailCredits !== null && client.emailCredits !== undefined ? client.emailCredits.toLocaleString() : 'N/A'}
                         </span>
                       </div>
                       <div className="flex items-center justify-between">
@@ -520,25 +526,25 @@ const ClientManagement = () => {
                       <div>
                         <p className="text-sm text-gray-500">Available Credits</p>
                         <p className="font-medium text-xl text-green-600">
-                          {selectedClient.emailCredits !== null ? selectedClient.emailCredits.toLocaleString() : 'N/A'}
+                          {selectedClient.emailCredits !== null && selectedClient.emailCredits !== undefined ? selectedClient.emailCredits.toLocaleString() : 'N/A'}
                         </p>
                       </div>
                       <div>
                         <p className="text-sm text-gray-500">Total Purchased</p>
                         <p className="font-medium">
-                          {selectedClient.emailCreditsPurchased !== null ? selectedClient.emailCreditsPurchased.toLocaleString() : 'N/A'}
+                          {selectedClient.emailCreditsPurchased !== null && selectedClient.emailCreditsPurchased !== undefined ? selectedClient.emailCreditsPurchased.toLocaleString() : 'N/A'}
                         </p>
                       </div>
                       <div>
                         <p className="text-sm text-gray-500">Total Used</p>
                         <p className="font-medium">
-                          {selectedClient.emailCreditsUsed !== null ? selectedClient.emailCreditsUsed.toLocaleString() : 'N/A'}
+                          {selectedClient.emailCreditsUsed !== null && selectedClient.emailCreditsUsed !== undefined ? selectedClient.emailCreditsUsed.toLocaleString() : 'N/A'}
                         </p>
                       </div>
                       <div>
                         <p className="text-sm text-gray-500">Total Spend</p>
                         <p className="font-medium">
-                          {selectedClient.totalSpend !== null ? `$${selectedClient.totalSpend.toLocaleString()}` : 'N/A'}
+                          {selectedClient.totalSpend !== null && selectedClient.totalSpend !== undefined ? `$${selectedClient.totalSpend.toLocaleString()}` : 'N/A'}
                         </p>
                       </div>
                     </div>
@@ -652,7 +658,7 @@ const ClientManagement = () => {
                                 <TableCell>{formatDate(record.createdAt)}</TableCell>
                                 <TableCell>{getOperationBadge(record.operation)}</TableCell>
                                 <TableCell className="font-semibold">
-                                  {record.operation === 'deduct' ? '-' : ''}{record.amount.toLocaleString()}
+                                  {record.operation === 'deduct' ? '-' : ''}{record.amount !== null && record.amount !== undefined ? record.amount.toLocaleString() : '0'}
                                 </TableCell>
                                 <TableCell>{record.reason || 'N/A'}</TableCell>
                                 <TableCell>{record.performedBy || 'System'}</TableCell>
