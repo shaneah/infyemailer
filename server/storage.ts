@@ -663,10 +663,49 @@ export class MemStorage implements IStorage {
     return updatedClient;
   }
   
-  async getClientEmailCreditsHistory(clientId: number): Promise<ClientEmailCreditsHistory[]> {
-    return Array.from(this.clientEmailCreditsHistory.values())
-      .filter(history => history.clientId === clientId)
-      .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
+  async getClientEmailCreditsHistory(
+    clientId: number,
+    filters?: { 
+      start_date?: string; 
+      end_date?: string; 
+      type?: 'add' | 'deduct' | 'set' | ''; 
+      limit?: number;
+    }
+  ): Promise<ClientEmailCreditsHistory[]> {
+    let results = Array.from(this.clientEmailCreditsHistory.values())
+      .filter(history => history.clientId === clientId);
+    
+    // Apply filters if provided
+    if (filters) {
+      // Filter by start date
+      if (filters.start_date) {
+        const startDate = new Date(filters.start_date);
+        results = results.filter(history => history.createdAt >= startDate);
+      }
+      
+      // Filter by end date
+      if (filters.end_date) {
+        const endDate = new Date(filters.end_date);
+        // Set time to end of day for inclusive filtering
+        endDate.setHours(23, 59, 59, 999);
+        results = results.filter(history => history.createdAt <= endDate);
+      }
+      
+      // Filter by transaction type
+      if (filters.type && filters.type !== '') {
+        results = results.filter(history => history.type === filters.type);
+      }
+    }
+    
+    // Always sort by date (newest first)
+    results = results.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    
+    // Apply limit if provided
+    if (filters?.limit && filters.limit > 0) {
+      results = results.slice(0, filters.limit);
+    }
+    
+    return results;
   }
 
   // Contact methods
