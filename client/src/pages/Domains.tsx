@@ -607,29 +607,50 @@ export default function Domains() {
         <DialogContent className="sm:max-w-[525px]">
           <DialogHeader>
             <DialogTitle>Edit Domain</DialogTitle>
+            <p className="text-sm text-muted-foreground mt-1">
+              Manage domain settings, authentication records, and campaign associations
+            </p>
           </DialogHeader>
           
           {selectedDomain && (
             <Tabs defaultValue="details" className="w-full">
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="details">Domain Details</TabsTrigger>
-                <TabsTrigger value="authentication">Authentication</TabsTrigger>
-                <TabsTrigger value="campaigns">Campaigns</TabsTrigger>
+              <TabsList className="grid w-full grid-cols-3 mb-6">
+                <TabsTrigger value="details">
+                  <div className="flex items-center">
+                    <Globe className="h-4 w-4 mr-2" />
+                    <span>Details</span>
+                  </div>
+                </TabsTrigger>
+                <TabsTrigger value="authentication">
+                  <div className="flex items-center">
+                    <ShieldCheck className="h-4 w-4 mr-2" />
+                    <span>Authentication</span>
+                  </div>
+                </TabsTrigger>
+                <TabsTrigger value="campaigns">
+                  <div className="flex items-center">
+                    <ArrowRight className="h-4 w-4 mr-2" />
+                    <span>Campaigns</span>
+                  </div>
+                </TabsTrigger>
               </TabsList>
               
-              <TabsContent value="details" className="mt-4">
-                <div className="grid gap-4 py-2">
-                  <div className="grid gap-2">
+              <TabsContent value="details">
+                <div className="space-y-4">
+                  <div className="grid gap-3">
                     <Label htmlFor="edit-domain-name">Domain Name</Label>
                     <Input
                       id="edit-domain-name"
                       value={selectedDomain.name}
                       onChange={(e) => setSelectedDomain({...selectedDomain, name: e.target.value})}
                     />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Used for sending emails to your subscribers
+                    </p>
                   </div>
                   
-                  <div className="grid gap-2">
-                    <Label htmlFor="edit-domain-status">Status</Label>
+                  <div className="grid gap-3">
+                    <Label htmlFor="edit-domain-status">Domain Status</Label>
                     <select
                       id="edit-domain-status"
                       className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
@@ -643,40 +664,48 @@ export default function Domains() {
                     </select>
                   </div>
                   
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center justify-between py-2 px-3 border rounded-lg">
+                    <div>
+                      <h4 className="font-medium text-sm">Domain Verification</h4>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Use an email provider to verify this domain
+                      </p>
+                    </div>
                     <Button 
                       variant="outline" 
-                      className="w-full"
-                      onClick={() => {
-                        setVerifyDialogOpen(true);
-                      }}
+                      onClick={() => setVerifyDialogOpen(true)}
                     >
                       <CheckCircle className="mr-2 h-4 w-4" />
                       Verify Domain
                     </Button>
                   </div>
                   
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-2 py-2">
                     <Switch
                       id="edit-default-domain"
                       checked={selectedDomain.defaultDomain}
                       onCheckedChange={(checked) => setSelectedDomain({...selectedDomain, defaultDomain: checked})}
                     />
-                    <Label htmlFor="edit-default-domain">Set as Default Domain</Label>
+                    <div>
+                      <Label htmlFor="edit-default-domain">Set as Default Domain</Label>
+                      <p className="text-xs text-muted-foreground">
+                        Used automatically for new campaigns if no domain is selected
+                      </p>
+                    </div>
                   </div>
                 </div>
                 
-                <DialogFooter className="mt-4">
+                <DialogFooter className="mt-6">
                   <Button variant="outline" onClick={() => setEditDialogOpen(false)}>Cancel</Button>
                   <Button onClick={handleUpdateDomain}>Update Domain</Button>
                 </DialogFooter>
               </TabsContent>
               
-              <TabsContent value="authentication" className="mt-4">
-                <div className="space-y-4">
+              <TabsContent value="authentication">
+                <div className="space-y-6">
                   <div className="bg-muted p-4 rounded-lg">
-                    <h3 className="text-sm font-semibold mb-2 flex items-center">
-                      <span className="mr-2">DKIM Settings</span>
+                    <h3 className="text-sm font-semibold mb-3 flex items-center">
+                      <span className="mr-2">DKIM Authentication</span>
                       <Badge variant={selectedDomain.dkimVerified ? "success" : "outline"} className="ml-auto">
                         {selectedDomain.dkimVerified ? 
                           <><Check className="mr-1 h-3 w-3" /> Verified</> : 
@@ -685,7 +714,7 @@ export default function Domains() {
                       </Badge>
                     </h3>
                     
-                    <div className="space-y-2 text-sm">
+                    <div className="space-y-3 text-sm">
                       <div>
                         <Label htmlFor="dkim-selector" className="text-xs">DKIM Selector</Label>
                         <Input 
@@ -725,8 +754,8 @@ export default function Domains() {
                   </div>
                   
                   <div className="bg-muted p-4 rounded-lg">
-                    <h3 className="text-sm font-semibold mb-2 flex items-center">
-                      <span className="mr-2">SPF Settings</span>
+                    <h3 className="text-sm font-semibold mb-3 flex items-center">
+                      <span className="mr-2">SPF Authentication</span>
                       <Badge variant={selectedDomain.spfVerified ? "success" : "outline"} className="ml-auto">
                         {selectedDomain.spfVerified ? 
                           <><Check className="mr-1 h-3 w-3" /> Verified</> : 
@@ -735,7 +764,7 @@ export default function Domains() {
                       </Badge>
                     </h3>
                     
-                    <div className="space-y-2 text-sm">
+                    <div className="space-y-3 text-sm">
                       <div>
                         <Label className="text-xs">DNS Record Type</Label>
                         <div className="bg-background p-2 rounded border mt-1">TXT</div>
@@ -765,8 +794,8 @@ export default function Domains() {
                   </div>
                   
                   <div className="bg-muted p-4 rounded-lg">
-                    <h3 className="text-sm font-semibold mb-2 flex items-center">
-                      <span className="mr-2">DMARC Settings</span>
+                    <h3 className="text-sm font-semibold mb-3 flex items-center">
+                      <span className="mr-2">DMARC Authentication</span>
                       <Badge variant={selectedDomain.dmarcVerified ? "success" : "outline"} className="ml-auto">
                         {selectedDomain.dmarcVerified ? 
                           <><Check className="mr-1 h-3 w-3" /> Verified</> : 
@@ -775,7 +804,7 @@ export default function Domains() {
                       </Badge>
                     </h3>
                     
-                    <div className="space-y-2 text-sm">
+                    <div className="space-y-3 text-sm">
                       <div>
                         <Label className="text-xs">DNS Record Type</Label>
                         <div className="bg-background p-2 rounded border mt-1">TXT</div>
@@ -805,40 +834,55 @@ export default function Domains() {
                   </div>
                 </div>
                 
-                <DialogFooter className="mt-4">
+                <DialogFooter className="mt-6">
                   <Button variant="outline" onClick={() => setEditDialogOpen(false)}>Cancel</Button>
                   <Button onClick={handleUpdateDomain}>Update Authentication</Button>
                 </DialogFooter>
               </TabsContent>
               
-              <TabsContent value="campaigns" className="mt-4">
-                <h3 className="text-sm font-medium mb-2">Campaigns using this domain</h3>
-                
-                {domainCampaigns.length > 0 ? (
-                  <ScrollArea className="h-[200px]">
-                    <div className="space-y-2">
-                      {domainCampaigns.map((campaign: Campaign) => (
-                        <Card key={campaign.id} className="p-2">
-                          <div className="flex justify-between items-center">
-                            <div>
-                              <h4 className="text-sm font-medium">{campaign.name}</h4>
-                              <p className="text-xs text-muted-foreground">{campaign.subject}</p>
-                            </div>
-                            <Badge variant="outline" className={getStatusColor(campaign.status) + " text-white"}>
-                              {campaign.status}
-                            </Badge>
-                          </div>
-                        </Card>
-                      ))}
-                    </div>
-                  </ScrollArea>
-                ) : (
-                  <div className="text-center py-8 text-muted-foreground">
-                    <p>No campaigns are using this domain</p>
+              <TabsContent value="campaigns">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-sm font-medium">Campaigns using this domain</h3>
+                    {domainCampaigns.length > 0 && (
+                      <Badge variant="outline">{domainCampaigns.length} campaign(s)</Badge>
+                    )}
                   </div>
-                )}
+                  
+                  {domainCampaigns.length > 0 ? (
+                    <div className="border rounded-md">
+                      <ScrollArea className="h-[240px]">
+                        <div className="divide-y">
+                          {domainCampaigns.map((campaign: Campaign) => (
+                            <div key={campaign.id} className="p-3 hover:bg-accent">
+                              <div className="flex justify-between items-center">
+                                <div>
+                                  <h4 className="text-sm font-medium">{campaign.name}</h4>
+                                  <p className="text-xs text-muted-foreground mt-1">{campaign.subject}</p>
+                                </div>
+                                <Badge variant="outline" className={getStatusColor(campaign.status) + " text-white"}>
+                                  {campaign.status}
+                                </Badge>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </ScrollArea>
+                    </div>
+                  ) : (
+                    <div className="text-center py-10 px-4 border rounded-lg">
+                      <div className="mx-auto w-12 h-12 rounded-full bg-muted flex items-center justify-center mb-3">
+                        <ArrowRight className="h-6 w-6 text-muted-foreground" />
+                      </div>
+                      <h4 className="text-sm font-medium mb-1">No campaigns found</h4>
+                      <p className="text-xs text-muted-foreground max-w-[240px] mx-auto">
+                        This domain is not being used by any campaigns at the moment.
+                      </p>
+                    </div>
+                  )}
+                </div>
                 
-                <DialogFooter className="mt-4">
+                <DialogFooter className="mt-6">
                   <Button variant="outline" onClick={() => setEditDialogOpen(false)}>Close</Button>
                 </DialogFooter>
               </TabsContent>
