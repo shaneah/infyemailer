@@ -1,110 +1,155 @@
-import axios from 'axios';
-import { 
-  IEmailProvider, 
-  SendEmailParams, 
-  VerifyDomainParams, 
-  DomainVerificationResult, 
+import {
+  IEmailProvider,
+  SendEmailParams,
+  VerifyDomainParams,
+  DomainVerificationResult,
   AuthenticationRequirement,
   SupportedFeatures
 } from './IEmailProvider';
+import axios from 'axios';
 
 /**
- * SendClean Email Provider Implementation
+ * SendClean API provider implementation
  */
 export class SendCleanProvider implements IEmailProvider {
   private apiKey: string;
-  private apiUrl: string = 'https://api.sendclean.com/v1';
+  private baseUrl: string = 'https://api.sendclean.com/v1';
 
   constructor(apiKey: string) {
     this.apiKey = apiKey;
   }
 
+  /**
+   * Get the provider name
+   */
   getName(): string {
     return 'SendClean';
   }
 
+  /**
+   * Send an email via SendClean API
+   */
   async sendEmail(params: SendEmailParams): Promise<boolean> {
     try {
+      const { from, to, subject, text, html } = params;
+      
       const response = await axios.post(
-        `${this.apiUrl}/email/send`,
+        `${this.baseUrl}/email/send`,
         {
-          to: params.to,
-          from: params.from,
-          subject: params.subject,
-          text: params.text,
-          html: params.html,
+          from,
+          to,
+          subject,
+          text_content: text,
+          html_content: html
         },
         {
           headers: {
-            'Authorization': `Bearer ${this.apiKey}`,
             'Content-Type': 'application/json',
-          },
+            'Authorization': `Bearer ${this.apiKey}`
+          }
         }
       );
-
-      return response.status === 200;
+      
+      return response.status === 200 && response.data.success === true;
     } catch (error) {
-      console.error('SendClean email sending error:', error);
+      console.error('SendClean API error:', error);
       return false;
     }
   }
 
+  /**
+   * Verify domain authentication settings
+   */
   async verifyDomainAuthentication(params: VerifyDomainParams): Promise<DomainVerificationResult> {
     try {
-      const response = await axios.get(
-        `${this.apiUrl}/domains/${params.domain}/verification`,
+      const { domain, dkimSelector } = params;
+      
+      // Construct verification payload
+      const verificationPayload = {
+        domain,
+        dkim_selector: dkimSelector || 'default'
+      };
+      
+      // Make API request to verify domain
+      const response = await axios.post(
+        `${this.baseUrl}/domains/verify`,
+        verificationPayload,
         {
           headers: {
-            'Authorization': `Bearer ${this.apiKey}`,
             'Content-Type': 'application/json',
-          },
+            'Authorization': `Bearer ${this.apiKey}`
+          }
         }
       );
-
-      // Parse the response based on SendClean's API structure
-      const data = response.data;
       
-      return {
-        domain: params.domain,
-        dkimVerified: data?.dkim?.verified || false,
-        spfVerified: data?.spf?.verified || false,
-        dmarcVerified: data?.dmarc?.verified || false,
-        dkimDetails: data?.dkim?.selector ? {
-          selector: data.dkim.selector,
-          value: data.dkim.value || ''
-        } : undefined,
-        spfDetails: data?.spf?.value ? {
-          value: data.spf.value
-        } : undefined,
-        dmarcDetails: data?.dmarc?.value ? {
-          value: data.dmarc.value
-        } : undefined,
-        errors: data?.errors || []
+      const responseData = response.data;
+      
+      // Construct verification result
+      const result: DomainVerificationResult = {
+        domain,
+        dkimVerified: responseData.dkim_verified || false,
+        spfVerified: responseData.spf_verified || false,
+        dmarcVerified: responseData.dmarc_verified || false
       };
+      
+      // Add detailed info if available
+      if (responseData.dkim_record) {
+        result.dkimDetails = {
+          selector: dkimSelector || 'default',
+          value: responseData.dkim_record
+        };
+      }
+      
+      if (responseData.spf_record) {
+        result.spfDetails = {
+          value: responseData.spf_record
+        };
+      }
+      
+      if (responseData.dmarc_record) {
+        result.dmarcDetails = {
+          value: responseData.dmarc_record
+        };
+      }
+      
+      // Add any errors if present
+      if (responseData.errors && responseData.errors.length > 0) {
+        result.errors = responseData.errors;
+      }
+      
+      return result;
     } catch (error) {
       console.error('SendClean domain verification error:', error);
       
-      // Return a default result structure with verification failed
+      // Return failed verification with error details
       return {
         domain: params.domain,
         dkimVerified: false,
         spfVerified: false,
         dmarcVerified: false,
-        errors: ['Could not connect to SendClean API']
+        errors: [
+          error instanceof Error ? error.message : 'Unknown error during domain verification'
+        ]
       };
     }
   }
 
+  /**
+   * Get authentication requirements for SendClean
+   */
   getAuthenticationRequirements(): AuthenticationRequirement[] {
     return [
       {
         name: 'apiKey',
         description: 'SendClean API Key',
-        required: true,
+        required: true
       }
     ];
   }
 
+  /**
+   * Get features supported by SendClean
+   */
   getSupportedFeatures(): SupportedFeatures {
     return {
       transactionalEmail: true,
