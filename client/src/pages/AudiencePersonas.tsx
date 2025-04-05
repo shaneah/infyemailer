@@ -551,12 +551,10 @@ const AudiencePersonas: React.FC = () => {
                 <p className="text-muted-foreground mb-6">
                   Select a persona from the list or create a new one to get started
                 </p>
-                <DialogTrigger asChild>
-                  <Button variant="outline" onClick={() => setIsPersonaDialogOpen(true)}>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Create Persona
-                  </Button>
-                </DialogTrigger>
+                <Button variant="outline" onClick={() => setIsPersonaDialogOpen(true)}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create Persona
+                </Button>
               </CardContent>
             </Card>
           ) : (
