@@ -22,6 +22,7 @@ import {
   Clock, 
   Trash, 
   RefreshCw, 
+  RotateCw,
   Edit,
   CheckCircle, 
   Plus, 
@@ -766,13 +767,21 @@ export default function Domains() {
                           </div>
                         </div>
                         
-                        <div className="flex items-center space-x-2 mt-2 pt-1 border-t">
-                          <Switch
-                            id="dkim-verified"
-                            checked={selectedDomain.dkimVerified}
-                            onCheckedChange={(checked) => setSelectedDomain({...selectedDomain, dkimVerified: checked})}
-                          />
-                          <Label htmlFor="dkim-verified">Mark as Verified</Label>
+                        <div className="flex items-center mt-2 pt-1 border-t">
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            className="text-xs"
+                            onClick={() => {
+                              toast({
+                                title: "DNS Check Started",
+                                description: "The system is checking your DNS records. This may take a few minutes.",
+                              });
+                            }}
+                          >
+                            <RotateCw className="mr-1 h-3.5 w-3.5" />
+                            Check DNS Record
+                          </Button>
                         </div>
                       </div>
                     </div>
@@ -816,13 +825,21 @@ export default function Domains() {
                           </p>
                         </div>
                         
-                        <div className="flex items-center space-x-2 mt-2 pt-1 border-t">
-                          <Switch
-                            id="spf-verified"
-                            checked={selectedDomain.spfVerified}
-                            onCheckedChange={(checked) => setSelectedDomain({...selectedDomain, spfVerified: checked})}
-                          />
-                          <Label htmlFor="spf-verified">Mark as Verified</Label>
+                        <div className="flex items-center mt-2 pt-1 border-t">
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            className="text-xs"
+                            onClick={() => {
+                              toast({
+                                title: "SPF Check Started",
+                                description: "The system is checking your SPF record. This may take a few minutes.",
+                              });
+                            }}
+                          >
+                            <RotateCw className="mr-1 h-3.5 w-3.5" />
+                            Check DNS Record
+                          </Button>
                         </div>
                       </div>
                     </div>
@@ -866,13 +883,21 @@ export default function Domains() {
                           </p>
                         </div>
                         
-                        <div className="flex items-center space-x-2 mt-2 pt-1 border-t">
-                          <Switch
-                            id="dmarc-verified"
-                            checked={selectedDomain.dmarcVerified}
-                            onCheckedChange={(checked) => setSelectedDomain({...selectedDomain, dmarcVerified: checked})}
-                          />
-                          <Label htmlFor="dmarc-verified">Mark as Verified</Label>
+                        <div className="flex items-center mt-2 pt-1 border-t">
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            className="text-xs"
+                            onClick={() => {
+                              toast({
+                                title: "DMARC Check Started",
+                                description: "The system is checking your DMARC record. This may take a few minutes.",
+                              });
+                            }}
+                          >
+                            <RotateCw className="mr-1 h-3.5 w-3.5" />
+                            Check DNS Record
+                          </Button>
                         </div>
                       </div>
                     </div>
