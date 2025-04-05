@@ -13,6 +13,10 @@ export const clients = pgTable("clients", {
   industry: text("industry"),
   createdAt: timestamp("created_at").defaultNow(),
   totalSpend: integer("total_spend").default(0),
+  emailCredits: integer("email_credits").default(0),
+  emailCreditsPurchased: integer("email_credits_purchased").default(0),
+  emailCreditsUsed: integer("email_credits_used").default(0),
+  lastCreditUpdateAt: timestamp("last_credit_update_at"),
   lastCampaignAt: timestamp("last_campaign_at"),
   avatar: text("avatar"),
   metadata: json("metadata")
@@ -25,6 +29,9 @@ export const insertClientSchema = createInsertSchema(clients).pick({
   status: true,
   industry: true,
   totalSpend: true,
+  emailCredits: true,
+  emailCreditsPurchased: true,
+  emailCreditsUsed: true,
   avatar: true,
   metadata: true,
 });
@@ -589,3 +596,33 @@ export const campaignsTrackingRelations = {
   engagementMetrics: { relationName: "campaign_to_engagementMetrics", fields: [campaigns.id], references: [engagementMetrics.campaignId] },
   linkTracking: { relationName: "campaign_to_linkTracking", fields: [campaigns.id], references: [linkTracking.campaignId] }
 };
+
+// Client Email Credits History schema
+export const clientEmailCreditsHistory = pgTable("client_email_credits_history", {
+  id: serial("id").primaryKey(),
+  clientId: integer("client_id").notNull().references(() => clients.id),
+  amount: integer("amount").notNull(),
+  type: text("type").notNull(), // 'add', 'deduct', 'set'
+  previousBalance: integer("previous_balance").notNull(),
+  newBalance: integer("new_balance").notNull(),
+  reason: text("reason"),
+  createdAt: timestamp("created_at").defaultNow(),
+  metadata: json("metadata")
+});
+
+export const insertClientEmailCreditsHistorySchema = createInsertSchema(clientEmailCreditsHistory).pick({
+  clientId: true,
+  amount: true,
+  type: true,
+  previousBalance: true,
+  newBalance: true,
+  reason: true,
+  metadata: true,
+});
+
+export type InsertClientEmailCreditsHistory = z.infer<typeof insertClientEmailCreditsHistorySchema>;
+export type ClientEmailCreditsHistory = typeof clientEmailCreditsHistory.$inferSelect;
+
+export const clientEmailCreditsHistoryRelations = defineRelations(clientEmailCreditsHistory, {
+  client: { relationName: "clientEmailCreditsHistory_to_client", fields: [clientEmailCreditsHistory.clientId], references: [clients.id] }
+});

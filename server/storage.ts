@@ -16,7 +16,8 @@ import {
   ClickEvent, InsertClickEvent,
   OpenEvent, InsertOpenEvent,
   EngagementMetrics, InsertEngagementMetrics,
-  LinkTracking, InsertLinkTracking
+  LinkTracking, InsertLinkTracking,
+  ClientEmailCreditsHistory, InsertClientEmailCreditsHistory
 } from "@shared/schema";
 
 // Interface for storage operations
@@ -39,6 +40,20 @@ export interface IStorage {
   updateClient(id: number, client: Partial<Client>): Promise<Client | undefined>;
   deleteClient(id: number): Promise<boolean>;
   getClientCampaigns(clientId: number): Promise<Campaign[]>;
+  
+  // Client Email Credits methods
+  updateClientEmailCredits(id: number, emailCredits: number): Promise<Client | undefined>;
+  addClientEmailCredits(id: number, emailCredits: number): Promise<Client | undefined>;
+  deductClientEmailCredits(id: number, emailCredits: number): Promise<Client | undefined>;
+  getClientEmailCreditsHistory(
+    clientId: number, 
+    filters?: { 
+      start_date?: string; 
+      end_date?: string; 
+      type?: 'add' | 'deduct' | 'set' | ''; 
+      limit?: number;
+    }
+  ): Promise<ClientEmailCreditsHistory[]>;
 
   // Contact methods
   getContacts(): Promise<Contact[]>;
@@ -538,6 +553,120 @@ export class MemStorage implements IStorage {
   async getClientCampaigns(clientId: number): Promise<Campaign[]> {
     return Array.from(this.campaigns.values())
       .filter(campaign => campaign.clientId === clientId);
+  }
+  
+  // Client Email Credits methods
+  private clientEmailCreditsHistory: Map<number, ClientEmailCreditsHistory> = new Map();
+  private lastCreditsHistoryId = 0;
+  
+  async updateClientEmailCredits(id: number, emailCredits: number): Promise<Client | undefined> {
+    const client = await this.getClient(id);
+    if (!client) return undefined;
+    
+    // Create history record
+    const historyId = ++this.lastCreditsHistoryId;
+    const history: ClientEmailCreditsHistory = {
+      id: historyId,
+      clientId: id,
+      amount: emailCredits - (client.emailCredits || 0),
+      type: 'set',
+      previousBalance: client.emailCredits || 0,
+      newBalance: emailCredits,
+      reason: 'Manual adjustment',
+      createdAt: new Date(),
+      metadata: { action: 'set', adminAction: true }
+    };
+    this.clientEmailCreditsHistory.set(historyId, history);
+    
+    // Update client record
+    const updatedClient: Client = {
+      ...client,
+      emailCredits: emailCredits,
+      lastCreditUpdateAt: new Date()
+    };
+    this.clients.set(id, updatedClient);
+    
+    return updatedClient;
+  }
+  
+  async addClientEmailCredits(id: number, emailCredits: number): Promise<Client | undefined> {
+    const client = await this.getClient(id);
+    if (!client) return undefined;
+    
+    const currentCredits = client.emailCredits || 0;
+    const newBalance = currentCredits + emailCredits;
+    
+    // Create history record
+    const historyId = ++this.lastCreditsHistoryId;
+    const history: ClientEmailCreditsHistory = {
+      id: historyId,
+      clientId: id,
+      amount: emailCredits,
+      type: 'add',
+      previousBalance: currentCredits,
+      newBalance: newBalance,
+      reason: 'Credits added',
+      createdAt: new Date(),
+      metadata: { action: 'add', adminAction: true }
+    };
+    this.clientEmailCreditsHistory.set(historyId, history);
+    
+    // Update client record
+    const updatedClient: Client = {
+      ...client,
+      emailCredits: newBalance,
+      emailCreditsPurchased: (client.emailCreditsPurchased || 0) + emailCredits,
+      lastCreditUpdateAt: new Date()
+    };
+    this.clients.set(id, updatedClient);
+    
+    return updatedClient;
+  }
+  
+  async deductClientEmailCredits(id: number, emailCredits: number): Promise<Client | undefined> {
+    const client = await this.getClient(id);
+    if (!client) return undefined;
+    
+    const currentCredits = client.emailCredits || 0;
+    
+    // Check if client has enough credits
+    if (currentCredits < emailCredits) {
+      throw new Error('Insufficient email credits');
+    }
+    
+    const newBalance = currentCredits - emailCredits;
+    
+    // Create history record
+    const historyId = ++this.lastCreditsHistoryId;
+    const history: ClientEmailCreditsHistory = {
+      id: historyId,
+      clientId: id,
+      amount: emailCredits,
+      type: 'deduct',
+      previousBalance: currentCredits,
+      newBalance: newBalance,
+      reason: 'Credits used',
+      createdAt: new Date(),
+      metadata: { action: 'deduct', systemAction: true }
+    };
+    this.clientEmailCreditsHistory.set(historyId, history);
+    
+    // Update client record
+    const updatedClient: Client = {
+      ...client,
+      emailCredits: newBalance,
+      emailCreditsUsed: (client.emailCreditsUsed || 0) + emailCredits,
+      lastCreditUpdateAt: new Date()
+    };
+    this.clients.set(id, updatedClient);
+    
+    return updatedClient;
+  }
+  
+  async getClientEmailCreditsHistory(clientId: number): Promise<ClientEmailCreditsHistory[]> {
+    return Array.from(this.clientEmailCreditsHistory.values())
+      .filter(history => history.clientId === clientId)
+      .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
   }
 
   // Contact methods

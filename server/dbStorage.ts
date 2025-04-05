@@ -13,8 +13,13 @@ import {
   Client, InsertClient,
   ClientUser, InsertClientUser,
   User, InsertUser,
+  ClientEmailCreditsHistory, InsertClientEmailCreditsHistory,
   users, contacts, lists, contactLists, campaigns, emails, templates, analytics,
-  campaignVariants, variantAnalytics, domains, campaignDomains, clients, clientUsers
+  campaignVariants, variantAnalytics, domains, campaignDomains, clients, clientUsers,
+  clientEmailCreditsHistory,
+  clickEvents, openEvents, engagementMetrics, linkTracking,
+  InsertClickEvent, InsertOpenEvent, InsertEngagementMetrics, InsertLinkTracking,
+  ClickEvent, OpenEvent, EngagementMetrics, LinkTracking
 } from '@shared/schema';
 import { IStorage } from './storage';
 import { db } from './db';
@@ -150,6 +155,112 @@ export class DbStorage implements IStorage {
 
   async getClientCampaigns(clientId: number): Promise<Campaign[]> {
     return await db.select().from(campaigns).where(eq(campaigns.clientId, clientId));
+  }
+  
+  // Client email credits methods
+  async updateClientEmailCredits(id: number, emailCredits: number): Promise<Client | undefined> {
+    const client = await this.getClient(id);
+    if (!client) return undefined;
+    
+    // Create history record
+    await db.insert(clientEmailCreditsHistory).values({
+      clientId: id,
+      amount: emailCredits - (client.emailCredits || 0),
+      type: 'set',
+      previousBalance: client.emailCredits || 0,
+      newBalance: emailCredits,
+      reason: 'Manual adjustment',
+      createdAt: new Date(),
+      metadata: { action: 'set', adminAction: true }
+    });
+    
+    // Update client record
+    const result = await db.update(clients)
+      .set({ 
+        emailCredits: emailCredits,
+        lastCreditUpdateAt: new Date()
+      })
+      .where(eq(clients.id, id))
+      .returning();
+    
+    return result[0];
+  }
+  
+  async addClientEmailCredits(id: number, emailCredits: number): Promise<Client | undefined> {
+    const client = await this.getClient(id);
+    if (!client) return undefined;
+    
+    const currentCredits = client.emailCredits || 0;
+    const newBalance = currentCredits + emailCredits;
+    
+    // Create history record
+    await db.insert(clientEmailCreditsHistory).values({
+      clientId: id,
+      amount: emailCredits,
+      type: 'add',
+      previousBalance: currentCredits,
+      newBalance: newBalance,
+      reason: 'Credits added',
+      createdAt: new Date(),
+      metadata: { action: 'add', adminAction: true }
+    });
+    
+    // Update client record
+    const result = await db.update(clients)
+      .set({ 
+        emailCredits: newBalance,
+        emailCreditsPurchased: (client.emailCreditsPurchased || 0) + emailCredits,
+        lastCreditUpdateAt: new Date()
+      })
+      .where(eq(clients.id, id))
+      .returning();
+    
+    return result[0];
+  }
+  
+  async deductClientEmailCredits(id: number, emailCredits: number): Promise<Client | undefined> {
+    const client = await this.getClient(id);
+    if (!client) return undefined;
+    
+    const currentCredits = client.emailCredits || 0;
+    
+    // Check if client has enough credits
+    if (currentCredits < emailCredits) {
+      throw new Error('Insufficient email credits');
+    }
+    
+    const newBalance = currentCredits - emailCredits;
+    
+    // Create history record
+    await db.insert(clientEmailCreditsHistory).values({
+      clientId: id,
+      amount: emailCredits,
+      type: 'deduct',
+      previousBalance: currentCredits,
+      newBalance: newBalance,
+      reason: 'Credits used',
+      createdAt: new Date(),
+      metadata: { action: 'deduct', systemAction: true }
+    });
+    
+    // Update client record
+    const result = await db.update(clients)
+      .set({ 
+        emailCredits: newBalance,
+        emailCreditsUsed: (client.emailCreditsUsed || 0) + emailCredits,
+        lastCreditUpdateAt: new Date()
+      })
+      .where(eq(clients.id, id))
+      .returning();
+    
+    return result[0];
+  }
+  
+  async getClientEmailCreditsHistory(clientId: number): Promise<ClientEmailCreditsHistory[]> {
+    return await db.select()
+      .from(clientEmailCreditsHistory)
+      .where(eq(clientEmailCreditsHistory.clientId, clientId))
+      .orderBy(clientEmailCreditsHistory.createdAt);
   }
 
   // Contact methods

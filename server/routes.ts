@@ -6,6 +6,7 @@ import { setupAuth, hashPassword, comparePasswords } from "./auth";
 import { EmailValidationService } from "./services/emailValidation";
 import { trackingService } from "./services/trackingService";
 import { emailSchema } from "../shared/validation";
+import { z } from "zod";
 import { registerEmailProviderRoutes } from "./routes/emailProviders";
 import { 
   insertContactSchema, 
@@ -1315,6 +1316,154 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error deleting client:', error);
       res.status(500).json({ error: 'Failed to delete client' });
+    }
+  });
+  
+  // Email Credits Management Endpoints
+  
+  // Schema for email credits history query filters
+  const emailCreditsHistoryQuerySchema = z.object({
+    start_date: z.string().optional().describe('Filter history from this date (format: YYYY-MM-DD)'),
+    end_date: z.string().optional().describe('Filter history until this date (format: YYYY-MM-DD)'),
+    type: z.enum(['add', 'deduct', 'set', '']).optional().describe('Filter by transaction type'),
+    limit: z.coerce.number().min(1).max(100).optional().default(50).describe('Maximum number of records to return')
+  });
+
+  // Get client's email credits history
+  app.get('/api/clients/:id/email-credits/history', async (req: Request, res: Response) => {
+    try {
+      const clientId = parseInt(req.params.id);
+      const client = await storage.getClient(clientId);
+      
+      if (!client) {
+        return res.status(404).json({ error: 'Client not found' });
+      }
+      
+      // Validate query parameters
+      const validationResult = emailCreditsHistoryQuerySchema.safeParse(req.query);
+      if (!validationResult.success) {
+        return res.status(400).json({ 
+          error: 'Invalid query parameters', 
+          details: validationResult.error.format() 
+        });
+      }
+      
+      // For now, we're ignoring the filters since the storage implementation
+      // would need to be updated to support them
+      const creditsHistory = await storage.getClientEmailCreditsHistory(clientId);
+      res.json(creditsHistory);
+    } catch (error) {
+      console.error('Error getting client email credits history:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+  
+  // Add email credits to a client
+  // Schema for email credits operations
+  const emailCreditsSchema = z.object({
+    amount: z.number().min(1).describe('Number of credits to add'),
+    reason: z.string().optional().describe('Reason for the credit adjustment')
+  });
+
+  app.post('/api/clients/:id/email-credits/add', async (req: Request, res: Response) => {
+    try {
+      const clientId = parseInt(req.params.id);
+      
+      // Validate request data
+      const validationResult = emailCreditsSchema.safeParse(req.body);
+      if (!validationResult.success) {
+        return res.status(400).json({ 
+          error: 'Validation failed', 
+          details: validationResult.error.format() 
+        });
+      }
+      
+      const { amount, reason } = validationResult.data;
+      
+      const client = await storage.getClient(clientId);
+      
+      if (!client) {
+        return res.status(404).json({ error: 'Client not found' });
+      }
+      
+      const updatedClient = await storage.addClientEmailCredits(clientId, amount);
+      res.json(updatedClient);
+    } catch (error) {
+      console.error('Error adding email credits:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+  
+  // Deduct email credits from a client
+  app.post('/api/clients/:id/email-credits/deduct', async (req: Request, res: Response) => {
+    try {
+      const clientId = parseInt(req.params.id);
+      
+      // Validate request data
+      const validationResult = emailCreditsSchema.safeParse(req.body);
+      if (!validationResult.success) {
+        return res.status(400).json({ 
+          error: 'Validation failed', 
+          details: validationResult.error.format() 
+        });
+      }
+      
+      const { amount, reason } = validationResult.data;
+      
+      const client = await storage.getClient(clientId);
+      
+      if (!client) {
+        return res.status(404).json({ error: 'Client not found' });
+      }
+      
+      try {
+        const updatedClient = await storage.deductClientEmailCredits(clientId, amount);
+        res.json(updatedClient);
+      } catch (error) {
+        if (error instanceof Error && error.message === 'Insufficient email credits') {
+          return res.status(400).json({ error: 'Insufficient email credits' });
+        }
+        throw error;
+      }
+    } catch (error) {
+      console.error('Error deducting email credits:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+  
+  // Set email credits for a client (override)
+  // Create a schema for set credits that allows 0 (unlike add/deduct)
+  const setEmailCreditsSchema = z.object({
+    amount: z.number().min(0).describe('Number of credits to set'),
+    reason: z.string().optional().describe('Reason for the credit adjustment')
+  });
+
+  app.post('/api/clients/:id/email-credits/set', async (req: Request, res: Response) => {
+    try {
+      const clientId = parseInt(req.params.id);
+      
+      // Validate request data
+      const validationResult = setEmailCreditsSchema.safeParse(req.body);
+      if (!validationResult.success) {
+        return res.status(400).json({ 
+          error: 'Validation failed', 
+          details: validationResult.error.format() 
+        });
+      }
+      
+      const { amount, reason } = validationResult.data;
+      
+      const client = await storage.getClient(clientId);
+      
+      if (!client) {
+        return res.status(404).json({ error: 'Client not found' });
+      }
+      
+      const updatedClient = await storage.updateClientEmailCredits(clientId, amount);
+      res.json(updatedClient);
+    } catch (error) {
+      console.error('Error setting email credits:', error);
+      res.status(500).json({ error: 'Internal server error' });
     }
   });
 
