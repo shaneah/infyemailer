@@ -1321,6 +1321,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Email Credits Management Endpoints
   
+  // Get remaining email credits for a client
+  app.get('/api/clients/:id/email-credits/remaining', async (req: Request, res: Response) => {
+    try {
+      const clientId = parseInt(req.params.id);
+      
+      const client = await storage.getClient(clientId);
+      
+      if (!client) {
+        return res.status(404).json({ error: 'Client not found' });
+      }
+      
+      // Calculate remaining credits
+      const totalCredits = client.emailCredits || 0;
+      const usedCredits = client.emailCreditsUsed || 0;
+      const remainingCredits = totalCredits - usedCredits;
+      
+      res.json({
+        clientId,
+        totalCredits,
+        usedCredits,
+        remainingCredits,
+        lastUpdated: client.lastCreditUpdateAt
+      });
+    } catch (error) {
+      console.error('Error getting remaining email credits:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+  
   // Schema for email credits history query filters
   const emailCreditsHistoryQuerySchema = z.object({
     start_date: z.string().optional().describe('Filter history from this date (format: YYYY-MM-DD)'),

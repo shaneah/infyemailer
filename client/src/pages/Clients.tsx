@@ -16,7 +16,8 @@ import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { Building, PlusCircle, User, Mail, DollarSign, Briefcase, Trash2, Edit } from 'lucide-react';
+import { Building, PlusCircle, User, Mail, DollarSign, Briefcase, Trash2, Edit, CreditCard } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 
 // Client form schema 
@@ -48,6 +49,43 @@ const ClientsPage: React.FC = () => {
     queryKey: ['/api/clients'],
     staleTime: 1000 * 60, // 1 minute
   });
+  
+  // Custom hook to fetch email credits for a client
+  const useClientEmailCredits = (clientId: number) => {
+    return useQuery({
+      queryKey: [`/api/clients/${clientId}/email-credits/remaining`],
+      staleTime: 1000 * 60, // 1 minute
+      enabled: !!clientId, // Only run the query if clientId is provided
+    });
+  };
+  
+  // Email Credits Display Component
+  const EmailCreditsDisplay = ({ clientId }: { clientId: number }) => {
+    const { data, isLoading, isError } = useClientEmailCredits(clientId);
+    
+    if (isLoading) {
+      return <Skeleton className="h-4 w-24" />;
+    }
+    
+    if (isError) {
+      return <span className="text-red-500">Failed to load</span>;
+    }
+    
+    // Calculate the percentage used for the progress bar
+    const credits = data?.emailCredits || 0;
+    const total = data?.emailCreditsPurchased || 0;
+    const percentage = total > 0 ? (credits / total) * 100 : 0;
+    
+    return (
+      <div className="flex flex-col gap-1 w-full max-w-[150px]">
+        <div className="flex justify-between text-xs text-muted-foreground">
+          <span>{credits.toLocaleString()}</span>
+          <span>of {total.toLocaleString()}</span>
+        </div>
+        <Progress value={percentage} className="h-2" />
+      </div>
+    );
+  };
 
   // Add client mutation
   const addClientMutation = useMutation({
@@ -283,6 +321,70 @@ const ClientsPage: React.FC = () => {
     );
   }
 
+  // Add credits mutation
+  const addCreditsToClientMutation = useMutation({
+    mutationFn: async ({ clientId, credits }: { clientId: number; credits: number }) => {
+      return apiRequest(`/api/clients/${clientId}/email-credits/add`, {
+        method: 'POST',
+        body: JSON.stringify({ emailCredits: credits }),
+        headers: { 'Content-Type': 'application/json' }
+      });
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: [`/api/clients/${variables.clientId}/email-credits/remaining`] });
+      queryClient.invalidateQueries({ queryKey: ['/api/clients'] });
+      toast({
+        title: "Credits Added",
+        description: `${variables.credits} credits have been added to the client's account.`
+      });
+      setIsAddCreditsOpen(false);
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: `Failed to add credits: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        variant: "destructive"
+      });
+    }
+  });
+
+  // Total system credits
+  const [totalSystemCredits, setTotalSystemCredits] = useState(1000000); // Example value, could be fetched from the API
+  const [availableCredits, setAvailableCredits] = useState(750000); // Example value
+  
+  // State for add credits dialog
+  const [isAddCreditsOpen, setIsAddCreditsOpen] = useState(false);
+  const [selectedClientForCredits, setSelectedClientForCredits] = useState<any>(null);
+  
+  // Form setup for adding credits
+  const addCreditsForm = useForm({
+    resolver: zodResolver(
+      z.object({
+        credits: z.number().min(1, "Credits must be at least 1")
+      })
+    ),
+    defaultValues: {
+      credits: 1000
+    }
+  });
+  
+  // Handle add credits submission
+  function onSubmitAddCredits(data: { credits: number }) {
+    if (selectedClientForCredits) {
+      addCreditsToClientMutation.mutate({ 
+        clientId: selectedClientForCredits.id, 
+        credits: data.credits 
+      });
+    }
+  }
+  
+  // Open add credits dialog
+  function handleAddCredits(client: any) {
+    setSelectedClientForCredits(client);
+    addCreditsForm.reset({ credits: 1000 });
+    setIsAddCreditsOpen(true);
+  }
+
   return (
     <div className="container mx-auto py-6 space-y-8">
       <div className="flex justify-between items-center">
@@ -431,6 +533,62 @@ const ClientsPage: React.FC = () => {
         </Dialog>
       </div>
 
+      {/* Credits Management Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-xl flex items-center">
+              <CreditCard className="mr-2 h-5 w-5 text-primary" />
+              Available Email Credits
+            </CardTitle>
+            <CardDescription>Credits available to assign to clients</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="text-4xl font-bold">{availableCredits.toLocaleString()}</div>
+                <div className="text-sm text-muted-foreground">
+                  of {totalSystemCredits.toLocaleString()} total
+                </div>
+              </div>
+              <Progress value={availableCredits / totalSystemCredits * 100} className="h-2" />
+            </div>
+          </CardContent>
+          <CardFooter>
+            <Button variant="outline" className="w-full" disabled>
+              <PlusCircle className="mr-2 h-4 w-4" />
+              Purchase More Credits
+            </Button>
+          </CardFooter>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-xl flex items-center">
+              <CreditCard className="mr-2 h-5 w-5 text-primary" />
+              Assigned Email Credits
+            </CardTitle>
+            <CardDescription>Total credits assigned to clients</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="text-4xl font-bold">{(totalSystemCredits - availableCredits).toLocaleString()}</div>
+                <div className="text-sm text-muted-foreground">
+                  of {totalSystemCredits.toLocaleString()} total
+                </div>
+              </div>
+              <Progress value={(totalSystemCredits - availableCredits) / totalSystemCredits * 100} className="h-2" />
+            </div>
+          </CardContent>
+          <CardFooter>
+            <Button variant="outline" className="w-full" disabled>
+              View Client Usage Report
+            </Button>
+          </CardFooter>
+        </Card>
+      </div>
+
       <Card>
         <CardHeader>
           <CardTitle>All Clients</CardTitle>
@@ -445,6 +603,7 @@ const ClientsPage: React.FC = () => {
                 <TableHead>Status</TableHead>
                 <TableHead>Industry</TableHead>
                 <TableHead>Spend</TableHead>
+                <TableHead>Email Credits</TableHead>
                 <TableHead>Last Campaign</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
@@ -481,13 +640,25 @@ const ClientsPage: React.FC = () => {
                     </TableCell>
                     <TableCell>{client.industry}</TableCell>
                     <TableCell>${client.totalSpend.toLocaleString()}</TableCell>
+                    <TableCell>
+                      <EmailCreditsDisplay clientId={client.id} />
+                    </TableCell>
                     <TableCell>{client.lastCampaign}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
                         <Button
                           variant="ghost"
                           size="icon"
+                          onClick={() => handleAddCredits(client)}
+                          title="Add Credits"
+                        >
+                          <CreditCard size={16} />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
                           onClick={() => handleEditClient(client)}
+                          title="Edit Client"
                         >
                           <Edit size={16} />
                         </Button>
@@ -525,6 +696,76 @@ const ClientsPage: React.FC = () => {
         </CardContent>
       </Card>
 
+      {/* Add Credits Dialog */}
+      <Dialog open={isAddCreditsOpen} onOpenChange={setIsAddCreditsOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Add Email Credits</DialogTitle>
+            <DialogDescription>
+              Add credits to {selectedClientForCredits?.name}'s account.
+            </DialogDescription>
+          </DialogHeader>
+          <Form {...addCreditsForm}>
+            <form onSubmit={addCreditsForm.handleSubmit(onSubmitAddCredits)} className="space-y-4">
+              {selectedClientForCredits && (
+                <div className="bg-muted/50 p-4 rounded-lg mb-4">
+                  <div className="flex justify-between mb-2">
+                    <span className="text-sm font-medium">Current Credits:</span>
+                    <span className="text-sm">
+                      {selectedClientForCredits.emailCredits?.toLocaleString() || "0"}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm font-medium">Total Purchased:</span>
+                    <span className="text-sm">
+                      {selectedClientForCredits.emailCreditsPurchased?.toLocaleString() || "0"}
+                    </span>
+                  </div>
+                </div>
+              )}
+              
+              <FormField
+                control={addCreditsForm.control}
+                name="credits"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Credits to Add</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="number" 
+                        {...field}
+                        min={1}
+                        onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Credits will be added to the client's current balance.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <DialogFooter className="mt-6">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsAddCreditsOpen(false)}
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  type="submit"
+                  disabled={addCreditsToClientMutation.isPending}
+                >
+                  {addCreditsToClientMutation.isPending ? "Adding..." : "Add Credits"}
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
+      
       {/* Edit Client Dialog */}
       <Dialog open={isEditClientOpen} onOpenChange={setIsEditClientOpen}>
         <DialogContent className="sm:max-w-[550px]">
