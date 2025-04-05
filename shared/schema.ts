@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, timestamp, json, foreignKey } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, json, foreignKey, doublePrecision, date } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { relations as defineRelations } from "drizzle-orm";
@@ -437,6 +437,144 @@ export const clientUsersRelations = defineRelations(clientUsers, {
   client: { relationName: "clientUser_to_client", fields: [clientUsers.clientId], references: [clients.id] }
 });
 
+// Audience Persona Builder - Personas
+export const audiencePersonas = pgTable("audience_personas", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  description: text("description"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  clientId: integer("client_id").references(() => clients.id),
+  isDefault: boolean("is_default").default(false),
+  status: text("status").notNull().default("active"),
+  metadata: json("metadata"),
+  imageUrl: text("image_url"),
+  traits: json("traits").default({})
+});
+
+export const insertAudiencePersonaSchema = createInsertSchema(audiencePersonas).pick({
+  name: true,
+  description: true,
+  clientId: true,
+  isDefault: true,
+  status: true,
+  metadata: true,
+  imageUrl: true,
+  traits: true
+});
+
+export type InsertAudiencePersona = z.infer<typeof insertAudiencePersonaSchema>;
+export type AudiencePersona = typeof audiencePersonas.$inferSelect;
+
+// Audience Segments
+export const audienceSegments = pgTable("audience_segments", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  description: text("description"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  personaId: integer("persona_id").references(() => audiencePersonas.id),
+  clientId: integer("client_id").references(() => clients.id),
+  rules: json("rules").notNull(),
+  status: text("status").notNull().default("active"),
+  metadata: json("metadata")
+});
+
+export const insertAudienceSegmentSchema = createInsertSchema(audienceSegments).pick({
+  name: true,
+  description: true,
+  personaId: true,
+  clientId: true,
+  rules: true,
+  status: true,
+  metadata: true
+});
+
+export type InsertAudienceSegment = z.infer<typeof insertAudienceSegmentSchema>;
+export type AudienceSegment = typeof audienceSegments.$inferSelect;
+
+// Persona Demographics
+export const personaDemographics = pgTable("persona_demographics", {
+  id: serial("id").primaryKey(),
+  personaId: integer("persona_id").notNull().references(() => audiencePersonas.id),
+  ageRange: text("age_range"),
+  gender: text("gender"),
+  location: text("location"),
+  income: text("income"),
+  education: text("education"),
+  occupation: text("occupation"),
+  maritalStatus: text("marital_status"),
+  metadata: json("metadata")
+});
+
+export const insertPersonaDemographicSchema = createInsertSchema(personaDemographics).pick({
+  personaId: true,
+  ageRange: true,
+  gender: true,
+  location: true,
+  income: true,
+  education: true,
+  occupation: true,
+  maritalStatus: true,
+  metadata: true
+});
+
+export type InsertPersonaDemographic = z.infer<typeof insertPersonaDemographicSchema>;
+export type PersonaDemographic = typeof personaDemographics.$inferSelect;
+
+// Persona Behaviors
+export const personaBehaviors = pgTable("persona_behaviors", {
+  id: serial("id").primaryKey(),
+  personaId: integer("persona_id").notNull().references(() => audiencePersonas.id),
+  purchaseFrequency: text("purchase_frequency"),
+  browserUsage: text("browser_usage"),
+  devicePreference: text("device_preference"),
+  emailOpenRate: doublePrecision("email_open_rate"),
+  clickThroughRate: doublePrecision("click_through_rate"),
+  socialMediaUsage: json("social_media_usage"),
+  interests: json("interests"),
+  metadata: json("metadata")
+});
+
+export const insertPersonaBehaviorSchema = createInsertSchema(personaBehaviors).pick({
+  personaId: true,
+  purchaseFrequency: true,
+  browserUsage: true,
+  devicePreference: true,
+  emailOpenRate: true,
+  clickThroughRate: true,
+  socialMediaUsage: true,
+  interests: true,
+  metadata: true
+});
+
+export type InsertPersonaBehavior = z.infer<typeof insertPersonaBehaviorSchema>;
+export type PersonaBehavior = typeof personaBehaviors.$inferSelect;
+
+// Audience Persona Insights
+export const personaInsights = pgTable("persona_insights", {
+  id: serial("id").primaryKey(),
+  personaId: integer("persona_id").notNull().references(() => audiencePersonas.id),
+  insightType: text("insight_type").notNull(),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  score: doublePrecision("score"),
+  createdAt: timestamp("created_at").defaultNow(),
+  metadata: json("metadata")
+});
+
+export const insertPersonaInsightSchema = createInsertSchema(personaInsights).pick({
+  personaId: true,
+  insightType: true,
+  title: true,
+  description: true,
+  score: true,
+  metadata: true
+});
+
+export type InsertPersonaInsight = z.infer<typeof insertPersonaInsightSchema>;
+export type PersonaInsight = typeof personaInsights.$inferSelect;
+
 // Advanced Analytics - Click Events (for tracking individual link clicks)
 export const clickEvents = pgTable("click_events", {
   id: serial("id").primaryKey(),
@@ -625,4 +763,30 @@ export type ClientEmailCreditsHistory = typeof clientEmailCreditsHistory.$inferS
 
 export const clientEmailCreditsHistoryRelations = defineRelations(clientEmailCreditsHistory, {
   client: { relationName: "clientEmailCreditsHistory_to_client", fields: [clientEmailCreditsHistory.clientId], references: [clients.id] }
+});
+
+// Define audience persona builder relations
+export const audiencePersonasRelations = defineRelations(audiencePersonas, {
+  demographics: { relationName: "persona_to_demographics", fields: [audiencePersonas.id], references: [personaDemographics.personaId] },
+  behaviors: { relationName: "persona_to_behaviors", fields: [audiencePersonas.id], references: [personaBehaviors.personaId] },
+  insights: { relationName: "persona_to_insights", fields: [audiencePersonas.id], references: [personaInsights.personaId] },
+  segments: { relationName: "persona_to_segments", fields: [audiencePersonas.id], references: [audienceSegments.personaId] },
+  client: { relationName: "persona_to_client", fields: [audiencePersonas.clientId], references: [clients.id] }
+});
+
+export const personaDemographicsRelations = defineRelations(personaDemographics, {
+  persona: { relationName: "demographics_to_persona", fields: [personaDemographics.personaId], references: [audiencePersonas.id] }
+});
+
+export const personaBehaviorsRelations = defineRelations(personaBehaviors, {
+  persona: { relationName: "behaviors_to_persona", fields: [personaBehaviors.personaId], references: [audiencePersonas.id] }
+});
+
+export const personaInsightsRelations = defineRelations(personaInsights, {
+  persona: { relationName: "insights_to_persona", fields: [personaInsights.personaId], references: [audiencePersonas.id] }
+});
+
+export const audienceSegmentsRelations = defineRelations(audienceSegments, {
+  persona: { relationName: "segment_to_persona", fields: [audienceSegments.personaId], references: [audiencePersonas.id] },
+  client: { relationName: "segment_to_client", fields: [audienceSegments.clientId], references: [clients.id] }
 });

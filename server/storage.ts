@@ -17,7 +17,17 @@ import {
   OpenEvent, InsertOpenEvent,
   EngagementMetrics, InsertEngagementMetrics,
   LinkTracking, InsertLinkTracking,
-  ClientEmailCreditsHistory, InsertClientEmailCreditsHistory
+  ClientEmailCreditsHistory, InsertClientEmailCreditsHistory,
+  AudiencePersona, InsertAudiencePersona,
+  PersonaDemographic, InsertPersonaDemographic,
+  PersonaBehavior, InsertPersonaBehavior,
+  PersonaInsight, InsertPersonaInsight,
+  AudienceSegment, InsertAudienceSegment,
+  insertAudiencePersonaSchema,
+  insertPersonaDemographicSchema,
+  insertPersonaBehaviorSchema,
+  insertPersonaInsightSchema,
+  insertAudienceSegmentSchema
 } from "@shared/schema";
 
 // Interface for storage operations
@@ -148,10 +158,12 @@ export interface IStorage {
   // Click Event methods
   getClickEvents(campaignId: number, limit?: number): Promise<ClickEvent[]>;
   createClickEvent(clickEvent: InsertClickEvent): Promise<ClickEvent>;
+  getContactsClickEvents(contactIds: number[]): Promise<ClickEvent[]>;
   
   // Open Event methods
   getOpenEvents(campaignId: number, limit?: number): Promise<OpenEvent[]>;
   createOpenEvent(openEvent: InsertOpenEvent): Promise<OpenEvent>;
+  getContactsOpenEvents(contactIds: number[]): Promise<OpenEvent[]>;
   
   // Engagement Metrics methods
   getEngagementMetrics(campaignId: number, days?: number): Promise<EngagementMetrics[]>;
@@ -164,6 +176,42 @@ export interface IStorage {
   getTrackingLinkByUrl(campaignId: number, originalUrl: string): Promise<LinkTracking | undefined>;
   createTrackingLink(link: InsertLinkTracking): Promise<LinkTracking>;
   updateTrackingLink(id: number, link: Partial<LinkTracking>): Promise<LinkTracking | undefined>;
+  
+  // Audience Persona methods
+  audiencePersonaSchema: typeof insertAudiencePersonaSchema;
+  personaDemographicSchema: typeof insertPersonaDemographicSchema;
+  personaBehaviorSchema: typeof insertPersonaBehaviorSchema;
+  personaInsightSchema: typeof insertPersonaInsightSchema;
+  audienceSegmentSchema: typeof insertAudienceSegmentSchema;
+  
+  getAudiencePersonas(clientId?: number): Promise<AudiencePersona[]>;
+  getAudiencePersona(id: number): Promise<AudiencePersona | undefined>;
+  createAudiencePersona(persona: InsertAudiencePersona): Promise<AudiencePersona>;
+  updateAudiencePersona(id: number, persona: Partial<AudiencePersona>): Promise<AudiencePersona | undefined>;
+  deleteAudiencePersona(id: number): Promise<boolean>;
+  
+  // Persona Demographics methods
+  getPersonaDemographics(personaId: number): Promise<PersonaDemographic | undefined>;
+  createPersonaDemographics(demographics: InsertPersonaDemographic): Promise<PersonaDemographic>;
+  updatePersonaDemographics(id: number, demographics: Partial<PersonaDemographic>): Promise<PersonaDemographic | undefined>;
+  
+  // Persona Behaviors methods
+  getPersonaBehaviors(personaId: number): Promise<PersonaBehavior | undefined>;
+  createPersonaBehaviors(behaviors: InsertPersonaBehavior): Promise<PersonaBehavior>;
+  updatePersonaBehaviors(id: number, behaviors: Partial<PersonaBehavior>): Promise<PersonaBehavior | undefined>;
+  
+  // Persona Insights methods
+  getPersonaInsights(personaId: number): Promise<PersonaInsight[]>;
+  createPersonaInsight(insight: InsertPersonaInsight): Promise<PersonaInsight>;
+  deletePersonaInsight(id: number): Promise<boolean>;
+  
+  // Audience Segments methods
+  getAudienceSegments(personaId?: number): Promise<AudienceSegment[]>;
+  getPersonaSegments(personaId: number): Promise<AudienceSegment[]>;
+  getAudienceSegment(id: number): Promise<AudienceSegment | undefined>;
+  createAudienceSegment(segment: InsertAudienceSegment): Promise<AudienceSegment>;
+  updateAudienceSegment(id: number, segment: Partial<AudienceSegment>): Promise<AudienceSegment | undefined>;
+  deleteAudienceSegment(id: number): Promise<boolean>;
 }
 
 // In-memory implementation of storage
@@ -186,6 +234,11 @@ export class MemStorage implements IStorage {
   private openEvents: Map<number, OpenEvent>;
   private engagementMetrics: Map<number, EngagementMetrics>;
   private linkTrackings: Map<number, LinkTracking>;
+  private audiencePersonas: Map<number, AudiencePersona>;
+  private personaDemographics: Map<number, PersonaDemographic>;
+  private personaBehaviors: Map<number, PersonaBehavior>;
+  private personaInsights: Map<number, PersonaInsight>;
+  private audienceSegments: Map<number, AudienceSegment>;
 
   private contactId: number;
   private listId: number;
@@ -205,6 +258,18 @@ export class MemStorage implements IStorage {
   private openEventId: number;
   private engagementMetricId: number;
   private linkTrackingId: number;
+  private audiencePersonaId: number;
+  private personaDemographicId: number;
+  private personaBehaviorId: number;
+  private personaInsightId: number;
+  private audienceSegmentId: number;
+
+  // Schema validation objects
+  public audiencePersonaSchema = insertAudiencePersonaSchema;
+  public personaDemographicSchema = insertPersonaDemographicSchema;
+  public personaBehaviorSchema = insertPersonaBehaviorSchema;
+  public personaInsightSchema = insertPersonaInsightSchema;
+  public audienceSegmentSchema = insertAudienceSegmentSchema;
 
   constructor() {
     this.contacts = new Map();
@@ -225,6 +290,11 @@ export class MemStorage implements IStorage {
     this.openEvents = new Map();
     this.engagementMetrics = new Map();
     this.linkTrackings = new Map();
+    this.audiencePersonas = new Map();
+    this.personaDemographics = new Map();
+    this.personaBehaviors = new Map();
+    this.personaInsights = new Map();
+    this.audienceSegments = new Map();
 
     this.contactId = 1;
     this.listId = 1;
@@ -244,6 +314,11 @@ export class MemStorage implements IStorage {
     this.openEventId = 1;
     this.engagementMetricId = 1;
     this.linkTrackingId = 1;
+    this.audiencePersonaId = 1;
+    this.personaDemographicId = 1;
+    this.personaBehaviorId = 1;
+    this.personaInsightId = 1;
+    this.audienceSegmentId = 1;
 
     // Initialize with some default data
     this.initializeData();
@@ -1387,6 +1462,241 @@ export class MemStorage implements IStorage {
     const updatedLink = { ...existingLink, ...link };
     this.linkTrackings.set(id, updatedLink);
     return updatedLink;
+  }
+  
+  // AudiencePersona methods
+  async getAudiencePersonas(clientId?: number): Promise<AudiencePersona[]> {
+    let personas = Array.from(this.audiencePersonas.values());
+    
+    if (clientId) {
+      personas = personas.filter(persona => persona.clientId === clientId);
+    }
+    
+    return personas;
+  }
+  
+  async getAudiencePersona(id: number): Promise<AudiencePersona | undefined> {
+    return this.audiencePersonas.get(id);
+  }
+  
+  async createAudiencePersona(persona: InsertAudiencePersona): Promise<AudiencePersona> {
+    const id = this.audiencePersonaId++;
+    const now = new Date();
+    const newPersona: AudiencePersona = {
+      ...persona,
+      id,
+      createdAt: now,
+      updatedAt: now,
+      status: persona.status || 'active',
+      metadata: persona.metadata || {},
+      traits: persona.traits || {}
+    };
+    
+    this.audiencePersonas.set(id, newPersona);
+    return newPersona;
+  }
+  
+  async updateAudiencePersona(id: number, persona: Partial<AudiencePersona>): Promise<AudiencePersona | undefined> {
+    const existingPersona = this.audiencePersonas.get(id);
+    if (!existingPersona) return undefined;
+    
+    const updatedPersona = { 
+      ...existingPersona, 
+      ...persona,
+      updatedAt: new Date()
+    };
+    
+    this.audiencePersonas.set(id, updatedPersona);
+    return updatedPersona;
+  }
+  
+  async deleteAudiencePersona(id: number): Promise<boolean> {
+    // First delete all related data
+    const demographicsToDelete = Array.from(this.personaDemographics.values())
+      .filter(item => item.personaId === id)
+      .map(item => item.id);
+      
+    const behaviorsToDelete = Array.from(this.personaBehaviors.values())
+      .filter(item => item.personaId === id)
+      .map(item => item.id);
+      
+    const insightsToDelete = Array.from(this.personaInsights.values())
+      .filter(item => item.personaId === id)
+      .map(item => item.id);
+      
+    const segmentsToDelete = Array.from(this.audienceSegments.values())
+      .filter(item => item.personaId === id)
+      .map(item => item.id);
+    
+    // Delete all related items
+    demographicsToDelete.forEach(itemId => this.personaDemographics.delete(itemId));
+    behaviorsToDelete.forEach(itemId => this.personaBehaviors.delete(itemId));
+    insightsToDelete.forEach(itemId => this.personaInsights.delete(itemId));
+    segmentsToDelete.forEach(itemId => this.audienceSegments.delete(itemId));
+    
+    // Finally delete the persona
+    return this.audiencePersonas.delete(id);
+  }
+  
+  // Persona Demographics methods
+  async getPersonaDemographics(personaId: number): Promise<PersonaDemographic | undefined> {
+    return Array.from(this.personaDemographics.values())
+      .find(demo => demo.personaId === personaId);
+  }
+  
+  async createPersonaDemographics(demographics: InsertPersonaDemographic): Promise<PersonaDemographic> {
+    const id = this.personaDemographicId++;
+    const newDemographics: PersonaDemographic = {
+      ...demographics,
+      id,
+      metadata: demographics.metadata || {}
+    };
+    
+    this.personaDemographics.set(id, newDemographics);
+    return newDemographics;
+  }
+  
+  async updatePersonaDemographics(id: number, demographics: Partial<PersonaDemographic>): Promise<PersonaDemographic | undefined> {
+    const existingDemographics = this.personaDemographics.get(id);
+    if (!existingDemographics) return undefined;
+    
+    const updatedDemographics = { ...existingDemographics, ...demographics };
+    this.personaDemographics.set(id, updatedDemographics);
+    return updatedDemographics;
+  }
+  
+  // Persona Behaviors methods
+  async getPersonaBehaviors(personaId: number): Promise<PersonaBehavior | undefined> {
+    return Array.from(this.personaBehaviors.values())
+      .find(behavior => behavior.personaId === personaId);
+  }
+  
+  async createPersonaBehaviors(behaviors: InsertPersonaBehavior): Promise<PersonaBehavior> {
+    const id = this.personaBehaviorId++;
+    const newBehaviors: PersonaBehavior = {
+      ...behaviors,
+      id,
+      socialMediaUsage: behaviors.socialMediaUsage || {},
+      interests: behaviors.interests || [],
+      metadata: behaviors.metadata || {}
+    };
+    
+    this.personaBehaviors.set(id, newBehaviors);
+    return newBehaviors;
+  }
+  
+  async updatePersonaBehaviors(id: number, behaviors: Partial<PersonaBehavior>): Promise<PersonaBehavior | undefined> {
+    const existingBehaviors = this.personaBehaviors.get(id);
+    if (!existingBehaviors) return undefined;
+    
+    const updatedBehaviors = { ...existingBehaviors, ...behaviors };
+    this.personaBehaviors.set(id, updatedBehaviors);
+    return updatedBehaviors;
+  }
+  
+  // Persona Insights methods
+  async getPersonaInsights(personaId: number): Promise<PersonaInsight[]> {
+    return Array.from(this.personaInsights.values())
+      .filter(insight => insight.personaId === personaId);
+  }
+  
+  async createPersonaInsight(insight: InsertPersonaInsight): Promise<PersonaInsight> {
+    const id = this.personaInsightId++;
+    const now = new Date();
+    const newInsight: PersonaInsight = {
+      ...insight,
+      id,
+      createdAt: now,
+      metadata: insight.metadata || {}
+    };
+    
+    this.personaInsights.set(id, newInsight);
+    return newInsight;
+  }
+  
+  async updatePersonaInsight(id: number, insight: Partial<PersonaInsight>): Promise<PersonaInsight | undefined> {
+    const existingInsight = this.personaInsights.get(id);
+    if (!existingInsight) return undefined;
+    
+    const updatedInsight = { 
+      ...existingInsight, 
+      ...insight 
+    };
+    
+    this.personaInsights.set(id, updatedInsight);
+    return updatedInsight;
+  }
+  
+  async deletePersonaInsight(id: number): Promise<boolean> {
+    return this.personaInsights.delete(id);
+  }
+  
+  // Audience Segments methods
+  async getAudienceSegments(personaId?: number): Promise<AudienceSegment[]> {
+    let segments = Array.from(this.audienceSegments.values());
+    
+    if (personaId) {
+      segments = segments.filter(segment => segment.personaId === personaId);
+    }
+    
+    return segments;
+  }
+  
+  async getPersonaSegments(personaId: number): Promise<AudienceSegment[]> {
+    return this.getAudienceSegments(personaId);
+  }
+  
+  async getAudienceSegment(id: number): Promise<AudienceSegment | undefined> {
+    return this.audienceSegments.get(id);
+  }
+  
+  async createAudienceSegment(segment: InsertAudienceSegment): Promise<AudienceSegment> {
+    const id = this.audienceSegmentId++;
+    const now = new Date();
+    const newSegment: AudienceSegment = {
+      ...segment,
+      id,
+      createdAt: now,
+      updatedAt: now,
+      status: segment.status || 'active',
+      metadata: segment.metadata || {}
+    };
+    
+    this.audienceSegments.set(id, newSegment);
+    return newSegment;
+  }
+  
+  async updateAudienceSegment(id: number, segment: Partial<AudienceSegment>): Promise<AudienceSegment | undefined> {
+    const existingSegment = this.audienceSegments.get(id);
+    if (!existingSegment) return undefined;
+    
+    const updatedSegment = { 
+      ...existingSegment, 
+      ...segment,
+      updatedAt: new Date()
+    };
+    
+    this.audienceSegments.set(id, updatedSegment);
+    return updatedSegment;
+  }
+  
+  async deleteAudienceSegment(id: number): Promise<boolean> {
+    return this.audienceSegments.delete(id);
+  }
+  
+  // Event tracking methods for contacts
+  async getContactsClickEvents(contactIds: number[]): Promise<ClickEvent[]> {
+    if (!contactIds.length) return [];
+    
+    return Array.from(this.clickEvents.values())
+      .filter(event => event.contactId !== null && contactIds.includes(event.contactId));
+  }
+  
+  async getContactsOpenEvents(contactIds: number[]): Promise<OpenEvent[]> {
+    if (!contactIds.length) return [];
+    
+    return Array.from(this.openEvents.values())
+      .filter(event => event.contactId !== null && contactIds.includes(event.contactId));
   }
 }
 

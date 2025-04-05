@@ -8,6 +8,7 @@ import { trackingService } from "./services/trackingService";
 import { emailSchema } from "../shared/validation";
 import { z } from "zod";
 import { registerEmailProviderRoutes } from "./routes/emailProviders";
+import { registerAudiencePersonaRoutes } from "./routes/audiencePersonas";
 import { 
   insertContactSchema, 
   insertListSchema, 
@@ -50,6 +51,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Register email provider routes
   await registerEmailProviderRoutes(app);
+  
+  // Register audience persona routes
+  registerAudiencePersonaRoutes(app);
 
   // Mock data for dashboard stats
   app.get('/api/stats', (req: Request, res: Response) => {
