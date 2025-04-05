@@ -323,187 +323,286 @@ export default function Templates() {
         
         <div className="card-body pt-4">
           {activeTab === 'editor' && (
-            <form onSubmit={handleSubmit} className="p-6 bg-gradient-to-br from-slate-50 to-white rounded-xl shadow-sm">
-              <div className="rounded-xl bg-gradient-to-r from-blue-50 to-teal-50 border border-teal-100 p-5 mb-8">
-                <div className="flex items-start">
-                  <div className="mr-4 p-2 bg-gradient-to-br from-teal-500 to-blue-500 rounded-full shadow-md">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M12 2c1.714 0 3.33.567 4.615 1.556a1 1 0 0 1 .385.78v12.332a1 1 0 0 1-.385.78C15.33 18.433 13.714 19 12 19s-3.33-.567-4.615-1.556a1 1 0 0 1-.385-.78V4.333a1 1 0 0 1 .385-.78C8.67 2.567 10.286 2 12 2Z"/>
-                      <path d="M12 6.5c1.657 0 3 .843 3 1.883s-1.343 1.884-3 1.884-3-.844-3-1.884S10.343 6.5 12 6.5Z"/>
-                      <path d="M12 19v3"/>
-                      <path d="M10 22h4"/>
-                    </svg>
+            <form onSubmit={handleSubmit} className="p-6 bg-gradient-to-br from-slate-50 to-white rounded-xl shadow-md relative">
+              {/* Decorative AI elements */}
+              <div className="absolute -top-4 -right-4 w-24 h-24 bg-gradient-to-br from-blue-400/10 to-teal-400/10 rounded-full blur-xl z-0"></div>
+              <div className="absolute bottom-10 -left-6 w-20 h-20 bg-gradient-to-tr from-teal-400/10 to-blue-400/10 rounded-full blur-xl z-0"></div>
+              <div className="absolute top-1/2 right-1/3 w-16 h-16 bg-gradient-to-bl from-blue-300/10 to-teal-300/10 rounded-full blur-lg z-0"></div>
+              
+              {/* Header with AI chip animation */}
+              <div className="rounded-xl relative overflow-hidden bg-gradient-to-r from-blue-50 via-teal-50 to-blue-50 border border-teal-100 p-6 mb-8 shadow-sm">
+                <div className="flex items-start relative z-10">
+                  <div className="mr-5 relative">
+                    <div className="p-2.5 bg-gradient-to-br from-teal-500 to-blue-500 rounded-xl shadow-md overflow-hidden relative">
+                      {/* Animated circuit lines */}
+                      <div className="absolute inset-0 overflow-hidden opacity-20">
+                        <div className="absolute top-1 left-1 w-2 h-0.5 bg-white rounded"></div>
+                        <div className="absolute top-1 left-1 w-0.5 h-2 bg-white rounded"></div>
+                        <div className="absolute bottom-1 right-1 w-2 h-0.5 bg-white rounded"></div>
+                        <div className="absolute bottom-1 right-1 w-0.5 h-2 bg-white rounded"></div>
+                        <div className="absolute top-1/2 left-0 w-1.5 h-0.5 bg-white rounded"></div>
+                        <div className="absolute top-0 left-1/2 w-0.5 h-1.5 bg-white rounded"></div>
+                        <div className="absolute bottom-0 right-1/2 w-0.5 h-1.5 bg-white rounded"></div>
+                        <div className="absolute bottom-1/2 right-0 w-1.5 h-0.5 bg-white rounded"></div>
+                      </div>
+                      
+                      <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M12 2c1.714 0 3.33.567 4.615 1.556a1 1 0 0 1 .385.78v12.332a1 1 0 0 1-.385.78C15.33 18.433 13.714 19 12 19s-3.33-.567-4.615-1.556a1 1 0 0 1-.385-.78V4.333a1 1 0 0 1 .385-.78C8.67 2.567 10.286 2 12 2Z"/>
+                        <path d="M12 6.5c1.657 0 3 .843 3 1.883s-1.343 1.884-3 1.884-3-.844-3-1.884S10.343 6.5 12 6.5Z"/>
+                        <path d="M12 19v3"/>
+                        <path d="M10 22h4"/>
+                      </svg>
+                      
+                      {/* Pulsing dot */}
+                      <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-teal-200 animate-pulse"></span>
+                    </div>
+                    
+                    {/* Connection lines animation */}
+                    <div className="absolute -bottom-3 left-1/2 transform -translate-x-1/2 w-0.5 h-3 bg-gradient-to-b from-teal-400 to-transparent"></div>
                   </div>
-                  <div>
-                    <h3 className="text-xl font-semibold bg-gradient-to-r from-teal-600 to-blue-600 bg-clip-text text-transparent">AI Email Template Generator</h3>
-                    <p className="text-slate-600 mt-1 leading-relaxed">
-                      Use our AI assistant to create a professional email template tailored to your needs. 
-                      The more specific your inputs, the better your results will be.
+                  
+                  <div className="relative z-10">
+                    <div className="flex items-center space-x-2">
+                      <h3 className="text-xl font-bold bg-gradient-to-r from-teal-600 to-blue-600 bg-clip-text text-transparent">AI Email Template Generator</h3>
+                      <span className="px-2 py-0.5 text-xs font-medium bg-gradient-to-r from-teal-500/20 to-blue-500/20 text-teal-700 rounded-full border border-teal-200/50">GPT-4o</span>
+                    </div>
+                    <p className="text-slate-600 mt-2 leading-relaxed">
+                      Let our advanced AI create a professional email template tailored to your needs.
+                      The AI analyzes your inputs to generate highly effective content optimized for engagement.
                     </p>
                   </div>
                 </div>
+                
+                {/* Gradient animated lines */}
+                <div className="absolute inset-0 opacity-10">
+                  <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-teal-400 to-transparent"></div>
+                  <div className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-blue-400 to-transparent"></div>
+                  <div className="absolute left-0 top-0 h-full w-0.5 bg-gradient-to-b from-transparent via-teal-400 to-transparent"></div>
+                  <div className="absolute right-0 top-0 h-full w-0.5 bg-gradient-to-b from-transparent via-blue-400 to-transparent"></div>
+                </div>
               </div>
 
-              <div className="space-y-8">
-                {/* Main Form Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
-                  {/* Template Type */}
-                  <div className="relative p-5 bg-white rounded-lg border border-slate-200 shadow-sm transition-all duration-200 hover:shadow-md group">
-                    <div className="absolute top-0 right-0 w-10 h-10 bg-gradient-to-br from-teal-100 to-blue-100 rounded-bl-xl rounded-tr-lg z-0 group-hover:from-teal-200 group-hover:to-blue-200 transition-all duration-300"></div>
-                    <div className="relative z-10">
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center">
-                          <div className="p-1.5 bg-gradient-to-r from-teal-500 to-blue-500 rounded-md shadow-sm mr-3">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <rect width="18" height="18" x="3" y="3" rx="2" />
-                              <path d="M3 9h18" />
-                              <path d="M9 21V9" />
-                            </svg>
-                          </div>
-                          <label htmlFor="templateType" className="block text-sm font-medium">
-                            Template Type <span className="text-red-500">*</span>
-                          </label>
-                        </div>
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <button type="button" className="inline-flex items-center text-slate-400 hover:text-slate-700">
-                                <HelpCircle className="h-4 w-4" />
-                              </button>
-                            </TooltipTrigger>
-                            <TooltipContent side="top" className="max-w-xs bg-slate-800 text-white">
-                              <p>Select the type of email template you want to create. This determines the structure and purpose of your email.</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
+              <div className="space-y-8 relative z-10">
+                {/* Instructions */}
+                <div className="bg-gradient-to-r from-blue-50/50 to-teal-50/50 rounded-lg p-3 border border-blue-100/50">
+                  <div className="flex items-start">
+                    <div className="p-1 bg-blue-100 rounded-md mr-3 mt-0.5">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-blue-500">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M12 16v-4"/>
+                        <path d="M12 8h.01"/>
+                      </svg>
+                    </div>
+                    <p className="text-sm text-slate-600">
+                      Complete the form below with detailed information to help the AI generate the most effective email template. Required fields are marked with <span className="text-red-500">*</span>
+                    </p>
+                  </div>
+                </div>
+                
+                {/* Core Email Details Section with AI-themed Card Design */}
+                <div className="bg-gradient-to-br from-slate-50 to-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                  <div className="bg-gradient-to-r from-teal-500 to-blue-600 py-3 px-4">
+                    <div className="flex items-center">
+                      <div className="p-1 bg-white/20 rounded-md mr-2.5">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white">
+                          <rect width="18" height="18" x="3" y="3" rx="2"/>
+                          <path d="M7 7h10"/>
+                          <path d="M7 12h10"/>
+                          <path d="M7 17h10"/>
+                        </svg>
                       </div>
-                      <select 
-                        id="templateType" 
-                        name="templateType" 
-                        className="w-full border border-slate-300 rounded-md p-2.5 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent bg-white shadow-sm"
-                        value={formData.templateType}
-                        onChange={handleInputChange}
-                        required
-                      >
-                        {templateTypeOptions.map(option => (
-                          <option key={option.value} value={option.value}>{option.label}</option>
-                        ))}
-                      </select>
+                      <h4 className="font-semibold text-white">Core Email Details</h4>
                     </div>
                   </div>
                   
-                  {/* Industry */}
-                  <div className="relative p-5 bg-white rounded-lg border border-slate-200 shadow-sm transition-all duration-200 hover:shadow-md group">
-                    <div className="absolute top-0 right-0 w-10 h-10 bg-gradient-to-br from-teal-100 to-blue-100 rounded-bl-xl rounded-tr-lg z-0 group-hover:from-teal-200 group-hover:to-blue-200 transition-all duration-300"></div>
-                    <div className="relative z-10">
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center">
-                          <div className="p-1.5 bg-gradient-to-r from-teal-500 to-blue-500 rounded-md shadow-sm mr-3">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <path d="M2 20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8l-7 5V8l-7 5V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z" />
-                              <path d="M17 18h1" />
-                              <path d="M12 18h1" />
-                              <path d="M7 18h1" />
-                            </svg>
+                  <div className="p-5 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Template Type */}
+                    <div className="bg-white rounded-lg border border-slate-200 shadow-sm transition-all duration-200 hover:shadow-md group p-4 relative overflow-hidden">
+                      <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-bl from-teal-100/30 to-blue-100/30 rounded-bl-full z-0"></div>
+                      
+                      <div className="relative z-10">
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center space-x-3">
+                            <div className="p-1.5 bg-gradient-to-r from-teal-500 to-blue-500 rounded-md shadow-sm">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <rect width="18" height="18" x="3" y="3" rx="2" />
+                                <path d="M3 9h18" />
+                                <path d="M9 21V9" />
+                              </svg>
+                            </div>
+                            <div>
+                              <label htmlFor="templateType" className="block text-sm font-medium">
+                                Template Type <span className="text-red-500">*</span>
+                              </label>
+                              <p className="text-xs text-slate-500 mt-0.5">Determines the email structure</p>
+                            </div>
                           </div>
-                          <label htmlFor="industry" className="block text-sm font-medium">
-                            Industry <span className="text-red-500">*</span>
-                          </label>
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <button type="button" className="inline-flex items-center text-slate-400 hover:text-slate-700">
+                                  <HelpCircle className="h-4 w-4" />
+                                </button>
+                              </TooltipTrigger>
+                              <TooltipContent side="top" className="max-w-xs bg-slate-800 text-white">
+                                <p>Select the type of email template you want to create. This determines the structure and purpose of your email.</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
                         </div>
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <button type="button" className="inline-flex items-center text-slate-400 hover:text-slate-700">
-                                <HelpCircle className="h-4 w-4" />
-                              </button>
-                            </TooltipTrigger>
-                            <TooltipContent side="top" className="max-w-xs bg-slate-800 text-white">
-                              <p>Enter your business industry to tailor the template to your specific market (e.g., e-commerce, healthcare, technology).</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
+                        <select 
+                          id="templateType" 
+                          name="templateType" 
+                          className="w-full border border-slate-300 rounded-md p-2.5 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent bg-white shadow-sm"
+                          value={formData.templateType}
+                          onChange={handleInputChange}
+                          required
+                        >
+                          {templateTypeOptions.map(option => (
+                            <option key={option.value} value={option.value}>{option.label}</option>
+                          ))}
+                        </select>
                       </div>
-                      <input 
-                        type="text" 
-                        id="industry" 
-                        name="industry" 
-                        className="w-full border border-slate-300 rounded-md p-2.5 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent bg-white shadow-sm"
-                        placeholder="e.g., e-commerce, healthcare, technology"
-                        value={formData.industry}
-                        onChange={handleInputChange}
-                        required
-                      />
+                      
+                      {/* Decorative dots */}
+                      <div className="absolute bottom-1.5 right-2 flex space-x-1">
+                        <div className="w-1 h-1 rounded-full bg-teal-200"></div>
+                        <div className="w-1 h-1 rounded-full bg-blue-200"></div>
+                        <div className="w-1 h-1 rounded-full bg-teal-200"></div>
+                      </div>
+                    </div>
+                    
+                    {/* Industry */}
+                    <div className="bg-white rounded-lg border border-slate-200 shadow-sm transition-all duration-200 hover:shadow-md group p-4 relative overflow-hidden">
+                      <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-bl from-teal-100/30 to-blue-100/30 rounded-bl-full z-0"></div>
+                      
+                      <div className="relative z-10">
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center space-x-3">
+                            <div className="p-1.5 bg-gradient-to-r from-teal-500 to-blue-500 rounded-md shadow-sm">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M2 20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8l-7 5V8l-7 5V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z" />
+                                <path d="M17 18h1" />
+                                <path d="M12 18h1" />
+                                <path d="M7 18h1" />
+                              </svg>
+                            </div>
+                            <div>
+                              <label htmlFor="industry" className="block text-sm font-medium">
+                                Industry <span className="text-red-500">*</span>
+                              </label>
+                              <p className="text-xs text-slate-500 mt-0.5">Helps AI tailor content to your market</p>
+                            </div>
+                          </div>
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <button type="button" className="inline-flex items-center text-slate-400 hover:text-slate-700">
+                                  <HelpCircle className="h-4 w-4" />
+                                </button>
+                              </TooltipTrigger>
+                              <TooltipContent side="top" className="max-w-xs bg-slate-800 text-white">
+                                <p>Enter your business industry to tailor the template to your specific market (e.g., e-commerce, healthcare, technology).</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        </div>
+                        <input 
+                          type="text" 
+                          id="industry" 
+                          name="industry" 
+                          className="w-full border border-slate-300 rounded-md p-2.5 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent bg-white shadow-sm"
+                          placeholder="e.g., e-commerce, healthcare, technology"
+                          value={formData.industry}
+                          onChange={handleInputChange}
+                          required
+                        />
+                      </div>
+                      
+                      {/* Decorative dots */}
+                      <div className="absolute bottom-1.5 right-2 flex space-x-1">
+                        <div className="w-1 h-1 rounded-full bg-teal-200"></div>
+                        <div className="w-1 h-1 rounded-full bg-blue-200"></div>
+                        <div className="w-1 h-1 rounded-full bg-teal-200"></div>
+                      </div>
+                    </div>
+                    
+                    {/* Purpose */}
+                    <div className="bg-white rounded-lg border border-slate-200 shadow-sm transition-all duration-200 hover:shadow-md group p-4 relative overflow-hidden md:col-span-2">
+                      <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-bl from-teal-100/30 to-blue-100/30 rounded-bl-full z-0"></div>
+                      
+                      <div className="relative z-10">
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center space-x-3">
+                            <div className="p-1.5 bg-gradient-to-r from-teal-500 to-blue-500 rounded-md shadow-sm">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <circle cx="12" cy="12" r="10" />
+                                <path d="m15 9-6 6" />
+                                <path d="m9 9 6 6" />
+                              </svg>
+                            </div>
+                            <div>
+                              <label htmlFor="purpose" className="block text-sm font-medium">
+                                Purpose <span className="text-red-500">*</span>
+                              </label>
+                              <p className="text-xs text-slate-500 mt-0.5">What you want to achieve with this email</p>
+                            </div>
+                          </div>
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <button type="button" className="inline-flex items-center text-slate-400 hover:text-slate-700">
+                                  <HelpCircle className="h-4 w-4" />
+                                </button>
+                              </TooltipTrigger>
+                              <TooltipContent side="top" className="max-w-xs bg-slate-800 text-white">
+                                <p>Describe what you want to achieve with this email (e.g., announce a sale, share monthly updates, welcome new customers).</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        </div>
+                        <input 
+                          type="text" 
+                          id="purpose" 
+                          name="purpose" 
+                          className="w-full border border-slate-300 rounded-md p-2.5 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent bg-white shadow-sm"
+                          placeholder="e.g., announce a sale, share monthly updates"
+                          value={formData.purpose}
+                          onChange={handleInputChange}
+                          required
+                        />
+                      </div>
+                      
+                      {/* Decorative dots */}
+                      <div className="absolute bottom-1.5 right-2 flex space-x-1">
+                        <div className="w-1 h-1 rounded-full bg-teal-200"></div>
+                        <div className="w-1 h-1 rounded-full bg-blue-200"></div>
+                        <div className="w-1 h-1 rounded-full bg-teal-200"></div>
+                      </div>
                     </div>
                   </div>
                 </div>
                 
-                {/* Purpose & Target Audience */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  {/* Purpose */}
-                  <div className="relative p-5 bg-white rounded-lg border border-slate-200 shadow-sm transition-all duration-200 hover:shadow-md group">
-                    <div className="absolute top-0 right-0 w-10 h-10 bg-gradient-to-br from-teal-100 to-blue-100 rounded-bl-xl rounded-tr-lg z-0 group-hover:from-teal-200 group-hover:to-blue-200 transition-all duration-300"></div>
-                    <div className="relative z-10">
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center">
-                          <div className="p-1.5 bg-gradient-to-r from-teal-500 to-blue-500 rounded-md shadow-sm mr-3">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <circle cx="12" cy="12" r="10" />
-                              <path d="m15 9-6 6" />
-                              <path d="m9 9 6 6" />
-                            </svg>
-                          </div>
-                          <label htmlFor="purpose" className="block text-sm font-medium">
-                            Purpose <span className="text-red-500">*</span>
-                          </label>
+                {/* Audience & Content Section */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Target Audience Card */}
+                  <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div className="p-4 bg-gradient-to-r from-blue-100/50 to-teal-100/50 border-b border-slate-200">
+                      <div className="flex items-center">
+                        <div className="p-1.5 bg-gradient-to-r from-blue-500 to-teal-500 rounded-md shadow-sm mr-3">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                            <circle cx="9" cy="7" r="4" />
+                            <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                          </svg>
                         </div>
+                        <h4 className="font-medium text-slate-700">Target Audience <span className="text-red-500">*</span></h4>
+                        
                         <TooltipProvider>
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <button type="button" className="inline-flex items-center text-slate-400 hover:text-slate-700">
-                                <HelpCircle className="h-4 w-4" />
-                              </button>
-                            </TooltipTrigger>
-                            <TooltipContent side="top" className="max-w-xs bg-slate-800 text-white">
-                              <p>Describe what you want to achieve with this email (e.g., announce a sale, share monthly updates, welcome new customers).</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                      </div>
-                      <input 
-                        type="text" 
-                        id="purpose" 
-                        name="purpose" 
-                        className="w-full border border-slate-300 rounded-md p-2.5 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent bg-white shadow-sm"
-                        placeholder="e.g., announce a sale, share monthly updates"
-                        value={formData.purpose}
-                        onChange={handleInputChange}
-                        required
-                      />
-                    </div>
-                  </div>
-                  
-                  {/* Target Audience */}
-                  <div className="relative p-5 bg-white rounded-lg border border-slate-200 shadow-sm transition-all duration-200 hover:shadow-md group">
-                    <div className="absolute top-0 right-0 w-10 h-10 bg-gradient-to-br from-teal-100 to-blue-100 rounded-bl-xl rounded-tr-lg z-0 group-hover:from-teal-200 group-hover:to-blue-200 transition-all duration-300"></div>
-                    <div className="relative z-10">
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center">
-                          <div className="p-1.5 bg-gradient-to-r from-teal-500 to-blue-500 rounded-md shadow-sm mr-3">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-                              <circle cx="9" cy="7" r="4" />
-                              <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
-                              <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                            </svg>
-                          </div>
-                          <label htmlFor="targetAudience" className="block text-sm font-medium">
-                            Target Audience <span className="text-red-500">*</span>
-                          </label>
-                        </div>
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <button type="button" className="inline-flex items-center text-slate-400 hover:text-slate-700">
+                              <button type="button" className="ml-auto inline-flex items-center text-slate-400 hover:text-slate-700">
                                 <HelpCircle className="h-4 w-4" />
                               </button>
                             </TooltipTrigger>
@@ -513,6 +612,10 @@ export default function Templates() {
                           </Tooltip>
                         </TooltipProvider>
                       </div>
+                    </div>
+                    
+                    <div className="p-4">
+                      <p className="text-xs text-slate-600 mb-2">Provide demographic details to help AI personalize the message</p>
                       <input 
                         type="text" 
                         id="targetAudience" 
@@ -523,40 +626,31 @@ export default function Templates() {
                         onChange={handleInputChange}
                         required
                       />
+                      
+                      <div className="flex items-center space-x-2 mt-3 text-xs text-slate-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M12 2c1.714 0 3.33.567 4.615 1.556a1 1 0 0 1 .385.78v12.332a1 1 0 0 1-.385.78C15.33 18.433 13.714 19 12 19s-3.33-.567-4.615-1.556a1 1 0 0 1-.385-.78V4.333a1 1 0 0 1 .385-.78C8.67 2.567 10.286 2 12 2Z"/>
+                        </svg>
+                        <span>AI uses this to adjust language and tone</span>
+                      </div>
                     </div>
                   </div>
-                </div>
-                
-                {/* Appearance Settings */}
-                <div className="p-5 bg-white rounded-lg border border-slate-200 shadow-sm">
-                  <h3 className="text-lg font-medium text-slate-700 mb-4 flex items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 text-teal-500">
-                      <path d="M12 22a9 9 0 0 0 9-9H3a9 9 0 0 0 9 9Z" />
-                      <path d="M12 2v7" />
-                      <path d="m4.9 4.9 4.2 4.2" />
-                      <path d="m19.1 4.9-4.2 4.2" />
-                    </svg>
-                    Appearance Settings
-                  </h3>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Brand Tone */}
-                    <div>
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center">
-                          <div className="p-1.5 bg-gradient-to-r from-teal-500 to-blue-500 rounded-md shadow-sm mr-3">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-                            </svg>
-                          </div>
-                          <label htmlFor="brandTone" className="block text-sm font-medium">
-                            Brand Tone
-                          </label>
+                  {/* Brand Tone Card */}
+                  <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div className="p-4 bg-gradient-to-r from-blue-100/50 to-teal-100/50 border-b border-slate-200">
+                      <div className="flex items-center">
+                        <div className="p-1.5 bg-gradient-to-r from-blue-500 to-teal-500 rounded-md shadow-sm mr-3">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                          </svg>
                         </div>
+                        <h4 className="font-medium text-slate-700">Brand Tone</h4>
+                        
                         <TooltipProvider>
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <button type="button" className="inline-flex items-center text-slate-400 hover:text-slate-700">
+                              <button type="button" className="ml-auto inline-flex items-center text-slate-400 hover:text-slate-700">
                                 <HelpCircle className="h-4 w-4" />
                               </button>
                             </TooltipTrigger>
@@ -566,6 +660,10 @@ export default function Templates() {
                           </Tooltip>
                         </TooltipProvider>
                       </div>
+                    </div>
+                    
+                    <div className="p-4">
+                      <p className="text-xs text-slate-600 mb-2">How should your brand voice sound to recipients?</p>
                       <select 
                         id="brandTone" 
                         name="brandTone" 
@@ -577,91 +675,93 @@ export default function Templates() {
                           <option key={option.value} value={option.value}>{option.label}</option>
                         ))}
                       </select>
-                    </div>
-
-                    {/* Color Theme */}
-                    <div>
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center">
-                          <div className="p-1.5 bg-gradient-to-r from-teal-500 to-blue-500 rounded-md shadow-sm mr-3">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <circle cx="13.5" cy="6.5" r="2.5" />
-                              <circle cx="17.5" cy="10.5" r="2.5" />
-                              <circle cx="8.5" cy="7.5" r="2.5" />
-                              <circle cx="6.5" cy="12.5" r="2.5" />
-                              <path d="M12 22v-6" />
-                              <path d="M12 13.5V16" />
-                              <path d="M12 13.5a5 5 0 0 1 8.66-3.6l-1.47 1.46a3 3 0 0 0-4.24.38L12 13.5Z" />
-                              <path d="M12 13.5a5 5 0 0 0-9-3l1.42 1.5a3 3 0 0 1 4.3.37L12 13.5Z" />
-                            </svg>
-                          </div>
-                          <label className="block text-sm font-medium">
-                            Color Theme
-                          </label>
-                        </div>
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <button type="button" className="inline-flex items-center text-slate-400 hover:text-slate-700">
-                                <HelpCircle className="h-4 w-4" />
-                              </button>
-                            </TooltipTrigger>
-                            <TooltipContent side="top" className="max-w-xs bg-slate-800 text-white">
-                              <p>Select a color scheme for your email template that matches your brand.</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                      </div>
-                      <div className="flex flex-wrap gap-3">
-                        {colorThemes.map(theme => (
-                          <button
-                            key={theme.id}
-                            type="button"
-                            onClick={() => handleColorThemeChange(theme.id)}
-                            className={`relative w-10 h-10 rounded-lg flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white focus:ring-teal-500 transition-all duration-300 transform hover:scale-110 ${
-                              selectedColorTheme.id === theme.id ? 'ring-2 ring-offset-2 ring-offset-white ring-teal-500 scale-110' : ''
-                            }`}
-                            style={{ 
-                              backgroundColor: theme.secondary
-                            }}
-                            title={theme.name}
-                          >
-                            <span className="w-5 h-5 rounded-md" style={{ backgroundColor: theme.primary }}></span>
-                            {selectedColorTheme.id === theme.id && (
-                              <span className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-r from-teal-500 to-blue-500 rounded-full flex items-center justify-center shadow-sm">
-                                <Check className="w-3 h-3 text-white" />
-                              </span>
-                            )}
-                          </button>
-                        ))}
+                      
+                      <div className="flex items-center space-x-2 mt-3 text-xs text-slate-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M12 2c1.714 0 3.33.567 4.615 1.556a1 1 0 0 1 .385.78v12.332a1 1 0 0 1-.385.78C15.33 18.433 13.714 19 12 19s-3.33-.567-4.615-1.556a1 1 0 0 1-.385-.78V4.333a1 1 0 0 1 .385-.78C8.67 2.567 10.286 2 12 2Z"/>
+                        </svg>
+                        <span>AI adapts writing style based on selection</span>
                       </div>
                     </div>
                   </div>
                 </div>
                 
-                {/* Key Points */}
-                <div className="relative p-5 bg-white rounded-lg border border-slate-200 shadow-sm transition-all duration-200 hover:shadow-md group">
-                  <div className="absolute top-0 right-0 w-10 h-10 bg-gradient-to-br from-teal-100 to-blue-100 rounded-bl-xl rounded-tr-lg z-0 group-hover:from-teal-200 group-hover:to-blue-200 transition-all duration-300"></div>
-                  <div className="relative z-10">
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center">
-                        <div className="p-1.5 bg-gradient-to-r from-teal-500 to-blue-500 rounded-md shadow-sm mr-3">
-                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M9 11V8a3 3 0 0 1 6 0v3" />
-                            <path d="M12 11h6a2 2 0 0 1 0 4h-4" />
-                            <path d="M9 15v-4" />
-                            <path d="M5 15h4" />
-                            <path d="M19 15a2 2 0 0 1 0 4H5a2 2 0 0 1 0-4" />
-                          </svg>
-                        </div>
-                        <label htmlFor="keyPoints" className="block text-sm font-medium">
-                          Key Points to Include
-                        </label>
+                {/* Design & Color Section */}
+                <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                  <div className="p-4 bg-gradient-to-r from-blue-500 to-teal-500">
+                    <div className="flex items-center">
+                      <div className="p-1.5 bg-white/20 rounded-md mr-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <circle cx="13.5" cy="6.5" r="2.5" />
+                          <circle cx="17.5" cy="10.5" r="2.5" />
+                          <circle cx="8.5" cy="7.5" r="2.5" />
+                          <circle cx="6.5" cy="12.5" r="2.5" />
+                          <path d="M12 22v-6" />
+                          <path d="M12 13.5V16" />
+                          <path d="M12 13.5a5 5 0 0 1 8.66-3.6l-1.47 1.46a3 3 0 0 0-4.24.38L12 13.5Z" />
+                          <path d="M12 13.5a5 5 0 0 0-9-3l1.42 1.5a3 3 0 0 1 4.3.37L12 13.5Z" />
+                        </svg>
                       </div>
+                      <h4 className="font-medium text-white">Visual Design</h4>
+                    </div>
+                  </div>
+                  
+                  <div className="p-5">
+                    <p className="text-sm text-slate-600 mb-4">Select a color theme that will be used for buttons, headers, and accents</p>
+                    
+                    <div className="grid grid-cols-5 gap-4">
+                      {colorThemes.map(theme => (
+                        <button
+                          key={theme.id}
+                          type="button"
+                          onClick={() => handleColorThemeChange(theme.id)}
+                          className={`relative w-full aspect-square rounded-xl flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white focus:ring-teal-500 transition-all duration-300 transform hover:scale-105 ${
+                            selectedColorTheme.id === theme.id ? 'ring-2 ring-offset-2 ring-offset-white ring-teal-500 scale-105' : ''
+                          }`}
+                          style={{ 
+                            backgroundColor: theme.secondary
+                          }}
+                          title={theme.name}
+                        >
+                          <span className="w-1/2 h-1/2 rounded-md" style={{ backgroundColor: theme.primary }}></span>
+                          {selectedColorTheme.id === theme.id && (
+                            <span className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-r from-teal-500 to-blue-500 rounded-full flex items-center justify-center shadow-sm">
+                              <Check className="w-3 h-3 text-white" />
+                            </span>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                    
+                    <div className="mt-4 p-3 bg-gradient-to-r from-gray-50 to-slate-50 rounded-lg border border-slate-200">
+                      <div className="flex items-center">
+                        <div className="w-4 h-4 rounded-full mr-2" style={{ backgroundColor: selectedColorTheme.primary }}></div>
+                        <div className="text-xs font-medium text-slate-700">{selectedColorTheme.name}</div>
+                        <div className="ml-auto px-2 py-0.5 text-xs bg-white border border-slate-200 rounded text-slate-600">Primary: {selectedColorTheme.primary}</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Key Points with AI Assistant Section */}
+                <div className="bg-gradient-to-br from-slate-50 to-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                  <div className="bg-gradient-to-r from-teal-500 to-blue-600 py-3 px-4">
+                    <div className="flex items-center">
+                      <div className="p-1.5 bg-white/20 rounded-md mr-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M9 11V8a3 3 0 0 1 6 0v3" />
+                          <path d="M12 11h6a2 2 0 0 1 0 4h-4" />
+                          <path d="M9 15v-4" />
+                          <path d="M5 15h4" />
+                          <path d="M19 15a2 2 0 0 1 0 4H5a2 2 0 0 1 0-4" />
+                        </svg>
+                      </div>
+                      <h4 className="font-medium text-white">Key Points & Content</h4>
+                      
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <button type="button" className="inline-flex items-center text-slate-400 hover:text-slate-700">
+                            <button type="button" className="ml-auto inline-flex items-center text-white/70 hover:text-white">
                               <HelpCircle className="h-4 w-4" />
                             </button>
                           </TooltipTrigger>
@@ -671,24 +771,79 @@ export default function Templates() {
                         </Tooltip>
                       </TooltipProvider>
                     </div>
-                    <textarea 
-                      id="keyPoints" 
-                      name="keyPoints" 
-                      className="w-full border border-slate-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent bg-white shadow-sm"
-                      placeholder="• Limited time offer ending soon
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-slate-200">
+                    <div className="p-5 relative md:col-span-2">
+                      <textarea 
+                        id="keyPoints" 
+                        name="keyPoints" 
+                        className="w-full border border-slate-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent bg-white shadow-sm"
+                        placeholder="• Limited time offer ending soon
 • Free shipping on orders over $50
 • New spring collection now available
 • Exclusive discount for loyalty members"
-                      rows={5}
-                      value={formData.keyPoints}
-                      onChange={handleInputChange}
-                    ></textarea>
-                    <p className="mt-2 text-xs text-slate-500">Enter each key point on a new line. AI will incorporate these points into your email.</p>
+                        rows={5}
+                        value={formData.keyPoints}
+                        onChange={handleInputChange}
+                      ></textarea>
+                      
+                      <div className="mt-2 flex items-start text-xs">
+                        <svg className="text-slate-400 mt-0.5 mr-1 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M12 2c1.714 0 3.33.567 4.615 1.556a1 1 0 0 1 .385.78v12.332a1 1 0 0 1-.385.78C15.33 18.433 13.714 19 12 19s-3.33-.567-4.615-1.556a1 1 0 0 1-.385-.78V4.333a1 1 0 0 1 .385-.78C8.67 2.567 10.286 2 12 2Z"/>
+                        </svg>
+                        <p className="text-slate-500">Enter each key point on a new line. The AI will incorporate these points into your email in a natural way.</p>
+                      </div>
+                    </div>
+                    
+                    {/* AI Assistant Tips */}
+                    <div className="p-4 bg-gradient-to-b from-blue-50/50 to-teal-50/50">
+                      <div className="flex items-center mb-3">
+                        <div className="p-1.5 bg-gradient-to-r from-teal-500 to-blue-500 rounded-full mr-2">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M12 2c1.714 0 3.33.567 4.615 1.556a1 1 0 0 1 .385.78v12.332a1 1 0 0 1-.385.78C15.33 18.433 13.714 19 12 19s-3.33-.567-4.615-1.556a1 1 0 0 1-.385-.78V4.333a1 1 0 0 1 .385-.78C8.67 2.567 10.286 2 12 2Z"/>
+                          </svg>
+                        </div>
+                        <h5 className="text-sm font-medium text-slate-700">AI Tips</h5>
+                      </div>
+                      
+                      <ul className="space-y-2 text-xs text-slate-600">
+                        <li className="flex items-start">
+                          <svg className="h-3.5 w-3.5 text-teal-500 mt-0.5 mr-1.5 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clipRule="evenodd" />
+                          </svg>
+                          Be specific with your key points for better results
+                        </li>
+                        <li className="flex items-start">
+                          <svg className="h-3.5 w-3.5 text-teal-500 mt-0.5 mr-1.5 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clipRule="evenodd" />
+                          </svg>
+                          Include numbers and statistics when applicable
+                        </li>
+                        <li className="flex items-start">
+                          <svg className="h-3.5 w-3.5 text-teal-500 mt-0.5 mr-1.5 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clipRule="evenodd" />
+                          </svg>
+                          Mention deadlines to create urgency
+                        </li>
+                        <li className="flex items-start">
+                          <svg className="h-3.5 w-3.5 text-teal-500 mt-0.5 mr-1.5 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clipRule="evenodd" />
+                          </svg>
+                          Include clear call-to-action instructions
+                        </li>
+                      </ul>
+                      
+                      <div className="mt-4 p-2 bg-white rounded border border-slate-200 shadow-sm">
+                        <div className="text-xs text-slate-700 font-medium mb-1">AI Model: GPT-4o</div>
+                        <div className="text-xs text-slate-600">Optimized for email marketing content with persuasive writing capabilities</div>
+                      </div>
+                    </div>
                   </div>
                 </div>
                 
-                {/* Options */}
-                <div className="flex flex-col md:flex-row md:justify-between gap-4 p-4 bg-slate-50 rounded-lg border border-slate-200">
+                {/* Options Bar */}
+                <div className="flex flex-col md:flex-row md:justify-between gap-4 p-4 bg-gradient-to-r from-slate-50 to-blue-50/30 rounded-lg border border-slate-200">
                   <div className="flex items-center space-x-3">
                     <div className="p-1.5 bg-gradient-to-r from-teal-500 to-blue-500 rounded-md shadow-sm">
                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -743,72 +898,110 @@ export default function Templates() {
               </div>
               
               {/* Generation Button and Progress */}
-              <div className="mt-10 flex flex-col items-center">
-                <div className="w-full max-w-md">
-                  <Button 
-                    type="submit" 
-                    className="w-full py-3 bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white rounded-xl flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all duration-300 font-medium"
-                    disabled={generateTemplateMutation.isPending || generatingTemplate}
-                  >
-                    {(generateTemplateMutation.isPending || generatingTemplate) ? (
-                      <>
-                        <Loader2 className="h-5 w-5 animate-spin" />
-                        <span>AI is crafting your template...</span>
-                      </>
-                    ) : (
-                      <>
-                        <div className="p-1 bg-white bg-opacity-20 rounded-full">
-                          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M12 2c1.714 0 3.33.567 4.615 1.556a1 1 0 0 1 .385.78v12.332a1 1 0 0 1-.385.78C15.33 18.433 13.714 19 12 19s-3.33-.567-4.615-1.556a1 1 0 0 1-.385-.78V4.333a1 1 0 0 1 .385-.78C8.67 2.567 10.286 2 12 2Z"/>
-                            <path d="M12 6.5c1.657 0 3 .843 3 1.883s-1.343 1.884-3 1.884-3-.844-3-1.884S10.343 6.5 12 6.5Z"/>
-                          </svg>
-                        </div>
-                        <span>Generate AI Email Template</span>
-                      </>
-                    )}
-                  </Button>
-                  
-                  {generatingTemplate && (
-                    <div className="w-full mt-6 bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center">
-                          <svg className="animate-pulse mr-2 text-teal-500" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M21 10V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l2-1.14" />
-                            <path d="M16.5 9.4 7.55 4.24" />
-                            <polyline points="3.29 7 12 12 20.71 7" />
-                            <line x1="12" y1="22" x2="12" y2="12" />
-                            <circle cx="18.5" cy="15.5" r="2.5" />
-                            <path d="M20.27 17.27 22 19" />
-                          </svg>
-                          <span className="text-sm font-medium text-slate-700">
-                            {generationProgress < 50 ? 'Analyzing inputs...' : 
-                             generationProgress < 75 ? 'Creating template structure...' : 
-                             generationProgress < 90 ? 'Crafting content...' : 
-                             'Finalizing your template...'}
-                          </span>
-                        </div>
-                        <span className="text-sm font-medium text-teal-600">{Math.round(generationProgress)}%</span>
+              <div className="mt-10 flex flex-col items-center relative z-10">
+                {!generatingTemplate ? (
+                  <div className="w-full max-w-md relative">
+                    <div className="absolute inset-0 bg-gradient-to-r from-teal-300/20 to-blue-300/20 rounded-xl blur-xl"></div>
+                    <Button 
+                      type="submit" 
+                      className="w-full relative py-4 bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white rounded-xl flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transition-all duration-300 font-medium"
+                      disabled={generateTemplateMutation.isPending || generatingTemplate}
+                    >
+                      <div className="p-1.5 bg-white bg-opacity-20 rounded-full">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M12 2c1.714 0 3.33.567 4.615 1.556a1 1 0 0 1 .385.78v12.332a1 1 0 0 1-.385.78C15.33 18.433 13.714 19 12 19s-3.33-.567-4.615-1.556a1 1 0 0 1-.385-.78V4.333a1 1 0 0 1 .385-.78C8.67 2.567 10.286 2 12 2Z"/>
+                          <path d="M12 6.5c1.657 0 3 .843 3 1.883s-1.343 1.884-3 1.884-3-.844-3-1.884S10.343 6.5 12 6.5Z"/>
+                        </svg>
                       </div>
-                      <div className="w-full bg-slate-200 rounded-full h-3">
-                        <div 
-                          className="bg-gradient-to-r from-teal-500 to-blue-500 h-3 rounded-full transition-all duration-300 ease-in-out"
-                          style={{ width: `${generationProgress}%` }}
-                        ></div>
+                      <span className="text-lg">Generate AI Email Template</span>
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="w-full bg-white p-5 rounded-xl border border-slate-200 shadow-md">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center space-x-3">
+                        <div className="relative">
+                          <div className="absolute inset-0 bg-teal-500/20 rounded-full animate-ping"></div>
+                          <div className="relative p-1.5 bg-gradient-to-r from-teal-500 to-blue-500 rounded-full">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M12 2c1.714 0 3.33.567 4.615 1.556a1 1 0 0 1 .385.78v12.332a1 1 0 0 1-.385.78C15.33 18.433 13.714 19 12 19s-3.33-.567-4.615-1.556a1 1 0 0 1-.385-.78V4.333a1 1 0 0 1 .385-.78C8.67 2.567 10.286 2 12 2Z"/>
+                              <path d="M12 6.5c1.657 0 3 .843 3 1.883s-1.343 1.884-3 1.884-3-.844-3-1.884S10.343 6.5 12 6.5Z"/>
+                            </svg>
+                          </div>
+                        </div>
+                        <div>
+                          <h4 className="text-lg font-medium text-slate-700">AI Processing</h4>
+                          <p className="text-sm text-slate-500">
+                            {generationProgress < 25 ? 'Analyzing inputs and planning content structure...' : 
+                             generationProgress < 50 ? 'Crafting engaging subject line and preview text...' : 
+                             generationProgress < 75 ? 'Designing email layout and formatting content...' : 
+                             generationProgress < 90 ? 'Optimizing content for deliverability and engagement...' : 
+                             'Finalizing template and preparing preview...'}
+                          </p>
+                        </div>
                       </div>
-                      <div className="flex items-center mt-3 text-xs text-slate-500 justify-between">
-                        <span className="inline-flex items-center">
-                          <div className="p-1 bg-gradient-to-r from-teal-500 to-blue-500 rounded-full mr-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <span className="text-lg font-bold text-teal-600">{Math.round(generationProgress)}%</span>
+                    </div>
+                    
+                    {/* Progress bar with animated gradient */}
+                    <div className="w-full h-3 bg-slate-100 rounded-full overflow-hidden">
+                      <div 
+                        className="h-full rounded-full relative overflow-hidden transition-all duration-500 ease-out"
+                        style={{ width: `${generationProgress}%` }}
+                      >
+                        <div className="absolute inset-0 bg-gradient-to-r from-teal-500 via-blue-500 to-teal-500 animate-gradient-x"></div>
+                      </div>
+                    </div>
+                    
+                    {/* Thinking animation */}
+                    <div className="mt-4 flex items-start">
+                      <div className="p-3 bg-slate-50 rounded-lg border border-slate-200 flex-grow">
+                        <div className="flex items-center space-x-1.5 mb-2">
+                          <span className="w-2 h-2 rounded-full bg-teal-500 animate-pulse"></span>
+                          <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" style={{ animationDelay: '0.2s' }}></span>
+                          <span className="w-2 h-2 rounded-full bg-teal-500 animate-pulse" style={{ animationDelay: '0.4s' }}></span>
+                          <span className="text-xs font-medium text-slate-600 ml-1">AI thinking...</span>
+                        </div>
+                        
+                        <div className="space-y-1.5">
+                          {generationProgress > 20 && (
+                            <div className="text-xs text-slate-500 bg-white rounded p-1.5 border border-slate-100 animate-fade-in">
+                              <span className="text-teal-500 font-medium">✓</span> Analyzing {formData.industry} industry trends
+                            </div>
+                          )}
+                          {generationProgress > 40 && (
+                            <div className="text-xs text-slate-500 bg-white rounded p-1.5 border border-slate-100 animate-fade-in">
+                              <span className="text-teal-500 font-medium">✓</span> Creating {formData.templateType} structure
+                            </div>
+                          )}
+                          {generationProgress > 60 && (
+                            <div className="text-xs text-slate-500 bg-white rounded p-1.5 border border-slate-100 animate-fade-in">
+                              <span className="text-teal-500 font-medium">✓</span> Adapting tone to "{formData.brandTone}" style
+                            </div>
+                          )}
+                          {generationProgress > 80 && (
+                            <div className="text-xs text-slate-500 bg-white rounded p-1.5 border border-slate-100 animate-fade-in">
+                              <span className="text-teal-500 font-medium">✓</span> Incorporating {formData.keyPoints.split('\n').filter(line => line.trim()).length} key points
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      
+                      <div className="ml-4 p-3 bg-slate-50 rounded-lg border border-slate-200 text-center">
+                        <div className="text-xs font-medium text-slate-700 mb-1">Powered by</div>
+                        <div className="flex items-center justify-center">
+                          <div className="p-1 bg-gradient-to-r from-teal-500 to-blue-500 rounded-md shadow-sm mr-1.5">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                               <path d="M12 2c1.714 0 3.33.567 4.615 1.556a1 1 0 0 1 .385.78v12.332a1 1 0 0 1-.385.78C15.33 18.433 13.714 19 12 19s-3.33-.567-4.615-1.556a1 1 0 0 1-.385-.78V4.333a1 1 0 0 1 .385-.78C8.67 2.567 10.286 2 12 2Z"/>
                             </svg>
                           </div>
-                          Powered by GPT-4o AI
-                        </span>
-                        <span>~15-20 seconds remaining</span>
+                          <span className="text-xs font-semibold">GPT-4o</span>
+                        </div>
+                        <div className="text-xs text-slate-500 mt-1">AI Language Model</div>
                       </div>
                     </div>
-                  )}
-                </div>
+                  </div>
+                )}
               </div>
             </form>
           )}
