@@ -1,9 +1,13 @@
 import { useState, useEffect, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Badge } from "@/components/ui/badge";
 import { Link } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import { Loader2, HelpCircle, Info, AlertCircle, Check, Copy } from "lucide-react";
 
 interface Template {
   id: number;
@@ -191,13 +195,7 @@ export default function Templates() {
   
   const generateTemplateMutation = useMutation({
     mutationFn: async (data: any) => {
-      const response = await apiRequest('/api/generate-template', {
-        method: 'POST',
-        body: JSON.stringify(data),
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
+      const response = await apiRequest("POST", '/api/generate-template', data);
       return response.json();
     },
     onSuccess: (data) => {
@@ -325,21 +323,41 @@ export default function Templates() {
         
         <div className="card-body pt-4">
           {activeTab === 'editor' && (
-            <form onSubmit={handleSubmit}>
-              <div className="row g-3">
-                <div className="col-12">
-                  <div className="alert alert-info" role="alert">
-                    <i className="bi bi-info-circle-fill me-2"></i>
-                    Fill out the form below to generate a professional email template using AI. The more specific your inputs, the better your results will be.
-                  </div>
+            <form onSubmit={handleSubmit} className="p-4">
+              <div className="flex items-start p-4 mb-6 border rounded-lg bg-blue-50 border-blue-200">
+                <AlertCircle className="h-5 w-5 text-blue-500 mt-0.5 mr-3 flex-shrink-0" />
+                <div>
+                  <h3 className="font-medium text-blue-800">AI Email Template Generator</h3>
+                  <p className="text-blue-700 text-sm mt-1">
+                    Fill out the form below to create a professional email template using AI. The more specific your inputs, the better your results will be.
+                  </p>
                 </div>
-              
-                <div className="col-md-6">
-                  <label htmlFor="templateType" className="form-label">Template Type</label>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                {/* Template Type */}
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <label htmlFor="templateType" className="block text-sm font-medium">
+                      Template Type <span className="text-red-500">*</span>
+                    </label>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button type="button" className="inline-flex items-center text-gray-500 hover:text-gray-700">
+                            <HelpCircle className="h-4 w-4" />
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-sm">
+                          <p>Select the type of email template you want to create. This determines the structure and purpose of your email.</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
                   <select 
                     id="templateType" 
                     name="templateType" 
-                    className="form-select"
+                    className="w-full border border-gray-300 rounded-md p-2.5 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                     value={formData.templateType}
                     onChange={handleInputChange}
                     required
@@ -350,13 +368,30 @@ export default function Templates() {
                   </select>
                 </div>
                 
-                <div className="col-md-6">
-                  <label htmlFor="industry" className="form-label">Industry</label>
+                {/* Industry */}
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <label htmlFor="industry" className="block text-sm font-medium">
+                      Industry <span className="text-red-500">*</span>
+                    </label>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button type="button" className="inline-flex items-center text-gray-500 hover:text-gray-700">
+                            <HelpCircle className="h-4 w-4" />
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-sm">
+                          <p>Enter your business industry to tailor the template to your specific market (e.g., e-commerce, healthcare, technology).</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
                   <input 
                     type="text" 
                     id="industry" 
                     name="industry" 
-                    className="form-control"
+                    className="w-full border border-gray-300 rounded-md p-2.5 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                     placeholder="e.g., e-commerce, healthcare, technology"
                     value={formData.industry}
                     onChange={handleInputChange}
@@ -364,13 +399,30 @@ export default function Templates() {
                   />
                 </div>
                 
-                <div className="col-12">
-                  <label htmlFor="purpose" className="form-label">Purpose</label>
+                {/* Purpose */}
+                <div className="md:col-span-2">
+                  <div className="flex items-center justify-between mb-2">
+                    <label htmlFor="purpose" className="block text-sm font-medium">
+                      Purpose <span className="text-red-500">*</span>
+                    </label>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button type="button" className="inline-flex items-center text-gray-500 hover:text-gray-700">
+                            <HelpCircle className="h-4 w-4" />
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-sm">
+                          <p>Describe what you want to achieve with this email (e.g., announce a sale, share monthly updates, welcome new customers).</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
                   <input 
                     type="text" 
                     id="purpose" 
                     name="purpose" 
-                    className="form-control"
+                    className="w-full border border-gray-300 rounded-md p-2.5 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                     placeholder="e.g., announce a sale, share monthly updates"
                     value={formData.purpose}
                     onChange={handleInputChange}
@@ -378,13 +430,30 @@ export default function Templates() {
                   />
                 </div>
                 
-                <div className="col-12">
-                  <label htmlFor="targetAudience" className="form-label">Target Audience</label>
+                {/* Target Audience */}
+                <div className="md:col-span-2">
+                  <div className="flex items-center justify-between mb-2">
+                    <label htmlFor="targetAudience" className="block text-sm font-medium">
+                      Target Audience <span className="text-red-500">*</span>
+                    </label>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button type="button" className="inline-flex items-center text-gray-500 hover:text-gray-700">
+                            <HelpCircle className="h-4 w-4" />
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-sm">
+                          <p>Describe who will receive this email. Include demographic details like age range, customer status, interests, etc.</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
                   <input 
                     type="text" 
                     id="targetAudience" 
                     name="targetAudience" 
-                    className="form-control"
+                    className="w-full border border-gray-300 rounded-md p-2.5 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                     placeholder="e.g., existing customers aged 25-45"
                     value={formData.targetAudience}
                     onChange={handleInputChange}
@@ -392,12 +461,29 @@ export default function Templates() {
                   />
                 </div>
                 
-                <div className="col-md-6">
-                  <label htmlFor="brandTone" className="form-label">Brand Tone</label>
+                {/* Brand Tone */}
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <label htmlFor="brandTone" className="block text-sm font-medium">
+                      Brand Tone
+                    </label>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button type="button" className="inline-flex items-center text-gray-500 hover:text-gray-700">
+                            <HelpCircle className="h-4 w-4" />
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-sm">
+                          <p>Choose the voice and style for your email that best represents your brand's personality.</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
                   <select 
                     id="brandTone" 
                     name="brandTone" 
-                    className="form-select"
+                    className="w-full border border-gray-300 rounded-md p-2.5 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                     value={formData.brandTone}
                     onChange={handleInputChange}
                   >
@@ -407,122 +493,160 @@ export default function Templates() {
                   </select>
                 </div>
 
-                <div className="col-md-6">
-                  <label className="form-label">Color Theme</label>
-                  <div className="d-flex flex-wrap gap-2">
+                {/* Color Theme */}
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="block text-sm font-medium">
+                      Color Theme
+                    </label>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button type="button" className="inline-flex items-center text-gray-500 hover:text-gray-700">
+                            <HelpCircle className="h-4 w-4" />
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-sm">
+                          <p>Select a color scheme for your email template that matches your brand.</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
+                  <div className="flex flex-wrap gap-3">
                     {colorThemes.map(theme => (
-                      <div 
+                      <button
                         key={theme.id}
-                        className={`color-theme-option ${selectedColorTheme.id === theme.id ? 'active' : ''}`}
+                        type="button"
                         onClick={() => handleColorThemeChange(theme.id)}
+                        className={`relative w-8 h-8 rounded-full flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white focus:ring-gray-400 ${
+                          selectedColorTheme.id === theme.id ? 'ring-2 ring-offset-2 ring-offset-white ring-teal-500' : ''
+                        }`}
                         style={{ 
-                          backgroundColor: theme.secondary, 
-                          borderColor: selectedColorTheme.id === theme.id ? theme.primary : 'transparent',
-                          cursor: 'pointer',
-                          width: '30px',
-                          height: '30px',
-                          borderRadius: '50%',
-                          border: `2px solid ${selectedColorTheme.id === theme.id ? theme.primary : 'transparent'}`,
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center'
+                          backgroundColor: theme.secondary
                         }}
                         title={theme.name}
                       >
-                        <div style={{ 
-                          width: '15px', 
-                          height: '15px', 
-                          borderRadius: '50%', 
-                          backgroundColor: theme.primary 
-                        }}></div>
-                      </div>
+                        <span className="w-4 h-4 rounded-full" style={{ backgroundColor: theme.primary }}></span>
+                        {selectedColorTheme.id === theme.id && (
+                          <span className="absolute -top-1 -right-1 w-4 h-4 bg-teal-500 rounded-full flex items-center justify-center">
+                            <Check className="w-3 h-3 text-white" />
+                          </span>
+                        )}
+                      </button>
                     ))}
                   </div>
                 </div>
                 
-                <div className="col-12">
-                  <label htmlFor="keyPoints" className="form-label">Key Points to Include</label>
+                {/* Key Points */}
+                <div className="md:col-span-2">
+                  <div className="flex items-center justify-between mb-2">
+                    <label htmlFor="keyPoints" className="block text-sm font-medium">
+                      Key Points to Include
+                    </label>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button type="button" className="inline-flex items-center text-gray-500 hover:text-gray-700">
+                            <HelpCircle className="h-4 w-4" />
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-sm">
+                          <p>List any specific details, offers, or key points you want to include in the email. Separate multiple points with new lines.</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
                   <textarea 
                     id="keyPoints" 
                     name="keyPoints" 
-                    className="form-control"
-                    placeholder="e.g., limited time offer, new features, special benefits (separate by commas)"
+                    className="w-full border border-gray-300 rounded-md p-2.5 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                    placeholder="e.g., limited time offer, new features, special benefits"
                     rows={4}
                     value={formData.keyPoints}
                     onChange={handleInputChange}
                   ></textarea>
                 </div>
                 
-                <div className="col-md-6">
-                  <div className="form-check mt-1">
+                {/* Options */}
+                <div className="space-y-3">
+                  <div className="flex items-center space-x-2">
                     <input 
-                      className="form-check-input" 
                       type="checkbox" 
                       id="saveTemplate" 
                       name="saveTemplate"
+                      className="h-4 w-4 rounded border-gray-300 text-teal-600 focus:ring-teal-500"
                       checked={formData.saveTemplate}
                       onChange={handleCheckboxChange}
                     />
-                    <label className="form-check-label" htmlFor="saveTemplate">
-                      Save template after generation
+                    <label className="text-sm text-gray-700" htmlFor="saveTemplate">
+                      Save template to library
                     </label>
                   </div>
                 </div>
                 
-                <div className="col-md-6">
-                  <div className="form-check mt-1">
+                <div className="space-y-3">
+                  <div className="flex items-center space-x-2">
                     <input 
-                      className="form-check-input" 
                       type="checkbox" 
                       id="autoPreview" 
                       name="autoPreview"
+                      className="h-4 w-4 rounded border-gray-300 text-teal-600 focus:ring-teal-500"
                       checked={autoPreviewEnabled}
                       onChange={() => setAutoPreviewEnabled(!autoPreviewEnabled)}
                     />
-                    <label className="form-check-label" htmlFor="autoPreview">
-                      Auto-switch to preview when generating
+                    <label className="text-sm text-gray-700" htmlFor="autoPreview">
+                      Auto-switch to preview when ready
                     </label>
                   </div>
                 </div>
-                
-                <div className="col-12 mt-3">
-                  {generatingTemplate && (
-                    <div className="mb-3">
-                      <div className="progress" style={{ height: '8px' }}>
-                        <div 
-                          className="progress-bar bg-success progress-bar-striped progress-bar-animated" 
-                          role="progressbar" 
-                          style={{ width: `${generationProgress}%` }} 
-                          aria-valuenow={generationProgress} 
-                          aria-valuemin={0} 
-                          aria-valuemax={100}
-                        ></div>
-                      </div>
-                      <div className="d-flex justify-content-between mt-1">
-                        <small className="text-muted">Generating email template...</small>
-                        <small className="text-muted">{Math.round(generationProgress)}%</small>
-                      </div>
-                    </div>
+              </div>
+              
+              {/* Generation Button and Progress */}
+              <div className="flex flex-col items-center mt-8">
+                <Button 
+                  type="submit" 
+                  className="w-full md:w-auto md:px-12 py-2.5 bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white rounded-md flex items-center justify-center gap-2"
+                  disabled={generateTemplateMutation.isPending || generatingTemplate}
+                >
+                  {(generateTemplateMutation.isPending || generatingTemplate) ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Generating AI Template...
+                    </>
+                  ) : (
+                    <>
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M10 0C4.477 0 0 4.477 0 10s4.477 10 10 10 10-4.477 10-10S15.523 0 10 0zm-1.707 5.293a1 1 0 11-1.414 1.414L9 9.586l-1.293-1.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4a1 1 0 00-1.414-1.414L9 9.586z" clipRule="evenodd" />
+                      </svg>
+                      Generate AI Email Template
+                    </>
                   )}
-                  
-                  <button 
-                    type="submit" 
-                    className="btn btn-success btn-lg w-100"
-                    disabled={generateTemplateMutation.isPending || generatingTemplate}
-                  >
-                    {(generateTemplateMutation.isPending || generatingTemplate) ? (
-                      <>
-                        <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                        Generating AI Email Template...
-                      </>
-                    ) : (
-                      <>
-                        <i className="bi bi-magic me-2"></i>
-                        Generate AI Email Template
-                      </>
-                    )}
-                  </button>
-                </div>
+                </Button>
+                
+                {generatingTemplate && (
+                  <div className="w-full mt-6">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-medium text-gray-700">
+                        {generationProgress < 90 ? 'Creating your template...' : 'Almost done!'}
+                      </span>
+                      <span className="text-sm text-gray-500">{Math.round(generationProgress)}%</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2.5">
+                      <div 
+                        className="bg-teal-500 h-2.5 rounded-full transition-all duration-300 ease-in-out"
+                        style={{ width: `${generationProgress}%` }}
+                      ></div>
+                    </div>
+                    <div className="flex items-center mt-2 text-xs text-gray-500">
+                      <span className="inline-flex items-center mr-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                        </svg>
+                        Using GPT-4o for high-quality results
+                      </span>
+                    </div>
+                  </div>
+                )}
               </div>
             </form>
           )}
