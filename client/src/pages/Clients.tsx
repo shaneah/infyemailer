@@ -513,6 +513,23 @@ const ClientsPage: React.FC = () => {
         </Dialog>
       </div>
       
+      {/* System Credits Summary */}
+      <div className="flex space-x-4 bg-card rounded-md border p-4 shadow-sm">
+        <div className="flex items-center space-x-3">
+          <div className="rounded-full bg-primary/10 p-2">
+            <CreditCard className="h-5 w-5 text-primary" />
+          </div>
+          <div>
+            <p className="text-sm font-medium">Available Credits</p>
+            <p className="text-2xl font-bold">{availableCredits.toLocaleString()}</p>
+          </div>
+        </div>
+        <div className="border-l pl-4">
+          <p className="text-sm text-muted-foreground">Total System Credits: {totalSystemCredits.toLocaleString()}</p>
+          <p className="text-sm text-muted-foreground">Allocated: {(totalSystemCredits - availableCredits).toLocaleString()} ({((totalSystemCredits - availableCredits) / totalSystemCredits * 100).toFixed(1)}%)</p>
+        </div>
+      </div>
+      
       {/* Client Management Section */}
       
       <Card>
