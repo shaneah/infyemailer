@@ -91,17 +91,7 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
               Contacts
             </Link>
           </li>
-          <li>
-            <Link 
-              href="/clients" 
-              className={`flex items-center px-2 py-2 rounded-md ${location === '/clients' 
-                ? 'text-white border-l-4 border-white bg-white/10' 
-                : 'text-gray-300 hover:bg-white/5'}`}
-            >
-              <Building className="h-5 w-5 mr-3" />
-              Clients
-            </Link>
-          </li>
+
           <li>
             <Link 
               href="/client-users" 

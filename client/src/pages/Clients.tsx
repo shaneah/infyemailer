@@ -16,7 +16,8 @@ import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { Building, PlusCircle, User, Mail, DollarSign, Briefcase, Trash2, Edit, CreditCard } from 'lucide-react';
+import { Building, PlusCircle, User, Mail, DollarSign, Briefcase, Trash2, Edit, CreditCard, FileText, Users2 } from 'lucide-react';
+import { format } from 'date-fns';
 import { Progress } from '@/components/ui/progress';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 
@@ -511,10 +512,12 @@ const ClientsPage: React.FC = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Client</TableHead>
+                  <TableHead>Client Name</TableHead>
+                  <TableHead>Plan</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead>Company</TableHead>
-                  <TableHead>Industry</TableHead>
+                  <TableHead>Campaigns</TableHead>
+                  <TableHead>Contacts</TableHead>
+                  <TableHead>Last Active</TableHead>
                   <TableHead>Email Credits</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
@@ -538,12 +541,34 @@ const ClientsPage: React.FC = () => {
                       </div>
                     </TableCell>
                     <TableCell>
+                      <Badge variant="outline" className="bg-primary/10 text-primary font-medium">
+                        {client.metadata?.plan || 'Standard'}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
                       <Badge variant={client.status === 'active' ? 'default' : 'secondary'}>
                         {client.status === 'active' || client.status?.label === 'Active' ? 'Active' : 'Inactive'}
                       </Badge>
                     </TableCell>
-                    <TableCell>{client.company}</TableCell>
-                    <TableCell>{client.industry || '—'}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-1">
+                        <FileText className="h-4 w-4 text-muted-foreground" />
+                        <span>{client.metadata?.campaignsCount || 0}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-1">
+                        <Users2 className="h-4 w-4 text-muted-foreground" />
+                        <span>{client.metadata?.contactsCount || 0}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="text-sm">
+                        {client.lastCampaignAt 
+                          ? format(new Date(client.lastCampaignAt), 'MMM d, yyyy')
+                          : '—'}
+                      </div>
+                    </TableCell>
                     <TableCell>
                       <div className="font-medium">{client.emailCredits?.toLocaleString() || 0}</div>
                       <div className="text-xs text-muted-foreground">
