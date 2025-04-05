@@ -206,11 +206,18 @@ const ClientsPage: React.FC = () => {
   // Add credits mutation
   const addCreditsToClientMutation = useMutation({
     mutationFn: async ({ clientId, credits }: { clientId: number; credits: number }) => {
-      return apiRequest(`/api/clients/${clientId}/email-credits/add`, {
+      const response = await fetch(`/api/clients/${clientId}/email-credits/add`, {
         method: 'POST',
         body: JSON.stringify({ emailCredits: credits }),
         headers: { 'Content-Type': 'application/json' }
       });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to add credits');
+      }
+      
+      return response.json();
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: [`/api/clients/${variables.clientId}/email-credits/remaining`] });
@@ -222,6 +229,7 @@ const ClientsPage: React.FC = () => {
       setIsAddCreditsOpen(false);
     },
     onError: (error) => {
+      console.error('Error adding credits:', error);
       toast({
         title: "Error",
         description: `Failed to add credits: ${error instanceof Error ? error.message : 'Unknown error'}`,
