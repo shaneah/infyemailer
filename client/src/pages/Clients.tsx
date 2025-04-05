@@ -57,7 +57,7 @@ const ClientsPage: React.FC = () => {
   });
   
   // Custom hook to fetch email credits for a client
-  const useClientEmailCredits = (clientId: number) => {
+  const useClientCredits = (clientId: number) => {
     return useQuery({
       queryKey: [`/api/clients/${clientId}/email-credits/remaining`],
       staleTime: 1000 * 60, // 1 minute
@@ -238,9 +238,9 @@ const ClientsPage: React.FC = () => {
     }
   });
 
-  // Email Credits Display Component
-  const EmailCreditsDisplay = ({ clientId }: { clientId: number }) => {
-    const { data, isLoading, isError } = useClientEmailCredits(clientId);
+  // Credits Display Component
+  const CreditsDisplay = ({ clientId }: { clientId: number }) => {
+    const { data, isLoading, isError } = useClientCredits(clientId);
     
     if (isLoading) {
       return <Skeleton className="h-4 w-24" />;
@@ -548,7 +548,7 @@ const ClientsPage: React.FC = () => {
                   <TableHead>Status</TableHead>
                   <TableHead>Company</TableHead>
                   <TableHead>Industry</TableHead>
-                  <TableHead>Email Credits</TableHead>
+                  <TableHead>Credits</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -748,7 +748,7 @@ const ClientsPage: React.FC = () => {
       <Dialog open={isAddCreditsOpen} onOpenChange={setIsAddCreditsOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Add Email Credits</DialogTitle>
+            <DialogTitle>Add Credits</DialogTitle>
             <DialogDescription>
               Add credits to {selectedClientForCredits?.name}'s account.
             </DialogDescription>
@@ -786,7 +786,7 @@ const ClientsPage: React.FC = () => {
                       />
                     </FormControl>
                     <FormDescription>
-                      Enter the number of email credits to add to this client's account.
+                      Enter the number of credits to add to this client's account.
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
