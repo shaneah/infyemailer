@@ -36,15 +36,13 @@ type ClientFormValues = z.infer<typeof clientSchema>;
 const ClientsPage: React.FC = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  
+  // All state hooks
   const [isNewClientOpen, setIsNewClientOpen] = useState(false);
   const [isEditClientOpen, setIsEditClientOpen] = useState(false);
   const [selectedClient, setSelectedClient] = useState<any>(null);
-  
-  // Total system credits
   const [totalSystemCredits, setTotalSystemCredits] = useState(1000000); // Example value, could be fetched from the API
   const [availableCredits, setAvailableCredits] = useState(750000); // Example value
-  
-  // State for add credits dialog
   const [isAddCreditsOpen, setIsAddCreditsOpen] = useState(false);
   const [selectedClientForCredits, setSelectedClientForCredits] = useState<any>(null);
 
@@ -67,61 +65,46 @@ const ClientsPage: React.FC = () => {
     });
   };
   
-  // Add credits mutation
-  const addCreditsToClientMutation = useMutation({
-    mutationFn: async ({ clientId, credits }: { clientId: number; credits: number }) => {
-      return apiRequest(`/api/clients/${clientId}/email-credits/add`, {
-        method: 'POST',
-        body: JSON.stringify({ emailCredits: credits }),
-        headers: { 'Content-Type': 'application/json' }
-      });
-    },
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: [`/api/clients/${variables.clientId}/email-credits/remaining`] });
-      queryClient.invalidateQueries({ queryKey: ['/api/clients'] });
-      toast({
-        title: "Credits Added",
-        description: `${variables.credits} credits have been added to the client's account.`
-      });
-      setIsAddCreditsOpen(false);
-    },
-    onError: (error) => {
-      toast({
-        title: "Error",
-        description: `Failed to add credits: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        variant: "destructive"
-      });
+  // Form setup for new client
+  const newClientForm = useForm<ClientFormValues>({
+    resolver: zodResolver(clientSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      company: "",
+      status: "active",
+      industry: "",
+      totalSpend: 0,
+      avatar: ""
+    }
+  });
+
+  // Form setup for edit client
+  const editClientForm = useForm<ClientFormValues>({
+    resolver: zodResolver(clientSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      company: "",
+      status: "active",
+      industry: "",
+      totalSpend: 0,
+      avatar: ""
     }
   });
   
-  // Email Credits Display Component
-  const EmailCreditsDisplay = ({ clientId }: { clientId: number }) => {
-    const { data, isLoading, isError } = useClientEmailCredits(clientId);
-    
-    if (isLoading) {
-      return <Skeleton className="h-4 w-24" />;
+  // Form setup for adding credits
+  const addCreditsForm = useForm({
+    resolver: zodResolver(
+      z.object({
+        credits: z.number().min(1, "Credits must be at least 1")
+      })
+    ),
+    defaultValues: {
+      credits: 1000
     }
-    
-    if (isError) {
-      return <span className="text-red-500">Failed to load</span>;
-    }
-    
-    // Calculate the percentage used for the progress bar
-    const credits = data?.emailCredits || 0;
-    const total = data?.emailCreditsPurchased || 0;
-    const percentage = total > 0 ? (credits / total) * 100 : 0;
-    
-    return (
-      <div className="flex flex-col gap-1 w-full max-w-[150px]">
-        <div className="flex justify-between text-xs text-muted-foreground">
-          <span>{credits.toLocaleString()}</span>
-          <span>of {total.toLocaleString()}</span>
-        </div>
-        <Progress value={percentage} className="h-2" />
-      </div>
-    );
-  };
-
+  });
+  
   // Add client mutation
   const addClientMutation = useMutation({
     mutationFn: async (newClient: ClientFormValues) => {
@@ -219,34 +202,61 @@ const ClientsPage: React.FC = () => {
       });
     }
   });
-
-  // Form setup for new client
-  const newClientForm = useForm<ClientFormValues>({
-    resolver: zodResolver(clientSchema),
-    defaultValues: {
-      name: "",
-      email: "",
-      company: "",
-      status: "active",
-      industry: "",
-      totalSpend: 0,
-      avatar: ""
+  
+  // Add credits mutation
+  const addCreditsToClientMutation = useMutation({
+    mutationFn: async ({ clientId, credits }: { clientId: number; credits: number }) => {
+      return apiRequest(`/api/clients/${clientId}/email-credits/add`, {
+        method: 'POST',
+        body: JSON.stringify({ emailCredits: credits }),
+        headers: { 'Content-Type': 'application/json' }
+      });
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: [`/api/clients/${variables.clientId}/email-credits/remaining`] });
+      queryClient.invalidateQueries({ queryKey: ['/api/clients'] });
+      toast({
+        title: "Credits Added",
+        description: `${variables.credits} credits have been added to the client's account.`
+      });
+      setIsAddCreditsOpen(false);
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: `Failed to add credits: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        variant: "destructive"
+      });
     }
   });
 
-  // Form setup for edit client
-  const editClientForm = useForm<ClientFormValues>({
-    resolver: zodResolver(clientSchema),
-    defaultValues: {
-      name: "",
-      email: "",
-      company: "",
-      status: "active",
-      industry: "",
-      totalSpend: 0,
-      avatar: ""
+  // Email Credits Display Component
+  const EmailCreditsDisplay = ({ clientId }: { clientId: number }) => {
+    const { data, isLoading, isError } = useClientEmailCredits(clientId);
+    
+    if (isLoading) {
+      return <Skeleton className="h-4 w-24" />;
     }
-  });
+    
+    if (isError) {
+      return <span className="text-red-500">Failed to load</span>;
+    }
+    
+    // Calculate the percentage used for the progress bar
+    const credits = data?.emailCredits || 0;
+    const total = data?.emailCreditsPurchased || 0;
+    const percentage = total > 0 ? (credits / total) * 100 : 0;
+    
+    return (
+      <div className="flex flex-col gap-1 w-full max-w-[150px]">
+        <div className="flex justify-between text-xs text-muted-foreground">
+          <span>{credits.toLocaleString()}</span>
+          <span>of {total.toLocaleString()}</span>
+        </div>
+        <Progress value={percentage} className="h-2" />
+      </div>
+    );
+  };
 
   // Handle new client submission
   function onSubmitNewClient(data: ClientFormValues) {
@@ -271,7 +281,7 @@ const ClientsPage: React.FC = () => {
       name: client.name,
       email: client.email,
       company: client.company,
-      status: client.status.label.toLowerCase(),
+      status: client.status.label ? client.status.label.toLowerCase() : client.status,
       industry: client.industry === 'N/A' ? '' : client.industry,
       totalSpend: client.totalSpend,
       avatar: client.avatar || ''
@@ -306,6 +316,24 @@ const ClientsPage: React.FC = () => {
       .substring(0, 2);
   }
 
+  // Handle add credits submission
+  function onSubmitAddCredits(data: { credits: number }) {
+    if (selectedClientForCredits) {
+      addCreditsToClientMutation.mutate({ 
+        clientId: selectedClientForCredits.id, 
+        credits: data.credits 
+      });
+    }
+  }
+  
+  // Open add credits dialog
+  function handleAddCredits(client: any) {
+    setSelectedClientForCredits(client);
+    addCreditsForm.reset({ credits: 1000 });
+    setIsAddCreditsOpen(true);
+  }
+
+  // Conditional rendering for loading and error states
   if (isLoading) {
     return (
       <div className="container mx-auto py-6 space-y-8">
@@ -355,36 +383,7 @@ const ClientsPage: React.FC = () => {
       </div>
     );
   }
-
-  // Form setup for adding credits
-  const addCreditsForm = useForm({
-    resolver: zodResolver(
-      z.object({
-        credits: z.number().min(1, "Credits must be at least 1")
-      })
-    ),
-    defaultValues: {
-      credits: 1000
-    }
-  });
   
-  // Handle add credits submission
-  function onSubmitAddCredits(data: { credits: number }) {
-    if (selectedClientForCredits) {
-      addCreditsToClientMutation.mutate({ 
-        clientId: selectedClientForCredits.id, 
-        credits: data.credits 
-      });
-    }
-  }
-  
-  // Open add credits dialog
-  function handleAddCredits(client: any) {
-    setSelectedClientForCredits(client);
-    addCreditsForm.reset({ credits: 1000 });
-    setIsAddCreditsOpen(true);
-  }
-
   return (
     <div className="container mx-auto py-6 space-y-8">
       <div className="flex justify-between items-center">
@@ -478,52 +477,25 @@ const ClientsPage: React.FC = () => {
                       <FormItem>
                         <FormLabel>Industry</FormLabel>
                         <FormControl>
-                          <Input placeholder="E.g. Technology" {...field} />
+                          <Input placeholder="Industry" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
                 </div>
-                <FormField
-                  control={newClientForm.control}
-                  name="totalSpend"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Total Spend</FormLabel>
-                      <FormControl>
-                        <Input 
-                          type="number" 
-                          placeholder="0.00" 
-                          {...field}
-                          onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)} 
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={newClientForm.control}
-                  name="avatar"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Avatar URL</FormLabel>
-                      <FormControl>
-                        <Input placeholder="https://example.com/avatar.jpg" {...field} />
-                      </FormControl>
-                      <FormDescription>
-                        Optional: URL to the client's avatar image
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
                 <DialogFooter>
-                  <Button type="button" variant="outline" onClick={handleCloseNewClient}>
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    onClick={handleCloseNewClient}
+                  >
                     Cancel
                   </Button>
-                  <Button type="submit" disabled={addClientMutation.isPending}>
+                  <Button 
+                    type="submit" 
+                    disabled={addClientMutation.isPending}
+                  >
                     {addClientMutation.isPending ? "Creating..." : "Create Client"}
                   </Button>
                 </DialogFooter>
@@ -532,154 +504,135 @@ const ClientsPage: React.FC = () => {
           </DialogContent>
         </Dialog>
       </div>
-
-      {/* Credits Management Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      
+      {/* Email Credits Overview Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
         <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-xl flex items-center">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-lg font-medium flex items-center">
               <CreditCard className="mr-2 h-5 w-5 text-primary" />
               Available Email Credits
             </CardTitle>
-            <CardDescription>Credits available to assign to clients</CardDescription>
+            <CardDescription>System-wide email credits available for allocation</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="text-4xl font-bold">{availableCredits.toLocaleString()}</div>
-                <div className="text-sm text-muted-foreground">
-                  of {totalSystemCredits.toLocaleString()} total
-                </div>
-              </div>
-              <Progress value={availableCredits / totalSystemCredits * 100} className="h-2" />
+            <div className="flex items-center justify-between">
+              <div className="text-3xl font-bold">{availableCredits.toLocaleString()}</div>
+              <div className="text-sm text-muted-foreground">of {totalSystemCredits.toLocaleString()} total</div>
             </div>
+            <Progress 
+              className="h-2 mt-2" 
+              value={(availableCredits / totalSystemCredits) * 100} 
+            />
           </CardContent>
-          <CardFooter>
-            <Button variant="outline" className="w-full" disabled>
-              <PlusCircle className="mr-2 h-4 w-4" />
-              Purchase More Credits
-            </Button>
-          </CardFooter>
         </Card>
-
+        
         <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-xl flex items-center">
-              <CreditCard className="mr-2 h-5 w-5 text-primary" />
+          <CardHeader className="pb-2">
+            <CardTitle className="text-lg font-medium flex items-center">
+              <Mail className="mr-2 h-5 w-5 text-primary" />
               Assigned Email Credits
             </CardTitle>
-            <CardDescription>Total credits assigned to clients</CardDescription>
+            <CardDescription>Credits currently allocated to clients</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="text-4xl font-bold">{(totalSystemCredits - availableCredits).toLocaleString()}</div>
-                <div className="text-sm text-muted-foreground">
-                  of {totalSystemCredits.toLocaleString()} total
-                </div>
-              </div>
-              <Progress value={(totalSystemCredits - availableCredits) / totalSystemCredits * 100} className="h-2" />
+            <div className="flex items-center justify-between">
+              <div className="text-3xl font-bold">{(totalSystemCredits - availableCredits).toLocaleString()}</div>
+              <div className="text-sm text-muted-foreground">{((totalSystemCredits - availableCredits) / totalSystemCredits * 100).toFixed(1)}% allocated</div>
             </div>
+            <Progress 
+              className="h-2 mt-2" 
+              value={((totalSystemCredits - availableCredits) / totalSystemCredits) * 100} 
+            />
           </CardContent>
-          <CardFooter>
-            <Button variant="outline" className="w-full" disabled>
-              View Client Usage Report
-            </Button>
-          </CardFooter>
         </Card>
       </div>
-
+      
       <Card>
         <CardHeader>
-          <CardTitle>All Clients</CardTitle>
-          <CardDescription>Manage your clients and their campaigns</CardDescription>
+          <CardTitle>Client List</CardTitle>
+          <CardDescription>
+            Manage your marketing clients and their allocations
+          </CardDescription>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Client</TableHead>
-                <TableHead>Company</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Industry</TableHead>
-                <TableHead>Spend</TableHead>
-                <TableHead>Email Credits</TableHead>
-                <TableHead>Last Campaign</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {clients?.length === 0 ? (
+          <div className="rounded-md border">
+            <Table>
+              <TableHeader>
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
-                    No clients found. Create a new client to get started.
-                  </TableCell>
+                  <TableHead>Client</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Company</TableHead>
+                  <TableHead>Industry</TableHead>
+                  <TableHead>Email Credits</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
-              ) : (
-                clients?.map((client: any) => (
+              </TableHeader>
+              <TableBody>
+                {clients?.map((client: any) => (
                   <TableRow key={client.id}>
-                    <TableCell>
-                      <div className="flex items-center gap-3">
-                        <Avatar>
+                    <TableCell className="font-medium">
+                      <div className="flex items-center">
+                        <Avatar className="h-9 w-9 mr-3">
                           {client.avatar ? (
                             <AvatarImage src={client.avatar} alt={client.name} />
-                          ) : null}
-                          <AvatarFallback>{getInitials(client.name)}</AvatarFallback>
+                          ) : (
+                            <AvatarFallback>{getInitials(client.name)}</AvatarFallback>
+                          )}
                         </Avatar>
-                        <div className="flex flex-col">
-                          <span className="font-medium">{client.name}</span>
-                          <span className="text-sm text-muted-foreground">{client.email}</span>
+                        <div>
+                          <div className="font-semibold">{client.name}</div>
+                          <div className="text-sm text-muted-foreground">{client.email}</div>
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell>{client.company}</TableCell>
                     <TableCell>
-                      <Badge variant={client.status.color === 'success' ? 'default' : 'secondary'}>
-                        {client.status.label}
+                      <Badge variant={client.status === 'active' ? 'default' : 'secondary'}>
+                        {client.status === 'active' || client.status?.label === 'Active' ? 'Active' : 'Inactive'}
                       </Badge>
                     </TableCell>
-                    <TableCell>{client.industry}</TableCell>
-                    <TableCell>${client.totalSpend.toLocaleString()}</TableCell>
+                    <TableCell>{client.company}</TableCell>
+                    <TableCell>{client.industry || '—'}</TableCell>
                     <TableCell>
-                      <EmailCreditsDisplay clientId={client.id} />
+                      <div className="font-medium">{client.emailCredits?.toLocaleString() || 0}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {client.emailCreditsUsed ? `${client.emailCreditsUsed.toLocaleString()} used` : '0 used'}
+                      </div>
                     </TableCell>
-                    <TableCell>{client.lastCampaign}</TableCell>
                     <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
+                      <div className="flex justify-end space-x-2">
                         <Button
-                          variant="ghost"
-                          size="icon"
+                          variant="outline"
+                          size="sm"
                           onClick={() => handleAddCredits(client)}
-                          title="Add Credits"
                         >
-                          <CreditCard size={16} />
+                          <CreditCard className="h-4 w-4 mr-1" /> Add Credits
                         </Button>
                         <Button
                           variant="ghost"
                           size="icon"
                           onClick={() => handleEditClient(client)}
-                          title="Edit Client"
                         >
-                          <Edit size={16} />
+                          <Edit className="h-4 w-4" />
                         </Button>
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
-                            <Button variant="ghost" size="icon" className="text-red-500 hover:text-red-700">
-                              <Trash2 size={16} />
+                            <Button variant="ghost" size="icon">
+                              <Trash2 className="h-4 w-4" />
                             </Button>
                           </AlertDialogTrigger>
                           <AlertDialogContent>
                             <AlertDialogHeader>
                               <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                               <AlertDialogDescription>
-                                This will permanently delete the client "{client.name}" and cannot be undone.
+                                This will permanently delete the client and all associated data. This action cannot be undone.
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
                               <AlertDialogCancel>Cancel</AlertDialogCancel>
-                              <AlertDialogAction 
+                              <AlertDialogAction
                                 onClick={() => handleDeleteClient(client.id)}
-                                className="bg-red-500 hover:bg-red-600"
+                                className="bg-red-600 hover:bg-red-700"
                               >
                                 Delete
                               </AlertDialogAction>
@@ -689,83 +642,13 @@ const ClientsPage: React.FC = () => {
                       </div>
                     </TableCell>
                   </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         </CardContent>
       </Card>
 
-      {/* Add Credits Dialog */}
-      <Dialog open={isAddCreditsOpen} onOpenChange={setIsAddCreditsOpen}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Add Email Credits</DialogTitle>
-            <DialogDescription>
-              Add credits to {selectedClientForCredits?.name}'s account.
-            </DialogDescription>
-          </DialogHeader>
-          <Form {...addCreditsForm}>
-            <form onSubmit={addCreditsForm.handleSubmit(onSubmitAddCredits)} className="space-y-4">
-              {selectedClientForCredits && (
-                <div className="bg-muted/50 p-4 rounded-lg mb-4">
-                  <div className="flex justify-between mb-2">
-                    <span className="text-sm font-medium">Current Credits:</span>
-                    <span className="text-sm">
-                      {selectedClientForCredits.emailCredits?.toLocaleString() || "0"}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-sm font-medium">Total Purchased:</span>
-                    <span className="text-sm">
-                      {selectedClientForCredits.emailCreditsPurchased?.toLocaleString() || "0"}
-                    </span>
-                  </div>
-                </div>
-              )}
-              
-              <FormField
-                control={addCreditsForm.control}
-                name="credits"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Credits to Add</FormLabel>
-                    <FormControl>
-                      <Input 
-                        type="number" 
-                        {...field}
-                        min={1}
-                        onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      Credits will be added to the client's current balance.
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <DialogFooter className="mt-6">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setIsAddCreditsOpen(false)}
-                >
-                  Cancel
-                </Button>
-                <Button 
-                  type="submit"
-                  disabled={addCreditsToClientMutation.isPending}
-                >
-                  {addCreditsToClientMutation.isPending ? "Adding..." : "Add Credits"}
-                </Button>
-              </DialogFooter>
-            </form>
-          </Form>
-        </DialogContent>
-      </Dialog>
-      
       {/* Edit Client Dialog */}
       <Dialog open={isEditClientOpen} onOpenChange={setIsEditClientOpen}>
         <DialogContent className="sm:max-w-[550px]">
@@ -850,53 +733,84 @@ const ClientsPage: React.FC = () => {
                     <FormItem>
                       <FormLabel>Industry</FormLabel>
                       <FormControl>
-                        <Input placeholder="E.g. Technology" {...field} />
+                        <Input placeholder="Industry" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
               </div>
+              <DialogFooter>
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={handleCloseEditClient}
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  type="submit" 
+                  disabled={updateClientMutation.isPending}
+                >
+                  {updateClientMutation.isPending ? "Updating..." : "Update Client"}
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Add Credits Dialog */}
+      <Dialog open={isAddCreditsOpen} onOpenChange={setIsAddCreditsOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Add Email Credits</DialogTitle>
+            <DialogDescription>
+              Add credits to {selectedClientForCredits?.name}'s account.
+            </DialogDescription>
+          </DialogHeader>
+          <Form {...addCreditsForm}>
+            <form onSubmit={addCreditsForm.handleSubmit(onSubmitAddCredits)} className="space-y-4">
+              {selectedClientForCredits && (
+                <div className="grid grid-cols-2 gap-4 mb-4">
+                  <div className="space-y-1">
+                    <div className="text-sm font-medium">Current Credits</div>
+                    <div className="text-2xl font-bold">
+                      {selectedClientForCredits.emailCredits?.toLocaleString() || "0"}
+                    </div>
+                  </div>
+                  <div className="space-y-1">
+                    <div className="text-sm font-medium">Total Purchased</div>
+                    <div className="text-2xl font-bold">
+                      {selectedClientForCredits.emailCreditsPurchased?.toLocaleString() || "0"}
+                    </div>
+                  </div>
+                </div>
+              )}
               <FormField
-                control={editClientForm.control}
-                name="totalSpend"
+                control={addCreditsForm.control}
+                name="credits"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Total Spend</FormLabel>
+                    <FormLabel>Credits to Add</FormLabel>
                     <FormControl>
                       <Input 
                         type="number" 
-                        placeholder="0.00" 
+                        min="1" 
                         {...field}
-                        onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)} 
+                        onChange={(e) => field.onChange(parseInt(e.target.value, 10) || 0)}
                       />
                     </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={editClientForm.control}
-                name="avatar"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Avatar URL</FormLabel>
-                    <FormControl>
-                      <Input placeholder="https://example.com/avatar.jpg" {...field} />
-                    </FormControl>
                     <FormDescription>
-                      Optional: URL to the client's avatar image
+                      Enter the number of email credits to add to this client's account.
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
               />
               <DialogFooter>
-                <Button type="button" variant="outline" onClick={handleCloseEditClient}>
-                  Cancel
-                </Button>
-                <Button type="submit" disabled={updateClientMutation.isPending}>
-                  {updateClientMutation.isPending ? "Saving..." : "Save Changes"}
+                <Button type="submit" disabled={addCreditsToClientMutation.isPending}>
+                  {addCreditsToClientMutation.isPending ? 'Adding...' : 'Add Credits'}
                 </Button>
               </DialogFooter>
             </form>
