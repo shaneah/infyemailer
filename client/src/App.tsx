@@ -17,7 +17,7 @@ import ABTesting from "@/pages/ABTesting";
 import EmailPerformance from "@/pages/EmailPerformance";
 import TemplateBuilder from "@/pages/TemplateBuilder";
 import Domains from "@/pages/Domains";
-import Analytics from "@/pages/Analytics";
+
 import Clients from "@/pages/Clients";
 import ClientUsers from "@/pages/ClientUsers";
 import Settings from "@/pages/Settings";
@@ -63,7 +63,6 @@ function App() {
                   <ProtectedRoute path="/template-builder" component={TemplateBuilder} />
                   <ProtectedRoute path="/template-builder/:id" component={TemplateBuilder} />
                   <ProtectedRoute path="/domains" component={Domains} />
-                  <ProtectedRoute path="/analytics" component={Analytics} />
                   <ProtectedRoute path="/clients" component={Clients} />
                   <ProtectedRoute path="/client-users" component={ClientUsers} />
                   <Route path="/settings">

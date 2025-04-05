@@ -103,17 +103,7 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
               Client Users
             </Link>
           </li>
-          <li>
-            <Link 
-              href="/analytics" 
-              className={`flex items-center px-2 py-2 rounded-md ${location === '/analytics' 
-                ? 'text-white border-l-4 border-white bg-white/10' 
-                : 'text-gray-300 hover:bg-white/5'}`}
-            >
-              <BarChart2 className="h-5 w-5 mr-3" />
-              Analytics
-            </Link>
-          </li>
+
           <li>
             <Link 
               href="/reporting" 
