@@ -702,139 +702,184 @@ export default function Domains() {
               </TabsContent>
               
               <TabsContent value="authentication">
-                <div className="space-y-6">
-                  <div className="bg-muted p-4 rounded-lg">
-                    <h3 className="text-sm font-semibold mb-3 flex items-center">
-                      <span className="mr-2">DKIM Authentication</span>
-                      <Badge variant={selectedDomain.dkimVerified ? "success" : "outline"} className="ml-auto">
-                        {selectedDomain.dkimVerified ? 
-                          <><Check className="mr-1 h-3 w-3" /> Verified</> : 
-                          <><Clock className="mr-1 h-3 w-3" /> Pending</>
-                        }
-                      </Badge>
-                    </h3>
-                    
-                    <div className="space-y-3 text-sm">
-                      <div>
-                        <Label htmlFor="dkim-selector" className="text-xs">DKIM Selector</Label>
-                        <Input 
-                          id="dkim-selector" 
-                          value={selectedDomain.dkimSelector || 'infy'}
-                          onChange={(e) => setSelectedDomain({...selectedDomain, dkimSelector: e.target.value})}
-                          className="mt-1"
-                        />
-                      </div>
-                      
-                      <div>
-                        <Label className="text-xs">DNS Record Type</Label>
-                        <div className="bg-background p-2 rounded border mt-1">TXT</div>
-                      </div>
-                      
-                      <div>
-                        <Label className="text-xs">DNS Host Name</Label>
-                        <div className="bg-background p-2 rounded border mt-1">{selectedDomain.dkimSelector}._domainkey.{selectedDomain.name}</div>
-                      </div>
-                      
-                      <div>
-                        <Label className="text-xs">DNS Record Value</Label>
-                        <div className="bg-background p-2 rounded border mt-1 break-all text-xs">
-                          {selectedDomain.dkimValue || 'v=DKIM1; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA0Vg9dQN8RLhZX5k2J...'}
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-center space-x-2 mt-2">
-                        <Switch
-                          id="dkim-verified"
-                          checked={selectedDomain.dkimVerified}
-                          onCheckedChange={(checked) => setSelectedDomain({...selectedDomain, dkimVerified: checked})}
-                        />
-                        <Label htmlFor="dkim-verified">Mark as Verified</Label>
-                      </div>
+                <div className="space-y-2 mb-2">
+                  <div className="flex items-center justify-between border-b pb-2">
+                    <div className="flex items-center">
+                      <ShieldCheck className="h-4 w-4 mr-2 text-primary" />
+                      <h3 className="text-sm font-medium">Authentication Records</h3>
                     </div>
+                    <Badge variant="outline" className="text-xs">DNS Configuration</Badge>
                   </div>
-                  
-                  <div className="bg-muted p-4 rounded-lg">
-                    <h3 className="text-sm font-semibold mb-3 flex items-center">
-                      <span className="mr-2">SPF Authentication</span>
-                      <Badge variant={selectedDomain.spfVerified ? "success" : "outline"} className="ml-auto">
-                        {selectedDomain.spfVerified ? 
-                          <><Check className="mr-1 h-3 w-3" /> Verified</> : 
-                          <><Clock className="mr-1 h-3 w-3" /> Pending</>
-                        }
-                      </Badge>
-                    </h3>
-                    
-                    <div className="space-y-3 text-sm">
-                      <div>
-                        <Label className="text-xs">DNS Record Type</Label>
-                        <div className="bg-background p-2 rounded border mt-1">TXT</div>
-                      </div>
-                      
-                      <div>
-                        <Label className="text-xs">DNS Host Name</Label>
-                        <div className="bg-background p-2 rounded border mt-1">{selectedDomain.name}</div>
-                      </div>
-                      
-                      <div>
-                        <Label className="text-xs">DNS Record Value</Label>
-                        <div className="bg-background p-2 rounded border mt-1 break-all text-xs">
-                          {selectedDomain.spfValue || 'v=spf1 include:_spf.infymailer.com ~all'}
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-center space-x-2 mt-2">
-                        <Switch
-                          id="spf-verified"
-                          checked={selectedDomain.spfVerified}
-                          onCheckedChange={(checked) => setSelectedDomain({...selectedDomain, spfVerified: checked})}
-                        />
-                        <Label htmlFor="spf-verified">Mark as Verified</Label>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="bg-muted p-4 rounded-lg">
-                    <h3 className="text-sm font-semibold mb-3 flex items-center">
-                      <span className="mr-2">DMARC Authentication</span>
-                      <Badge variant={selectedDomain.dmarcVerified ? "success" : "outline"} className="ml-auto">
-                        {selectedDomain.dmarcVerified ? 
-                          <><Check className="mr-1 h-3 w-3" /> Verified</> : 
-                          <><Clock className="mr-1 h-3 w-3" /> Pending</>
-                        }
-                      </Badge>
-                    </h3>
-                    
-                    <div className="space-y-3 text-sm">
-                      <div>
-                        <Label className="text-xs">DNS Record Type</Label>
-                        <div className="bg-background p-2 rounded border mt-1">TXT</div>
-                      </div>
-                      
-                      <div>
-                        <Label className="text-xs">DNS Host Name</Label>
-                        <div className="bg-background p-2 rounded border mt-1">_dmarc.{selectedDomain.name}</div>
-                      </div>
-                      
-                      <div>
-                        <Label className="text-xs">DNS Record Value</Label>
-                        <div className="bg-background p-2 rounded border mt-1 break-all text-xs">
-                          {selectedDomain.dmarcValue || 'v=DMARC1; p=none; pct=100; rua=mailto:dmarc@infymailer.com'}
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-center space-x-2 mt-2">
-                        <Switch
-                          id="dmarc-verified"
-                          checked={selectedDomain.dmarcVerified}
-                          onCheckedChange={(checked) => setSelectedDomain({...selectedDomain, dmarcVerified: checked})}
-                        />
-                        <Label htmlFor="dmarc-verified">Mark as Verified</Label>
-                      </div>
-                    </div>
-                  </div>
+                  <p className="text-xs text-muted-foreground mt-1 mb-4">
+                    These DNS records help verify your domain ownership and improve email deliverability.
+                  </p>
                 </div>
                 
-                <DialogFooter className="mt-6">
+                <ScrollArea className="h-[380px] pr-4">
+                  <div className="space-y-6">
+                    <div className="bg-muted p-4 rounded-lg border">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center">
+                          <CheckCircle className="h-4 w-4 mr-2 text-primary" />
+                          <h3 className="text-sm font-medium">DKIM Authentication</h3>
+                        </div>
+                        <Badge variant={selectedDomain.dkimVerified ? "success" : "outline"} className="ml-auto">
+                          {selectedDomain.dkimVerified ? 
+                            <><Check className="mr-1 h-3 w-3" /> Verified</> : 
+                            <><Clock className="mr-1 h-3 w-3" /> Pending</>
+                          }
+                        </Badge>
+                      </div>
+                      
+                      <div className="space-y-3 text-sm">
+                        <div>
+                          <Label htmlFor="dkim-selector" className="text-xs font-medium">DKIM Selector</Label>
+                          <Input 
+                            id="dkim-selector" 
+                            value={selectedDomain.dkimSelector || 'infy'}
+                            onChange={(e) => setSelectedDomain({...selectedDomain, dkimSelector: e.target.value})}
+                            className="mt-1"
+                          />
+                          <p className="text-xs text-muted-foreground mt-1">
+                            A unique name for this DKIM record
+                          </p>
+                        </div>
+                        
+                        <div className="grid grid-cols-3 gap-3 py-1">
+                          <div>
+                            <Label className="text-xs font-medium">Record Type</Label>
+                            <div className="bg-background p-2 rounded border mt-1 text-center">TXT</div>
+                          </div>
+                          
+                          <div className="col-span-2">
+                            <Label className="text-xs font-medium">Host Name</Label>
+                            <div className="bg-background p-2 rounded border mt-1 truncate">
+                              {selectedDomain.dkimSelector}._domainkey.{selectedDomain.name}
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div>
+                          <Label className="text-xs font-medium">Record Value</Label>
+                          <div className="bg-background p-2 rounded border mt-1 break-all text-xs">
+                            {selectedDomain.dkimValue || 'v=DKIM1; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA0Vg9dQN8RLhZX5k2J...'}
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-center space-x-2 mt-2 pt-1 border-t">
+                          <Switch
+                            id="dkim-verified"
+                            checked={selectedDomain.dkimVerified}
+                            onCheckedChange={(checked) => setSelectedDomain({...selectedDomain, dkimVerified: checked})}
+                          />
+                          <Label htmlFor="dkim-verified">Mark as Verified</Label>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="bg-muted p-4 rounded-lg border">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center">
+                          <ShieldCheck className="h-4 w-4 mr-2 text-primary" />
+                          <h3 className="text-sm font-medium">SPF Authentication</h3>
+                        </div>
+                        <Badge variant={selectedDomain.spfVerified ? "success" : "outline"} className="ml-auto">
+                          {selectedDomain.spfVerified ? 
+                            <><Check className="mr-1 h-3 w-3" /> Verified</> : 
+                            <><Clock className="mr-1 h-3 w-3" /> Pending</>
+                          }
+                        </Badge>
+                      </div>
+                      
+                      <div className="space-y-3 text-sm">
+                        <div className="grid grid-cols-3 gap-3 py-1">
+                          <div>
+                            <Label className="text-xs font-medium">Record Type</Label>
+                            <div className="bg-background p-2 rounded border mt-1 text-center">TXT</div>
+                          </div>
+                          
+                          <div className="col-span-2">
+                            <Label className="text-xs font-medium">Host Name</Label>
+                            <div className="bg-background p-2 rounded border mt-1">
+                              {selectedDomain.name}
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div>
+                          <Label className="text-xs font-medium">Record Value</Label>
+                          <div className="bg-background p-2 rounded border mt-1 break-all text-xs">
+                            {selectedDomain.spfValue || 'v=spf1 include:_spf.infymailer.com ~all'}
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Authorizes InfyMailer to send email on your behalf
+                          </p>
+                        </div>
+                        
+                        <div className="flex items-center space-x-2 mt-2 pt-1 border-t">
+                          <Switch
+                            id="spf-verified"
+                            checked={selectedDomain.spfVerified}
+                            onCheckedChange={(checked) => setSelectedDomain({...selectedDomain, spfVerified: checked})}
+                          />
+                          <Label htmlFor="spf-verified">Mark as Verified</Label>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="bg-muted p-4 rounded-lg border">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center">
+                          <ShieldAlert className="h-4 w-4 mr-2 text-primary" />
+                          <h3 className="text-sm font-medium">DMARC Authentication</h3>
+                        </div>
+                        <Badge variant={selectedDomain.dmarcVerified ? "success" : "outline"} className="ml-auto">
+                          {selectedDomain.dmarcVerified ? 
+                            <><Check className="mr-1 h-3 w-3" /> Verified</> : 
+                            <><Clock className="mr-1 h-3 w-3" /> Pending</>
+                          }
+                        </Badge>
+                      </div>
+                      
+                      <div className="space-y-3 text-sm">
+                        <div className="grid grid-cols-3 gap-3 py-1">
+                          <div>
+                            <Label className="text-xs font-medium">Record Type</Label>
+                            <div className="bg-background p-2 rounded border mt-1 text-center">TXT</div>
+                          </div>
+                          
+                          <div className="col-span-2">
+                            <Label className="text-xs font-medium">Host Name</Label>
+                            <div className="bg-background p-2 rounded border mt-1">
+                              _dmarc.{selectedDomain.name}
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div>
+                          <Label className="text-xs font-medium">Record Value</Label>
+                          <div className="bg-background p-2 rounded border mt-1 break-all text-xs">
+                            {selectedDomain.dmarcValue || 'v=DMARC1; p=none; pct=100; rua=mailto:dmarc@infymailer.com'}
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Controls what happens to emails that fail SPF and DKIM
+                          </p>
+                        </div>
+                        
+                        <div className="flex items-center space-x-2 mt-2 pt-1 border-t">
+                          <Switch
+                            id="dmarc-verified"
+                            checked={selectedDomain.dmarcVerified}
+                            onCheckedChange={(checked) => setSelectedDomain({...selectedDomain, dmarcVerified: checked})}
+                          />
+                          <Label htmlFor="dmarc-verified">Mark as Verified</Label>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </ScrollArea>
+                
+                <DialogFooter className="mt-6 border-t pt-4">
                   <Button variant="outline" onClick={() => setEditDialogOpen(false)}>Cancel</Button>
                   <Button onClick={handleUpdateDomain}>Update Authentication</Button>
                 </DialogFooter>
