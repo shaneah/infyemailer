@@ -735,6 +735,50 @@ export const campaignsTrackingRelations = {
   linkTracking: { relationName: "campaign_to_linkTracking", fields: [campaigns.id], references: [linkTracking.campaignId] }
 };
 
+// System Credits schema
+export const systemCredits = pgTable("system_credits", {
+  id: serial("id").primaryKey(),
+  totalCredits: integer("total_credits").notNull().default(0),
+  allocatedCredits: integer("allocated_credits").notNull().default(0),
+  availableCredits: integer("available_credits").notNull().default(0),
+  lastUpdatedAt: timestamp("last_updated_at").defaultNow(),
+});
+
+export const insertSystemCreditsSchema = createInsertSchema(systemCredits).pick({
+  totalCredits: true,
+  allocatedCredits: true,
+  availableCredits: true,
+});
+
+export type InsertSystemCredits = z.infer<typeof insertSystemCreditsSchema>;
+export type SystemCredits = typeof systemCredits.$inferSelect;
+
+// System Credits History schema
+export const systemCreditsHistory = pgTable("system_credits_history", {
+  id: serial("id").primaryKey(),
+  amount: integer("amount").notNull(),
+  type: text("type").notNull(), // 'add', 'allocate', 'deallocate'
+  previousBalance: integer("previous_balance").notNull(),
+  newBalance: integer("new_balance").notNull(),
+  reason: text("reason"),
+  performedBy: integer("performed_by").references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow(),
+  metadata: json("metadata")
+});
+
+export const insertSystemCreditsHistorySchema = createInsertSchema(systemCreditsHistory).pick({
+  amount: true,
+  type: true,
+  previousBalance: true,
+  newBalance: true,
+  reason: true,
+  performedBy: true,
+  metadata: true,
+});
+
+export type InsertSystemCreditsHistory = z.infer<typeof insertSystemCreditsHistorySchema>;
+export type SystemCreditsHistory = typeof systemCreditsHistory.$inferSelect;
+
 // Client Email Credits History schema
 export const clientEmailCreditsHistory = pgTable("client_email_credits_history", {
   id: serial("id").primaryKey(),
@@ -744,6 +788,8 @@ export const clientEmailCreditsHistory = pgTable("client_email_credits_history",
   previousBalance: integer("previous_balance").notNull(),
   newBalance: integer("new_balance").notNull(),
   reason: text("reason"),
+  performedBy: integer("performed_by").references(() => users.id),
+  systemCreditsDeducted: integer("system_credits_deducted"),
   createdAt: timestamp("created_at").defaultNow(),
   metadata: json("metadata")
 });
@@ -755,6 +801,8 @@ export const insertClientEmailCreditsHistorySchema = createInsertSchema(clientEm
   previousBalance: true,
   newBalance: true,
   reason: true,
+  performedBy: true,
+  systemCreditsDeducted: true,
   metadata: true,
 });
 
@@ -762,7 +810,13 @@ export type InsertClientEmailCreditsHistory = z.infer<typeof insertClientEmailCr
 export type ClientEmailCreditsHistory = typeof clientEmailCreditsHistory.$inferSelect;
 
 export const clientEmailCreditsHistoryRelations = defineRelations(clientEmailCreditsHistory, {
-  client: { relationName: "clientEmailCreditsHistory_to_client", fields: [clientEmailCreditsHistory.clientId], references: [clients.id] }
+  client: { relationName: "clientEmailCreditsHistory_to_client", fields: [clientEmailCreditsHistory.clientId], references: [clients.id] },
+  user: { relationName: "clientEmailCreditsHistory_to_user", fields: [clientEmailCreditsHistory.performedBy], references: [users.id] }
+});
+
+// Define system credits relations
+export const systemCreditsHistoryRelations = defineRelations(systemCreditsHistory, {
+  user: { relationName: "systemCreditsHistory_to_user", fields: [systemCreditsHistory.performedBy], references: [users.id] }
 });
 
 // Define audience persona builder relations

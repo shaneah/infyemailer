@@ -18,6 +18,8 @@ import {
   EngagementMetrics, InsertEngagementMetrics,
   LinkTracking, InsertLinkTracking,
   ClientEmailCreditsHistory, InsertClientEmailCreditsHistory,
+  SystemCredits, InsertSystemCredits,
+  SystemCreditsHistory, InsertSystemCreditsHistory,
   AudiencePersona, InsertAudiencePersona,
   PersonaDemographic, InsertPersonaDemographic,
   PersonaBehavior, InsertPersonaBehavior,
@@ -64,6 +66,36 @@ export interface IStorage {
       limit?: number;
     }
   ): Promise<ClientEmailCreditsHistory[]>;
+  
+  // System Credits methods
+  getSystemCredits(): Promise<SystemCredits | undefined>;
+  updateSystemCredits(amount: number, userId: number, reason?: string): Promise<SystemCredits | undefined>;
+  addSystemCredits(amount: number, userId: number, reason?: string): Promise<{
+    previousBalance: number;
+    newBalance: number;
+    history: SystemCreditsHistory;
+  }>;
+  deductSystemCredits(amount: number, userId: number, reason?: string): Promise<{
+    previousBalance: number;
+    newBalance: number;
+    history: SystemCreditsHistory;
+  }>;
+  allocateClientCreditsFromSystem(clientId: number, amount: number, userId: number, reason?: string): Promise<{
+    systemPreviousBalance: number;
+    systemNewBalance: number;
+    clientPreviousBalance: number;
+    clientNewBalance: number;
+    systemHistory: SystemCreditsHistory;
+    clientHistory: ClientEmailCreditsHistory;
+  }>;
+  getSystemCreditsHistory(
+    filters?: { 
+      start_date?: string; 
+      end_date?: string; 
+      type?: 'add' | 'deduct' | 'allocate' | ''; 
+      limit?: number;
+    }
+  ): Promise<SystemCreditsHistory[]>;
 
   // Contact methods
   getContacts(): Promise<Contact[]>;
