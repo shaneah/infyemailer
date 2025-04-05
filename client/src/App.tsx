@@ -26,6 +26,7 @@ import EmailValidation from "@/pages/EmailValidation";
 import Emails from "@/pages/Emails";
 import Reporting from "@/pages/Reporting";
 import EmailProviders from "@/pages/EmailProviders";
+import ClientManagement from "@/pages/ClientManagement";
 
 function App() {
   const [location] = useLocation();
@@ -78,6 +79,7 @@ function App() {
                   <ProtectedRoute path="/emails" component={Emails} />
                   <ProtectedRoute path="/reporting" component={Reporting} />
                   <ProtectedRoute path="/email-providers" component={EmailProviders} />
+                  <ProtectedRoute path="/client-management" component={ClientManagement} />
                   <Route component={NotFound} />
                 </Switch>
               </main>

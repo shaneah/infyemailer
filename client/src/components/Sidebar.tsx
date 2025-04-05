@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from "wouter";
-import { Mail, LayoutDashboard, Megaphone, FileText, Users, Building, BarChart2, Activity, Split, Globe, Settings as SettingsIcon, ShieldCheck, LogOut, CheckCircle2, ServerCog } from "lucide-react";
+import { Mail, LayoutDashboard, Megaphone, FileText, Users, Building, BarChart2, Activity, Split, Globe, Settings as SettingsIcon, ShieldCheck, LogOut, CheckCircle2, ServerCog, Building2 } from "lucide-react";
 import infyLogo from "../assets/Logo-white.png";
 import { useAuth } from "@/hooks/use-auth";
 
@@ -101,6 +101,17 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
             >
               <Users className="h-5 w-5 mr-3" />
               Client Users
+            </Link>
+          </li>
+          <li>
+            <Link 
+              href="/client-management" 
+              className={`flex items-center px-2 py-2 rounded-md ${location === '/client-management' 
+                ? 'text-white border-l-4 border-white bg-white/10' 
+                : 'text-gray-300 hover:bg-white/5'}`}
+            >
+              <Building2 className="h-5 w-5 mr-3" />
+              Client Management
             </Link>
           </li>
 
