@@ -68,20 +68,7 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
               Campaigns
             </Link>
           </li>
-          <li>
-            <Link 
-              href="/emails" 
-              className={`flex items-center px-2 py-2 rounded-md ${location === '/emails' 
-                ? 'text-white border-l-4 border-white bg-white/10' 
-                : 'text-gray-300 hover:bg-white/5'}`}
-            >
-              <Mail className="h-5 w-5 mr-3" />
-              Emails
-              <span className="ml-auto bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                3
-              </span>
-            </Link>
-          </li>
+
           <li>
             <Link 
               href="/templates" 
@@ -227,16 +214,7 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
           </li>
         </ul>
         
-        {/* Storage */}
-        <div className="px-4 mb-4 mt-4">
-          <div className="bg-white/10 rounded-md p-4">
-            <div className="text-white font-medium mb-2">Storage</div>
-            <div className="bg-white/20 h-1.5 rounded-full mb-2">
-              <div className="bg-white h-1.5 rounded-full" style={{ width: '65%' }}></div>
-            </div>
-            <div className="text-gray-300 text-xs">65% of 10GB used</div>
-          </div>
-        </div>
+
         
         {/* Logout Button */}
         <div className="px-4 mb-6">
