@@ -71,7 +71,7 @@ export async function generateSubjectLines(
           content: prompt
         }
       ],
-      model: 'gpt-3.5-turbo',
+      model: 'gpt-4o', // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
     });
 
     // Extract the response and parse it into an array of subject lines
@@ -170,7 +170,7 @@ export async function generateEmailTemplate(
           content: prompt
         }
       ],
-      model: 'gpt-3.5-turbo',
+      model: 'gpt-4o', // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
       response_format: { type: "json_object" }
     });
 
