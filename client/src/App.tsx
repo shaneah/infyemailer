@@ -66,7 +66,14 @@ function App() {
                   <ProtectedRoute path="/analytics" component={Analytics} />
                   <ProtectedRoute path="/clients" component={Clients} />
                   <ProtectedRoute path="/client-users" component={ClientUsers} />
-                  <ProtectedRoute path="/settings" component={Settings} />
+                  <Route path="/settings">
+                    {() => <div className="redirect-settings">
+                      {typeof window !== 'undefined' && window.location.replace('/admin')}
+                      <div className="flex items-center justify-center h-full">
+                        <p>Redirecting to Admin Panel...</p>
+                      </div>
+                    </div>}
+                  </Route>
                   <ProtectedRoute path="/admin" component={AdminPanel} />
                   <ProtectedRoute path="/email-validation" component={EmailValidation} />
                   <ProtectedRoute path="/emails" component={Emails} />

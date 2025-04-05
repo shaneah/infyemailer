@@ -158,17 +158,7 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
               Domains
             </Link>
           </li>
-          <li>
-            <Link 
-              href="/settings" 
-              className={`flex items-center px-2 py-2 rounded-md ${location === '/settings' 
-                ? 'text-white border-l-4 border-white bg-white/10' 
-                : 'text-gray-300 hover:bg-white/5'}`}
-            >
-              <SettingsIcon className="h-5 w-5 mr-3" />
-              Settings
-            </Link>
-          </li>
+
           <li>
             <Link 
               href="/email-validation" 
