@@ -271,6 +271,9 @@ export class MemStorage implements IStorage {
   private personaBehaviors: Map<number, PersonaBehavior>;
   private personaInsights: Map<number, PersonaInsight>;
   private audienceSegments: Map<number, AudienceSegment>;
+  private systemCredits: SystemCredits | undefined;
+  private systemCreditsHistory: Map<number, SystemCreditsHistory>;
+  private clientEmailCreditsHistory: Map<number, ClientEmailCreditsHistory>;
 
   private contactId: number;
   private listId: number;
@@ -295,6 +298,8 @@ export class MemStorage implements IStorage {
   private personaBehaviorId: number;
   private personaInsightId: number;
   private audienceSegmentId: number;
+  private systemCreditsHistoryId: number;
+  private clientEmailCreditsHistoryId: number;
 
   // Schema validation objects
   public audiencePersonaSchema = insertAudiencePersonaSchema;
@@ -327,6 +332,8 @@ export class MemStorage implements IStorage {
     this.personaBehaviors = new Map();
     this.personaInsights = new Map();
     this.audienceSegments = new Map();
+    this.systemCreditsHistory = new Map();
+    this.clientEmailCreditsHistory = new Map();
 
     this.contactId = 1;
     this.listId = 1;
@@ -351,12 +358,25 @@ export class MemStorage implements IStorage {
     this.personaBehaviorId = 1;
     this.personaInsightId = 1;
     this.audienceSegmentId = 1;
+    this.systemCreditsHistoryId = 1;
+    this.clientEmailCreditsHistoryId = 1;
 
     // Initialize with some default data
     this.initializeData();
   }
 
   private initializeData() {
+    // Initialize system credits with starting balance of 100,000
+    this.systemCredits = {
+      id: 1,
+      balance: 100000,
+      updatedAt: new Date(),
+      metadata: {
+        lastUpdateReason: "Initial balance",
+        lastUpdateBy: 1 // Admin user ID
+      }
+    };
+    
     // Create default admin user
     if (this.users.size === 0) {
       this.users.set(1, {
@@ -813,6 +833,306 @@ export class MemStorage implements IStorage {
     }
     
     return results;
+  }
+  
+  // System Credits Methods
+  async getSystemCredits(): Promise<SystemCredits | undefined> {
+    return this.systemCredits;
+  }
+  
+  async updateSystemCredits(amount: number, userId: number, reason?: string): Promise<SystemCredits | undefined> {
+    if (!this.systemCredits) {
+      return undefined;
+    }
+    
+    const previousBalance = this.systemCredits.balance;
+    
+    // Create history record
+    const historyId = ++this.systemCreditsHistoryId;
+    const history: SystemCreditsHistory = {
+      id: historyId,
+      type: 'set',
+      amount: amount - previousBalance,
+      previousBalance,
+      newBalance: amount,
+      reason: reason || 'Manual adjustment',
+      performedBy: userId,
+      createdAt: new Date(),
+      metadata: { 
+        action: 'set',
+        adminAction: true
+      }
+    };
+    this.systemCreditsHistory.set(historyId, history);
+    
+    // Update system credits
+    this.systemCredits = {
+      ...this.systemCredits,
+      balance: amount,
+      updatedAt: new Date(),
+      metadata: {
+        ...this.systemCredits.metadata,
+        lastUpdateReason: reason || 'Manual adjustment',
+        lastUpdateBy: userId
+      }
+    };
+    
+    return this.systemCredits;
+  }
+  
+  async addSystemCredits(amount: number, userId: number, reason?: string): Promise<{
+    previousBalance: number;
+    newBalance: number;
+    history: SystemCreditsHistory;
+  }> {
+    if (!this.systemCredits) {
+      throw new Error('System credits not initialized');
+    }
+    
+    const previousBalance = this.systemCredits.balance;
+    const newBalance = previousBalance + amount;
+    
+    // Create history record
+    const historyId = ++this.systemCreditsHistoryId;
+    const history: SystemCreditsHistory = {
+      id: historyId,
+      type: 'add',
+      amount,
+      previousBalance,
+      newBalance,
+      reason: reason || 'Credits added',
+      performedBy: userId,
+      createdAt: new Date(),
+      metadata: { 
+        action: 'add',
+        adminAction: true
+      }
+    };
+    this.systemCreditsHistory.set(historyId, history);
+    
+    // Update system credits
+    this.systemCredits = {
+      ...this.systemCredits,
+      balance: newBalance,
+      updatedAt: new Date(),
+      metadata: {
+        ...this.systemCredits.metadata,
+        lastUpdateReason: reason || 'Credits added',
+        lastUpdateBy: userId
+      }
+    };
+    
+    return {
+      previousBalance,
+      newBalance,
+      history
+    };
+  }
+  
+  async deductSystemCredits(amount: number, userId: number, reason?: string): Promise<{
+    previousBalance: number;
+    newBalance: number;
+    history: SystemCreditsHistory;
+  }> {
+    if (!this.systemCredits) {
+      throw new Error('System credits not initialized');
+    }
+    
+    const previousBalance = this.systemCredits.balance;
+    
+    // Check if sufficient balance available
+    if (previousBalance < amount) {
+      throw new Error(`Insufficient system credits. Available: ${previousBalance}, Requested: ${amount}`);
+    }
+    
+    const newBalance = previousBalance - amount;
+    
+    // Create history record
+    const historyId = ++this.systemCreditsHistoryId;
+    const history: SystemCreditsHistory = {
+      id: historyId,
+      type: 'deduct',
+      amount,
+      previousBalance,
+      newBalance,
+      reason: reason || 'Credits deducted',
+      performedBy: userId,
+      createdAt: new Date(),
+      metadata: { 
+        action: 'deduct',
+        adminAction: true
+      }
+    };
+    this.systemCreditsHistory.set(historyId, history);
+    
+    // Update system credits
+    this.systemCredits = {
+      ...this.systemCredits,
+      balance: newBalance,
+      updatedAt: new Date(),
+      metadata: {
+        ...this.systemCredits.metadata,
+        lastUpdateReason: reason || 'Credits deducted',
+        lastUpdateBy: userId
+      }
+    };
+    
+    return {
+      previousBalance,
+      newBalance,
+      history
+    };
+  }
+  
+  async getSystemCreditsHistory(
+    filters?: { 
+      start_date?: string; 
+      end_date?: string; 
+      type?: 'add' | 'deduct' | 'allocate' | ''; 
+      limit?: number;
+    }
+  ): Promise<SystemCreditsHistory[]> {
+    let results = Array.from(this.systemCreditsHistory.values());
+    
+    // Apply filters if provided
+    if (filters) {
+      // Filter by start date
+      if (filters.start_date) {
+        const startDate = new Date(filters.start_date);
+        results = results.filter(history => history.createdAt >= startDate);
+      }
+      
+      // Filter by end date
+      if (filters.end_date) {
+        const endDate = new Date(filters.end_date);
+        // Set time to end of day for inclusive filtering
+        endDate.setHours(23, 59, 59, 999);
+        results = results.filter(history => history.createdAt <= endDate);
+      }
+      
+      // Filter by transaction type
+      if (filters.type && filters.type !== '') {
+        results = results.filter(history => history.type === filters.type);
+      }
+    }
+    
+    // Always sort by date (newest first)
+    results = results.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    
+    // Apply limit if provided
+    if (filters?.limit && filters.limit > 0) {
+      results = results.slice(0, filters.limit);
+    }
+    
+    return results;
+  }
+  
+  async allocateClientCreditsFromSystem(
+    clientId: number, 
+    amount: number, 
+    userId: number, 
+    reason?: string
+  ): Promise<{
+    systemPreviousBalance: number;
+    systemNewBalance: number;
+    clientPreviousBalance: number;
+    clientNewBalance: number;
+    systemHistory: SystemCreditsHistory;
+    clientHistory: ClientEmailCreditsHistory;
+  }> {
+    // Get client
+    const client = await this.getClient(clientId);
+    if (!client) {
+      throw new Error(`Client with ID ${clientId} not found`);
+    }
+    
+    // Get current system credits
+    if (!this.systemCredits) {
+      throw new Error('System credits not initialized');
+    }
+    
+    const systemPreviousBalance = this.systemCredits.balance;
+    
+    // Check if system has enough credits
+    if (systemPreviousBalance < amount) {
+      throw new Error(`Insufficient system credits. Available: ${systemPreviousBalance}, Requested: ${amount}`);
+    }
+    
+    // Calculate new balances
+    const systemNewBalance = systemPreviousBalance - amount;
+    const clientPreviousBalance = client.emailCredits || 0;
+    const clientNewBalance = clientPreviousBalance + amount;
+    
+    // Create system history record
+    const systemHistoryId = ++this.systemCreditsHistoryId;
+    const systemHistory: SystemCreditsHistory = {
+      id: systemHistoryId,
+      type: 'allocate',
+      amount,
+      previousBalance: systemPreviousBalance,
+      newBalance: systemNewBalance,
+      reason: reason || `Credits allocated to client ${client.name} (ID: ${clientId})`,
+      performedBy: userId,
+      createdAt: new Date(),
+      metadata: { 
+        action: 'allocate',
+        adminAction: true,
+        clientId,
+        clientName: client.name
+      }
+    };
+    this.systemCreditsHistory.set(systemHistoryId, systemHistory);
+    
+    // Create client history record
+    const clientHistoryId = ++this.clientEmailCreditsHistoryId;
+    const clientHistory: ClientEmailCreditsHistory = {
+      id: clientHistoryId,
+      clientId,
+      type: 'add',
+      amount,
+      previousBalance: clientPreviousBalance,
+      newBalance: clientNewBalance,
+      reason: reason || 'Credits allocated from system',
+      performedBy: userId,
+      systemCreditsDeducted: amount,
+      createdAt: new Date(),
+      metadata: { 
+        action: 'add',
+        adminAction: true,
+        fromSystem: true
+      }
+    };
+    this.clientEmailCreditsHistory.set(clientHistoryId, clientHistory);
+    
+    // Update system credits
+    this.systemCredits = {
+      ...this.systemCredits,
+      balance: systemNewBalance,
+      updatedAt: new Date(),
+      metadata: {
+        ...this.systemCredits.metadata,
+        lastUpdateReason: `Allocated ${amount} credits to client ${client.name}`,
+        lastUpdateBy: userId
+      }
+    };
+    
+    // Update client credits
+    const updatedClient: Client = {
+      ...client,
+      emailCredits: clientNewBalance,
+      emailCreditsPurchased: (client.emailCreditsPurchased || 0) + amount,
+      lastCreditUpdateAt: new Date()
+    };
+    this.clients.set(clientId, updatedClient);
+    
+    return {
+      systemPreviousBalance,
+      systemNewBalance,
+      clientPreviousBalance,
+      clientNewBalance,
+      systemHistory,
+      clientHistory
+    };
   }
 
   // Contact methods

@@ -1500,6 +1500,162 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // System Credits Routes
+  const systemCreditsSchema = z.object({
+    amount: z.number().min(0).describe('Number of credits'),
+    reason: z.string().optional().describe('Reason for the credit adjustment')
+  });
+  
+  const allocateCreditsSchema = z.object({
+    amount: z.number().positive().describe('Number of credits to allocate'),
+    reason: z.string().optional().describe('Reason for the allocation')
+  });
+  
+  app.get('/api/system-credits', async (req: Request, res: Response) => {
+    try {
+      const systemCredits = await storage.getSystemCredits();
+      
+      if (!systemCredits) {
+        return res.status(404).json({ error: "System credits not initialized" });
+      }
+      
+      res.json(systemCredits);
+    } catch (error) {
+      console.error("Error fetching system credits:", error);
+      res.status(500).json({ error: "Failed to fetch system credits" });
+    }
+  });
+  
+  app.get('/api/system-credits/history', async (req: Request, res: Response) => {
+    try {
+      const filters = {
+        start_date: req.query.start_date as string,
+        end_date: req.query.end_date as string,
+        type: req.query.type as string,
+        limit: req.query.limit ? parseInt(req.query.limit as string) : undefined
+      };
+      
+      const history = await storage.getSystemCreditsHistory(filters);
+      
+      res.json(history);
+    } catch (error) {
+      console.error("Error fetching system credits history:", error);
+      res.status(500).json({ error: "Failed to fetch system credits history" });
+    }
+  });
+  
+  app.post('/api/system-credits/add', async (req: Request, res: Response) => {
+    try {
+      // Must be admin
+      if (!req.isAuthenticated() || req.user.role !== 'admin') {
+        return res.status(403).json({ error: "Unauthorized. Admin access required." });
+      }
+      
+      // Validate request data
+      const validationResult = systemCreditsSchema.safeParse(req.body);
+      if (!validationResult.success) {
+        return res.status(400).json({ 
+          error: 'Validation failed', 
+          details: validationResult.error.format() 
+        });
+      }
+      
+      const { amount, reason } = validationResult.data;
+      
+      if (amount <= 0) {
+        return res.status(400).json({ error: "Amount must be positive" });
+      }
+      
+      const result = await storage.addSystemCredits(amount, req.user.id, reason);
+      res.json(result);
+    } catch (error) {
+      console.error("Error adding system credits:", error);
+      res.status(500).json({ error: "Failed to add system credits" });
+    }
+  });
+  
+  app.post('/api/system-credits/deduct', async (req: Request, res: Response) => {
+    try {
+      // Must be admin
+      if (!req.isAuthenticated() || req.user.role !== 'admin') {
+        return res.status(403).json({ error: "Unauthorized. Admin access required." });
+      }
+      
+      // Validate request data
+      const validationResult = systemCreditsSchema.safeParse(req.body);
+      if (!validationResult.success) {
+        return res.status(400).json({ 
+          error: 'Validation failed', 
+          details: validationResult.error.format() 
+        });
+      }
+      
+      const { amount, reason } = validationResult.data;
+      
+      if (amount <= 0) {
+        return res.status(400).json({ error: "Amount must be positive" });
+      }
+      
+      try {
+        const result = await storage.deductSystemCredits(amount, req.user.id, reason);
+        res.json(result);
+      } catch (deductError) {
+        if (deductError.message.includes('Insufficient system credits')) {
+          return res.status(400).json({ error: deductError.message });
+        }
+        throw deductError;
+      }
+    } catch (error) {
+      console.error("Error deducting system credits:", error);
+      res.status(500).json({ error: "Failed to deduct system credits" });
+    }
+  });
+  
+  app.post('/api/system-credits/allocate-to-client/:clientId', async (req: Request, res: Response) => {
+    try {
+      // Must be admin
+      if (!req.isAuthenticated() || req.user.role !== 'admin') {
+        return res.status(403).json({ error: "Unauthorized. Admin access required." });
+      }
+      
+      const clientId = parseInt(req.params.clientId);
+      
+      // Validate request data
+      const validationResult = allocateCreditsSchema.safeParse(req.body);
+      if (!validationResult.success) {
+        return res.status(400).json({ 
+          error: 'Validation failed', 
+          details: validationResult.error.format() 
+        });
+      }
+      
+      const { amount, reason } = validationResult.data;
+      
+      const client = await storage.getClient(clientId);
+      if (!client) {
+        return res.status(404).json({ error: "Client not found" });
+      }
+      
+      try {
+        const result = await storage.allocateClientCreditsFromSystem(
+          clientId, 
+          amount, 
+          req.user.id, 
+          reason || `Credits allocated to client ${client.name}`
+        );
+        res.json(result);
+      } catch (error) {
+        if (error.message.includes('Insufficient system credits')) {
+          return res.status(400).json({ error: error.message });
+        }
+        throw error;
+      }
+    } catch (error) {
+      console.error("Error allocating credits to client:", error);
+      res.status(500).json({ error: "Failed to allocate credits to client" });
+    }
+  });
+
   // Domain routes
   app.get('/api/domains', async (req: Request, res: Response) => {
     try {

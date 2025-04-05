@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Progress } from "@/components/ui/progress";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
@@ -11,10 +11,148 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { AlertCircle, CheckCircle, Users, Server, CreditCard, Mail, Activity, ShieldAlert, Settings, Database, Globe } from "lucide-react";
+import { 
+  AlertCircle, 
+  CheckCircle, 
+  Users, 
+  Server, 
+  CreditCard, 
+  Mail, 
+  Activity, 
+  ShieldAlert, 
+  Settings, 
+  Database, 
+  Globe, 
+  PlusCircle, 
+  MinusCircle, 
+  Share2, 
+  Clock, 
+  TrendingUp,
+  Loader2
+} from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 
 export default function AdminPanel() {
   const [activeTab, setActiveTab] = useState("overview");
+  const [creditAmount, setCreditAmount] = useState<number>(1000);
+  const [creditReason, setCreditReason] = useState<string>("");
+  const [selectedClientId, setSelectedClientId] = useState<number | null>(null);
+  const [allocateAmount, setAllocateAmount] = useState<number>(100);
+  const [allocateReason, setAllocateReason] = useState<string>("");
+  const { toast } = useToast();
+  
+  // System Credits data
+  const { data: systemCredits, isLoading: isLoadingSystemCredits, refetch: refetchSystemCredits } = useQuery({
+    queryKey: ['/api/system-credits'],
+    queryFn: async () => {
+      const response = await fetch('/api/system-credits');
+      if (!response.ok) {
+        throw new Error('Failed to fetch system credits');
+      }
+      return response.json();
+    }
+  });
+  
+  // System Credits History
+  const { data: systemCreditsHistory, isLoading: isLoadingSystemCreditsHistory, refetch: refetchSystemCreditsHistory } = useQuery({
+    queryKey: ['/api/system-credits/history'],
+    queryFn: async () => {
+      const response = await fetch('/api/system-credits/history?limit=10');
+      if (!response.ok) {
+        throw new Error('Failed to fetch system credits history');
+      }
+      return response.json();
+    }
+  });
+  
+  // Clients data for allocation dropdown
+  const { data: clients, isLoading: isLoadingClients } = useQuery({
+    queryKey: ['/api/clients'],
+    queryFn: async () => {
+      const response = await fetch('/api/clients');
+      if (!response.ok) {
+        throw new Error('Failed to fetch clients');
+      }
+      return response.json();
+    }
+  });
+  
+  // Add System Credits
+  const addSystemCreditsMutation = useMutation({
+    mutationFn: async ({ amount, reason }: { amount: number, reason: string }) => {
+      return apiRequest('POST', '/api/system-credits/add', { amount, reason });
+    },
+    onSuccess: () => {
+      toast({
+        title: "Credits added successfully",
+        description: `${creditAmount} credits have been added to the system pool.`,
+        variant: "default",
+      });
+      refetchSystemCredits();
+      refetchSystemCreditsHistory();
+      setCreditAmount(1000);
+      setCreditReason("");
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Failed to add credits",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  });
+  
+  // Deduct System Credits
+  const deductSystemCreditsMutation = useMutation({
+    mutationFn: async ({ amount, reason }: { amount: number, reason: string }) => {
+      return apiRequest('POST', '/api/system-credits/deduct', { amount, reason });
+    },
+    onSuccess: () => {
+      toast({
+        title: "Credits deducted successfully",
+        description: `${creditAmount} credits have been deducted from the system pool.`,
+        variant: "default",
+      });
+      refetchSystemCredits();
+      refetchSystemCreditsHistory();
+      setCreditAmount(1000);
+      setCreditReason("");
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Failed to deduct credits",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  });
+  
+  // Allocate Credits to Client
+  const allocateClientCreditsMutation = useMutation({
+    mutationFn: async ({ clientId, amount, reason }: { clientId: number, amount: number, reason: string }) => {
+      return apiRequest('POST', `/api/system-credits/allocate-to-client/${clientId}`, { amount, reason });
+    },
+    onSuccess: () => {
+      const clientName = clients?.find(c => c.id === selectedClientId)?.name || "Selected client";
+      toast({
+        title: "Credits allocated successfully",
+        description: `${allocateAmount} credits have been allocated to ${clientName}.`,
+        variant: "default",
+      });
+      refetchSystemCredits();
+      refetchSystemCreditsHistory();
+      setAllocateAmount(100);
+      setAllocateReason("");
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Failed to allocate credits",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  });
   
   // Placeholder stats data - would be fetched from API in production
   const { data: systemStats, isLoading: isLoadingStats } = useQuery({
@@ -495,6 +633,7 @@ export default function AdminPanel() {
         {/* Billing Tab */}
         <TabsContent value="billing">
           <div className="grid gap-6">
+            {/* Revenue Overview */}
             <Card>
               <CardHeader>
                 <CardTitle>Revenue Overview</CardTitle>
@@ -602,6 +741,276 @@ export default function AdminPanel() {
                 <div className="flex items-center justify-end space-x-2 mt-4">
                   <Button variant="outline" size="sm">Previous</Button>
                   <Button variant="outline" size="sm">Next</Button>
+                </div>
+              </CardContent>
+            </Card>
+            
+            {/* System Credits Management */}
+            <Card>
+              <CardHeader>
+                <CardTitle>System Credits Management</CardTitle>
+                <CardDescription>
+                  Manage the system-wide email credit pool and allocate credits to clients
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                  <Card className="border-2 border-primary/20">
+                    <CardContent className="p-4">
+                      {isLoadingSystemCredits ? (
+                        <>
+                          <Skeleton className="h-4 w-36 mb-2 mt-2" />
+                          <Skeleton className="h-8 w-24 mb-2" />
+                          <Skeleton className="h-4 w-20" />
+                        </>
+                      ) : (
+                        <>
+                          <h3 className="text-sm font-medium text-gray-500">Total System Credits</h3>
+                          <div className="mt-2">
+                            <p className="text-2xl font-semibold">{systemCredits?.totalCredits.toLocaleString()}</p>
+                            <p className="text-sm text-muted-foreground">Available for allocation</p>
+                          </div>
+                        </>
+                      )}
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="p-4">
+                      {isLoadingSystemCredits ? (
+                        <>
+                          <Skeleton className="h-4 w-36 mb-2 mt-2" />
+                          <Skeleton className="h-8 w-24 mb-2" />
+                          <Skeleton className="h-4 w-20" />
+                        </>
+                      ) : (
+                        <>
+                          <h3 className="text-sm font-medium text-gray-500">Allocated Credits</h3>
+                          <div className="mt-2">
+                            <p className="text-2xl font-semibold">{systemCredits?.allocatedCredits.toLocaleString()}</p>
+                            <p className="text-sm text-muted-foreground">Distributed to clients</p>
+                          </div>
+                        </>
+                      )}
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="p-4">
+                      {isLoadingSystemCredits ? (
+                        <>
+                          <Skeleton className="h-4 w-36 mb-2 mt-2" />
+                          <Skeleton className="h-8 w-24 mb-2" />
+                          <Skeleton className="h-4 w-20" />
+                        </>
+                      ) : (
+                        <>
+                          <h3 className="text-sm font-medium text-gray-500">Available System Credits</h3>
+                          <div className="mt-2">
+                            <p className="text-2xl font-semibold">{systemCredits?.availableCredits.toLocaleString()}</p>
+                            <p className="text-sm text-muted-foreground">Ready for allocation</p>
+                          </div>
+                        </>
+                      )}
+                    </CardContent>
+                  </Card>
+                </div>
+                
+                {/* System Credits Controls */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-base">Add or Deduct System Credits</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="creditAmount">Amount</Label>
+                          <Input 
+                            id="creditAmount" 
+                            type="number" 
+                            min="1"
+                            value={creditAmount}
+                            onChange={(e) => setCreditAmount(parseInt(e.target.value) || 0)}
+                            placeholder="Enter credit amount" 
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="creditReason">Reason</Label>
+                          <Input 
+                            id="creditReason" 
+                            value={creditReason}
+                            onChange={(e) => setCreditReason(e.target.value)}
+                            placeholder="Enter reason for adjustment" 
+                          />
+                        </div>
+                        <div className="flex space-x-2 pt-2">
+                          <Button 
+                            onClick={() => addSystemCreditsMutation.mutate({
+                              amount: creditAmount,
+                              reason: creditReason || "Manual system credit addition"
+                            })}
+                            disabled={addSystemCreditsMutation.isPending || !creditAmount}
+                            className="flex-1"
+                          >
+                            {addSystemCreditsMutation.isPending ? (
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            ) : (
+                              <PlusCircle className="mr-2 h-4 w-4" />
+                            )}
+                            Add Credits
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            onClick={() => deductSystemCreditsMutation.mutate({
+                              amount: creditAmount,
+                              reason: creditReason || "Manual system credit deduction"
+                            })}
+                            disabled={deductSystemCreditsMutation.isPending || !creditAmount}
+                            className="flex-1"
+                          >
+                            {deductSystemCreditsMutation.isPending ? (
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            ) : (
+                              <MinusCircle className="mr-2 h-4 w-4" />
+                            )}
+                            Deduct Credits
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-base">Allocate Credits to Client</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="clientSelect">Select Client</Label>
+                          <Select
+                            value={selectedClientId?.toString() || ""}
+                            onValueChange={(value) => setSelectedClientId(parseInt(value) || null)}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a client" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {isLoadingClients ? (
+                                <div className="p-2 text-center">
+                                  <Loader2 className="h-4 w-4 animate-spin mx-auto" />
+                                </div>
+                              ) : (
+                                clients?.map((client) => (
+                                  <SelectItem key={client.id} value={client.id.toString()}>
+                                    {client.name}
+                                  </SelectItem>
+                                ))
+                              )}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="allocateAmount">Credit Amount</Label>
+                          <Input 
+                            id="allocateAmount" 
+                            type="number" 
+                            min="1"
+                            value={allocateAmount}
+                            onChange={(e) => setAllocateAmount(parseInt(e.target.value) || 0)}
+                            placeholder="Enter amount to allocate" 
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="allocateReason">Reason</Label>
+                          <Input 
+                            id="allocateReason" 
+                            value={allocateReason}
+                            onChange={(e) => setAllocateReason(e.target.value)}
+                            placeholder="Enter reason for allocation" 
+                          />
+                        </div>
+                        <Button 
+                          className="w-full"
+                          onClick={() => allocateClientCreditsMutation.mutate({
+                            clientId: selectedClientId!,
+                            amount: allocateAmount,
+                            reason: allocateReason || "Manual credit allocation"
+                          })}
+                          disabled={allocateClientCreditsMutation.isPending || !selectedClientId || !allocateAmount}
+                        >
+                          {allocateClientCreditsMutation.isPending ? (
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          ) : (
+                            <Share2 className="mr-2 h-4 w-4" />
+                          )}
+                          Allocate Credits
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+                
+                {/* System Credits History */}
+                <h3 className="font-medium mb-4">System Credits History</h3>
+                <div className="rounded-md border">
+                  {isLoadingSystemCreditsHistory ? (
+                    <div className="p-8 text-center">
+                      <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+                      <p className="text-sm text-muted-foreground">Loading transaction history...</p>
+                    </div>
+                  ) : (
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Date</TableHead>
+                          <TableHead>Type</TableHead>
+                          <TableHead>Amount</TableHead>
+                          <TableHead>Balance After</TableHead>
+                          <TableHead>Performed By</TableHead>
+                          <TableHead>Reason</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {systemCreditsHistory?.length ? (
+                          systemCreditsHistory.map((history) => (
+                            <TableRow key={history.id}>
+                              <TableCell>
+                                {new Date(history.createdAt).toLocaleDateString()} {new Date(history.createdAt).toLocaleTimeString()}
+                              </TableCell>
+                              <TableCell>
+                                <Badge className={
+                                  history.type === 'add' ? 'bg-green-100 text-green-800' : 
+                                  history.type === 'deduct' ? 'bg-red-100 text-red-800' : 
+                                  'bg-blue-100 text-blue-800'
+                                }>
+                                  {history.type === 'add' ? 'Addition' : 
+                                   history.type === 'deduct' ? 'Deduction' : 
+                                   'Allocation'}
+                                </Badge>
+                              </TableCell>
+                              <TableCell className={
+                                history.type === 'add' ? 'text-green-600' : 
+                                history.type === 'deduct' || history.type === 'allocate' ? 'text-red-600' : ''
+                              }>
+                                {history.type === 'add' ? '+' : '-'}{history.amount.toLocaleString()}
+                              </TableCell>
+                              <TableCell>{history.newBalance.toLocaleString()}</TableCell>
+                              <TableCell>{history.performedBy ? `User #${history.performedBy}` : 'System'}</TableCell>
+                              <TableCell className="max-w-[200px] truncate" title={history.reason || ''}>
+                                {history.reason || 'N/A'}
+                              </TableCell>
+                            </TableRow>
+                          ))
+                        ) : (
+                          <TableRow>
+                            <TableCell colSpan={6} className="text-center py-4 text-muted-foreground">
+                              No transaction history found
+                            </TableCell>
+                          </TableRow>
+                        )}
+                      </TableBody>
+                    </Table>
+                  )}
                 </div>
               </CardContent>
             </Card>
