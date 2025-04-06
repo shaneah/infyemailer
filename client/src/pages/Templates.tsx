@@ -329,14 +329,14 @@ export default function Templates() {
                 {/* Left Panel - Form Controls */}
                 <div className="md:w-2/3 space-y-5">
                   {/* Header with advanced AI badge */}
-                  <div className="bg-slate-900 rounded-xl p-5 shadow-lg relative overflow-hidden">
+                  <div className="bg-gradient-to-r from-gray-900 to-gray-800 rounded-xl p-5 shadow-lg relative overflow-hidden">
                     {/* Background decoration */}
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-blue-400/20 to-teal-400/10 rounded-full blur-xl"></div>
-                    <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-teal-400/10 to-blue-400/5 rounded-full blur-lg"></div>
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-teal-500/10 to-teal-300/5 rounded-full blur-xl"></div>
+                    <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-teal-400/10 to-teal-500/5 rounded-full blur-lg"></div>
                     
                     <div className="flex items-start relative">
                       <div className="relative mr-4">
-                        <div className="p-2 bg-gradient-to-r from-teal-500 to-blue-500 rounded-xl shadow-lg overflow-hidden">
+                        <div className="p-2 bg-gradient-to-r from-teal-500 to-teal-400 rounded-xl shadow-lg overflow-hidden">
                           {/* Tech circuit pattern overlay */}
                           <div className="absolute inset-0 w-full h-full">
                             <div className="absolute top-0 left-0 w-full h-0.5 bg-white/20"></div>
@@ -351,20 +351,20 @@ export default function Templates() {
                           </svg>
                           
                           {/* Pulsing dot */}
-                          <div className="absolute top-1 right-1 w-2 h-2 bg-blue-300 rounded-full animate-ping opacity-75"></div>
-                          <div className="absolute top-1 right-1 w-2 h-2 bg-blue-400 rounded-full"></div>
+                          <div className="absolute top-1 right-1 w-2 h-2 bg-teal-200 rounded-full animate-ping opacity-75"></div>
+                          <div className="absolute top-1 right-1 w-2 h-2 bg-teal-300 rounded-full"></div>
                         </div>
                       </div>
                       
                       <div>
                         <div className="flex items-center">
-                          <h3 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-blue-500">Advanced AI Email Generator</h3>
-                          <div className="ml-3 px-2 py-1 bg-blue-900/40 rounded-md border border-blue-700/30 flex items-center">
-                            <span className="text-xs font-semibold text-blue-400">GPT-4o</span>
-                            <div className="ml-1.5 w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse"></div>
+                          <h3 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-teal-300 to-teal-100">Advanced AI Email Generator</h3>
+                          <div className="ml-3 px-2 py-1 bg-teal-900/40 rounded-md border border-teal-700/30 flex items-center">
+                            <span className="text-xs font-semibold text-teal-300">GPT-4o</span>
+                            <div className="ml-1.5 w-1.5 h-1.5 rounded-full bg-teal-300 animate-pulse"></div>
                           </div>
                         </div>
-                        <p className="text-slate-400 mt-1 max-w-lg">
+                        <p className="text-slate-300 mt-1 max-w-lg">
                           Craft professional, high-converting email templates using advanced AI technology
                         </p>
                       </div>
@@ -376,19 +376,19 @@ export default function Templates() {
                       <div className="flex justify-between relative">
                         <div className="flex flex-col items-center">
                           <div className="w-6 h-6 bg-teal-500 rounded-full flex items-center justify-center text-white text-xs font-bold">1</div>
-                          <span className="text-xs text-teal-400 mt-1.5">Input</span>
+                          <span className="text-xs text-teal-300 mt-1.5">Input</span>
                         </div>
                         <div className="flex flex-col items-center">
                           <div className="w-6 h-6 bg-slate-700 text-slate-300 rounded-full flex items-center justify-center text-xs font-bold border border-slate-600">2</div>
-                          <span className="text-xs text-slate-500 mt-1.5">Generate</span>
+                          <span className="text-xs text-slate-400 mt-1.5">Generate</span>
                         </div>
                         <div className="flex flex-col items-center">
                           <div className="w-6 h-6 bg-slate-700 text-slate-300 rounded-full flex items-center justify-center text-xs font-bold border border-slate-600">3</div>
-                          <span className="text-xs text-slate-500 mt-1.5">Preview</span>
+                          <span className="text-xs text-slate-400 mt-1.5">Preview</span>
                         </div>
                         <div className="flex flex-col items-center">
                           <div className="w-6 h-6 bg-slate-700 text-slate-300 rounded-full flex items-center justify-center text-xs font-bold border border-slate-600">4</div>
-                          <span className="text-xs text-slate-500 mt-1.5">Save</span>
+                          <span className="text-xs text-slate-400 mt-1.5">Save</span>
                         </div>
                       </div>
                     </div>
@@ -510,13 +510,13 @@ export default function Templates() {
                       </div>
                       
                       {/* AI Insights Tip */}
-                      <div className="flex p-2.5 bg-blue-950/40 rounded-lg border border-blue-900/50">
-                        <div className="bg-blue-900/60 rounded-lg p-1.5 mr-2.5 h-fit">
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <div className="flex p-2.5 bg-teal-950/40 rounded-lg border border-teal-900/50">
+                        <div className="bg-teal-900/60 rounded-lg p-1.5 mr-2.5 h-fit">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-teal-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M12 2c1.714 0 3.33.567 4.615 1.556a1 1 0 0 1 .385.78v12.332a1 1 0 0 1-.385.78C15.33 18.433 13.714 19 12 19s-3.33-.567-4.615-1.556a1 1 0 0 1-.385-.78V4.333a1 1 0 0 1 .385-.78C8.67 2.567 10.286 2 12 2Z"/>
                           </svg>
                         </div>
-                        <div className="text-xs text-blue-300">
+                        <div className="text-xs text-teal-300">
                           <p className="font-medium mb-0.5">AI Insight</p>
                           <p>Being specific with your purpose significantly improves AI's ability to create effective content. For example, "drive registrations for June 15 webinar" is better than "promote webinar".</p>
                         </div>
@@ -526,7 +526,7 @@ export default function Templates() {
                   
                   {/* Audience & Content Panel */}
                   <div className="bg-slate-800 rounded-xl shadow-lg overflow-hidden">
-                    <div className="px-5 py-3 bg-indigo-600 flex justify-between items-center">
+                    <div className="px-5 py-3 bg-teal-600 flex justify-between items-center">
                       <h4 className="font-medium text-white flex items-center">
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                           <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
@@ -538,9 +538,9 @@ export default function Templates() {
                       </h4>
                       
                       <div className="flex items-center space-x-1.5">
-                        <div className="w-1.5 h-1.5 rounded-full bg-indigo-300"></div>
-                        <div className="w-1.5 h-1.5 rounded-full bg-indigo-300"></div>
-                        <div className="w-1.5 h-1.5 rounded-full bg-indigo-300"></div>
+                        <div className="w-1.5 h-1.5 rounded-full bg-teal-300"></div>
+                        <div className="w-1.5 h-1.5 rounded-full bg-teal-300"></div>
+                        <div className="w-1.5 h-1.5 rounded-full bg-teal-300"></div>
                       </div>
                     </div>
                     
@@ -556,7 +556,7 @@ export default function Templates() {
                               type="text" 
                               id="targetAudience" 
                               name="targetAudience" 
-                              className="w-full bg-slate-700 border border-slate-600 text-slate-200 rounded-md p-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                              className="w-full bg-slate-700 border border-slate-600 text-slate-200 rounded-md p-2.5 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                               placeholder="e.g., IT managers aged 30-45"
                               value={formData.targetAudience}
                               onChange={handleInputChange}
@@ -565,7 +565,7 @@ export default function Templates() {
                             <TooltipProvider>
                               <Tooltip>
                                 <TooltipTrigger asChild>
-                                  <button type="button" className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-indigo-400 transition-colors">
+                                  <button type="button" className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-teal-400 transition-colors">
                                     <HelpCircle className="h-4 w-4" />
                                   </button>
                                 </TooltipTrigger>
@@ -586,7 +586,7 @@ export default function Templates() {
                             <select 
                               id="brandTone" 
                               name="brandTone" 
-                              className="w-full bg-slate-700 border border-slate-600 text-slate-200 rounded-md p-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                              className="w-full bg-slate-700 border border-slate-600 text-slate-200 rounded-md p-2.5 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                               value={formData.brandTone}
                               onChange={handleInputChange}
                             >
@@ -597,7 +597,7 @@ export default function Templates() {
                             <TooltipProvider>
                               <Tooltip>
                                 <TooltipTrigger asChild>
-                                  <button type="button" className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-indigo-400 transition-colors">
+                                  <button type="button" className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-teal-400 transition-colors">
                                     <HelpCircle className="h-4 w-4" />
                                   </button>
                                 </TooltipTrigger>
@@ -616,12 +616,12 @@ export default function Templates() {
                           <label htmlFor="keyPoints" className="block text-sm font-medium text-slate-300">
                             Key Points
                           </label>
-                          <span className="text-xs text-indigo-400">Recommended</span>
+                          <span className="text-xs text-teal-400">Recommended</span>
                         </div>
                         <textarea 
                           id="keyPoints" 
                           name="keyPoints" 
-                          className="w-full bg-slate-700 border border-slate-600 text-slate-200 rounded-md p-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent min-h-[120px]"
+                          className="w-full bg-slate-700 border border-slate-600 text-slate-200 rounded-md p-2.5 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent min-h-[120px]"
                           placeholder="• Limited time 30% discount ending June 20
 • Free shipping on orders over $50
 • New summer collection now available
@@ -632,20 +632,20 @@ export default function Templates() {
                       </div>
                       
                       {/* Advanced Writing Tips */}
-                      <div className="p-3 bg-indigo-950/40 rounded-lg border border-indigo-900/40">
-                        <h5 className="text-xs font-semibold text-indigo-400 flex items-center mb-2">
+                      <div className="p-3 bg-teal-950/40 rounded-lg border border-teal-900/40">
+                        <h5 className="text-xs font-semibold text-teal-400 flex items-center mb-2">
                           <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M12 2c1.714 0 3.33.567 4.615 1.556a1 1 0 0 1 .385.78v12.332a1 1 0 0 1-.385.78C15.33 18.433 13.714 19 12 19s-3.33-.567-4.615-1.556a1 1 0 0 1-.385-.78V4.333a1 1 0 0 1 .385-.78C8.67 2.567 10.286 2 12 2Z"/>
                           </svg>
                           ADVANCED AI WRITING TECHNIQUES
                         </h5>
                         <div className="grid grid-cols-2 gap-2">
-                          <div className="bg-slate-800/50 p-2 rounded border border-indigo-900/20">
-                            <h6 className="text-xs font-medium text-indigo-300 mb-1">Psychological Triggers</h6>
+                          <div className="bg-slate-800/50 p-2 rounded border border-teal-900/20">
+                            <h6 className="text-xs font-medium text-teal-300 mb-1">Psychological Triggers</h6>
                             <p className="text-xs text-slate-400">Include scarcity ("Limited time") or social proof ("Join 10,000+ users")</p>
                           </div>
-                          <div className="bg-slate-800/50 p-2 rounded border border-indigo-900/20">
-                            <h6 className="text-xs font-medium text-indigo-300 mb-1">Engagement Boosters</h6>
+                          <div className="bg-slate-800/50 p-2 rounded border border-teal-900/20">
+                            <h6 className="text-xs font-medium text-teal-300 mb-1">Engagement Boosters</h6>
                             <p className="text-xs text-slate-400">Use questions, countdowns, or personalized elements ("Chosen for you")</p>
                           </div>
                         </div>
