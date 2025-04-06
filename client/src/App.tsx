@@ -27,7 +27,7 @@ import Emails from "@/pages/Emails";
 import Reporting from "@/pages/Reporting";
 import EmailProviders from "@/pages/EmailProviders";
 import ClientManagement from "@/pages/ClientManagement";
-import AudiencePersonas from "@/pages/AudiencePersonas";
+
 
 function App() {
   const [location] = useLocation();
@@ -81,7 +81,7 @@ function App() {
                   <ProtectedRoute path="/reporting" component={Reporting} />
                   <ProtectedRoute path="/email-providers" component={EmailProviders} />
                   <ProtectedRoute path="/client-management" component={ClientManagement} />
-                  <ProtectedRoute path="/audience-personas" component={AudiencePersonas} />
+
                   <Route component={NotFound} />
                 </Switch>
               </main>
