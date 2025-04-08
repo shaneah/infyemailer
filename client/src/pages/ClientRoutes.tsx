@@ -748,19 +748,257 @@ const ClientLists = () => {
     </div>
   );
 };
-const ClientTemplates = () => (
-  <div className="p-8">
-    <div className="flex items-center gap-3 mb-6">
-      <div className="bg-primary/10 p-2 rounded-full">
-        <Activity className="h-6 w-6 text-primary" />
+const ClientTemplates = () => {
+  // State to manage templates data
+  const [isLoading, setIsLoading] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [templates, setTemplates] = useState([
+    {
+      id: 1,
+      name: "Welcome Email",
+      category: "Onboarding",
+      thumbnail: "https://img.freepik.com/free-vector/gradient-colorful-newsletter-template_23-2149221900.jpg?w=826&t=st=1685455431~exp=1685456031~hmac=89e4ef6e2fcadbb6ee5a5fdf6b2b4ac5a5eb18efd3f29d83b7e5ed35d19ec523",
+      description: "A warm welcome email for new subscribers.",
+      lastModified: "2025-03-12",
+      tags: ["Welcome", "Onboarding"]
+    },
+    {
+      id: 2,
+      name: "Monthly Newsletter",
+      category: "Newsletter",
+      thumbnail: "https://img.freepik.com/free-vector/gradient-monthly-newsletter-template_23-2149238318.jpg?w=826&t=st=1685455531~exp=1685456131~hmac=02ed0077ae638efad5a39e5b07d701e80b5a8ba0bbb5bbac689a6f1255557cb5",
+      description: "Standard monthly newsletter template with sections for news, updates, and promotions.",
+      lastModified: "2025-03-05",
+      tags: ["Newsletter", "Monthly"]
+    },
+    {
+      id: 3,
+      name: "Product Announcement",
+      category: "Marketing",
+      thumbnail: "https://img.freepik.com/free-vector/flat-product-release-linkedin-post_23-2149373521.jpg?w=826&t=st=1685455571~exp=1685456171~hmac=b48e617e5701055140f1e45b5f36637f49aff32ab7b20216c96e6e4acb0eadd0",
+      description: "Template for announcing new products or features.",
+      lastModified: "2025-02-18",
+      tags: ["Product", "Announcement", "Marketing"]
+    },
+    {
+      id: 4,
+      name: "Seasonal Promotion",
+      category: "Promotional",
+      thumbnail: "https://img.freepik.com/free-vector/flat-sales-instagram-posts-collection_23-2149366697.jpg?w=826&t=st=1685455612~exp=1685456212~hmac=c2b9ed857a739a67f4af14ae2de4a11f9a4a7f9d4a7d3a9f18278495af5d9b56",
+      description: "Promotional template for seasonal sales and special offers.",
+      lastModified: "2025-02-25",
+      tags: ["Promotion", "Sale", "Seasonal"]
+    },
+    {
+      id: 5,
+      name: "Event Invitation",
+      category: "Events",
+      thumbnail: "https://img.freepik.com/free-vector/flat-design-dinner-party-instagram-post_23-2149344509.jpg?w=826&t=st=1685455654~exp=1685456254~hmac=66ec27c3c0c133e094ba8f79690a9ffe3c31b4aafcc75db5f4a9e6d0f42bf69f",
+      description: "Template for inviting contacts to events and webinars.",
+      lastModified: "2025-01-30",
+      tags: ["Event", "Invitation", "Webinar"]
+    },
+    {
+      id: 6,
+      name: "Customer Feedback",
+      category: "Engagement",
+      thumbnail: "https://img.freepik.com/free-vector/hand-drawn-customer-feedback-template_23-2149159915.jpg?w=826&t=st=1685455691~exp=1685456291~hmac=d89ab3c3933a71fb8c5b313cef4ad337c524ddbae1926b91b21acc6aa3ce00fa",
+      description: "Template for requesting customer feedback and reviews.",
+      lastModified: "2025-03-01",
+      tags: ["Feedback", "Survey", "Engagement"]
+    }
+  ]);
+  
+  const categories = [
+    { id: 'all', name: 'All Templates' },
+    { id: 'Onboarding', name: 'Onboarding' },
+    { id: 'Newsletter', name: 'Newsletters' },
+    { id: 'Marketing', name: 'Marketing' },
+    { id: 'Promotional', name: 'Promotional' },
+    { id: 'Events', name: 'Events' }, 
+    { id: 'Engagement', name: 'Engagement' }
+  ];
+  
+  const filteredTemplates = selectedCategory === 'all' 
+    ? templates 
+    : templates.filter(template => template.category === selectedCategory);
+  
+  return (
+    <div className="p-8">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+        <div className="flex items-center gap-3">
+          <div className="bg-primary/10 p-2 rounded-full">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary">
+              <rect width="16" height="20" x="4" y="2" rx="2" />
+              <path d="M8 10h8" />
+              <path d="M8 14h4" />
+              <path d="M8 18h8" />
+              <path d="M8 6h8" />
+            </svg>
+          </div>
+          <h1 className="text-2xl font-bold">Email Templates</h1>
+        </div>
+        
+        <div className="flex items-center gap-2">
+          <button className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-50 transition-colors flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="17 8 12 3 7 8" />
+              <line x1="12" x2="12" y1="3" y2="15" />
+            </svg>
+            <span>Import</span>
+          </button>
+          <button className="bg-primary text-white px-4 py-2 rounded-md flex items-center gap-2 hover:bg-primary/90 transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 5v14"></path>
+              <path d="M5 12h14"></path>
+            </svg>
+            <span>Create Template</span>
+          </button>
+        </div>
       </div>
-      <h1 className="text-2xl font-bold">Client Templates</h1>
+      
+      {/* Category Filter Tabs */}
+      <div className="mb-6 border-b border-gray-200">
+        <div className="flex overflow-x-auto hide-scrollbar">
+          {categories.map(category => (
+            <button
+              key={category.id}
+              onClick={() => setSelectedCategory(category.id)}
+              className={`px-4 py-2 font-medium text-sm whitespace-nowrap ${
+                selectedCategory === category.id
+                  ? 'text-primary border-b-2 border-primary'
+                  : 'text-gray-500 hover:text-gray-700 hover:border-gray-300 border-b-2 border-transparent'
+              }`}
+            >
+              {category.name}
+            </button>
+          ))}
+        </div>
+      </div>
+      
+      {/* Search and Filter */}
+      <div className="bg-white rounded-lg shadow p-4 border border-gray-100 mb-6">
+        <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
+          <div className="relative flex-1">
+            <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <path d="m21 21-4.3-4.3"></path>
+            </svg>
+            <input 
+              type="text" 
+              placeholder="Search templates..." 
+              className="pl-10 pr-4 py-2 border border-gray-200 rounded-md w-full focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary"
+            />
+          </div>
+          <div className="flex gap-2">
+            <select className="border border-gray-200 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary">
+              <option value="">Sort By</option>
+              <option value="name">Name</option>
+              <option value="newest">Newest</option>
+              <option value="oldest">Oldest</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      
+      {/* Templates Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        {isLoading ? (
+          <div className="col-span-full flex justify-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          </div>
+        ) : filteredTemplates.length === 0 ? (
+          <div className="col-span-full bg-white rounded-lg shadow p-8 text-center">
+            <div className="mb-4">
+              <svg xmlns="http://www.w3.org/2000/svg" className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <rect width="16" height="20" x="4" y="2" rx="2" />
+                <path d="M8 10h8" />
+                <path d="M8 14h4" />
+                <path d="M8 18h8" />
+                <path d="M8 6h8" />
+              </svg>
+            </div>
+            <h3 className="text-lg font-medium text-gray-900 mb-1">No Templates Found</h3>
+            <p className="text-gray-500 mb-4">There are no templates in this category yet.</p>
+            <button className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary/90">
+              Create New Template
+            </button>
+          </div>
+        ) : (
+          filteredTemplates.map(template => (
+            <div key={template.id} className="bg-white rounded-lg shadow border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
+              <div className="h-48 overflow-hidden bg-gray-100">
+                <img 
+                  src={template.thumbnail} 
+                  alt={template.name}
+                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                />
+              </div>
+              <div className="p-5">
+                <div className="flex justify-between items-start mb-2">
+                  <h3 className="text-lg font-semibold text-gray-900 truncate">{template.name}</h3>
+                  <div className="dropdown">
+                    <button className="text-gray-400 hover:text-gray-600">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="12" r="1"></circle>
+                        <circle cx="12" cy="5" r="1"></circle>
+                        <circle cx="12" cy="19" r="1"></circle>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+                <span className="inline-block px-2.5 py-1 mb-2 rounded-full text-xs font-medium bg-primary/10 text-primary">
+                  {template.category}
+                </span>
+                <p className="text-sm text-gray-600 mb-4 line-clamp-2">{template.description}</p>
+                <div className="flex flex-wrap gap-1 mb-3">
+                  {template.tags.map((tag, idx) => (
+                    <span key={idx} className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+                <div className="text-xs text-gray-500 mb-3">
+                  Last modified: {new Date(template.lastModified).toLocaleDateString()}
+                </div>
+              </div>
+              <div className="bg-gray-50 px-5 py-3 border-t border-gray-100 flex justify-between">
+                <button className="text-sm text-primary hover:text-primary/80 font-medium">
+                  Use Template
+                </button>
+                <button className="text-sm text-gray-700 hover:text-gray-900">
+                  Preview
+                </button>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+      
+      {/* Pagination */}
+      <div className="flex justify-center">
+        <nav className="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+          <button className="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+            <span className="sr-only">Previous</span>
+            <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path fillRule="evenodd" d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z" clipRule="evenodd" />
+            </svg>
+          </button>
+          <button className="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-white bg-primary ring-1 ring-inset ring-gray-300">
+            1
+          </button>
+          <button className="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+            <span className="sr-only">Next</span>
+            <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path fillRule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clipRule="evenodd" />
+            </svg>
+          </button>
+        </nav>
+      </div>
     </div>
-    <div className="bg-white rounded-lg shadow p-6 border border-gray-100">
-      <p className="text-gray-600">This page is under development.</p>
-    </div>
-  </div>
-);
+  );
+};
 const ClientReports = () => (
   <div className="p-8">
     <div className="flex items-center gap-3 mb-6">
