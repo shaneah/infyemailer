@@ -35,7 +35,7 @@ export default function Templates() {
     description: '',
     name: ''
   });
-  
+
   const [formData, setFormData] = useState({
     templateType: "newsletter",
     industry: "",
@@ -45,11 +45,11 @@ export default function Templates() {
     keyPoints: "",
     saveTemplate: true
   });
-  
+
   const [generatingTemplate, setGeneratingTemplate] = useState(false);
   const [generationProgress, setGenerationProgress] = useState(0);
   const progressInterval = useRef<NodeJS.Timeout | null>(null);
-  
+
   const { data: savedTemplates = [], isLoading: isLoadingTemplates } = useQuery({
     queryKey: ['/api/templates'],
     queryFn: async () => {
@@ -60,7 +60,7 @@ export default function Templates() {
       return response.json();
     }
   });
-  
+
   const templateTypeOptions = [
     { value: "newsletter", label: "Newsletter" },
     { value: "promotional", label: "Promotional" },
@@ -70,7 +70,7 @@ export default function Templates() {
     { value: "transactional", label: "Transactional" },
     { value: "feedback", label: "Feedback Request" }
   ];
-  
+
   const brandToneOptions = [
     { value: "professional", label: "Professional" },
     { value: "casual", label: "Casual" },
@@ -90,16 +90,16 @@ export default function Templates() {
     { id: 'orange', name: 'Orange', primary: '#f97316', secondary: '#ffedd5' },
     { id: 'teal', name: 'Teal', primary: '#14b8a6', secondary: '#ccfbf1' },
   ];
-  
+
   const [selectedColorTheme, setSelectedColorTheme] = useState(colorThemes[0]);
-  
+
   // Update preview iframe content whenever preview state changes
   useEffect(() => {
     if (previewIframeRef.current && previewState.content) {
       const doc = previewIframeRef.current.contentDocument;
       if (doc) {
         doc.open();
-        
+
         // Add responsive viewport and bootstrap CSS
         const styledContent = `
           <!DOCTYPE html>
@@ -115,26 +115,26 @@ export default function Templates() {
                 padding: 0;
                 font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
               }
-              
+
               /* Apply selected color theme */
               :root {
                 --primary-color: ${selectedColorTheme.primary};
                 --secondary-color: ${selectedColorTheme.secondary};
               }
-              
+
               .btn-primary {
                 background-color: var(--primary-color) !important;
                 border-color: var(--primary-color) !important;
               }
-              
+
               .text-primary {
                 color: var(--primary-color) !important;
               }
-              
+
               .bg-primary-light {
                 background-color: var(--secondary-color) !important;
               }
-              
+
               .border-primary {
                 border-color: var(--primary-color) !important;
               }
@@ -145,7 +145,7 @@ export default function Templates() {
           </body>
           </html>
         `;
-        
+
         doc.write(styledContent);
         doc.close();
       }
@@ -156,7 +156,7 @@ export default function Templates() {
   useEffect(() => {
     if (generatingTemplate) {
       setGenerationProgress(0);
-      
+
       // Simulate progress with intervals
       progressInterval.current = setInterval(() => {
         setGenerationProgress(prev => {
@@ -166,7 +166,7 @@ export default function Templates() {
           return newValue;
         });
       }, 300);
-      
+
       // Auto switch to code tab
       setActiveTab('code');
     } else {
@@ -175,13 +175,13 @@ export default function Templates() {
         clearInterval(progressInterval.current);
         progressInterval.current = null;
       }
-      
+
       // Set to 100% when complete
       if (generationProgress > 0) {
         setGenerationProgress(100);
       }
     }
-    
+
     // Cleanup
     return () => {
       if (progressInterval.current) {
@@ -189,7 +189,7 @@ export default function Templates() {
       }
     };
   }, [generatingTemplate]);
-  
+
   const generateTemplateMutation = useMutation({
     mutationFn: async (data: any) => {
       const response = await apiRequest("POST", '/api/generate-template', data);
@@ -203,17 +203,17 @@ export default function Templates() {
         description: data.template.description || '',
         name: data.template.name || ''
       });
-      
+
       toast({
         title: "Template Generated",
         description: data.message || "Your AI template was successfully generated.",
         variant: "default"
       });
-      
+
       queryClient.invalidateQueries({ queryKey: ['/api/templates'] });
-      
+
       setGeneratingTemplate(false);
-      
+
       // Auto switch to code tab
       setActiveTab('code');
     },
@@ -226,17 +226,17 @@ export default function Templates() {
       setGeneratingTemplate(false);
     }
   });
-  
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
-  
+
   const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, checked } = e.target;
     setFormData(prev => ({ ...prev, [name]: checked }));
   };
-  
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setGeneratingTemplate(true);
@@ -257,11 +257,11 @@ export default function Templates() {
       description: template.description || '',
       name: template.name || ''
     });
-    
+
     // Switch to code tab to view the loaded template
     setActiveTab('code');
   };
-  
+
   return (
     <>
       <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
@@ -307,7 +307,7 @@ export default function Templates() {
             </ul>
           </div>
         </div>
-        
+
         <div className="card-body pt-4">
           {activeTab === 'editor' && (
             <form onSubmit={handleSubmit} className="relative">
@@ -319,7 +319,7 @@ export default function Templates() {
                   <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-bl from-teal-500/10 to-teal-300/5 rounded-full blur-xl"></div>
                   <div className="absolute bottom-0 left-10 w-64 h-64 bg-gradient-to-tr from-blue-400/10 to-teal-500/5 rounded-full blur-lg"></div>
                   <div className="absolute top-1/2 transform -translate-y-1/2 right-10 w-48 h-48 bg-gradient-to-tr from-teal-400/10 to-blue-500/5 rounded-full blur-lg"></div>
-                  
+
                   {/* Tech pattern overlay */}
                   <div className="absolute inset-0 opacity-10">
                     <div className="absolute top-8 left-[10%] w-32 h-px bg-teal-400/40"></div>
@@ -329,7 +329,7 @@ export default function Templates() {
                     <div className="absolute bottom-12 left-[30%] w-48 h-px bg-teal-400/40"></div>
                     <div className="absolute bottom-12 left-[30%] w-px h-8 bg-teal-400/40"></div>
                   </div>
-                  
+
                   <div className="flex flex-col md:flex-row items-center justify-between p-8 relative z-10">
                     <div className="mb-6 md:mb-0 md:mr-8">
                       <div className="flex items-center mb-3">
@@ -357,7 +357,7 @@ export default function Templates() {
                         Customize content for your audience, purpose, and brand voice in minutes.
                       </p>
                     </div>
-                    
+
                     {/* Stats cards */}
                     <div className="grid grid-cols-2 gap-3">
                       <div className="bg-slate-800/60 backdrop-blur border border-slate-700 p-3 rounded-lg">
@@ -400,7 +400,7 @@ export default function Templates() {
                       </div>
                     </div>
                   </div>
-                  
+
                   {/* Workflow steps */}
                   <div className="px-8 pb-8 relative z-10">
                     <div className="relative">
@@ -431,7 +431,7 @@ export default function Templates() {
                 <div className="flex flex-col md:flex-row gap-6">
                   {/* Left Panel - Form Fields */}
                   <div className="md:w-2/3 flex flex-col gap-6">
-                  
+
                   {/* Core Email Details Panel */}
                   <div className="bg-slate-800 rounded-xl shadow-lg overflow-hidden">
                     <div className="px-5 py-3 bg-gradient-to-r from-teal-600 to-blue-600 flex justify-between items-center">
@@ -443,12 +443,12 @@ export default function Templates() {
                         </svg>
                         Template Essentials
                       </h4>
-                      
+
                       <div className="bg-blue-500/30 rounded-md px-2 py-0.5 text-xs font-medium text-blue-200 border border-blue-500/20">
                         Required
                       </div>
                     </div>
-                    
+
                     <div className="p-5 bg-slate-800 space-y-4">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {/* Template Type */}
@@ -483,7 +483,7 @@ export default function Templates() {
                             </TooltipProvider>
                           </div>
                         </div>
-                        
+
                         {/* Industry */}
                         <div>
                           <label htmlFor="industry" className="block text-sm font-medium text-slate-300 mb-1.5">
@@ -515,7 +515,7 @@ export default function Templates() {
                           </div>
                         </div>
                       </div>
-                      
+
                       {/* Purpose */}
                       <div>
                         <label htmlFor="purpose" className="block text-sm font-medium text-slate-300 mb-1.5">
@@ -546,7 +546,7 @@ export default function Templates() {
                           </TooltipProvider>
                         </div>
                       </div>
-                      
+
                       {/* AI Insights Tip */}
                       <div className="flex p-2.5 bg-teal-950/40 rounded-lg border border-teal-900/50">
                         <div className="bg-teal-900/60 rounded-lg p-1.5 mr-2.5 h-fit">
@@ -561,7 +561,7 @@ export default function Templates() {
                       </div>
                     </div>
                   </div>
-                  
+
                   {/* Audience & Content Panel */}
                   <div className="bg-slate-800 rounded-xl shadow-lg overflow-hidden">
                     <div className="px-5 py-3 bg-teal-600 flex justify-between items-center">
@@ -574,14 +574,14 @@ export default function Templates() {
                         </svg>
                         Audience & Content
                       </h4>
-                      
-                      <div className="flex items-center space-x-1.5">
+
+                      <div className="flex itemscenter space-x-1.5">
                         <div className="w-1.5 h-1.5 rounded-full bg-teal-300"></div>
                         <div className="w-1.5 h-1.5 rounded-full bg-teal-300"></div>
                         <div className="w-1.5 h-1.5 rounded-full bg-teal-300"></div>
                       </div>
                     </div>
-                    
+
                     <div className="p-5 bg-slate-800 space-y-4">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {/* Target Audience */}
@@ -614,7 +614,7 @@ export default function Templates() {
                             </TooltipProvider>
                           </div>
                         </div>
-                        
+
                         {/* Brand Tone */}
                         <div>
                           <label htmlFor="brandTone" className="block text-sm font-medium text-slate-300 mb-1.5">
@@ -647,7 +647,7 @@ export default function Templates() {
                           </div>
                         </div>
                       </div>
-                      
+
                       {/* Key Points */}
                       <div>
                         <div className="flex justify-between items-center mb-1.5">
@@ -668,7 +668,7 @@ export default function Templates() {
                           onChange={handleInputChange}
                         ></textarea>
                       </div>
-                      
+
                       {/* Advanced Writing Tips */}
                       <div className="p-3 bg-teal-950/40 rounded-lg border border-teal-900/40">
                         <h5 className="text-xs font-semibold text-teal-400 flex items-center mb-2">
@@ -690,7 +690,7 @@ export default function Templates() {
                       </div>
                     </div>
                   </div>
-                  
+
                   {/* Visual Style Panel */}
                   <div className="bg-slate-800 rounded-xl shadow-lg overflow-hidden">
                     <div className="px-5 py-3 bg-gradient-to-r from-purple-600 to-pink-600 flex justify-between items-center">
@@ -704,7 +704,7 @@ export default function Templates() {
                         Visual Design & Style
                       </h4>
                     </div>
-                    
+
                     <div className="p-5 bg-slate-800 space-y-4">
                       <label className="block text-sm font-medium text-slate-300 mb-3">
                         Brand Color Theme
@@ -730,7 +730,7 @@ export default function Templates() {
                           </button>
                         ))}
                       </div>
-                      
+
                       <div className="p-3 bg-gradient-to-r from-slate-700/60 to-slate-700/30 rounded-lg flex items-center justify-between">
                         <div className="flex items-center">
                           <div className="p-1.5 rounded-md mr-3 flex" style={{ background: `linear-gradient(135deg, ${selectedColorTheme.primary}, ${selectedColorTheme.secondary})` }}>
@@ -738,13 +738,13 @@ export default function Templates() {
                               <path d="M12 22v-6M2 12l5-3 1-4 2 1 1 4 5 3 1-4 2 1 1 4 2 2M18 5l-4 3-1.5-1.5L9 9 6 5.5 3 9" />
                             </svg>
                           </div>
-                          
+
                           <div>
                             <h6 className="text-sm font-medium text-slate-300">{selectedColorTheme.name}</h6>
                             <p className="text-xs text-slate-500">Primary: {selectedColorTheme.primary} • Secondary: {selectedColorTheme.secondary}</p>
                           </div>
                         </div>
-                        
+
                         <div className="flex items-center gap-2">
                           <div className="w-5 h-5 rounded border border-slate-600" style={{ backgroundColor: selectedColorTheme.primary }}></div>
                           <div className="w-5 h-5 rounded border border-slate-600" style={{ backgroundColor: selectedColorTheme.secondary }}></div>
@@ -752,7 +752,7 @@ export default function Templates() {
                       </div>
                     </div>
                   </div>
-                  
+
                   {/* AI Engine & Generation Settings */}
                   <div className="bg-slate-800 rounded-xl p-5 shadow-lg space-y-4">
                     <div className="flex justify-between items-center">
@@ -764,7 +764,7 @@ export default function Templates() {
                         </svg>
                         AI Engine Settings
                       </h4>
-                      
+
                       <div className="px-2 py-1 bg-teal-900/40 rounded text-xs text-teal-400 border border-teal-900/40 flex items-center">
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                           <path d="M12 2c1.714 0 3.33.567 4.615 1.556a1 1 0 0 1 .385.78v12.332a1 1 0 0 1-.385.78C15.33 18.433 13.714 19 12 19s-3.33-.567-4.615-1.556a1 1 0 0 1-.385-.78V4.333a1 1 0 0 1 .385-.78C8.67 2.567 10.286 2 12 2Z"/>
@@ -787,11 +787,11 @@ export default function Templates() {
                           Save to template library
                         </label>
                       </div>
-                      
+
 
                     </div>
                   </div>
-                  
+
                   {/* Generate Button */}
                   {!generatingTemplate ? (
                     <div className="relative">
@@ -811,7 +811,7 @@ export default function Templates() {
                     </div>
                   ) : null}
                 </div>
-                
+
                 {/* Right Panel - Live Preview & Status */}
                 <div className="md:w-1/3 bg-slate-900 rounded-xl shadow-lg overflow-hidden">
                   {!generatingTemplate ? (
@@ -825,7 +825,7 @@ export default function Templates() {
                           Preview Panel
                         </h4>
                       </div>
-                      
+
                       <div className="flex-grow p-6 flex flex-col items-center justify-center text-center">
                         <div className="w-16 h-16 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center mb-4">
                           <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-slate-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -833,12 +833,12 @@ export default function Templates() {
                             <polyline points="3 7 12 13 21 7" />
                           </svg>
                         </div>
-                        
+
                         <h5 className="text-lg font-medium text-slate-400">Preview Ready</h5>
                         <p className="text-sm text-slate-500 max-w-xs mt-2">
                           Your email template preview will appear here after generation. Fill out the form and click "Generate AI Template".
                         </p>
-                        
+
                         <div className="mt-6 grid grid-cols-2 gap-3 w-full max-w-xs">
                           <div className="bg-slate-800 p-2 rounded-lg border border-slate-700">
                             <h6 className="text-xs font-medium text-slate-400 mb-1">Estimated Length</h6>
@@ -850,7 +850,7 @@ export default function Templates() {
                           </div>
                         </div>
                       </div>
-                      
+
                       <div className="border-t border-slate-800 p-4">
                         <div className="flex justify-between items-center text-xs text-slate-500">
                           <span>AI Email Generator v2.0</span>
@@ -876,7 +876,7 @@ export default function Templates() {
                           <div className="text-teal-400 font-bold">{Math.round(generationProgress)}%</div>
                         </div>
                       </div>
-                      
+
                       {/* Progress Bar */}
                       <div className="px-5 pt-5">
                         <div className="w-full h-2 bg-slate-700 rounded-full overflow-hidden">
@@ -885,7 +885,7 @@ export default function Templates() {
                             style={{ width: `${generationProgress}%` }}
                           ></div>
                         </div>
-                        
+
                         <p className="mt-2 text-sm text-slate-400">
                           {generationProgress < 25 ? 'Analyzing your requirements...' : 
                           generationProgress < 50 ? 'Creating email structure...' : 
@@ -894,7 +894,7 @@ export default function Templates() {
                           'Finalizing your template...'}
                         </p>
                       </div>
-                      
+
                       {/* Advanced Generation Status */}
                       <div className="flex-grow p-5 space-y-3 overflow-y-auto">
                         {/* Task Progress */}
@@ -916,7 +916,7 @@ export default function Templates() {
                             </div>
                             {generationProgress > 20 && <span className="text-xs text-teal-500">Completed</span>}
                           </div>
-                          
+
                           <div className={`flex justify-between items-center p-2.5 rounded-lg border ${generationProgress > 40 ? 'bg-slate-800/50 border-slate-700' : 'bg-slate-800/30 border-slate-700/50'}`}>
                             <div className="flex items-center">
                               {generationProgress > 40 ? (
@@ -938,7 +938,7 @@ export default function Templates() {
                             </div>
                             {generationProgress > 40 && <span className="text-xs text-teal-500">Completed</span>}
                           </div>
-                          
+
                           <div className={`flex justify-between items-center p-2.5 rounded-lg border ${generationProgress > 60 ? 'bg-slate-800/50 border-slate-700' : 'bg-slate-800/30 border-slate-700/50'}`}>
                             <div className="flex items-center">
                               {generationProgress > 60 ? (
@@ -960,7 +960,7 @@ export default function Templates() {
                             </div>
                             {generationProgress > 60 && <span className="text-xs text-teal-500">Completed</span>}
                           </div>
-                          
+
                           <div className={`flex justify-between items-center p-2.5 rounded-lg border ${generationProgress > 80 ? 'bg-slate-800/50 border-slate-700' : 'bg-slate-800/30 border-slate-700/50'}`}>
                             <div className="flex items-center">
                               {generationProgress > 80 ? (
@@ -982,7 +982,7 @@ export default function Templates() {
                             </div>
                             {generationProgress > 80 && <span className="text-xs text-teal-500">Completed</span>}
                           </div>
-                          
+
                           <div className={`flex justify-between items-center p-2.5 rounded-lg border ${generationProgress > 95 ? 'bg-slate-800/50 border-slate-700' : 'bg-slate-800/30 border-slate-700/50'}`}>
                             <div className="flex items-center">
                               {generationProgress > 95 ? (
@@ -1005,7 +1005,7 @@ export default function Templates() {
                             {generationProgress > 95 && <span className="text-xs text-teal-500">Completed</span>}
                           </div>
                         </div>
-                        
+
                         {/* AI Activity Log */}
                         {generationProgress > 30 && (
                           <div className="mt-4 border border-slate-700 rounded-lg overflow-hidden">
@@ -1013,59 +1013,7 @@ export default function Templates() {
                               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1.5 text-teal-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                 <path d="M12 2c1.714 0 3.33.567 4.615 1.556a1 1 0 0 1 .385.78v12.332a1 1 0 0 1-.385.78C15.33 18.433 13.714 19 12 19s-3.33-.567-4.615-1.556a1 1 0 0 1-.385-.78V4.333a1 1 0 0 1 .385-.78C8.67 2.567 10.286 2 12 2Z"/>
                               </svg>
-                              <span className="text-xs font-medium text-slate-400">AI Activity Log</span>
                             </div>
-                            
-                            <div className="max-h-32 overflow-y-auto p-2 space-y-1.5 text-xs">
-                              <div className="text-slate-500">
-                                <span className="text-teal-500">system</span>: Initializing GPT-4o engine...
-                              </div>
-                              <div className="text-slate-500">
-                                <span className="text-teal-500">system</span>: Loading {formData.industry} industry knowledge base...
-                              </div>
-                              {generationProgress > 40 && (
-                                <div className="text-slate-500">
-                                  <span className="text-teal-500">system</span>: Analyzing {formData.targetAudience} profile...
-                                </div>
-                              )}
-                              {generationProgress > 50 && (
-                                <div className="text-slate-500">
-                                  <span className="text-teal-500">system</span>: Creating content structure for {formData.templateType}...
-                                </div>
-                              )}
-                              {generationProgress > 65 && (
-                                <div className="text-slate-500">
-                                  <span className="text-teal-500">system</span>: Adapting tone to "{formData.brandTone}" style...
-                                </div>
-                              )}
-                              {generationProgress > 75 && (
-                                <div className="text-slate-500">
-                                  <span className="text-teal-500">system</span>: Incorporating {formData.keyPoints.split('\n').filter(line => line.trim()).length || 0} key points...
-                                </div>
-                              )}
-                              {generationProgress > 85 && (
-                                <div className="text-slate-500">
-                                  <span className="text-teal-500">system</span>: Applying {selectedColorTheme.name} color theme...
-                                </div>
-                              )}
-                              {generationProgress > 95 && (
-                                <div className="text-slate-500">
-                                  <span className="text-teal-500">system</span>: Running final quality checks...
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                      
-                      {/* AI Engine Info */}
-                      <div className="border-t border-slate-800 p-4">
-                        <div className="bg-slate-800 rounded-lg p-3 flex items-center">
-                          <div className="p-1.5 bg-gradient-to-r from-teal-500 to-blue-500 rounded-full mr-3">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <path d="M12 2c1.714 0 3.33.567 4.615 1.556a1 1 0 0 1 .385.78v12.332a1 1 0 0 1-.385.78C15.33 18.433 13.714 19 12 19s-3.33-.567-4.615-1.556a1 1 0 0 1-.385-.78V4.333a1 1 0 0 1 .385-.78C8.67 2.567 10.286 2 12 2Z"/>
-                            </svg>
-                          </div>
                           <div>
                             <h6 className="text-xs font-medium text-slate-300">GPT-4o AI Engine</h6>
                             <p className="text-xs text-slate-500">Optimized for marketing & email content</p>
@@ -1078,9 +1026,9 @@ export default function Templates() {
               </div>
             </form>
           )}
-          
 
-          
+
+
           {activeTab === 'code' && (
             <div className="code-viewer bg-dark rounded">
               {previewState.content ? (
@@ -1125,7 +1073,7 @@ export default function Templates() {
           {activeTab === 'saved' && (
             <div className="saved-templates">
               <h5 className="mb-3">Your Saved Templates</h5>
-              
+
               {isLoadingTemplates ? (
                 <div className="text-center py-4">
                   <div className="spinner-border text-primary" role="status">
