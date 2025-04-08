@@ -999,19 +999,346 @@ const ClientTemplates = () => {
     </div>
   );
 };
-const ClientReports = () => (
-  <div className="p-8">
-    <div className="flex items-center gap-3 mb-6">
-      <div className="bg-primary/10 p-2 rounded-full">
-        <Activity className="h-6 w-6 text-primary" />
+const ClientReports = () => {
+  // State for reports
+  const [isLoading, setIsLoading] = useState(false);
+  const [dateRange, setDateRange] = useState('30days');
+  const [reportType, setReportType] = useState('overview');
+  
+  const overviewStats = {
+    totalSent: 45621,
+    opens: 28743,
+    openRate: 63.0,
+    clicks: 9865,
+    clickRate: 21.6,
+    bounces: 824,
+    bounceRate: 1.8,
+    unsubscribes: 196,
+    unsubscribeRate: 0.4
+  };
+  
+  const monthlyData = [
+    { month: 'Jan', sent: 8432, opened: 5376, clicked: 1854 },
+    { month: 'Feb', sent: 7865, opened: 4932, clicked: 1689 },
+    { month: 'Mar', sent: 9276, opened: 5891, clicked: 2067 },
+    { month: 'Apr', sent: 11243, opened: 7187, clicked: 2541 },
+    { month: 'May', sent: 8805, opened: 5357, clicked: 1714 }
+  ];
+  
+  const deviceData = [
+    { device: 'Mobile', percentage: 61, color: 'bg-blue-500' },
+    { device: 'Desktop', percentage: 31, color: 'bg-green-500' },
+    { device: 'Tablet', percentage: 8, color: 'bg-purple-500' }
+  ];
+  
+  const geoData = [
+    { country: 'United States', percentage: 42, count: 19161 },
+    { country: 'United Kingdom', percentage: 15, count: 6843 },
+    { country: 'Canada', percentage: 11, count: 5018 },
+    { country: 'Australia', percentage: 9, count: 4106 },
+    { country: 'Germany', percentage: 6, count: 2737 },
+    { country: 'France', percentage: 5, count: 2281 },
+    { country: 'Other', percentage: 12, count: 5475 }
+  ];
+  
+  const topCampaigns = [
+    { 
+      id: 1, 
+      name: 'Monthly Newsletter - March', 
+      sent: 12450,
+      openRate: 68.4,
+      clickRate: 24.7
+    },
+    { 
+      id: 2, 
+      name: 'Spring Promotion', 
+      sent: 8765,
+      openRate: 72.1,
+      clickRate: 31.5
+    },
+    { 
+      id: 3, 
+      name: 'Product Launch - Premium Series', 
+      sent: 10234,
+      openRate: 64.8,
+      clickRate: 27.3
+    },
+    { 
+      id: 4, 
+      name: 'Customer Loyalty Program', 
+      sent: 6500,
+      openRate: 59.6,
+      clickRate: 18.9
+    }
+  ];
+  
+  const renderReportContent = () => {
+    switch(reportType) {
+      case 'overview':
+        return (
+          <>
+            {/* Stat Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+              <div className="bg-white rounded-lg shadow p-4 border border-gray-100">
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="text-sm font-medium text-gray-500">Total Sent</h3>
+                  <div className="bg-blue-100 rounded-full p-1.5">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 19v-8.93a2 2 0 01.89-1.664l7-4.666a2 2 0 012.22 0l7 4.666A2 2 0 0121 10.07V19M3 19a2 2 0 002 2h14a2 2 0 002-2M3 19l6.75-4.5M21 19l-6.75-4.5M3 10l6.75 4.5M21 10l-6.75 4.5m0 0l-1.14.76a2 2 0 01-2.22 0l-1.14-.76" />
+                    </svg>
+                  </div>
+                </div>
+                <p className="text-2xl font-bold">{overviewStats.totalSent.toLocaleString()}</p>
+                <p className="text-xs text-gray-500 mt-1">Last 30 days</p>
+              </div>
+              <div className="bg-white rounded-lg shadow p-4 border border-gray-100">
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="text-sm font-medium text-gray-500">Open Rate</h3>
+                  <div className="bg-green-100 rounded-full p-1.5">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                  </div>
+                </div>
+                <p className="text-2xl font-bold">{overviewStats.openRate}%</p>
+                <p className="text-xs text-gray-500 mt-1">{overviewStats.opens.toLocaleString()} opens</p>
+              </div>
+              <div className="bg-white rounded-lg shadow p-4 border border-gray-100">
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="text-sm font-medium text-gray-500">Click Rate</h3>
+                  <div className="bg-purple-100 rounded-full p-1.5">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />
+                    </svg>
+                  </div>
+                </div>
+                <p className="text-2xl font-bold">{overviewStats.clickRate}%</p>
+                <p className="text-xs text-gray-500 mt-1">{overviewStats.clicks.toLocaleString()} clicks</p>
+              </div>
+              <div className="bg-white rounded-lg shadow p-4 border border-gray-100">
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="text-sm font-medium text-gray-500">Bounce Rate</h3>
+                  <div className="bg-red-100 rounded-full p-1.5">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                  </div>
+                </div>
+                <p className="text-2xl font-bold">{overviewStats.bounceRate}%</p>
+                <p className="text-xs text-gray-500 mt-1">{overviewStats.bounces.toLocaleString()} bounces</p>
+              </div>
+            </div>
+            
+            {/* Monthly Performance Chart */}
+            <div className="bg-white rounded-lg shadow border border-gray-100 mb-6">
+              <div className="p-4 border-b border-gray-100">
+                <h3 className="font-medium">Monthly Performance</h3>
+              </div>
+              <div className="p-4 h-64 flex items-end justify-between">
+                {monthlyData.map((data, index) => (
+                  <div key={index} className="flex flex-col items-center w-1/6">
+                    <div className="relative w-full h-40 flex items-end mb-2">
+                      <div className="absolute bottom-0 left-0 right-0 mx-auto w-4 bg-blue-100 rounded-t" style={{ height: `${(data.sent / 12000) * 100}%` }}></div>
+                      <div className="absolute bottom-0 left-0 right-0 mx-auto w-4 bg-green-100 rounded-t" style={{ height: `${(data.opened / 12000) * 100}%`, left: '8px' }}></div>
+                      <div className="absolute bottom-0 left-0 right-0 mx-auto w-4 bg-purple-100 rounded-t" style={{ height: `${(data.clicked / 12000) * 100}%`, left: '16px' }}></div>
+                    </div>
+                    <span className="text-xs text-gray-500">{data.month}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="px-4 pb-4 flex justify-center">
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center">
+                    <div className="w-3 h-3 bg-blue-100 rounded mr-1"></div>
+                    <span className="text-xs text-gray-500">Sent</span>
+                  </div>
+                  <div className="flex items-center">
+                    <div className="w-3 h-3 bg-green-100 rounded mr-1"></div>
+                    <span className="text-xs text-gray-500">Opened</span>
+                  </div>
+                  <div className="flex items-center">
+                    <div className="w-3 h-3 bg-purple-100 rounded mr-1"></div>
+                    <span className="text-xs text-gray-500">Clicked</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            {/* Top Campaigns */}
+            <div className="bg-white rounded-lg shadow border border-gray-100 mb-6">
+              <div className="p-4 border-b border-gray-100">
+                <h3 className="font-medium">Top Performing Campaigns</h3>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="bg-gray-50">
+                      <th className="text-left py-3 px-4 text-xs font-medium text-gray-500 uppercase tracking-wider">Campaign</th>
+                      <th className="text-right py-3 px-4 text-xs font-medium text-gray-500 uppercase tracking-wider">Sent</th>
+                      <th className="text-right py-3 px-4 text-xs font-medium text-gray-500 uppercase tracking-wider">Open Rate</th>
+                      <th className="text-right py-3 px-4 text-xs font-medium text-gray-500 uppercase tracking-wider">Click Rate</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {topCampaigns.map((campaign, index) => (
+                      <tr key={index} className="border-t border-gray-100">
+                        <td className="py-3 px-4 text-sm">{campaign.name}</td>
+                        <td className="py-3 px-4 text-sm text-right">{campaign.sent.toLocaleString()}</td>
+                        <td className="py-3 px-4 text-sm text-right">
+                          <span className={`font-medium ${campaign.openRate > 65 ? 'text-green-600' : 'text-gray-900'}`}>
+                            {campaign.openRate}%
+                          </span>
+                        </td>
+                        <td className="py-3 px-4 text-sm text-right">
+                          <span className={`font-medium ${campaign.clickRate > 25 ? 'text-green-600' : 'text-gray-900'}`}>
+                            {campaign.clickRate}%
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </>
+        );
+      case 'devices':
+        return (
+          <div className="bg-white rounded-lg shadow border border-gray-100 p-6">
+            <h3 className="font-medium mb-4">Device Distribution</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="flex flex-col">
+                {deviceData.map((item, index) => (
+                  <div key={index} className="mb-4">
+                    <div className="flex justify-between mb-1">
+                      <span className="text-sm font-medium">{item.device}</span>
+                      <span className="text-sm font-medium">{item.percentage}%</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2.5">
+                      <div className={`${item.color} h-2.5 rounded-full`} style={{ width: `${item.percentage}%` }}></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="flex items-center justify-center">
+                <div className="relative h-48 w-48 rounded-full bg-gray-200 flex items-center justify-center">
+                  <div className="absolute top-0 left-0 right-0 bottom-0">
+                    <div className="absolute inset-0 bg-blue-500" style={{ clipPath: 'polygon(50% 50%, 50% 0, 100% 0, 100% 100%, 50% 100%)' }}></div>
+                    <div className="absolute inset-0 bg-green-500" style={{ clipPath: 'polygon(50% 50%, 50% 0, 0 0, 0 50%)' }}></div>
+                    <div className="absolute inset-0 bg-purple-500" style={{ clipPath: 'polygon(50% 50%, 0 50%, 0 100%, 20% 100%)' }}></div>
+                  </div>
+                  <div className="z-10 bg-white h-32 w-32 rounded-full"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      case 'geography':
+        return (
+          <div className="bg-white rounded-lg shadow border border-gray-100 p-6">
+            <h3 className="font-medium mb-4">Geographic Distribution</h3>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-gray-200">
+                    <th className="text-left py-3 px-4 text-xs font-medium text-gray-500 uppercase tracking-wider">Country</th>
+                    <th className="text-right py-3 px-4 text-xs font-medium text-gray-500 uppercase tracking-wider">Users</th>
+                    <th className="text-right py-3 px-4 text-xs font-medium text-gray-500 uppercase tracking-wider">Percentage</th>
+                    <th className="text-left py-3 px-4 text-xs font-medium text-gray-500 uppercase tracking-wider">Distribution</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {geoData.map((item, index) => (
+                    <tr key={index} className="border-b border-gray-100">
+                      <td className="py-3 px-4 text-sm">{item.country}</td>
+                      <td className="py-3 px-4 text-sm text-right">{item.count.toLocaleString()}</td>
+                      <td className="py-3 px-4 text-sm text-right">{item.percentage}%</td>
+                      <td className="py-3 px-4">
+                        <div className="w-full bg-gray-200 rounded-full h-1.5">
+                          <div className="bg-primary h-1.5 rounded-full" style={{ width: `${item.percentage}%` }}></div>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        );
+      default:
+        return <div>Select a report type</div>;
+    }
+  };
+  
+  return (
+    <div className="p-8">
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-3">
+          <div className="bg-primary/10 p-2 rounded-full">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary">
+              <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+              <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+              <line x1="6" y1="6" x2="6.01" y2="6"></line>
+              <line x1="6" y1="18" x2="6.01" y2="18"></line>
+            </svg>
+          </div>
+          <h1 className="text-2xl font-bold">Email Reports</h1>
+        </div>
+        
+        <div className="flex items-center gap-2">
+          <select 
+            value={dateRange}
+            onChange={(e) => setDateRange(e.target.value)}
+            className="border border-gray-200 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary"
+          >
+            <option value="7days">Last 7 Days</option>
+            <option value="30days">Last 30 Days</option>
+            <option value="90days">Last 90 Days</option>
+            <option value="year">Last Year</option>
+          </select>
+          <button className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-50 transition-colors flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            <span>Export</span>
+          </button>
+        </div>
       </div>
-      <h1 className="text-2xl font-bold">Client Reports</h1>
+      
+      {/* Report Type Navigation */}
+      <div className="flex mb-6 border-b border-gray-200">
+        <button 
+          onClick={() => setReportType('overview')} 
+          className={`px-4 py-2 font-medium text-sm whitespace-nowrap border-b-2 ${reportType === 'overview' ? 'border-primary text-primary' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
+        >
+          Overview
+        </button>
+        <button 
+          onClick={() => setReportType('devices')} 
+          className={`px-4 py-2 font-medium text-sm whitespace-nowrap border-b-2 ${reportType === 'devices' ? 'border-primary text-primary' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
+        >
+          Devices
+        </button>
+        <button 
+          onClick={() => setReportType('geography')} 
+          className={`px-4 py-2 font-medium text-sm whitespace-nowrap border-b-2 ${reportType === 'geography' ? 'border-primary text-primary' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
+        >
+          Geography
+        </button>
+      </div>
+      
+      {/* Report Content */}
+      {isLoading ? (
+        <div className="flex justify-center py-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        </div>
+      ) : renderReportContent()}
     </div>
-    <div className="bg-white rounded-lg shadow p-6 border border-gray-100">
-      <p className="text-gray-600">This page is under development.</p>
-    </div>
-  </div>
-);
+  );
+};
 const ClientDomains = () => (
   <div className="p-8">
     <div className="flex items-center gap-3 mb-6">
