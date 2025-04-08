@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
@@ -12,13 +11,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
 import { 
   Loader2, 
   Code, 
-  Eye, 
   PencilLine, 
-  Mail, 
   ClipboardCopy 
 } from "lucide-react";
 
@@ -26,7 +22,7 @@ interface AITemplateGeneratorProps {
   onTemplateGenerated?: (template: any) => void;
 }
 
-interface PreviewState {
+interface TemplateData {
   subject: string;
   content: string;
   description: string;
@@ -36,9 +32,8 @@ interface PreviewState {
 export default function AITemplateGenerator({ onTemplateGenerated }: AITemplateGeneratorProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const previewIframeRef = useRef<HTMLIFrameElement>(null);
-  const [activeTab, setActiveTab] = useState<'editor' | 'preview' | 'code'>('editor');
-  const [previewState, setPreviewState] = useState<PreviewState>({
+  const [activeTab, setActiveTab] = useState<'editor' | 'code'>('editor');
+  const [templateData, setTemplateData] = useState<TemplateData>({
     subject: '',
     content: '',
     description: '',
@@ -57,7 +52,6 @@ export default function AITemplateGenerator({ onTemplateGenerated }: AITemplateG
   
   const [generatingTemplate, setGeneratingTemplate] = useState(false);
   const [generationProgress, setGenerationProgress] = useState(0);
-  const [autoPreviewEnabled, setAutoPreviewEnabled] = useState(true);
   const progressInterval = useRef<NodeJS.Timeout | null>(null);
   
   const templateTypeOptions = [
@@ -91,79 +85,6 @@ export default function AITemplateGenerator({ onTemplateGenerated }: AITemplateG
   ];
   
   const [selectedColorTheme, setSelectedColorTheme] = useState(colorThemes[0]);
-  
-  // Update preview content - we'll use srcdoc instead of contentDocument for better compatibility
-  const getIframeContent = () => {
-    if (!previewState.content) return '';
-    
-    // Construct the HTML content with styles
-    return `
-      <!DOCTYPE html>
-      <html lang="en">
-      <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>${previewState.subject || 'Email Preview'}</title>
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-        <style>
-          body { 
-            margin: 0; 
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-          }
-          
-          /* Apply selected color theme */
-          :root {
-            --primary-color: ${selectedColorTheme.primary};
-            --secondary-color: ${selectedColorTheme.secondary};
-          }
-          
-          .btn-primary {
-            background-color: var(--primary-color) !important;
-            border-color: var(--primary-color) !important;
-          }
-          
-          .text-primary {
-            color: var(--primary-color) !important;
-          }
-          
-          .bg-primary-light {
-            background-color: var(--secondary-color) !important;
-          }
-          
-          .border-primary {
-            border-color: var(--primary-color) !important;
-          }
-        </style>
-      </head>
-      <body>
-        ${previewState.content}
-      </body>
-      </html>
-    `;
-  };
-  
-  // Store the iframe HTML content in state for better re-rendering
-  const [iframeHtml, setIframeHtml] = useState('');
-  
-  // Update the iframe HTML when preview state or theme changes
-  useEffect(() => {
-    if (activeTab === 'preview' && previewState.content) {
-      // Use a small timeout to ensure the tab content is fully rendered
-      const timer = setTimeout(() => {
-        setIframeHtml(getIframeContent());
-      }, 50);
-      
-      return () => clearTimeout(timer);
-    }
-  }, [previewState.content, previewState.subject, selectedColorTheme, activeTab]);
-  
-  // Also trigger update when switching to preview tab
-  useEffect(() => {
-    if (activeTab === 'preview' && previewState.content) {
-      setIframeHtml(getIframeContent());
-    }
-  }, [activeTab]);
 
   // Create animated progress indicator for template generation
   useEffect(() => {
@@ -179,11 +100,6 @@ export default function AITemplateGenerator({ onTemplateGenerated }: AITemplateG
           return newValue;
         });
       }, 300);
-      
-      // Auto switch to preview tab if enabled
-      if (autoPreviewEnabled) {
-        setActiveTab('preview');
-      }
     } else {
       // Clear interval when done generating
       if (progressInterval.current) {
@@ -203,7 +119,7 @@ export default function AITemplateGenerator({ onTemplateGenerated }: AITemplateG
         clearInterval(progressInterval.current);
       }
     };
-  }, [generatingTemplate, autoPreviewEnabled]);
+  }, [generatingTemplate]);
   
   const generateTemplateMutation = useMutation({
     mutationFn: async (data: any) => {
@@ -211,65 +127,15 @@ export default function AITemplateGenerator({ onTemplateGenerated }: AITemplateG
       return response.json();
     },
     onSuccess: (data) => {
-      // Update preview state with generated template
-      const newPreviewState = {
+      // Update template data with generated template
+      const newTemplateData = {
         subject: data.template.subject || '',
         content: data.template.content || '',
         description: data.template.description || '',
         name: data.template.name || ''
       };
       
-      setPreviewState(newPreviewState);
-      
-      // Also immediately update the iframe HTML if in preview tab
-      if (activeTab === 'preview' && newPreviewState.content) {
-        // Construct the preview HTML with the latest data
-        const previewHtml = `
-          <!DOCTYPE html>
-          <html lang="en">
-          <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>${newPreviewState.subject || 'Email Preview'}</title>
-            <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-            <style>
-              body { 
-                margin: 0; 
-                padding: 0;
-                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-              }
-              
-              /* Apply selected color theme */
-              :root {
-                --primary-color: ${selectedColorTheme.primary};
-                --secondary-color: ${selectedColorTheme.secondary};
-              }
-              
-              .btn-primary {
-                background-color: var(--primary-color) !important;
-                border-color: var(--primary-color) !important;
-              }
-              
-              .text-primary {
-                color: var(--primary-color) !important;
-              }
-              
-              .bg-primary-light {
-                background-color: var(--secondary-color) !important;
-              }
-              
-              .border-primary {
-                border-color: var(--primary-color) !important;
-              }
-            </style>
-          </head>
-          <body>
-            ${newPreviewState.content}
-          </body>
-          </html>
-        `;
-        setIframeHtml(previewHtml);
-      }
+      setTemplateData(newTemplateData);
       
       toast({
         title: "Template Generated",
@@ -285,10 +151,8 @@ export default function AITemplateGenerator({ onTemplateGenerated }: AITemplateG
       
       setGeneratingTemplate(false);
       
-      // Auto switch to preview tab if not already there
-      if (activeTab !== 'preview' && autoPreviewEnabled) {
-        setActiveTab('preview');
-      }
+      // Switch to code tab to let user see the HTML
+      setActiveTab('code');
     },
     onError: (error: any) => {
       toast({
@@ -303,11 +167,6 @@ export default function AITemplateGenerator({ onTemplateGenerated }: AITemplateG
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
-  };
-  
-  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, checked } = e.target;
-    setFormData(prev => ({ ...prev, [name]: checked }));
   };
   
   const handleSubmit = (e: React.FormEvent) => {
@@ -334,13 +193,10 @@ export default function AITemplateGenerator({ onTemplateGenerated }: AITemplateG
             <h4 className="text-xl font-medium">AI Email Template Generator</h4>
           </div>
           
-          <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'editor' | 'preview' | 'code')} className="mt-2">
-            <TabsList className="grid grid-cols-3 w-[300px]">
+          <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'editor' | 'code')} className="mt-2">
+            <TabsList className="grid grid-cols-2 w-[200px]">
               <TabsTrigger value="editor">
                 <PencilLine className="h-4 w-4 mr-1" /> Editor
-              </TabsTrigger>
-              <TabsTrigger value="preview">
-                <Eye className="h-4 w-4 mr-1" /> Preview
               </TabsTrigger>
               <TabsTrigger value="code">
                 <Code className="h-4 w-4 mr-1" /> HTML
@@ -507,19 +363,6 @@ export default function AITemplateGenerator({ onTemplateGenerated }: AITemplateG
                   </div>
                 </div>
                 
-                <div className="col-span-1">
-                  <div className="flex items-center space-x-2 mt-4">
-                    <Checkbox 
-                      id="autoPreview"
-                      checked={autoPreviewEnabled}
-                      onCheckedChange={(checked) => setAutoPreviewEnabled(checked === true)}
-                    />
-                    <Label htmlFor="autoPreview" className="text-sm font-normal cursor-pointer">
-                      Auto-switch to preview when generating
-                    </Label>
-                  </div>
-                </div>
-                
                 <div className="col-span-2 mt-3">
                   {generatingTemplate && (
                     <div className="mb-3">
@@ -556,67 +399,9 @@ export default function AITemplateGenerator({ onTemplateGenerated }: AITemplateG
             </form>
           </TabsContent>
           
-          <TabsContent value="preview" className="mt-0">
-            <div className="preview-container bg-gray-50 rounded-md p-4">
-              {previewState.content ? (
-                <>
-                  <div className="mb-3 pb-2 border-b">
-                    <h5 className="text-lg font-semibold mb-1">{previewState.name}</h5>
-                    <div className="flex items-center mb-2">
-                      <Badge className="mr-2">Subject</Badge>
-                      <span>{previewState.subject}</span>
-                    </div>
-                    <p className="text-muted-foreground text-sm">{previewState.description}</p>
-                  </div>
-                  <div className="aspect-video min-h-[500px] bg-white rounded-md shadow-sm">
-                    <iframe 
-                      title="Email Template Preview" 
-                      srcDoc={iframeHtml}
-                      className="w-full h-full border-0 rounded-md"
-                      sandbox="allow-same-origin allow-scripts"
-                    ></iframe>
-                  </div>
-                </>
-              ) : (
-                <div className="text-center py-12">
-                  {generatingTemplate ? (
-                    <div>
-                      <div className="mb-3 flex justify-center">
-                        <Loader2 className="h-10 w-10 animate-spin text-green-600" />
-                      </div>
-                      <h5 className="text-lg font-medium">Creating your email template...</h5>
-                      <p className="text-muted-foreground mt-1">This may take a few moments</p>
-                      <div className="mt-4 w-full max-w-md mx-auto">
-                        <Progress
-                          value={generationProgress}
-                          className="h-2 w-full"
-                        />
-                      </div>
-                    </div>
-                  ) : (
-                    <>
-                      <div className="mb-4">
-                        <Mail className="h-12 w-12 mx-auto text-muted-foreground" />
-                      </div>
-                      <h5 className="text-lg font-medium">No Email Template Generated Yet</h5>
-                      <p className="text-muted-foreground mt-1">Go to the Editor tab and fill out the form to generate an AI-powered email template.</p>
-                      <Button 
-                        variant="outline"
-                        className="mt-4" 
-                        onClick={() => setActiveTab('editor')}
-                      >
-                        Go to Editor
-                      </Button>
-                    </>
-                  )}
-                </div>
-              )}
-            </div>
-          </TabsContent>
-          
           <TabsContent value="code" className="mt-0">
             <div className="code-viewer bg-zinc-950 rounded-md">
-              {previewState.content ? (
+              {templateData.content ? (
                 <>
                   <div className="flex justify-between items-center bg-zinc-900 text-white px-4 py-2 border-b border-zinc-800">
                     <div>
@@ -627,7 +412,7 @@ export default function AITemplateGenerator({ onTemplateGenerated }: AITemplateG
                       size="sm"
                       className="text-xs bg-transparent border-zinc-700 hover:bg-zinc-800 text-white"
                       onClick={() => {
-                        navigator.clipboard.writeText(previewState.content);
+                        navigator.clipboard.writeText(templateData.content);
                         toast({
                           title: "Copied!",
                           description: "HTML code copied to clipboard",
@@ -643,7 +428,7 @@ export default function AITemplateGenerator({ onTemplateGenerated }: AITemplateG
                     fontSize: '0.875rem',
                     backgroundColor: '#121212'
                   }}>
-                    <code>{previewState.content}</code>
+                    <code>{templateData.content}</code>
                   </pre>
                 </>
               ) : (
