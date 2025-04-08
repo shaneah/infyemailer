@@ -83,7 +83,7 @@ export default function AuthPage() {
               <img src={Logo} alt="Infinity Tech Logo" className="h-16 mb-6" />
               <h1 className="text-3xl font-bold text-white">Infinity Tech</h1>
               <div className="h-1 w-16 bg-white/30 rounded my-4"></div>
-              <p className="text-white/90 text-lg max-w-xs">
+              <p className="text-white/90 text-lg max-w-xs break-words whitespace-normal">
                 Your complete email marketing solution
               </p>
             </div>
@@ -92,26 +92,26 @@ export default function AuthPage() {
           {/* Feature highlights */}
           <div className="hidden md:block relative z-10 space-y-6 mt-12">
             <div className="flex items-start space-x-3 p-3 rounded-lg bg-white/10 backdrop-blur-sm">
-              <div className="text-white">
+              <div className="text-white flex-shrink-0">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <div>
-                <h3 className="font-medium text-white">Advanced Email Marketing</h3>
-                <p className="text-white/80 text-sm">Create beautiful emails that convert</p>
+              <div className="flex-1 min-w-0">
+                <h3 className="font-medium text-white whitespace-normal">Advanced Email Marketing</h3>
+                <p className="text-white/80 text-sm whitespace-normal">Create beautiful emails that convert</p>
               </div>
             </div>
             
             <div className="flex items-start space-x-3 p-3 rounded-lg bg-white/10 backdrop-blur-sm">
-              <div className="text-white">
+              <div className="text-white flex-shrink-0">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <div>
-                <h3 className="font-medium text-white">Multi-domain Support</h3>
-                <p className="text-white/80 text-sm">Better deliverability and branding</p>
+              <div className="flex-1 min-w-0">
+                <h3 className="font-medium text-white whitespace-normal break-words">Multi-domain Support</h3>
+                <p className="text-white/80 text-sm whitespace-normal">Better deliverability and branding</p>
               </div>
             </div>
           </div>
