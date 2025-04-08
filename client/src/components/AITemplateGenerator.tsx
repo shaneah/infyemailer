@@ -124,45 +124,66 @@ export default function AITemplateGenerator({ onTemplateGenerated }: AITemplateG
   const generateTemplateMutation = useMutation({
     mutationFn: async (data: any) => {
       console.log('Sending template generation request with data:', data);
-      const response = await apiRequest('POST', '/api/generate-template', data);
-      
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
-        console.error('Template generation request failed:', errorData);
-        throw new Error(errorData.error || `Error ${response.status}: Failed to generate template`);
+      try {
+        const response = await apiRequest('POST', '/api/generate-template', data);
+        console.log('Raw template generation response:', response);
+        const responseData = await response.json();
+        console.log('Template generation response data:', responseData);
+        return responseData;
+      } catch (error) {
+        console.error('Template generation request error:', error);
+        throw error;
       }
-      
-      return response.json();
     },
     onSuccess: (data) => {
       console.log('Template generation successful, received data:', data);
       
-      // Update template data with generated template
-      const newTemplateData = {
-        subject: data.template.subject || '',
-        content: data.template.content || '',
-        description: data.template.description || '',
-        name: data.template.name || ''
-      };
-      
-      setTemplateData(newTemplateData);
-      
-      toast({
-        title: "Template Generated",
-        description: data.message || "Your AI template was successfully generated.",
-        variant: "default"
-      });
-      
-      queryClient.invalidateQueries({ queryKey: ['/api/templates'] });
-      
-      if (onTemplateGenerated) {
-        onTemplateGenerated(data.template);
+      if (!data?.template) {
+        console.error('Template data is missing in response:', data);
+        toast({
+          title: "Template Generation Error",
+          description: "Received incomplete template data from server. Please try again.",
+          variant: "destructive"
+        });
+        setGeneratingTemplate(false);
+        return;
       }
       
-      setGeneratingTemplate(false);
-      
-      // Switch to code tab to let user see the HTML
-      setActiveTab('code');
+      try {
+        // Update template data with generated template
+        const newTemplateData = {
+          subject: data.template.subject || '',
+          content: data.template.content || '',
+          description: data.template.description || '',
+          name: data.template.name || ''
+        };
+        
+        setTemplateData(newTemplateData);
+        
+        toast({
+          title: "Template Generated",
+          description: data.message || "Your AI template was successfully generated.",
+          variant: "default"
+        });
+        
+        queryClient.invalidateQueries({ queryKey: ['/api/templates'] });
+        
+        if (onTemplateGenerated) {
+          onTemplateGenerated(data.template);
+        }
+        
+        // Switch to code tab to let user see the HTML
+        setActiveTab('code');
+      } catch (err) {
+        console.error('Error processing template data:', err);
+        toast({
+          title: "Template Processing Error",
+          description: "Template was generated but an error occurred while processing it.",
+          variant: "destructive"
+        });
+      } finally {
+        setGeneratingTemplate(false);
+      }
     },
     onError: (error: any) => {
       console.error('Template generation error:', error);

@@ -131,8 +131,19 @@ export async function generateEmailTemplate(
 
   try {
     if (!process.env.OPENAI_API_KEY) {
+      console.error('OpenAI API key is missing');
       throw new Error('OpenAI API key is not configured.');
     }
+
+    console.log('Starting real email template generation with OpenAI');
+    console.log('Parameters:', { 
+      templateType, 
+      industry, 
+      purpose: purpose.substring(0, 20) + '...', 
+      targetAudience: targetAudience.substring(0, 20) + '...', 
+      brandTone,
+      keyPointsLength: keyPoints?.length || 0
+    });
 
     const prompt = `
     Create a professional ${templateType} email template for a ${industry} business.
@@ -170,35 +181,59 @@ export async function generateEmailTemplate(
     }
     `;
 
-    const completion = await openai.chat.completions.create({
-      messages: [
-        {
-          role: 'system',
-          content: 'You are an expert email designer specializing in creating high-quality, responsive email templates with HTML and inline CSS.'
-        },
-        {
-          role: 'user',
-          content: prompt
-        }
-      ],
-      model: 'gpt-4o', // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
-      response_format: { type: "json_object" }
-    });
-
-    // Extract the response as JSON
-    const responseText = completion.choices[0]?.message?.content || '{}';
-    
     try {
-      const templateData = JSON.parse(responseText);
-      return {
-        name: templateData.name || `${templateType} Template`,
-        subject: templateData.subject || `${industry} ${templateType}`,
-        content: templateData.content || '',
-        description: templateData.description || `A ${brandTone} ${templateType} template for ${industry} businesses.`
-      };
-    } catch (parseError) {
-      console.error('Error parsing template response:', parseError);
-      throw new Error('Failed to parse AI-generated template.');
+      console.log('Sending request to OpenAI API...');
+      const completion = await openai.chat.completions.create({
+        messages: [
+          {
+            role: 'system',
+            content: 'You are an expert email designer specializing in creating high-quality, responsive email templates with HTML and inline CSS.'
+          },
+          {
+            role: 'user',
+            content: prompt
+          }
+        ],
+        model: 'gpt-4o', // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+        response_format: { type: "json_object" },
+        temperature: 0.7,
+        max_tokens: 4000
+      });
+      
+      console.log('Received response from OpenAI API');
+      // Extract the response as JSON
+      const responseText = completion.choices[0]?.message?.content || '{}';
+      console.log('Response content length:', responseText.length);
+      
+      try {
+        const templateData = JSON.parse(responseText);
+        console.log('Successfully parsed template data JSON', {
+          nameLength: templateData.name?.length || 0,
+          subjectLength: templateData.subject?.length || 0,
+          descriptionLength: templateData.description?.length || 0,
+          contentLength: templateData.content?.length || 0
+        });
+        
+        // Validate that we have the required fields
+        if (!templateData.name || !templateData.subject || !templateData.content) {
+          console.error('Missing required fields in template data:', Object.keys(templateData));
+          throw new Error('Template response missing required fields');
+        }
+        
+        return {
+          name: templateData.name,
+          subject: templateData.subject,
+          content: templateData.content,
+          description: templateData.description || `A ${brandTone} ${templateType} template for ${industry} businesses.`
+        };
+      } catch (parseError) {
+        console.error('Error parsing template response:', parseError);
+        console.error('Raw response text sample:', responseText.substring(0, 200) + '...');
+        throw new Error('Failed to parse AI-generated template. The response was not valid JSON.');
+      }
+    } catch (apiError) {
+      console.error('OpenAI API error:', apiError);
+      throw new Error(`OpenAI API error: ${apiError.message || 'Unknown error'}`);
     }
   } catch (error) {
     console.error('Error generating email template:', error);
