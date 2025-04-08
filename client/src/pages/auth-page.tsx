@@ -67,65 +67,74 @@ export default function AuthPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
       {/* Main content container with paper-like appearance */}
-      <div className="w-full max-w-6xl bg-white rounded-2xl shadow-xl overflow-hidden flex flex-col md:flex-row">
-        {/* Left side - Brand/Logo */}
-        <div className="w-full md:w-2/5 bg-gradient-to-br from-primary to-primary/80 p-8 flex flex-col justify-between relative">
-          {/* Decorative elements */}
-          <div className="absolute inset-0 overflow-hidden">
-            <div className="absolute top-0 left-0 right-0 h-96 bg-white/5 rounded-full blur-3xl transform -translate-y-1/2"></div>
-            <div className="absolute left-0 bottom-0 w-40 h-40 bg-white/10 rounded-full blur-xl"></div>
-            <div className="absolute right-0 bottom-0 w-64 h-64 bg-white/5 rounded-full blur-2xl transform translate-x-1/4"></div>
-          </div>
-          
-          {/* Logo and branding */}
-          <div className="relative z-10 text-center md:text-left">
-            <div className="flex flex-col items-center md:items-start">
-              <img src={Logo} alt="Infinity Tech Logo" className="h-16 mb-6" />
-              <h1 className="text-3xl font-bold text-white">Infinity Tech</h1>
-              <div className="h-1 w-16 bg-white/30 rounded my-4"></div>
-              <p className="text-white/90 text-lg max-w-xs break-words whitespace-normal">
-                Your complete email marketing solution
-              </p>
+      <div className="w-full max-w-6xl bg-white rounded-2xl shadow-xl overflow-hidden">
+        {/* Only show branding section on tablet and larger screens */}
+        <div className="hidden md:flex w-full max-w-6xl flex-col md:flex-row">
+          {/* Left side - Brand/Logo */}
+          <div className="w-full md:w-2/5 bg-gradient-to-br from-primary to-primary/80 p-8 flex flex-col justify-between relative">
+            {/* Decorative elements */}
+            <div className="absolute inset-0 overflow-hidden">
+              <div className="absolute top-0 left-0 right-0 h-96 bg-white/5 rounded-full blur-3xl transform -translate-y-1/2"></div>
+              <div className="absolute left-0 bottom-0 w-40 h-40 bg-white/10 rounded-full blur-xl"></div>
+              <div className="absolute right-0 bottom-0 w-64 h-64 bg-white/5 rounded-full blur-2xl transform translate-x-1/4"></div>
             </div>
-          </div>
-          
-          {/* Feature highlights */}
-          <div className="hidden md:block relative z-10 space-y-6 mt-12">
-            <div className="flex items-start space-x-3 p-3 rounded-lg bg-white/10 backdrop-blur-sm">
-              <div className="text-white flex-shrink-0">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="font-medium text-white whitespace-normal">Advanced Email Marketing</h3>
-                <p className="text-white/80 text-sm whitespace-normal">Create beautiful emails that convert</p>
+            
+            {/* Logo and branding */}
+            <div className="relative z-10 text-center md:text-left">
+              <div className="flex flex-col items-center md:items-start">
+                <img src={Logo} alt="Infinity Tech Logo" className="h-16 mb-6" />
+                <h1 className="text-3xl font-bold text-white">Infinity Tech</h1>
+                <div className="h-1 w-16 bg-white/30 rounded my-4"></div>
+                <p className="text-white/90 text-lg max-w-xs break-words whitespace-normal">
+                  Your complete email marketing solution
+                </p>
               </div>
             </div>
             
-            <div className="flex items-start space-x-3 p-3 rounded-lg bg-white/10 backdrop-blur-sm">
-              <div className="text-white flex-shrink-0">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+            {/* Feature highlights */}
+            <div className="relative z-10 space-y-6 mt-12">
+              <div className="flex items-start space-x-3 p-3 rounded-lg bg-white/10 backdrop-blur-sm">
+                <div className="text-white flex-shrink-0">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-medium text-white whitespace-normal">Advanced Email Marketing</h3>
+                  <p className="text-white/80 text-sm whitespace-normal">Create beautiful emails that convert</p>
+                </div>
               </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="font-medium text-white whitespace-normal break-words">Multi-domain Support</h3>
-                <p className="text-white/80 text-sm whitespace-normal">Better deliverability and branding</p>
+              
+              <div className="flex items-start space-x-3 p-3 rounded-lg bg-white/10 backdrop-blur-sm">
+                <div className="text-white flex-shrink-0">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-medium text-white whitespace-normal break-words">Multi-domain Support</h3>
+                  <p className="text-white/80 text-sm whitespace-normal">Better deliverability and branding</p>
+                </div>
               </div>
             </div>
-          </div>
-          
-          {/* Copyright */}
-          <div className="relative z-10 text-white/70 text-sm mt-6 md:mt-0">
-            &copy; {new Date().getFullYear()} Infinity Tech. All rights reserved.
+            
+            {/* Copyright */}
+            <div className="relative z-10 text-white/70 text-sm mt-6 md:mt-0">
+              &copy; {new Date().getFullYear()} Infinity Tech. All rights reserved.
+            </div>
           </div>
         </div>
         
-        {/* Right side - Login form */}
-        <div className="w-full md:w-3/5 p-8 md:p-12 flex items-center">
+        {/* Right side - Login form (full width on mobile) */}
+        <div className="w-full md:w-3/5 p-8 md:p-12 mx-auto">
+          {/* Logo on mobile only */}
+          <div className="md:hidden text-center mb-8">
+            <img src={Logo} alt="Infinity Tech Logo" className="h-16 mx-auto mb-2" />
+            <h1 className="text-xl font-bold text-primary">Infinity Tech</h1>
+          </div>
+          
           <div className="w-full max-w-md mx-auto">
-            <div className="text-center md:text-left mb-10">
+            <div className="text-center md:text-left mb-8">
               <h2 className="text-3xl font-bold text-gray-900">Welcome back</h2>
               <p className="text-gray-600 mt-2">Sign in to access your dashboard</p>
             </div>
@@ -204,12 +213,12 @@ export default function AuthPage() {
                 <div className="pt-2">
                   <Button 
                     type="submit" 
-                    className="w-full h-14 text-md font-medium bg-primary hover:bg-primary/90 transition-colors rounded-lg"
+                    className="w-full h-14 text-base font-medium bg-primary hover:bg-primary/90 transition-colors rounded-lg"
                     disabled={isLoading}
                   >
                     {isLoading ? (
                       <div className="flex items-center justify-center">
-                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
@@ -220,19 +229,21 @@ export default function AuthPage() {
                 </div>
                 
                 {/* Demo credentials */}
-                <div className="bg-blue-50 border border-blue-100 rounded-lg p-4 flex items-start space-x-3">
-                  <div className="text-primary shrink-0 mt-0.5">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  </div>
-                  <div>
-                    <h4 className="font-medium text-gray-900">Demo Account</h4>
-                    <p className="text-gray-600 text-sm mt-1">
-                      Username: <span className="font-mono bg-gray-100 px-1.5 py-0.5 rounded">admin</span>
-                      <br />
-                      Password: <span className="font-mono bg-gray-100 px-1.5 py-0.5 rounded">admin123</span>
-                    </p>
+                <div className="bg-blue-50 border border-blue-100 rounded-lg p-4">
+                  <div className="flex items-start space-x-3">
+                    <div className="text-primary shrink-0 mt-0.5">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h4 className="font-medium text-gray-900">Demo Account</h4>
+                      <p className="text-gray-600 text-sm mt-1 whitespace-normal break-words">
+                        Username: <span className="font-mono bg-gray-100 px-1.5 py-0.5 rounded">admin</span>
+                        <br />
+                        Password: <span className="font-mono bg-gray-100 px-1.5 py-0.5 rounded">admin123</span>
+                      </p>
+                    </div>
                   </div>
                 </div>
                 
