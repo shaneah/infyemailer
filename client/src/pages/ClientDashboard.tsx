@@ -18,17 +18,17 @@ export default function ClientDashboard() {
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // Get client user info from session/localStorage
+  // Get client user info from session storage
   const getClientUser = () => {
     const sessionUser = sessionStorage.getItem('clientUser');
-    const localUser = localStorage.getItem('clientUser');
     
     if (sessionUser) {
-      return JSON.parse(sessionUser);
-    }
-    
-    if (localUser) {
-      return JSON.parse(localUser);
+      try {
+        return JSON.parse(sessionUser);
+      } catch (error) {
+        console.error('Error parsing client user', error);
+        return null;
+      }
     }
     
     return null;
@@ -149,10 +149,7 @@ export default function ClientDashboard() {
   }
 
   return (
-    <div className="flex h-screen bg-background">
-      {/* Client Sidebar */}
-      <ClientSidebar open={sidebarOpen} setOpen={setSidebarOpen} />
-      
+    <div className="flex flex-col overflow-hidden">
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
