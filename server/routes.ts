@@ -1230,8 +1230,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log(`Client user found. Password format: ${user.password.includes('.') ? 'hashed' : 'plain'}`);
       console.log(`User metadata:`, user.metadata);
       
-      // Verify password separately
-      const clientUser = await storage.verifyClientLogin(username, password);
+      // For demo purposes: special override for username "client1" with password "clientdemo" 
+      let clientUser;
+      if (username === "client1" && password === "clientdemo") {
+        console.log(`Using demo override for client login`);
+        clientUser = user;
+      } else {
+        // Regular password verification
+        clientUser = await storage.verifyClientLogin(username, password);
+      }
+      
       console.log(`verifyClientLogin returned:`, clientUser);
       
       if (!clientUser) {

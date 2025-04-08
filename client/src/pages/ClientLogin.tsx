@@ -218,7 +218,7 @@ const ClientLogin = () => {
                   
                   <div className="bg-primary/5 rounded-lg p-3 text-xs text-gray-700 text-center">
                     <p className="mb-1 font-medium">For demonstration purposes:</p>
-                    <p>Username: <strong>client1</strong> | Password: <strong>client123</strong></p>
+                    <p>Username: <strong>client1</strong> | Password: <strong>clientdemo</strong></p>
                   </div>
                 </form>
               </Form>
