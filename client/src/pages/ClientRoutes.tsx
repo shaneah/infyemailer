@@ -1368,19 +1368,545 @@ const ClientDomains = () => (
     </div>
   </div>
 );
-const ClientEmailValidation = () => (
-  <div className="p-8">
-    <div className="flex items-center gap-3 mb-6">
-      <div className="bg-primary/10 p-2 rounded-full">
-        <Activity className="h-6 w-6 text-primary" />
+const ClientEmailValidation = () => {
+  // States for validation forms
+  const [singleEmail, setSingleEmail] = useState('');
+  const [bulkEmails, setBulkEmails] = useState('');
+  const [activeTab, setActiveTab] = useState('single');
+  const [isLoading, setIsLoading] = useState(false);
+  const [singleResult, setSingleResult] = useState<any>(null);
+  const [batchResults, setBatchResults] = useState<any>(null);
+  const [analysisResults, setAnalysisResults] = useState<any>(null);
+  const [showTypoSuggestion, setShowTypoSuggestion] = useState(false);
+  const { toast } = useToast();
+
+  // Handle single email validation
+  const handleSingleValidation = async () => {
+    if (!singleEmail.trim()) {
+      toast({
+        title: "Email required",
+        description: "Please enter an email address to validate",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    setIsLoading(true);
+    setSingleResult(null);
+    setShowTypoSuggestion(false);
+    
+    try {
+      const response = await fetch('/api/email-validation/single', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email: singleEmail.trim() })
+      });
+      
+      const data = await response.json();
+      setSingleResult(data);
+      
+      if (data.typo && data.suggestion) {
+        setShowTypoSuggestion(true);
+      }
+    } catch (error) {
+      console.error('Validation error:', error);
+      toast({
+        title: "Validation failed",
+        description: "Could not validate the email address. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Apply suggestion
+  const applySuggestion = () => {
+    if (singleResult?.suggestion) {
+      setSingleEmail(singleResult.suggestion);
+      setShowTypoSuggestion(false);
+    }
+  };
+
+  // Handle bulk email validation
+  const handleBulkValidation = async () => {
+    if (!bulkEmails.trim()) {
+      toast({
+        title: "Emails required",
+        description: "Please enter email addresses to validate",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    // Parse emails from textarea
+    const emailList = bulkEmails
+      .split(/[\n,;]/)
+      .map(e => e.trim())
+      .filter(e => e);
+    
+    if (emailList.length === 0) {
+      toast({
+        title: "No valid emails",
+        description: "Please enter valid email addresses separated by commas, semicolons, or new lines",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    setIsLoading(true);
+    setBatchResults(null);
+    setAnalysisResults(null);
+    
+    try {
+      // Validate and analyze emails
+      const [validationResponse, analysisResponse] = await Promise.all([
+        fetch('/api/email-validation/batch', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ emails: emailList })
+        }),
+        fetch('/api/email-validation/analyze-bulk', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ emails: emailList })
+        })
+      ]);
+      
+      const validationData = await validationResponse.json();
+      const analysisData = await analysisResponse.json();
+      
+      setBatchResults(validationData);
+      setAnalysisResults(analysisData);
+    } catch (error) {
+      console.error('Bulk validation error:', error);
+      toast({
+        title: "Validation failed",
+        description: "Could not validate the email addresses. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Colorize score based on value
+  const getScoreColor = (score: number) => {
+    if (score >= 80) return 'text-green-600';
+    if (score >= 60) return 'text-yellow-600';
+    return 'text-red-600';
+  };
+
+  // Render badge based on validation result
+  const renderBadge = (valid: boolean, disposable: boolean) => {
+    if (!valid) {
+      return <span className="px-2 py-1 bg-red-100 text-red-800 rounded-full text-xs font-semibold">Invalid</span>;
+    }
+    
+    if (disposable) {
+      return <span className="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-semibold">Disposable</span>;
+    }
+    
+    return <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-semibold">Valid</span>;
+  };
+
+  const renderSingleResultCard = () => {
+    if (!singleResult) return null;
+    
+    return (
+      <div className="bg-white rounded-lg shadow border border-gray-200 p-6 mt-6">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold">Validation Result</h3>
+          <div>
+            {renderBadge(singleResult.valid, singleResult.disposable)}
+          </div>
+        </div>
+        
+        {showTypoSuggestion && (
+          <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
+            <div className="flex justify-between items-center">
+              <div>
+                <p className="text-sm font-medium text-blue-800">Possible typo detected!</p>
+                <p className="text-sm text-blue-600">Did you mean: <span className="font-semibold">{singleResult.suggestion}</span>?</p>
+              </div>
+              <button 
+                onClick={applySuggestion}
+                className="px-3 py-1 bg-blue-100 hover:bg-blue-200 text-blue-800 text-sm rounded-md transition-colors"
+              >
+                Apply Suggestion
+              </button>
+            </div>
+          </div>
+        )}
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <h4 className="text-sm font-medium text-gray-500 mb-1">Email Quality Score</h4>
+            <div className="flex items-end gap-2">
+              <span className={`text-2xl font-bold ${getScoreColor(singleResult.score)}`}>{singleResult.score}</span>
+              <span className="text-sm text-gray-500">/100</span>
+            </div>
+          </div>
+          
+          <div>
+            <h4 className="text-sm font-medium text-gray-500 mb-1">Format</h4>
+            <p className="font-medium">
+              {singleResult.valid ? 
+                <span className="text-green-600 flex items-center gap-1">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  Valid Format
+                </span> : 
+                <span className="text-red-600 flex items-center gap-1">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                  Invalid Format
+                </span>
+              }
+            </p>
+          </div>
+          
+          <div>
+            <h4 className="text-sm font-medium text-gray-500 mb-1">Disposable Email</h4>
+            <p className="font-medium">
+              {singleResult.disposable ? 
+                <span className="text-yellow-600 flex items-center gap-1">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                  Disposable Domain
+                </span> : 
+                <span className="text-green-600 flex items-center gap-1">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  Regular Domain
+                </span>
+              }
+            </p>
+          </div>
+          
+          <div>
+            <h4 className="text-sm font-medium text-gray-500 mb-1">Typo Detection</h4>
+            <p className="font-medium">
+              {singleResult.typo ? 
+                <span className="text-yellow-600 flex items-center gap-1">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                  Possible Typo Detected
+                </span> : 
+                <span className="text-green-600 flex items-center gap-1">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  No Typos Detected
+                </span>
+              }
+            </p>
+          </div>
+        </div>
+        
+        {singleResult.reason && (
+          <div className="mt-4 p-3 bg-gray-50 border border-gray-200 rounded-md">
+            <h4 className="text-sm font-medium text-gray-700 mb-1">Issues:</h4>
+            <p className="text-sm text-gray-600">{singleResult.reason}</p>
+          </div>
+        )}
       </div>
-      <h1 className="text-2xl font-bold">Email Validation</h1>
+    );
+  };
+
+  const renderBulkResultsCard = () => {
+    if (!batchResults || !analysisResults) return null;
+    
+    return (
+      <div className="space-y-6 mt-6">
+        {/* Overview Card */}
+        <div className="bg-white rounded-lg shadow border border-gray-200 p-6">
+          <h3 className="text-lg font-semibold mb-4">Validation Overview</h3>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <div className="p-4 bg-gray-50 rounded-lg border border-gray-100">
+              <h4 className="text-sm font-medium text-gray-500 mb-1">Quality Score</h4>
+              <p className={`text-2xl font-bold ${getScoreColor(analysisResults.qualityScore)}`}>
+                {analysisResults.qualityScore}%
+              </p>
+            </div>
+            
+            <div className="p-4 bg-gray-50 rounded-lg border border-gray-100">
+              <h4 className="text-sm font-medium text-gray-500 mb-1">Valid Emails</h4>
+              <p className="text-2xl font-bold text-green-600">
+                {analysisResults.validRate}%
+              </p>
+              <p className="text-xs text-gray-500">
+                {analysisResults.validEmails} of {analysisResults.totalEmails} emails
+              </p>
+            </div>
+            
+            <div className="p-4 bg-gray-50 rounded-lg border border-gray-100">
+              <h4 className="text-sm font-medium text-gray-500 mb-1">Disposable Emails</h4>
+              <p className="text-2xl font-bold text-yellow-600">
+                {analysisResults.disposableRate}%
+              </p>
+              <p className="text-xs text-gray-500">
+                {analysisResults.disposableEmails} of {analysisResults.totalEmails} emails
+              </p>
+            </div>
+            
+            <div className="p-4 bg-gray-50 rounded-lg border border-gray-100">
+              <h4 className="text-sm font-medium text-gray-500 mb-1">Possible Typos</h4>
+              <p className="text-2xl font-bold text-blue-600">
+                {analysisResults.typoRate}%
+              </p>
+              <p className="text-xs text-gray-500">
+                {analysisResults.typoEmails} of {analysisResults.totalEmails} emails
+              </p>
+            </div>
+          </div>
+          
+          {/* Issue Breakdown */}
+          <h4 className="text-sm font-semibold mb-2">Issue Breakdown</h4>
+          <div className="mb-6">
+            {Object.entries(analysisResults.issueBreakdown).map(([issue, count]: [string, any]) => (
+              count > 0 ? (
+                <div key={issue} className="flex items-center mb-2 last:mb-0">
+                  <div className="w-1/3 text-sm">{issue}</div>
+                  <div className="w-2/3 flex items-center gap-2">
+                    <div className="flex-1 bg-gray-200 rounded-full h-2.5">
+                      <div 
+                        className="bg-primary rounded-full h-2.5" 
+                        style={{ width: `${Math.round((count / analysisResults.totalEmails) * 100)}%` }}
+                      ></div>
+                    </div>
+                    <div className="text-xs text-gray-500 min-w-[60px]">
+                      {count} emails ({Math.round((count / analysisResults.totalEmails) * 100)}%)
+                    </div>
+                  </div>
+                </div>
+              ) : null
+            ))}
+          </div>
+          
+          {/* Domain Breakdown */}
+          <h4 className="text-sm font-semibold mb-2">Top Domains</h4>
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Domain</th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Count</th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Percentage</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {Object.entries(analysisResults.domainBreakdown)
+                  .sort(([, a]: [string, any], [, b]: [string, any]) => b - a)
+                  .slice(0, 5)
+                  .map(([domain, count]: [string, any]) => (
+                    <tr key={domain}>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{domain}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{count}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {Math.round((count / analysisResults.totalEmails) * 100)}%
+                      </td>
+                    </tr>
+                  ))
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+        
+        {/* Detailed Results Table */}
+        <div className="bg-white rounded-lg shadow border border-gray-200 p-6">
+          <h3 className="text-lg font-semibold mb-4">Detailed Results</h3>
+          
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Score</th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Issues</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {Object.entries(batchResults.results).map(([email, result]: [string, any]) => (
+                  <tr key={email}>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{email}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {renderBadge(result.valid, result.disposable)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`font-semibold ${getScoreColor(result.score)}`}>
+                        {result.score}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {!result.valid && 'Invalid format'}
+                      {result.valid && result.disposable && 'Disposable email'}
+                      {result.valid && result.typo && (
+                        <span>
+                          Possible typo <span className="text-blue-600">→ {result.suggestion}</span>
+                        </span>
+                      )}
+                      {result.valid && !result.disposable && !result.typo && (
+                        <span className="text-green-600">None</span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="p-8">
+      <div className="flex items-center gap-3 mb-6">
+        <div className="bg-primary/10 p-2 rounded-full">
+          <Activity className="h-6 w-6 text-primary" />
+        </div>
+        <h1 className="text-2xl font-bold">Email Validation</h1>
+      </div>
+      
+      {/* Info Card */}
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+        <div className="flex items-start">
+          <div className="flex-shrink-0 mt-0.5">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-600" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+            </svg>
+          </div>
+          <div className="ml-3">
+            <h3 className="text-sm font-medium text-blue-800">About Email Validation</h3>
+            <div className="mt-1 text-sm text-blue-700">
+              <p>Validate your email lists to improve deliverability and engagement. Identify invalid emails, disposable domains, and potential typos.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      {/* Tabs */}
+      <div className="bg-white rounded-lg shadow border border-gray-200 mb-6">
+        <div className="border-b border-gray-200">
+          <nav className="flex" aria-label="Tabs">
+            <button
+              onClick={() => setActiveTab('single')}
+              className={`${
+                activeTab === 'single'
+                  ? 'border-primary text-primary'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              } py-4 px-6 text-sm font-medium border-b-2`}
+            >
+              Single Email Validation
+            </button>
+            <button
+              onClick={() => setActiveTab('bulk')}
+              className={`${
+                activeTab === 'bulk'
+                  ? 'border-primary text-primary'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              } py-4 px-6 text-sm font-medium border-b-2`}
+            >
+              Bulk Validation
+            </button>
+          </nav>
+        </div>
+        
+        <div className="p-6">
+          {activeTab === 'single' ? (
+            <div className="space-y-4">
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                  Email Address
+                </label>
+                <div className="flex">
+                  <input
+                    type="email"
+                    id="email"
+                    placeholder="Enter an email address to validate"
+                    className="flex-1 border border-gray-300 rounded-l-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary"
+                    value={singleEmail}
+                    onChange={(e) => setSingleEmail(e.target.value)}
+                  />
+                  <button
+                    onClick={handleSingleValidation}
+                    disabled={isLoading}
+                    className="bg-primary text-white px-4 py-2 rounded-r-md hover:bg-primary/90 transition-colors disabled:bg-primary/60"
+                  >
+                    {isLoading ? (
+                      <div className="flex items-center">
+                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span>Validating...</span>
+                      </div>
+                    ) : "Validate"}
+                  </button>
+                </div>
+              </div>
+              
+              {renderSingleResultCard()}
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div>
+                <label htmlFor="emails" className="block text-sm font-medium text-gray-700 mb-1">
+                  Email Addresses
+                </label>
+                <textarea
+                  id="emails"
+                  placeholder="Enter multiple email addresses separated by commas, semicolons, or new lines"
+                  className="w-full h-40 border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary"
+                  value={bulkEmails}
+                  onChange={(e) => setBulkEmails(e.target.value)}
+                ></textarea>
+                <p className="mt-1 text-xs text-gray-500">
+                  You can paste from Excel, CSV files, or type manually. Separate emails with commas, semicolons, or new lines.
+                </p>
+              </div>
+              
+              <div className="flex justify-end">
+                <button
+                  onClick={handleBulkValidation}
+                  disabled={isLoading}
+                  className="bg-primary text-white px-4 py-2 rounded-md hover:bg-primary/90 transition-colors disabled:bg-primary/60"
+                >
+                  {isLoading ? (
+                    <div className="flex items-center">
+                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      <span>Processing...</span>
+                    </div>
+                  ) : "Validate Emails"}
+                </button>
+              </div>
+              
+              {renderBulkResultsCard()}
+            </div>
+          )}
+        </div>
+      </div>
     </div>
-    <div className="bg-white rounded-lg shadow p-6 border border-gray-100">
-      <p className="text-gray-600">This page is under development.</p>
-    </div>
-  </div>
-);
+  );
+};
 const ClientABTesting = () => (
   <div className="p-8">
     <div className="flex items-center gap-3 mb-6">
