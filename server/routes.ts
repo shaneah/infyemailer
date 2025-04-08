@@ -638,14 +638,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Remove contacts from a list in bulk
   app.post('/api/lists/:id/remove-contacts', async (req: Request, res: Response) => {
     try {
+      console.log("Bulk remove contacts API called with params:", req.params, "and body:", req.body);
       const listId = parseInt(req.params.id);
       const { contactIds } = req.body;
       
+      console.log("Parsed list ID:", listId, "and contact IDs:", contactIds);
+      
       if (isNaN(listId)) {
+        console.log("Invalid list ID:", req.params.id);
         return res.status(400).json({ error: 'Invalid list ID' });
       }
       
       if (!Array.isArray(contactIds) || contactIds.length === 0) {
+        console.log("Invalid contact IDs:", contactIds);
         return res.status(400).json({ error: 'Contact IDs must be provided as an array' });
       }
       

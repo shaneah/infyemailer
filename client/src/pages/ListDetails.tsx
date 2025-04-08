@@ -48,6 +48,31 @@ import { useToast } from "@/hooks/use-toast";
 import { Link } from "wouter";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 
+// Define TypeScript interfaces for our data
+interface Contact {
+  id: number;
+  name?: string;
+  email: string;
+  status: {
+    value: string;
+    label: string;
+    color: string;
+  };
+  addedOn: string;
+}
+
+interface List {
+  id: number;
+  name: string;
+  description?: string;
+  contactCount: number;
+}
+
+interface ListDetailsData {
+  list: List;
+  contacts: Contact[];
+}
+
 export default function ListDetails() {
   const { id } = useParams<{ id: string }>();
   const [searchTerm, setSearchTerm] = useState('');
@@ -58,7 +83,7 @@ export default function ListDetails() {
   const { toast } = useToast();
 
   // Fetch list details and contacts
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading, error } = useQuery<ListDetailsData>({
     queryKey: [`/api/lists/${id}/contacts`],
     retry: false
   });
@@ -66,7 +91,15 @@ export default function ListDetails() {
   // Bulk delete contacts from list
   const bulkRemoveContactsMutation = useMutation({
     mutationFn: async (contactIds: number[]) => {
-      await apiRequest("POST", `/api/lists/${id}/remove-contacts`, { contactIds });
+      console.log("Removing contacts:", contactIds, "from list:", id);
+      try {
+        const response = await apiRequest("POST", `/api/lists/${id}/remove-contacts`, { contactIds });
+        console.log("Remove contacts response:", response);
+        return response;
+      } catch (error) {
+        console.error("Error removing contacts:", error);
+        throw error;
+      }
     },
     onSuccess: () => {
       setSelectedContacts([]);
@@ -94,7 +127,7 @@ export default function ListDetails() {
 
   // Filter contacts based on search term and status
   const filteredContacts = data?.contacts
-    ? data.contacts.filter(contact => {
+    ? data.contacts.filter((contact: Contact) => {
         const matchesSearch = searchTerm 
           ? (contact.name?.toLowerCase().includes(searchTerm.toLowerCase()) || 
              contact.email.toLowerCase().includes(searchTerm.toLowerCase()))
@@ -161,9 +194,9 @@ export default function ListDetails() {
           {isLoading ? (
             <Skeleton className="h-9 w-48" />
           ) : (
-            <h1 className="text-3xl font-bold">{data?.list.name}</h1>
+            <h1 className="text-3xl font-bold">{data?.list?.name || 'List'}</h1>
           )}
-          {data?.list.contactCount > 0 && (
+          {data?.list?.contactCount && data.list.contactCount > 0 && (
             <Badge variant="outline" className="ml-2 text-sm">
               {data.list.contactCount} contacts
             </Badge>
@@ -182,7 +215,7 @@ export default function ListDetails() {
       </div>
       
       {/* Description if available */}
-      {data?.list.description && (
+      {data?.list?.description && (
         <div className="text-muted-foreground mb-6">
           {data.list.description}
         </div>
@@ -242,7 +275,7 @@ export default function ListDetails() {
                       if (checked) {
                         // Select all contacts
                         setSelectAll(true);
-                        setSelectedContacts(filteredContacts.map(c => c.id));
+                        setSelectedContacts(filteredContacts.map((c: Contact) => c.id));
                       } else {
                         // Deselect all contacts
                         setSelectAll(false);
