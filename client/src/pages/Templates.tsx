@@ -48,7 +48,6 @@ export default function Templates() {
   
   const [generatingTemplate, setGeneratingTemplate] = useState(false);
   const [generationProgress, setGenerationProgress] = useState(0);
-  const [autoPreviewEnabled, setAutoPreviewEnabled] = useState(true);
   const progressInterval = useRef<NodeJS.Timeout | null>(null);
   
   const { data: savedTemplates = [], isLoading: isLoadingTemplates } = useQuery({
@@ -168,10 +167,8 @@ export default function Templates() {
         });
       }, 300);
       
-      // Auto switch to preview tab if enabled
-      if (autoPreviewEnabled) {
-        setActiveTab('preview');
-      }
+      // Auto switch to code tab
+      setActiveTab('code');
     } else {
       // Clear interval when done generating
       if (progressInterval.current) {
@@ -191,7 +188,7 @@ export default function Templates() {
         clearInterval(progressInterval.current);
       }
     };
-  }, [generatingTemplate, autoPreviewEnabled]);
+  }, [generatingTemplate]);
   
   const generateTemplateMutation = useMutation({
     mutationFn: async (data: any) => {
@@ -217,10 +214,8 @@ export default function Templates() {
       
       setGeneratingTemplate(false);
       
-      // Auto switch to preview tab if not already there
-      if (activeTab !== 'preview' && autoPreviewEnabled) {
-        setActiveTab('preview');
-      }
+      // Auto switch to code tab
+      setActiveTab('code');
     },
     onError: (error: any) => {
       toast({
@@ -263,9 +258,8 @@ export default function Templates() {
       name: template.name || ''
     });
     
-    if (activeTab !== 'preview') {
-      setActiveTab('preview');
-    }
+    // Switch to code tab to view the loaded template
+    setActiveTab('code');
   };
   
   return (
@@ -293,14 +287,7 @@ export default function Templates() {
                   <i className="bi bi-pencil-square me-1"></i> Template Generator
                 </button>
               </li>
-              <li className="nav-item">
-                <button 
-                  className={`nav-link ${activeTab === 'preview' ? 'active' : ''}`} 
-                  onClick={() => setActiveTab('preview')}
-                >
-                  <i className="bi bi-eye me-1"></i> Preview
-                </button>
-              </li>
+
               <li className="nav-item">
                 <button 
                   className={`nav-link ${activeTab === 'code' ? 'active' : ''}`} 
@@ -750,19 +737,7 @@ export default function Templates() {
                         </label>
                       </div>
                       
-                      <div className="flex items-center">
-                        <input 
-                          type="checkbox" 
-                          id="autoPreview" 
-                          name="autoPreview"
-                          className="h-4 w-4 rounded bg-slate-700 border-slate-600 text-teal-600 focus:ring-teal-500"
-                          checked={autoPreviewEnabled}
-                          onChange={() => setAutoPreviewEnabled(!autoPreviewEnabled)}
-                        />
-                        <label className="ml-2 text-sm text-slate-300" htmlFor="autoPreview">
-                          Auto-preview when ready
-                        </label>
-                      </div>
+
                     </div>
                   </div>
                   
@@ -1053,65 +1028,7 @@ export default function Templates() {
             </form>
           )}
           
-          {activeTab === 'preview' && (
-            <div className="preview-container rounded">
-              {previewState.content ? (
-                <>
-                  <div className="mb-3 pb-2 border-bottom">
-                    <h5 className="mb-1">{previewState.name}</h5>
-                    <div className="email-subject d-flex align-items-center mb-2">
-                      <span className="badge bg-primary me-2">Subject</span>
-                      <span>{previewState.subject}</span>
-                    </div>
-                    <p className="text-muted mb-0">{previewState.description}</p>
-                  </div>
-                  <div className="ratio ratio-16x9" style={{ minHeight: '600px', background: '#fff' }}>
-                    <iframe 
-                      ref={previewIframeRef}
-                      title="Email Template Preview" 
-                      className="border-0 shadow-sm"
-                    ></iframe>
-                  </div>
-                </>
-              ) : (
-                <div className="text-center py-5">
-                  {generatingTemplate ? (
-                    <div>
-                      <div className="spinner-border text-success mb-3" role="status">
-                        <span className="visually-hidden">Loading...</span>
-                      </div>
-                      <h5>Creating your email template...</h5>
-                      <p className="text-muted">This may take a few moments</p>
-                      <div className="progress mt-3" style={{ height: '8px' }}>
-                        <div 
-                          className="progress-bar bg-success progress-bar-striped progress-bar-animated" 
-                          role="progressbar" 
-                          style={{ width: `${generationProgress}%` }} 
-                          aria-valuenow={generationProgress} 
-                          aria-valuemin={0} 
-                          aria-valuemax={100}
-                        ></div>
-                      </div>
-                    </div>
-                  ) : (
-                    <>
-                      <div className="mb-3">
-                        <i className="bi bi-envelope-paper text-muted fs-1"></i>
-                      </div>
-                      <h5>No Email Template Generated Yet</h5>
-                      <p className="text-muted">Go to the Template Generator tab and fill out the form to generate an AI-powered email template.</p>
-                      <button 
-                        className="btn btn-outline-primary mt-2" 
-                        onClick={() => setActiveTab('editor')}
-                      >
-                        Go to Template Generator
-                      </button>
-                    </>
-                  )}
-                </div>
-              )}
-            </div>
-          )}
+
           
           {activeTab === 'code' && (
             <div className="code-viewer bg-dark rounded">
@@ -1222,8 +1139,8 @@ export default function Templates() {
               <ol className="mb-0">
                 <li className="mb-2">Fill out the <strong>Template Generator</strong> form with your requirements</li>
                 <li className="mb-2">Click <strong>Generate AI Email Template</strong> to create your template</li>
-                <li className="mb-2">Review your template in the <strong>Preview</strong> tab</li>
-                <li className="mb-2">If needed, view or copy the HTML code in the <strong>HTML Code</strong> tab</li>
+                <li className="mb-2">Review your template in the <strong>HTML Code</strong> tab, which will appear automatically</li>
+                <li className="mb-2">Copy the HTML code if needed for use in other systems</li>
                 <li className="mb-2">Save your template for future use (checked by default)</li>
                 <li>Access all your saved templates in the <strong>Saved Templates</strong> tab</li>
               </ol>
