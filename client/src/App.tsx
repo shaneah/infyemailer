@@ -38,6 +38,29 @@ function App() {
   const [location] = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   
+  // Check explicit client routes
+  if (location === "/client-login") {
+    return (
+      <QueryClientProvider client={queryClient}>
+        <div className="bg-background min-h-screen">
+          <ClientLogin />
+          <Toaster />
+        </div>
+      </QueryClientProvider>
+    );
+  }
+
+  if (location === "/client-dashboard") {
+    return (
+      <QueryClientProvider client={queryClient}>
+        <div className="bg-background min-h-screen">
+          <ClientDashboard />
+          <Toaster />
+        </div>
+      </QueryClientProvider>
+    );
+  }
+  
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
@@ -46,16 +69,6 @@ function App() {
           <div className="bg-background min-h-screen">
             <Switch>
               <Route path="/auth" component={AuthPage} />
-            </Switch>
-            <Toaster />
-          </div>
-        ) : location === "/client-login" || location === "/client-dashboard" ? (
-          // Client portal layout
-          <div className="bg-background min-h-screen">
-            <Switch>
-              <Route path="/client-login" component={ClientLogin} />
-              <Route path="/client-dashboard" component={ClientDashboard} />
-              <Route component={NotFound} />
             </Switch>
             <Toaster />
           </div>
