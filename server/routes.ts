@@ -635,6 +635,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Remove contacts from a list in bulk
+  app.post('/api/lists/:id/remove-contacts', async (req: Request, res: Response) => {
+    try {
+      const listId = parseInt(req.params.id);
+      const { contactIds } = req.body;
+      
+      if (isNaN(listId)) {
+        return res.status(400).json({ error: 'Invalid list ID' });
+      }
+      
+      if (!Array.isArray(contactIds) || contactIds.length === 0) {
+        return res.status(400).json({ error: 'Contact IDs must be provided as an array' });
+      }
+      
+      const list = await storage.getList(listId);
+      if (!list) {
+        return res.status(404).json({ error: 'List not found' });
+      }
+      
+      // Remove each contact from the list
+      const results = await Promise.all(
+        contactIds.map(async (contactId) => {
+          try {
+            await storage.removeContactFromList(contactId, listId);
+            return { contactId, success: true };
+          } catch (error) {
+            return { contactId, success: false, error: 'Failed to remove contact' };
+          }
+        })
+      );
+      
+      const success = results.filter(r => r.success).length;
+      const failed = results.filter(r => !r.success).length;
+      
+      res.json({
+        message: `Removed ${success} contacts from list${failed > 0 ? `, ${failed} failed` : ''}`,
+        results
+      });
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to remove contacts from list' });
+    }
+  });
+
   // Get templates
   app.get('/api/templates', async (req: Request, res: Response) => {
     try {
