@@ -123,10 +123,20 @@ export default function AITemplateGenerator({ onTemplateGenerated }: AITemplateG
   
   const generateTemplateMutation = useMutation({
     mutationFn: async (data: any) => {
+      console.log('Sending template generation request with data:', data);
       const response = await apiRequest('POST', '/api/generate-template', data);
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        console.error('Template generation request failed:', errorData);
+        throw new Error(errorData.error || `Error ${response.status}: Failed to generate template`);
+      }
+      
       return response.json();
     },
     onSuccess: (data) => {
+      console.log('Template generation successful, received data:', data);
+      
       // Update template data with generated template
       const newTemplateData = {
         subject: data.template.subject || '',
@@ -155,9 +165,10 @@ export default function AITemplateGenerator({ onTemplateGenerated }: AITemplateG
       setActiveTab('code');
     },
     onError: (error: any) => {
+      console.error('Template generation error:', error);
       toast({
-        title: "Error",
-        description: error.message || "Failed to generate template. Please try again.",
+        title: "Template Generation Failed",
+        description: error.message || "Failed to generate template. Please try again with different parameters.",
         variant: "destructive"
       });
       setGeneratingTemplate(false);
