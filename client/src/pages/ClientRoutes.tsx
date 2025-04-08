@@ -261,13 +261,48 @@ const ClientContacts = ({ onAddContact }: { onAddContact: () => void }) => {
     reader.onload = (event) => {
       try {
         const csvData = event.target?.result as string;
-        const lines = csvData.split('\n');
-        const headers = lines[0].split(',');
+        
+        // Handle different line endings (Windows, Mac, Linux)
+        const lines = csvData.split(/\r\n|\n|\r/).filter(line => line.trim() !== '');
+        
+        if (lines.length === 0) {
+          toast({
+            title: "Import Error",
+            description: "The file appears to be empty. Please select a valid CSV file.",
+            variant: "destructive"
+          });
+          setIsLoading(false);
+          setImportStatus(null);
+          return;
+        }
+        
+        // Try to determine the delimiter (comma or semicolon)
+        const delimiter = lines[0].includes(';') ? ';' : ',';
+        const headers = lines[0].split(delimiter).map(h => h.trim());
         
         // Find email, firstName, and lastName column indices
-        const emailIndex = headers.findIndex(h => h.trim().toLowerCase() === 'email');
-        const firstNameIndex = headers.findIndex(h => h.trim().toLowerCase() === 'firstname' || h.trim().toLowerCase() === 'first name' || h.trim().toLowerCase() === 'first_name');
-        const lastNameIndex = headers.findIndex(h => h.trim().toLowerCase() === 'lastname' || h.trim().toLowerCase() === 'last name' || h.trim().toLowerCase() === 'last_name');
+        const emailIndex = headers.findIndex(h => 
+          h.toLowerCase() === 'email' || 
+          h.toLowerCase() === 'email address' || 
+          h.toLowerCase() === 'emailaddress' || 
+          h.toLowerCase() === 'e-mail'
+        );
+        
+        const firstNameIndex = headers.findIndex(h => 
+          h.toLowerCase() === 'firstname' || 
+          h.toLowerCase() === 'first name' || 
+          h.toLowerCase() === 'first_name' || 
+          h.toLowerCase() === 'name' || 
+          h.toLowerCase() === 'given name'
+        );
+        
+        const lastNameIndex = headers.findIndex(h => 
+          h.toLowerCase() === 'lastname' || 
+          h.toLowerCase() === 'last name' || 
+          h.toLowerCase() === 'last_name' || 
+          h.toLowerCase() === 'surname' || 
+          h.toLowerCase() === 'family name'
+        );
         
         if (emailIndex === -1) {
           toast({
@@ -289,7 +324,7 @@ const ClientContacts = ({ onAddContact }: { onAddContact: () => void }) => {
         for (let i = 1; i < lines.length; i++) {
           if (!lines[i].trim()) continue; // Skip empty lines
           
-          const data = lines[i].split(',');
+          const data = lines[i].split(delimiter);
           const email = data[emailIndex]?.trim();
           
           if (!email || !email.includes('@')) continue; // Skip invalid emails
@@ -538,6 +573,23 @@ const ClientContacts = ({ onAddContact }: { onAddContact: () => void }) => {
           <div className="flex items-center gap-2">
             <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
             <span className="text-sm text-blue-700">{importStatus}</span>
+          </div>
+        </div>
+      )}
+      
+      {/* Add All Button */}
+      {contacts.length > 0 && selectedContacts.length === 0 && (
+        <div className="bg-gray-50 rounded-lg p-3 mb-4 border border-gray-200 flex items-center justify-between">
+          <span className="text-sm text-gray-700">
+            {contacts.length} total contacts
+          </span>
+          <div className="flex gap-2">
+            <button 
+              className="text-sm px-3 py-1.5 border border-gray-300 rounded bg-white text-gray-700 hover:bg-gray-50"
+              onClick={() => setSelectedContacts(contacts.map(c => c.id))}
+            >
+              Select All Contacts
+            </button>
           </div>
         </div>
       )}
