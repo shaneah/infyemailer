@@ -575,7 +575,7 @@ export default function Templates() {
                         Audience & Content
                       </h4>
 
-                      <div className="flex itemscenter space-x-1.5">
+                      <div className="flex items-center space-x-1.5">
                         <div className="w-1.5 h-1.5 rounded-full bg-teal-300"></div>
                         <div className="w-1.5 h-1.5 rounded-full bg-teal-300"></div>
                         <div className="w-1.5 h-1.5 rounded-full bg-teal-300"></div>
@@ -1014,21 +1014,70 @@ export default function Templates() {
                                 <path d="M12 2c1.714 0 3.33.567 4.615 1.556a1 1 0 0 1 .385.78v12.332a1 1 0 0 1-.385.78C15.33 18.433 13.714 19 12 19s-3.33-.567-4.615-1.556a1 1 0 0 1-.385-.78V4.333a1 1 0 0 1 .385-.78C8.67 2.567 10.286 2 12 2Z"/>
                               </svg>
                             </div>
-                          <div>
-                            <h6 className="text-xs font-medium text-slate-300">GPT-4o AI Engine</h6>
-                            <p className="text-xs text-slate-500">Optimized for marketing & email content</p>
+                            <span className="text-xs font-medium text-slate-400">AI Activity Log</span>
                           </div>
+
+                          <div className="max-h-32 overflow-y-auto p-2 space-y-1.5 text-xs">
+                            <div className="text-slate-500">
+                              <span className="text-teal-500">system</span>: Initializing GPT-4o engine...
+                            </div>
+                            <div className="text-slate-500">
+                              <span className="text-teal-500">system</span>: Loading {formData.industry} industry knowledge base...
+                            </div>
+                            {generationProgress > 40 && (
+                              <div className="text-slate-500">
+                                <span className="text-teal-500">system</span>: Analyzing {formData.targetAudience} profile...
+                              </div>
+                            )}
+                            {generationProgress > 50 && (
+                              <div className="text-slate-500">
+                                <span className="text-teal-500">system</span>: Creating content structure for {formData.templateType}...
+                              </div>
+                            )}
+                            {generationProgress > 65 && (
+                              <div className="text-slate-500">
+                                <span className="text-teal-500">system</span>: Adapting tone to "{formData.brandTone}" style...
+                              </div>
+                            )}
+                            {generationProgress > 75 && (
+                              <div className="text-slate-500">
+                                <span className="text-teal-500">system</span>: Incorporating {formData.keyPoints.split('\n').filter(line => line.trim()).length || 0} key points...
+                              </div>
+                            )}
+                            {generationProgress > 85 && (
+                              <div className="text-slate-500">
+                                <span className="text-teal-500">system</span>: Applying {selectedColorTheme.name} color theme...
+                              </div>
+                            )}
+                            {generationProgress > 95 && (
+                              <div className="text-slate-500">
+                                <span className="text-teal-500">system</span>: Running final quality checks...
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* AI Engine Info */}
+                    <div className="border-t border-slate-800 p-4">
+                      <div className="bg-slate-800 rounded-lg p-3 flex items-center">
+                        <div className="p-1.5 bg-gradient-to-r from-teal-500 to-blue-500 rounded-full mr-3">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M12 2c1.714 0 3.33.567 4.615 1.556a1 1 0 0 1 .385.78v12.332a1 1 0 0 1-.385.78C15.33 18.433 13.714 19 12 19s-3.33-.567-4.615-1.556a1 1 0 0 1-.385-.78V4.333a1 1 0 0 1 .385-.78C8.67 2.567 10.286 2 12 2Z"/>
+                          </svg>
+                        </div>
+                        <div>
+                          <h6 className="text-xs font-medium text-slate-300">GPT-4o AI Engine</h6>
+                          <p className="text-xs text-slate-500">Optimized for marketing & email content</p>
                         </div>
                       </div>
                     </div>
-                  )}
+                  </div>
                 </div>
               </div>
             </form>
           )}
-
-
-
           {activeTab === 'code' && (
             <div className="code-viewer bg-dark rounded">
               {previewState.content ? (
