@@ -94,62 +94,72 @@ export default function AITemplateGenerator({ onTemplateGenerated }: AITemplateG
   
   // Update preview iframe content whenever preview state changes
   useEffect(() => {
-    if (previewIframeRef.current && previewState.content) {
-      const doc = previewIframeRef.current.contentDocument;
-      if (doc) {
-        doc.open();
-        
-        // Add responsive viewport and bootstrap CSS
-        const styledContent = `
-          <!DOCTYPE html>
-          <html lang="en">
-          <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>${previewState.subject || 'Email Preview'}</title>
-            <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-            <style>
-              body { 
-                margin: 0; 
-                padding: 0;
-                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-              }
-              
-              /* Apply selected color theme */
-              :root {
-                --primary-color: ${selectedColorTheme.primary};
-                --secondary-color: ${selectedColorTheme.secondary};
-              }
-              
-              .btn-primary {
-                background-color: var(--primary-color) !important;
-                border-color: var(--primary-color) !important;
-              }
-              
-              .text-primary {
-                color: var(--primary-color) !important;
-              }
-              
-              .bg-primary-light {
-                background-color: var(--secondary-color) !important;
-              }
-              
-              .border-primary {
-                border-color: var(--primary-color) !important;
-              }
-            </style>
-          </head>
-          <body>
-            ${previewState.content}
-          </body>
-          </html>
-        `;
-        
-        doc.write(styledContent);
-        doc.close();
-      }
+    // Only attempt to update if we have content
+    if (previewState.content) {
+      // Use a small delay to ensure the iframe is properly mounted 
+      const timer = setTimeout(() => {
+        if (previewIframeRef.current) {
+          const iframe = previewIframeRef.current;
+          const doc = iframe.contentDocument || (iframe.contentWindow && iframe.contentWindow.document);
+          
+          if (doc) {
+            doc.open();
+            
+            // Add responsive viewport and bootstrap CSS
+            const styledContent = `
+              <!DOCTYPE html>
+              <html lang="en">
+              <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>${previewState.subject || 'Email Preview'}</title>
+                <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+                <style>
+                  body { 
+                    margin: 0; 
+                    padding: 0;
+                    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+                  }
+                  
+                  /* Apply selected color theme */
+                  :root {
+                    --primary-color: ${selectedColorTheme.primary};
+                    --secondary-color: ${selectedColorTheme.secondary};
+                  }
+                  
+                  .btn-primary {
+                    background-color: var(--primary-color) !important;
+                    border-color: var(--primary-color) !important;
+                  }
+                  
+                  .text-primary {
+                    color: var(--primary-color) !important;
+                  }
+                  
+                  .bg-primary-light {
+                    background-color: var(--secondary-color) !important;
+                  }
+                  
+                  .border-primary {
+                    border-color: var(--primary-color) !important;
+                  }
+                </style>
+              </head>
+              <body>
+                ${previewState.content}
+              </body>
+              </html>
+            `;
+            
+            doc.write(styledContent);
+            doc.close();
+          }
+        }
+      }, 100); // Short delay to ensure the iframe is ready
+      
+      return () => clearTimeout(timer);
     }
-  }, [previewState.content, previewState.subject, selectedColorTheme]);
+  }, [previewState.content, previewState.subject, selectedColorTheme, activeTab]);
 
   // Create animated progress indicator for template generation
   useEffect(() => {
@@ -507,6 +517,8 @@ export default function AITemplateGenerator({ onTemplateGenerated }: AITemplateG
                       ref={previewIframeRef}
                       title="Email Template Preview" 
                       className="w-full h-full border-0 rounded-md"
+                      sandbox="allow-same-origin allow-scripts"
+                      loading="lazy"
                     ></iframe>
                   </div>
                 </>
