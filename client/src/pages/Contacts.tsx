@@ -10,6 +10,7 @@ import * as XLSX from 'xlsx';
 // UI Components
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -66,9 +67,11 @@ interface ContactRowProps {
   contact: any;
   onUpdate: (data: any) => void;
   onDelete: () => void;
+  isSelected: boolean;
+  onSelect: (selected: boolean) => void;
 }
 
-function ContactTableRow({ contact, onUpdate, onDelete }: ContactRowProps) {
+function ContactTableRow({ contact, onUpdate, onDelete, isSelected, onSelect }: ContactRowProps) {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const { toast } = useToast();
@@ -83,7 +86,14 @@ function ContactTableRow({ contact, onUpdate, onDelete }: ContactRowProps) {
   });
   
   return (
-    <TableRow>
+    <TableRow className={isSelected ? "bg-muted/50" : undefined}>
+      <TableCell className="w-[40px]">
+        <Checkbox 
+          checked={isSelected}
+          onCheckedChange={(checked) => onSelect(checked as boolean)}
+          aria-label={`Select ${contact.email}`}
+        />
+      </TableCell>
       <TableCell>{contact.name || '-'}</TableCell>
       <TableCell className="font-medium">{contact.email}</TableCell>
       <TableCell>
@@ -246,6 +256,9 @@ export default function Contacts() {
   const [importDialogOpen, setImportDialogOpen] = useState(false);
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
   const [listDialogOpen, setListDialogOpen] = useState(false);
+  const [bulkDeleteDialogOpen, setBulkDeleteDialogOpen] = useState(false);
+  const [selectedContacts, setSelectedContacts] = useState<number[]>([]);
+  const [selectAll, setSelectAll] = useState(false);
   const [newListName, setNewListName] = useState('');
   const [newListDescription, setNewListDescription] = useState('');
   const [importText, setImportText] = useState('');
@@ -438,6 +451,31 @@ export default function Contacts() {
       toast({
         title: "Contact deleted",
         description: "Contact has been deleted successfully.",
+      });
+    }
+  });
+  
+  // Bulk delete contacts mutation
+  const bulkDeleteContactsMutation = useMutation({
+    mutationFn: (ids: number[]) => {
+      // Make sequential delete requests
+      return Promise.all(ids.map(id => apiRequest("DELETE", `/api/contacts/${id}`)));
+    },
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['/api/contacts'] });
+      setSelectedContacts([]);
+      setSelectAll(false);
+      setBulkDeleteDialogOpen(false);
+      toast({
+        title: "Contacts deleted",
+        description: `Successfully deleted ${variables.length} contacts.`,
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Deletion failed",
+        description: `Failed to delete contacts: ${error.message}`,
+        variant: "destructive",
       });
     }
   });
@@ -1135,7 +1173,20 @@ export default function Contacts() {
       <Card>
         <CardHeader>
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <h5 className="text-lg font-medium">All Contacts</h5>
+            <div className="flex items-center gap-2">
+              <h5 className="text-lg font-medium">All Contacts</h5>
+              {selectedContacts.length > 0 && (
+                <Button 
+                  variant="destructive" 
+                  size="sm" 
+                  onClick={() => setBulkDeleteDialogOpen(true)}
+                  className="ml-2"
+                >
+                  <Trash2 size={16} className="mr-2" />
+                  Delete Selected ({selectedContacts.length})
+                </Button>
+              )}
+            </div>
             <div className="flex gap-2 w-full md:w-auto flex-col md:flex-row">
               <Input 
                 type="search" 
@@ -1161,6 +1212,23 @@ export default function Contacts() {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-[40px]">
+                  <Checkbox 
+                    checked={selectAll}
+                    onCheckedChange={(checked) => {
+                      if (checked) {
+                        // Select all contacts
+                        setSelectAll(true);
+                        setSelectedContacts(contacts.map(c => c.id));
+                      } else {
+                        // Deselect all contacts
+                        setSelectAll(false);
+                        setSelectedContacts([]);
+                      }
+                    }}
+                    aria-label="Select all contacts"
+                  />
+                </TableHead>
                 <TableHead>Name</TableHead>
                 <TableHead>Email</TableHead>
                 <TableHead>Status</TableHead>
@@ -1186,6 +1254,15 @@ export default function Contacts() {
                   <ContactTableRow 
                     key={contact.id} 
                     contact={contact} 
+                    isSelected={selectedContacts.includes(contact.id)}
+                    onSelect={(selected) => {
+                      if (selected) {
+                        setSelectedContacts([...selectedContacts, contact.id]);
+                      } else {
+                        setSelectedContacts(selectedContacts.filter(id => id !== contact.id));
+                        setSelectAll(false);
+                      }
+                    }}
                     onUpdate={(data) => {
                       updateContactMutation.mutate({
                         id: contact.id,
@@ -1227,6 +1304,48 @@ export default function Contacts() {
           </Table>
         </CardContent>
       </Card>
+
+      {/* Bulk Delete Dialog */}
+      <Dialog open={bulkDeleteDialogOpen} onOpenChange={setBulkDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Multiple Contacts</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete {selectedContacts.length} selected contacts? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="border rounded-md p-4 bg-muted/50">
+              <p className="text-sm mb-2">{selectedContacts.length} contacts selected for deletion</p>
+              <Progress value={(selectedContacts.length / contacts.length) * 100} className="h-2" />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setBulkDeleteDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button 
+              variant="destructive" 
+              onClick={() => {
+                bulkDeleteContactsMutation.mutate(selectedContacts);
+              }}
+              disabled={bulkDeleteContactsMutation.isPending}
+            >
+              {bulkDeleteContactsMutation.isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                <>
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Delete Contacts
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
