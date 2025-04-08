@@ -43,6 +43,11 @@ const ClientLogin = () => {
   // Handle login submission
   const onSubmit = async (data: FormValues) => {
     setIsLoading(true);
+    toast({
+      title: 'Attempting login',
+      description: `Logging in as ${data.username}...`
+    });
+    
     try {
       console.log("Login data:", data);
       const response = await fetch('/api/client-login', {
@@ -53,41 +58,62 @@ const ClientLogin = () => {
         body: JSON.stringify(data)
       });
 
+      // Log the raw response
+      console.log("Response status:", response.status);
+      console.log("Response headers:", response.headers);
+      
+      // Clone the response to read it twice (for error and success cases)
+      const responseClone = response.clone();
+      const responseText = await responseClone.text();
+      console.log("Raw response body:", responseText);
+
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Login failed');
+        let errorMessage = 'Login failed';
+        try {
+          const errorData = JSON.parse(responseText);
+          errorMessage = errorData.error || errorMessage;
+        } catch (e) {
+          console.error("Error parsing error response:", e);
+        }
+        throw new Error(errorMessage);
       }
 
-      const userData = await response.json();
-      
-      // Store user data in sessionStorage
-      const userToStore = {
-        id: userData.id,
-        username: userData.username,
-        clientId: userData.clientId,
-        clientName: userData.clientName || 'Client User',
-        clientCompany: userData.clientCompany || 'Company',
-        permissions: userData.permissions || {
-          emailValidation: false,
-          campaigns: false,
-          contacts: false,
-          templates: false,
-          reporting: false,
-          domains: false,
-          abTesting: false
-        }
-      };
-      
-      sessionStorage.setItem('clientUser', JSON.stringify(userToStore));
-      
-      // Show success message
-      toast({
-        title: 'Login successful',
-        description: 'Welcome to InfyMailer client portal!'
-      });
-      
-      // Redirect to dashboard - without leading slash to match the route in App.tsx
-      setLocation('client-dashboard');
+      let userData;
+      try {
+        userData = JSON.parse(responseText);
+
+        // Store user data in sessionStorage
+        const userToStore = {
+          id: userData.id,
+          username: userData.username,
+          clientId: userData.clientId,
+          clientName: userData.clientName || 'Client User',
+          clientCompany: userData.clientCompany || 'Company',
+          permissions: userData.permissions || {
+            emailValidation: false,
+            campaigns: false,
+            contacts: false,
+            templates: false,
+            reporting: false,
+            domains: false,
+            abTesting: false
+          }
+        };
+        
+        sessionStorage.setItem('clientUser', JSON.stringify(userToStore));
+        
+        // Show success message
+        toast({
+          title: 'Login successful',
+          description: 'Welcome to InfyMailer client portal!'
+        });
+        
+        // Redirect to dashboard - without leading slash to match the route in App.tsx
+        setLocation('client-dashboard');
+      } catch (err) {
+        console.error("Error parsing success response:", err);
+        throw new Error('Failed to parse server response');
+      }
     } catch (error) {
       console.error("Login error:", error);
       toast({
