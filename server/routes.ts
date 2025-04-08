@@ -578,6 +578,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ error: 'Failed to create list' });
     }
   });
+
+  // Delete a list by ID
+  app.delete('/api/lists/:id', async (req: Request, res: Response) => {
+    try {
+      const listId = parseInt(req.params.id);
+      
+      if (isNaN(listId)) {
+        return res.status(400).json({ error: 'Invalid list ID' });
+      }
+      
+      const list = await storage.getList(listId);
+      if (!list) {
+        return res.status(404).json({ error: 'List not found' });
+      }
+      
+      // Delete all associations of contacts with this list
+      const contacts = await storage.getContactsByList(listId);
+      for (const contact of contacts) {
+        await storage.removeContactFromList(contact.id, listId);
+      }
+      
+      // Delete the list itself
+      const success = await storage.deleteList(listId);
+      
+      if (success) {
+        res.status(200).json({ message: 'List deleted successfully' });
+      } else {
+        res.status(500).json({ error: 'Failed to delete list' });
+      }
+    } catch (error) {
+      console.error('Error deleting list:', error);
+      res.status(500).json({ error: 'Failed to delete list' });
+    }
+  });
   
   // Get contacts by list ID
   app.get('/api/lists/:id/contacts', async (req: Request, res: Response) => {
