@@ -44,14 +44,14 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <Switch>
         {/* Client Portal Routes */}
-        <Route path="/client-login">
+        <Route path="client-login">
           <div className="bg-background min-h-screen">
             <SimpleClientLogin />
             <Toaster />
           </div>
         </Route>
         
-        <Route path="/client-dashboard">
+        <Route path="client-dashboard">
           <div className="bg-background min-h-screen">
             <ClientRoutes />
             <Toaster />
@@ -59,55 +59,55 @@ function App() {
         </Route>
         
         {/* Client Portal Sub-routes */}
-        <Route path="/client-campaigns">
+        <Route path="client-campaigns">
           <div className="bg-background min-h-screen">
             <ClientRoutes />
             <Toaster />
           </div>
         </Route>
-        <Route path="/client-contacts">
+        <Route path="client-contacts">
           <div className="bg-background min-h-screen">
             <ClientRoutes />
             <Toaster />
           </div>
         </Route>
-        <Route path="/client-lists">
+        <Route path="client-lists">
           <div className="bg-background min-h-screen">
             <ClientRoutes />
             <Toaster />
           </div>
         </Route>
-        <Route path="/client-templates">
+        <Route path="client-templates">
           <div className="bg-background min-h-screen">
             <ClientRoutes />
             <Toaster />
           </div>
         </Route>
-        <Route path="/client-reports">
+        <Route path="client-reports">
           <div className="bg-background min-h-screen">
             <ClientRoutes />
             <Toaster />
           </div>
         </Route>
-        <Route path="/client-domains">
+        <Route path="client-domains">
           <div className="bg-background min-h-screen">
             <ClientRoutes />
             <Toaster />
           </div>
         </Route>
-        <Route path="/client-email-validation">
+        <Route path="client-email-validation">
           <div className="bg-background min-h-screen">
             <ClientRoutes />
             <Toaster />
           </div>
         </Route>
-        <Route path="/client-ab-testing">
+        <Route path="client-ab-testing">
           <div className="bg-background min-h-screen">
             <ClientRoutes />
             <Toaster />
           </div>
         </Route>
-        <Route path="/client-settings">
+        <Route path="client-settings">
           <div className="bg-background min-h-screen">
             <ClientRoutes />
             <Toaster />
@@ -115,7 +115,7 @@ function App() {
         </Route>
         
         {/* Auth Route */}
-        <Route path="/auth">
+        <Route path="auth">
           <AuthProvider>
             <div className="bg-background min-h-screen">
               <AuthPage />
@@ -136,33 +136,33 @@ function App() {
                 <main className="flex-1 overflow-y-auto p-4">
                   <Switch>
                     <ProtectedRoute path="/" component={Dashboard} />
-                    <ProtectedRoute path="/dashboard" component={Dashboard} />
-                    <ProtectedRoute path="/campaigns" component={Campaigns} />
-                    <ProtectedRoute path="/templates" component={Templates} />
-                    <ProtectedRoute path="/contacts" component={Contacts} />
-                    <ProtectedRoute path="/lists/:id" component={ListDetails} />
-                    <ProtectedRoute path="/ab-testing" component={ABTesting} />
-                    <ProtectedRoute path="/ab-testing/:id" component={ABTesting} />
-                    <ProtectedRoute path="/email-performance" component={EmailPerformance} />
-                    <ProtectedRoute path="/template-builder" component={TemplateBuilder} />
-                    <ProtectedRoute path="/template-builder/:id" component={TemplateBuilder} />
-                    <ProtectedRoute path="/domains" component={Domains} />
-                    <ProtectedRoute path="/clients" component={Clients} />
-                    <ProtectedRoute path="/client-users" component={ClientUsers} />
-                    <Route path="/settings">
+                    <ProtectedRoute path="dashboard" component={Dashboard} />
+                    <ProtectedRoute path="campaigns" component={Campaigns} />
+                    <ProtectedRoute path="templates" component={Templates} />
+                    <ProtectedRoute path="contacts" component={Contacts} />
+                    <ProtectedRoute path="lists/:id" component={ListDetails} />
+                    <ProtectedRoute path="ab-testing" component={ABTesting} />
+                    <ProtectedRoute path="ab-testing/:id" component={ABTesting} />
+                    <ProtectedRoute path="email-performance" component={EmailPerformance} />
+                    <ProtectedRoute path="template-builder" component={TemplateBuilder} />
+                    <ProtectedRoute path="template-builder/:id" component={TemplateBuilder} />
+                    <ProtectedRoute path="domains" component={Domains} />
+                    <ProtectedRoute path="clients" component={Clients} />
+                    <ProtectedRoute path="client-users" component={ClientUsers} />
+                    <Route path="settings">
                       {() => <div className="redirect-settings">
-                        {typeof window !== 'undefined' && window.location.replace('/admin')}
+                        {typeof window !== 'undefined' && window.location.replace('admin')}
                         <div className="flex items-center justify-center h-full">
                           <p>Redirecting to Admin Panel...</p>
                         </div>
                       </div>}
                     </Route>
-                    <ProtectedRoute path="/admin" component={AdminPanel} />
-                    <ProtectedRoute path="/email-validation" component={EmailValidation} />
-                    <ProtectedRoute path="/emails" component={Emails} />
-                    <ProtectedRoute path="/reporting" component={Reporting} />
-                    <ProtectedRoute path="/email-providers" component={EmailProviders} />
-                    <ProtectedRoute path="/client-management" component={ClientManagement} />
+                    <ProtectedRoute path="admin" component={AdminPanel} />
+                    <ProtectedRoute path="email-validation" component={EmailValidation} />
+                    <ProtectedRoute path="emails" component={Emails} />
+                    <ProtectedRoute path="reporting" component={Reporting} />
+                    <ProtectedRoute path="email-providers" component={EmailProviders} />
+                    <ProtectedRoute path="client-management" component={ClientManagement} />
 
                     <Route component={NotFound} />
                   </Switch>

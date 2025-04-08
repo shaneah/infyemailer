@@ -64,7 +64,8 @@ const ClientSidebar = ({ open, setOpen }: ClientSidebarProps) => {
   
   const handleLogout = () => {
     sessionStorage.removeItem('clientUser');
-    setLocation('/client-login');
+    // Match the path format in App.tsx (without leading slash)
+    setLocation('client-login');
   };
   
   return (
@@ -103,16 +104,16 @@ const ClientSidebar = ({ open, setOpen }: ClientSidebarProps) => {
           <MenuItem 
             icon={BarChart} 
             label="Dashboard" 
-            to="/client-dashboard" 
-            active={location === '/client-dashboard'} 
+            to="client-dashboard" 
+            active={location === 'client-dashboard' || location === '/client-dashboard'} 
           />
           
           {clientUser?.permissions?.campaigns && (
             <MenuItem 
               icon={Mail} 
               label="Campaigns" 
-              to="/client-campaigns" 
-              active={location === '/client-campaigns'} 
+              to="client-campaigns" 
+              active={location === 'client-campaigns' || location === '/client-campaigns'} 
             />
           )}
           
@@ -120,8 +121,8 @@ const ClientSidebar = ({ open, setOpen }: ClientSidebarProps) => {
             <MenuItem 
               icon={Users} 
               label="Contacts" 
-              to="/client-contacts" 
-              active={location === '/client-contacts'} 
+              to="client-contacts" 
+              active={location === 'client-contacts' || location === '/client-contacts'} 
             />
           )}
           
@@ -129,8 +130,8 @@ const ClientSidebar = ({ open, setOpen }: ClientSidebarProps) => {
             <MenuItem 
               icon={List} 
               label="Lists" 
-              to="/client-lists" 
-              active={location === '/client-lists'} 
+              to="client-lists" 
+              active={location === 'client-lists' || location === '/client-lists'} 
             />
           )}
           
@@ -138,8 +139,8 @@ const ClientSidebar = ({ open, setOpen }: ClientSidebarProps) => {
             <MenuItem 
               icon={FileText} 
               label="Templates" 
-              to="/client-templates" 
-              active={location === '/client-templates'} 
+              to="client-templates" 
+              active={location === 'client-templates' || location === '/client-templates'} 
             />
           )}
           
@@ -147,8 +148,8 @@ const ClientSidebar = ({ open, setOpen }: ClientSidebarProps) => {
             <MenuItem 
               icon={PieChart} 
               label="Reports" 
-              to="/client-reports" 
-              active={location === '/client-reports'} 
+              to="client-reports" 
+              active={location === 'client-reports' || location === '/client-reports'} 
             />
           )}
           
@@ -156,8 +157,8 @@ const ClientSidebar = ({ open, setOpen }: ClientSidebarProps) => {
             <MenuItem 
               icon={Globe} 
               label="Domains" 
-              to="/client-domains" 
-              active={location === '/client-domains'} 
+              to="client-domains" 
+              active={location === 'client-domains' || location === '/client-domains'} 
             />
           )}
           
@@ -165,8 +166,8 @@ const ClientSidebar = ({ open, setOpen }: ClientSidebarProps) => {
             <MenuItem 
               icon={Clipboard} 
               label="Email Validation" 
-              to="/client-email-validation" 
-              active={location === '/client-email-validation'} 
+              to="client-email-validation" 
+              active={location === 'client-email-validation' || location === '/client-email-validation'} 
             />
           )}
           
@@ -174,8 +175,8 @@ const ClientSidebar = ({ open, setOpen }: ClientSidebarProps) => {
             <MenuItem 
               icon={Bell} 
               label="A/B Testing" 
-              to="/client-ab-testing" 
-              active={location === '/client-ab-testing'} 
+              to="client-ab-testing" 
+              active={location === 'client-ab-testing' || location === '/client-ab-testing'} 
             />
           )}
         </div>
@@ -185,8 +186,8 @@ const ClientSidebar = ({ open, setOpen }: ClientSidebarProps) => {
           <MenuItem 
             icon={Settings} 
             label="Account Settings" 
-            to="/client-settings" 
-            active={location === '/client-settings'} 
+            to="client-settings" 
+            active={location === 'client-settings' || location === '/client-settings'} 
           />
           
           <a
