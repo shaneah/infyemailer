@@ -13,6 +13,7 @@ import NotFound from "@/pages/not-found";
 import Campaigns from "@/pages/Campaigns";
 import Templates from "@/pages/Templates";
 import Contacts from "@/pages/Contacts";
+import ListDetails from "@/pages/ListDetails";
 import ABTesting from "@/pages/ABTesting";
 import EmailPerformance from "@/pages/EmailPerformance";
 import TemplateBuilder from "@/pages/TemplateBuilder";
@@ -59,6 +60,7 @@ function App() {
                   <ProtectedRoute path="/campaigns" component={Campaigns} />
                   <ProtectedRoute path="/templates" component={Templates} />
                   <ProtectedRoute path="/contacts" component={Contacts} />
+                  <ProtectedRoute path="/lists/:id" component={ListDetails} />
                   <ProtectedRoute path="/ab-testing" component={ABTesting} />
                   <ProtectedRoute path="/ab-testing/:id" component={ABTesting} />
                   <ProtectedRoute path="/email-performance" component={EmailPerformance} />

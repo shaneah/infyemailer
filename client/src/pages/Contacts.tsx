@@ -102,9 +102,15 @@ function ContactTableRow({ contact, onUpdate, onDelete }: ContactRowProps) {
         <div className="flex flex-wrap gap-1">
           {contact.lists?.length ? 
             contact.lists.map((list: any) => (
-              <span key={list.id} className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium">
+              <a 
+                key={list.id} 
+                href={`/lists/${list.id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium hover:bg-muted transition-colors"
+              >
                 {list.name}
-              </span>
+              </a>
             )) : 
             <span className="text-muted-foreground text-sm">No lists</span>
           }
@@ -1101,21 +1107,25 @@ export default function Contacts() {
               ))
             ) : (
               lists?.map((list: any) => (
-                <div key={list.id} className="border rounded-lg p-4 hover:bg-accent transition-colors">
+                <a 
+                  key={list.id} 
+                  href={`/lists/${list.id}`}
+                  className="border rounded-lg p-4 hover:bg-accent transition-colors block no-underline text-foreground"
+                >
                   <div className="flex justify-between items-start">
                     <h6 className="font-medium">{list.name}</h6>
                     <div className="flex space-x-1">
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
+                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={(e) => e.stopPropagation()}>
                         <FileDown size={16} />
                       </Button>
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
+                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={(e) => e.stopPropagation()}>
                         <UserPlus size={16} />
                       </Button>
                     </div>
                   </div>
                   <div className="text-2xl font-bold mt-2">{list.count}</div>
                   <div className="text-sm text-muted-foreground mt-1">Last updated: {list.lastUpdated}</div>
-                </div>
+                </a>
               ))
             )}
           </div>

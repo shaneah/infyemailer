@@ -578,6 +578,62 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ error: 'Failed to create list' });
     }
   });
+  
+  // Get contacts by list ID
+  app.get('/api/lists/:id/contacts', async (req: Request, res: Response) => {
+    try {
+      const listId = parseInt(req.params.id);
+      
+      if (isNaN(listId)) {
+        return res.status(400).json({ error: 'Invalid list ID' });
+      }
+      
+      const list = await storage.getList(listId);
+      if (!list) {
+        return res.status(404).json({ error: 'List not found' });
+      }
+      
+      const contacts = await storage.getContactsByList(listId);
+      
+      // Format the contacts with the status labels and other metadata
+      const formattedContacts = contacts.map(contact => {
+        let statusObj = { value: contact.status || 'active', label: 'Active', color: 'success' };
+        
+        // Map status to display values
+        if (contact.status === 'inactive') {
+          statusObj = { value: 'inactive', label: 'Inactive', color: 'warning' };
+        } else if (contact.status === 'bounced') {
+          statusObj = { value: 'bounced', label: 'Bounced', color: 'danger' };
+        } else if (contact.status === 'unsubscribed') {
+          statusObj = { value: 'unsubscribed', label: 'Unsubscribed', color: 'danger' };
+        }
+        
+        return {
+          ...contact,
+          status: statusObj,
+          addedOn: contact.createdAt 
+            ? new Date(contact.createdAt).toLocaleDateString('en-US', { 
+                month: 'short', 
+                day: 'numeric', 
+                year: 'numeric' 
+              }) 
+            : 'N/A'
+        };
+      });
+      
+      res.json({
+        list: {
+          id: list.id,
+          name: list.name,
+          description: list.description,
+          contactCount: formattedContacts.length
+        },
+        contacts: formattedContacts
+      });
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to fetch contacts for this list' });
+    }
+  });
 
   // Get templates
   app.get('/api/templates', async (req: Request, res: Response) => {
