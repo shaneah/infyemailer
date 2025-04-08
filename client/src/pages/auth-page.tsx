@@ -11,7 +11,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import Logo from "@/assets/Logo-white.png";
-import infyLogo from "@/assets/infy.png";
 import { Mail, Lock } from "lucide-react";
 
 // Admin login schema
@@ -79,8 +78,8 @@ export default function AuthPage() {
         <div className="w-full md:w-1/2 flex items-center justify-center p-6">
           <div className="w-full max-w-md">
             <div className="text-center mb-8">
-              <img src={infyLogo} alt="InfyMailer Logo" className="h-24 mx-auto mb-4" />
-              <h1 className="text-3xl font-bold text-primary">InfyMailer</h1>
+              <img src={Logo} alt="InfyMailer Logo" className="h-24 mx-auto mb-4" />
+              <h1 className="text-3xl font-bold text-primary">Infinity Tech</h1>
               <p className="text-gray-500">Email Marketing Platform</p>
             </div>
             
@@ -205,8 +204,8 @@ export default function AuthPage() {
           
           {/* Content with glass effect */}
           <div className="relative z-10 bg-white/10 backdrop-blur-sm rounded-2xl p-10 shadow-lg border border-white/20">
-            <img src={Logo} alt="InfyMailer Logo" className="h-16 mb-8" />
-            <h1 className="text-4xl font-bold text-white mb-2">InfyMailer Platform</h1>
+            <img src={Logo} alt="Infinity Tech Logo" className="h-16 mb-8" />
+            <h1 className="text-4xl font-bold text-white mb-2">Infinity Tech</h1>
             <div className="h-1 w-20 bg-white/40 rounded mb-6"></div>
             <p className="mt-4 text-lg text-white/90 max-w-lg">
               The comprehensive email marketing solution for businesses of all sizes
@@ -265,7 +264,7 @@ export default function AuthPage() {
           </div>
           
           <div className="text-white/70 text-sm mt-auto relative z-10">
-            &copy; {new Date().getFullYear()} InfyMailer. All rights reserved.
+            &copy; {new Date().getFullYear()} Infinity Tech. All rights reserved.
           </div>
         </div>
       </div>
