@@ -1,7 +1,7 @@
 import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { dbStorage as storage } from "./dbStorage";
-import { generateSubjectLines, generateEmailTemplate } from "./services/openai";
+import { generateSubjectLines, generateEmailTemplate, generateColorPalette } from "./services/openai";
 import { setupAuth, hashPassword, comparePasswords } from "./auth";
 import { EmailValidationService } from "./services/emailValidation";
 import { trackingService } from "./services/trackingService";
@@ -1876,6 +1876,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error('Error generating email template:', error);
       res.status(500).json({ 
         error: 'Failed to generate email template. Please ensure your OpenAI API key is valid.'
+      });
+    }
+  });
+
+  // Generate color palette
+  app.post('/api/generate-color-palette', async (req: Request, res: Response) => {
+    try {
+      const { brandDescription, industry, mood, paletteSize } = req.body;
+      
+      if (!brandDescription || !industry) {
+        return res.status(400).json({ 
+          error: 'Missing required parameters. Please provide brandDescription and industry.' 
+        });
+      }
+      
+      const colorPalette = await generateColorPalette(
+        brandDescription,
+        industry,
+        mood || 'professional',
+        paletteSize || 5
+      );
+      
+      res.status(201).json({ 
+        palette: colorPalette,
+        message: 'Color palette successfully generated' 
+      });
+    } catch (error) {
+      console.error('Error generating color palette:', error);
+      res.status(500).json({ 
+        error: 'Failed to generate color palette. Please ensure your OpenAI API key is valid.'
       });
     }
   });

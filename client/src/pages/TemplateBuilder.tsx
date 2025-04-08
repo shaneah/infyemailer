@@ -9,10 +9,11 @@ import { useToast } from "@/hooks/use-toast";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useParams } from "wouter";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import ColorPaletteGenerator, { ColorPalette } from "@/components/ColorPaletteGenerator";
 import { 
   AlignLeft, AlignCenter, AlignRight, Bold, Italic, Underline, Image, 
   Link, List, ListOrdered, Type, Grid, Layout, Columns, Rows, Save, 
-  ArrowLeft, Loader2, SeparatorHorizontal, X, ArrowDown, Settings
+  ArrowLeft, Loader2, SeparatorHorizontal, X, ArrowDown, Settings, Palette
 } from "lucide-react";
 
 // Define types for our email components
@@ -512,6 +513,7 @@ export default function TemplateBuilder() {
   const [selectedComponentId, setSelectedComponentId] = useState<string | null>(null);
   const [htmlOutput, setHtmlOutput] = useState<string>("");
   const [htmlEditorContent, setHtmlEditorContent] = useState<string | null>(null);
+  const [currentPalette, setCurrentPalette] = useState<ColorPalette | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const previewFrameRef = useRef<HTMLIFrameElement>(null);
@@ -826,6 +828,72 @@ export default function TemplateBuilder() {
   const handleComponentClick = (id: string) => {
     setSelectedComponentId(id);
   };
+  
+  // Apply color palette to template components
+  const applyColorPalette = (palette: ColorPalette) => {
+    setCurrentPalette(palette);
+    
+    // Only apply if we have at least 3 colors
+    if (palette.colors.length < 3) {
+      toast({
+        title: "Not enough colors",
+        description: "The palette needs at least 3 colors to apply to template elements.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setSections(prevSections => {
+      return prevSections.map(section => {
+        return {
+          ...section,
+          components: section.components.map(component => {
+            let updatedComponent = { ...component };
+            
+            // Apply colors based on component type
+            switch (component.type) {
+              case 'header':
+                // Use the first color (usually primary) for headers
+                updatedComponent.styles = {
+                  ...updatedComponent.styles,
+                  color: palette.colors[0].hex
+                };
+                break;
+              case 'text':
+                // Use a dark color (usually 2nd or 3rd) for text
+                updatedComponent.styles = {
+                  ...updatedComponent.styles,
+                  color: palette.colors[1].hex
+                };
+                break;
+              case 'button':
+                // Use first color for background, and a light color for text
+                updatedComponent.styles = {
+                  ...updatedComponent.styles,
+                  backgroundColor: palette.colors[0].hex,
+                  color: palette.colors.length > 3 ? palette.colors[3].hex : '#FFFFFF'
+                };
+                break;
+              case 'divider':
+                // Use a lighter color for dividers
+                updatedComponent.styles = {
+                  ...updatedComponent.styles,
+                  color: palette.colors[2].hex
+                };
+                break;
+            }
+            
+            return updatedComponent;
+          })
+        };
+      });
+    });
+    
+    toast({
+      title: "Colors Applied",
+      description: `${palette.name} palette has been applied to template elements.`,
+    });
+  };
 
   // Save template mutation
   const saveTemplateMutation = useMutation({
@@ -960,6 +1028,15 @@ export default function TemplateBuilder() {
                 className="rounded-none border-0 pb-2 px-1 data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none text-base font-medium data-[state=active]:text-primary"
               >
                 Preview
+              </TabsTrigger>
+              <TabsTrigger 
+                value="palette" 
+                className="rounded-none border-0 pb-2 px-1 data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none text-base font-medium data-[state=active]:text-primary"
+              >
+                <div className="flex items-center gap-1">
+                  <Palette className="h-4 w-4" />
+                  <span>Colors</span>
+                </div>
               </TabsTrigger>
               <TabsTrigger 
                 value="code" 
@@ -1137,6 +1214,94 @@ export default function TemplateBuilder() {
                     className="w-full h-full"
                     title="Email Preview"
                   />
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="palette">
+            <Card className="border-gray-200 shadow-sm">
+              <CardContent className="p-6">
+                <div className="flex flex-col space-y-6">
+                  <div className="flex justify-between items-center">
+                    <h3 className="font-semibold text-gray-800 text-lg">Color Palette Generator</h3>
+                    <div className="flex items-center text-sm text-gray-500">
+                      <Palette className="h-4 w-4 mr-1 text-primary" />
+                      <span>AI-powered palette creation</span>
+                    </div>
+                  </div>
+                  
+                  <p className="text-gray-600 text-sm">
+                    Generate a custom color palette for your email template based on your brand description and industry. The AI will create harmonious colors that match your brand identity.
+                  </p>
+                  
+                  <div className="grid md:grid-cols-2 gap-8">
+                    <div className="space-y-6">
+                      <ColorPaletteGenerator 
+                        brandDescription="" 
+                        industry=""
+                        onGenerate={(palette) => {
+                          // Apply the palette to the template components
+                          applyColorPalette(palette);
+                          
+                          // Show success toast
+                          toast({
+                            title: "Color Palette Generated",
+                            description: `${palette.name} - ${palette.description}`,
+                          });
+                          
+                          // Switch to editor tab to see the changes
+                          setTimeout(() => setActiveTab('editor'), 1500);
+                        }}
+                      />
+                    </div>
+                    
+                    <div className="space-y-4">
+                      <div className="rounded-md border border-gray-200 p-4 bg-gray-50">
+                        <h4 className="font-medium text-gray-700 mb-2">How to use the palette</h4>
+                        <ul className="space-y-2 text-sm text-gray-600">
+                          <li className="flex items-start">
+                            <div className="mr-2 mt-0.5 text-primary">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            </div>
+                            <span>Click on any color to copy its HEX code to clipboard</span>
+                          </li>
+                          <li className="flex items-start">
+                            <div className="mr-2 mt-0.5 text-primary">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            </div>
+                            <span>Use primary colors for headers, buttons, and focal points</span>
+                          </li>
+                          <li className="flex items-start">
+                            <div className="mr-2 mt-0.5 text-primary">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            </div>
+                            <span>Secondary colors work well for backgrounds and accents</span>
+                          </li>
+                          <li className="flex items-start">
+                            <div className="mr-2 mt-0.5 text-primary">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            </div>
+                            <span>Apply new colors using the Element Properties panel</span>
+                          </li>
+                        </ul>
+                      </div>
+                      
+                      <div className="mt-4 p-4 rounded-md bg-amber-50 border border-amber-200">
+                        <div className="flex items-start">
+                          <div className="mr-2 text-amber-500 mt-0.5">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                          </div>
+                          <div>
+                            <p className="text-sm text-amber-800 font-medium">Pro Tip</p>
+                            <p className="text-xs text-amber-700">
+                              For the best results, provide specific details about your brand's personality, values, and target audience in the description.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </CardContent>
             </Card>

@@ -29,6 +29,110 @@ export async function mockGenerateSubjectLines(
 }
 
 /**
+ * Generates mock color palettes
+ */
+export async function mockGenerateColorPalette(
+  brandDescription: string,
+  industry: string,
+  mood: string = 'professional',
+  paletteSize: number = 5
+): Promise<{
+  name: string,
+  colors: Array<{ name: string, hex: string, rgb: string }>,
+  description: string
+}> {
+  // Default professional palette
+  const professionalPalette = {
+    name: "Classic Professional",
+    description: `A sophisticated and trustworthy palette suited for ${industry} businesses, conveying a ${mood} feel.`,
+    colors: [
+      { name: "Primary Blue", hex: "#0055A4", rgb: "rgb(0, 85, 164)" },
+      { name: "Accent Teal", hex: "#00A5B5", rgb: "rgb(0, 165, 181)" },
+      { name: "Neutral Gray", hex: "#6C757D", rgb: "rgb(108, 117, 125)" },
+      { name: "Light Gray", hex: "#E9ECEF", rgb: "rgb(233, 236, 239)" },
+      { name: "Dark Charcoal", hex: "#343A40", rgb: "rgb(52, 58, 64)" }
+    ]
+  };
+
+  // Creative/modern palette
+  const creativePalette = {
+    name: "Vibrant Creative",
+    description: `A bold and modern palette for ${industry} businesses looking to make a statement, with energy that conveys a ${mood} feel.`,
+    colors: [
+      { name: "Vibrant Purple", hex: "#6200EA", rgb: "rgb(98, 0, 234)" },
+      { name: "Electric Pink", hex: "#FF4081", rgb: "rgb(255, 64, 129)" },
+      { name: "Bright Teal", hex: "#00BCD4", rgb: "rgb(0, 188, 212)" },
+      { name: "Light Lavender", hex: "#F3E5F5", rgb: "rgb(243, 229, 245)" },
+      { name: "Deep Indigo", hex: "#3F51B5", rgb: "rgb(63, 81, 181)" }
+    ]
+  };
+
+  // Natural/organic palette
+  const naturalPalette = {
+    name: "Earthy Organic",
+    description: `A warm, natural palette ideal for ${industry} businesses with an organic feel, perfectly capturing a ${mood} atmosphere.`,
+    colors: [
+      { name: "Forest Green", hex: "#388E3C", rgb: "rgb(56, 142, 60)" },
+      { name: "Terracotta", hex: "#D87C55", rgb: "rgb(216, 124, 85)" },
+      { name: "Sand", hex: "#E6D2B5", rgb: "rgb(230, 210, 181)" },
+      { name: "Deep Brown", hex: "#6D4C41", rgb: "rgb(109, 76, 65)" },
+      { name: "Sage", hex: "#8BC19D", rgb: "rgb(139, 193, 157)" }
+    ]
+  };
+
+  // Luxury palette
+  const luxuryPalette = {
+    name: "Premium Luxury",
+    description: `An elegant and luxurious palette for ${industry} businesses targeting premium markets, with a refined ${mood} character.`,
+    colors: [
+      { name: "Royal Navy", hex: "#0A2342", rgb: "rgb(10, 35, 66)" },
+      { name: "Gold", hex: "#D5AB55", rgb: "rgb(213, 171, 85)" },
+      { name: "Cream", hex: "#F2F1E9", rgb: "rgb(242, 241, 233)" },
+      { name: "Burgundy", hex: "#7B2D26", rgb: "rgb(123, 45, 38)" },
+      { name: "Silver Gray", hex: "#C0C0C0", rgb: "rgb(192, 192, 192)" }
+    ]
+  };
+
+  // Tech palette
+  const techPalette = {
+    name: "Digital Tech",
+    description: `A modern, sleek palette for ${industry} businesses in the tech space, with a cutting-edge ${mood} vibe.`,
+    colors: [
+      { name: "Tech Blue", hex: "#2962FF", rgb: "rgb(41, 98, 255)" },
+      { name: "Electric Green", hex: "#00E676", rgb: "rgb(0, 230, 118)" },
+      { name: "Dark Slate", hex: "#263238", rgb: "rgb(38, 50, 56)" },
+      { name: "Light Silver", hex: "#F5F5F5", rgb: "rgb(245, 245, 245)" },
+      { name: "Accent Orange", hex: "#FF6D00", rgb: "rgb(255, 109, 0)" }
+    ]
+  };
+
+  // Select a palette based on industry and mood
+  let selectedPalette;
+  const industryLower = industry.toLowerCase();
+  const moodLower = mood.toLowerCase();
+
+  if (moodLower.includes('luxury') || moodLower.includes('premium') || moodLower.includes('elegant')) {
+    selectedPalette = luxuryPalette;
+  } else if (moodLower.includes('creative') || moodLower.includes('vibrant') || moodLower.includes('bold') || moodLower.includes('modern')) {
+    selectedPalette = creativePalette;
+  } else if (moodLower.includes('natural') || moodLower.includes('organic') || moodLower.includes('earthy') || moodLower.includes('warm')) {
+    selectedPalette = naturalPalette;
+  } else if (moodLower.includes('tech') || industryLower.includes('tech') || industryLower.includes('software') || industryLower.includes('digital')) {
+    selectedPalette = techPalette;
+  } else {
+    // Default to professional for most cases
+    selectedPalette = professionalPalette;
+  }
+
+  // Adjust the size of the palette if necessary
+  if (paletteSize < selectedPalette.colors.length) {
+    selectedPalette.colors = selectedPalette.colors.slice(0, paletteSize);
+  }
+
+  return selectedPalette;
+}
+
+/**
  * Generates a mock email template
  */
 export async function mockGenerateEmailTemplate(

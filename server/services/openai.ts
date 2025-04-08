@@ -1,5 +1,9 @@
 import OpenAI from 'openai';
-import { mockGenerateSubjectLines, mockGenerateEmailTemplate } from './mockOpenai';
+import { 
+  mockGenerateSubjectLines, 
+  mockGenerateEmailTemplate, 
+  mockGenerateColorPalette 
+} from './mockOpenai';
 
 // Initialize the OpenAI client with the API key from environment variables
 const openai = new OpenAI({
@@ -193,5 +197,107 @@ export async function generateEmailTemplate(
     console.error('Error generating email template:', error);
     console.log('Falling back to mock email template generation');
     return mockGenerateEmailTemplate(templateType, industry, purpose, targetAudience, brandTone, keyPoints);
+  }
+}
+
+/**
+ * Generates color palette based on brand description or image
+ * 
+ * @param brandDescription - Description of brand identity, values, and audience
+ * @param industry - The industry or business category
+ * @param mood - Desired mood or emotion for the color palette (energetic, calm, professional, etc.)
+ * @param paletteSize - Number of colors to generate (default: 5)
+ * @returns Promise<{ name: string, colors: { name: string, hex: string, rgb: string }[] }> - The generated color palette
+ */
+export async function generateColorPalette(
+  brandDescription: string,
+  industry: string,
+  mood: string = 'professional',
+  paletteSize: number = 5
+): Promise<{ 
+  name: string, 
+  colors: Array<{ name: string, hex: string, rgb: string }>,
+  description: string
+}> {
+  // Use mock implementation if API key is not available or mock mode is enabled
+  if (useMockImplementation) {
+    console.log('Using mock color palette generation');
+    return mockGenerateColorPalette(brandDescription, industry, mood, paletteSize);
+  }
+
+  try {
+    if (!process.env.OPENAI_API_KEY) {
+      throw new Error('OpenAI API key is not configured.');
+    }
+
+    const prompt = `
+    Create a harmonious color palette for an email template with ${paletteSize} colors based on the following information:
+    
+    Brand description:
+    ${brandDescription}
+    
+    Industry:
+    ${industry}
+    
+    Desired mood/emotion:
+    ${mood}
+    
+    Guidelines:
+    - Create a cohesive, visually appealing color scheme that works well for email marketing
+    - Include a primary/brand color, accent colors, and neutral tones
+    - Consider color psychology and industry standards
+    - Ensure sufficient contrast for readability
+    - Provide colors that work well for backgrounds, text, buttons, and highlights
+    - Ensure the palette follows accessibility standards (WCAG)
+    - Choose colors that evoke the specified mood
+    
+    Return your response in JSON format as follows:
+    {
+      "name": "A creative name for the palette",
+      "description": "Brief description of the palette and how it reflects the brand",
+      "colors": [
+        {
+          "name": "Color name (e.g., Primary Blue)",
+          "hex": "#RRGGBB format", 
+          "rgb": "rgb(R,G,B) format"
+        },
+        // Additional colors...
+      ]
+    }
+    `;
+
+    const completion = await openai.chat.completions.create({
+      messages: [
+        {
+          role: 'system',
+          content: 'You are an expert designer specializing in color theory and creating harmonious color palettes for digital marketing.'
+        },
+        {
+          role: 'user',
+          content: prompt
+        }
+      ],
+      model: 'gpt-4o', // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+      response_format: { type: "json_object" }
+    });
+
+    // Extract the response as JSON
+    const responseText = completion.choices[0]?.message?.content || '{}';
+    
+    try {
+      const paletteData = JSON.parse(responseText);
+      return {
+        name: paletteData.name || `${industry} ${mood} palette`,
+        colors: paletteData.colors || [],
+        description: paletteData.description || `A ${mood} color palette for ${industry} businesses.`
+      };
+    } catch (parseError) {
+      console.error('Error parsing color palette response:', parseError);
+      throw new Error('Failed to parse AI-generated color palette.');
+    }
+  } catch (error) {
+    console.error('Error generating color palette:', error);
+    console.log('Falling back to mock color palette generation');
+    return mockGenerateColorPalette(brandDescription, industry, mood, paletteSize);
   }
 }
