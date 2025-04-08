@@ -38,9 +38,6 @@ function App() {
   const [location] = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   
-  // Check if current route is a client portal route
-  const isClientRoute = location === '/client-login' || location.startsWith('/client-');
-  
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
@@ -52,7 +49,7 @@ function App() {
             </Switch>
             <Toaster />
           </div>
-        ) : isClientRoute ? (
+        ) : location === "/client-login" || location === "/client-dashboard" ? (
           // Client portal layout
           <div className="bg-background min-h-screen">
             <Switch>
