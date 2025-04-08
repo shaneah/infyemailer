@@ -49,7 +49,16 @@ import {
   Upload, 
   Plus, 
   UserPlus, 
-  RefreshCw 
+  RefreshCw,
+  Loader2,
+  User,
+  UserCog,
+  ChevronDown,
+  AlertCircle,
+  CheckCircle,
+  Trash2,
+  Users,
+  X
 } from "lucide-react";
 
 // Contact Row Component
@@ -230,6 +239,9 @@ export default function Contacts() {
   const [open, setOpen] = useState(false);
   const [importDialogOpen, setImportDialogOpen] = useState(false);
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
+  const [listDialogOpen, setListDialogOpen] = useState(false);
+  const [newListName, setNewListName] = useState('');
+  const [newListDescription, setNewListDescription] = useState('');
   const [importText, setImportText] = useState('');
   const [importFormat, setImportFormat] = useState('txt');
   const [exportFormat, setExportFormat] = useState('txt');
@@ -422,6 +434,30 @@ export default function Contacts() {
         description: "Contact has been deleted successfully.",
       });
     }
+  });
+  
+  // Create list mutation
+  const createListMutation = useMutation({
+    mutationFn: (values: { name: string; description?: string }) => {
+      return apiRequest("POST", "/api/lists", values);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/lists'] });
+      toast({
+        title: "List created",
+        description: "The contact list has been created successfully.",
+      });
+      setListDialogOpen(false);
+      setNewListName('');
+      setNewListDescription('');
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: `Failed to create list: ${error.message}`,
+        variant: "destructive",
+      });
+    },
   });
 
   // Helper functions
@@ -984,9 +1020,9 @@ export default function Contacts() {
         <CardHeader>
           <div className="flex justify-between items-center">
             <h5 className="text-lg font-medium">Contact Lists</h5>
-            <Dialog>
+            <Dialog open={listDialogOpen} onOpenChange={setListDialogOpen}>
               <DialogTrigger asChild>
-                <Button size="sm" className="flex items-center gap-2">
+                <Button size="sm" className="flex items-center gap-2" onClick={() => setListDialogOpen(true)}>
                   <Plus size={16} />
                   New List
                 </Button>
@@ -1001,7 +1037,12 @@ export default function Contacts() {
                 <div className="grid gap-4 py-4">
                   <div className="space-y-2">
                     <Label htmlFor="name">List Name</Label>
-                    <Input id="name" placeholder="My Awesome List" />
+                    <Input 
+                      id="name" 
+                      placeholder="My Awesome List" 
+                      value={newListName}
+                      onChange={(e) => setNewListName(e.target.value)}
+                    />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="description">Description (Optional)</Label>
@@ -1009,11 +1050,40 @@ export default function Contacts() {
                       id="description" 
                       placeholder="A brief description of this list..."
                       className="min-h-[80px]"
+                      value={newListDescription}
+                      onChange={(e) => setNewListDescription(e.target.value)}
                     />
                   </div>
                 </div>
                 <DialogFooter>
-                  <Button type="submit">Create List</Button>
+                  <Button variant="outline" onClick={() => setListDialogOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button 
+                    type="button" 
+                    onClick={() => {
+                      if (!newListName.trim()) {
+                        toast({
+                          title: "Error",
+                          description: "List name is required",
+                          variant: "destructive",
+                        });
+                        return;
+                      }
+                      createListMutation.mutate({
+                        name: newListName.trim(),
+                        description: newListDescription.trim() || undefined
+                      });
+                    }}
+                    disabled={createListMutation.isPending}
+                  >
+                    {createListMutation.isPending ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Creating...
+                      </>
+                    ) : "Create List"}
+                  </Button>
                 </DialogFooter>
               </DialogContent>
             </Dialog>
