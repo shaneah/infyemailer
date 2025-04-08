@@ -2875,5 +2875,237 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Audience Personas API Endpoints
+  app.get('/api/audience-personas', async (req: Request, res: Response) => {
+    try {
+      const personas = await storage.getAudiencePersonas();
+      res.status(200).json(personas);
+    } catch (error) {
+      console.error('Error getting audience personas:', error);
+      res.status(500).json({ error: 'Failed to get audience personas' });
+    }
+  });
+
+  app.get('/api/audience-personas/:id', async (req: Request, res: Response) => {
+    const id = parseInt(req.params.id, 10);
+    try {
+      const persona = await storage.getAudiencePersona(id);
+      if (!persona) {
+        return res.status(404).json({ error: 'Audience persona not found' });
+      }
+      res.status(200).json(persona);
+    } catch (error) {
+      console.error(`Error getting audience persona with id ${id}:`, error);
+      res.status(500).json({ error: 'Failed to get audience persona' });
+    }
+  });
+
+  app.post('/api/audience-personas', async (req: Request, res: Response) => {
+    try {
+      const validatedData = validate(insertAudiencePersonaSchema, req.body);
+      if ('error' in validatedData) {
+        return res.status(400).json(validatedData);
+      }
+      
+      const persona = await storage.createAudiencePersona(validatedData);
+      res.status(201).json(persona);
+    } catch (error) {
+      console.error('Error creating audience persona:', error);
+      res.status(500).json({ error: 'Failed to create audience persona' });
+    }
+  });
+
+  app.patch('/api/audience-personas/:id', async (req: Request, res: Response) => {
+    const id = parseInt(req.params.id, 10);
+    try {
+      const persona = await storage.updateAudiencePersona(id, req.body);
+      if (!persona) {
+        return res.status(404).json({ error: 'Audience persona not found' });
+      }
+      res.status(200).json(persona);
+    } catch (error) {
+      console.error(`Error updating audience persona with id ${id}:`, error);
+      res.status(500).json({ error: 'Failed to update audience persona' });
+    }
+  });
+
+  app.delete('/api/audience-personas/:id', async (req: Request, res: Response) => {
+    const id = parseInt(req.params.id, 10);
+    try {
+      const success = await storage.deleteAudiencePersona(id);
+      if (!success) {
+        return res.status(404).json({ error: 'Audience persona not found' });
+      }
+      res.status(200).json({ success: true });
+    } catch (error) {
+      console.error(`Error deleting audience persona with id ${id}:`, error);
+      res.status(500).json({ error: 'Failed to delete audience persona' });
+    }
+  });
+
+  // Audience Persona Demographics
+  app.get('/api/audience-personas/:id/demographics', async (req: Request, res: Response) => {
+    const personaId = parseInt(req.params.id, 10);
+    try {
+      const demographics = await storage.getPersonaDemographics(personaId);
+      if (!demographics) {
+        return res.status(404).json({ error: 'Demographics not found for this persona' });
+      }
+      res.status(200).json(demographics);
+    } catch (error) {
+      console.error(`Error getting demographics for persona id ${personaId}:`, error);
+      res.status(500).json({ error: 'Failed to get demographics' });
+    }
+  });
+
+  app.post('/api/audience-personas/:id/demographics', async (req: Request, res: Response) => {
+    const personaId = parseInt(req.params.id, 10);
+    try {
+      const validatedData = validate(insertPersonaDemographicSchema, { ...req.body, personaId });
+      if ('error' in validatedData) {
+        return res.status(400).json(validatedData);
+      }
+      
+      let demographics = await storage.getPersonaDemographics(personaId);
+      
+      if (demographics) {
+        // Update existing demographics
+        demographics = await storage.updatePersonaDemographics(personaId, validatedData);
+      } else {
+        // Create new demographics
+        demographics = await storage.createPersonaDemographics(validatedData);
+      }
+      
+      res.status(201).json(demographics);
+    } catch (error) {
+      console.error(`Error creating/updating demographics for persona id ${personaId}:`, error);
+      res.status(500).json({ error: 'Failed to create/update demographics' });
+    }
+  });
+
+  // Audience Persona Behaviors
+  app.get('/api/audience-personas/:id/behaviors', async (req: Request, res: Response) => {
+    const personaId = parseInt(req.params.id, 10);
+    try {
+      const behaviors = await storage.getPersonaBehaviors(personaId);
+      if (!behaviors) {
+        return res.status(404).json({ error: 'Behaviors not found for this persona' });
+      }
+      res.status(200).json(behaviors);
+    } catch (error) {
+      console.error(`Error getting behaviors for persona id ${personaId}:`, error);
+      res.status(500).json({ error: 'Failed to get behaviors' });
+    }
+  });
+
+  app.post('/api/audience-personas/:id/behaviors', async (req: Request, res: Response) => {
+    const personaId = parseInt(req.params.id, 10);
+    try {
+      const validatedData = validate(insertPersonaBehaviorSchema, { ...req.body, personaId });
+      if ('error' in validatedData) {
+        return res.status(400).json(validatedData);
+      }
+      
+      let behaviors = await storage.getPersonaBehaviors(personaId);
+      
+      if (behaviors) {
+        // Update existing behaviors
+        behaviors = await storage.updatePersonaBehaviors(personaId, validatedData);
+      } else {
+        // Create new behaviors
+        behaviors = await storage.createPersonaBehaviors(validatedData);
+      }
+      
+      res.status(201).json(behaviors);
+    } catch (error) {
+      console.error(`Error creating/updating behaviors for persona id ${personaId}:`, error);
+      res.status(500).json({ error: 'Failed to create/update behaviors' });
+    }
+  });
+
+  // Audience Persona Insights
+  app.get('/api/audience-personas/:id/insights', async (req: Request, res: Response) => {
+    const personaId = parseInt(req.params.id, 10);
+    try {
+      const insights = await storage.getPersonaInsights(personaId);
+      res.status(200).json(insights || []);
+    } catch (error) {
+      console.error(`Error getting insights for persona id ${personaId}:`, error);
+      res.status(500).json({ error: 'Failed to get insights' });
+    }
+  });
+
+  app.post('/api/audience-personas/:id/insights', async (req: Request, res: Response) => {
+    const personaId = parseInt(req.params.id, 10);
+    try {
+      const validatedData = validate(insertPersonaInsightSchema, { ...req.body, personaId });
+      if ('error' in validatedData) {
+        return res.status(400).json(validatedData);
+      }
+      
+      const insight = await storage.createPersonaInsight(validatedData);
+      res.status(201).json(insight);
+    } catch (error) {
+      console.error(`Error creating insight for persona id ${personaId}:`, error);
+      res.status(500).json({ error: 'Failed to create insight' });
+    }
+  });
+
+  app.delete('/api/audience-personas/insights/:id', async (req: Request, res: Response) => {
+    const id = parseInt(req.params.id, 10);
+    try {
+      const success = await storage.deletePersonaInsight(id);
+      if (!success) {
+        return res.status(404).json({ error: 'Insight not found' });
+      }
+      res.status(200).json({ success: true });
+    } catch (error) {
+      console.error(`Error deleting insight with id ${id}:`, error);
+      res.status(500).json({ error: 'Failed to delete insight' });
+    }
+  });
+
+  // Audience Segments
+  app.get('/api/audience-personas/:id/segments', async (req: Request, res: Response) => {
+    const personaId = parseInt(req.params.id, 10);
+    try {
+      const segments = await storage.getAudienceSegmentsByPersona(personaId);
+      res.status(200).json(segments || []);
+    } catch (error) {
+      console.error(`Error getting segments for persona id ${personaId}:`, error);
+      res.status(500).json({ error: 'Failed to get segments' });
+    }
+  });
+
+  app.post('/api/audience-personas/:id/segments', async (req: Request, res: Response) => {
+    const personaId = parseInt(req.params.id, 10);
+    try {
+      const validatedData = validate(insertAudienceSegmentSchema, { ...req.body, personaId });
+      if ('error' in validatedData) {
+        return res.status(400).json(validatedData);
+      }
+      
+      const segment = await storage.createAudienceSegment(validatedData);
+      res.status(201).json(segment);
+    } catch (error) {
+      console.error(`Error creating segment for persona id ${personaId}:`, error);
+      res.status(500).json({ error: 'Failed to create segment' });
+    }
+  });
+
+  app.delete('/api/audience-personas/segments/:id', async (req: Request, res: Response) => {
+    const id = parseInt(req.params.id, 10);
+    try {
+      const success = await storage.deleteAudienceSegment(id);
+      if (!success) {
+        return res.status(404).json({ error: 'Segment not found' });
+      }
+      res.status(200).json({ success: true });
+    } catch (error) {
+      console.error(`Error deleting segment with id ${id}:`, error);
+      res.status(500).json({ error: 'Failed to delete segment' });
+    }
+  });
+
   return httpServer;
 }

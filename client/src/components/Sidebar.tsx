@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from "wouter";
-import { Mail, LayoutDashboard, Megaphone, FileText, Users, Building, BarChart2, Activity, Split, Globe, Settings as SettingsIcon, ShieldCheck, LogOut, CheckCircle2, ServerCog, Building2, UserRound } from "lucide-react";
+import { Mail, LayoutDashboard, Megaphone, FileText, Users, Building, BarChart2, Activity, Split, Globe, Settings as SettingsIcon, ShieldCheck, LogOut, CheckCircle2, ServerCog, Building2, UserRound, Users as UsersIcon, UserPlus } from "lucide-react";
 import infyLogo from "../assets/Logo-white.png";
 import { useAuth } from "@/hooks/use-auth";
 
@@ -160,6 +160,17 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
             </Link>
           </li>
 
+          <li>
+            <Link 
+              href="/audience-personas" 
+              className={`flex items-center px-2 py-2 rounded-md ${location === '/audience-personas' 
+                ? 'text-white border-l-4 border-white bg-white/10' 
+                : 'text-gray-300 hover:bg-white/5'}`}
+            >
+              <UserPlus className="h-5 w-5 mr-3" />
+              Audience Personas
+            </Link>
+          </li>
           <li>
             <Link 
               href="/email-validation" 
