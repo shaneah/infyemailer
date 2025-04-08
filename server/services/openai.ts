@@ -5,13 +5,20 @@ import {
   mockGenerateColorPalette 
 } from './mockOpenai';
 
-// Initialize the OpenAI client with the API key from environment variables
+// Get the API key from environment variables
+const apiKey = process.env.OPENAI_API_KEY;
+
+// Initialize the OpenAI client
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+  apiKey: apiKey,
 });
 
+// Log OpenAI setup status
+console.log(`OpenAI API key ${apiKey ? 'is set' : 'is NOT set'}`);
+
 // Flag to determine if we should use the real OpenAI API or the mock implementation
-const useMockImplementation = !process.env.OPENAI_API_KEY || process.env.USE_MOCK_OPENAI === 'true';
+const useMockImplementation = !apiKey || process.env.USE_MOCK_OPENAI === 'true';
+console.log(`Using ${useMockImplementation ? 'MOCK' : 'REAL'} OpenAI implementation`);
 
 /**
  * Generates email subject lines based on the provided context
