@@ -237,7 +237,122 @@ const ClientContacts = ({ onAddContact }: { onAddContact: () => void }) => {
   // State to manage contacts data
   const [isLoading, setIsLoading] = useState(false);
   const [selectedContacts, setSelectedContacts] = useState<number[]>([]);
-  const [contacts, setContacts] = useState([
+  const [importStatus, setImportStatus] = useState<string | null>(null);
+  const { toast } = useToast();
+  
+  // Type for contact
+  type Contact = {
+    id: number;
+    firstName: string;
+    lastName: string;
+    email: string;
+    status: string;
+    tags: string[];
+    dateAdded: string;
+  };
+  
+  // Handle file import function
+  const handleFileImport = (file: File) => {
+    setIsLoading(true);
+    setImportStatus('Importing contacts...');
+    
+    const reader = new FileReader();
+    
+    reader.onload = (event) => {
+      try {
+        const csvData = event.target?.result as string;
+        const lines = csvData.split('\n');
+        const headers = lines[0].split(',');
+        
+        // Find email, firstName, and lastName column indices
+        const emailIndex = headers.findIndex(h => h.trim().toLowerCase() === 'email');
+        const firstNameIndex = headers.findIndex(h => h.trim().toLowerCase() === 'firstname' || h.trim().toLowerCase() === 'first name' || h.trim().toLowerCase() === 'first_name');
+        const lastNameIndex = headers.findIndex(h => h.trim().toLowerCase() === 'lastname' || h.trim().toLowerCase() === 'last name' || h.trim().toLowerCase() === 'last_name');
+        
+        if (emailIndex === -1) {
+          toast({
+            title: "Import Error",
+            description: "The CSV file must have an 'email' column",
+            variant: "destructive"
+          });
+          setIsLoading(false);
+          setImportStatus(null);
+          return;
+        }
+        
+        // Process the data
+        const importedContacts: Contact[] = [];
+        const existingEmails = new Set(contacts.map(c => c.email.toLowerCase()));
+        let newContacts = 0;
+        let duplicates = 0;
+        
+        for (let i = 1; i < lines.length; i++) {
+          if (!lines[i].trim()) continue; // Skip empty lines
+          
+          const data = lines[i].split(',');
+          const email = data[emailIndex]?.trim();
+          
+          if (!email || !email.includes('@')) continue; // Skip invalid emails
+          
+          if (existingEmails.has(email.toLowerCase())) {
+            duplicates++;
+            continue;
+          }
+          
+          const firstName = firstNameIndex !== -1 ? data[firstNameIndex]?.trim() : '';
+          const lastName = lastNameIndex !== -1 ? data[lastNameIndex]?.trim() : '';
+          
+          const newContact: Contact = {
+            id: contacts.length + importedContacts.length + 1,
+            email: email,
+            firstName: firstName || email.split('@')[0],
+            lastName: lastName || '',
+            status: 'Active',
+            tags: ['Imported'],
+            dateAdded: new Date().toISOString().split('T')[0]
+          };
+          
+          importedContacts.push(newContact);
+          existingEmails.add(email.toLowerCase());
+          newContacts++;
+        }
+        
+        // Update the contacts list
+        setContacts(prev => [...prev, ...importedContacts]);
+        
+        toast({
+          title: "Import Complete",
+          description: `Successfully imported ${newContacts} contacts. ${duplicates} duplicates were skipped.`,
+          variant: "default"
+        });
+        
+      } catch (error) {
+        console.error('Import error:', error);
+        toast({
+          title: "Import Error",
+          description: "There was an error processing the CSV file. Please check the format and try again.",
+          variant: "destructive"
+        });
+      } finally {
+        setIsLoading(false);
+        setImportStatus(null);
+      }
+    };
+    
+    reader.onerror = () => {
+      toast({
+        title: "File Error",
+        description: "There was an error reading the file. Please try again.",
+        variant: "destructive"
+      });
+      setIsLoading(false);
+      setImportStatus(null);
+    };
+    
+    reader.readAsText(file);
+  };
+  
+  const [contacts, setContacts] = useState<Contact[]>([
     {
       id: 1,
       firstName: "John",
@@ -330,14 +445,27 @@ const ClientContacts = ({ onAddContact }: { onAddContact: () => void }) => {
           <h1 className="text-2xl font-bold">Contacts</h1>
         </div>
         <div className="flex gap-2">
-          <button className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-50 transition-colors flex items-center gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-              <polyline points="7 10 12 15 17 10"></polyline>
-              <line x1="12" y1="15" x2="12" y2="3"></line>
-            </svg>
-            <span>Import</span>
-          </button>
+          <div className="relative">
+            <input
+              type="file"
+              id="contactsImport"
+              accept=".csv,.xlsx,.xls"
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              onChange={(e) => {
+                if (e.target.files && e.target.files.length > 0) {
+                  handleFileImport(e.target.files[0]);
+                }
+              }}
+            />
+            <button className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-50 transition-colors flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+              <span>Import</span>
+            </button>
+          </div>
           <button 
             onClick={onAddContact}
             className="bg-primary text-white px-4 py-2 rounded-md flex items-center gap-2 hover:bg-primary/90 transition-colors"
@@ -403,6 +531,16 @@ const ClientContacts = ({ onAddContact }: { onAddContact: () => void }) => {
           </div>
         </div>
       </div>
+      
+      {/* Import Status */}
+      {importStatus && (
+        <div className="bg-blue-50 rounded-lg p-3 mb-4 border border-blue-200 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+            <span className="text-sm text-blue-700">{importStatus}</span>
+          </div>
+        </div>
+      )}
       
       {/* Bulk Actions */}
       {selectedContacts.length > 0 && (
