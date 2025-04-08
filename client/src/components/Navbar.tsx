@@ -35,12 +35,15 @@ const Navbar = ({ sidebarOpen, setSidebarOpen }: NavbarProps) => {
 
           {/* Right side - User menu and client login */}
           <div className="flex items-center space-x-4">
-            <Link href="/client-login">
-              <Button variant="outline" size="sm" className="hidden md:flex items-center gap-2">
-                <DoorOpen size={16} />
-                Client Portal
-              </Button>
-            </Link>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="hidden md:flex items-center gap-2"
+              onClick={() => window.location.href = '/client-login'}
+            >
+              <DoorOpen size={16} />
+              Client Portal
+            </Button>
             <div className="relative inline-flex">
               <button className="inline-flex justify-center items-center group">
                 <div className="flex items-center truncate">
