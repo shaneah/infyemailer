@@ -31,6 +31,7 @@ import ClientManagement from "@/pages/ClientManagement";
 
 // Client portal pages
 import ClientLogin from "@/pages/ClientLogin";
+import SimpleClientLogin from "@/pages/SimpleClientLogin";
 import ClientDashboard from "@/pages/ClientDashboard";
 
 
@@ -43,12 +44,10 @@ function App() {
       <Switch>
         {/* Client Portal Routes */}
         <Route path="/client-login">
-          <AuthProvider>
-            <div className="bg-background min-h-screen">
-              <ClientLogin />
-              <Toaster />
-            </div>
-          </AuthProvider>
+          <div className="bg-background min-h-screen">
+            <SimpleClientLogin />
+            <Toaster />
+          </div>
         </Route>
         
         <Route path="/client-dashboard">
