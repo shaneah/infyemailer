@@ -665,62 +665,285 @@ export default function Contacts() {
     
     try {
       if (importFormat === 'json') {
+        console.log("Processing JSON data");
+        
         try {
-          const parsed = JSON.parse(importText);
-          if (Array.isArray(parsed)) {
-            // Handle array of items
-            contactData = parsed.map((item: any) => {
-              if (typeof item === 'string') {
-                return { email: item };
-              } else if (item && typeof item === 'object' && item.email) {
-                return { 
-                  email: item.email,
-                  name: item.name || undefined
-                };
+          // Try to parse JSON, if fails, attempt some common format fixes
+          let parsed: any;
+          try {
+            parsed = JSON.parse(importText);
+          } catch (parseError) {
+            // Check if we have line-separated JSON objects instead of an array
+            if (importText.trim().startsWith('{') && importText.includes('}\n{')) {
+              console.log("Detected line-separated JSON objects, attempting to convert to array");
+              const jsonLines = importText
+                .split(/\n|\r\n/)
+                .filter(line => line.trim().length > 0)
+                .map(line => line.trim());
+                
+              if (jsonLines.every(line => line.startsWith('{') && line.endsWith('}'))) {
+                try {
+                  parsed = jsonLines.map(line => JSON.parse(line));
+                } catch (lineParseError) {
+                  throw new Error('Invalid line-separated JSON format');
+                }
+              } else {
+                throw new Error('Malformed JSON: possibly line-separated objects with syntax errors');
               }
-              return null;
-            }).filter((item): item is {email: string, name?: string} => item !== null);
-            
-            // Extract just emails for backward compatibility
-            emails = contactData.map(item => item.email);
-          } else {
-            // Handle object
-            contactData = Object.values(parsed).map((item: any) => {
-              if (typeof item === 'string') {
-                return { email: item };
-              } else if (item && typeof item === 'object' && item.email) {
-                return { 
-                  email: item.email,
-                  name: item.name || undefined
-                };
+            } else {
+              // Check if items are missing quotes around keys or values
+              // This is a simple fix that tries to add quotes to common email-like formats
+              const fixAttempt = importText
+                .replace(/([{,]\s*)([a-zA-Z0-9_]+)(\s*:)/g, '$1"$2"$3') // Fix unquoted keys
+                .replace(/:\s*([^",\s{}[\]]+)(\s*[,}])/g, ':"$1"$2');   // Fix unquoted values
+                
+              try {
+                parsed = JSON.parse(fixAttempt);
+                console.log("Fixed malformed JSON with missing quotes");
+              } catch (fixError) {
+                throw new Error('Invalid JSON format: possible syntax errors');
               }
-              return null;
-            }).filter((item): item is {email: string, name?: string} => item !== null);
-            
-            // Extract just emails for backward compatibility
-            emails = contactData.map(item => item.email);
+            }
           }
+          
+          // Process the parsed data based on its structure
+          if (Array.isArray(parsed)) {
+            console.log(`Processing JSON array with ${parsed.length} items`);
+            
+            // Handle array of items - could be strings, objects with email property, etc.
+            contactData = parsed.map((item: any) => {
+              // Handle plain string (email)
+              if (typeof item === 'string') {
+                const email = item.trim();
+                if (email && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+                  return { email };
+                }
+                return null;
+              } 
+              // Handle object with email property
+              else if (item && typeof item === 'object') {
+                // Find an email property with a case-insensitive search
+                const emailKey = Object.keys(item).find(
+                  key => key.toLowerCase() === 'email' || key.toLowerCase() === 'mail'
+                );
+                
+                // Find a name property with a case-insensitive search
+                const nameKey = Object.keys(item).find(
+                  key => key.toLowerCase() === 'name' || 
+                  key.toLowerCase() === 'contact name' ||
+                  key.toLowerCase() === 'fullname' ||
+                  key.toLowerCase() === 'contactname'
+                );
+                
+                if (emailKey && typeof item[emailKey] === 'string') {
+                  const email = item[emailKey].trim();
+                  if (email && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+                    const contact: {email: string, name?: string} = { email };
+                    
+                    // Add name if available
+                    if (nameKey && typeof item[nameKey] === 'string') {
+                      contact.name = item[nameKey].trim() || undefined;
+                    }
+                    
+                    return contact;
+                  }
+                }
+              }
+              return null;
+            }).filter((item): item is {email: string, name?: string} => item !== null);
+          } 
+          // Handle case where parsed is an object but not an array
+          else if (parsed && typeof parsed === 'object') {
+            console.log("Processing JSON object");
+            
+            // Check if the object itself has an email property - single contact case
+            const emailKey = Object.keys(parsed).find(
+              key => key.toLowerCase() === 'email' || key.toLowerCase() === 'mail'
+            );
+            
+            const nameKey = Object.keys(parsed).find(
+              key => key.toLowerCase() === 'name' || 
+              key.toLowerCase() === 'contact name' ||
+              key.toLowerCase() === 'fullname'
+            );
+            
+            if (emailKey && typeof parsed[emailKey] === 'string') {
+              const email = parsed[emailKey].trim();
+              if (email && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+                const contact: {email: string, name?: string} = { email };
+                
+                if (nameKey && typeof parsed[nameKey] === 'string') {
+                  contact.name = parsed[nameKey].trim() || undefined;
+                }
+                
+                contactData = [contact];
+              } else {
+                contactData = [];
+              }
+            } 
+            // Handle object with keys that could be IDs or indices, values are the contact data
+            else {
+              contactData = Object.values(parsed).map((item: any) => {
+                // Handle value as string (email)
+                if (typeof item === 'string') {
+                  const email = item.trim();
+                  if (email && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+                    return { email };
+                  }
+                  return null;
+                } 
+                // Handle value as object with email property
+                else if (item && typeof item === 'object') {
+                  // Find email and name keys
+                  const emailKey = Object.keys(item).find(
+                    key => key.toLowerCase() === 'email' || key.toLowerCase() === 'mail'
+                  );
+                  
+                  const nameKey = Object.keys(item).find(
+                    key => key.toLowerCase() === 'name' || 
+                    key.toLowerCase() === 'contact name' ||
+                    key.toLowerCase() === 'fullname'
+                  );
+                  
+                  if (emailKey && typeof item[emailKey] === 'string') {
+                    const email = item[emailKey].trim();
+                    if (email && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+                      const contact: {email: string, name?: string} = { email };
+                      
+                      if (nameKey && typeof item[nameKey] === 'string') {
+                        contact.name = item[nameKey].trim() || undefined;
+                      }
+                      
+                      return contact;
+                    }
+                  }
+                }
+                return null;
+              }).filter((item): item is {email: string, name?: string} => item !== null);
+            }
+          } else {
+            throw new Error('JSON data structure not recognized');
+          }
+          
+          console.log(`Successfully extracted ${contactData.length} contacts from JSON`);
+          
+          // Extract just emails for backward compatibility
+          emails = contactData.map(item => item.email);
         } catch (e) {
-          throw new Error('Invalid JSON format');
+          console.error("JSON parsing error:", e);
+          throw new Error(`Invalid JSON format: ${e.message}`);
         }
       } else if (importFormat === 'csv') {
-        // For CSV, we try to extract both email and name
-        const lines = importText.split('\n').filter(Boolean);
-        contactData = lines.map(line => {
-          const parts = line.split(',').map(part => part.trim());
-          if (parts.length >= 1 && parts[0]) {
-            const contact: {email: string, name?: string} = {
-              email: parts[0]
-            };
+        // For CSV, implement a more advanced parser with different delimiter detection
+        console.log("Processing CSV data:", importText.substring(0, 100) + "...");
+        
+        // Normalize line endings (handle Windows, Mac, and Unix)
+        const normalizedText = importText.replace(/\r\n|\r|\n/g, '\n');
+        const lines = normalizedText.split('\n').filter(line => line.trim().length > 0);
+        
+        if (lines.length === 0) {
+          throw new Error('CSV file appears to be empty');
+        }
+        
+        console.log(`Found ${lines.length} non-empty lines in CSV`);
+        
+        // Detect delimiter by checking the first line
+        let delimiter = ','; // default
+        const potentialDelimiters = [',', ';', '\t'];
+        const firstLine = lines[0];
+        
+        // Count occurrences of each delimiter in the first line
+        const delimiterCounts = potentialDelimiters.map(d => ({
+          delimiter: d,
+          count: (firstLine.match(new RegExp(d === '\t' ? '\t' : d, 'g')) || []).length
+        }));
+        
+        // Find delimiter with most occurrences
+        const mostFrequentDelimiter = delimiterCounts.reduce((prev, current) => 
+          (current.count > prev.count) ? current : prev, 
+          { delimiter: ',', count: 0 }
+        );
+        
+        // Only use the detected delimiter if it appears at least once
+        if (mostFrequentDelimiter.count > 0) {
+          delimiter = mostFrequentDelimiter.delimiter;
+        }
+        
+        console.log(`Using delimiter: "${delimiter === '\t' ? 'tab' : delimiter}" (found ${mostFrequentDelimiter.count} occurrences)`);
+        
+        // Check if first row is a header
+        const firstRow = firstLine.split(delimiter).map(item => item.trim());
+        const hasHeader = firstRow.some(cell => 
+          /email|name|first|last|contact/i.test(cell) && 
+          !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(cell) // Not an email address itself
+        );
+        
+        // Find column indices for email and name
+        let emailIndex = 0; // Default to first column
+        let nameIndex = -1;
+        
+        if (hasHeader) {
+          // Try to identify email and name columns from header
+          firstRow.forEach((header, index) => {
+            const lowerHeader = header.toLowerCase();
+            if (/email|e-mail|mail|address/i.test(lowerHeader)) {
+              emailIndex = index;
+            } else if (/name|contact|person|customer|client|user/i.test(lowerHeader)) {
+              nameIndex = index;
+            }
+          });
+          console.log(`CSV has header. Email column: ${emailIndex}, Name column: ${nameIndex}`);
+        }
+        
+        // Process data rows (skip header if present)
+        const startingRow = hasHeader ? 1 : 0;
+        contactData = [];
+        
+        for (let i = startingRow; i < lines.length; i++) {
+          const line = lines[i];
+          // Handle quoted fields correctly
+          const parts: string[] = [];
+          let inQuotes = false;
+          let currentField = '';
+          
+          for (let j = 0; j < line.length; j++) {
+            const char = line[j];
             
-            if (parts.length >= 2 && parts[1]) {
-              contact.name = parts[1];
+            if (char === '"' && (j === 0 || line[j-1] !== '\\')) {
+              inQuotes = !inQuotes;
+              continue;
             }
             
-            return contact;
+            if (char === delimiter && !inQuotes) {
+              parts.push(currentField.trim());
+              currentField = '';
+              continue;
+            }
+            
+            currentField += char;
           }
-          return null;
-        }).filter((item): item is {email: string, name?: string} => item !== null);
+          
+          // Don't forget to add the last field
+          parts.push(currentField.trim());
+          
+          // Extract email and name
+          if (parts.length > emailIndex && parts[emailIndex]) {
+            // Remove any quotes around the email
+            const email = parts[emailIndex].replace(/^"(.*)"$/, '$1').trim();
+            if (email && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+              const contact: {email: string, name?: string} = { email };
+              
+              // Add name if we have a valid column for it
+              if (nameIndex >= 0 && parts.length > nameIndex && parts[nameIndex]) {
+                contact.name = parts[nameIndex].replace(/^"(.*)"$/, '$1').trim();
+              }
+              
+              contactData.push(contact);
+            }
+          }
+        }
+        
+        console.log(`Successfully extracted ${contactData.length} contacts from CSV`);
         
         // Extract just emails for backward compatibility
         emails = contactData.map(item => item.email);
@@ -734,11 +957,19 @@ export default function Contacts() {
         }
       } else {
         // Default to TXT format - one email per line
-        emails = importText
+        console.log("Processing TXT data");
+        
+        // Normalize line endings (handle Windows, Mac, and Unix)
+        const normalizedText = importText.replace(/\r\n|\r|\n/g, '\n');
+        
+        // Split by newlines and process each line
+        emails = normalizedText
           .split('\n')
           .map(line => line.trim())
-          .filter(Boolean);
+          .filter(line => line.length > 0 && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(line));
           
+        console.log(`Found ${emails.length} valid email addresses in text file`);
+        
         // Create basic contact data with just emails
         contactData = emails.map(email => ({ email }));
       }
