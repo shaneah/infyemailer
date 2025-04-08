@@ -285,7 +285,7 @@ export default function AITemplateGenerator({ onTemplateGenerated }: AITemplateG
       </CardHeader>
       
       <CardContent className="pt-3">
-        <div className="card-body p-0">
+        <div className="p-0">
           <TabsContent value="editor" className="mt-0">
             <form onSubmit={handleSubmit}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
