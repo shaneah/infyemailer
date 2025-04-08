@@ -5,6 +5,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import * as XLSX from 'xlsx';
 
 // UI Components
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -320,7 +321,12 @@ export default function Contacts() {
   
   // Import contacts mutation
   const importContactsMutation = useMutation({
-    mutationFn: async (data: { emails: string[]; format: string; listId?: string }) => {
+    mutationFn: async (data: { 
+      emails: string[]; 
+      contacts?: Array<{email: string, name?: string}>;
+      format: string; 
+      listId?: string 
+    }) => {
       return apiRequest("POST", "/api/contacts/import", data);
     },
     onSuccess: (data: any) => {
@@ -424,16 +430,113 @@ export default function Contacts() {
 
     // Detect format from file extension
     const extension = file.name.split('.').pop()?.toLowerCase();
-    if (extension === 'csv' || extension === 'json' || extension === 'txt') {
+    
+    // Handle Excel files separately
+    if (extension === 'xlsx' || extension === 'xls') {
+      setImportFormat('xlsx');
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          const data = new Uint8Array(event.target?.result as ArrayBuffer);
+          const workbook = XLSX.read(data, { type: 'array' });
+          
+          // Get first worksheet
+          const firstSheetName = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[firstSheetName];
+          
+          // Convert to JSON
+          const jsonData = XLSX.utils.sheet_to_json(worksheet);
+          
+          // Extract emails from the data - look for email column or first column
+          let contacts: Array<{email: string, name?: string}> = [];
+          
+          if (jsonData.length > 0) {
+            // Try to find an email column
+            const firstRow = jsonData[0] as any;
+            const emailColumn = Object.keys(firstRow).find(key => 
+              key.toLowerCase().includes('email') || 
+              key.toLowerCase() === 'e-mail' ||
+              key.toLowerCase() === 'mail'
+            );
+            
+            // Try to find name column
+            const nameColumn = Object.keys(firstRow).find(key => 
+              key.toLowerCase().includes('name') || 
+              key.toLowerCase() === 'contact name' ||
+              key.toLowerCase() === 'full name' ||
+              key.toLowerCase() === 'first name'
+            );
+            
+            if (emailColumn) {
+              // Process rows and extract both email and name if available
+              contacts = jsonData
+                .map((row: any) => {
+                  const email = row[emailColumn]?.toString()?.trim();
+                  if (!email) return null;
+                  
+                  const contact: {email: string, name?: string} = { email };
+                  
+                  // Add name if name column exists
+                  if (nameColumn && row[nameColumn]) {
+                    contact.name = row[nameColumn].toString().trim();
+                  }
+                  
+                  return contact;
+                })
+                .filter((item): item is {email: string, name?: string} => item !== null);
+            } else {
+              // Use the first column as email
+              const firstColumn = Object.keys(firstRow)[0];
+              
+              contacts = jsonData
+                .map((row: any) => {
+                  const email = row[firstColumn]?.toString()?.trim();
+                  if (!email) return null;
+                  
+                  const contact: {email: string, name?: string} = { email };
+                  
+                  // Add name if name column exists
+                  if (nameColumn && row[nameColumn]) {
+                    contact.name = row[nameColumn].toString().trim();
+                  }
+                  
+                  return contact;
+                })
+                .filter((item): item is {email: string, name?: string} => item !== null);
+            }
+          }
+          
+          // Set as JSON for processing
+          setImportText(JSON.stringify(contacts));
+          toast({
+            title: "Excel file loaded",
+            description: `Found ${contacts.length} email addresses in the file.`,
+          });
+        } catch (error) {
+          toast({
+            title: "Error parsing Excel file",
+            description: "Could not extract data from the Excel file. Please check the format.",
+            variant: "destructive",
+          });
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    } else if (extension === 'csv' || extension === 'json' || extension === 'txt') {
       setImportFormat(extension);
+      
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const content = event.target?.result as string;
+        setImportText(content || '');
+      };
+      reader.readAsText(file);
+    } else {
+      toast({
+        title: "Unsupported file format",
+        description: "Please upload a file in Excel (.xlsx, .xls), CSV, JSON, or TXT format.",
+        variant: "destructive",
+      });
     }
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const content = event.target?.result as string;
-      setImportText(content || '');
-    };
-    reader.readAsText(file);
   }
 
   function handleImport() {
@@ -442,28 +545,86 @@ export default function Contacts() {
     
     // Parse the import text based on format
     let emails: string[] = [];
+    let contactData: Array<{email: string, name?: string}> = [];
     
     try {
       if (importFormat === 'json') {
         try {
           const parsed = JSON.parse(importText);
-          emails = Array.isArray(parsed) 
-            ? parsed.map((item: any) => typeof item === 'string' ? item : item.email || '') 
-            : Object.values(parsed).map((item: any) => typeof item === 'string' ? item : item.email || '');
+          if (Array.isArray(parsed)) {
+            // Handle array of items
+            contactData = parsed.map((item: any) => {
+              if (typeof item === 'string') {
+                return { email: item };
+              } else if (item && typeof item === 'object' && item.email) {
+                return { 
+                  email: item.email,
+                  name: item.name || undefined
+                };
+              }
+              return null;
+            }).filter((item): item is {email: string, name?: string} => item !== null);
+            
+            // Extract just emails for backward compatibility
+            emails = contactData.map(item => item.email);
+          } else {
+            // Handle object
+            contactData = Object.values(parsed).map((item: any) => {
+              if (typeof item === 'string') {
+                return { email: item };
+              } else if (item && typeof item === 'object' && item.email) {
+                return { 
+                  email: item.email,
+                  name: item.name || undefined
+                };
+              }
+              return null;
+            }).filter((item): item is {email: string, name?: string} => item !== null);
+            
+            // Extract just emails for backward compatibility
+            emails = contactData.map(item => item.email);
+          }
         } catch (e) {
           throw new Error('Invalid JSON format');
         }
       } else if (importFormat === 'csv') {
-        emails = importText
-          .split('\n')
-          .map(line => line.split(',')[0]?.trim())
-          .filter(Boolean);
+        // For CSV, we try to extract both email and name
+        const lines = importText.split('\n').filter(Boolean);
+        contactData = lines.map(line => {
+          const parts = line.split(',').map(part => part.trim());
+          if (parts.length >= 1 && parts[0]) {
+            const contact: {email: string, name?: string} = {
+              email: parts[0]
+            };
+            
+            if (parts.length >= 2 && parts[1]) {
+              contact.name = parts[1];
+            }
+            
+            return contact;
+          }
+          return null;
+        }).filter((item): item is {email: string, name?: string} => item !== null);
+        
+        // Extract just emails for backward compatibility
+        emails = contactData.map(item => item.email);
+      } else if (importFormat === 'xlsx') {
+        // For Excel files, the JSON data was already prepared by the file reader
+        try {
+          contactData = JSON.parse(importText);
+          emails = contactData.map(item => item.email);
+        } catch (e) {
+          throw new Error('Invalid Excel data format');
+        }
       } else {
         // Default to TXT format - one email per line
         emails = importText
           .split('\n')
           .map(line => line.trim())
           .filter(Boolean);
+          
+        // Create basic contact data with just emails
+        contactData = emails.map(email => ({ email }));
       }
       
       setProcessProgress(50);
@@ -472,6 +633,7 @@ export default function Contacts() {
       const listId = form.getValues().list;
       importContactsMutation.mutate({ 
         emails, 
+        contacts: contactData,
         format: importFormat,
         listId: listId && listId !== "_none" ? listId : undefined
       });
@@ -516,7 +678,7 @@ export default function Contacts() {
               <DialogHeader>
                 <DialogTitle>Import Contacts</DialogTitle>
                 <DialogDescription>
-                  Import contacts from a file. Supported formats: CSV, JSON, TXT.
+                  Import contacts from a file. Supported formats: Excel, CSV, JSON, TXT.
                 </DialogDescription>
               </DialogHeader>
               
@@ -533,6 +695,7 @@ export default function Contacts() {
                           <SelectItem value="txt">TXT - One email per line</SelectItem>
                           <SelectItem value="csv">CSV - Comma-separated values</SelectItem>
                           <SelectItem value="json">JSON - Array of emails or objects</SelectItem>
+                          <SelectItem value="xlsx">Excel - Spreadsheet</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -560,7 +723,7 @@ export default function Contacts() {
                         <Input 
                           type="file" 
                           ref={fileInputRef} 
-                          accept=".csv,.txt,.json" 
+                          accept=".csv,.txt,.json,.xlsx,.xls" 
                           onChange={handleFileUpload} 
                           className="flex-1"
                         />
@@ -577,10 +740,14 @@ export default function Contacts() {
                         id="import-text" 
                         value={importText} 
                         onChange={(e) => setImportText(e.target.value)} 
-                        placeholder={importFormat === 'txt' ? 'email1@example.com\nemail2@example.com' : 
+                        placeholder={
+                          importFormat === 'txt' ? 'email1@example.com\nemail2@example.com' : 
                           importFormat === 'csv' ? 'email1@example.com,Name1\nemail2@example.com,Name2' : 
-                          '[{"email":"email1@example.com"},{"email":"email2@example.com"}]'}
+                          importFormat === 'xlsx' ? 'For Excel files, please use the file upload above instead of pasting content here.' :
+                          '[{"email":"email1@example.com"},{"email":"email2@example.com"}]'
+                        }
                         className="min-h-[120px]"
+                        disabled={importFormat === 'xlsx'}
                       />
                     </div>
                   </>

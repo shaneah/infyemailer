@@ -268,7 +268,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Create a new contact
   // Import contacts
   app.post('/api/contacts/import', async (req: Request, res: Response) => {
-    const { emails, format, listId } = req.body;
+    const { emails, contacts, format, listId } = req.body;
     
     if (!Array.isArray(emails)) {
       return res.status(400).json({ error: 'Invalid emails array' });
@@ -283,8 +283,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         details: [] as string[]
       };
 
-      // Process emails in batches to avoid overloading the server
-      for (const email of emails) {
+      // Check if we have detailed contact data or just emails
+      const hasDetailedContacts = Array.isArray(contacts) && contacts.length > 0;
+
+      // Process contacts in batches to avoid overloading the server
+      for (let i = 0; i < emails.length; i++) {
+        const email = emails[i];
+        // Get the contact data if available
+        const contactData = hasDetailedContacts ? contacts[i] : null;
+        
         // Basic email validation
         const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
         
@@ -302,10 +309,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
           continue;
         }
 
+        // Determine the name to use
+        let name;
+        if (contactData && contactData.name) {
+          // Use the name from the contact data if available
+          name = contactData.name;
+        } else {
+          // Use first part of email as name
+          name = email.split('@')[0];
+        }
+
         // Add valid contact
         const contact = await storage.createContact({
           email,
-          name: email.split('@')[0], // Use first part of email as name
+          name,
           status: 'active',
           metadata: { source: `import-${format}`, importDate: new Date().toISOString() }
         });
