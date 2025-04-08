@@ -11,10 +11,9 @@ import CreateListModal from '@/modals/CreateListModal';
 import CreateTemplateModal from '@/modals/CreateTemplateModal';
 
 // Campaigns component with more complete UI
-const ClientCampaigns = () => {
-  // State to manage campaign data and modals
+const ClientCampaigns = ({ onCreateCampaign }: { onCreateCampaign: () => void }) => {
+  // State to manage campaign data
   const [isLoading, setIsLoading] = useState(false);
-  const [showCreateModal, setShowCreateModal] = useState(false);
   const [campaigns, setCampaigns] = useState([
     {
       id: 1,
@@ -72,7 +71,7 @@ const ClientCampaigns = () => {
           <h1 className="text-2xl font-bold">Email Campaigns</h1>
         </div>
         <button 
-          onClick={() => setShowCreateModal(true)}
+          onClick={onCreateCampaign}
           className="bg-primary text-white px-4 py-2 rounded-md flex items-center gap-2 hover:bg-primary/90 transition-colors"
         >
           <span>Create Campaign</span>
@@ -234,10 +233,9 @@ const ClientCampaigns = () => {
     </div>
   );
 };
-const ClientContacts = () => {
-  // State to manage contacts data and modals
+const ClientContacts = ({ onAddContact }: { onAddContact: () => void }) => {
+  // State to manage contacts data
   const [isLoading, setIsLoading] = useState(false);
-  const [showAddContactModal, setShowAddContactModal] = useState(false);
   const [selectedContacts, setSelectedContacts] = useState<number[]>([]);
   const [contacts, setContacts] = useState([
     {
@@ -341,7 +339,7 @@ const ClientContacts = () => {
             <span>Import</span>
           </button>
           <button 
-            onClick={() => setShowAddContactModal(true)}
+            onClick={onAddContact}
             className="bg-primary text-white px-4 py-2 rounded-md flex items-center gap-2 hover:bg-primary/90 transition-colors"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -555,10 +553,9 @@ const ClientContacts = () => {
     </div>
   );
 };
-const ClientLists = () => {
-  // State to manage lists data and modals
+const ClientLists = ({ onCreateList }: { onCreateList: () => void }) => {
+  // State to manage lists data
   const [isLoading, setIsLoading] = useState(false);
-  const [showCreateListModal, setShowCreateListModal] = useState(false);
   const [lists, setLists] = useState([
     {
       id: 1,
@@ -611,7 +608,7 @@ const ClientLists = () => {
           <h1 className="text-2xl font-bold">Contact Lists</h1>
         </div>
         <button 
-          onClick={() => setShowCreateListModal(true)}
+          onClick={onCreateList}
           className="bg-primary text-white px-4 py-2 rounded-md flex items-center gap-2 hover:bg-primary/90 transition-colors"
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -764,11 +761,10 @@ const ClientLists = () => {
     </div>
   );
 };
-const ClientTemplates = () => {
-  // State to manage templates data and modals
+const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void }) => {
+  // State to manage templates data
   const [isLoading, setIsLoading] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const [showCreateTemplateModal, setShowCreateTemplateModal] = useState(false);
   const [templates, setTemplates] = useState([
     {
       id: 1,
@@ -866,7 +862,7 @@ const ClientTemplates = () => {
             <span>Import</span>
           </button>
           <button 
-            onClick={() => setShowCreateTemplateModal(true)}
+            onClick={onCreateTemplate}
             className="bg-primary text-white px-4 py-2 rounded-md flex items-center gap-2 hover:bg-primary/90 transition-colors"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -1468,16 +1464,16 @@ export default function ClientRoutes() {
             <ClientDashboard />
           </Route>
           <Route path="/client-campaigns">
-            <ClientCampaigns />
+            <ClientCampaigns onCreateCampaign={() => setShowCreateCampaignModal(true)} />
           </Route>
           <Route path="/client-contacts">
-            <ClientContacts />
+            <ClientContacts onAddContact={() => setShowAddContactModal(true)} />
           </Route>
           <Route path="/client-lists">
-            <ClientLists />
+            <ClientLists onCreateList={() => setShowCreateListModal(true)} />
           </Route>
           <Route path="/client-templates">
-            <ClientTemplates />
+            <ClientTemplates onCreateTemplate={() => setShowCreateTemplateModal(true)} />
           </Route>
           <Route path="/client-reports">
             <ClientReports />
