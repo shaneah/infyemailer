@@ -33,6 +33,7 @@ import ClientManagement from "@/pages/ClientManagement";
 import ClientLogin from "@/pages/ClientLogin";
 import SimpleClientLogin from "@/pages/SimpleClientLogin";
 import ClientDashboard from "@/pages/ClientDashboard";
+import ClientRoutes from "@/pages/ClientRoutes";
 
 
 function App() {
@@ -52,7 +53,63 @@ function App() {
         
         <Route path="/client-dashboard">
           <div className="bg-background min-h-screen">
-            <ClientDashboard />
+            <ClientRoutes />
+            <Toaster />
+          </div>
+        </Route>
+        
+        {/* Client Portal Sub-routes */}
+        <Route path="/client-campaigns">
+          <div className="bg-background min-h-screen">
+            <ClientRoutes />
+            <Toaster />
+          </div>
+        </Route>
+        <Route path="/client-contacts">
+          <div className="bg-background min-h-screen">
+            <ClientRoutes />
+            <Toaster />
+          </div>
+        </Route>
+        <Route path="/client-lists">
+          <div className="bg-background min-h-screen">
+            <ClientRoutes />
+            <Toaster />
+          </div>
+        </Route>
+        <Route path="/client-templates">
+          <div className="bg-background min-h-screen">
+            <ClientRoutes />
+            <Toaster />
+          </div>
+        </Route>
+        <Route path="/client-reports">
+          <div className="bg-background min-h-screen">
+            <ClientRoutes />
+            <Toaster />
+          </div>
+        </Route>
+        <Route path="/client-domains">
+          <div className="bg-background min-h-screen">
+            <ClientRoutes />
+            <Toaster />
+          </div>
+        </Route>
+        <Route path="/client-email-validation">
+          <div className="bg-background min-h-screen">
+            <ClientRoutes />
+            <Toaster />
+          </div>
+        </Route>
+        <Route path="/client-ab-testing">
+          <div className="bg-background min-h-screen">
+            <ClientRoutes />
+            <Toaster />
+          </div>
+        </Route>
+        <Route path="/client-settings">
+          <div className="bg-background min-h-screen">
+            <ClientRoutes />
             <Toaster />
           </div>
         </Route>
