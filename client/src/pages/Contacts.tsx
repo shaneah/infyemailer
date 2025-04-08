@@ -503,6 +503,33 @@ export default function Contacts() {
       });
     },
   });
+  
+  // Delete list mutation
+  const [deleteListDialogOpen, setDeleteListDialogOpen] = useState(false);
+  const [listToDelete, setListToDelete] = useState<{ id: number, name: string } | null>(null);
+  
+  const deleteListMutation = useMutation({
+    mutationFn: (id: number) => {
+      return apiRequest("DELETE", `/api/lists/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/lists'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/contacts'] });
+      toast({
+        title: "List deleted",
+        description: "The contact list and its associations have been deleted successfully.",
+      });
+      setDeleteListDialogOpen(false);
+      setListToDelete(null);
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: `Failed to delete list: ${error.message}`,
+        variant: "destructive",
+      });
+    },
+  });
 
   // Helper functions
   function getContentType(format: string): string {
@@ -1159,6 +1186,19 @@ export default function Contacts() {
                       <Button variant="ghost" size="icon" className="h-8 w-8" onClick={(e) => e.stopPropagation()}>
                         <UserPlus size={16} />
                       </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50" 
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setListToDelete({ id: Number(list.id), name: list.name });
+                          setDeleteListDialogOpen(true);
+                        }}
+                      >
+                        <Trash2 size={16} />
+                      </Button>
                     </div>
                   </div>
                   <div className="text-2xl font-bold mt-2">{list.count}</div>
@@ -1340,6 +1380,51 @@ export default function Contacts() {
                 <>
                   <Trash2 className="mr-2 h-4 w-4" />
                   Delete Contacts
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete List Dialog */}
+      <Dialog open={deleteListDialogOpen} onOpenChange={setDeleteListDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Contact List</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete the list "{listToDelete?.name}"? This will also remove all contacts' associations with this list.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="border rounded-md p-4 bg-red-50 text-red-800">
+              <AlertCircle className="h-5 w-5 mb-2" />
+              <p className="text-sm font-medium">Warning</p>
+              <p className="text-sm">This action cannot be undone. The list will be permanently deleted.</p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteListDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button 
+              variant="destructive" 
+              onClick={() => {
+                if (listToDelete) {
+                  deleteListMutation.mutate(listToDelete.id);
+                }
+              }}
+              disabled={deleteListMutation.isPending || !listToDelete}
+            >
+              {deleteListMutation.isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                <>
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Delete List
                 </>
               )}
             </Button>
