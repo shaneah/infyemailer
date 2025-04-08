@@ -270,34 +270,67 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/contacts/import', async (req: Request, res: Response) => {
     const { emails, contacts, format, listId } = req.body;
     
-    if (!Array.isArray(emails)) {
-      return res.status(400).json({ error: 'Invalid emails array' });
-    }
-
+    console.log(`Contact import started. Format: ${format}, List ID: ${listId || 'none'}`);
+    console.log(`Contacts data type: ${Array.isArray(contacts) ? 'Array' : typeof contacts}`);
+    console.log(`Emails data type: ${Array.isArray(emails) ? 'Array' : typeof emails}`);
+    
+    // Initialize results object
+    const results = {
+      total: 0,
+      valid: 0,
+      invalid: 0,
+      duplicates: 0,
+      details: [] as string[]
+    };
+    
     try {
-      const results = {
-        total: emails.length,
-        valid: 0,
-        invalid: 0,
-        duplicates: 0,
-        details: [] as string[]
-      };
+      // Determine which data source to use (contacts or emails)
+      let processData: Array<any> = [];
+      let useDetailedData = false;
+      
+      if (Array.isArray(contacts) && contacts.length > 0) {
+        processData = contacts;
+        useDetailedData = true;
+        results.total = contacts.length;
+        console.log(`Using detailed contact data. Count: ${contacts.length}`);
+      } else if (Array.isArray(emails) && emails.length > 0) {
+        processData = emails;
+        results.total = emails.length;
+        console.log(`Using simple email array. Count: ${emails.length}`);
+      } else {
+        return res.status(400).json({ 
+          error: 'Invalid import data. Requires either contacts or emails array.',
+          total: 0,
+          valid: 0,
+          invalid: 0,
+          duplicates: 0,
+          details: ['No valid data provided']
+        });
+      }
 
-      // Check if we have detailed contact data or just emails
-      const hasDetailedContacts = Array.isArray(contacts) && contacts.length > 0;
-
-      // Process contacts in batches to avoid overloading the server
-      for (let i = 0; i < emails.length; i++) {
-        const email = emails[i];
-        // Get the contact data if available
-        const contactData = hasDetailedContacts ? contacts[i] : null;
+      // Process contacts
+      for (let i = 0; i < processData.length; i++) {
+        const item = processData[i];
+        
+        // Extract email and name based on data type
+        let email: string;
+        let name: string | undefined;
+        
+        if (useDetailedData) {
+          // Using contacts array with objects
+          email = typeof item === 'object' ? item.email?.trim() : String(item).trim();
+          name = typeof item === 'object' ? item.name?.trim() : undefined;
+        } else {
+          // Using simple emails array
+          email = String(item).trim();
+        }
         
         // Basic email validation
         const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
         
         if (!isValidEmail) {
           results.invalid++;
-          results.details.push(`Invalid format: ${email}`);
+          results.details.push(`Invalid format: ${email || 'empty'}`);
           continue;
         }
 
@@ -309,12 +342,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           continue;
         }
 
-        // Determine the name to use
-        let name;
-        if (contactData && contactData.name) {
-          // Use the name from the contact data if available
-          name = contactData.name;
-        } else {
+        // Determine the name to use if not provided
+        if (!name) {
           // Use first part of email as name
           name = email.split('@')[0];
         }
@@ -324,7 +353,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           email,
           name,
           status: 'active',
-          metadata: { source: `import-${format}`, importDate: new Date().toISOString() }
+          metadata: { source: `import-${format || 'unknown'}`, importDate: new Date().toISOString() }
         });
 
         // Add to list if specified
@@ -338,10 +367,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
         results.valid++;
       }
 
+      console.log(`Import completed successfully. Total: ${results.total}, Valid: ${results.valid}, Invalid: ${results.invalid}, Duplicates: ${results.duplicates}`);
+      
+      // Limit details to avoid massive response size
+      if (results.details.length > 100) {
+        const originalCount = results.details.length;
+        results.details = results.details.slice(0, 100);
+        results.details.push(`... and ${originalCount - 100} more`);
+      }
+      
       res.status(200).json(results);
     } catch (error) {
       console.error('Import contacts error:', error);
-      res.status(500).json({ error: 'Failed to import contacts' });
+      res.status(500).json({ 
+        error: 'Failed to import contacts', 
+        message: error.message,
+        total: results.total,
+        valid: results.valid,
+        invalid: results.invalid,
+        duplicates: results.duplicates,
+        details: results.details
+      });
     }
   });
 

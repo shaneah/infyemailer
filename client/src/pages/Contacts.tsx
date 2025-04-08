@@ -330,7 +330,10 @@ export default function Contacts() {
       return apiRequest("POST", "/api/contacts/import", data);
     },
     onSuccess: (data: any) => {
+      // Force a refresh of the contacts list
       queryClient.invalidateQueries({ queryKey: ['/api/contacts'] });
+      
+      // Update the results display
       setImportResults({
         total: data.total || 0,
         valid: data.valid || 0,
@@ -338,8 +341,14 @@ export default function Contacts() {
         duplicates: data.duplicates || 0,
         details: data.details || []
       });
+      
+      // Complete the import process
       setImportProcessing(false);
       setProcessProgress(100);
+      
+      console.log("Import completed with results:", data);
+      
+      // Show success notification
       toast({
         title: "Import completed",
         description: `Successfully imported ${data.valid} contacts.`,
@@ -766,26 +775,26 @@ export default function Contacts() {
                   <div className="space-y-4 py-4">
                     <div className="rounded-lg border p-4">
                       <h3 className="text-lg font-medium">Import Results</h3>
-                      <div className="mt-2 grid grid-cols-2 gap-2">
-                        <div className="space-y-1">
+                      <div className="mt-2 grid grid-cols-2 gap-4">
+                        <div className="space-y-1 bg-slate-50 p-3 rounded-md">
                           <p className="text-sm text-muted-foreground">Total Contacts</p>
-                          <p className="text-xl font-medium">{importResults.total}</p>
+                          <p className="text-2xl font-semibold">{importResults.total}</p>
                         </div>
-                        <div className="space-y-1">
+                        <div className="space-y-1 bg-green-50 p-3 rounded-md">
                           <p className="text-sm text-muted-foreground">Successfully Imported</p>
-                          <p className="text-xl font-medium text-green-600">{importResults.valid}</p>
+                          <p className="text-2xl font-semibold text-green-600">{importResults.valid}</p>
                         </div>
-                        <div className="space-y-1">
+                        <div className="space-y-1 bg-red-50 p-3 rounded-md">
                           <p className="text-sm text-muted-foreground">Invalid Emails</p>
-                          <p className="text-xl font-medium text-red-600">{importResults.invalid}</p>
+                          <p className="text-2xl font-semibold text-red-600">{importResults.invalid}</p>
                         </div>
-                        <div className="space-y-1">
+                        <div className="space-y-1 bg-amber-50 p-3 rounded-md">
                           <p className="text-sm text-muted-foreground">Duplicates Skipped</p>
-                          <p className="text-xl font-medium text-amber-600">{importResults.duplicates}</p>
+                          <p className="text-2xl font-semibold text-amber-600">{importResults.duplicates}</p>
                         </div>
                       </div>
                       
-                      {importResults.details.length > 0 && (
+                      {importResults.details && importResults.details.length > 0 && (
                         <div className="mt-4 space-y-2">
                           <Label>Details</Label>
                           <div className="max-h-[150px] overflow-y-auto rounded border bg-muted p-2 text-sm">
