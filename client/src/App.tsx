@@ -43,10 +43,12 @@ function App() {
       <Switch>
         {/* Client Portal Routes */}
         <Route path="/client-login">
-          <div className="bg-background min-h-screen">
-            <ClientLogin />
-            <Toaster />
-          </div>
+          <AuthProvider>
+            <div className="bg-background min-h-screen">
+              <ClientLogin />
+              <Toaster />
+            </div>
+          </AuthProvider>
         </Route>
         
         <Route path="/client-dashboard">

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'wouter';
+import { Link, useLocation } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { DoorOpen } from 'lucide-react';
 
@@ -9,6 +9,8 @@ interface NavbarProps {
 }
 
 const Navbar = ({ sidebarOpen, setSidebarOpen }: NavbarProps) => {
+  const [_, setLocation] = useLocation();
+
   return (
     <header className="sticky top-0 bg-white z-30 border-b border-gray-200 shadow-sm">
       <div className="px-4 sm:px-6 lg:px-8">
@@ -39,7 +41,10 @@ const Navbar = ({ sidebarOpen, setSidebarOpen }: NavbarProps) => {
               variant="outline" 
               size="sm" 
               className="hidden md:flex items-center gap-2"
-              onClick={() => window.location.href = '/client-login'}
+              onClick={(e) => {
+                e.preventDefault();
+                setLocation('/client-login');
+              }}
             >
               <DoorOpen size={16} />
               Client Portal
