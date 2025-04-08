@@ -5,6 +5,22 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
+import { 
+  Loader2, 
+  Code, 
+  Eye, 
+  PencilLine, 
+  Mail, 
+  ClipboardCopy 
+} from "lucide-react";
 
 interface AITemplateGeneratorProps {
   onTemplateGenerated?: (template: any) => void;
@@ -177,13 +193,7 @@ export default function AITemplateGenerator({ onTemplateGenerated }: AITemplateG
   
   const generateTemplateMutation = useMutation({
     mutationFn: async (data: any) => {
-      const response = await apiRequest('/api/generate-template', {
-        method: 'POST',
-        body: JSON.stringify(data),
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
+      const response = await apiRequest('POST', '/api/generate-template', data);
       return response.json();
     },
     onSuccess: (data) => {
@@ -250,24 +260,24 @@ export default function AITemplateGenerator({ onTemplateGenerated }: AITemplateG
   return (
     <Card className="mb-4">
       <CardHeader className="pb-0">
-        <div className="d-flex align-items-center justify-content-between flex-wrap">
-          <div className="d-flex align-items-center mb-2">
-            <div className="bg-success bg-opacity-10 p-2 rounded-circle me-2">
-              <i className="bi bi-robot fs-4 text-success"></i>
+        <div className="flex items-center justify-between flex-wrap">
+          <div className="flex items-center mb-2">
+            <div className="bg-green-100 p-2 rounded-full mr-2">
+              <div className="h-6 w-6 text-green-600">🤖</div>
             </div>
-            <h4 className="mb-0">AI Email Template Generator</h4>
+            <h4 className="text-xl font-medium">AI Email Template Generator</h4>
           </div>
           
           <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'editor' | 'preview' | 'code')} className="mt-2">
             <TabsList className="grid grid-cols-3 w-[300px]">
               <TabsTrigger value="editor">
-                <i className="bi bi-pencil-square me-1"></i> Editor
+                <PencilLine className="h-4 w-4 mr-1" /> Editor
               </TabsTrigger>
               <TabsTrigger value="preview">
-                <i className="bi bi-eye me-1"></i> Preview
+                <Eye className="h-4 w-4 mr-1" /> Preview
               </TabsTrigger>
               <TabsTrigger value="code">
-                <i className="bi bi-code-slash me-1"></i> HTML
+                <Code className="h-4 w-4 mr-1" /> HTML
               </TabsTrigger>
             </TabsList>
           </Tabs>
@@ -278,253 +288,258 @@ export default function AITemplateGenerator({ onTemplateGenerated }: AITemplateG
         <div className="card-body p-0">
           <TabsContent value="editor" className="mt-0">
             <form onSubmit={handleSubmit}>
-              <div className="row g-3">
-                <div className="col-md-6">
-                  <label htmlFor="templateType" className="form-label">Template Type</label>
-                  <select 
-                    id="templateType" 
-                    name="templateType" 
-                    className="form-select"
-                    value={formData.templateType}
-                    onChange={handleInputChange}
-                    required
-                  >
-                    {templateTypeOptions.map(option => (
-                      <option key={option.value} value={option.value}>{option.label}</option>
-                    ))}
-                  </select>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="col-span-1">
+                  <div className="space-y-2">
+                    <Label htmlFor="templateType">Template Type</Label>
+                    <Select 
+                      value={formData.templateType}
+                      onValueChange={(value) => 
+                        setFormData(prev => ({ ...prev, templateType: value }))
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a template type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {templateTypeOptions.map(option => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
                 
-                <div className="col-md-6">
-                  <label htmlFor="industry" className="form-label">Industry</label>
-                  <input 
-                    type="text" 
-                    id="industry" 
-                    name="industry" 
-                    className="form-control"
-                    placeholder="e.g., e-commerce, healthcare, technology"
-                    value={formData.industry}
-                    onChange={handleInputChange}
-                    required
-                  />
+                <div className="col-span-1">
+                  <div className="space-y-2">
+                    <Label htmlFor="industry">Industry</Label>
+                    <Input 
+                      id="industry" 
+                      name="industry" 
+                      placeholder="e.g., e-commerce, healthcare, technology"
+                      value={formData.industry}
+                      onChange={handleInputChange}
+                      required
+                    />
+                  </div>
                 </div>
                 
-                <div className="col-12">
-                  <label htmlFor="purpose" className="form-label">Purpose</label>
-                  <input 
-                    type="text" 
-                    id="purpose" 
-                    name="purpose" 
-                    className="form-control"
-                    placeholder="e.g., announce a sale, share monthly updates"
-                    value={formData.purpose}
-                    onChange={handleInputChange}
-                    required
-                  />
+                <div className="col-span-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="purpose">Purpose</Label>
+                    <Input 
+                      id="purpose" 
+                      name="purpose" 
+                      placeholder="e.g., announce a sale, share monthly updates"
+                      value={formData.purpose}
+                      onChange={handleInputChange}
+                      required
+                    />
+                  </div>
                 </div>
                 
-                <div className="col-12">
-                  <label htmlFor="targetAudience" className="form-label">Target Audience</label>
-                  <input 
-                    type="text" 
-                    id="targetAudience" 
-                    name="targetAudience" 
-                    className="form-control"
-                    placeholder="e.g., existing customers aged 25-45"
-                    value={formData.targetAudience}
-                    onChange={handleInputChange}
-                    required
-                  />
+                <div className="col-span-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="targetAudience">Target Audience</Label>
+                    <Input 
+                      id="targetAudience" 
+                      name="targetAudience" 
+                      placeholder="e.g., existing customers aged 25-45"
+                      value={formData.targetAudience}
+                      onChange={handleInputChange}
+                      required
+                    />
+                  </div>
                 </div>
                 
-                <div className="col-md-6">
-                  <label htmlFor="brandTone" className="form-label">Brand Tone</label>
-                  <select 
-                    id="brandTone" 
-                    name="brandTone" 
-                    className="form-select"
-                    value={formData.brandTone}
-                    onChange={handleInputChange}
-                  >
-                    {brandToneOptions.map(option => (
-                      <option key={option.value} value={option.value}>{option.label}</option>
-                    ))}
-                  </select>
+                <div className="col-span-1">
+                  <div className="space-y-2">
+                    <Label htmlFor="brandTone">Brand Tone</Label>
+                    <Select 
+                      value={formData.brandTone}
+                      onValueChange={(value) => 
+                        setFormData(prev => ({ ...prev, brandTone: value }))
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select tone" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {brandToneOptions.map(option => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
 
-                <div className="col-md-6">
-                  <label className="form-label">Color Theme</label>
-                  <div className="d-flex flex-wrap gap-2">
-                    {colorThemes.map(theme => (
-                      <div 
-                        key={theme.id}
-                        className={`color-theme-option ${selectedColorTheme.id === theme.id ? 'active' : ''}`}
-                        onClick={() => handleColorThemeChange(theme.id)}
-                        style={{ 
-                          backgroundColor: theme.secondary, 
-                          borderColor: selectedColorTheme.id === theme.id ? theme.primary : 'transparent',
-                          cursor: 'pointer',
-                          width: '30px',
-                          height: '30px',
-                          borderRadius: '50%',
-                          border: `2px solid ${selectedColorTheme.id === theme.id ? theme.primary : 'transparent'}`,
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center'
-                        }}
-                        title={theme.name}
-                      >
-                        <div style={{ 
-                          width: '15px', 
-                          height: '15px', 
-                          borderRadius: '50%', 
-                          backgroundColor: theme.primary 
-                        }}></div>
-                      </div>
-                    ))}
+                <div className="col-span-1">
+                  <div className="space-y-2">
+                    <Label>Color Theme</Label>
+                    <div className="flex flex-wrap gap-2">
+                      {colorThemes.map(theme => (
+                        <div 
+                          key={theme.id}
+                          onClick={() => handleColorThemeChange(theme.id)}
+                          style={{ 
+                            backgroundColor: theme.secondary, 
+                            border: `2px solid ${selectedColorTheme.id === theme.id ? theme.primary : 'transparent'}`,
+                            width: '30px',
+                            height: '30px',
+                            borderRadius: '50%',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            cursor: 'pointer'
+                          }}
+                          title={theme.name}
+                          className="transition-all hover:scale-110"
+                        >
+                          <div style={{ 
+                            width: '15px', 
+                            height: '15px', 
+                            borderRadius: '50%', 
+                            backgroundColor: theme.primary 
+                          }}></div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
                 
-                <div className="col-12">
-                  <label htmlFor="keyPoints" className="form-label">Key Points to Include (optional)</label>
-                  <textarea 
-                    id="keyPoints" 
-                    name="keyPoints" 
-                    className="form-control"
-                    placeholder="e.g., limited time offer, new features, special benefits"
-                    rows={3}
-                    value={formData.keyPoints}
-                    onChange={handleInputChange}
-                  ></textarea>
+                <div className="col-span-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="keyPoints">Key Points to Include (optional)</Label>
+                    <Textarea 
+                      id="keyPoints" 
+                      name="keyPoints" 
+                      placeholder="e.g., limited time offer, new features, special benefits"
+                      rows={3}
+                      value={formData.keyPoints}
+                      onChange={handleInputChange}
+                      className="min-h-[100px]"
+                    />
+                  </div>
                 </div>
                 
-                <div className="col-md-6">
-                  <div className="form-check mt-1">
-                    <input 
-                      className="form-check-input" 
-                      type="checkbox" 
+                <div className="col-span-1">
+                  <div className="flex items-center space-x-2 mt-4">
+                    <Checkbox 
                       id="saveTemplate" 
-                      name="saveTemplate"
                       checked={formData.saveTemplate}
-                      onChange={handleCheckboxChange}
+                      onCheckedChange={(checked) => 
+                        setFormData(prev => ({ ...prev, saveTemplate: checked === true }))
+                      }
                     />
-                    <label className="form-check-label" htmlFor="saveTemplate">
+                    <Label htmlFor="saveTemplate" className="text-sm font-normal cursor-pointer">
                       Save template after generation
-                    </label>
+                    </Label>
                   </div>
                 </div>
                 
-                <div className="col-md-6">
-                  <div className="form-check mt-1">
-                    <input 
-                      className="form-check-input" 
-                      type="checkbox" 
-                      id="autoPreview" 
-                      name="autoPreview"
+                <div className="col-span-1">
+                  <div className="flex items-center space-x-2 mt-4">
+                    <Checkbox 
+                      id="autoPreview"
                       checked={autoPreviewEnabled}
-                      onChange={() => setAutoPreviewEnabled(!autoPreviewEnabled)}
+                      onCheckedChange={(checked) => setAutoPreviewEnabled(checked === true)}
                     />
-                    <label className="form-check-label" htmlFor="autoPreview">
+                    <Label htmlFor="autoPreview" className="text-sm font-normal cursor-pointer">
                       Auto-switch to preview when generating
-                    </label>
+                    </Label>
                   </div>
                 </div>
                 
-                <div className="col-12 mt-3">
+                <div className="col-span-2 mt-3">
                   {generatingTemplate && (
                     <div className="mb-3">
-                      <div className="progress" style={{ height: '8px' }}>
-                        <div 
-                          className="progress-bar bg-success progress-bar-striped progress-bar-animated" 
-                          role="progressbar" 
-                          style={{ width: `${generationProgress}%` }} 
-                          aria-valuenow={generationProgress} 
-                          aria-valuemin={0} 
-                          aria-valuemax={100}
-                        ></div>
-                      </div>
-                      <div className="d-flex justify-content-between mt-1">
-                        <small className="text-muted">Generating email template...</small>
-                        <small className="text-muted">{Math.round(generationProgress)}%</small>
+                      <Progress
+                        value={generationProgress}
+                        className="h-2 w-full"
+                      />
+                      <div className="flex justify-between mt-1">
+                        <span className="text-sm text-muted-foreground">Generating email template...</span>
+                        <span className="text-sm text-muted-foreground">{Math.round(generationProgress)}%</span>
                       </div>
                     </div>
                   )}
                   
-                  <button 
+                  <Button 
                     type="submit" 
-                    className="btn btn-success w-100"
+                    className="w-full bg-green-600 hover:bg-green-700"
                     disabled={generateTemplateMutation.isPending || generatingTemplate}
                   >
                     {(generateTemplateMutation.isPending || generatingTemplate) ? (
                       <>
-                        <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         Generating Template...
                       </>
                     ) : (
                       <>
-                        <i className="bi bi-magic me-2"></i>
+                        <span className="mr-2">✨</span>
                         Generate AI Template
                       </>
                     )}
-                  </button>
+                  </Button>
                 </div>
               </div>
             </form>
           </TabsContent>
           
           <TabsContent value="preview" className="mt-0">
-            <div className="preview-container bg-light rounded p-3">
+            <div className="preview-container bg-gray-50 rounded-md p-4">
               {previewState.content ? (
                 <>
-                  <div className="mb-3 pb-2 border-bottom">
-                    <h5 className="mb-1">{previewState.name}</h5>
-                    <div className="email-subject d-flex align-items-center mb-2">
-                      <span className="badge bg-primary me-2">Subject</span>
+                  <div className="mb-3 pb-2 border-b">
+                    <h5 className="text-lg font-semibold mb-1">{previewState.name}</h5>
+                    <div className="flex items-center mb-2">
+                      <Badge className="mr-2">Subject</Badge>
                       <span>{previewState.subject}</span>
                     </div>
-                    <p className="text-muted mb-0">{previewState.description}</p>
+                    <p className="text-muted-foreground text-sm">{previewState.description}</p>
                   </div>
-                  <div className="ratio ratio-16x9" style={{ minHeight: '500px', background: '#fff' }}>
+                  <div className="aspect-video min-h-[500px] bg-white rounded-md shadow-sm">
                     <iframe 
                       ref={previewIframeRef}
                       title="Email Template Preview" 
-                      className="border-0 shadow-sm"
+                      className="w-full h-full border-0 rounded-md"
                     ></iframe>
                   </div>
                 </>
               ) : (
-                <div className="text-center py-5">
+                <div className="text-center py-12">
                   {generatingTemplate ? (
                     <div>
-                      <div className="spinner-border text-success mb-3" role="status">
-                        <span className="visually-hidden">Loading...</span>
+                      <div className="mb-3 flex justify-center">
+                        <Loader2 className="h-10 w-10 animate-spin text-green-600" />
                       </div>
-                      <h5>Creating your email template...</h5>
-                      <p className="text-muted">This may take a few moments</p>
-                      <div className="progress mt-3" style={{ height: '8px' }}>
-                        <div 
-                          className="progress-bar bg-success progress-bar-striped progress-bar-animated" 
-                          role="progressbar" 
-                          style={{ width: `${generationProgress}%` }} 
-                          aria-valuenow={generationProgress} 
-                          aria-valuemin={0} 
-                          aria-valuemax={100}
-                        ></div>
+                      <h5 className="text-lg font-medium">Creating your email template...</h5>
+                      <p className="text-muted-foreground mt-1">This may take a few moments</p>
+                      <div className="mt-4 w-full max-w-md mx-auto">
+                        <Progress
+                          value={generationProgress}
+                          className="h-2 w-full"
+                        />
                       </div>
                     </div>
                   ) : (
                     <>
-                      <div className="mb-3">
-                        <i className="bi bi-envelope-paper text-muted fs-1"></i>
+                      <div className="mb-4">
+                        <Mail className="h-12 w-12 mx-auto text-muted-foreground" />
                       </div>
-                      <h5>No Email Template Generated Yet</h5>
-                      <p className="text-muted">Go to the Editor tab and fill out the form to generate an AI-powered email template.</p>
-                      <button 
-                        className="btn btn-outline-primary mt-2" 
+                      <h5 className="text-lg font-medium">No Email Template Generated Yet</h5>
+                      <p className="text-muted-foreground mt-1">Go to the Editor tab and fill out the form to generate an AI-powered email template.</p>
+                      <Button 
+                        variant="outline"
+                        className="mt-4" 
                         onClick={() => setActiveTab('editor')}
                       >
                         Go to Editor
-                      </button>
+                      </Button>
                     </>
                   )}
                 </div>
@@ -533,15 +548,17 @@ export default function AITemplateGenerator({ onTemplateGenerated }: AITemplateG
           </TabsContent>
           
           <TabsContent value="code" className="mt-0">
-            <div className="code-viewer bg-dark rounded">
+            <div className="code-viewer bg-zinc-950 rounded-md">
               {previewState.content ? (
                 <>
-                  <div className="d-flex justify-content-between align-items-center bg-dark text-white px-3 py-2 border-bottom border-secondary">
+                  <div className="flex justify-between items-center bg-zinc-900 text-white px-4 py-2 border-b border-zinc-800">
                     <div>
-                      <small>HTML Source</small>
+                      <span className="text-sm">HTML Source</span>
                     </div>
-                    <button 
-                      className="btn btn-sm btn-outline-light"
+                    <Button 
+                      variant="outline"
+                      size="sm"
+                      className="text-xs bg-transparent border-zinc-700 hover:bg-zinc-800 text-white"
                       onClick={() => {
                         navigator.clipboard.writeText(previewState.content);
                         toast({
@@ -551,23 +568,22 @@ export default function AITemplateGenerator({ onTemplateGenerated }: AITemplateG
                         });
                       }}
                     >
-                      <i className="bi bi-clipboard me-1"></i> Copy
-                    </button>
+                      <ClipboardCopy className="h-3 w-3 mr-1" /> Copy
+                    </Button>
                   </div>
-                  <pre className="m-0 p-3 text-white" style={{ 
+                  <pre className="m-0 p-4 text-white overflow-auto" style={{ 
                     maxHeight: '500px', 
-                    overflow: 'auto',
                     fontSize: '0.875rem',
-                    backgroundColor: '#1e1e1e'
+                    backgroundColor: '#121212'
                   }}>
                     <code>{previewState.content}</code>
                   </pre>
                 </>
               ) : (
-                <div className="text-center py-5 text-white">
-                  <i className="bi bi-code-slash fs-1 mb-3 text-muted"></i>
-                  <h5>No HTML Code Available</h5>
-                  <p className="text-muted">Generate a template first to view its HTML code.</p>
+                <div className="text-center py-12 text-white">
+                  <Code className="h-12 w-12 mx-auto text-zinc-600 mb-3" />
+                  <h5 className="text-lg font-medium">No HTML Code Available</h5>
+                  <p className="text-zinc-400 mt-1">Generate a template first to view its HTML code.</p>
                 </div>
               )}
             </div>
