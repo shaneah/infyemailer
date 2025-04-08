@@ -29,10 +29,17 @@ import Reporting from "@/pages/Reporting";
 import EmailProviders from "@/pages/EmailProviders";
 import ClientManagement from "@/pages/ClientManagement";
 
+// Client portal pages
+import ClientLogin from "@/pages/ClientLogin";
+import ClientDashboard from "@/pages/ClientDashboard";
+
 
 function App() {
   const [location] = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  
+  // Check if current route is a client portal route
+  const isClientRoute = location === '/client-login' || location.startsWith('/client-');
   
   return (
     <QueryClientProvider client={queryClient}>
@@ -42,6 +49,16 @@ function App() {
           <div className="bg-background min-h-screen">
             <Switch>
               <Route path="/auth" component={AuthPage} />
+            </Switch>
+            <Toaster />
+          </div>
+        ) : isClientRoute ? (
+          // Client portal layout
+          <div className="bg-background min-h-screen">
+            <Switch>
+              <Route path="/client-login" component={ClientLogin} />
+              <Route path="/client-dashboard" component={ClientDashboard} />
+              <Route component={NotFound} />
             </Switch>
             <Toaster />
           </div>

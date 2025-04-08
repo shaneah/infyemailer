@@ -1,4 +1,7 @@
 import React from 'react';
+import { Link } from 'wouter';
+import { Button } from '@/components/ui/button';
+import { DoorOpen } from 'lucide-react';
 
 interface NavbarProps {
   sidebarOpen: boolean;
@@ -30,9 +33,15 @@ const Navbar = ({ sidebarOpen, setSidebarOpen }: NavbarProps) => {
             </div>
           </div>
 
-          {/* Right side - User menu */}
-          <div className="flex items-center">
-            <div className="relative inline-flex ml-3">
+          {/* Right side - User menu and client login */}
+          <div className="flex items-center space-x-4">
+            <Link href="/client-login">
+              <Button variant="outline" size="sm" className="hidden md:flex items-center gap-2">
+                <DoorOpen size={16} />
+                Client Portal
+              </Button>
+            </Link>
+            <div className="relative inline-flex">
               <button className="inline-flex justify-center items-center group">
                 <div className="flex items-center truncate">
                   <span className="truncate ml-2 text-sm font-medium group-hover:text-gray-800">Aadi Mughal</span>
