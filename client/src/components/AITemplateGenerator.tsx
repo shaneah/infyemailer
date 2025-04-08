@@ -15,7 +15,7 @@ import {
   Loader2, 
   Code, 
   PencilLine, 
-  ClipboardCopy 
+  Sparkles
 } from "lucide-react";
 
 interface AITemplateGeneratorProps {
@@ -187,10 +187,10 @@ export default function AITemplateGenerator({ onTemplateGenerated }: AITemplateG
       <CardHeader className="pb-0">
         <div className="flex items-center justify-between flex-wrap">
           <div className="flex items-center mb-2">
-            <div className="bg-green-100 p-2 rounded-full mr-2">
-              <div className="h-6 w-6 text-green-600">🤖</div>
+            <div className="bg-gradient-to-r from-green-500 to-emerald-600 p-2 rounded-full mr-3 shadow-md">
+              <Sparkles className="h-6 w-6 text-white" />
             </div>
-            <h4 className="text-xl font-medium">AI Email Template Generator</h4>
+            <h4 className="text-xl font-semibold">AI Email Template Generator</h4>
           </div>
           
           <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'editor' | 'code')} className="mt-2">
@@ -379,7 +379,7 @@ export default function AITemplateGenerator({ onTemplateGenerated }: AITemplateG
                   
                   <Button 
                     type="submit" 
-                    className="w-full bg-green-600 hover:bg-green-700"
+                    className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white"
                     disabled={generateTemplateMutation.isPending || generatingTemplate}
                   >
                     {(generateTemplateMutation.isPending || generatingTemplate) ? (
@@ -389,7 +389,7 @@ export default function AITemplateGenerator({ onTemplateGenerated }: AITemplateG
                       </>
                     ) : (
                       <>
-                        <span className="mr-2">✨</span>
+                        <Sparkles className="mr-2 h-4 w-4" />
                         Generate AI Template
                       </>
                     )}
@@ -400,42 +400,69 @@ export default function AITemplateGenerator({ onTemplateGenerated }: AITemplateG
           </TabsContent>
           
           <TabsContent value="code" className="mt-0">
-            <div className="code-viewer bg-zinc-950 rounded-md">
+            <div className="bg-zinc-950 rounded-md overflow-hidden border border-zinc-800">
               {templateData.content ? (
                 <>
                   <div className="flex justify-between items-center bg-zinc-900 text-white px-4 py-2 border-b border-zinc-800">
-                    <div>
-                      <span className="text-sm">HTML Source</span>
+                    <div className="flex items-center">
+                      <Code className="h-4 w-4 mr-2 text-zinc-400" />
+                      <span className="text-sm font-medium">HTML Source</span>
                     </div>
                     <Button 
-                      variant="outline"
+                      variant="ghost"
                       size="sm"
-                      className="text-xs bg-transparent border-zinc-700 hover:bg-zinc-800 text-white"
+                      className="text-xs hover:bg-zinc-800 text-zinc-300"
                       onClick={() => {
-                        navigator.clipboard.writeText(templateData.content);
-                        toast({
-                          title: "Copied!",
-                          description: "HTML code copied to clipboard",
-                          variant: "default"
-                        });
+                        if (templateData.content) {
+                          navigator.clipboard.writeText(templateData.content);
+                          toast({
+                            title: "Copied",
+                            description: "HTML code copied to clipboard",
+                            variant: "default",
+                          });
+                        }
                       }}
                     >
-                      <ClipboardCopy className="h-3 w-3 mr-1" /> Copy
+                      <svg
+                        width="15"
+                        height="15"
+                        viewBox="0 0 15 15"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-4 w-4 mr-2"
+                      >
+                        <path
+                          d="M5 2V1H10V2H5ZM4.75 0C4.33579 0 4 0.335786 4 0.75V1H3.5C2.67157 1 2 1.67157 2 2.5V12.5C2 13.3284 2.67157 14 3.5 14H11.5C12.3284 14 13 13.3284 13 12.5V2.5C13 1.67157 12.3284 1 11.5 1H11V0.75C11 0.335786 10.6642 0 10.25 0H4.75ZM11 2V2.25C11 2.66421 10.6642 3 10.25 3H4.75C4.33579 3 4 2.66421 4 2.25V2H3.5C3.22386 2 3 2.22386 3 2.5V12.5C3 12.7761 3.22386 13 3.5 13H11.5C11.7761 13 12 12.7761 12 12.5V2.5C12 2.22386 11.7761 2 11.5 2H11Z"
+                          fill="currentColor"
+                          fillRule="evenodd"
+                          clipRule="evenodd"
+                        ></path>
+                      </svg>
+                      Copy Code
                     </Button>
                   </div>
-                  <pre className="m-0 p-4 text-white overflow-auto" style={{ 
-                    maxHeight: '500px', 
-                    fontSize: '0.875rem',
-                    backgroundColor: '#121212'
-                  }}>
+                  <pre className="p-4 text-xs text-zinc-300 overflow-auto max-h-[400px]">
                     <code>{templateData.content}</code>
                   </pre>
                 </>
               ) : (
-                <div className="text-center py-12 text-white">
-                  <Code className="h-12 w-12 mx-auto text-zinc-600 mb-3" />
-                  <h5 className="text-lg font-medium">No HTML Code Available</h5>
-                  <p className="text-zinc-400 mt-1">Generate a template first to view its HTML code.</p>
+                <div className="p-8 text-center">
+                  <div className="mb-3 text-zinc-400">
+                    <Code className="h-10 w-10 mx-auto mb-3 opacity-20" />
+                    <span className="text-lg font-medium block">No template generated yet</span>
+                  </div>
+                  <p className="text-sm text-zinc-500 mb-4 max-w-md mx-auto">
+                    Fill out the form in the Editor tab and click "Generate AI Template" to create a new email template with AI
+                  </p>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => setActiveTab('editor')}
+                    className="border-zinc-800 text-zinc-300 hover:bg-zinc-800"
+                  >
+                    <PencilLine className="h-4 w-4 mr-2" />
+                    Switch to Editor
+                  </Button>
                 </div>
               )}
             </div>
