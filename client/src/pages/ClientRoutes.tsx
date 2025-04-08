@@ -253,6 +253,7 @@ const ClientContacts = ({ onAddContact }: { onAddContact: () => void }) => {
   
   // Handle file import function
   const handleFileImport = (file: File) => {
+    console.log("Starting import for file:", file.name, "Size:", file.size, "Type:", file.type);
     setIsLoading(true);
     setImportStatus('Importing contacts...');
     
@@ -260,12 +261,16 @@ const ClientContacts = ({ onAddContact }: { onAddContact: () => void }) => {
     
     reader.onload = (event) => {
       try {
+        console.log("File loaded successfully");
         const csvData = event.target?.result as string;
+        console.log("CSV data sample:", csvData.substring(0, 200) + "...");
         
         // Handle different line endings (Windows, Mac, Linux)
         const lines = csvData.split(/\r\n|\n|\r/).filter(line => line.trim() !== '');
+        console.log("Detected lines:", lines.length);
         
         if (lines.length === 0) {
+          console.error("No lines detected in the CSV");
           toast({
             title: "Import Error",
             description: "The file appears to be empty. Please select a valid CSV file.",
@@ -278,7 +283,9 @@ const ClientContacts = ({ onAddContact }: { onAddContact: () => void }) => {
         
         // Try to determine the delimiter (comma or semicolon)
         const delimiter = lines[0].includes(';') ? ';' : ',';
+        console.log("Detected delimiter:", delimiter);
         const headers = lines[0].split(delimiter).map(h => h.trim());
+        console.log("Detected headers:", headers);
         
         // Find email, firstName, and lastName column indices
         const emailIndex = headers.findIndex(h => 

@@ -14,7 +14,8 @@ const SimpleClientLogin = () => {
   React.useEffect(() => {
     const clientUser = sessionStorage.getItem('clientUser');
     if (clientUser) {
-      setLocation('/client-dashboard');
+      // Match the path in App.tsx without leading slash
+      setLocation('client-dashboard');
     }
   }, [setLocation]);
 
@@ -56,7 +57,8 @@ const SimpleClientLogin = () => {
         
         // Short delay to show loading state
         setTimeout(() => {
-          setLocation('/client-dashboard');
+          // Match the path in App.tsx without leading slash
+          setLocation('client-dashboard');
         }, 800);
       } else {
         throw new Error('Invalid username. Please use "client1" for demo purposes.');
@@ -136,7 +138,7 @@ const SimpleClientLogin = () => {
             href="#"
             onClick={(e) => {
               e.preventDefault();
-              setLocation('/auth');
+              setLocation('auth');
             }}
             className="text-sm text-teal-600 hover:text-teal-500"
           >
