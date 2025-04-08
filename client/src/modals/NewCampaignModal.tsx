@@ -255,7 +255,37 @@ const NewCampaignModal = ({ onClose }: NewCampaignModalProps) => {
                       </div>
                     </div>
                     <div className="mt-4">
-                      <a href="#" className="btn btn-outline-primary">Edit in Visual Editor</a>
+                      <button 
+                        type="button" 
+                        className="btn btn-outline-primary"
+                        onClick={() => {
+                          if (selectedTemplateId) {
+                            // Create campaign with draft status
+                            const formValues = form.getValues();
+                            createCampaignMutation.mutate(
+                              {
+                                ...formValues,
+                                status: 'draft',
+                                templateId: selectedTemplateId
+                              },
+                              {
+                                onSuccess: (response) => {
+                                  // Navigate to template builder with campaign ID
+                                  window.location.href = `/template-builder/${response.id}`;
+                                }
+                              }
+                            );
+                          } else {
+                            toast({
+                              title: "No Template Selected",
+                              description: "Please select a template first",
+                              variant: "destructive"
+                            });
+                          }
+                        }}
+                      >
+                        Create & Proceed to Editor
+                      </button>
                       <a href="#" className="btn btn-outline-secondary ms-2">Edit HTML Code</a>
                     </div>
                   </div>

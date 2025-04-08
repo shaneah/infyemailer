@@ -504,8 +504,9 @@ const PropertyEditor = ({
 export default function TemplateBuilder() {
   const { toast } = useToast();
   const params = useParams();
-  const templateId = params.id;
+  const entityId = params.id;
   const [activeTab, setActiveTab] = useState("editor");
+  const [entityType, setEntityType] = useState<"template" | "campaign">("template");
   const [templateName, setTemplateName] = useState("Untitled Template");
   const [sections, setSections] = useState<{ id: string; components: EmailComponent[] }[]>([
     { id: "section-1", components: [] }
@@ -518,23 +519,47 @@ export default function TemplateBuilder() {
   const [isEditMode, setIsEditMode] = useState(false);
   const previewFrameRef = useRef<HTMLIFrameElement>(null);
   
+  // Check if the entityId starts with a number (likely a campaign) or not (likely a template)
+  useEffect(() => {
+    if (entityId) {
+      // Use a simple check to determine if we're editing a campaign or template
+      // Campaign IDs are typically numeric, while template IDs might have prefixes
+      const isNumeric = /^\d+$/.test(entityId);
+      setEntityType(isNumeric ? "campaign" : "template");
+    }
+  }, [entityId]);
+
   // Fetch template if template ID is provided
   const { data: template, isLoading: isTemplateLoading } = useQuery({
-    queryKey: ['/api/templates', templateId],
+    queryKey: ['/api/templates', entityId],
     queryFn: async () => {
-      if (!templateId) return null;
-      const response = await fetch(`/api/templates/${templateId}`);
+      if (!entityId || entityType !== "template") return null;
+      const response = await fetch(`/api/templates/${entityId}`);
       if (!response.ok) {
         throw new Error('Failed to fetch template');
       }
       return response.json();
     },
-    enabled: !!templateId,
+    enabled: !!entityId && entityType === "template",
+  });
+
+  // Fetch campaign if campaign ID is provided
+  const { data: campaign, isLoading: isCampaignLoading } = useQuery({
+    queryKey: ['/api/campaigns', entityId],
+    queryFn: async () => {
+      if (!entityId || entityType !== "campaign") return null;
+      const response = await fetch(`/api/campaigns/${entityId}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch campaign');
+      }
+      return response.json();
+    },
+    enabled: !!entityId && entityType === "campaign",
   });
 
   // Load template data when it's fetched
   useEffect(() => {
-    if (template && !isLoading) {
+    if (template && !isLoading && entityType === "template") {
       try {
         setIsEditMode(true);
         setTemplateName(template.name || "Untitled Template");
@@ -572,7 +597,96 @@ export default function TemplateBuilder() {
         });
       }
     }
-  }, [template, isLoading, toast]);
+  }, [template, isLoading, toast, entityType]);
+
+  // Load campaign data when it's fetched
+  useEffect(() => {
+    if (campaign && !isLoading && entityType === "campaign") {
+      try {
+        setIsEditMode(true);
+        setTemplateName(campaign.name || "Untitled Campaign");
+        
+        // Try to parse the campaign content as JSON to get the sections and components
+        if (campaign.content) {
+          try {
+            const campaignData = JSON.parse(campaign.content);
+            if (campaignData.sections && Array.isArray(campaignData.sections)) {
+              setSections(campaignData.sections);
+            }
+          } catch (err) {
+            // If content is not valid JSON, create a text component with the content
+            setSections([
+              {
+                id: "section-1",
+                components: [
+                  {
+                    id: `component-${Date.now()}`,
+                    type: "text",
+                    content: { text: campaign.content },
+                    styles: { fontSize: '16px', color: '#666666', textAlign: 'left', padding: 10 }
+                  }
+                ]
+              }
+            ]);
+          }
+        } else if (campaign.templateId) {
+          // If campaign doesn't have content but has a templateId, fetch the template
+          const fetchTemplate = async () => {
+            try {
+              const response = await fetch(`/api/templates/${campaign.templateId}`);
+              if (!response.ok) {
+                throw new Error('Failed to fetch template for campaign');
+              }
+              const templateData = await response.json();
+              
+              setTemplateName(campaign.name || "Untitled Campaign");
+              
+              // Try to parse the template content
+              if (templateData.content) {
+                try {
+                  const parsedTemplate = JSON.parse(templateData.content);
+                  if (parsedTemplate.sections && Array.isArray(parsedTemplate.sections)) {
+                    setSections(parsedTemplate.sections);
+                  }
+                } catch (err) {
+                  // If content is not valid JSON, create a text component with the content
+                  setSections([
+                    {
+                      id: "section-1",
+                      components: [
+                        {
+                          id: `component-${Date.now()}`,
+                          type: "text",
+                          content: { text: templateData.content },
+                          styles: { fontSize: '16px', color: '#666666', textAlign: 'left', padding: 10 }
+                        }
+                      ]
+                    }
+                  ]);
+                }
+              }
+            } catch (error) {
+              console.error("Error loading template for campaign:", error);
+              toast({
+                title: "Error",
+                description: "Failed to load template data for campaign",
+                variant: "destructive"
+              });
+            }
+          };
+          
+          fetchTemplate();
+        }
+      } catch (error) {
+        console.error("Error loading campaign:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load campaign data",
+          variant: "destructive"
+        });
+      }
+    }
+  }, [campaign, isLoading, toast, entityType]);
 
   // Used to hold the selected component for the property editor
   const selectedComponent = selectedComponentId 
@@ -899,7 +1013,7 @@ export default function TemplateBuilder() {
   const saveTemplateMutation = useMutation({
     mutationFn: async (templateData: any) => {
       const method = isEditMode ? 'PATCH' : 'POST';
-      const url = isEditMode ? `/api/templates/${templateId}` : '/api/templates';
+      const url = isEditMode ? `/api/templates/${entityId}` : '/api/templates';
       return apiRequest(url, method, templateData);
     },
     onSuccess: () => {
@@ -918,45 +1032,85 @@ export default function TemplateBuilder() {
       });
     }
   });
+  
+  // Save campaign mutation
+  const saveCampaignMutation = useMutation({
+    mutationFn: async (campaignData: any) => {
+      const method = isEditMode ? 'PATCH' : 'POST';
+      const url = isEditMode ? `/api/campaigns/${entityId}` : '/api/campaigns';
+      return apiRequest(url, method, campaignData);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/campaigns'] });
+      toast({
+        title: "Campaign Saved",
+        description: `"${templateName}" campaign has been saved successfully.`,
+      });
+    },
+    onError: (error: any) => {
+      console.error('Error saving campaign:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save campaign. Please try again.",
+        variant: "destructive"
+      });
+    }
+  });
 
-  // Save template
+  // Save content (template or campaign)
   const handleSaveTemplate = () => {
     setIsLoading(true);
     
-    // Prepare the template data
-    let templateContent;
+    // Prepare the content
+    let content;
     
     // If we have HTML content from the editor or import, use that directly
     if (htmlEditorContent) {
-      templateContent = htmlEditorContent;
+      content = htmlEditorContent;
     } else {
       // Otherwise use the sections data
-      templateContent = JSON.stringify({
+      content = JSON.stringify({
         sections: sections
       });
     }
     
-    const templateData = {
-      name: templateName,
-      content: templateContent,
-      description: `Email template for ${templateName}`,
-      category: htmlEditorContent ? 'imported' : 'custom'
-    };
+    if (entityType === "template") {
+      // Save as template
+      const templateData = {
+        name: templateName,
+        content: content,
+        description: `Email template for ${templateName}`,
+        category: htmlEditorContent ? 'imported' : 'custom'
+      };
+      
+      // Save the template
+      saveTemplateMutation.mutate(templateData);
+    } else if (entityType === "campaign") {
+      // Save as campaign
+      const campaignData = {
+        name: templateName,
+        content: content,
+        status: 'draft' // Keep as draft until explicitly scheduled
+      };
+      
+      // Save the campaign
+      saveCampaignMutation.mutate(campaignData);
+    }
     
-    // Save the template
-    saveTemplateMutation.mutate(templateData);
     setIsLoading(false);
   };
 
-  // Show loading state if template is being fetched
-  if (isTemplateLoading) {
+  // Show loading state if template or campaign is being fetched
+  if (isTemplateLoading || isCampaignLoading) {
     return (
       <div className="container-fluid p-4">
         <div className="flex flex-col items-center justify-center min-h-[70vh]">
           <div className="animate-spin mb-4">
             <Loader2 className="h-12 w-12 text-primary" />
           </div>
-          <h3 className="text-xl font-medium">Loading template...</h3>
+          <h3 className="text-xl font-medium">
+            Loading {entityType === "template" ? "template" : "campaign"}...
+          </h3>
         </div>
       </div>
     );
@@ -970,14 +1124,16 @@ export default function TemplateBuilder() {
           <div className="flex justify-between items-center">
             <div>
               <h1 className="text-2xl font-bold text-gray-800">
-                {isEditMode ? "Edit Template" : "Create Template"}
+                {entityType === "template" 
+                  ? (isEditMode ? "Edit Template" : "Create Template")
+                  : (isEditMode ? "Edit Campaign" : "Create Campaign")}
               </h1>
               <p className="text-gray-500 mt-1">Design your email with our drag-and-drop editor</p>
             </div>
             <div className="flex items-center gap-3">
               <div className="w-64">
                 <Input 
-                  placeholder="Template Name" 
+                  placeholder={entityType === "template" ? "Template Name" : "Campaign Name"} 
                   value={templateName} 
                   onChange={(e) => setTemplateName(e.target.value)} 
                   className="border-gray-300"
@@ -985,10 +1141,10 @@ export default function TemplateBuilder() {
               </div>
               <Button 
                 onClick={handleSaveTemplate} 
-                disabled={saveTemplateMutation.isPending || isLoading}
+                disabled={saveTemplateMutation.isPending || saveCampaignMutation.isPending || isLoading}
                 className="bg-primary hover:bg-primary/90"
               >
-                {saveTemplateMutation.isPending ? (
+                {(saveTemplateMutation.isPending || saveCampaignMutation.isPending) ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Saving...
@@ -996,7 +1152,7 @@ export default function TemplateBuilder() {
                 ) : (
                   <>
                     <Save className="mr-2 h-4 w-4" />
-                    Save Template
+                    Save {entityType === "template" ? "Template" : "Campaign"}
                   </>
                 )}
               </Button>
@@ -1138,7 +1294,7 @@ export default function TemplateBuilder() {
                           <div className="preview-dot bg-green-500"></div>
                         </div>
                         <div className="text-sm font-medium text-gray-700">
-                          Email Template Preview
+                          Email {entityType === "template" ? "Template" : "Campaign"} Preview
                         </div>
                       </div>
                       <div className="text-sm text-gray-500 hidden md:block">
@@ -1153,7 +1309,7 @@ export default function TemplateBuilder() {
                         {/* Email Header */}
                         <div className="email-header">
                           <div className="font-medium text-center text-primary text-lg">
-                            {templateName || "Untitled Template"}
+                            {templateName || (entityType === "template" ? "Untitled Template" : "Untitled Campaign")}
                           </div>
                         </div>
                         
@@ -1415,7 +1571,7 @@ export default function TemplateBuilder() {
                           
                           toast({
                             title: "HTML Applied",
-                            description: "Custom HTML has been applied to the template. Don't forget to save your template."
+                            description: `Custom HTML has been applied to the ${entityType}. Don't forget to save your ${entityType}.`
                           });
                         }
                       }}
