@@ -226,32 +226,528 @@ const ClientCampaigns = () => {
     </div>
   );
 };
-const ClientContacts = () => (
-  <div className="p-8">
-    <div className="flex items-center gap-3 mb-6">
-      <div className="bg-primary/10 p-2 rounded-full">
-        <BarChart3 className="h-6 w-6 text-primary" />
+const ClientContacts = () => {
+  // State to manage contacts data
+  const [isLoading, setIsLoading] = useState(false);
+  const [selectedContacts, setSelectedContacts] = useState<number[]>([]);
+  const [contacts, setContacts] = useState([
+    {
+      id: 1,
+      firstName: "John",
+      lastName: "Smith",
+      email: "john.smith@example.com",
+      status: "Active",
+      tags: ["Customer", "Newsletter"],
+      dateAdded: "2025-01-15"
+    },
+    {
+      id: 2,
+      firstName: "Emily",
+      lastName: "Johnson",
+      email: "emily.johnson@example.com",
+      status: "Active",
+      tags: ["Lead", "Event"],
+      dateAdded: "2025-02-03"
+    },
+    {
+      id: 3,
+      firstName: "Michael",
+      lastName: "Williams",
+      email: "michael.williams@example.com",
+      status: "Inactive",
+      tags: ["Customer", "Product Launch"],
+      dateAdded: "2024-11-20"
+    },
+    {
+      id: 4,
+      firstName: "Sarah",
+      lastName: "Davis",
+      email: "sarah.davis@example.com",
+      status: "Bounced",
+      tags: ["Lead"],
+      dateAdded: "2025-01-25"
+    },
+    {
+      id: 5,
+      firstName: "Robert",
+      lastName: "Jones",
+      email: "robert.jones@example.com",
+      status: "Active",
+      tags: ["Customer", "VIP"],
+      dateAdded: "2024-12-05"
+    },
+    {
+      id: 6,
+      firstName: "Jessica",
+      lastName: "Brown",
+      email: "jessica.brown@example.com",
+      status: "Active",
+      tags: ["Customer", "Newsletter"],
+      dateAdded: "2025-02-15"
+    }
+  ]);
+  
+  const statusColors = {
+    Active: "bg-green-100 text-green-800",
+    Inactive: "bg-gray-100 text-gray-800",
+    Bounced: "bg-red-100 text-red-800",
+    Unsubscribed: "bg-yellow-100 text-yellow-800"
+  };
+  
+  const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.checked) {
+      setSelectedContacts(contacts.map(contact => contact.id));
+    } else {
+      setSelectedContacts([]);
+    }
+  };
+  
+  const handleSelectContact = (id: number) => {
+    if (selectedContacts.includes(id)) {
+      setSelectedContacts(selectedContacts.filter(contactId => contactId !== id));
+    } else {
+      setSelectedContacts([...selectedContacts, id]);
+    }
+  };
+  
+  return (
+    <div className="p-8">
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-3">
+          <div className="bg-primary/10 p-2 rounded-full">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+          </div>
+          <h1 className="text-2xl font-bold">Contacts</h1>
+        </div>
+        <div className="flex gap-2">
+          <button className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-50 transition-colors flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            <span>Import</span>
+          </button>
+          <button className="bg-primary text-white px-4 py-2 rounded-md flex items-center gap-2 hover:bg-primary/90 transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 5v14"></path>
+              <path d="M5 12h14"></path>
+            </svg>
+            <span>Add Contact</span>
+          </button>
+        </div>
       </div>
-      <h1 className="text-2xl font-bold">Client Contacts</h1>
-    </div>
-    <div className="bg-white rounded-lg shadow p-6 border border-gray-100">
-      <p className="text-gray-600">This page is under development.</p>
-    </div>
-  </div>
-);
-const ClientLists = () => (
-  <div className="p-8">
-    <div className="flex items-center gap-3 mb-6">
-      <div className="bg-primary/10 p-2 rounded-full">
-        <Activity className="h-6 w-6 text-primary" />
+      
+      {/* Contact Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div className="bg-white rounded-lg shadow p-4 border border-gray-100">
+          <h3 className="text-sm font-medium text-gray-500 mb-1">Total Contacts</h3>
+          <p className="text-2xl font-bold">{contacts.length}</p>
+        </div>
+        <div className="bg-white rounded-lg shadow p-4 border border-gray-100">
+          <h3 className="text-sm font-medium text-gray-500 mb-1">Active Contacts</h3>
+          <p className="text-2xl font-bold">{contacts.filter(c => c.status === 'Active').length}</p>
+        </div>
+        <div className="bg-white rounded-lg shadow p-4 border border-gray-100">
+          <h3 className="text-sm font-medium text-gray-500 mb-1">Inactive Contacts</h3>
+          <p className="text-2xl font-bold">{contacts.filter(c => c.status === 'Inactive').length}</p>
+        </div>
+        <div className="bg-white rounded-lg shadow p-4 border border-gray-100">
+          <h3 className="text-sm font-medium text-gray-500 mb-1">Bounced Emails</h3>
+          <p className="text-2xl font-bold">{contacts.filter(c => c.status === 'Bounced').length}</p>
+        </div>
       </div>
-      <h1 className="text-2xl font-bold">Client Lists</h1>
+      
+      {/* Filters and Search */}
+      <div className="bg-white rounded-lg shadow p-4 border border-gray-100 mb-6">
+        <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
+          <div className="relative flex-1">
+            <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <path d="m21 21-4.3-4.3"></path>
+            </svg>
+            <input 
+              type="text" 
+              placeholder="Search contacts..." 
+              className="pl-10 pr-4 py-2 border border-gray-200 rounded-md w-full focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary"
+            />
+          </div>
+          <div className="flex gap-2">
+            <select className="border border-gray-200 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary">
+              <option value="">All Statuses</option>
+              <option value="Active">Active</option>
+              <option value="Inactive">Inactive</option>
+              <option value="Bounced">Bounced</option>
+              <option value="Unsubscribed">Unsubscribed</option>
+            </select>
+            <select className="border border-gray-200 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary">
+              <option value="">All Tags</option>
+              <option value="Customer">Customer</option>
+              <option value="Lead">Lead</option>
+              <option value="VIP">VIP</option>
+              <option value="Newsletter">Newsletter</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      
+      {/* Bulk Actions */}
+      {selectedContacts.length > 0 && (
+        <div className="bg-gray-50 rounded-lg p-3 mb-4 border border-gray-200 flex items-center justify-between">
+          <span className="text-sm text-gray-700">
+            {selectedContacts.length} contact{selectedContacts.length !== 1 ? 's' : ''} selected
+          </span>
+          <div className="flex gap-2">
+            <button className="text-sm px-3 py-1.5 border border-gray-300 rounded bg-white text-gray-700 hover:bg-gray-50">
+              Add to List
+            </button>
+            <button className="text-sm px-3 py-1.5 border border-red-300 rounded bg-white text-red-700 hover:bg-red-50">
+              Delete
+            </button>
+          </div>
+        </div>
+      )}
+      
+      {/* Contacts Table */}
+      <div className="bg-white rounded-lg shadow border border-gray-100 overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="bg-gray-50 border-b border-gray-100">
+                <th className="py-3 px-4">
+                  <input 
+                    type="checkbox" 
+                    className="rounded border-gray-300 text-primary focus:ring-primary/25"
+                    onChange={handleSelectAll}
+                    checked={selectedContacts.length === contacts.length && contacts.length > 0}
+                  />
+                </th>
+                <th className="text-left py-3 px-4 font-medium text-gray-700">Name</th>
+                <th className="text-left py-3 px-4 font-medium text-gray-700">Email</th>
+                <th className="text-left py-3 px-4 font-medium text-gray-700">Status</th>
+                <th className="text-left py-3 px-4 font-medium text-gray-700">Tags</th>
+                <th className="text-left py-3 px-4 font-medium text-gray-700">Date Added</th>
+                <th className="text-left py-3 px-4 font-medium text-gray-700">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {isLoading ? (
+                <tr>
+                  <td colSpan={7} className="text-center py-4">
+                    <div className="flex justify-center">
+                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+                    </div>
+                  </td>
+                </tr>
+              ) : contacts.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="text-center py-4 text-gray-500">No contacts found.</td>
+                </tr>
+              ) : (
+                contacts.map(contact => (
+                  <tr key={contact.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                    <td className="py-3 px-4 text-center">
+                      <input 
+                        type="checkbox" 
+                        className="rounded border-gray-300 text-primary focus:ring-primary/25"
+                        checked={selectedContacts.includes(contact.id)}
+                        onChange={() => handleSelectContact(contact.id)}
+                      />
+                    </td>
+                    <td className="py-3 px-4">
+                      <div className="font-medium text-gray-900">{contact.firstName} {contact.lastName}</div>
+                    </td>
+                    <td className="py-3 px-4 text-gray-700">
+                      {contact.email}
+                    </td>
+                    <td className="py-3 px-4">
+                      <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${statusColors[contact.status as keyof typeof statusColors]}`}>
+                        {contact.status}
+                      </span>
+                    </td>
+                    <td className="py-3 px-4">
+                      <div className="flex flex-wrap gap-1">
+                        {contact.tags.map((tag, idx) => (
+                          <span key={idx} className="px-2 py-1 bg-primary/10 text-primary rounded-full text-xs">
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    </td>
+                    <td className="py-3 px-4 text-gray-700">
+                      {new Date(contact.dateAdded).toLocaleDateString()}
+                    </td>
+                    <td className="py-3 px-4">
+                      <div className="flex items-center gap-2">
+                        <button className="text-gray-500 hover:text-primary" title="View Details">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                          </svg>
+                        </button>
+                        <button className="text-gray-500 hover:text-blue-600" title="Edit">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"></path>
+                          </svg>
+                        </button>
+                        <button className="text-gray-500 hover:text-red-600" title="Delete">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M3 6h18"></path>
+                            <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                            <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                          </svg>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+        
+        {/* Pagination */}
+        <div className="flex items-center justify-between border-t border-gray-100 px-4 py-3">
+          <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+            <div>
+              <p className="text-sm text-gray-700">
+                Showing <span className="font-medium">1</span> to <span className="font-medium">{contacts.length}</span> of{" "}
+                <span className="font-medium">{contacts.length}</span> results
+              </p>
+            </div>
+            <div>
+              <nav className="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+                <button className="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+                  <span className="sr-only">Previous</span>
+                  <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path fillRule="evenodd" d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z" clipRule="evenodd" />
+                  </svg>
+                </button>
+                <button className="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-white bg-primary ring-1 ring-inset ring-gray-300">
+                  1
+                </button>
+                <button className="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+                  <span className="sr-only">Next</span>
+                  <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path fillRule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clipRule="evenodd" />
+                  </svg>
+                </button>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-    <div className="bg-white rounded-lg shadow p-6 border border-gray-100">
-      <p className="text-gray-600">This page is under development.</p>
+  );
+};
+const ClientLists = () => {
+  // State to manage lists data
+  const [isLoading, setIsLoading] = useState(false);
+  const [lists, setLists] = useState([
+    {
+      id: 1,
+      name: "Newsletter Subscribers",
+      contactCount: 1240,
+      description: "All active newsletter subscribers",
+      lastUpdated: "2025-03-15",
+      tags: ["Active", "Newsletter"]
+    },
+    {
+      id: 2,
+      name: "VIP Customers",
+      contactCount: 156,
+      description: "High-value customers with premium status",
+      lastUpdated: "2025-02-20",
+      tags: ["VIP", "Customer"]
+    },
+    {
+      id: 3,
+      name: "Webinar Attendees - March 2025",
+      contactCount: 435,
+      description: "People who registered for our March webinar",
+      lastUpdated: "2025-03-10",
+      tags: ["Event", "Webinar"]
+    },
+    {
+      id: 4,
+      name: "Product Launch Interests",
+      contactCount: 890,
+      description: "Contacts interested in our new product launch",
+      lastUpdated: "2025-02-05",
+      tags: ["Product Launch", "Marketing"]
+    }
+  ]);
+  
+  return (
+    <div className="p-8">
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-3">
+          <div className="bg-primary/10 p-2 rounded-full">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary">
+              <line x1="8" x2="21" y1="6" y2="6"></line>
+              <line x1="8" x2="21" y1="12" y2="12"></line>
+              <line x1="8" x2="21" y1="18" y2="18"></line>
+              <line x1="3" x2="3.01" y1="6" y2="6"></line>
+              <line x1="3" x2="3.01" y1="12" y2="12"></line>
+              <line x1="3" x2="3.01" y1="18" y2="18"></line>
+            </svg>
+          </div>
+          <h1 className="text-2xl font-bold">Contact Lists</h1>
+        </div>
+        <button className="bg-primary text-white px-4 py-2 rounded-md flex items-center gap-2 hover:bg-primary/90 transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 5v14"></path>
+            <path d="M5 12h14"></path>
+          </svg>
+          <span>Create List</span>
+        </button>
+      </div>
+      
+      {/* List Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div className="bg-white rounded-lg shadow p-4 border border-gray-100">
+          <h3 className="text-sm font-medium text-gray-500 mb-1">Total Lists</h3>
+          <p className="text-2xl font-bold">{lists.length}</p>
+        </div>
+        <div className="bg-white rounded-lg shadow p-4 border border-gray-100">
+          <h3 className="text-sm font-medium text-gray-500 mb-1">Total Contacts in Lists</h3>
+          <p className="text-2xl font-bold">{lists.reduce((sum, list) => sum + list.contactCount, 0).toLocaleString()}</p>
+        </div>
+        <div className="bg-white rounded-lg shadow p-4 border border-gray-100">
+          <h3 className="text-sm font-medium text-gray-500 mb-1">Average List Size</h3>
+          <p className="text-2xl font-bold">{
+            lists.length > 0 
+              ? Math.round(lists.reduce((sum, list) => sum + list.contactCount, 0) / lists.length).toLocaleString()
+              : 0
+          }</p>
+        </div>
+      </div>
+      
+      {/* Filters and Search */}
+      <div className="bg-white rounded-lg shadow p-4 border border-gray-100 mb-6">
+        <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
+          <div className="relative flex-1">
+            <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <path d="m21 21-4.3-4.3"></path>
+            </svg>
+            <input 
+              type="text" 
+              placeholder="Search lists..." 
+              className="pl-10 pr-4 py-2 border border-gray-200 rounded-md w-full focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary"
+            />
+          </div>
+          <div className="flex gap-2">
+            <select className="border border-gray-200 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary">
+              <option value="">All Tags</option>
+              <option value="Newsletter">Newsletter</option>
+              <option value="VIP">VIP</option>
+              <option value="Event">Event</option>
+              <option value="Marketing">Marketing</option>
+            </select>
+            <select className="border border-gray-200 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary">
+              <option value="">Sort By</option>
+              <option value="name">Name</option>
+              <option value="date">Date Updated</option>
+              <option value="contacts">Number of Contacts</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      
+      {/* Lists Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+        {isLoading ? (
+          <div className="col-span-full flex justify-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          </div>
+        ) : lists.length === 0 ? (
+          <div className="col-span-full bg-white rounded-lg shadow p-8 text-center">
+            <div className="mb-4">
+              <svg xmlns="http://www.w3.org/2000/svg" className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+              </svg>
+            </div>
+            <h3 className="text-lg font-medium text-gray-900 mb-1">No Lists Found</h3>
+            <p className="text-gray-500 mb-4">You haven't created any contact lists yet.</p>
+            <button className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary/90">
+              Create Your First List
+            </button>
+          </div>
+        ) : (
+          lists.map(list => (
+            <div key={list.id} className="bg-white rounded-lg shadow border border-gray-100 hover:shadow-md transition-shadow">
+              <div className="p-5">
+                <div className="flex justify-between items-start mb-3">
+                  <h3 className="text-lg font-semibold text-gray-900 truncate">{list.name}</h3>
+                  <div className="dropdown">
+                    <button className="text-gray-400 hover:text-gray-600">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="12" r="1"></circle>
+                        <circle cx="12" cy="5" r="1"></circle>
+                        <circle cx="12" cy="19" r="1"></circle>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+                <p className="text-sm text-gray-600 mb-4 line-clamp-2">{list.description}</p>
+                <div className="flex flex-wrap gap-1 mb-4">
+                  {list.tags.map((tag, idx) => (
+                    <span key={idx} className="px-2 py-1 bg-primary/10 text-primary text-xs rounded-full">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+                <div className="border-t border-gray-100 pt-4">
+                  <div className="flex justify-between items-center text-sm">
+                    <div className="text-gray-500">
+                      <span className="font-medium text-gray-900">{list.contactCount.toLocaleString()}</span> contacts
+                    </div>
+                    <div className="text-gray-500">
+                      Updated {new Date(list.lastUpdated).toLocaleDateString()}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-gray-50 px-5 py-3 rounded-b-lg border-t border-gray-100 flex justify-between">
+                <button className="text-sm text-gray-700 hover:text-primary">
+                  View Contacts
+                </button>
+                <button className="text-sm text-primary hover:text-primary/80">
+                  Edit List
+                </button>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+      
+      {/* Pagination */}
+      <div className="flex justify-center">
+        <nav className="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+          <button className="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+            <span className="sr-only">Previous</span>
+            <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path fillRule="evenodd" d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z" clipRule="evenodd" />
+            </svg>
+          </button>
+          <button className="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-white bg-primary ring-1 ring-inset ring-gray-300">
+            1
+          </button>
+          <button className="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+            <span className="sr-only">Next</span>
+            <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path fillRule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clipRule="evenodd" />
+            </svg>
+          </button>
+        </nav>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 const ClientTemplates = () => (
   <div className="p-8">
     <div className="flex items-center gap-3 mb-6">
