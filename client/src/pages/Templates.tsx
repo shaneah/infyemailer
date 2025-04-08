@@ -311,76 +311,127 @@ export default function Templates() {
         <div className="card-body pt-4">
           {activeTab === 'editor' && (
             <form onSubmit={handleSubmit} className="relative">
-              {/* Advanced UI with split layout */}
-              <div className="flex flex-col md:flex-row gap-6">
-                {/* Left Panel - Form Controls */}
-                <div className="md:w-2/3 space-y-5">
-                  {/* Header with advanced AI badge */}
-                  <div className="bg-gradient-to-r from-gray-900 to-gray-800 rounded-xl p-5 shadow-lg relative overflow-hidden">
-                    {/* Background decoration */}
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-teal-500/10 to-teal-300/5 rounded-full blur-xl"></div>
-                    <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-teal-400/10 to-teal-500/5 rounded-full blur-lg"></div>
-                    
-                    <div className="flex items-start relative">
-                      <div className="relative mr-4">
-                        <div className="p-2 bg-gradient-to-r from-teal-500 to-teal-400 rounded-xl shadow-lg overflow-hidden">
-                          {/* Tech circuit pattern overlay */}
-                          <div className="absolute inset-0 w-full h-full">
-                            <div className="absolute top-0 left-0 w-full h-0.5 bg-white/20"></div>
-                            <div className="absolute bottom-0 right-0 w-full h-0.5 bg-white/10"></div>
-                            <div className="absolute top-1/2 left-0 w-2 h-0.5 bg-white/20"></div>
-                            <div className="absolute top-1/4 right-0 w-2 h-0.5 bg-white/20"></div>
-                          </div>
-                          
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white relative z-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              {/* Redesigned hero section */}
+              <div className="space-y-6">
+                {/* Hero banner */}
+                <div className="relative w-full bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 rounded-xl overflow-hidden">
+                  {/* Background decoration elements */}
+                  <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-bl from-teal-500/10 to-teal-300/5 rounded-full blur-xl"></div>
+                  <div className="absolute bottom-0 left-10 w-64 h-64 bg-gradient-to-tr from-blue-400/10 to-teal-500/5 rounded-full blur-lg"></div>
+                  <div className="absolute top-1/2 transform -translate-y-1/2 right-10 w-48 h-48 bg-gradient-to-tr from-teal-400/10 to-blue-500/5 rounded-full blur-lg"></div>
+                  
+                  {/* Tech pattern overlay */}
+                  <div className="absolute inset-0 opacity-10">
+                    <div className="absolute top-8 left-[10%] w-32 h-px bg-teal-400/40"></div>
+                    <div className="absolute top-8 left-[10%] w-px h-16 bg-teal-400/40"></div>
+                    <div className="absolute top-32 right-[15%] w-24 h-px bg-teal-400/40"></div>
+                    <div className="absolute top-32 right-[15%] w-px h-12 bg-teal-400/40"></div>
+                    <div className="absolute bottom-12 left-[30%] w-48 h-px bg-teal-400/40"></div>
+                    <div className="absolute bottom-12 left-[30%] w-px h-8 bg-teal-400/40"></div>
+                  </div>
+                  
+                  <div className="flex flex-col md:flex-row items-center justify-between p-8 relative z-10">
+                    <div className="mb-6 md:mb-0 md:mr-8">
+                      <div className="flex items-center mb-3">
+                        <div className="p-3 bg-gradient-to-r from-teal-500 to-blue-500 rounded-2xl shadow-lg mr-4">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-9 w-9 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M12 2c1.714 0 3.33.567 4.615 1.556a1 1 0 0 1 .385.78v12.332a1 1 0 0 1-.385.78C15.33 18.433 13.714 19 12 19s-3.33-.567-4.615-1.556a1 1 0 0 1-.385-.78V4.333a1 1 0 0 1 .385-.78C8.67 2.567 10.286 2 12 2Z"/>
                             <path d="M12 6.5c1.657 0 3 .843 3 1.883s-1.343 1.884-3 1.884-3-.844-3-1.884S10.343 6.5 12 6.5Z"/>
                           </svg>
-                          
-                          {/* Pulsing dot */}
-                          <div className="absolute top-1 right-1 w-2 h-2 bg-teal-200 rounded-full animate-ping opacity-75"></div>
-                          <div className="absolute top-1 right-1 w-2 h-2 bg-teal-300 rounded-full"></div>
                         </div>
-                      </div>
-                      
-                      <div>
-                        <div className="flex items-center">
-                          <h3 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-teal-300 to-teal-100">Advanced AI Email Generator</h3>
-                          <div className="ml-3 px-2 py-1 bg-teal-900/40 rounded-md border border-teal-700/30 flex items-center">
-                            <span className="text-xs font-semibold text-teal-300">GPT-4o</span>
-                            <div className="ml-1.5 w-1.5 h-1.5 rounded-full bg-teal-300 animate-pulse"></div>
+                        <div>
+                          <h2 className="text-2xl md:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-teal-300 via-blue-200 to-teal-200">
+                            AI Email Generator
+                          </h2>
+                          <div className="flex items-center mt-1">
+                            <div className="px-2 py-1 bg-teal-900/60 rounded-md border border-teal-700/50 flex items-center mr-3">
+                              <span className="text-xs font-semibold text-teal-300">GPT-4o</span>
+                              <div className="ml-1.5 w-1.5 h-1.5 rounded-full bg-teal-300 animate-pulse"></div>
+                            </div>
+                            <span className="text-slate-400 text-sm">Powered by OpenAI</span>
                           </div>
                         </div>
-                        <p className="text-slate-300 mt-1 max-w-lg">
-                          Craft professional, high-converting email templates using advanced AI technology
-                        </p>
+                      </div>
+                      <p className="text-slate-300 md:text-lg max-w-xl mb-4">
+                        Create professional, high-converting email templates instantly with advanced AI. 
+                        Customize content for your audience, purpose, and brand voice in minutes.
+                      </p>
+                    </div>
+                    
+                    {/* Stats cards */}
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="bg-slate-800/60 backdrop-blur border border-slate-700 p-3 rounded-lg">
+                        <div className="flex items-center mb-1">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 text-teal-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48 2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48 2.83-2.83" />
+                          </svg>
+                          <span className="text-xs font-medium text-slate-300">Generation Speed</span>
+                        </div>
+                        <p className="text-lg font-semibold text-white">15-20 sec</p>
+                      </div>
+                      <div className="bg-slate-800/60 backdrop-blur border border-slate-700 p-3 rounded-lg">
+                        <div className="flex items-center mb-1">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M12 21a9 9 0 0 1-9-9 9 9 0 0 1 9-9 9 9 0 0 1 9 9 9 9 0 0 1-9 9Z" />
+                            <path d="m12 12 4-2" />
+                            <path d="M12 7v5" />
+                          </svg>
+                          <span className="text-xs font-medium text-slate-300">Templates Created</span>
+                        </div>
+                        <p className="text-lg font-semibold text-white">12,500+</p>
+                      </div>
+                      <div className="bg-slate-800/60 backdrop-blur border border-slate-700 p-3 rounded-lg">
+                        <div className="flex items-center mb-1">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 text-purple-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
+                          </svg>
+                          <span className="text-xs font-medium text-slate-300">Content Quality</span>
+                        </div>
+                        <p className="text-lg font-semibold text-white">Premium</p>
+                      </div>
+                      <div className="bg-slate-800/60 backdrop-blur border border-slate-700 p-3 rounded-lg">
+                        <div className="flex items-center mb-1">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 text-teal-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+                          </svg>
+                          <span className="text-xs font-medium text-slate-300">Email Length</span>
+                        </div>
+                        <p className="text-lg font-semibold text-white">300-500 w</p>
                       </div>
                     </div>
-
-                    {/* Multi-step progress indicator */}
-                    <div className="mt-6 relative">
-                      <div className="h-1 bg-slate-700 rounded-full w-full absolute"></div>
-                      <div className="flex justify-between relative">
+                  </div>
+                  
+                  {/* Workflow steps */}
+                  <div className="px-8 pb-8 relative z-10">
+                    <div className="relative">
+                      <div className="absolute top-1/2 transform -translate-y-1/2 left-0 right-0 h-1 bg-slate-700/70 rounded-full"></div>
+                      <div className="relative flex justify-between">
                         <div className="flex flex-col items-center">
-                          <div className="w-6 h-6 bg-teal-500 rounded-full flex items-center justify-center text-white text-xs font-bold">1</div>
-                          <span className="text-xs text-teal-300 mt-1.5">Input</span>
+                          <div className="w-10 h-10 bg-teal-500 rounded-full flex items-center justify-center text-white text-sm font-bold mb-2 relative z-10">1</div>
+                          <span className="text-sm text-teal-300 font-medium">Input Details</span>
                         </div>
                         <div className="flex flex-col items-center">
-                          <div className="w-6 h-6 bg-slate-700 text-slate-300 rounded-full flex items-center justify-center text-xs font-bold border border-slate-600">2</div>
-                          <span className="text-xs text-slate-400 mt-1.5">Generate</span>
+                          <div className="w-10 h-10 bg-slate-700 text-slate-300 rounded-full flex items-center justify-center text-sm font-bold border border-slate-600 mb-2 relative z-10">2</div>
+                          <span className="text-sm text-slate-400 font-medium">Generate</span>
                         </div>
                         <div className="flex flex-col items-center">
-                          <div className="w-6 h-6 bg-slate-700 text-slate-300 rounded-full flex items-center justify-center text-xs font-bold border border-slate-600">3</div>
-                          <span className="text-xs text-slate-400 mt-1.5">Preview</span>
+                          <div className="w-10 h-10 bg-slate-700 text-slate-300 rounded-full flex items-center justify-center text-sm font-bold border border-slate-600 mb-2 relative z-10">3</div>
+                          <span className="text-sm text-slate-400 font-medium">Review</span>
                         </div>
                         <div className="flex flex-col items-center">
-                          <div className="w-6 h-6 bg-slate-700 text-slate-300 rounded-full flex items-center justify-center text-xs font-bold border border-slate-600">4</div>
-                          <span className="text-xs text-slate-400 mt-1.5">Save</span>
+                          <div className="w-10 h-10 bg-slate-700 text-slate-300 rounded-full flex items-center justify-center text-sm font-bold border border-slate-600 mb-2 relative z-10">4</div>
+                          <span className="text-sm text-slate-400 font-medium">Save</span>
                         </div>
                       </div>
                     </div>
                   </div>
+                </div>
 
+                {/* Two-column layout */}
+                <div className="flex flex-col md:flex-row gap-6">
+                  {/* Left Panel - Form Fields */}
+                  <div className="md:w-2/3 flex flex-col gap-6">
+                  
                   {/* Core Email Details Panel */}
                   <div className="bg-slate-800 rounded-xl shadow-lg overflow-hidden">
                     <div className="px-5 py-3 bg-gradient-to-r from-teal-600 to-blue-600 flex justify-between items-center">
