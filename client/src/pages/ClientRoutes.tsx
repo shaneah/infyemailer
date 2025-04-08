@@ -5,11 +5,16 @@ import { useToast } from '@/hooks/use-toast';
 import { Switch, Route, useLocation } from 'wouter';
 import NotFound from '@/pages/not-found';
 import { Mail, BarChart3, Activity } from 'lucide-react';
+import CreateCampaignModal from '@/modals/CreateCampaignModal';
+import AddContactModal from '@/modals/AddContactModal';
+import CreateListModal from '@/modals/CreateListModal';
+import CreateTemplateModal from '@/modals/CreateTemplateModal';
 
 // Campaigns component with more complete UI
 const ClientCampaigns = () => {
-  // State to manage campaign data
+  // State to manage campaign data and modals
   const [isLoading, setIsLoading] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
   const [campaigns, setCampaigns] = useState([
     {
       id: 1,
@@ -66,7 +71,10 @@ const ClientCampaigns = () => {
           </div>
           <h1 className="text-2xl font-bold">Email Campaigns</h1>
         </div>
-        <button className="bg-primary text-white px-4 py-2 rounded-md flex items-center gap-2 hover:bg-primary/90 transition-colors">
+        <button 
+          onClick={() => setShowCreateModal(true)}
+          className="bg-primary text-white px-4 py-2 rounded-md flex items-center gap-2 hover:bg-primary/90 transition-colors"
+        >
           <span>Create Campaign</span>
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
         </button>
@@ -227,8 +235,9 @@ const ClientCampaigns = () => {
   );
 };
 const ClientContacts = () => {
-  // State to manage contacts data
+  // State to manage contacts data and modals
   const [isLoading, setIsLoading] = useState(false);
+  const [showAddContactModal, setShowAddContactModal] = useState(false);
   const [selectedContacts, setSelectedContacts] = useState<number[]>([]);
   const [contacts, setContacts] = useState([
     {
@@ -331,7 +340,10 @@ const ClientContacts = () => {
             </svg>
             <span>Import</span>
           </button>
-          <button className="bg-primary text-white px-4 py-2 rounded-md flex items-center gap-2 hover:bg-primary/90 transition-colors">
+          <button 
+            onClick={() => setShowAddContactModal(true)}
+            className="bg-primary text-white px-4 py-2 rounded-md flex items-center gap-2 hover:bg-primary/90 transition-colors"
+          >
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M12 5v14"></path>
               <path d="M5 12h14"></path>
@@ -544,8 +556,9 @@ const ClientContacts = () => {
   );
 };
 const ClientLists = () => {
-  // State to manage lists data
+  // State to manage lists data and modals
   const [isLoading, setIsLoading] = useState(false);
+  const [showCreateListModal, setShowCreateListModal] = useState(false);
   const [lists, setLists] = useState([
     {
       id: 1,
@@ -597,7 +610,10 @@ const ClientLists = () => {
           </div>
           <h1 className="text-2xl font-bold">Contact Lists</h1>
         </div>
-        <button className="bg-primary text-white px-4 py-2 rounded-md flex items-center gap-2 hover:bg-primary/90 transition-colors">
+        <button 
+          onClick={() => setShowCreateListModal(true)}
+          className="bg-primary text-white px-4 py-2 rounded-md flex items-center gap-2 hover:bg-primary/90 transition-colors"
+        >
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M12 5v14"></path>
             <path d="M5 12h14"></path>
@@ -749,9 +765,10 @@ const ClientLists = () => {
   );
 };
 const ClientTemplates = () => {
-  // State to manage templates data
+  // State to manage templates data and modals
   const [isLoading, setIsLoading] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [showCreateTemplateModal, setShowCreateTemplateModal] = useState(false);
   const [templates, setTemplates] = useState([
     {
       id: 1,
@@ -848,7 +865,10 @@ const ClientTemplates = () => {
             </svg>
             <span>Import</span>
           </button>
-          <button className="bg-primary text-white px-4 py-2 rounded-md flex items-center gap-2 hover:bg-primary/90 transition-colors">
+          <button 
+            onClick={() => setShowCreateTemplateModal(true)}
+            className="bg-primary text-white px-4 py-2 rounded-md flex items-center gap-2 hover:bg-primary/90 transition-colors"
+          >
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M12 5v14"></path>
               <path d="M5 12h14"></path>
@@ -1398,6 +1418,12 @@ export default function ClientRoutes() {
   const [location, setLocation] = useLocation();
   const { toast } = useToast();
   
+  // States for modals
+  const [showCreateCampaignModal, setShowCreateCampaignModal] = useState(false);
+  const [showAddContactModal, setShowAddContactModal] = useState(false);
+  const [showCreateListModal, setShowCreateListModal] = useState(false);
+  const [showCreateTemplateModal, setShowCreateTemplateModal] = useState(false);
+  
   useEffect(() => {
     // Check for client user in session storage
     const sessionUser = sessionStorage.getItem('clientUser');
@@ -1472,6 +1498,20 @@ export default function ClientRoutes() {
             <NotFound />
           </Route>
         </Switch>
+        
+        {/* Modals */}
+        {showCreateCampaignModal && 
+          <CreateCampaignModal isOpen={showCreateCampaignModal} onClose={() => setShowCreateCampaignModal(false)} />
+        }
+        {showAddContactModal && 
+          <AddContactModal isOpen={showAddContactModal} onClose={() => setShowAddContactModal(false)} />
+        }
+        {showCreateListModal && 
+          <CreateListModal isOpen={showCreateListModal} onClose={() => setShowCreateListModal(false)} />
+        }
+        {showCreateTemplateModal && 
+          <CreateTemplateModal isOpen={showCreateTemplateModal} onClose={() => setShowCreateTemplateModal(false)} />
+        }
       </main>
     </div>
   );
