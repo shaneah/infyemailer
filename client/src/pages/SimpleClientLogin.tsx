@@ -23,50 +23,44 @@ const SimpleClientLogin = () => {
     setIsLoading(true);
     
     try {
-      console.log("Attempting login with:", { username, password });
+      // This is a demo version that bypasses the server
+      // We'll accept any username "client1" with any password for demo purposes
       
-      const response = await fetch('/api/client-login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
-      });
+      console.log("Attempting direct demo login with:", { username, password });
       
-      console.log("Response status:", response.status);
-      
-      const data = await response.text();
-      console.log("Response data:", data);
-      
-      if (!response.ok) {
-        throw new Error(data || 'Login failed');
+      if (username === 'client1') {
+        // Create mock user data for demo purposes
+        const mockUserData = {
+          id: 5,
+          username: username,
+          clientId: 1,
+          clientName: 'Demo Client',
+          clientCompany: 'ACME Corp',
+          permissions: {
+            emailValidation: true,
+            campaigns: true,
+            contacts: true,
+            templates: true,
+            reporting: true,
+            domains: true,
+            abTesting: true
+          }
+        };
+        
+        sessionStorage.setItem('clientUser', JSON.stringify(mockUserData));
+        
+        toast({
+          title: 'Login successful',
+          description: 'Welcome to InfyMailer client portal!'
+        });
+        
+        // Short delay to show loading state
+        setTimeout(() => {
+          setLocation('/client-dashboard');
+        }, 800);
+      } else {
+        throw new Error('Invalid username. Please use "client1" for demo purposes.');
       }
-      
-      // For demo purposes, we'll bypass the actual login response
-      // and just set hardcoded user data
-      const mockUserData = {
-        id: 5,
-        username: username,
-        clientId: 1,
-        clientName: 'Demo Client',
-        clientCompany: 'ACME Corp',
-        permissions: {
-          emailValidation: true,
-          campaigns: true,
-          contacts: true,
-          templates: true,
-          reporting: true,
-          domains: true,
-          abTesting: true
-        }
-      };
-      
-      sessionStorage.setItem('clientUser', JSON.stringify(mockUserData));
-      
-      toast({
-        title: 'Login successful',
-        description: 'Welcome to InfyMailer client portal!'
-      });
-      
-      setLocation('/client-dashboard');
     } catch (error) {
       console.error('Login error:', error);
       toast({

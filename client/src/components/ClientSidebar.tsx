@@ -1,170 +1,205 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'wouter';
-import { Button } from '@/components/ui/button';
-import { ChevronLeft, BarChart, Users, MailCheck, Settings, LayoutGrid, Database, Mail, Globe, Laptop } from 'lucide-react';
-import Logo from '../assets/Logo-white.png';
+import { LucideIcon } from 'lucide-react';
+import { 
+  BarChart, 
+  Mail, 
+  Users, 
+  FileText, 
+  Settings, 
+  LogOut, 
+  Globe,
+  Bell,
+  List,
+  PieChart,
+  Clipboard,
+  Database
+} from 'lucide-react';
+import Logo from '@/assets/Logo-white.png';
 
-type ClientSidebarProps = {
-  open: boolean;
-  setOpen: (open: boolean) => void;
+const MenuItem = ({ icon: Icon, label, to, active, onClick }: { 
+  icon: LucideIcon, 
+  label: string, 
+  to: string, 
+  active: boolean,
+  onClick?: () => void 
+}) => {
+  return (
+    <Link href={to}>
+      <div
+        className={`flex items-center px-3 py-2 text-sm rounded-md mb-1 transition-colors ${
+          active
+            ? 'bg-primary text-white font-medium'
+            : 'text-gray-200 hover:text-white hover:bg-primary/20'
+        }`}
+        onClick={onClick}
+      >
+        <Icon className="h-5 w-5 mr-2" />
+        <span>{label}</span>
+      </div>
+    </Link>
+  );
 };
 
-export default function ClientSidebar({ open, setOpen }: ClientSidebarProps) {
-  const [location] = useLocation();
-  const [clientUser, setClientUser] = useState<any>(null);
+interface ClientSidebarProps {
+  open: boolean;
+  setOpen: (open: boolean) => void;
+}
 
+const ClientSidebar = ({ open, setOpen }: ClientSidebarProps) => {
+  const [location, setLocation] = useLocation();
+  const [clientUser, setClientUser] = useState<any>(null);
+  
+  // Get client user from session storage
   useEffect(() => {
-    // Get client user info
-    const sessionUser = sessionStorage.getItem('clientUser');
-    if (sessionUser) {
-      setClientUser(JSON.parse(sessionUser));
+    const storedUser = sessionStorage.getItem('clientUser');
+    if (storedUser) {
+      try {
+        setClientUser(JSON.parse(storedUser));
+      } catch (error) {
+        console.error('Error parsing client user from sessionStorage', error);
+      }
     }
   }, []);
-
-  // If no client user, show nothing
-  if (!clientUser) {
-    return null;
-  }
-
-  const links = [
-    {
-      title: 'Dashboard',
-      href: '/client-dashboard',
-      icon: <LayoutGrid size={20} />,
-      requiresPermission: null // Accessible to all client users
-    },
-    {
-      title: 'Email Validation',
-      href: '/client-email-validation',
-      icon: <MailCheck size={20} />,
-      requiresPermission: 'emailValidation'
-    },
-    {
-      title: 'Campaigns',
-      href: '/client-campaigns',
-      icon: <Mail size={20} />,
-      requiresPermission: 'campaigns'
-    },
-    {
-      title: 'Contacts',
-      href: '/client-contacts',
-      icon: <Users size={20} />,
-      requiresPermission: 'contacts'
-    },
-    {
-      title: 'Templates',
-      href: '/client-templates',
-      icon: <Laptop size={20} />,
-      requiresPermission: 'templates'
-    },
-    {
-      title: 'Reporting',
-      href: '/client-reporting',
-      icon: <BarChart size={20} />,
-      requiresPermission: 'reporting'
-    },
-    {
-      title: 'Domains',
-      href: '/client-domains',
-      icon: <Globe size={20} />,
-      requiresPermission: 'domains'
-    },
-    {
-      title: 'A/B Testing',
-      href: '/client-ab-testing',
-      icon: <Database size={20} />,
-      requiresPermission: 'abTesting'
-    },
-    {
-      title: 'Settings',
-      href: '/client-settings',
-      icon: <Settings size={20} />,
-      requiresPermission: null // Accessible to all client users
-    }
-  ];
-
+  
   const handleLogout = () => {
-    // Clear session storage and localStorage
     sessionStorage.removeItem('clientUser');
-    localStorage.removeItem('clientUser');
-    
-    // Redirect to login page
-    window.location.href = '/client-login';
+    setLocation('/client-login');
   };
-
-  // Filter links based on user permissions
-  const filteredLinks = links.filter(link => 
-    link.requiresPermission === null || 
-    (clientUser.permissions && clientUser.permissions[link.requiresPermission])
-  );
-
+  
   return (
-    <>
-      {/* Mobile overlay when sidebar is open */}
-      {open && (
-        <div 
-          className="fixed inset-0 bg-black/50 z-30 lg:hidden"
-          onClick={() => setOpen(false)}
-        ></div>
-      )}
-      
-      <aside
-        className={`bg-[#1E0A46] text-white h-screen flex flex-col fixed lg:static top-0 left-0 z-40 transition-all duration-300 shadow-xl ${
-          open ? 'w-[280px]' : 'w-0 lg:w-[70px] overflow-hidden'
-        }`}
-      >
-        {/* Sidebar Header */}
-        <div className="p-4 flex items-center justify-between border-b border-white/30 bg-[#2D1164]">
-          <div className={`flex items-center ${!open && 'lg:hidden'}`}>
+    <div
+      className={`fixed inset-y-0 left-0 z-50 w-64 bg-gradient-to-b from-teal-700 to-teal-800 text-white shadow-xl transform lg:translate-x-0 lg:static lg:inset-auto lg:flex-shrink-0 transition-transform duration-200 ease-in-out ${
+        open ? 'translate-x-0' : '-translate-x-full'
+      }`}
+    >
+      <div className="flex flex-col h-full">
+        {/* Logo and Close Button */}
+        <div className="px-4 py-5 flex items-center justify-between">
+          <div className="flex items-center">
             <img src={Logo} alt="InfyMailer Logo" className="h-8" />
-            {open && <span className="ml-3 font-bold text-lg text-white">InfyMailer</span>}
-          </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-white hover:bg-white/30 lg:hidden"
-            onClick={() => setOpen(false)}
-          >
-            <ChevronLeft size={20} />
-          </Button>
-        </div>
-
-        {/* Sidebar Content */}
-        <div className="flex-1 overflow-y-auto py-6">
-          <nav className="px-3 space-y-2">
-            {filteredLinks.map((link) => (
-              <div key={link.href}>
-                <Link href={link.href}>
-                  <div
-                    className={`flex items-center px-4 py-3 rounded-lg transition-colors cursor-pointer font-medium ${
-                      location === link.href
-                        ? 'bg-[#4A1DAE] text-white'
-                        : 'text-white hover:bg-[#341788]/70 hover:text-white'
-                    }`}
-                  >
-                    <span className="text-xl">{link.icon}</span>
-                    <span className={`ml-4 text-[15px] ${!open && 'lg:hidden'}`}>{link.title}</span>
-                  </div>
-                </Link>
-              </div>
-            ))}
-          </nav>
-        </div>
-
-        {/* Sidebar Footer */}
-        <div className="p-4 border-t border-white/30 bg-[#2D1164]">
-          <div className={`text-white mb-3 ${!open && 'lg:hidden'}`}>
-            <div className="font-medium">{clientUser.clientName}</div>
-            <div className="text-xs text-white/90">{clientUser.clientCompany}</div>
+            <span className="text-xl font-bold ml-2">Client Portal</span>
           </div>
           <button
-            onClick={handleLogout}
-            className="w-full px-4 py-2 text-sm bg-[#4A1DAE] rounded-lg text-white hover:bg-[#5F30CF] transition-colors font-medium"
+            className="text-white/80 hover:text-white lg:hidden"
+            onClick={() => setOpen(false)}
           >
-            {open ? 'Logout' : <span className="lg:block hidden">🚪</span>}
+            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
           </button>
         </div>
-      </aside>
-    </>
+        
+        {/* Client Info */}
+        {clientUser && (
+          <div className="px-4 py-4 border-t border-teal-600 border-b">
+            <div className="text-sm font-semibold text-teal-100">{clientUser.clientCompany}</div>
+            <div className="text-xs text-teal-200">{clientUser.username}</div>
+          </div>
+        )}
+        
+        {/* Menu Items */}
+        <div className="flex-1 overflow-y-auto px-3 py-4">
+          <MenuItem 
+            icon={BarChart} 
+            label="Dashboard" 
+            to="/client-dashboard" 
+            active={location === '/client-dashboard'} 
+          />
+          
+          {clientUser?.permissions?.campaigns && (
+            <MenuItem 
+              icon={Mail} 
+              label="Campaigns" 
+              to="/client-campaigns" 
+              active={location === '/client-campaigns'} 
+            />
+          )}
+          
+          {clientUser?.permissions?.contacts && (
+            <MenuItem 
+              icon={Users} 
+              label="Contacts" 
+              to="/client-contacts" 
+              active={location === '/client-contacts'} 
+            />
+          )}
+          
+          {clientUser?.permissions?.contacts && (
+            <MenuItem 
+              icon={List} 
+              label="Lists" 
+              to="/client-lists" 
+              active={location === '/client-lists'} 
+            />
+          )}
+          
+          {clientUser?.permissions?.templates && (
+            <MenuItem 
+              icon={FileText} 
+              label="Templates" 
+              to="/client-templates" 
+              active={location === '/client-templates'} 
+            />
+          )}
+          
+          {clientUser?.permissions?.reporting && (
+            <MenuItem 
+              icon={PieChart} 
+              label="Reports" 
+              to="/client-reports" 
+              active={location === '/client-reports'} 
+            />
+          )}
+          
+          {clientUser?.permissions?.domains && (
+            <MenuItem 
+              icon={Globe} 
+              label="Domains" 
+              to="/client-domains" 
+              active={location === '/client-domains'} 
+            />
+          )}
+          
+          {clientUser?.permissions?.emailValidation && (
+            <MenuItem 
+              icon={Clipboard} 
+              label="Email Validation" 
+              to="/client-email-validation" 
+              active={location === '/client-email-validation'} 
+            />
+          )}
+          
+          {clientUser?.permissions?.abTesting && (
+            <MenuItem 
+              icon={Bell} 
+              label="A/B Testing" 
+              to="/client-ab-testing" 
+              active={location === '/client-ab-testing'} 
+            />
+          )}
+        </div>
+        
+        {/* Bottom Menu Items */}
+        <div className="px-3 py-4 border-t border-teal-600">
+          <MenuItem 
+            icon={Settings} 
+            label="Account Settings" 
+            to="/client-settings" 
+            active={location === '/client-settings'} 
+          />
+          
+          <a
+            className="flex items-center px-3 py-2 text-sm rounded-md text-gray-200 hover:text-white hover:bg-primary/20 cursor-pointer"
+            onClick={handleLogout}
+          >
+            <LogOut className="h-5 w-5 mr-2" />
+            <span>Logout</span>
+          </a>
+        </div>
+      </div>
+    </div>
   );
-}
+};
+
+export default ClientSidebar;
