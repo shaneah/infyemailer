@@ -271,13 +271,23 @@ export default function ImportTemplateModal({ open, onOpenChange, onImportSucces
         </DialogHeader>
 
         <div className="space-y-6 py-4">
+          {importHtmlMutation.error || importZipMutation.error ? (
+            <div className="p-3 bg-destructive/15 text-destructive rounded-md mb-4">
+              <p className="text-sm font-medium">Validation Error</p>
+              <p className="text-xs mt-1">Please enter a template name</p>
+            </div>
+          ) : null}
+          
           <div className="space-y-4">
-            <Label htmlFor="templateName">Template Name</Label>
+            <Label htmlFor="templateName" className="flex">
+              Template Name <span className="text-destructive ml-1">*</span>
+            </Label>
             <Input
               id="templateName"
               placeholder="Enter template name"
               value={templateName}
               onChange={(e) => setTemplateName(e.target.value)}
+              className={!templateName.trim() ? "border-destructive focus-visible:ring-destructive" : ""}
             />
           </div>
 
