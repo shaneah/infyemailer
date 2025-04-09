@@ -92,22 +92,22 @@ export default function AuthPage() {
           <div className="relative z-10 mt-4">
             <div className="flex flex-col items-start">
               <div className="mb-6 flex flex-col items-start">
-                <div className="relative opacity-0 animate-fade-in animate-glow">
+                <div className="relative animate-glow">
                   <img 
                     src={Infy} 
                     alt="Infinity Tech Logo" 
-                    className="h-20 w-auto mb-4 opacity-0 animate-scale-in animation-delay-300" 
+                    className="h-20 w-auto mb-4 animate-scale-in" 
                   />
                 </div>
-                <h1 className="text-3xl font-bold text-white tracking-tight opacity-0 animate-slide-up animation-delay-600">
+                <h1 className="text-3xl font-bold text-white tracking-tight animate-slide-up animation-delay-300">
                   Infinity<span className="text-primary">Mailer</span>
                 </h1>
               </div>
-              <div className="h-0.5 w-16 bg-primary rounded my-6 opacity-0 animate-slide-in-left animation-delay-700"></div>
-              <p className="text-white text-lg font-light opacity-0 animate-fade-in animation-delay-800">
+              <div className="h-0.5 w-16 bg-primary rounded my-6 animate-slide-in-left animation-delay-400"></div>
+              <p className="text-white text-lg font-light animate-fade-in animation-delay-500">
                 Advanced AI-Powered Email Marketing
               </p>
-              <p className="text-gray-400 text-sm mt-2 max-w-sm opacity-0 animate-fade-in animation-delay-900">
+              <p className="text-gray-400 text-sm mt-2 max-w-sm animate-fade-in animation-delay-600">
                 Our AI reporting system provides deep insights and optimizes your email campaigns for maximum performance
               </p>
             </div>
@@ -115,7 +115,7 @@ export default function AuthPage() {
           
           {/* Feature highlights with code/AI styling */}
           <div className="relative z-10 space-y-4 mt-12">
-            <div className="flex items-start space-x-3 p-4 rounded-md bg-black/40 border border-gray-700/50 backdrop-blur-sm transition-all hover:border-primary/50 opacity-0 animate-slide-in-left animation-delay-1000">
+            <div className="flex items-start space-x-3 p-4 rounded-md bg-black/40 border border-gray-700/50 backdrop-blur-sm transition-all hover:border-primary/50 animate-slide-in-left animation-delay-700">
               <div className="text-primary font-mono mt-0.5">{">"}</div>
               <div>
                 <h3 className="font-medium text-white flex items-center">
@@ -126,7 +126,7 @@ export default function AuthPage() {
               </div>
             </div>
             
-            <div className="flex items-start space-x-3 p-4 rounded-md bg-black/40 border border-gray-700/50 backdrop-blur-sm transition-all hover:border-primary/50 opacity-0 animate-slide-in-left animation-delay-1100">
+            <div className="flex items-start space-x-3 p-4 rounded-md bg-black/40 border border-gray-700/50 backdrop-blur-sm transition-all hover:border-primary/50 animate-slide-in-left animation-delay-800">
               <div className="text-primary font-mono mt-0.5">{">"}</div>
               <div>
                 <h3 className="font-medium text-white flex items-center">
@@ -137,7 +137,7 @@ export default function AuthPage() {
               </div>
             </div>
             
-            <div className="flex items-start space-x-3 p-4 rounded-md bg-black/40 border border-gray-700/50 backdrop-blur-sm transition-all hover:border-primary/50 opacity-0 animate-slide-in-left animation-delay-1200">
+            <div className="flex items-start space-x-3 p-4 rounded-md bg-black/40 border border-gray-700/50 backdrop-blur-sm transition-all hover:border-primary/50 animate-slide-in-left animation-delay-900">
               <div className="text-primary font-mono mt-0.5">{">"}</div>
               <div>
                 <h3 className="font-medium text-white flex items-center">
@@ -160,29 +160,29 @@ export default function AuthPage() {
         <div className="w-full md:w-3/5 p-6 md:p-12 bg-gray-900 text-white">
           {/* Mobile logo */}
           <div className="flex flex-col items-center mb-8 md:hidden">
-            <div className="relative mb-4 opacity-0 animate-fade-in animate-glow">
+            <div className="relative mb-4 animate-glow">
               <img 
                 src={Infy} 
                 alt="Infinity Tech Logo" 
-                className="h-24 w-auto opacity-0 animate-scale-in animation-delay-300" 
+                className="h-24 w-auto animate-scale-in" 
               />
             </div>
-            <h1 className="text-2xl font-bold text-white tracking-tight mb-2 opacity-0 animate-slide-up animation-delay-600">
+            <h1 className="text-2xl font-bold text-white tracking-tight mb-2 animate-slide-up animation-delay-300">
               Infinity<span className="text-primary">Mailer</span>
             </h1>
-            <p className="text-gray-400 text-center max-w-xs opacity-0 animate-fade-in animation-delay-800">
+            <p className="text-gray-400 text-center max-w-xs animate-fade-in animation-delay-500">
               Advanced AI-Powered Email Marketing
             </p>
           </div>
           
-          <Card className="border-0 shadow-none bg-transparent opacity-0 animate-fade-in animation-delay-700">
+          <Card className="border-0 shadow-none bg-transparent animate-fade-in animation-delay-700">
             <CardHeader className="text-center md:text-left pb-2 space-y-1 px-0">
               <div className="flex items-center space-x-2 mb-1">
                 <div className="h-2 w-2 rounded-full bg-primary animate-pulse"></div>
                 <div className="text-xs font-mono text-primary">SYSTEM READY</div>
               </div>
-              <CardTitle className="text-2xl md:text-3xl font-bold text-white opacity-0 animate-slide-in-right animation-delay-900">Authentication Portal</CardTitle>
-              <CardDescription className="text-gray-400 opacity-0 animate-fade-in animation-delay-1000">Enter credentials to access your dashboard</CardDescription>
+              <CardTitle className="text-2xl md:text-3xl font-bold text-white animate-slide-in-right animation-delay-900">Authentication Portal</CardTitle>
+              <CardDescription className="text-gray-400 animate-fade-in animation-delay-1000">Enter credentials to access your dashboard</CardDescription>
             </CardHeader>
             
             <CardContent className="px-0 pt-6">
