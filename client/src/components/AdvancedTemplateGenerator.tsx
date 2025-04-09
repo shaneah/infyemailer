@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardHeader, CardContent, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
@@ -241,43 +240,11 @@ export default function AdvancedTemplateGenerator({ onTemplateGenerated }: Advan
     generateTemplateMutation.mutate(formData);
   };
 
-  return (
-    <Card className="mb-6 shadow-md border-0">
-      <CardHeader className="pb-0 pt-5 border-b">
-        <div className="flex items-center justify-between flex-wrap">
-          <div className="flex items-center mb-2">
-            <div className="bg-gradient-to-r from-blue-500 to-purple-600 p-2 rounded-full mr-3 shadow-md">
-              <Wand2 className="h-6 w-6 text-white" />
-            </div>
-            <div>
-              <CardTitle className="text-xl font-semibold">Advanced AI Template Designer</CardTitle>
-              <CardDescription className="text-sm mt-1">
-                Create professional email templates with AI-powered content and design
-              </CardDescription>
-            </div>
-          </div>
-          
-          <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as any)} className="mt-2">
-            <TabsList className="grid grid-cols-4 w-[340px]">
-              <TabsTrigger value="editor" className="text-xs">
-                <PencilLine className="h-3.5 w-3.5 mr-1" /> Content
-              </TabsTrigger>
-              <TabsTrigger value="design" className="text-xs">
-                <Palette className="h-3.5 w-3.5 mr-1" /> Design
-              </TabsTrigger>
-              <TabsTrigger value="preview" disabled={!generatedTemplate} className="text-xs">
-                <Eye className="h-3.5 w-3.5 mr-1" /> Preview
-              </TabsTrigger>
-              <TabsTrigger value="code" disabled={!generatedTemplate} className="text-xs">
-                <Code className="h-3.5 w-3.5 mr-1" /> HTML
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
-        </div>
-      </CardHeader>
-      
-      <CardContent className="pt-5">
-        <TabsContent value="editor" className="mt-0">
+  // Render the content based on active tab
+  const renderTabContent = () => {
+    switch(activeTab) {
+      case 'editor':
+        return (
           <form onSubmit={handleSubmit}>
             <div className="space-y-5">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -534,9 +501,10 @@ export default function AdvancedTemplateGenerator({ onTemplateGenerated }: Advan
               </div>
             </div>
           </form>
-        </TabsContent>
+        );
         
-        <TabsContent value="design" className="mt-0">
+      case 'design':
+        return (
           <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-3">
@@ -593,23 +561,90 @@ export default function AdvancedTemplateGenerator({ onTemplateGenerated }: Advan
                   <span className="text-xs text-muted-foreground">{templateStyle.accentColor}</span>
                 </div>
               </div>
-              <input 
+              <Input 
                 type="color" 
                 value={templateStyle.accentColor}
                 onChange={(e) => setTemplateStyle(prev => ({ ...prev, accentColor: e.target.value }))}
-                className="w-full h-10 cursor-pointer rounded-md p-0 border-0"
+                className="h-10 p-1 cursor-pointer"
               />
             </div>
-            
+              
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-3">
+                <Label className="text-sm font-medium">Typography Style</Label>
+                <Select 
+                  value={templateStyle.typographyStyle}
+                  onValueChange={(value) => 
+                    setTemplateStyle(prev => ({ ...prev, typographyStyle: value }))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select typography style" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="clean">Clean Sans-Serif</SelectItem>
+                    <SelectItem value="modern">Modern Mixed</SelectItem>
+                    <SelectItem value="elegant">Elegant Serif</SelectItem>
+                    <SelectItem value="minimal">Minimal</SelectItem>
+                    <SelectItem value="dynamic">Dynamic</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="space-y-3">
+                <Label className="text-sm font-medium">Button Style</Label>
+                <Select 
+                  value={templateStyle.buttonStyle}
+                  onValueChange={(value) => 
+                    setTemplateStyle(prev => ({ ...prev, buttonStyle: value }))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select button style" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="rounded">Rounded</SelectItem>
+                    <SelectItem value="pill">Pill</SelectItem>
+                    <SelectItem value="square">Square</SelectItem>
+                    <SelectItem value="soft">Soft Shadow</SelectItem>
+                    <SelectItem value="outline">Outline</SelectItem>
+                    <SelectItem value="gradient">Gradient</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+              
+            <div className="space-y-3">
+              <Label className="text-sm font-medium">Image Style</Label>
+              <Select 
+                value={templateStyle.imageStyle}
+                onValueChange={(value) => 
+                  setTemplateStyle(prev => ({ ...prev, imageStyle: value }))
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select image style" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="rounded">Rounded Corners</SelectItem>
+                  <SelectItem value="circle">Circular</SelectItem>
+                  <SelectItem value="square">Square/Rectangle</SelectItem>
+                  <SelectItem value="shadow">Drop Shadow</SelectItem>
+                  <SelectItem value="polaroid">Polaroid Frame</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+              
             <div className="space-y-3">
               <div className="flex justify-between items-center">
                 <Label className="text-sm font-medium">Spacing Density</Label>
                 <span className="text-xs text-muted-foreground">
                   {templateStyle.spacingDensity === 1 
                     ? "Compact" 
-                    : templateStyle.spacingDensity === 2 
-                      ? "Balanced" 
-                      : "Spacious"}
+                    : templateStyle.spacingDensity === 2
+                      ? "Balanced"
+                      : "Spacious"
+                  }
                 </span>
               </div>
               <Slider
@@ -617,261 +652,210 @@ export default function AdvancedTemplateGenerator({ onTemplateGenerated }: Advan
                 min={1}
                 max={3}
                 step={1}
-                onValueChange={(value) => setTemplateStyle(prev => ({ ...prev, spacingDensity: value[0] }))}
+                onValueChange={(values) => setTemplateStyle(prev => ({ ...prev, spacingDensity: values[0] }))}
+                className="py-4"
               />
-              <div className="flex justify-between text-xs text-muted-foreground">
-                <span>Compact</span>
-                <span>Balanced</span>
-                <span>Spacious</span>
-              </div>
             </div>
-            
-            <div className="space-y-6 pt-2">
-              <div>
-                <div className="flex items-center mb-4">
-                  <LucideImage className="h-5 w-5 mr-2 text-blue-500" />
-                  <h3 className="text-sm font-medium">Image Style</h3>
-                </div>
-                <RadioGroup 
-                  value={templateStyle.imageStyle}
-                  onValueChange={(value) => setTemplateStyle(prev => ({ ...prev, imageStyle: value }))}
-                  className="grid grid-cols-3 gap-4"
-                >
-                  <div className="border rounded-lg p-3 hover:border-blue-300 transition-colors cursor-pointer flex flex-col items-center text-center">
-                    <div className="mb-2 flex justify-center">
-                      <div className="w-12 h-12 bg-gray-100 border rounded border-gray-300"></div>
-                    </div>
-                    <RadioGroupItem value="square" id="image-square" className="mb-2" />
-                    <Label htmlFor="image-square" className="text-xs font-normal cursor-pointer">Square</Label>
-                  </div>
-                  <div className="border rounded-lg p-3 hover:border-blue-300 transition-colors cursor-pointer flex flex-col items-center text-center">
-                    <div className="mb-2 flex justify-center">
-                      <div className="w-12 h-12 bg-gray-100 border rounded-lg border-gray-300"></div>
-                    </div>
-                    <RadioGroupItem value="rounded" id="image-rounded" className="mb-2" />
-                    <Label htmlFor="image-rounded" className="text-xs font-normal cursor-pointer">Rounded</Label>
-                  </div>
-                  <div className="border rounded-lg p-3 hover:border-blue-300 transition-colors cursor-pointer flex flex-col items-center text-center">
-                    <div className="mb-2 flex justify-center">
-                      <div className="w-12 h-12 bg-gray-100 border rounded-full border-gray-300"></div>
-                    </div>
-                    <RadioGroupItem value="circle" id="image-circle" className="mb-2" />
-                    <Label htmlFor="image-circle" className="text-xs font-normal cursor-pointer">Circle</Label>
-                  </div>
-                </RadioGroup>
-              </div>
               
-              <div>
-                <div className="flex items-center mb-4">
-                  <Type className="h-5 w-5 mr-2 text-blue-500" />
-                  <h3 className="text-sm font-medium">Typography Style</h3>
-                </div>
-                <RadioGroup 
-                  value={templateStyle.typographyStyle}
-                  onValueChange={(value) => setTemplateStyle(prev => ({ ...prev, typographyStyle: value }))}
-                  className="grid grid-cols-3 gap-4"
-                >
-                  <div className="border rounded-lg p-3 hover:border-blue-300 transition-colors cursor-pointer flex flex-col items-center text-center">
-                    <div className="mb-2 flex flex-col items-center">
-                      <div className="w-16 h-3 bg-gray-800 mb-1"></div>
-                      <div className="w-12 h-2 bg-gray-400"></div>
-                    </div>
-                    <RadioGroupItem value="clean" id="typography-clean" className="mb-2" />
-                    <Label htmlFor="typography-clean" className="text-xs font-normal cursor-pointer">Clean</Label>
-                  </div>
-                  <div className="border rounded-lg p-3 hover:border-blue-300 transition-colors cursor-pointer flex flex-col items-center text-center">
-                    <div className="mb-2 flex flex-col items-center">
-                      <div className="w-16 h-3 bg-gray-800 italic mb-1"></div>
-                      <div className="w-12 h-2 bg-gray-400"></div>
-                    </div>
-                    <RadioGroupItem value="elegant" id="typography-elegant" className="mb-2" />
-                    <Label htmlFor="typography-elegant" className="text-xs font-normal cursor-pointer">Elegant</Label>
-                  </div>
-                  <div className="border rounded-lg p-3 hover:border-blue-300 transition-colors cursor-pointer flex flex-col items-center text-center">
-                    <div className="mb-2 flex flex-col items-center">
-                      <div className="w-16 h-3 bg-gray-800 font-bold mb-1"></div>
-                      <div className="w-12 h-2 bg-gray-400"></div>
-                    </div>
-                    <RadioGroupItem value="bold" id="typography-bold" className="mb-2" />
-                    <Label htmlFor="typography-bold" className="text-xs font-normal cursor-pointer">Bold</Label>
-                  </div>
-                </RadioGroup>
-              </div>
-              
-              <div>
-                <div className="flex items-center mb-4">
-                  <Layers className="h-5 w-5 mr-2 text-blue-500" />
-                  <h3 className="text-sm font-medium">Button Style</h3>
-                </div>
-                <RadioGroup 
-                  value={templateStyle.buttonStyle}
-                  onValueChange={(value) => setTemplateStyle(prev => ({ ...prev, buttonStyle: value }))}
-                  className="grid grid-cols-3 gap-4"
-                >
-                  <div className="border rounded-lg p-3 hover:border-blue-300 transition-colors cursor-pointer flex flex-col items-center text-center">
-                    <div className="mb-2 flex justify-center">
-                      <div className="w-16 h-6 bg-blue-500 text-white text-[10px] flex items-center justify-center">Button</div>
-                    </div>
-                    <RadioGroupItem value="square" id="button-square" className="mb-2" />
-                    <Label htmlFor="button-square" className="text-xs font-normal cursor-pointer">Square</Label>
-                  </div>
-                  <div className="border rounded-lg p-3 hover:border-blue-300 transition-colors cursor-pointer flex flex-col items-center text-center">
-                    <div className="mb-2 flex justify-center">
-                      <div className="w-16 h-6 bg-blue-500 rounded-md text-white text-[10px] flex items-center justify-center">Button</div>
-                    </div>
-                    <RadioGroupItem value="rounded" id="button-rounded" className="mb-2" />
-                    <Label htmlFor="button-rounded" className="text-xs font-normal cursor-pointer">Rounded</Label>
-                  </div>
-                  <div className="border rounded-lg p-3 hover:border-blue-300 transition-colors cursor-pointer flex flex-col items-center text-center">
-                    <div className="mb-2 flex justify-center">
-                      <div className="w-16 h-6 bg-blue-500 rounded-full text-white text-[10px] flex items-center justify-center">Button</div>
-                    </div>
-                    <RadioGroupItem value="pill" id="button-pill" className="mb-2" />
-                    <Label htmlFor="button-pill" className="text-xs font-normal cursor-pointer">Pill</Label>
-                  </div>
-                </RadioGroup>
-              </div>
-            </div>
-            
-            <Button 
-              className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 mt-4"
-              onClick={() => setActiveTab('editor')}
+            <Button
+              variant="secondary"
+              className="w-full"
+              onClick={() => {
+                if (!formData.industry || !formData.purpose || !formData.targetAudience) {
+                  toast({
+                    title: "Incomplete Content Information",
+                    description: "Please fill out all required content fields before updating design.",
+                    variant: "destructive"
+                  });
+                  setActiveTab('editor');
+                  return;
+                }
+                  
+                if (generatedTemplate) {
+                  setGeneratingTemplate(true);
+                  setTimeout(() => {
+                    setGeneratingTemplate(false);
+                    toast({
+                      title: "Design Updated",
+                      description: "The template design has been updated. Check the preview tab to see changes.",
+                    });
+                    setActiveTab('preview');
+                  }, 1500);
+                } else {
+                  toast({
+                    title: "Generate Template First",
+                    description: "Please generate a template in the Content tab before updating design.",
+                  });
+                  setActiveTab('editor');
+                }
+              }}
             >
-              <PencilLine className="mr-2 h-4 w-4" />
-              Back to Content Editor
+              <Palette className="mr-2 h-4 w-4" /> Update Template Design
             </Button>
+              
+            <div className="text-xs text-muted-foreground text-center">
+              Customize the visual appearance of your template. Changes will apply to your next generated template.
+            </div>
           </div>
-        </TabsContent>
-        
-        <TabsContent value="preview" className="mt-0">
-          {generatedTemplate ? (
-            <div className="space-y-4">
-              <div className="border rounded-lg overflow-hidden">
-                <div className="bg-gray-50 border-b p-3 flex justify-between items-center">
-                  <div>
-                    <h3 className="text-sm font-medium">{generatedTemplate.name}</h3>
-                    <p className="text-xs text-muted-foreground">Subject: {generatedTemplate.subject}</p>
-                  </div>
+        );
+          
+      case 'preview':
+        return (
+          <div className="space-y-6">
+            {generatedTemplate ? (
+              <div className="border rounded-md overflow-hidden flex-1 bg-white">
+                <div className="p-4 bg-gray-50 border-b flex justify-between items-center">
+                  <div className="text-sm font-medium">Template Preview</div>
                   <Button 
                     variant="outline" 
-                    size="sm" 
-                    className="text-xs"
-                    onClick={() => setActiveTab('code')}
+                    size="sm"
+                    className="h-8"
+                    onClick={() => window.open('/preview-template?id=' + generatedTemplate.id, '_blank')}
                   >
-                    <Code className="h-3.5 w-3.5 mr-1" />
-                    View HTML
+                    <Eye className="mr-2 h-3.5 w-3.5" /> Open in New Tab
                   </Button>
                 </div>
-                <div className="p-4 bg-white">
-                  <iframe
-                    title="Email Template Preview"
-                    srcDoc={previewHTML}
-                    style={{width: '100%', height: '500px', border: 'none'}}
-                    sandbox="allow-same-origin allow-popups"
-                  />
+                <div 
+                  className="p-4 overflow-auto h-[500px]"
+                  dangerouslySetInnerHTML={{ __html: previewHTML }}
+                />
+              </div>
+            ) : (
+              <div className="border rounded-md overflow-hidden flex-1 bg-white">
+                <div className="p-8 text-center text-muted-foreground">
+                  <FileText className="h-12 w-12 mx-auto mb-3 text-gray-300" />
+                  <h3 className="text-lg font-medium mb-2">No Template Generated Yet</h3>
+                  <p className="text-sm mb-4">Complete the content form and click "Generate AI Template" to create your template.</p>
+                  <Button 
+                    variant="outline"
+                    onClick={() => setActiveTab('editor')}
+                  >
+                    Go to Content Editor
+                  </Button>
                 </div>
               </div>
-              
-              <div className="flex space-x-3 justify-end">
-                <Button 
-                  variant="outline" 
-                  onClick={() => setActiveTab('editor')}
-                >
-                  <PencilLine className="mr-2 h-4 w-4" />
-                  Edit Content
-                </Button>
-                <Button 
-                  variant="outline" 
-                  onClick={() => setActiveTab('design')}
-                >
-                  <Palette className="mr-2 h-4 w-4" />
-                  Adjust Design
-                </Button>
-              </div>
-            </div>
-          ) : (
-            <div className="text-center p-12 border rounded-lg bg-gray-50">
-              <FileText className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-lg font-medium mb-2">No Template Generated</h3>
-              <p className="text-muted-foreground mb-4">
-                Fill out the content form and click "Generate AI Template" to preview your email.
-              </p>
-              <Button variant="default" onClick={() => setActiveTab('editor')}>
-                Go to Content Editor
-              </Button>
-            </div>
-          )}
-        </TabsContent>
-        
-        <TabsContent value="code" className="mt-0">
-          {generatedTemplate ? (
-            <div className="space-y-4">
-              <div className="relative">
-                <div className="flex justify-between items-center bg-gray-900 text-white p-3 rounded-t-lg">
-                  <span className="text-xs font-mono">HTML Code</span>
-                  <Button
-                    variant="ghost"
+            )}
+          </div>
+        );
+            
+      case 'code':
+        return (
+          <div className="space-y-6">
+            {generatedTemplate ? (
+              <div className="border rounded-md overflow-hidden flex-1">
+                <div className="p-4 bg-gray-50 border-b flex justify-between items-center">
+                  <div className="text-sm font-medium">HTML Source</div>
+                  <Button 
+                    variant="outline" 
                     size="sm"
-                    className="text-xs text-gray-200 hover:text-white"
+                    className="h-8"
                     onClick={() => {
-                      navigator.clipboard.writeText(generatedTemplate.content);
+                      navigator.clipboard.writeText(previewHTML);
                       toast({
-                        title: "Copied",
-                        description: "HTML code copied to clipboard",
-                        variant: "default",
+                        title: "Copied to clipboard",
+                        description: "The HTML code has been copied to your clipboard.",
                       });
                     }}
                   >
-                    <Code className="h-3.5 w-3.5 mr-1" />
-                    Copy HTML
+                    <FileText className="mr-2 h-3.5 w-3.5" /> Copy HTML
                   </Button>
                 </div>
-                <pre className="p-4 text-xs bg-gray-900 text-gray-100 overflow-auto rounded-b-lg max-h-[500px] font-mono">
-                  <code>{generatedTemplate.content || 'No template content available.'}</code>
-                </pre>
+                <div className="p-4 overflow-auto bg-gray-900 text-gray-100 text-sm font-mono whitespace-pre h-[500px]">
+                  {previewHTML}
+                </div>
               </div>
-              
-              <div className="flex space-x-3 justify-end">
-                <Button 
-                  variant="outline" 
-                  onClick={() => setActiveTab('preview')}
-                >
-                  <Eye className="mr-2 h-4 w-4" />
-                  View Preview
-                </Button>
-                <Button 
-                  variant="outline" 
-                  onClick={() => setActiveTab('editor')}
-                >
-                  <PencilLine className="mr-2 h-4 w-4" />
-                  Back to Editor
-                </Button>
+            ) : (
+              <div className="border rounded-md overflow-hidden flex-1 bg-white">
+                <div className="p-8 text-center text-muted-foreground">
+                  <Code className="h-12 w-12 mx-auto mb-3 text-gray-300" />
+                  <h3 className="text-lg font-medium mb-2">No HTML Code Available</h3>
+                  <p className="text-sm mb-4">Generate a template first to view its HTML code.</p>
+                  <Button 
+                    variant="outline"
+                    onClick={() => setActiveTab('editor')}
+                  >
+                    Go to Content Editor
+                  </Button>
+                </div>
               </div>
+            )}
+          </div>
+        );
+    }
+  };
+
+  return (
+    <Card className="mb-6 shadow-md border-0">
+      <CardHeader className="pb-0 pt-5 border-b">
+        <div className="flex items-center justify-between flex-wrap">
+          <div className="flex items-center mb-2">
+            <div className="bg-gradient-to-r from-blue-500 to-purple-600 p-2 rounded-full mr-3 shadow-md">
+              <Wand2 className="h-6 w-6 text-white" />
             </div>
-          ) : (
-            <div className="text-center p-12 border rounded-lg bg-gray-50">
-              <Code className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-lg font-medium mb-2">No HTML Code Available</h3>
-              <p className="text-muted-foreground mb-4">
-                Generate a template first to see the HTML code.
-              </p>
-              <Button variant="default" onClick={() => setActiveTab('editor')}>
-                Go to Content Editor
-              </Button>
+            <div>
+              <CardTitle className="text-xl font-semibold">Advanced AI Template Designer</CardTitle>
+              <CardDescription className="text-sm mt-1">
+                Create professional email templates with AI-powered content and design
+              </CardDescription>
             </div>
-          )}
-        </TabsContent>
+          </div>
+          
+          <div className="inline-flex h-10 items-center justify-center rounded-md bg-muted p-1 text-muted-foreground mt-2">
+            <button
+              type="button"
+              className={`inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-xs font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 ${
+                activeTab === "editor" ? "bg-background text-foreground shadow-sm" : ""
+              }`}
+              onClick={() => setActiveTab("editor")}
+            >
+              <PencilLine className="h-3.5 w-3.5 mr-1" /> Content
+            </button>
+            <button
+              type="button"
+              className={`inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-xs font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 ${
+                activeTab === "design" ? "bg-background text-foreground shadow-sm" : ""
+              }`}
+              onClick={() => setActiveTab("design")}
+            >
+              <Palette className="h-3.5 w-3.5 mr-1" /> Design
+            </button>
+            <button
+              type="button"
+              className={`inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-xs font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 ${
+                activeTab === "preview" ? "bg-background text-foreground shadow-sm" : ""
+              }`}
+              onClick={() => setActiveTab("preview")}
+              disabled={!generatedTemplate}
+            >
+              <Eye className="h-3.5 w-3.5 mr-1" /> Preview
+            </button>
+            <button
+              type="button"
+              className={`inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-xs font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 ${
+                activeTab === "code" ? "bg-background text-foreground shadow-sm" : ""
+              }`}
+              onClick={() => setActiveTab("code")}
+              disabled={!generatedTemplate}
+            >
+              <Code className="h-3.5 w-3.5 mr-1" /> HTML
+            </button>
+          </div>
+        </div>
+      </CardHeader>
+      
+      <CardContent className="pt-5">
+        {renderTabContent()}
       </CardContent>
       
       <CardFooter className="bg-gray-50 border-t py-3 px-6">
         <div className="text-xs text-muted-foreground w-full flex justify-between items-center">
-          <span>✨ Powered by OpenAI GPT-4o AI</span>
-          {generatedTemplate && (
-            <span className="font-medium text-green-600 flex items-center">
-              <Sparkles className="h-3.5 w-3.5 mr-1" />
-              Template Generated Successfully
-            </span>
-          )}
+          <span>Created with AI assistance</span>
+          <div className="flex items-center">
+            <span>Powered by</span>
+            <div className="text-sm font-semibold bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-purple-600 ml-1">
+              InfyMailer Pro
+            </div>
+          </div>
         </div>
       </CardFooter>
     </Card>
