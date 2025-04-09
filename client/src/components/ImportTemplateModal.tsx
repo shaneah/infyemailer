@@ -29,21 +29,77 @@ export default function ImportTemplateModal({ open, onOpenChange, onImportSucces
   // Import HTML template mutation
   const importHtmlMutation = useMutation({
     mutationFn: async (data: { name: string; content: string }) => {
-      const response = await apiRequest("POST", "/api/templates", {
-        name: data.name,
-        content: data.content,
-        description: `Imported HTML template: ${data.name}`,
-        category: "imported",
-        subject: `${data.name} Subject`,
-        metadata: {
-          importedFromHtml: true,
-          new: true
+      console.log("Importing HTML template...", data.name);
+      try {
+        // Create a template object with responsive email structure
+        const templateData = {
+          name: data.name,
+          content: JSON.stringify({
+            name: data.name,
+            subject: `${data.name}`,
+            previewText: `${data.name} - Imported HTML Template`,
+            sections: [
+              {
+                id: `section-${Date.now()}`,
+                elements: [
+                  {
+                    id: `element-${Date.now()}`,
+                    type: "text",
+                    content: { 
+                      text: "This template was imported from HTML. You can now edit it using the drag-and-drop editor." 
+                    },
+                    styles: { 
+                      fontSize: "16px", 
+                      color: "#666666", 
+                      textAlign: "left" 
+                    }
+                  },
+                  {
+                    id: `element-${Date.now() + 1}`,
+                    type: "html",
+                    content: { 
+                      html: data.content 
+                    },
+                    styles: {}
+                  }
+                ],
+                styles: {
+                  backgroundColor: "#ffffff",
+                  padding: "12px"
+                }
+              }
+            ],
+            styles: {
+              fontFamily: "Arial, sans-serif",
+              backgroundColor: "#f4f4f4",
+              maxWidth: "600px"
+            }
+          }),
+          description: `Imported HTML template: ${data.name}`,
+          category: "imported",
+          subject: `${data.name} Subject`,
+          metadata: {
+            importedFromHtml: true,
+            new: true,
+            originalHtml: data.content
+          }
+        };
+
+        console.log("Sending template data...");
+        const response = await apiRequest("POST", "/api/templates", templateData);
+        
+        if (!response.ok) {
+          throw new Error(`Server returned ${response.status}: ${response.statusText}`);
         }
-      });
-      
-      return await response.json();
+        
+        return await response.json();
+      } catch (error) {
+        console.error("Error in mutation function:", error);
+        throw error;
+      }
     },
     onSuccess: (data) => {
+      console.log("Import success:", data);
       queryClient.invalidateQueries({ queryKey: ['/api/templates'] });
       onImportSuccess(data);
       toast({
@@ -58,7 +114,7 @@ export default function ImportTemplateModal({ open, onOpenChange, onImportSucces
       console.error("Error importing template:", error);
       toast({
         title: "Import Failed",
-        description: "Failed to import template. Please check your HTML code.",
+        description: "Failed to import template: " + (error.message || "Unknown error"),
         variant: "destructive"
       });
     }

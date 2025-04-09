@@ -13,7 +13,7 @@ import {
   AlignLeft, AlignCenter, AlignRight, Bold, Italic, Underline, Image, 
   Link, List, ListOrdered, Type, Grid, Layout, Columns, Rows, Save, 
   ArrowLeft, Loader2, SeparatorHorizontal, X, ArrowDown, Settings, Palette,
-  Plus, Trash2, MoveVertical, Copy
+  Plus, Trash2, MoveVertical, Copy, Code, Eye, ArrowUp
 } from "lucide-react";
 
 // Define types for our email elements
@@ -243,6 +243,27 @@ const ElementRenderer: React.FC<ElementRendererProps> = ({ element, isSelected, 
         </div>
       );
       
+    case 'html':
+      return (
+        <div onClick={onClick} className={`${baseClass} p-3`}>
+          <div className={`absolute top-0 right-0 ${isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} transition-opacity bg-primary text-white text-xs rounded-bl-md px-1.5 py-0.5`}>
+            HTML
+          </div>
+          <div className="relative">
+            <iframe 
+              srcDoc={content.html || '<div style="padding: 20px; text-align: center;">HTML content will display here</div>'} 
+              title="HTML Content" 
+              className="w-full border rounded min-h-[100px]"
+              style={{ 
+                height: styles.height || '200px',
+                pointerEvents: 'none'
+              }}
+            />
+            <div className="absolute inset-0 bg-transparent"></div>
+          </div>
+        </div>
+      );
+    
     default:
       return null;
   }
@@ -599,10 +620,40 @@ const PropertyEditor: React.FC<PropertyEditorProps> = ({
               />
             </div>
           )}
+          
+          {type === 'html' && (
+            <div>
+              <Label htmlFor="htmlContent" className="text-gray-700 mb-1 block text-sm font-medium">HTML Content</Label>
+              <Textarea 
+                id="htmlContent"
+                value={content.html || ''} 
+                onChange={(e) => updateElement(id, { content: { ...content, html: e.target.value } })}
+                className="mt-1.5 min-h-[300px] font-mono text-xs"
+                placeholder="Enter your HTML code here"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Use valid HTML with inline CSS for best email client compatibility.
+              </p>
+            </div>
+          )}
         </TabsContent>
         
         <TabsContent value="style" className="pt-4 space-y-4">
           {/* Style properties by element type */}
+          {type === 'html' && (
+            <div>
+              <Label htmlFor="htmlHeight" className="text-gray-700 mb-1 block text-sm font-medium">Height</Label>
+              <Input 
+                id="htmlHeight"
+                value={styles.height || '200px'} 
+                onChange={(e) => updateElement(id, { styles: { ...styles, height: e.target.value } })}
+                placeholder="200px, 300px, etc."
+                className="mt-1.5 text-sm"
+              />
+              <p className="text-xs text-gray-500 mt-1">Specify the height of the HTML content container (e.g., 200px)</p>
+            </div>
+          )}
+          
           {(type === 'header' || type === 'text' || type === 'button') && (
             <>
               <div>
@@ -1261,6 +1312,15 @@ const EmailEditor: React.FC<{
           content: {},
           styles: { height: 30 }
         };
+      case 'html':
+        return {
+          id,
+          type,
+          content: { 
+            html: '<div style="padding: 20px; text-align: center; font-family: Arial, sans-serif; color: #666;">This is a custom HTML component.<br>Edit the HTML in the properties panel.</div>' 
+          },
+          styles: { height: '200px' }
+        };
       default:
         return {
           id,
@@ -1707,6 +1767,12 @@ const EmailEditor: React.FC<{
                 type="spacer" 
                 icon={<Layout className="h-4 w-4" />} 
                 label="Spacer" 
+                onDragStart={handleDragStart} 
+              />
+              <ToolboxItem 
+                type="html" 
+                icon={<Code className="h-4 w-4" />} 
+                label="HTML" 
                 onDragStart={handleDragStart} 
               />
             </div>
