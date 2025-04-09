@@ -11,7 +11,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import Logo from "@/assets/Logo-white.png";
-import Infy from "@/assets/infinity-tech-logo.png";
+import Infy from "@/assets/infinity-tech-logo-symbol.png";
 import { Mail, Lock, Info, CheckCircle, ChevronRight } from "lucide-react";
 
 // Admin login schema
@@ -91,9 +91,14 @@ export default function AuthPage() {
           {/* Logo and branding */}
           <div className="relative z-10 mt-4">
             <div className="flex flex-col items-start">
-              <div className="flex items-center space-x-3 mb-4">
-                <img src={Infy} alt="Infinity Tech Logo" className="h-16 w-auto" />
-                <h1 className="text-3xl font-bold text-white tracking-tight">Infinity<span className="text-primary">Mailer</span></h1>
+              <div className="mb-4 flex flex-col items-start">
+                <div className="flex items-center">
+                  <img src={Infy} alt="Infinity Tech Logo" className="h-16 w-auto" />
+                  <div className="ml-4 flex flex-col">
+                    <h2 className="text-lg text-gray-400 font-medium">INFINITY TECH</h2>
+                    <h1 className="text-3xl font-bold text-white tracking-tight">Infinity<span className="text-primary">Mailer</span></h1>
+                  </div>
+                </div>
               </div>
               <div className="h-0.5 w-16 bg-primary rounded my-6"></div>
               <p className="text-white text-lg font-light">
@@ -152,8 +157,13 @@ export default function AuthPage() {
         <div className="w-full md:w-3/5 p-6 md:p-12 bg-gray-900 text-white">
           {/* Mobile logo */}
           <div className="flex flex-col items-center mb-8 md:hidden">
-            <img src={Infy} alt="Infinity Tech Logo" className="h-20 w-auto mb-3" />
-            <h1 className="text-2xl font-bold mb-2">Infinity<span className="text-primary">Mailer</span></h1>
+            <div className="flex items-center mb-2">
+              <img src={Infy} alt="Infinity Tech Logo" className="h-16 w-auto" />
+              <div className="ml-3 flex flex-col">
+                <h2 className="text-sm text-gray-400 font-medium">INFINITY TECH</h2>
+                <h1 className="text-xl font-bold text-white tracking-tight">Infinity<span className="text-primary">Mailer</span></h1>
+              </div>
+            </div>
             <p className="text-gray-400 text-center max-w-xs">Advanced AI-Powered Email Marketing</p>
           </div>
           
