@@ -9,6 +9,7 @@ import { useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Upload, Code, File } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
 
 interface ImportTemplateModalProps {
   open: boolean;
@@ -21,9 +22,11 @@ export default function ImportTemplateModal({ open, onOpenChange, onImportSucces
   const [templateName, setTemplateName] = useState<string>("");
   const [htmlContent, setHtmlContent] = useState<string>("");
   const [zipFile, setZipFile] = useState<File | null>(null);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [htmlFile, setHtmlFile] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState<boolean>(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isHtmlDragging, setIsHtmlDragging] = useState<boolean>(false);
+  const zipFileInputRef = useRef<HTMLInputElement>(null);
+  const htmlFileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
   // Import HTML template mutation
@@ -81,6 +84,8 @@ export default function ImportTemplateModal({ open, onOpenChange, onImportSucces
           metadata: {
             importedFromHtml: true,
             new: true,
+            importMethod: htmlFile ? 'file' : 'paste',
+            originalFileName: htmlFile?.name,
             originalHtml: data.content
           }
         };
@@ -108,6 +113,7 @@ export default function ImportTemplateModal({ open, onOpenChange, onImportSucces
       });
       onOpenChange(false);
       setHtmlContent("");
+      setHtmlFile(null);
       setTemplateName("");
     },
     onError: (error: any) => {
@@ -206,7 +212,7 @@ export default function ImportTemplateModal({ open, onOpenChange, onImportSucces
     });
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleZipFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       // Check for .zip extension or zip mime type
@@ -225,6 +231,34 @@ export default function ImportTemplateModal({ open, onOpenChange, onImportSucces
       }
     }
   };
+  
+  const handleHtmlFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Check for .html extension or html mime type
+      const isHtml = file.name.toLowerCase().endsWith('.html') || 
+                    file.name.toLowerCase().endsWith('.htm') || 
+                    file.type === "text/html";
+      
+      if (isHtml) {
+        setHtmlFile(file);
+        
+        // Read file content
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const content = e.target?.result as string;
+          setHtmlContent(content || "");
+        };
+        reader.readAsText(file);
+      } else {
+        toast({
+          title: "Invalid File",
+          description: "Please select a valid HTML file",
+          variant: "destructive"
+        });
+      }
+    }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -232,7 +266,7 @@ export default function ImportTemplateModal({ open, onOpenChange, onImportSucces
         <DialogHeader>
           <DialogTitle>Import Email Template</DialogTitle>
           <DialogDescription>
-            Import an existing email template by uploading HTML code or a ZIP file with HTML and assets.
+            Import an existing email template by uploading HTML code, an HTML file, or a ZIP file with HTML and assets.
           </DialogDescription>
         </DialogHeader>
 
@@ -250,7 +284,7 @@ export default function ImportTemplateModal({ open, onOpenChange, onImportSucces
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="html" className="flex items-center gap-2">
-                <Code className="h-4 w-4" /> HTML Code
+                <Code className="h-4 w-4" /> HTML Import
               </TabsTrigger>
               <TabsTrigger value="zip" className="flex items-center gap-2">
                 <File className="h-4 w-4" /> ZIP File
@@ -259,17 +293,114 @@ export default function ImportTemplateModal({ open, onOpenChange, onImportSucces
             
             <TabsContent value="html" className="space-y-4 mt-4">
               <div className="space-y-4">
-                <Label htmlFor="htmlContent">HTML Content</Label>
-                <Textarea
-                  id="htmlContent"
-                  placeholder="Paste your HTML code here"
-                  className="min-h-[300px] font-mono text-sm"
-                  value={htmlContent}
-                  onChange={(e) => setHtmlContent(e.target.value)}
-                />
-                <p className="text-sm text-muted-foreground">
-                  Paste valid HTML code for your email template. Include all CSS inline for best email client compatibility.
-                </p>
+                {/* HTML File Upload */}
+                <div className="space-y-2">
+                  <Label>Upload HTML File</Label>
+                  <div 
+                    className={`border-2 border-dashed rounded-md p-4 flex flex-col items-center justify-center
+                      ${isHtmlDragging ? 'border-primary bg-primary/5' : 'border-border'}`}
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setIsHtmlDragging(true);
+                    }}
+                    onDragEnter={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setIsHtmlDragging(true);
+                    }}
+                    onDragLeave={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setIsHtmlDragging(false);
+                    }}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setIsHtmlDragging(false);
+                      
+                      const files = e.dataTransfer.files;
+                      if (files.length > 0) {
+                        const file = files[0];
+                        const isHtml = file.name.toLowerCase().endsWith('.html') || 
+                                    file.name.toLowerCase().endsWith('.htm') || 
+                                    file.type === "text/html";
+                        
+                        if (isHtml) {
+                          setHtmlFile(file);
+                          
+                          // Read file content
+                          const reader = new FileReader();
+                          reader.onload = (e) => {
+                            const content = e.target?.result as string;
+                            setHtmlContent(content || "");
+                          };
+                          reader.readAsText(file);
+                        } else {
+                          toast({
+                            title: "Invalid File",
+                            description: "Please select a valid HTML file",
+                            variant: "destructive"
+                          });
+                        }
+                      }
+                    }}
+                    onClick={() => htmlFileInputRef.current?.click()}
+                  >
+                    <Upload className={`h-8 w-8 mb-2 ${isHtmlDragging ? 'text-primary' : 'text-muted-foreground'}`} />
+                    <p className="text-sm text-muted-foreground text-center mb-2">
+                      {isHtmlDragging ? (
+                        <span className="font-medium text-primary">Drop HTML file here</span>
+                      ) : (
+                        <>
+                          Drag and drop HTML file here, or click to browse
+                        </>
+                      )}
+                    </p>
+                    <Input
+                      ref={htmlFileInputRef}
+                      id="htmlFile"
+                      type="file"
+                      accept=".html,.htm,text/html"
+                      className="hidden"
+                      onChange={handleHtmlFileChange}
+                    />
+                    <Button variant="outline" size="sm" type="button" onClick={(e) => {
+                      e.stopPropagation();
+                      htmlFileInputRef.current?.click();
+                    }}>
+                      <Upload className="h-4 w-4 mr-2" />
+                      Select HTML File
+                    </Button>
+                    {htmlFile && (
+                      <p className="text-sm text-primary mt-2">
+                        Selected: {htmlFile.name} ({Math.round(htmlFile.size / 1024)} KB)
+                      </p>
+                    )}
+                  </div>
+                </div>
+                
+                <div className="relative my-4">
+                  <Separator />
+                  <div className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 px-2 bg-background text-xs text-muted-foreground">
+                    OR PASTE HTML CODE
+                  </div>
+                </div>
+                
+                {/* HTML Content Textarea */}
+                <div className="space-y-2">
+                  <Label htmlFor="htmlContent">HTML Content</Label>
+                  <Textarea
+                    id="htmlContent"
+                    placeholder="Paste your HTML code here"
+                    className="min-h-[200px] font-mono text-sm"
+                    value={htmlContent}
+                    onChange={(e) => setHtmlContent(e.target.value)}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Paste valid HTML code for your email template. Include all CSS inline for best email client compatibility.
+                  </p>
+                </div>
               </div>
             </TabsContent>
 
@@ -317,7 +448,7 @@ export default function ImportTemplateModal({ open, onOpenChange, onImportSucces
                       }
                     }
                   }}
-                  onClick={() => fileInputRef.current?.click()}
+                  onClick={() => zipFileInputRef.current?.click()}
                 >
                   <Upload className={`h-10 w-10 mb-4 ${isDragging ? 'text-primary' : 'text-muted-foreground'}`} />
                   <p className="text-sm text-muted-foreground text-center mb-4">
@@ -332,16 +463,16 @@ export default function ImportTemplateModal({ open, onOpenChange, onImportSucces
                     )}
                   </p>
                   <Input
-                    ref={fileInputRef}
+                    ref={zipFileInputRef}
                     id="zipFile"
                     type="file"
                     accept=".zip,.zip-compressed"
                     className="hidden"
-                    onChange={handleFileChange}
+                    onChange={handleZipFileChange}
                   />
                   <Button variant="outline" type="button" onClick={(e) => {
                     e.stopPropagation();
-                    fileInputRef.current?.click();
+                    zipFileInputRef.current?.click();
                   }}>
                     <Upload className="h-4 w-4 mr-2" />
                     Select ZIP File
