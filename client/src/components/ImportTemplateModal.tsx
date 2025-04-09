@@ -27,21 +27,26 @@ export default function ImportTemplateModal({ open, onOpenChange, onImportSucces
   // Import HTML template mutation
   const importHtmlMutation = useMutation({
     mutationFn: async (data: { name: string; content: string }) => {
-      return apiRequest("POST", "/api/templates", {
+      const response = await apiRequest("POST", "/api/templates", {
         name: data.name,
         content: data.content,
         description: `Imported HTML template: ${data.name}`,
-        category: "imported"
+        category: "imported",
+        subject: `${data.name} Subject`,
+        metadata: {
+          importedFromHtml: true,
+          new: true
+        }
       });
+      
+      return await response.json();
     },
-    onSuccess: (response) => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['/api/templates'] });
-      response.json().then(data => {
-        onImportSuccess(data);
-        toast({
-          title: "Template Imported",
-          description: "HTML template has been successfully imported",
-        });
+      onImportSuccess(data);
+      toast({
+        title: "Template Imported",
+        description: "HTML template has been successfully imported",
       });
       onOpenChange(false);
       setHtmlContent("");
@@ -64,20 +69,20 @@ export default function ImportTemplateModal({ open, onOpenChange, onImportSucces
       formData.append("name", data.name);
       formData.append("file", data.file);
       
-      return apiRequest("POST", "/api/templates/import-zip", formData, {
+      const response = await apiRequest("POST", "/api/templates/import-zip", formData, {
         headers: {
           // Don't set Content-Type here, it will be set automatically with the correct boundary
         }
       });
+      
+      return await response.json();
     },
-    onSuccess: (response) => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['/api/templates'] });
-      response.json().then(data => {
-        onImportSuccess(data);
-        toast({
-          title: "Template Imported",
-          description: "ZIP template has been successfully imported",
-        });
+      onImportSuccess(data);
+      toast({
+        title: "Template Imported",
+        description: "ZIP template has been successfully imported",
       });
       onOpenChange(false);
       setZipFile(null);

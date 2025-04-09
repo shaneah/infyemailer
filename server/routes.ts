@@ -753,12 +753,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Create a new template
   app.post('/api/templates', async (req: Request, res: Response) => {
     try {
-      const validatedData = validate(insertTemplateSchema, req.body);
-      if ('error' in validatedData) {
-        return res.status(400).json({ error: validatedData.error });
+      // Allow more flexible template creation for imports
+      const { name, content, description, category, subject, metadata } = req.body;
+      
+      if (!name || !content) {
+        return res.status(400).json({ error: 'Name and content are required' });
       }
       
-      const template = await storage.createTemplate(validatedData);
+      const template = await storage.createTemplate({
+        name,
+        content,
+        description: description || `Template: ${name}`,
+        category: category || 'general',
+        subject: subject || `${name} Subject`,
+        metadata: metadata || {}
+      });
+      
       res.status(201).json(template);
     } catch (error) {
       console.error('Error creating template:', error);
@@ -769,41 +779,65 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Import ZIP template
   app.post('/api/templates/import-zip', async (req: Request, res: Response) => {
     try {
-      // This endpoint would typically extract the ZIP file and process its contents
-      // For now, we'll create a template with a mock implementation
+      // Get the template name from the request
       const { name } = req.body;
       
       if (!name) {
         return res.status(400).json({ error: 'Template name is required' });
       }
       
-      // In a real implementation, we would:
-      // 1. Save the uploaded ZIP file temporarily
-      // 2. Extract its contents
-      // 3. Process the HTML and move assets to a public directory
-      // 4. Create a template with proper references to those assets
-      
-      // For this mock implementation, we'll create a basic template
+      // Simulated ZIP file processing
+      // Create a template with sample responsive email content
       const template = await storage.createTemplate({
         name: name,
-        content: `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h1 style="color: #3b82f6;">Imported ZIP Template: ${name}</h1>
-          <p>This is a placeholder for an imported ZIP template. In a real implementation, the content would come from the uploaded ZIP file.</p>
-          <p>The ZIP import feature would typically:</p>
-          <ul>
-            <li>Extract all files from the ZIP</li>
-            <li>Process the main HTML file</li>
-            <li>Handle any assets (images, CSS files, etc.)</li>
-            <li>Update references to make everything work</li>
-          </ul>
-        </div>`,
+        subject: `${name} Subject`,
+        content: `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${name}</title>
+  <style>
+    body { margin: 0; padding: 0; font-family: Arial, sans-serif; }
+    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+    .header { background-color: #3b82f6; padding: 20px; text-align: center; }
+    .header h1 { color: white; margin: 0; }
+    .content { padding: 20px; background-color: #f9fafb; }
+    .footer { padding: 20px; text-align: center; color: #6b7280; font-size: 12px; }
+    .button { display: inline-block; background-color: #3b82f6; color: white; 
+              text-decoration: none; padding: 10px 20px; border-radius: 4px; }
+    @media only screen and (max-width: 480px) {
+      .container { width: 100%; }
+      .header h1 { font-size: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Imported Template: ${name}</h1>
+    </div>
+    <div class="content">
+      <p>This is an imported email template from a ZIP file.</p>
+      <p>In a real implementation, this would contain the content from your uploaded ZIP file.</p>
+      <p style="text-align: center; margin: 30px 0;">
+        <a href="#" class="button">Call to Action</a>
+      </p>
+      <p>This responsive template works well on mobile and desktop email clients.</p>
+    </div>
+    <div class="footer">
+      <p>© 2025 Your Company. All rights reserved.</p>
+      <p>123 Main Street, Anytown, USA</p>
+      <p><a href="#">Unsubscribe</a> | <a href="#">View in Browser</a></p>
+    </div>
+  </div>
+</body>
+</html>`,
         description: `Imported ZIP template: ${name}`,
         category: 'imported',
         metadata: {
-          icon: 'file-zip',
-          iconColor: 'primary',
-          new: true,
-          importedFromZip: true
+          importedFromZip: true,
+          new: true
         }
       });
       
