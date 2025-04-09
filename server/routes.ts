@@ -750,6 +750,70 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Create a new template
+  app.post('/api/templates', async (req: Request, res: Response) => {
+    try {
+      const validatedData = validate(insertTemplateSchema, req.body);
+      if ('error' in validatedData) {
+        return res.status(400).json({ error: validatedData.error });
+      }
+      
+      const template = await storage.createTemplate(validatedData);
+      res.status(201).json(template);
+    } catch (error) {
+      console.error('Error creating template:', error);
+      res.status(500).json({ error: 'Failed to create template' });
+    }
+  });
+  
+  // Import ZIP template
+  app.post('/api/templates/import-zip', async (req: Request, res: Response) => {
+    try {
+      // This endpoint would typically extract the ZIP file and process its contents
+      // For now, we'll create a template with a mock implementation
+      const { name } = req.body;
+      
+      if (!name) {
+        return res.status(400).json({ error: 'Template name is required' });
+      }
+      
+      // In a real implementation, we would:
+      // 1. Save the uploaded ZIP file temporarily
+      // 2. Extract its contents
+      // 3. Process the HTML and move assets to a public directory
+      // 4. Create a template with proper references to those assets
+      
+      // For this mock implementation, we'll create a basic template
+      const template = await storage.createTemplate({
+        name: name,
+        content: `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h1 style="color: #3b82f6;">Imported ZIP Template: ${name}</h1>
+          <p>This is a placeholder for an imported ZIP template. In a real implementation, the content would come from the uploaded ZIP file.</p>
+          <p>The ZIP import feature would typically:</p>
+          <ul>
+            <li>Extract all files from the ZIP</li>
+            <li>Process the main HTML file</li>
+            <li>Handle any assets (images, CSS files, etc.)</li>
+            <li>Update references to make everything work</li>
+          </ul>
+        </div>`,
+        description: `Imported ZIP template: ${name}`,
+        category: 'imported',
+        metadata: {
+          icon: 'file-zip',
+          iconColor: 'primary',
+          new: true,
+          importedFromZip: true
+        }
+      });
+      
+      res.status(201).json(template);
+    } catch (error) {
+      console.error('Error importing ZIP template:', error);
+      res.status(500).json({ error: 'Failed to import template' });
+    }
+  });
+
   // Send an individual email
   app.post('/api/emails', async (req: Request, res: Response) => {
     const validatedData = validate(insertEmailSchema, req.body);

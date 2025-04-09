@@ -21,11 +21,14 @@ import {
   Sparkles,
   Wand2,
   ChevronDown,
-  Eye
+  Eye,
+  Upload,
+  Import
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AdvancedTemplateGenerator from "@/components/AdvancedTemplateGenerator";
+import ImportTemplateModal from "@/components/ImportTemplateModal";
 import { 
   Collapsible,
   CollapsibleContent,
@@ -53,6 +56,7 @@ export default function Templates() {
   const [searchQuery, setSearchQuery] = useState("");
   const [showAIGenerator, setShowAIGenerator] = useState(false);
   const [activeTab, setActiveTab] = useState<string>("all");
+  const [showImportModal, setShowImportModal] = useState(false);
   
   const { data: savedTemplates = [], isLoading: isLoadingTemplates } = useQuery({
     queryKey: ['/api/templates'],
@@ -88,6 +92,15 @@ export default function Templates() {
     toast({
       title: "Template Created",
       description: "Your AI template has been generated and saved to the library",
+      variant: "default",
+    });
+    setSelectedTemplate(template);
+  };
+  
+  const handleImportSuccess = (template: Template) => {
+    toast({
+      title: "Template Imported",
+      description: "Your template has been successfully imported",
       variant: "default",
     });
     setSelectedTemplate(template);
@@ -145,6 +158,14 @@ export default function Templates() {
                 </>
               )}
             </Button>
+            <Button 
+              variant="outline" 
+              className="gap-2"
+              onClick={() => setShowImportModal(true)}
+            >
+              <Import className="h-4 w-4" /> 
+              Import Template
+            </Button>
             <Link href="/template-builder">
               <Button className="gap-2">
                 <PlusCircle className="h-4 w-4" /> 
@@ -200,6 +221,14 @@ export default function Templates() {
               >
                 <Wand2 className="h-4 w-4" /> 
                 Use AI Generator
+              </Button>
+              <Button 
+                variant="outline" 
+                className="gap-2"
+                onClick={() => setShowImportModal(true)}
+              >
+                <Import className="h-4 w-4" /> 
+                Import Template
               </Button>
               <Link href="/template-builder">
                 <Button className="gap-2">
@@ -323,6 +352,12 @@ export default function Templates() {
           </Card>
         </div>
       )}
+      
+      <ImportTemplateModal 
+        open={showImportModal}
+        onOpenChange={setShowImportModal}
+        onImportSuccess={handleImportSuccess}
+      />
     </div>
   );
 }
