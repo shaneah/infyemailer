@@ -11,7 +11,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import Logo from "@/assets/Logo-white.png";
-import Infy from "@/assets/infy.png";
+import Infy from "@/assets/infinity-tech-logo.png";
 import { Mail, Lock, Info, CheckCircle, ChevronRight } from "lucide-react";
 
 // Admin login schema
@@ -92,8 +92,8 @@ export default function AuthPage() {
           <div className="relative z-10 mt-4">
             <div className="flex flex-col items-start">
               <div className="flex items-center space-x-3 mb-4">
-                <img src={Infy} alt="InfyMailer Logo" className="h-12 w-12" />
-                <h1 className="text-3xl font-bold text-white tracking-tight">Infy<span className="text-primary">Mailer</span></h1>
+                <img src={Infy} alt="Infinity Tech Logo" className="h-16 w-auto" />
+                <h1 className="text-3xl font-bold text-white tracking-tight">Infinity<span className="text-primary">Mailer</span></h1>
               </div>
               <div className="h-0.5 w-16 bg-primary rounded my-6"></div>
               <p className="text-white text-lg font-light">
@@ -144,7 +144,7 @@ export default function AuthPage() {
           {/* Copyright */}
           <div className="relative z-10 text-gray-500 text-sm mt-6 flex flex-col">
             <div className="text-xs text-gray-600 font-mono mb-2">v3.4.2 • AI Engine: GPT-4o</div>
-            &copy; {new Date().getFullYear()} InfyTech. All rights reserved.
+            &copy; {new Date().getFullYear()} Infinity Tech. All rights reserved.
           </div>
         </div>
         
@@ -152,8 +152,8 @@ export default function AuthPage() {
         <div className="w-full md:w-3/5 p-6 md:p-12 bg-gray-900 text-white">
           {/* Mobile logo */}
           <div className="flex flex-col items-center mb-8 md:hidden">
-            <img src={Infy} alt="InfyMailer Logo" className="h-16 mb-3" />
-            <h1 className="text-2xl font-bold mb-2">Infy<span className="text-primary">Mailer</span></h1>
+            <img src={Infy} alt="Infinity Tech Logo" className="h-20 w-auto mb-3" />
+            <h1 className="text-2xl font-bold mb-2">Infinity<span className="text-primary">Mailer</span></h1>
             <p className="text-gray-400 text-center max-w-xs">Advanced AI-Powered Email Marketing</p>
           </div>
           
