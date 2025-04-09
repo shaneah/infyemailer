@@ -159,19 +159,12 @@ export default function Templates() {
               )}
             </Button>
             <Button 
-              variant="outline" 
               className="gap-2"
               onClick={() => setShowImportModal(true)}
             >
               <Import className="h-4 w-4" /> 
               Import Template
             </Button>
-            <Link href="/template-builder">
-              <Button className="gap-2">
-                <PlusCircle className="h-4 w-4" /> 
-                Create Manual Template
-              </Button>
-            </Link>
           </div>
         </div>
 
@@ -223,18 +216,12 @@ export default function Templates() {
                 Use AI Generator
               </Button>
               <Button 
-                variant="outline" 
                 className="gap-2"
                 onClick={() => setShowImportModal(true)}
               >
                 <Import className="h-4 w-4" /> 
                 Import Template
               </Button>
-              <Link href="/template-builder">
-                <Button className="gap-2">
-                  <PlusCircle className="h-4 w-4" /> Create Manual Template
-                </Button>
-              </Link>
             </div>
           </div>
         ) : (
