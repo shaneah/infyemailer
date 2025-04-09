@@ -192,7 +192,7 @@ export default function AuthPage() {
                     control={form.control}
                     name="usernameOrEmail"
                     render={({ field }) => (
-                      <FormItem className="opacity-0 animate-slide-in-right animation-delay-1200">
+                      <FormItem className="animate-slide-in-right animation-delay-1000">
                         <FormLabel className="flex items-center text-gray-300 font-mono text-sm block mb-1.5">
                           <span className="text-primary mr-2">[user]</span>USERNAME
                         </FormLabel>
@@ -212,7 +212,7 @@ export default function AuthPage() {
                     control={form.control}
                     name="password"
                     render={({ field }) => (
-                      <FormItem className="opacity-0 animate-slide-in-right animation-delay-1400">
+                      <FormItem className="animate-slide-in-right animation-delay-1100">
                         <div className="flex justify-between mb-1.5">
                           <FormLabel className="flex items-center text-gray-300 font-mono text-sm">
                             <span className="text-primary mr-2">[auth]</span>PASSWORD
@@ -234,7 +234,7 @@ export default function AuthPage() {
                     )}
                   />
                   
-                  <div className="flex items-center justify-between opacity-0 animate-fade-in animation-delay-1600">
+                  <div className="flex items-center justify-between animate-fade-in animation-delay-1200">
                     <FormField
                       control={form.control}
                       name="rememberMe"
@@ -259,7 +259,7 @@ export default function AuthPage() {
                     </a>
                   </div>
                   
-                  <div className="pt-2 opacity-0 animate-slide-up animation-delay-1800">
+                  <div className="pt-2 animate-slide-up animation-delay-1300">
                     <Button 
                       type="submit" 
                       className="w-full h-12 text-sm font-mono tracking-wide rounded-md bg-primary hover:bg-primary/90 transition-colors relative overflow-hidden group animate-glow"
@@ -289,7 +289,7 @@ export default function AuthPage() {
                     </div>
                   </div>
                   
-                  <div className="border-t border-gray-700/30 mt-6 pt-6 text-center opacity-0 animate-fade-in animation-delay-2000">
+                  <div className="border-t border-gray-700/30 mt-6 pt-6 text-center animate-fade-in animation-delay-1400">
                     <p className="text-gray-500 text-xs font-mono">
                       <span className="text-gray-500">CLIENT_ACCESS:</span> <a href="/client-login" className="text-primary/80 hover:text-primary hover:underline font-medium ml-1">PORTAL_LOGIN</a>
                     </p>
