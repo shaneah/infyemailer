@@ -3,11 +3,20 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { initializeDatabase } from "./db";
 import { dbStorage } from "./dbStorage";
+import fileUpload from "express-fileupload";
 
 const app = express();
 // Increase the JSON payload size limit to 50MB
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: false, limit: '50mb' }));
+// Configure file upload middleware
+app.use(fileUpload({
+  limits: { fileSize: 50 * 1024 * 1024 }, // 50MB max file size
+  useTempFiles: true,
+  tempFileDir: '/tmp/',
+  debug: true, // Enable debug for troubleshooting
+  abortOnLimit: true
+}));
 
 app.use((req, res, next) => {
   const start = Date.now();

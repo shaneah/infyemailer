@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -22,6 +22,8 @@ export default function ImportTemplateModal({ open, onOpenChange, onImportSucces
   const [htmlContent, setHtmlContent] = useState<string>("");
   const [zipFile, setZipFile] = useState<File | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
+  const [isDragging, setIsDragging] = useState<boolean>(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
   // Import HTML template mutation
@@ -150,14 +152,21 @@ export default function ImportTemplateModal({ open, onOpenChange, onImportSucces
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file && file.type === "application/zip") {
-      setZipFile(file);
-    } else {
-      toast({
-        title: "Invalid File",
-        description: "Please select a valid ZIP file",
-        variant: "destructive"
-      });
+    if (file) {
+      // Check for .zip extension or zip mime type
+      const isZip = file.name.toLowerCase().endsWith('.zip') || 
+                  file.type === "application/zip" || 
+                  file.type === "application/x-zip-compressed";
+      
+      if (isZip) {
+        setZipFile(file);
+      } else {
+        toast({
+          title: "Invalid File",
+          description: "Please select a valid ZIP file",
+          variant: "destructive"
+        });
+      }
     }
   };
 
@@ -211,26 +220,76 @@ export default function ImportTemplateModal({ open, onOpenChange, onImportSucces
             <TabsContent value="zip" className="space-y-4 mt-4">
               <div className="space-y-4">
                 <Label htmlFor="zipFile">ZIP File</Label>
-                <div className="border-2 border-dashed rounded-md p-6 flex flex-col items-center justify-center">
-                  <Upload className="h-10 w-10 text-muted-foreground mb-4" />
+                <div 
+                  className={`border-2 border-dashed rounded-md p-6 flex flex-col items-center justify-center
+                    ${isDragging ? 'border-primary bg-primary/5' : 'border-border'}`}
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setIsDragging(true);
+                  }}
+                  onDragEnter={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setIsDragging(true);
+                  }}
+                  onDragLeave={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setIsDragging(false);
+                  }}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setIsDragging(false);
+                    
+                    const files = e.dataTransfer.files;
+                    if (files.length > 0) {
+                      const file = files[0];
+                      const isZip = file.name.toLowerCase().endsWith('.zip') || 
+                                  file.type === "application/zip" ||
+                                  file.type === "application/x-zip-compressed";
+                      
+                      if (isZip) {
+                        setZipFile(file);
+                      } else {
+                        toast({
+                          title: "Invalid File",
+                          description: "Please select a valid ZIP file",
+                          variant: "destructive"
+                        });
+                      }
+                    }
+                  }}
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <Upload className={`h-10 w-10 mb-4 ${isDragging ? 'text-primary' : 'text-muted-foreground'}`} />
                   <p className="text-sm text-muted-foreground text-center mb-4">
-                    Drag and drop your ZIP file here, or click to browse.
-                    <br />
-                    The ZIP should contain an index.html file and any assets (images, CSS) it references.
+                    {isDragging ? (
+                      <span className="font-medium text-primary">Drop ZIP file here</span>
+                    ) : (
+                      <>
+                        Drag and drop your ZIP file here, or click to browse.
+                        <br />
+                        The ZIP should contain an index.html file and any assets (images, CSS) it references.
+                      </>
+                    )}
                   </p>
                   <Input
+                    ref={fileInputRef}
                     id="zipFile"
                     type="file"
-                    accept=".zip"
+                    accept=".zip,.zip-compressed"
                     className="hidden"
                     onChange={handleFileChange}
                   />
-                  <label htmlFor="zipFile">
-                    <Button variant="outline" type="button">
-                      <Upload className="h-4 w-4 mr-2" />
-                      Select ZIP File
-                    </Button>
-                  </label>
+                  <Button variant="outline" type="button" onClick={(e) => {
+                    e.stopPropagation();
+                    fileInputRef.current?.click();
+                  }}>
+                    <Upload className="h-4 w-4 mr-2" />
+                    Select ZIP File
+                  </Button>
                   {zipFile && (
                     <p className="text-sm text-primary mt-2">
                       Selected: {zipFile.name} ({Math.round(zipFile.size / 1024)} KB)
