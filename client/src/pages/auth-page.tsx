@@ -66,15 +66,15 @@ export default function AuthPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-50 p-4">
       <div className="w-full max-w-6xl flex flex-col md:flex-row rounded-2xl shadow-2xl overflow-hidden">
         {/* Left side - Brand/Logo */}
-        <div className="md:w-2/5 bg-gradient-to-br from-primary to-primary/80 p-8 flex-col justify-between relative hidden md:flex">
+        <div className="md:w-2/5 bg-gradient-to-br from-blue-600 to-indigo-700 p-8 flex-col justify-between relative hidden md:flex">
           {/* Decorative elements */}
           <div className="absolute inset-0 overflow-hidden">
             <div className="absolute top-1/4 left-0 w-64 h-64 bg-white/10 rounded-full blur-xl"></div>
-            <div className="absolute bottom-0 right-0 w-80 h-80 bg-white/5 rounded-full blur-xl transform translate-x-1/4 translate-y-1/4"></div>
-            <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full blur-lg"></div>
+            <div className="absolute bottom-0 right-0 w-80 h-80 bg-indigo-400/10 rounded-full blur-xl transform translate-x-1/4 translate-y-1/4"></div>
+            <div className="absolute top-0 right-0 w-40 h-40 bg-blue-500/10 rounded-full blur-lg"></div>
           </div>
           
           {/* Logo and branding */}
@@ -91,33 +91,33 @@ export default function AuthPage() {
           
           {/* Feature highlights */}
           <div className="relative z-10 space-y-4 mt-8">
-            <div className="flex items-start space-x-3 p-4 rounded-lg bg-white/10 backdrop-blur-sm transition-all hover:bg-white/15">
-              <CheckCircle className="h-5 w-5 text-white mt-0.5" />
+            <div className="flex items-start space-x-3 p-4 rounded-lg bg-blue-500/20 backdrop-blur-sm transition-all hover:bg-blue-500/30 border border-white/10">
+              <CheckCircle className="h-5 w-5 text-blue-200 mt-0.5" />
               <div>
                 <h3 className="font-medium text-white">AI-Powered Templates</h3>
-                <p className="text-white/80 text-sm">Create beautiful emails with our AI assistant</p>
+                <p className="text-blue-100 text-sm">Create beautiful emails with our AI assistant</p>
               </div>
             </div>
             
-            <div className="flex items-start space-x-3 p-4 rounded-lg bg-white/10 backdrop-blur-sm transition-all hover:bg-white/15">
-              <CheckCircle className="h-5 w-5 text-white mt-0.5" />
+            <div className="flex items-start space-x-3 p-4 rounded-lg bg-blue-500/20 backdrop-blur-sm transition-all hover:bg-blue-500/30 border border-white/10">
+              <CheckCircle className="h-5 w-5 text-blue-200 mt-0.5" />
               <div>
                 <h3 className="font-medium text-white">Multi-domain Support</h3>
-                <p className="text-white/80 text-sm">Better deliverability and domain reputation</p>
+                <p className="text-blue-100 text-sm">Better deliverability and domain reputation</p>
               </div>
             </div>
             
-            <div className="flex items-start space-x-3 p-4 rounded-lg bg-white/10 backdrop-blur-sm transition-all hover:bg-white/15">
-              <CheckCircle className="h-5 w-5 text-white mt-0.5" />
+            <div className="flex items-start space-x-3 p-4 rounded-lg bg-blue-500/20 backdrop-blur-sm transition-all hover:bg-blue-500/30 border border-white/10">
+              <CheckCircle className="h-5 w-5 text-blue-200 mt-0.5" />
               <div>
                 <h3 className="font-medium text-white">Advanced Analytics</h3>
-                <p className="text-white/80 text-sm">Track and optimize campaign performance</p>
+                <p className="text-blue-100 text-sm">Track and optimize campaign performance</p>
               </div>
             </div>
           </div>
           
           {/* Copyright */}
-          <div className="relative z-10 text-white/70 text-sm mt-6">
+          <div className="relative z-10 text-blue-100/70 text-sm mt-6">
             &copy; {new Date().getFullYear()} InfyMailer. All rights reserved.
           </div>
         </div>
@@ -127,7 +127,7 @@ export default function AuthPage() {
           {/* Mobile logo */}
           <div className="flex flex-col items-center mb-8 md:hidden">
             <img src={Infy} alt="InfyMailer Logo" className="h-20 mb-3" />
-            <h1 className="text-2xl font-bold text-primary mb-2">InfyMailer</h1>
+            <h1 className="text-2xl font-bold text-blue-600 mb-2">InfyMailer</h1>
             <p className="text-gray-600 text-center max-w-xs">Your complete email marketing platform</p>
           </div>
           
@@ -148,11 +148,11 @@ export default function AuthPage() {
                         <FormLabel className="text-gray-700 font-medium block mb-1.5">Username or Email</FormLabel>
                         <FormControl>
                           <div className="relative">
-                            <Mail className="absolute left-3.5 top-3.5 h-5 w-5 text-gray-400 z-10 pointer-events-none" />
+                            <Mail className="absolute left-3.5 top-3.5 h-5 w-5 text-blue-400 z-10 pointer-events-none" />
                             <Input 
                               placeholder="Enter your username" 
                               {...field} 
-                              className="pl-12 h-14 bg-gray-50 border-gray-200 rounded-lg focus-visible:ring-primary focus-visible:ring-2 focus-visible:border-primary outline-none transition-all"
+                              className="pl-12 h-14 bg-blue-50/50 border-blue-100 rounded-lg focus-visible:ring-blue-500 focus-visible:ring-2 focus-visible:border-blue-300 outline-none transition-all"
                               style={{ paddingLeft: "3rem" }}
                             />
                           </div>
@@ -169,18 +169,18 @@ export default function AuthPage() {
                       <FormItem>
                         <div className="flex justify-between mb-1.5">
                           <FormLabel className="text-gray-700 font-medium">Password</FormLabel>
-                          <a href="#" className="text-sm text-primary hover:text-primary/90 transition-colors font-medium">
+                          <a href="#" className="text-sm text-blue-600 hover:text-blue-700 transition-colors font-medium">
                             Forgot password?
                           </a>
                         </div>
                         <FormControl>
                           <div className="relative">
-                            <Lock className="absolute left-3.5 top-3.5 h-5 w-5 text-gray-400 z-10 pointer-events-none" />
+                            <Lock className="absolute left-3.5 top-3.5 h-5 w-5 text-blue-400 z-10 pointer-events-none" />
                             <Input 
                               type="password" 
                               placeholder="Enter your password" 
                               {...field} 
-                              className="pl-12 h-14 bg-gray-50 border-gray-200 rounded-lg focus-visible:ring-primary focus-visible:ring-2 focus-visible:border-primary outline-none transition-all" 
+                              className="pl-12 h-14 bg-blue-50/50 border-blue-100 rounded-lg focus-visible:ring-blue-500 focus-visible:ring-2 focus-visible:border-blue-300 outline-none transition-all" 
                               style={{ paddingLeft: "3rem" }}
                             />
                           </div>
@@ -200,7 +200,7 @@ export default function AuthPage() {
                             <Checkbox
                               checked={field.value}
                               onCheckedChange={field.onChange}
-                              className="w-5 h-5 border-gray-300 rounded text-primary focus:ring-primary"
+                              className="w-5 h-5 border-blue-200 rounded text-blue-600 focus:ring-blue-500"
                             />
                           </FormControl>
                           <div className="leading-none">
@@ -210,7 +210,7 @@ export default function AuthPage() {
                       )}
                     />
                     
-                    <a href="#" className="text-sm text-gray-600 hover:text-primary transition-colors">
+                    <a href="#" className="text-sm text-gray-600 hover:text-blue-600 transition-colors">
                       Need help?
                     </a>
                   </div>
@@ -218,7 +218,7 @@ export default function AuthPage() {
                   <div className="pt-2">
                     <Button 
                       type="submit" 
-                      className="w-full h-14 text-base font-medium rounded-lg"
+                      className="w-full h-14 text-base font-medium rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 transition-all duration-200"
                       disabled={isLoading}
                     >
                       {isLoading ? (
@@ -240,7 +240,7 @@ export default function AuthPage() {
                   
                   <div className="border-t border-gray-200 mt-6 pt-6 text-center">
                     <p className="text-gray-500 text-sm">
-                      Are you a client? <a href="/client-login" className="text-primary hover:underline font-medium">Sign in to Client Portal</a>
+                      Are you a client? <a href="/client-login" className="text-blue-600 hover:text-blue-700 hover:underline font-medium">Sign in to Client Portal</a>
                     </p>
                   </div>
                 </form>
