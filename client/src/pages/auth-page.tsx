@@ -236,27 +236,7 @@ export default function AuthPage() {
                     </Button>
                   </div>
                   
-                  {/* Demo credentials */}
-                  <div className="bg-blue-50/70 border border-blue-100 rounded-lg p-4 mt-8">
-                    <div className="flex items-start space-x-3">
-                      <Info className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                      <div>
-                        <h4 className="font-medium text-gray-900">Demo Account</h4>
-                        <div className="text-gray-600 text-sm mt-1 whitespace-normal break-words">
-                          <div className="flex items-center mb-1">
-                            <span className="w-20 font-medium">Username:</span>
-                            <code className="font-mono bg-white border border-gray-200 px-2 py-0.5 rounded">admin</code>
-                          </div>
-                          <div className="flex items-center">
-                            <span className="w-20 font-medium">Password:</span>
-                            <code className="font-mono bg-white border border-gray-200 px-2 py-0.5 rounded">admin123</code>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="border-t border-gray-200 pt-6 text-center">
+                  <div className="border-t border-gray-200 mt-6 pt-6 text-center">
                     <p className="text-gray-500 text-sm">
                       Are you a client? <a href="/client-login" className="text-primary hover:underline font-medium">Sign in to Client Portal</a>
                     </p>
