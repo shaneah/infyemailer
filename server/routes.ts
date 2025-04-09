@@ -804,7 +804,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Get the uploaded file
-      const uploadedFile = req.files.file;
+      const uploadedFile = req.files.file as any;
       
       // Validate that it's a ZIP file
       if (!uploadedFile.name || 
@@ -814,64 +814,118 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: 'Invalid file format. Please upload a ZIP file.' });
       }
       
-      // For now, since we're not actually extracting the ZIP, use a responsive template
-      // In a real implementation, you would extract the ZIP and process the index.html
-      const template = await storage.createTemplate({
-        name: name,
-        content: `<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${name}</title>
-  <style>
-    body { margin: 0; padding: 0; font-family: Arial, sans-serif; }
-    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-    .header { background-color: #3b82f6; padding: 20px; text-align: center; }
-    .header h1 { color: white; margin: 0; }
-    .content { padding: 20px; background-color: #f9fafb; }
-    .footer { padding: 20px; text-align: center; color: #6b7280; font-size: 12px; }
-    .button { display: inline-block; background-color: #3b82f6; color: white; 
-              text-decoration: none; padding: 10px 20px; border-radius: 4px; }
-    @media only screen and (max-width: 480px) {
-      .container { width: 100%; }
-      .header h1 { font-size: 20px; }
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div class="header">
-      <h1>Imported Template: ${name}</h1>
-    </div>
-    <div class="content">
-      <p>This is an imported email template from a ZIP file.</p>
-      <p>Your template file <strong>${uploadedFile.name}</strong> (${Math.round(uploadedFile.size / 1024)} KB) was successfully processed.</p>
-      <p style="text-align: center; margin: 30px 0;">
-        <a href="#" class="button">Call to Action</a>
-      </p>
-      <p>This responsive template works well on mobile and desktop email clients.</p>
-    </div>
-    <div class="footer">
-      <p>© 2025 Your Company. All rights reserved.</p>
-      <p>123 Main Street, Anytown, USA</p>
-      <p><a href="#">Unsubscribe</a> | <a href="#">View in Browser</a></p>
-    </div>
-  </div>
-</body>
-</html>`,
-        description: `Imported ZIP template: ${name}`,
-        category: 'imported',
-        metadata: {
-          importedFromZip: true,
-          originalFileName: uploadedFile.name,
-          fileSizeKB: Math.round(uploadedFile.size / 1024),
-          importDate: new Date().toISOString(),
-          new: true
+      // Now let's actually process the ZIP file
+      try {
+        // Import the AdmZip package
+        const AdmZip = require('adm-zip');
+        
+        // Create a new AdmZip instance with the uploaded file
+        const zip = new AdmZip(uploadedFile.tempFilePath || uploadedFile.data);
+        
+        // Get the entries
+        const zipEntries = zip.getEntries();
+        
+        // Look for the index.html file first
+        let indexHtmlEntry = zipEntries.find(entry => 
+          entry.entryName.toLowerCase() === 'index.html' ||
+          entry.entryName.toLowerCase().endsWith('/index.html')
+        );
+        
+        // If index.html isn't found, look for any HTML file
+        if (!indexHtmlEntry) {
+          indexHtmlEntry = zipEntries.find(entry => 
+            entry.entryName.toLowerCase().endsWith('.html') ||
+            entry.entryName.toLowerCase().endsWith('.htm')
+          );
         }
-      });
-      
-      res.status(201).json(template);
+        
+        if (!indexHtmlEntry) {
+          return res.status(400).json({ 
+            error: 'Invalid ZIP file. No HTML files found in the archive.' 
+          });
+        }
+        
+        // Extract the content of the HTML file
+        const htmlContent = indexHtmlEntry.getData().toString('utf8');
+        
+        // Create a template content object with JSON structure
+        const templateContent = {
+          name: name,
+          subject: `${name}`,
+          previewText: `${name} - Imported ZIP Template`,
+          sections: [
+            {
+              id: `section-${Date.now()}`,
+              elements: [
+                {
+                  id: `element-${Date.now()}`,
+                  type: "text",
+                  content: { 
+                    text: "This template was imported from a ZIP file. You can now edit it using the drag-and-drop editor." 
+                  },
+                  styles: { 
+                    fontSize: "16px", 
+                    color: "#666666", 
+                    textAlign: "left" 
+                  }
+                },
+                {
+                  id: `element-${Date.now() + 1}`,
+                  type: "html",
+                  content: { 
+                    html: htmlContent 
+                  },
+                  styles: {}
+                }
+              ],
+              styles: {
+                backgroundColor: "#ffffff",
+                padding: "12px"
+              }
+            }
+          ],
+          styles: {
+            fontFamily: "Arial, sans-serif",
+            backgroundColor: "#f4f4f4",
+            maxWidth: "600px"
+          }
+        };
+        
+        // Generate a list of all the resources in the ZIP
+        const resources = zipEntries
+          .filter(entry => !entry.isDirectory && 
+                          entry.entryName !== indexHtmlEntry.entryName &&
+                          !entry.entryName.startsWith('__MACOSX/')) // Skip macOS specific files
+          .map(entry => ({
+            name: entry.entryName,
+            size: entry.header.size
+          }));
+        
+        // Create the template
+        const template = await storage.createTemplate({
+          name: name,
+          content: JSON.stringify(templateContent),
+          description: `Imported ZIP template: ${name}`,
+          category: 'imported',
+          metadata: {
+            importedFromZip: true,
+            originalFileName: uploadedFile.name,
+            fileSizeKB: Math.round(uploadedFile.size / 1024),
+            importDate: new Date().toISOString(),
+            originalHtml: htmlContent,
+            resources: resources,
+            htmlFileName: indexHtmlEntry.entryName,
+            new: true
+          }
+        });
+        
+        res.status(201).json(template);
+      } catch (zipError) {
+        console.error('Error processing ZIP file:', zipError);
+        return res.status(500).json({ 
+          error: 'Failed to process ZIP file: ' + (zipError.message || 'Unknown error')
+        });
+      }
     } catch (error) {
       console.error('Error importing ZIP template:', error);
       res.status(500).json({ error: 'Failed to import template' });
