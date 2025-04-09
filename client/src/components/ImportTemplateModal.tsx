@@ -92,11 +92,6 @@ export default function ImportTemplateModal({ open, onOpenChange, onImportSucces
 
         console.log("Sending template data...");
         const response = await apiRequest("POST", "/api/templates", templateData);
-        
-        if (!response.ok) {
-          throw new Error(`Server returned ${response.status}: ${response.statusText}`);
-        }
-        
         return await response.json();
       } catch (error) {
         console.error("Error in mutation function:", error);
@@ -133,11 +128,18 @@ export default function ImportTemplateModal({ open, onOpenChange, onImportSucces
       formData.append("name", data.name);
       formData.append("file", data.file);
       
-      const response = await apiRequest("POST", "/api/templates/import-zip", formData, {
-        headers: {
-          // Don't set Content-Type here, it will be set automatically with the correct boundary
-        }
+      // Use regular fetch for file uploads instead of apiRequest
+      // This avoids issues with Content-Type and JSON stringification
+      const response = await fetch("/api/templates/import-zip", {
+        method: "POST",
+        body: formData,
+        credentials: "include"
       });
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `Server returned ${response.status}: ${response.statusText}`);
+      }
       
       return await response.json();
     },
