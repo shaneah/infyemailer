@@ -3107,5 +3107,97 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Template Preview Endpoint
+  app.get('/preview-template', async (req: Request, res: Response) => {
+    try {
+      const templateId = req.query.id;
+      
+      if (!templateId) {
+        return res.status(400).send('Template ID is required');
+      }
+      
+      // Get the template from storage
+      const template = await storage.getTemplate(Number(templateId));
+      
+      if (!template) {
+        return res.status(404).send('Template not found');
+      }
+      
+      // Return the template HTML as a standalone page
+      const html = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1">
+          <title>${template.name} - Preview</title>
+          <style>
+            body {
+              margin: 0;
+              padding: 0;
+              font-family: Arial, sans-serif;
+            }
+            
+            .preview-header {
+              background-color: #f5f5f5;
+              padding: 10px 20px;
+              border-bottom: 1px solid #ddd;
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+            }
+            
+            .preview-header h2 {
+              margin: 0;
+              font-size: 18px;
+              color: #333;
+            }
+            
+            .preview-header .actions {
+              display: flex;
+              gap: 10px;
+            }
+            
+            .preview-header button {
+              padding: 6px 12px;
+              background-color: #f0f0f0;
+              border: 1px solid #ddd;
+              border-radius: 4px;
+              cursor: pointer;
+              font-size: 14px;
+            }
+            
+            .preview-header button:hover {
+              background-color: #e0e0e0;
+            }
+            
+            .template-container {
+              padding: 20px;
+              max-width: 100%;
+              overflow: auto;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="preview-header">
+            <h2>${template.name}</h2>
+            <div class="actions">
+              <button onclick="window.close()">Close Preview</button>
+            </div>
+          </div>
+          <div class="template-container">
+            ${template.content}
+          </div>
+        </body>
+        </html>
+      `;
+      
+      res.send(html);
+    } catch (error) {
+      console.error('Error previewing template:', error);
+      res.status(500).send('Error displaying template preview');
+    }
+  });
+
   return httpServer;
 }

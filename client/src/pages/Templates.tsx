@@ -20,7 +20,8 @@ import {
   Copy, 
   Sparkles,
   Wand2,
-  ChevronDown
+  ChevronDown,
+  Eye
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -37,6 +38,13 @@ interface Template {
   description: string;
   content: string;
   subject: string;
+  metadata?: {
+    generatedByAI?: boolean;
+    icon?: string;
+    iconColor?: string;
+    new?: boolean;
+    [key: string]: any;
+  };
 }
 
 export default function Templates() {
@@ -232,13 +240,23 @@ export default function Templates() {
                 </CardContent>
                 
                 <CardFooter className="pt-2 border-t flex justify-between">
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => handleViewTemplate(template)}
-                  >
-                    View Details
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => handleViewTemplate(template)}
+                    >
+                      View Details
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      onClick={() => window.open(`/preview-template?id=${template.id}`, '_blank')}
+                    >
+                      <Eye className="h-4 w-4 mr-2" />
+                      Preview
+                    </Button>
+                  </div>
                   <Link href={`/template-builder?id=${template.id}`}>
                     <Button variant="ghost" size="sm">Edit</Button>
                   </Link>
@@ -283,10 +301,19 @@ export default function Templates() {
               </div>
             </CardContent>
             <CardFooter className="flex justify-between">
-              <Button variant="outline" onClick={handleCopyHtmlCode}>
-                <Copy className="h-4 w-4 mr-2" />
-                Copy HTML
-              </Button>
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={handleCopyHtmlCode}>
+                  <Copy className="h-4 w-4 mr-2" />
+                  Copy HTML
+                </Button>
+                <Button 
+                  variant="secondary"
+                  onClick={() => window.open(`/preview-template?id=${selectedTemplate.id}`, '_blank')}
+                >
+                  <Eye className="h-4 w-4 mr-2" />
+                  Preview
+                </Button>
+              </div>
               <Link href={`/template-builder?id=${selectedTemplate.id}`}>
                 <Button>
                   Edit Template
