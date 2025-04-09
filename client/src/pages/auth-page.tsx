@@ -92,14 +92,22 @@ export default function AuthPage() {
           <div className="relative z-10 mt-4">
             <div className="flex flex-col items-start">
               <div className="mb-6 flex flex-col items-start">
-                <img src={Infy} alt="Infinity Tech Logo" className="h-16 w-auto mb-4" />
-                <h1 className="text-3xl font-bold text-white tracking-tight">Infinity<span className="text-primary">Mailer</span></h1>
+                <div className="relative opacity-0 animate-fade-in animate-glow">
+                  <img 
+                    src={Infy} 
+                    alt="Infinity Tech Logo" 
+                    className="h-20 w-auto mb-4 opacity-0 animate-scale-in animation-delay-300" 
+                  />
+                </div>
+                <h1 className="text-3xl font-bold text-white tracking-tight opacity-0 animate-slide-up animation-delay-600">
+                  Infinity<span className="text-primary">Mailer</span>
+                </h1>
               </div>
-              <div className="h-0.5 w-16 bg-primary rounded my-6"></div>
-              <p className="text-white text-lg font-light">
+              <div className="h-0.5 w-16 bg-primary rounded my-6 opacity-0 animate-slide-in-left animation-delay-700"></div>
+              <p className="text-white text-lg font-light opacity-0 animate-fade-in animation-delay-800">
                 Advanced AI-Powered Email Marketing
               </p>
-              <p className="text-gray-400 text-sm mt-2 max-w-sm">
+              <p className="text-gray-400 text-sm mt-2 max-w-sm opacity-0 animate-fade-in animation-delay-900">
                 Our AI reporting system provides deep insights and optimizes your email campaigns for maximum performance
               </p>
             </div>
@@ -107,7 +115,7 @@ export default function AuthPage() {
           
           {/* Feature highlights with code/AI styling */}
           <div className="relative z-10 space-y-4 mt-12">
-            <div className="flex items-start space-x-3 p-4 rounded-md bg-black/40 border border-gray-700/50 backdrop-blur-sm transition-all hover:border-primary/50">
+            <div className="flex items-start space-x-3 p-4 rounded-md bg-black/40 border border-gray-700/50 backdrop-blur-sm transition-all hover:border-primary/50 opacity-0 animate-slide-in-left animation-delay-1000">
               <div className="text-primary font-mono mt-0.5">{">"}</div>
               <div>
                 <h3 className="font-medium text-white flex items-center">
@@ -118,7 +126,7 @@ export default function AuthPage() {
               </div>
             </div>
             
-            <div className="flex items-start space-x-3 p-4 rounded-md bg-black/40 border border-gray-700/50 backdrop-blur-sm transition-all hover:border-primary/50">
+            <div className="flex items-start space-x-3 p-4 rounded-md bg-black/40 border border-gray-700/50 backdrop-blur-sm transition-all hover:border-primary/50 opacity-0 animate-slide-in-left animation-delay-1100">
               <div className="text-primary font-mono mt-0.5">{">"}</div>
               <div>
                 <h3 className="font-medium text-white flex items-center">
@@ -129,7 +137,7 @@ export default function AuthPage() {
               </div>
             </div>
             
-            <div className="flex items-start space-x-3 p-4 rounded-md bg-black/40 border border-gray-700/50 backdrop-blur-sm transition-all hover:border-primary/50">
+            <div className="flex items-start space-x-3 p-4 rounded-md bg-black/40 border border-gray-700/50 backdrop-blur-sm transition-all hover:border-primary/50 opacity-0 animate-slide-in-left animation-delay-1200">
               <div className="text-primary font-mono mt-0.5">{">"}</div>
               <div>
                 <h3 className="font-medium text-white flex items-center">
@@ -152,19 +160,29 @@ export default function AuthPage() {
         <div className="w-full md:w-3/5 p-6 md:p-12 bg-gray-900 text-white">
           {/* Mobile logo */}
           <div className="flex flex-col items-center mb-8 md:hidden">
-            <img src={Infy} alt="Infinity Tech Logo" className="h-24 w-auto mb-4" />
-            <h1 className="text-2xl font-bold text-white tracking-tight mb-2">Infinity<span className="text-primary">Mailer</span></h1>
-            <p className="text-gray-400 text-center max-w-xs">Advanced AI-Powered Email Marketing</p>
+            <div className="relative mb-4 opacity-0 animate-fade-in animate-glow">
+              <img 
+                src={Infy} 
+                alt="Infinity Tech Logo" 
+                className="h-24 w-auto opacity-0 animate-scale-in animation-delay-300" 
+              />
+            </div>
+            <h1 className="text-2xl font-bold text-white tracking-tight mb-2 opacity-0 animate-slide-up animation-delay-600">
+              Infinity<span className="text-primary">Mailer</span>
+            </h1>
+            <p className="text-gray-400 text-center max-w-xs opacity-0 animate-fade-in animation-delay-800">
+              Advanced AI-Powered Email Marketing
+            </p>
           </div>
           
-          <Card className="border-0 shadow-none bg-transparent">
+          <Card className="border-0 shadow-none bg-transparent opacity-0 animate-fade-in animation-delay-700">
             <CardHeader className="text-center md:text-left pb-2 space-y-1 px-0">
               <div className="flex items-center space-x-2 mb-1">
                 <div className="h-2 w-2 rounded-full bg-primary animate-pulse"></div>
                 <div className="text-xs font-mono text-primary">SYSTEM READY</div>
               </div>
-              <CardTitle className="text-2xl md:text-3xl font-bold text-white">Authentication Portal</CardTitle>
-              <CardDescription className="text-gray-400">Enter credentials to access your dashboard</CardDescription>
+              <CardTitle className="text-2xl md:text-3xl font-bold text-white opacity-0 animate-slide-in-right animation-delay-900">Authentication Portal</CardTitle>
+              <CardDescription className="text-gray-400 opacity-0 animate-fade-in animation-delay-1000">Enter credentials to access your dashboard</CardDescription>
             </CardHeader>
             
             <CardContent className="px-0 pt-6">
@@ -174,7 +192,7 @@ export default function AuthPage() {
                     control={form.control}
                     name="usernameOrEmail"
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="opacity-0 animate-slide-in-right animation-delay-1200">
                         <FormLabel className="flex items-center text-gray-300 font-mono text-sm block mb-1.5">
                           <span className="text-primary mr-2">[user]</span>USERNAME
                         </FormLabel>
@@ -194,7 +212,7 @@ export default function AuthPage() {
                     control={form.control}
                     name="password"
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="opacity-0 animate-slide-in-right animation-delay-1400">
                         <div className="flex justify-between mb-1.5">
                           <FormLabel className="flex items-center text-gray-300 font-mono text-sm">
                             <span className="text-primary mr-2">[auth]</span>PASSWORD
@@ -216,7 +234,7 @@ export default function AuthPage() {
                     )}
                   />
                   
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between opacity-0 animate-fade-in animation-delay-1600">
                     <FormField
                       control={form.control}
                       name="rememberMe"
@@ -241,10 +259,10 @@ export default function AuthPage() {
                     </a>
                   </div>
                   
-                  <div className="pt-2">
+                  <div className="pt-2 opacity-0 animate-slide-up animation-delay-1800">
                     <Button 
                       type="submit" 
-                      className="w-full h-12 text-sm font-mono tracking-wide rounded-md bg-primary hover:bg-primary/90 transition-colors relative overflow-hidden group"
+                      className="w-full h-12 text-sm font-mono tracking-wide rounded-md bg-primary hover:bg-primary/90 transition-colors relative overflow-hidden group animate-glow"
                       disabled={isLoading}
                     >
                       <div className="absolute inset-0 w-full bg-gradient-to-r from-white/5 to-transparent"></div>
@@ -271,7 +289,7 @@ export default function AuthPage() {
                     </div>
                   </div>
                   
-                  <div className="border-t border-gray-700/30 mt-6 pt-6 text-center">
+                  <div className="border-t border-gray-700/30 mt-6 pt-6 text-center opacity-0 animate-fade-in animation-delay-2000">
                     <p className="text-gray-500 text-xs font-mono">
                       <span className="text-gray-500">CLIENT_ACCESS:</span> <a href="/client-login" className="text-primary/80 hover:text-primary hover:underline font-medium ml-1">PORTAL_LOGIN</a>
                     </p>
