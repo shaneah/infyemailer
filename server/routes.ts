@@ -3251,6 +3251,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).send('Template not found');
       }
       
+      // Parse the template content
+      let templateContent = template.content;
+      let templateHtml = '';
+      
+      try {
+        // Try to parse the content as JSON first (for newer templates)
+        const templateData = JSON.parse(template.content);
+        
+        // Check if there's an originalHtml field in metadata from the content or the template
+        if (templateData.metadata?.originalHtml) {
+          templateHtml = templateData.metadata.originalHtml;
+        } else if (template.metadata && typeof template.metadata === 'object' && 'originalHtml' in template.metadata) {
+          templateHtml = template.metadata.originalHtml;
+        } else if (templateData.sections) {
+          // Handle case where we have sections with HTML elements
+          // Extract HTML from the sections if they exist
+          templateData.sections.forEach(section => {
+            section.elements.forEach(element => {
+              if (element.type === 'html' && element.content?.html) {
+                templateHtml += element.content.html;
+              } else if (element.type === 'text' && element.content?.text) {
+                templateHtml += `<div style="font-size: ${element.styles?.fontSize || '16px'}; color: ${element.styles?.color || '#000000'}; text-align: ${element.styles?.textAlign || 'left'};">${element.content.text}</div>`;
+              }
+            });
+          });
+        } else {
+          // Default fallback - just use the template content directly
+          templateHtml = template.content;
+        }
+      } catch (e) {
+        // If parsing as JSON fails, assume it's already HTML
+        console.log('Template content is not JSON, using directly:', e);
+        templateHtml = template.content;
+      }
+      
       // Return the template HTML as a standalone page
       const html = `
         <!DOCTYPE html>
@@ -3351,7 +3386,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             </div>
           </div>
           <div class="template-container">
-            ${template.content}
+            ${templateHtml}
           </div>
         </body>
         </html>
