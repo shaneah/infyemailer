@@ -148,11 +148,12 @@ export default function AuthPage() {
                         <FormLabel className="text-gray-700 font-medium block mb-1.5">Username or Email</FormLabel>
                         <FormControl>
                           <div className="relative">
-                            <Mail className="absolute left-3.5 top-3.5 h-5 w-5 text-gray-400" />
+                            <Mail className="absolute left-3.5 top-3.5 h-5 w-5 text-gray-400 z-10 pointer-events-none" />
                             <Input 
                               placeholder="Enter your username" 
                               {...field} 
                               className="pl-12 h-14 bg-gray-50 border-gray-200 rounded-lg focus-visible:ring-primary focus-visible:ring-2 focus-visible:border-primary outline-none transition-all"
+                              style={{ paddingLeft: "3rem" }}
                             />
                           </div>
                         </FormControl>
@@ -174,12 +175,13 @@ export default function AuthPage() {
                         </div>
                         <FormControl>
                           <div className="relative">
-                            <Lock className="absolute left-3.5 top-3.5 h-5 w-5 text-gray-400" />
+                            <Lock className="absolute left-3.5 top-3.5 h-5 w-5 text-gray-400 z-10 pointer-events-none" />
                             <Input 
                               type="password" 
                               placeholder="Enter your password" 
                               {...field} 
                               className="pl-12 h-14 bg-gray-50 border-gray-200 rounded-lg focus-visible:ring-primary focus-visible:ring-2 focus-visible:border-primary outline-none transition-all" 
+                              style={{ paddingLeft: "3rem" }}
                             />
                           </div>
                         </FormControl>
