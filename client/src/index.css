@@ -2,6 +2,26 @@
 @tailwind components;
 @tailwind utilities;
 
+@keyframes pulse {
+  0% {
+    opacity: 0.2;
+    height: 10%;
+  }
+  100% {
+    opacity: 0.8;
+    height: 100%;
+  }
+}
+
+@keyframes blink {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
 @layer base {
   * {
     @apply border-border;

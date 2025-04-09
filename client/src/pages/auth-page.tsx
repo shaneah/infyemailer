@@ -66,75 +66,105 @@ export default function AuthPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-50 p-4">
-      <div className="w-full max-w-6xl flex flex-col md:flex-row rounded-2xl shadow-2xl overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-gray-900 to-gray-800 p-4">
+      <div className="w-full max-w-6xl flex flex-col md:flex-row rounded-xl shadow-2xl overflow-hidden">
         {/* Left side - Brand/Logo */}
-        <div className="md:w-2/5 bg-gradient-to-br from-blue-600 to-indigo-700 p-8 flex-col justify-between relative hidden md:flex">
-          {/* Decorative elements */}
-          <div className="absolute inset-0 overflow-hidden">
-            <div className="absolute top-1/4 left-0 w-64 h-64 bg-white/10 rounded-full blur-xl"></div>
-            <div className="absolute bottom-0 right-0 w-80 h-80 bg-indigo-400/10 rounded-full blur-xl transform translate-x-1/4 translate-y-1/4"></div>
-            <div className="absolute top-0 right-0 w-40 h-40 bg-blue-500/10 rounded-full blur-lg"></div>
+        <div className="md:w-2/5 bg-gradient-to-br from-black to-gray-800 p-8 flex-col justify-between relative hidden md:flex">
+          {/* Decorative elements - animated data visualization */}
+          <div className="absolute inset-0 overflow-hidden opacity-20">
+            {/* Simulated data visualization grid */}
+            <div className="absolute top-0 left-0 w-full h-full grid grid-cols-8 grid-rows-12 gap-1">
+              {Array.from({ length: 96 }).map((_, i) => (
+                <div 
+                  key={i} 
+                  className="bg-primary/80 rounded-sm" 
+                  style={{ 
+                    opacity: Math.random() * 0.8 + 0.2,
+                    height: `${Math.random() * 100}%`,
+                    animation: `pulse ${Math.random() * 4 + 2}s infinite alternate`
+                  }} 
+                />
+              ))}
+            </div>
           </div>
           
           {/* Logo and branding */}
-          <div className="relative z-10">
+          <div className="relative z-10 mt-4">
             <div className="flex flex-col items-start">
-              <img src={Logo} alt="InfyMailer Logo" className="h-16 mb-4" />
-              <h1 className="text-3xl font-bold text-white mb-2">InfyMailer</h1>
-              <div className="h-1 w-16 bg-white/40 rounded my-4"></div>
-              <p className="text-white/90 text-lg">
-                Your complete email marketing platform
+              <div className="flex items-center space-x-3 mb-4">
+                <img src={Infy} alt="InfyMailer Logo" className="h-12 w-12" />
+                <h1 className="text-3xl font-bold text-white tracking-tight">Infy<span className="text-primary">Mailer</span></h1>
+              </div>
+              <div className="h-0.5 w-16 bg-primary rounded my-6"></div>
+              <p className="text-white text-lg font-light">
+                Advanced AI-Powered Email Marketing
+              </p>
+              <p className="text-gray-400 text-sm mt-2 max-w-sm">
+                Our AI reporting system provides deep insights and optimizes your email campaigns for maximum performance
               </p>
             </div>
           </div>
           
-          {/* Feature highlights */}
-          <div className="relative z-10 space-y-4 mt-8">
-            <div className="flex items-start space-x-3 p-4 rounded-lg bg-blue-500/20 backdrop-blur-sm transition-all hover:bg-blue-500/30 border border-white/10">
-              <CheckCircle className="h-5 w-5 text-blue-200 mt-0.5" />
+          {/* Feature highlights with code/AI styling */}
+          <div className="relative z-10 space-y-4 mt-12">
+            <div className="flex items-start space-x-3 p-4 rounded-md bg-black/40 border border-gray-700/50 backdrop-blur-sm transition-all hover:border-primary/50">
+              <div className="text-primary font-mono mt-0.5">{">"}</div>
               <div>
-                <h3 className="font-medium text-white">AI-Powered Templates</h3>
-                <p className="text-blue-100 text-sm">Create beautiful emails with our AI assistant</p>
+                <h3 className="font-medium text-white flex items-center">
+                  <span className="text-primary mr-2">AI</span> 
+                  Smart Template Generation
+                </h3>
+                <p className="text-gray-400 text-sm">Data-driven email templates optimized for conversions</p>
               </div>
             </div>
             
-            <div className="flex items-start space-x-3 p-4 rounded-lg bg-blue-500/20 backdrop-blur-sm transition-all hover:bg-blue-500/30 border border-white/10">
-              <CheckCircle className="h-5 w-5 text-blue-200 mt-0.5" />
+            <div className="flex items-start space-x-3 p-4 rounded-md bg-black/40 border border-gray-700/50 backdrop-blur-sm transition-all hover:border-primary/50">
+              <div className="text-primary font-mono mt-0.5">{">"}</div>
               <div>
-                <h3 className="font-medium text-white">Multi-domain Support</h3>
-                <p className="text-blue-100 text-sm">Better deliverability and domain reputation</p>
+                <h3 className="font-medium text-white flex items-center">
+                  <span className="text-primary mr-2">ML</span> 
+                  Advanced Analytics Engine
+                </h3>
+                <p className="text-gray-400 text-sm">Real-time data processing for actionable insights</p>
               </div>
             </div>
             
-            <div className="flex items-start space-x-3 p-4 rounded-lg bg-blue-500/20 backdrop-blur-sm transition-all hover:bg-blue-500/30 border border-white/10">
-              <CheckCircle className="h-5 w-5 text-blue-200 mt-0.5" />
+            <div className="flex items-start space-x-3 p-4 rounded-md bg-black/40 border border-gray-700/50 backdrop-blur-sm transition-all hover:border-primary/50">
+              <div className="text-primary font-mono mt-0.5">{">"}</div>
               <div>
-                <h3 className="font-medium text-white">Advanced Analytics</h3>
-                <p className="text-blue-100 text-sm">Track and optimize campaign performance</p>
+                <h3 className="font-medium text-white flex items-center">
+                  <span className="text-primary mr-2">API</span> 
+                  Multi-domain Integration
+                </h3>
+                <p className="text-gray-400 text-sm">Seamless connection with all major email providers</p>
               </div>
             </div>
           </div>
           
           {/* Copyright */}
-          <div className="relative z-10 text-blue-100/70 text-sm mt-6">
-            &copy; {new Date().getFullYear()} InfyMailer. All rights reserved.
+          <div className="relative z-10 text-gray-500 text-sm mt-6 flex flex-col">
+            <div className="text-xs text-gray-600 font-mono mb-2">v3.4.2 • AI Engine: GPT-4o</div>
+            &copy; {new Date().getFullYear()} InfyTech. All rights reserved.
           </div>
         </div>
         
         {/* Right side - Login form */}
-        <div className="w-full md:w-3/5 p-6 md:p-12 bg-white">
+        <div className="w-full md:w-3/5 p-6 md:p-12 bg-gray-900 text-white">
           {/* Mobile logo */}
           <div className="flex flex-col items-center mb-8 md:hidden">
-            <img src={Infy} alt="InfyMailer Logo" className="h-20 mb-3" />
-            <h1 className="text-2xl font-bold text-blue-600 mb-2">InfyMailer</h1>
-            <p className="text-gray-600 text-center max-w-xs">Your complete email marketing platform</p>
+            <img src={Infy} alt="InfyMailer Logo" className="h-16 mb-3" />
+            <h1 className="text-2xl font-bold mb-2">Infy<span className="text-primary">Mailer</span></h1>
+            <p className="text-gray-400 text-center max-w-xs">Advanced AI-Powered Email Marketing</p>
           </div>
           
-          <Card className="border-0 shadow-none">
+          <Card className="border-0 shadow-none bg-transparent">
             <CardHeader className="text-center md:text-left pb-2 space-y-1 px-0">
-              <CardTitle className="text-2xl md:text-3xl font-bold text-gray-900">Welcome back</CardTitle>
-              <CardDescription className="text-gray-600">Sign in to your administrator dashboard</CardDescription>
+              <div className="flex items-center space-x-2 mb-1">
+                <div className="h-2 w-2 rounded-full bg-primary animate-pulse"></div>
+                <div className="text-xs font-mono text-primary">SYSTEM READY</div>
+              </div>
+              <CardTitle className="text-2xl md:text-3xl font-bold text-white">Authentication Portal</CardTitle>
+              <CardDescription className="text-gray-400">Enter credentials to access your dashboard</CardDescription>
             </CardHeader>
             
             <CardContent className="px-0 pt-6">
@@ -145,19 +175,17 @@ export default function AuthPage() {
                     name="usernameOrEmail"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-gray-700 font-medium block mb-1.5">Username or Email</FormLabel>
+                        <FormLabel className="flex items-center text-gray-300 font-mono text-sm block mb-1.5">
+                          <span className="text-primary mr-2">[user]</span>USERNAME
+                        </FormLabel>
                         <FormControl>
-                          <div className="relative">
-                            <Mail className="absolute left-3.5 top-3.5 h-5 w-5 text-blue-400 z-10 pointer-events-none" />
-                            <Input 
-                              placeholder="Enter your username" 
-                              {...field} 
-                              className="pl-12 h-14 bg-blue-50/50 border-blue-100 rounded-lg focus-visible:ring-blue-500 focus-visible:ring-2 focus-visible:border-blue-300 outline-none transition-all"
-                              style={{ paddingLeft: "3rem" }}
-                            />
-                          </div>
+                          <Input 
+                            placeholder="Enter your username" 
+                            {...field} 
+                            className="h-12 bg-gray-800/50 border-gray-700 text-white rounded-md focus-visible:ring-primary focus-visible:ring-1 focus-visible:border-primary outline-none transition-all placeholder:text-gray-500"
+                          />
                         </FormControl>
-                        <FormMessage className="text-sm font-medium text-red-500 mt-1" />
+                        <FormMessage className="text-sm font-medium text-red-400 mt-1" />
                       </FormItem>
                     )}
                   />
@@ -168,24 +196,22 @@ export default function AuthPage() {
                     render={({ field }) => (
                       <FormItem>
                         <div className="flex justify-between mb-1.5">
-                          <FormLabel className="text-gray-700 font-medium">Password</FormLabel>
-                          <a href="#" className="text-sm text-blue-600 hover:text-blue-700 transition-colors font-medium">
-                            Forgot password?
+                          <FormLabel className="flex items-center text-gray-300 font-mono text-sm">
+                            <span className="text-primary mr-2">[auth]</span>PASSWORD
+                          </FormLabel>
+                          <a href="#" className="text-xs text-primary/80 hover:text-primary transition-colors font-mono">
+                            RESET_CREDENTIALS
                           </a>
                         </div>
                         <FormControl>
-                          <div className="relative">
-                            <Lock className="absolute left-3.5 top-3.5 h-5 w-5 text-blue-400 z-10 pointer-events-none" />
-                            <Input 
-                              type="password" 
-                              placeholder="Enter your password" 
-                              {...field} 
-                              className="pl-12 h-14 bg-blue-50/50 border-blue-100 rounded-lg focus-visible:ring-blue-500 focus-visible:ring-2 focus-visible:border-blue-300 outline-none transition-all" 
-                              style={{ paddingLeft: "3rem" }}
-                            />
-                          </div>
+                          <Input 
+                            type="password" 
+                            placeholder="Enter your password" 
+                            {...field} 
+                            className="h-12 bg-gray-800/50 border-gray-700 text-white rounded-md focus-visible:ring-primary focus-visible:ring-1 focus-visible:border-primary outline-none transition-all placeholder:text-gray-500"
+                          />
                         </FormControl>
-                        <FormMessage className="text-sm font-medium text-red-500 mt-1" />
+                        <FormMessage className="text-sm font-medium text-red-400 mt-1" />
                       </FormItem>
                     )}
                   />
@@ -200,47 +226,54 @@ export default function AuthPage() {
                             <Checkbox
                               checked={field.value}
                               onCheckedChange={field.onChange}
-                              className="w-5 h-5 border-blue-200 rounded text-blue-600 focus:ring-blue-500"
+                              className="w-4 h-4 border-gray-600 bg-gray-800 rounded text-primary focus:ring-primary"
                             />
                           </FormControl>
                           <div className="leading-none">
-                            <FormLabel className="text-gray-600 ml-1 cursor-pointer font-medium">Remember me</FormLabel>
+                            <FormLabel className="text-gray-400 ml-1 cursor-pointer font-mono text-xs">PERSIST_SESSION</FormLabel>
                           </div>
                         </FormItem>
                       )}
                     />
                     
-                    <a href="#" className="text-sm text-gray-600 hover:text-blue-600 transition-colors">
-                      Need help?
+                    <a href="#" className="text-xs font-mono text-gray-500 hover:text-primary transition-colors">
+                      <span className="text-primary/70 mr-1">[?]</span>SUPPORT
                     </a>
                   </div>
                   
                   <div className="pt-2">
                     <Button 
                       type="submit" 
-                      className="w-full h-14 text-base font-medium rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 transition-all duration-200"
+                      className="w-full h-12 text-sm font-mono tracking-wide rounded-md bg-primary hover:bg-primary/90 transition-colors relative overflow-hidden group"
                       disabled={isLoading}
                     >
+                      <div className="absolute inset-0 w-full bg-gradient-to-r from-white/5 to-transparent"></div>
                       {isLoading ? (
                         <div className="flex items-center justify-center">
-                          <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                           </svg>
-                          Signing in...
+                          AUTHENTICATING...
                         </div>
                       ) : (
                         <div className="flex items-center justify-center">
-                          Sign in to Dashboard
-                          <ChevronRight className="ml-1 h-5 w-5" />
+                          INITIALIZE SESSION
+                          <ChevronRight className="ml-1 h-4 w-4 group-hover:translate-x-1 transition-transform" />
                         </div>
                       )}
                     </Button>
+                    
+                    {/* Terminal-like decoration */}
+                    <div className="flex items-center mt-4 text-xs text-gray-500 font-mono">
+                      <div className="w-2 h-2 bg-primary/50 rounded-full mr-2 animate-pulse"></div>
+                      <span className="opacity-70">System ready • Awaiting authentication</span>
+                    </div>
                   </div>
                   
-                  <div className="border-t border-gray-200 mt-6 pt-6 text-center">
-                    <p className="text-gray-500 text-sm">
-                      Are you a client? <a href="/client-login" className="text-blue-600 hover:text-blue-700 hover:underline font-medium">Sign in to Client Portal</a>
+                  <div className="border-t border-gray-700/30 mt-6 pt-6 text-center">
+                    <p className="text-gray-500 text-xs font-mono">
+                      <span className="text-gray-500">CLIENT_ACCESS:</span> <a href="/client-login" className="text-primary/80 hover:text-primary hover:underline font-medium ml-1">PORTAL_LOGIN</a>
                     </p>
                   </div>
                 </form>
