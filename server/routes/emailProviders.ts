@@ -60,15 +60,56 @@ export async function registerEmailProviderRoutes(app: any) {
       
       const validatedData = schema.parse(req.body);
       
+      // Validate required fields based on provider type
+      const providerType = validatedData.provider;
+      const config = validatedData.config;
+      
+      // Check for required provider-specific fields
+      if (providerType === 'sendgrid' && (!config.apiKey || config.apiKey.trim() === '')) {
+        return res.status(400).json({ 
+          error: 'Missing required configuration', 
+          details: 'SendGrid API key is required' 
+        });
+      } else if (providerType === 'mailgun' && 
+                (!config.apiKey || config.apiKey.trim() === '' || 
+                 !config.domain || config.domain.trim() === '')) {
+        return res.status(400).json({ 
+          error: 'Missing required configuration', 
+          details: 'Mailgun API key and domain are required' 
+        });
+      } else if (providerType === 'amazonses' && 
+                (!config.accessKey || config.accessKey.trim() === '' || 
+                 !config.secretKey || config.secretKey.trim() === '')) {
+        return res.status(400).json({ 
+          error: 'Missing required configuration', 
+          details: 'AWS access key and secret key are required' 
+        });
+      } else if (providerType === 'sendclean' && 
+                (!config.apiKey || config.apiKey.trim() === '')) {
+        return res.status(400).json({ 
+          error: 'Missing required configuration', 
+          details: 'SendClean API key is required' 
+        });
+      }
+      
       // Save the provider settings
       const provider = await providerSettingsService.saveProviderSettings(validatedData);
       
       res.status(201).json(provider);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating provider:', error);
       if (error instanceof z.ZodError) {
         return res.status(400).json({ error: 'Invalid request data', details: error.errors });
       }
+      
+      // Handle specific error messages
+      if (error.message && error.message.includes('API key is required')) {
+        return res.status(400).json({ 
+          error: 'Missing required configuration', 
+          details: error.message 
+        });
+      }
+      
       res.status(500).json({ error: 'Failed to create provider' });
     }
   });

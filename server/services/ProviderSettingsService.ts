@@ -214,15 +214,39 @@ export class ProviderSettingsService {
     updateFields.push('updated_at');
     updateValues.push(new Date());
     
-    // Build the update query
-    const setClauses = updateFields.map((field, index) => `${field} = $${index + 1}`).join(', ');
+    // Manually construct SQL for update statement
+    let updateQuery = 'UPDATE provider_settings SET ';
+    const updateParts = [];
     
-    const [result] = await db.execute<ProviderSettings>(sql`
-      UPDATE provider_settings
-      SET ${sql.raw(setClauses)}
-      WHERE id = ${id}
-      RETURNING *
-    `);
+    // Build update clauses
+    if (settings.name !== undefined) {
+      updateParts.push(`name = ${sql.parameter(settings.name)}`);
+    }
+    
+    if (settings.provider !== undefined) {
+      updateParts.push(`provider = ${sql.parameter(settings.provider)}`);
+    }
+    
+    if (settings.config !== undefined) {
+      const updatedConfig = {
+        ...currentSettings.config,
+        ...settings.config
+      };
+      updateParts.push(`config = ${sql.parameter(JSON.stringify(updatedConfig))}`);
+    }
+    
+    if (settings.isDefault !== undefined) {
+      updateParts.push(`is_default = ${sql.parameter(settings.isDefault)}`);
+    }
+    
+    // Always update timestamp
+    updateParts.push(`updated_at = NOW()`);
+    
+    // Complete the query
+    updateQuery += updateParts.join(', ');
+    updateQuery += ` WHERE id = ${sql.parameter(id)} RETURNING *`;
+    
+    const [result] = await db.execute<ProviderSettings>(sql.raw(updateQuery));
     
     if (!result) return null;
     
