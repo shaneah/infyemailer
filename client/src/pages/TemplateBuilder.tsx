@@ -1014,7 +1014,7 @@ export default function TemplateBuilder() {
     mutationFn: async (templateData: any) => {
       const method = isEditMode ? 'PATCH' : 'POST';
       const url = isEditMode ? `/api/templates/${entityId}` : '/api/templates';
-      return apiRequest(url, method, templateData);
+      return apiRequest(method, url, templateData);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/templates'] });
@@ -1038,7 +1038,7 @@ export default function TemplateBuilder() {
     mutationFn: async (campaignData: any) => {
       const method = isEditMode ? 'PATCH' : 'POST';
       const url = isEditMode ? `/api/campaigns/${entityId}` : '/api/campaigns';
-      return apiRequest(url, method, campaignData);
+      return apiRequest(method, url, campaignData);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/campaigns'] });

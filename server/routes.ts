@@ -3159,15 +3159,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
             }
             
             .preview-header button {
-              padding: 6px 12px;
-              background-color: #f0f0f0;
-              border: 1px solid #ddd;
-              border-radius: 4px;
+              padding: 8px 16px;
+              font-weight: 500;
               cursor: pointer;
               font-size: 14px;
+              border-radius: 4px;
+              transition: all 0.2s ease;
             }
             
-            .preview-header button:hover {
+            .preview-header button:first-child {
+              background-color: #3b82f6;
+              color: white;
+              border: 1px solid #2563eb;
+            }
+            
+            .preview-header button:first-child:hover {
+              background-color: #2563eb;
+            }
+            
+            .preview-header button:last-child {
+              background-color: #f0f0f0;
+              border: 1px solid #ddd;
+            }
+            
+            .preview-header button:last-child:hover {
               background-color: #e0e0e0;
             }
             
@@ -3176,12 +3191,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
               max-width: 100%;
               overflow: auto;
             }
+            
+            /* Print styles */
+            @media print {
+              .preview-header {
+                display: none;
+              }
+              
+              .template-container {
+                padding: 0;
+                max-width: none;
+              }
+              
+              body {
+                margin: 0;
+                padding: 0;
+              }
+              
+              @page {
+                margin: 0.5cm;
+              }
+            }
           </style>
         </head>
         <body>
           <div class="preview-header">
             <h2>${template.name}</h2>
             <div class="actions">
+              <button onclick="window.print()">Save as PDF</button>
               <button onclick="window.close()">Close Preview</button>
             </div>
           </div>
