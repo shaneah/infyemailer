@@ -29,7 +29,7 @@ const NewCampaignModal = ({ onClose }: NewCampaignModalProps) => {
   const [activeTab, setActiveTab] = useState("details");
   const [sendOption, setSendOption] = useState("schedule");
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
-  const [audienceOption, setAudienceOption] = useState("all");
+  const [selectedLists, setSelectedLists] = useState<string[]>([]);
   
   const form = useForm<z.infer<typeof campaignSchema>>({
     resolver: zodResolver(campaignSchema),
@@ -57,7 +57,7 @@ const NewCampaignModal = ({ onClose }: NewCampaignModalProps) => {
       const response = await apiRequest("POST", "/api/campaigns", {
         ...values,
         templateId: selectedTemplateId,
-        audienceOption,
+        contactLists: selectedLists,
         sendOption
       });
       return await response.json();
@@ -104,12 +104,23 @@ const NewCampaignModal = ({ onClose }: NewCampaignModalProps) => {
     }
   });
   
-  const lists = [
-    { id: "1", name: "Newsletter Subscribers", count: 18742 },
-    { id: "2", name: "Product Updates", count: 12103 },
-    { id: "3", name: "New Customers", count: 4928 },
-    { id: "4", name: "VIP Members", count: 1254 },
-  ];
+  // Fetch lists from the server
+  const { data: lists = [] } = useQuery<{ id: number | string, name: string, count: number }[]>({ 
+    queryKey: ['/api/lists'],
+    queryFn: async () => {
+      const response = await fetch('/api/lists');
+      if (!response.ok) {
+        throw new Error('Failed to fetch contact lists');
+      }
+      const lists = await response.json();
+      // Transform the data to include contact counts
+      return lists.map((list: any) => ({
+        id: list.id,
+        name: list.name,
+        count: list.contactCount || 0
+      }));
+    }
+  });
 
   return (
     <div className="modal fade show" style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)' }} tabIndex={-1}>
@@ -142,7 +153,7 @@ const NewCampaignModal = ({ onClose }: NewCampaignModalProps) => {
                     type="button" 
                     onClick={() => setActiveTab('audience')}
                   >
-                    Audience
+                    Contact Lists
                   </button>
                   <button 
                     className={`nav-link ${activeTab === 'settings' ? 'active' : ''}`}
@@ -319,67 +330,44 @@ const NewCampaignModal = ({ onClose }: NewCampaignModalProps) => {
                 
                 {activeTab === 'audience' && (
                   <div>
-                    <div className="mb-3">
-                      <label className="form-label">Select Recipients</label>
-                      <div className="form-check mb-2">
-                        <input 
-                          className="form-check-input" 
-                          type="radio" 
-                          name="audienceOptions" 
-                          id="allSubscribers" 
-                          checked={audienceOption === 'all'} 
-                          onChange={() => setAudienceOption('all')}
-                        />
-                        <label className="form-check-label" htmlFor="allSubscribers">
-                          All Subscribers (24,581)
-                        </label>
-                      </div>
-                      <div className="form-check mb-2">
-                        <input 
-                          className="form-check-input" 
-                          type="radio" 
-                          name="audienceOptions" 
-                          id="specificLists" 
-                          checked={audienceOption === 'lists'}
-                          onChange={() => setAudienceOption('lists')}
-                        />
-                        <label className="form-check-label" htmlFor="specificLists">
-                          Specific Lists
-                        </label>
-                      </div>
-                    </div>
-                    <div className="mb-3">
-                      <select 
-                        className="form-select" 
-                        multiple 
-                        aria-label="Select lists" 
-                        disabled={audienceOption !== 'lists'}
-                      >
-                        {lists.map((list) => (
-                          <option key={list.id} value={list.id}>
-                            {list.name} ({list.count.toLocaleString()})
-                          </option>
-                        ))}
-                      </select>
-                      <div className="form-text">Hold Ctrl/Cmd to select multiple lists</div>
-                    </div>
-                    <div className="mb-3">
-                      <label className="form-label">Segment Recipients (Optional)</label>
-                      <div className="card">
-                        <div className="card-body">
-                          <div className="mb-3">
-                            <select className="form-select">
-                              <option selected>Select condition</option>
-                              <option>Opened any campaign</option>
-                              <option>Clicked any link</option>
-                              <option>Purchased in the last 30 days</option>
-                              <option>Location</option>
-                              <option>Subscription date</option>
-                            </select>
+                    <div className="mb-4">
+                      <label className="form-label">Select Contact List(s)</label>
+                      <p className="text-muted mb-3">Choose one or more contact lists for your campaign</p>
+                      
+                      <div className="card mb-3">
+                        <div className="card-body p-0">
+                          <div className="list-group list-group-flush">
+                            {lists.map((list) => (
+                              <div key={list.id} className="list-group-item">
+                                <div className="form-check">
+                                  <input 
+                                    className="form-check-input" 
+                                    type="checkbox" 
+                                    id={`list-${list.id}`} 
+                                    value={list.id}
+                                  />
+                                  <label className="form-check-label d-flex justify-content-between align-items-center w-100" htmlFor={`list-${list.id}`}>
+                                    <span>{list.name}</span>
+                                    <span className="badge bg-primary rounded-pill">{list.count.toLocaleString()} contacts</span>
+                                  </label>
+                                </div>
+                              </div>
+                            ))}
+                            
+                            {lists.length === 0 && (
+                              <div className="list-group-item text-center py-4">
+                                <p className="mb-1">No contact lists available</p>
+                                <a href="/contacts" className="btn btn-sm btn-outline-primary mt-2">Create a contact list</a>
+                              </div>
+                            )}
                           </div>
-                          <button className="btn btn-sm btn-outline-primary">Add Condition</button>
                         </div>
                       </div>
+                      
+                      <a href="/contacts" className="btn btn-outline-secondary btn-sm">
+                        <i className="bi bi-plus-circle me-1"></i>
+                        Create a new contact list
+                      </a>
                     </div>
                   </div>
                 )}
