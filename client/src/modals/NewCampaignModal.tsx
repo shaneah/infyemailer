@@ -178,103 +178,143 @@ const NewCampaignModal = ({ onClose }: NewCampaignModalProps) => {
               </nav>
               <div className="tab-content pt-3">
                 {activeTab === 'details' && (
-                  <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)}>
-                      <FormField
-                        control={form.control}
-                        name="name"
-                        render={({ field }) => (
-                          <FormItem className="mb-3">
-                            <FormLabel htmlFor="campaignName">Campaign Name</FormLabel>
-                            <FormControl>
-                              <Input 
-                                {...field} 
-                                id="campaignName" 
-                                placeholder="e.g. Summer Sale Announcement"
-                              />
-                            </FormControl>
-                            <div className="form-text">Internal name to identify your campaign</div>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <FormField
-                        control={form.control}
-                        name="subject"
-                        render={({ field }) => (
-                          <FormItem className="mb-3">
-                            <FormLabel htmlFor="emailSubject">Email Subject</FormLabel>
-                            <FormControl>
-                              <Input 
-                                {...field} 
-                                id="emailSubject" 
-                                placeholder="e.g. Don't Miss Our Summer Sale!"
-                              />
-                            </FormControl>
-                            <div className="form-text">This will appear as the subject of your email</div>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <FormField
-                        control={form.control}
-                        name="previewText"
-                        render={({ field }) => (
-                          <FormItem className="mb-3">
-                            <FormLabel htmlFor="previewText">Preview Text</FormLabel>
-                            <FormControl>
-                              <Input 
-                                {...field} 
-                                id="previewText" 
-                                placeholder="e.g. Get up to 50% off on all products this week only"
-                              />
-                            </FormControl>
-                            <div className="form-text">Short text shown after the subject line in some email clients</div>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <FormField
-                        control={form.control}
-                        name="senderName"
-                        render={({ field }) => (
-                          <FormItem className="mb-3">
-                            <FormLabel htmlFor="senderName">Sender Name</FormLabel>
-                            <FormControl>
-                              <Input 
-                                {...field} 
-                                id="senderName" 
-                                placeholder="e.g. Your Company Name"
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <FormField
-                        control={form.control}
-                        name="replyToEmail"
-                        render={({ field }) => (
-                          <FormItem className="mb-3">
-                            <FormLabel htmlFor="replyToEmail">Reply-to Email</FormLabel>
-                            <FormControl>
-                              <Input 
-                                {...field} 
-                                id="replyToEmail" 
-                                placeholder="e.g. support@yourcompany.com"
-                                type="email"
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </form>
-                  </Form>
+                  <div>
+                    <Form {...form}>
+                      <form onSubmit={form.handleSubmit(onSubmit)}>
+                        <FormField
+                          control={form.control}
+                          name="name"
+                          render={({ field }) => (
+                            <FormItem className="mb-3">
+                              <FormLabel htmlFor="campaignName">Campaign Name</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  {...field} 
+                                  id="campaignName" 
+                                  placeholder="e.g. Summer Sale Announcement"
+                                />
+                              </FormControl>
+                              <div className="form-text">Internal name to identify your campaign</div>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={form.control}
+                          name="subject"
+                          render={({ field }) => (
+                            <FormItem className="mb-3">
+                              <FormLabel htmlFor="emailSubject">Email Subject</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  {...field} 
+                                  id="emailSubject" 
+                                  placeholder="e.g. Don't Miss Our Summer Sale!"
+                                />
+                              </FormControl>
+                              <div className="form-text">This will appear as the subject of your email</div>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={form.control}
+                          name="previewText"
+                          render={({ field }) => (
+                            <FormItem className="mb-3">
+                              <FormLabel htmlFor="previewText">Preview Text</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  {...field} 
+                                  id="previewText" 
+                                  placeholder="e.g. Get up to 50% off on all products this week only"
+                                />
+                              </FormControl>
+                              <div className="form-text">Short text shown after the subject line in some email clients</div>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={form.control}
+                          name="senderName"
+                          render={({ field }) => (
+                            <FormItem className="mb-3">
+                              <FormLabel htmlFor="senderName">Sender Name</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  {...field} 
+                                  id="senderName" 
+                                  placeholder="e.g. Your Company Name"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={form.control}
+                          name="replyToEmail"
+                          render={({ field }) => (
+                            <FormItem className="mb-3">
+                              <FormLabel htmlFor="replyToEmail">Reply-to Email</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  {...field} 
+                                  id="replyToEmail" 
+                                  placeholder="e.g. support@yourcompany.com"
+                                  type="email"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </form>
+                    </Form>
+                    
+                    <div className="mt-4 d-flex justify-content-end">
+                      <button 
+                        type="button" 
+                        className="btn btn-primary"
+                        onClick={() => {
+                          // Validate required fields
+                          const name = form.getValues("name");
+                          const subject = form.getValues("subject");
+                          const previewText = form.getValues("previewText");
+                          const senderName = form.getValues("senderName");
+                          const replyToEmail = form.getValues("replyToEmail");
+                          
+                          // Check if any fields are empty
+                          if (!name || !subject || !previewText || !senderName || !replyToEmail) {
+                            // Show error for each empty field
+                            if (!name) form.setError("name", { message: "Campaign name is required" });
+                            if (!subject) form.setError("subject", { message: "Subject is required" });
+                            if (!previewText) form.setError("previewText", { message: "Preview text is required" });
+                            if (!senderName) form.setError("senderName", { message: "Sender name is required" });
+                            if (!replyToEmail) form.setError("replyToEmail", { message: "Reply-to email is required" });
+                            
+                            return;
+                          }
+                          
+                          // Check if email is valid
+                          if (replyToEmail && !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(replyToEmail)) {
+                            form.setError("replyToEmail", { message: "Please enter a valid email address" });
+                            return;
+                          }
+                          
+                          // Move to next tab (content)
+                          setActiveTab('content');
+                        }}
+                      >
+                        Next: Content
+                      </button>
+                    </div>
+                  </div>
                 )}
                 
                 {activeTab === 'content' && (
@@ -303,51 +343,80 @@ const NewCampaignModal = ({ onClose }: NewCampaignModalProps) => {
                         ))}
                       </div>
                     </div>
-                    <div className="mt-4">
-                      <button 
-                        type="button" 
-                        className="btn btn-outline-primary"
-                        onClick={() => {
-                          if (!selectedTemplateId) {
-                            toast({
-                              title: "No Template Selected",
-                              description: "Please select a template first",
-                              variant: "destructive"
-                            });
-                            return;
-                          }
-                            
-                          if (selectedLists.length === 0) {
-                            toast({
-                              title: "No Contact Lists Selected",
-                              description: "Please select at least one contact list for your campaign",
-                              variant: "destructive"
-                            });
-                            setActiveTab('audience');
-                            return;
-                          }
-                            
-                          // Create campaign with draft status
-                          const formValues = form.getValues();
-                          createCampaignMutation.mutate(
-                            {
-                              ...formValues,
-                              status: 'draft',
-                              templateId: selectedTemplateId,
-                              contactLists: selectedLists
-                            },
-                            {
-                              onSuccess: (response: CampaignResponse) => {
-                                // Navigate to template builder with campaign ID
-                                window.location.href = `/template-builder/${response.id}`;
-                              }
-                            }
-                          );
-                        }}
+                    <div className="mt-4 d-flex justify-content-between">
+                      <button
+                        type="button"
+                        className="btn btn-outline-secondary"
+                        onClick={() => setActiveTab('details')}
                       >
-                        Create & Proceed to Editor
+                        Back to Details
                       </button>
-                      <a href="#" className="btn btn-outline-secondary ms-2">Edit HTML Code</a>
+                      
+                      <div>
+                        <button 
+                          type="button" 
+                          className="btn btn-primary me-2"
+                          onClick={() => {
+                            if (!selectedTemplateId) {
+                              toast({
+                                title: "No Template Selected",
+                                description: "Please select a template first",
+                                variant: "destructive"
+                              });
+                              return;
+                            }
+                            
+                            // Go to audience tab
+                            setActiveTab('audience');
+                          }}
+                        >
+                          Next: Contact Lists
+                        </button>
+                        
+                        <button 
+                          type="button" 
+                          className="btn btn-outline-primary"
+                          onClick={() => {
+                            if (!selectedTemplateId) {
+                              toast({
+                                title: "No Template Selected",
+                                description: "Please select a template first",
+                                variant: "destructive"
+                              });
+                              return;
+                            }
+                              
+                            if (selectedLists.length === 0) {
+                              toast({
+                                title: "No Contact Lists Selected",
+                                description: "Please select at least one contact list for your campaign",
+                                variant: "destructive"
+                              });
+                              setActiveTab('audience');
+                              return;
+                            }
+                              
+                            // Create campaign with draft status
+                            const formValues = form.getValues();
+                            createCampaignMutation.mutate(
+                              {
+                                ...formValues,
+                                status: 'draft',
+                                templateId: selectedTemplateId,
+                                contactLists: selectedLists
+                              },
+                              {
+                                onSuccess: (response: CampaignResponse) => {
+                                  // Navigate to template builder with campaign ID
+                                  window.location.href = `/template-builder/${response.id}`;
+                                }
+                              }
+                            );
+                          }}
+                        >
+                          Create & Proceed to Editor
+                        </button>
+                      </div>
                     </div>
                   </div>
                 )}
@@ -400,6 +469,36 @@ const NewCampaignModal = ({ onClose }: NewCampaignModalProps) => {
                         <i className="bi bi-plus-circle me-1"></i>
                         Create a new contact list
                       </a>
+                      
+                      <div className="mt-4 d-flex justify-content-between">
+                        <button
+                          type="button"
+                          className="btn btn-outline-secondary"
+                          onClick={() => setActiveTab('content')}
+                        >
+                          Back to Content
+                        </button>
+                        
+                        <button 
+                          type="button" 
+                          className="btn btn-primary"
+                          onClick={() => {
+                            if (selectedLists.length === 0) {
+                              toast({
+                                title: "No Contact Lists Selected",
+                                description: "Please select at least one contact list for your campaign",
+                                variant: "destructive"
+                              });
+                              return;
+                            }
+                            
+                            // Go to settings tab
+                            setActiveTab('settings');
+                          }}
+                        >
+                          Next: Settings
+                        </button>
+                      </div>
                     </div>
                   </div>
                 )}
@@ -497,11 +596,21 @@ const NewCampaignModal = ({ onClose }: NewCampaignModalProps) => {
                           Track link clicks
                         </label>
                       </div>
-                      <div className="form-check">
+                      <div className="form-check mb-4">
                         <input className="form-check-input" type="checkbox" id="googleAnalytics" />
                         <label className="form-check-label" htmlFor="googleAnalytics">
                           Add Google Analytics parameters
                         </label>
+                      </div>
+                      
+                      <div className="mt-4 d-flex justify-content-between">
+                        <button
+                          type="button"
+                          className="btn btn-outline-secondary"
+                          onClick={() => setActiveTab('audience')}
+                        >
+                          Back to Contact Lists
+                        </button>
                       </div>
                     </div>
                   </div>
