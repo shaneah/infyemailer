@@ -3,7 +3,6 @@ import { z } from 'zod';
 import { emailService } from '../services/EmailService';
 import { providerSettingsService } from '../services/ProviderSettingsService';
 import { dbStorage as storage } from '../dbStorage';
-import { Json } from 'drizzle-orm';
 
 // Email validation schema
 const sendEmailSchema = z.object({
@@ -52,7 +51,7 @@ export function registerEmailRoutes(app: any) {
         metadata: {
           provider: emailData.providerName || 'default',
           requestedAt: new Date().toISOString()
-        } as Json
+        }
       });
       
       // Send the email
@@ -73,7 +72,7 @@ export function registerEmailRoutes(app: any) {
           ...metadata,
           sentAt: success ? new Date().toISOString() : undefined,
           error: success ? undefined : 'Failed to send email'
-        } as Json
+        }
       });
       
       if (success) {
@@ -172,7 +171,7 @@ export function registerEmailRoutes(app: any) {
           resentAt: new Date().toISOString(),
           sentAt: success ? new Date().toISOString() : undefined,
           error: success ? undefined : 'Failed to resend email'
-        } as Json
+        }
       });
       
       if (success) {
