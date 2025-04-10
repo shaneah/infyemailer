@@ -219,26 +219,26 @@
   }
 
   body {
-    @apply font-sans antialiased bg-gray-50 text-foreground;
+    @apply font-sans antialiased bg-gray-900 text-gray-200;
     overflow-x: hidden;
   }
   
   h1, h2, h3, h4, h5, h6 {
-    @apply font-semibold tracking-tight text-gray-900;
+    @apply font-semibold tracking-tight text-gray-100;
   }
   
   h1 {
     @apply text-2xl md:text-3xl mb-4;
-    background: linear-gradient(to right, hsl(210, 100%, 40%), hsl(210, 100%, 50%));
+    background: linear-gradient(to right, hsl(240, 100%, 70%), hsl(240, 100%, 60%));
     @apply bg-clip-text text-transparent;
   }
   
   h2 {
-    @apply text-xl md:text-2xl mb-3 text-gray-800;
+    @apply text-xl md:text-2xl mb-3 text-gray-100;
   }
   
   h3 {
-    @apply text-lg md:text-xl mb-2 text-gray-800;
+    @apply text-lg md:text-xl mb-2 text-gray-200;
   }
 
   /* Add subtle pattern to background */
@@ -249,7 +249,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%234285F4' fill-opacity='0.02' fill-rule='evenodd'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%236366F1' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
     pointer-events: none;
     z-index: -1;
   }
@@ -354,7 +354,7 @@
 
 /* Bootstrap Classes with Updated Theme */
 .bg-primary {
-  background-color: hsl(210, 100%, 50%) !important;
+  background-color: hsl(240, 80%, 50%) !important;
 }
 
 .bg-secondary {
@@ -378,27 +378,27 @@
 }
 
 .bg-light {
-  background-color: #f8fafc !important;
+  background-color: #1e293b !important;
 }
 
 .bg-dark {
-  background-color: #334155 !important;
+  background-color: #0f172a !important;
 }
 
 .text-primary {
-  color: hsl(210, 100%, 50%) !important;
+  color: hsl(240, 80%, 60%) !important;
 }
 
 .text-secondary {
-  color: #64748b !important;
+  color: #94a3b8 !important;
 }
 
 .text-success {
-  color: #059669 !important;
+  color: #10b981 !important;
 }
 
 .text-danger {
-  color: #dc2626 !important;
+  color: #ef4444 !important;
 }
 
 .text-warning {
@@ -406,7 +406,7 @@
 }
 
 .text-info {
-  color: #0284c7 !important;
+  color: #3b82f6 !important;
 }
 
 .text-white {
@@ -418,36 +418,36 @@
 }
 
 .text-muted {
-  color: #6c757d !important;
+  color: #94a3b8 !important;
 }
 
 .border-primary {
-  border-color: hsl(210, 100%, 50%) !important;
+  border-color: hsl(240, 80%, 50%) !important;
 }
 
 .btn-primary {
-  background-color: hsl(210, 100%, 50%);
-  border-color: hsl(210, 100%, 45%);
+  background-color: hsl(240, 80%, 50%);
+  border-color: hsl(240, 80%, 45%);
   color: white;
   transition: all 0.2s ease;
 }
 
 .btn-primary:hover {
-  background-color: hsl(210, 100%, 45%);
-  border-color: hsl(210, 100%, 40%);
-  box-shadow: 0 3px 8px rgba(33, 150, 243, 0.3);
+  background-color: hsl(240, 80%, 45%);
+  border-color: hsl(240, 80%, 40%);
+  box-shadow: 0 3px 8px rgba(95, 95, 236, 0.3);
 }
 
 .btn-outline-primary {
-  color: hsl(210, 100%, 50%);
-  border-color: hsl(210, 100%, 50%);
+  color: hsl(240, 80%, 60%);
+  border-color: hsl(240, 80%, 50%);
   transition: all 0.2s ease;
 }
 
 .btn-outline-primary:hover {
-  background-color: hsl(210, 100%, 50%);
+  background-color: hsl(240, 80%, 50%);
   color: white;
-  box-shadow: 0 2px 5px rgba(33, 150, 243, 0.25);
+  box-shadow: 0 2px 5px rgba(95, 95, 236, 0.25);
 }
 
 .btn-success {
@@ -541,21 +541,21 @@
 }
 
 .card {
-  @apply rounded-md shadow-sm border border-gray-200;
-  background: white;
+  @apply rounded-md shadow-md border border-gray-700;
+  background: #1e293b;
   transition: all 0.3s ease;
 }
 
 .card:hover {
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
 .card-header {
-  @apply font-medium p-4 border-b border-gray-200 bg-white rounded-t-md;
+  @apply font-medium p-4 border-b border-gray-700 bg-gray-800 rounded-t-md;
 }
 
 .card-header h3, .card-header h4 {
-  color: hsl(210, 100%, 50%);
+  color: hsl(240, 80%, 60%);
 }
 
 .card-body {
@@ -563,29 +563,29 @@
 }
 
 .card-footer {
-  @apply p-4 border-t border-gray-200 bg-white rounded-b-md;
+  @apply p-4 border-t border-gray-700 bg-gray-800 rounded-b-md;
 }
 
 .form-label {
-  @apply block mb-2 text-sm font-medium;
+  @apply block mb-2 text-sm font-medium text-gray-300;
 }
 
 .form-control {
-  @apply px-3 py-2 bg-white border border-gray-300 rounded-md w-full transition-all duration-200;
+  @apply px-3 py-2 bg-gray-800 border border-gray-700 rounded-md w-full transition-all duration-200 text-gray-200;
 }
 
 .form-control:focus {
   @apply border-primary outline-none;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+  box-shadow: 0 0 0 3px rgba(95, 95, 236, 0.15);
 }
 
 .form-select {
-  @apply px-3 py-2 bg-white border border-gray-300 rounded-md w-full transition-all duration-200;
+  @apply px-3 py-2 bg-gray-800 border border-gray-700 rounded-md w-full transition-all duration-200 text-gray-200;
 }
 
 .form-select:focus {
   @apply border-primary outline-none;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+  box-shadow: 0 0 0 3px rgba(95, 95, 236, 0.15);
 }
 
 .form-check {
@@ -703,19 +703,19 @@
 .template-card {
   cursor: pointer;
   transition: all 0.2s ease;
-  @apply rounded-md shadow-sm border border-gray-200 overflow-hidden;
-  background: white;
+  @apply rounded-md shadow-sm border border-gray-700 overflow-hidden;
+  background: #1e293b;
 }
 
 .template-card:hover {
-  border-color: hsl(210, 100%, 50%);
-  box-shadow: 0 4px 10px rgba(33, 150, 243, 0.2);
+  border-color: hsl(240, 80%, 50%);
+  box-shadow: 0 4px 10px rgba(95, 95, 236, 0.2);
   transform: translateY(-2px);
 }
 
 .template-card.selected {
-  border: 2px solid hsl(210, 100%, 50%);
-  box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.15);
+  border: 2px solid hsl(240, 80%, 50%);
+  box-shadow: 0 0 0 3px rgba(95, 95, 236, 0.15);
 }
 
 /* Template preview hover effects */
