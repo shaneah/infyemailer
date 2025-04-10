@@ -21,6 +21,7 @@ declare global {
 }
 import { registerEmailProviderRoutes } from "./routes/emailProviders";
 import { registerAudiencePersonaRoutes } from "./routes/audiencePersonas";
+import { registerEmailRoutes } from "./routes/email";
 import { 
   insertContactSchema, 
   insertListSchema, 
@@ -66,6 +67,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Register audience persona routes
   registerAudiencePersonaRoutes(app);
+  
+  // Register email routes
+  registerEmailRoutes(app);
 
   // Mock data for dashboard stats
   app.get('/api/stats', (req: Request, res: Response) => {

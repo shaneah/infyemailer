@@ -14,7 +14,7 @@ import axios from 'axios';
 export class SendPulseProvider implements IEmailProvider {
   private userId: string;
   private secret: string;
-  private accessToken: string | null = null;
+  private accessToken: string = '';
   private tokenExpiry: number = 0;
   
   constructor(userId: string, secret: string) {
