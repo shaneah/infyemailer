@@ -1,10 +1,52 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
+
+// Define campaign type
+interface Campaign {
+  id: number;
+  name: string;
+  subtitle: string;
+  icon: {
+    name: string;
+    color: string;
+  };
+  status: {
+    label: string;
+    color: string;
+  };
+  recipients: number;
+  openRate: number;
+  clickRate: number;
+  date: string;
+}
 
 const CampaignsTable = () => {
-  const { data: campaigns, isLoading } = useQuery({
+  const { toast } = useToast();
+  const { data: campaigns = [], isLoading } = useQuery<Campaign[]>({
     queryKey: ['/api/campaigns'],
+  });
+  
+  const deleteCampaignMutation = useMutation({
+    mutationFn: async (campaignId: number) => {
+      await apiRequest('DELETE', `/api/campaigns/${campaignId}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/campaigns'] });
+      toast({
+        title: "Campaign deleted",
+        description: "The campaign has been successfully deleted.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: `Failed to delete campaign: ${error.message}`,
+        variant: "destructive",
+      });
+    }
   });
 
   if (isLoading) {
@@ -74,7 +116,7 @@ const CampaignsTable = () => {
             </tr>
           </thead>
           <tbody>
-            {campaigns?.map((campaign) => (
+            {campaigns.map((campaign) => (
               <tr key={campaign.id}>
                 <td>
                   <div className="d-flex align-items-center">
@@ -112,12 +154,57 @@ const CampaignsTable = () => {
                 <td>{campaign.date}</td>
                 <td>
                   <div className="btn-group">
-                    <button type="button" className="btn btn-sm btn-outline-secondary">
-                      {campaign.status.label === 'Scheduled' ? 'Edit' : 'View'}
-                    </button>
-                    <button type="button" className="btn btn-sm btn-outline-secondary dropdown-toggle dropdown-toggle-split">
-                      <span className="visually-hidden">Toggle Dropdown</span>
-                    </button>
+                    <a 
+                      href={`/template-builder/${campaign.id}`} 
+                      className="btn btn-sm btn-outline-secondary"
+                    >
+                      {campaign.status.label === 'Scheduled' || campaign.status.label === 'Draft' ? 'Edit' : 'View'}
+                    </a>
+                    <div className="dropdown">
+                      <button 
+                        type="button" 
+                        className="btn btn-sm btn-outline-secondary dropdown-toggle dropdown-toggle-split"
+                        data-bs-toggle="dropdown" 
+                        aria-expanded="false"
+                      >
+                        <span className="visually-hidden">Toggle Dropdown</span>
+                      </button>
+                      <ul className="dropdown-menu dropdown-menu-end">
+                        <li>
+                          <a className="dropdown-item" href={`/campaigns/${campaign.id}`}>
+                            <i className="bi bi-bar-chart me-2"></i> View Analytics
+                          </a>
+                        </li>
+                        <li>
+                          <a className="dropdown-item" href={`/template-builder/${campaign.id}`}>
+                            <i className="bi bi-pencil me-2"></i> Edit Campaign
+                          </a>
+                        </li>
+                        <li>
+                          <a className="dropdown-item" href="#" onClick={(e) => {
+                            e.preventDefault();
+                            window.confirm('Do you want to duplicate this campaign?');
+                          }}>
+                            <i className="bi bi-files me-2"></i> Duplicate
+                          </a>
+                        </li>
+                        <li><hr className="dropdown-divider" /></li>
+                        <li>
+                          <a 
+                            className="dropdown-item text-danger" 
+                            href="#"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              if (window.confirm('Are you sure you want to delete this campaign? This action cannot be undone.')) {
+                                deleteCampaignMutation.mutate(campaign.id);
+                              }
+                            }}
+                          >
+                            <i className="bi bi-trash me-2"></i> Delete
+                          </a>
+                        </li>
+                      </ul>
+                    </div>
                   </div>
                 </td>
               </tr>
