@@ -358,7 +358,7 @@
 }
 
 .bg-secondary {
-  background-color: #64748b !important;
+  background-color: #d4af37 !important; /* Gold */
 }
 
 .bg-success {
@@ -378,7 +378,7 @@
 }
 
 .bg-light {
-  background-color: #f8fafc !important;
+  background-color: #f5f0e1 !important; /* Cream */
 }
 
 .bg-dark {
@@ -390,7 +390,7 @@
 }
 
 .text-secondary {
-  color: #64748b !important;
+  color: #d4af37 !important; /* Gold */
 }
 
 .text-success {
@@ -528,16 +528,31 @@
   transform: translateY(-1px);
 }
 
+.btn-secondary {
+  background-color: #d4af37; /* Gold */
+  border-color: #c19b2c;
+  color: white;
+  transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+  background-color: #c19b2c;
+  border-color: #aa872a;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(212, 175, 55, 0.4);
+}
+
 .btn-outline-secondary {
-  color: #6c757d;
-  border-color: #6c757d;
+  color: #d4af37; /* Gold */
+  border-color: #d4af37;
   transition: all 0.2s ease;
 }
 
 .btn-outline-secondary:hover {
-  background-color: #6c757d;
+  background-color: #d4af37;
   color: white;
   transform: translateY(-1px);
+  box-shadow: 0 2px 5px rgba(212, 175, 55, 0.35);
 }
 
 .card {
@@ -635,7 +650,7 @@
 }
 
 .table-light {
-  @apply bg-gray-50;
+  background-color: #f5f0e1; /* Cream */
 }
 
 .table th {
@@ -673,6 +688,11 @@
 
 .badge-bg-danger {
   @apply bg-red-100 text-red-800;
+}
+
+.badge-bg-secondary {
+  background-color: rgba(212, 175, 55, 0.15);
+  color: #c19b2c; /* Darker gold */
 }
 
 .sidebar {
@@ -832,4 +852,19 @@
 .btn > * {
   position: relative;
   z-index: 1;
+}
+
+/* Gold Button (Luxury) */
+.btn-gold {
+  background: linear-gradient(to bottom, #f5d87a, #d4af37);
+  border-color: #c19b2c;
+  color: #1a3a5f;
+  font-weight: 600;
+  transition: all 0.25s ease;
+}
+
+.btn-gold:hover {
+  background: linear-gradient(to bottom, #f8e19d, #d4af37);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(212, 175, 55, 0.4);
 }
