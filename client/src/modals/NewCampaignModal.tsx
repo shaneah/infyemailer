@@ -139,44 +139,43 @@ const NewCampaignModal = ({ onClose }: NewCampaignModalProps) => {
             <h5 className="modal-title">Create New Campaign</h5>
             <button type="button" className="btn-close" onClick={onClose}></button>
           </div>
+          <nav className="px-3 pt-2">
+            <div className="nav nav-tabs" role="tablist">
+              <button 
+                className={`nav-link ${activeTab === 'details' ? 'active' : ''}`} 
+                type="button" 
+                onClick={() => setActiveTab('details')}
+              >
+                Campaign Details
+              </button>
+              <button 
+                className={`nav-link ${activeTab === 'content' ? 'active' : ''}`}
+                type="button" 
+                onClick={() => setActiveTab('content')}
+              >
+                Content
+              </button>
+              <button 
+                className={`nav-link ${activeTab === 'audience' ? 'active' : ''}`}
+                type="button" 
+                onClick={() => setActiveTab('audience')}
+              >
+                Contact Lists
+                {selectedLists.length > 0 && (
+                  <span className="badge bg-primary rounded-pill ms-2">{selectedLists.length}</span>
+                )}
+              </button>
+              <button 
+                className={`nav-link ${activeTab === 'settings' ? 'active' : ''}`}
+                type="button" 
+                onClick={() => setActiveTab('settings')}
+              >
+                Settings
+              </button>
+            </div>
+          </nav>
           <div className="modal-body">
-            <div className="mb-4">
-              <nav>
-                <div className="nav nav-tabs" role="tablist">
-                  <button 
-                    className={`nav-link ${activeTab === 'details' ? 'active' : ''}`} 
-                    type="button" 
-                    onClick={() => setActiveTab('details')}
-                  >
-                    Campaign Details
-                  </button>
-                  <button 
-                    className={`nav-link ${activeTab === 'content' ? 'active' : ''}`}
-                    type="button" 
-                    onClick={() => setActiveTab('content')}
-                  >
-                    Content
-                  </button>
-                  <button 
-                    className={`nav-link ${activeTab === 'audience' ? 'active' : ''}`}
-                    type="button" 
-                    onClick={() => setActiveTab('audience')}
-                  >
-                    Contact Lists
-                    {selectedLists.length > 0 && (
-                      <span className="badge bg-primary rounded-pill ms-2">{selectedLists.length}</span>
-                    )}
-                  </button>
-                  <button 
-                    className={`nav-link ${activeTab === 'settings' ? 'active' : ''}`}
-                    type="button" 
-                    onClick={() => setActiveTab('settings')}
-                  >
-                    Settings
-                  </button>
-                </div>
-              </nav>
-              <div className="tab-content pt-3">
+            <div className="tab-content">
                 {activeTab === 'details' && (
                   <div>
                     <Form {...form}>
