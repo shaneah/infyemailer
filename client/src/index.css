@@ -585,7 +585,7 @@
 
 .form-select:focus {
   @apply border-primary outline-none;
-  box-shadow: 0 0 0 3px rgba(128, 90, 213, 0.15);
+  box-shadow: 0 0 0 3px rgba(149, 76, 255, 0.2);
 }
 
 .form-check {
