@@ -6,6 +6,7 @@ import {
   AuthenticationRequirement,
   SupportedFeatures
 } from './IEmailProvider';
+import sgMail from '@sendgrid/mail';
 
 /**
  * SendGrid Email Provider Implementation
@@ -15,6 +16,7 @@ export class SendGridProvider implements IEmailProvider {
   
   constructor(apiKey: string) {
     this.apiKey = apiKey;
+    sgMail.setApiKey(apiKey);
   }
   
   getName(): string {
@@ -23,10 +25,17 @@ export class SendGridProvider implements IEmailProvider {
   
   async sendEmail(params: SendEmailParams): Promise<boolean> {
     try {
-      // In a real implementation, this would use the @sendgrid/mail package
-      // For our demo, we'll simulate the response
       console.log(`[SendGrid] Sending email from ${params.from} to ${params.to}`);
       
+      const msg = {
+        to: params.to,
+        from: params.from,
+        subject: params.subject,
+        text: params.text || '',
+        html: params.html || '',
+      };
+      
+      await sgMail.send(msg);
       return true;
     } catch (error) {
       console.error('SendGrid email error:', error);
