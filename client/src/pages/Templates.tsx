@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import React, { useState } from "react";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { 
   Card, 
   CardHeader, 
@@ -23,7 +23,11 @@ import {
   ChevronDown,
   Eye,
   Upload,
-  Import
+  Import,
+  Send,
+  Pencil,
+  Mail,
+  XCircle
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -34,6 +38,28 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Textarea } from "@/components/ui/textarea";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 
 interface Template {
   id: number;
@@ -50,6 +76,21 @@ interface Template {
   };
 }
 
+// Email test form schema
+const testEmailSchema = z.object({
+  email: z.string().email("Please enter a valid email"),
+  subject: z.string().min(1, "Subject is required"),
+  personalizeContent: z.boolean().optional().default(false),
+});
+
+// Template update form schema
+const updateTemplateSchema = z.object({
+  name: z.string().min(1, "Template name is required"),
+  description: z.string().min(1, "Description is required"),
+  subject: z.string().min(1, "Subject line is required"),
+  content: z.string().min(1, "HTML content is required"),
+});
+
 export default function Templates() {
   const { toast } = useToast();
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
@@ -57,6 +98,9 @@ export default function Templates() {
   const [showAIGenerator, setShowAIGenerator] = useState(false);
   const [activeTab, setActiveTab] = useState<string>("all");
   const [showImportModal, setShowImportModal] = useState(false);
+  const [isTestEmailOpen, setIsTestEmailOpen] = useState(false);
+  const [isUpdateTemplateOpen, setIsUpdateTemplateOpen] = useState(false);
+  const [isCreatingTemplate, setIsCreatingTemplate] = useState(false);
   
   const { data: savedTemplates = [], isLoading: isLoadingTemplates } = useQuery({
     queryKey: ['/api/templates'],
@@ -104,6 +148,140 @@ export default function Templates() {
       variant: "default",
     });
     setSelectedTemplate(template);
+  };
+
+  // Initialize forms
+  const testEmailForm = useForm<z.infer<typeof testEmailSchema>>({
+    resolver: zodResolver(testEmailSchema),
+    defaultValues: {
+      email: "",
+      subject: selectedTemplate ? selectedTemplate.subject : "",
+      personalizeContent: false
+    }
+  });
+  
+  const updateTemplateForm = useForm<z.infer<typeof updateTemplateSchema>>({
+    resolver: zodResolver(updateTemplateSchema),
+    defaultValues: {
+      name: selectedTemplate ? selectedTemplate.name : "",
+      description: selectedTemplate ? selectedTemplate.description : "",
+      subject: selectedTemplate ? selectedTemplate.subject : "",
+      content: selectedTemplate ? selectedTemplate.content : ""
+    }
+  });
+
+  // Set form values when selected template changes
+  React.useEffect(() => {
+    if (selectedTemplate) {
+      updateTemplateForm.reset({
+        name: selectedTemplate.name,
+        description: selectedTemplate.description,
+        subject: selectedTemplate.subject,
+        content: selectedTemplate.content
+      });
+      
+      testEmailForm.reset({
+        email: "",
+        subject: selectedTemplate.subject,
+        personalizeContent: false
+      });
+    }
+  }, [selectedTemplate, updateTemplateForm, testEmailForm]);
+
+  // Template mutations
+  const sendTestEmailMutation = useMutation({
+    mutationFn: async (data: z.infer<typeof testEmailSchema>) => {
+      if (!selectedTemplate) throw new Error("No template selected");
+      const response = await apiRequest("POST", `/api/templates/${selectedTemplate.id}/test-email`, data);
+      return response;
+    },
+    onSuccess: () => {
+      toast({
+        title: "Test Email Sent",
+        description: "Your test email has been sent successfully",
+        variant: "default",
+      });
+      setIsTestEmailOpen(false);
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: `Failed to send test email: ${error.message}`,
+        variant: "destructive",
+      });
+    }
+  });
+
+  const updateTemplateMutation = useMutation({
+    mutationFn: async (data: z.infer<typeof updateTemplateSchema>) => {
+      if (!selectedTemplate) throw new Error("No template selected");
+      const response = await apiRequest("PATCH", `/api/templates/${selectedTemplate.id}`, data);
+      return response.json();
+    },
+    onSuccess: (updatedTemplate) => {
+      queryClient.invalidateQueries({ queryKey: ['/api/templates'] });
+      toast({
+        title: "Template Updated",
+        description: "Your template has been updated successfully",
+        variant: "default",
+      });
+      setIsUpdateTemplateOpen(false);
+      setSelectedTemplate(updatedTemplate);
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: `Failed to update template: ${error.message}`,
+        variant: "destructive",
+      });
+    }
+  });
+
+  const createNewTemplateMutation = useMutation({
+    mutationFn: async (data: z.infer<typeof updateTemplateSchema>) => {
+      const response = await apiRequest("POST", "/api/templates", data);
+      return response.json();
+    },
+    onSuccess: (newTemplate) => {
+      queryClient.invalidateQueries({ queryKey: ['/api/templates'] });
+      toast({
+        title: "Template Created",
+        description: "Your template has been created successfully",
+        variant: "default",
+      });
+      setIsCreatingTemplate(false);
+      setSelectedTemplate(newTemplate);
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: `Failed to create template: ${error.message}`,
+        variant: "destructive",
+      });
+    }
+  });
+
+  // Handler functions
+  const handleSendTestEmail = (data: z.infer<typeof testEmailSchema>) => {
+    sendTestEmailMutation.mutate(data);
+  };
+
+  const handleUpdateTemplate = (data: z.infer<typeof updateTemplateSchema>) => {
+    updateTemplateMutation.mutate(data);
+  };
+
+  const handleCreateTemplate = (data: z.infer<typeof updateTemplateSchema>) => {
+    createNewTemplateMutation.mutate(data);
+  };
+
+  const handleOpenCreateTemplate = () => {
+    updateTemplateForm.reset({
+      name: "",
+      description: "",
+      subject: "",
+      content: ""
+    });
+    setIsCreatingTemplate(true);
   };
 
   // Filter templates based on search query and selected category
@@ -345,6 +523,354 @@ export default function Templates() {
         onOpenChange={setShowImportModal}
         onImportSuccess={handleImportSuccess}
       />
+
+      {/* Update template actions */}
+      {selectedTemplate && (
+        <div className="flex gap-3 mt-4">
+          <Button
+            variant="outline"
+            className="gap-2"
+            onClick={() => setIsUpdateTemplateOpen(true)}
+          >
+            <Pencil className="h-4 w-4" />
+            Update email template
+          </Button>
+          
+          <Button
+            variant="outline"
+            className="gap-2"
+            onClick={() => window.open(`/preview-template?id=${selectedTemplate.id}`, '_blank')}
+          >
+            <Eye className="h-4 w-4" />
+            Preview
+          </Button>
+          
+          <Button
+            variant="outline"
+            className="gap-2"
+            onClick={() => setIsTestEmailOpen(true)}
+          >
+            <Mail className="h-4 w-4" />
+            Send a test email using this template
+          </Button>
+          
+          <Button
+            variant="outline"
+            className="gap-2"
+            onClick={handleOpenCreateTemplate}
+          >
+            <PlusCircle className="h-4 w-4" />
+            Create new
+          </Button>
+          
+          <Button
+            variant="ghost"
+            className="gap-2"
+            onClick={() => setSelectedTemplate(null)}
+          >
+            <XCircle className="h-4 w-4" />
+            Cancel
+          </Button>
+        </div>
+      )}
+
+      {/* Test Email Dialog */}
+      <Dialog open={isTestEmailOpen} onOpenChange={setIsTestEmailOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Send Test Email</DialogTitle>
+            <DialogDescription>
+              Send a test email to verify how this template will appear in email clients.
+            </DialogDescription>
+          </DialogHeader>
+
+          <Form {...testEmailForm}>
+            <form 
+              onSubmit={testEmailForm.handleSubmit(handleSendTestEmail)} 
+              className="space-y-4 py-3"
+            >
+              <FormField
+                control={testEmailForm.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Recipient Email</FormLabel>
+                    <FormControl>
+                      <Input placeholder="your@email.com" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={testEmailForm.control}
+                name="subject"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Subject Line</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={testEmailForm.control}
+                name="personalizeContent"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-4">
+                    <FormControl>
+                      <input
+                        type="checkbox"
+                        checked={field.value}
+                        onChange={field.onChange}
+                        className="h-4 w-4 rounded border-gray-300"
+                      />
+                    </FormControl>
+                    <div className="space-y-1 leading-none">
+                      <FormLabel>
+                        Personalize content with test data
+                      </FormLabel>
+                    </div>
+                  </FormItem>
+                )}
+              />
+
+              <DialogFooter className="pt-4">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setIsTestEmailOpen(false)} 
+                  type="button"
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  type="submit" 
+                  disabled={sendTestEmailMutation.isPending}
+                >
+                  {sendTestEmailMutation.isPending ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Sending...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="mr-2 h-4 w-4" />
+                      Send Test Email
+                    </>
+                  )}
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Update Template Dialog */}
+      <Dialog open={isUpdateTemplateOpen} onOpenChange={setIsUpdateTemplateOpen}>
+        <DialogContent className="sm:max-w-[800px]">
+          <DialogHeader>
+            <DialogTitle>Update Template</DialogTitle>
+            <DialogDescription>
+              Make changes to your email template.
+            </DialogDescription>
+          </DialogHeader>
+
+          <Form {...updateTemplateForm}>
+            <form 
+              onSubmit={updateTemplateForm.handleSubmit(handleUpdateTemplate)} 
+              className="space-y-4 py-3"
+            >
+              <FormField
+                control={updateTemplateForm.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Template Name</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={updateTemplateForm.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Description</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={updateTemplateForm.control}
+                name="subject"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Subject Line</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={updateTemplateForm.control}
+                name="content"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>HTML Content</FormLabel>
+                    <FormControl>
+                      <Textarea 
+                        {...field} 
+                        className="font-mono text-xs h-[300px]" 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <DialogFooter>
+                <Button 
+                  variant="outline" 
+                  onClick={() => setIsUpdateTemplateOpen(false)} 
+                  type="button"
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  type="submit" 
+                  disabled={updateTemplateMutation.isPending}
+                >
+                  {updateTemplateMutation.isPending ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Updating...
+                    </>
+                  ) : (
+                    "Update Template"
+                  )}
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Create Template Dialog */}
+      <Dialog open={isCreatingTemplate} onOpenChange={setIsCreatingTemplate}>
+        <DialogContent className="sm:max-w-[800px]">
+          <DialogHeader>
+            <DialogTitle>Create New Template</DialogTitle>
+            <DialogDescription>
+              Create a new email template from scratch.
+            </DialogDescription>
+          </DialogHeader>
+
+          <Form {...updateTemplateForm}>
+            <form 
+              onSubmit={updateTemplateForm.handleSubmit(handleCreateTemplate)} 
+              className="space-y-4 py-3"
+            >
+              <FormField
+                control={updateTemplateForm.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Template Name</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="e.g. Monthly Newsletter" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={updateTemplateForm.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Description</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="A brief description of this template" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={updateTemplateForm.control}
+                name="subject"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Subject Line</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="e.g. Your Monthly Update from Company" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={updateTemplateForm.control}
+                name="content"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>HTML Content</FormLabel>
+                    <FormControl>
+                      <Textarea 
+                        {...field} 
+                        className="font-mono text-xs h-[300px]"
+                        placeholder="<!DOCTYPE html><html><head>...</head><body>Your email content here</body></html>" 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <DialogFooter>
+                <Button 
+                  variant="outline" 
+                  onClick={() => setIsCreatingTemplate(false)} 
+                  type="button"
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  type="submit" 
+                  disabled={createNewTemplateMutation.isPending}
+                >
+                  {createNewTemplateMutation.isPending ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Creating...
+                    </>
+                  ) : (
+                    "Create Template"
+                  )}
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

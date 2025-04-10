@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
@@ -16,6 +16,8 @@ const campaignSchema = z.object({
   replyToEmail: z.string().email("Must be a valid email address"),
   scheduledDate: z.string().optional(),
   scheduledTime: z.string().optional(),
+  status: z.string().optional(),
+  templateId: z.string().optional(),
 });
 
 interface NewCampaignModalProps {
@@ -42,14 +44,23 @@ const NewCampaignModal = ({ onClose }: NewCampaignModalProps) => {
     },
   });
   
-  const createCampaignMutation = useMutation({
-    mutationFn: (values: z.infer<typeof campaignSchema>) => {
-      return apiRequest("POST", "/api/campaigns", {
+  // Campaign response type
+  interface CampaignResponse {
+    id: number | string;
+    name: string;
+    status?: string;
+    [key: string]: any;
+  }
+
+  const createCampaignMutation = useMutation<CampaignResponse, Error, z.infer<typeof campaignSchema>>({
+    mutationFn: async (values: z.infer<typeof campaignSchema>) => {
+      const response = await apiRequest("POST", "/api/campaigns", {
         ...values,
         templateId: selectedTemplateId,
         audienceOption,
         sendOption
       });
+      return await response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/campaigns'] });
@@ -72,11 +83,26 @@ const NewCampaignModal = ({ onClose }: NewCampaignModalProps) => {
     createCampaignMutation.mutate(values);
   };
   
-  const templates = [
-    { id: "1", name: "Newsletter", description: "Standard newsletter layout", image: "newsletter" },
-    { id: "2", name: "Promotional", description: "For sales and offers", image: "promotional" },
-    { id: "3", name: "Welcome", description: "For new subscribers", image: "welcome" },
-  ];
+  // Define template interface
+  interface Template {
+    id: string | number;
+    name: string;
+    description?: string;
+    content?: string;
+    category?: string;
+  }
+
+  // Fetch templates from the server
+  const { data: templates = [] } = useQuery<Template[]>({ 
+    queryKey: ['/api/templates'],
+    queryFn: async () => {
+      const response = await fetch('/api/templates');
+      if (!response.ok) {
+        throw new Error('Failed to fetch templates');
+      }
+      return response.json();
+    }
+  });
   
   const lists = [
     { id: "1", name: "Newsletter Subscribers", count: 18742 },
@@ -233,17 +259,17 @@ const NewCampaignModal = ({ onClose }: NewCampaignModalProps) => {
                     <div className="mb-3">
                       <label className="form-label">Select a Template</label>
                       <div className="row row-cols-1 row-cols-md-3 g-3">
-                        {templates.map((template) => (
+                        {templates.map((template: Template) => (
                           <div className="col" key={template.id}>
                             <div 
-                              className={`card template-card ${selectedTemplateId === template.id ? 'selected' : ''}`}
-                              onClick={() => setSelectedTemplateId(template.id)}
+                              className={`card template-card ${selectedTemplateId === template.id.toString() ? 'selected' : ''}`}
+                              onClick={() => setSelectedTemplateId(template.id.toString())}
                             >
                               <div 
                                 className="card-img-top bg-light d-flex justify-content-center align-items-center" 
                                 style={{ height: '120px' }}
                               >
-                                <i className={`bi bi-file-earmark-text fs-1 text-${template.id === "1" ? "primary" : template.id === "2" ? "danger" : "success"}`}></i>
+                                <i className={`bi bi-file-earmark-text fs-1 text-${Number(template.id) === 1 ? "primary" : Number(template.id) === 2 ? "danger" : "success"}`}></i>
                               </div>
                               <div className="card-body">
                                 <h6 className="card-title">{template.name}</h6>
@@ -269,7 +295,7 @@ const NewCampaignModal = ({ onClose }: NewCampaignModalProps) => {
                                 templateId: selectedTemplateId
                               },
                               {
-                                onSuccess: (response) => {
+                                onSuccess: (response: CampaignResponse) => {
                                   // Navigate to template builder with campaign ID
                                   window.location.href = `/template-builder/${response.id}`;
                                 }
