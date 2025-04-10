@@ -6,14 +6,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2 } from "lucide-react";
 
-const timeRanges = ["Week", "Month", "Quarter"];
+type TimeRangeType = "Week" | "Month" | "Quarter";
+const timeRanges: TimeRangeType[] = ["Week", "Month", "Quarter"];
 
 const AnalyticsChart = () => {
-  const [timeRange, setTimeRange] = useState("Week");
+  const [timeRange, setTimeRange] = useState<TimeRangeType>("Week");
   
   const { data, isLoading } = useQuery({
     queryKey: ['/api/analytics', timeRange],
-    initialData: chartData[timeRange.toLowerCase()],
+    initialData: chartData[timeRange.toLowerCase() as keyof typeof chartData],
   });
 
   return (
@@ -22,7 +23,7 @@ const AnalyticsChart = () => {
         <CardTitle className="text-lg font-medium text-[#1a3a5f]">Performance Analytics</CardTitle>
         <Tabs 
           value={timeRange} 
-          onValueChange={(value) => setTimeRange(value)}
+          onValueChange={(value: string) => setTimeRange(value as TimeRangeType)}
           className="w-auto"
         >
           <TabsList className="bg-gray-100 p-0.5">

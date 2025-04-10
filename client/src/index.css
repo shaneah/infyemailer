@@ -2,6 +2,27 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Define custom gold shadow utilities */
+.shadow-gold-sm {
+  box-shadow: 0 2px 5px rgba(212, 175, 55, 0.15);
+}
+
+.shadow-gold {
+  box-shadow: 0 4px 10px rgba(212, 175, 55, 0.25);
+}
+
+.shadow-gold-lg {
+  box-shadow: 0 10px 25px -5px rgba(212, 175, 55, 0.2), 0 8px 10px -6px rgba(212, 175, 55, 0.1);
+}
+
+.hover\:shadow-gold:hover {
+  box-shadow: 0 4px 10px rgba(212, 175, 55, 0.25);
+}
+
+.hover\:shadow-gold-lg:hover {
+  box-shadow: 0 10px 25px -5px rgba(212, 175, 55, 0.2), 0 8px 10px -6px rgba(212, 175, 55, 0.1);
+}
+
 /* Custom animations */
 @keyframes fadeIn {
   from {
