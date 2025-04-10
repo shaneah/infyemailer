@@ -80,6 +80,15 @@ const NewCampaignModal = ({ onClose }: NewCampaignModalProps) => {
   });
   
   const onSubmit = (values: z.infer<typeof campaignSchema>) => {
+    if (selectedLists.length === 0) {
+      toast({
+        title: "No Contact Lists Selected",
+        description: "Please select at least one contact list for your campaign",
+        variant: "destructive"
+      });
+      setActiveTab('audience');
+      return;
+    }
     createCampaignMutation.mutate(values);
   };
   
@@ -154,6 +163,9 @@ const NewCampaignModal = ({ onClose }: NewCampaignModalProps) => {
                     onClick={() => setActiveTab('audience')}
                   >
                     Contact Lists
+                    {selectedLists.length > 0 && (
+                      <span className="badge bg-primary rounded-pill ms-2">{selectedLists.length}</span>
+                    )}
                   </button>
                   <button 
                     className={`nav-link ${activeTab === 'settings' ? 'active' : ''}`}
@@ -296,29 +308,41 @@ const NewCampaignModal = ({ onClose }: NewCampaignModalProps) => {
                         type="button" 
                         className="btn btn-outline-primary"
                         onClick={() => {
-                          if (selectedTemplateId) {
-                            // Create campaign with draft status
-                            const formValues = form.getValues();
-                            createCampaignMutation.mutate(
-                              {
-                                ...formValues,
-                                status: 'draft',
-                                templateId: selectedTemplateId
-                              },
-                              {
-                                onSuccess: (response: CampaignResponse) => {
-                                  // Navigate to template builder with campaign ID
-                                  window.location.href = `/template-builder/${response.id}`;
-                                }
-                              }
-                            );
-                          } else {
+                          if (!selectedTemplateId) {
                             toast({
                               title: "No Template Selected",
                               description: "Please select a template first",
                               variant: "destructive"
                             });
+                            return;
                           }
+                            
+                          if (selectedLists.length === 0) {
+                            toast({
+                              title: "No Contact Lists Selected",
+                              description: "Please select at least one contact list for your campaign",
+                              variant: "destructive"
+                            });
+                            setActiveTab('audience');
+                            return;
+                          }
+                            
+                          // Create campaign with draft status
+                          const formValues = form.getValues();
+                          createCampaignMutation.mutate(
+                            {
+                              ...formValues,
+                              status: 'draft',
+                              templateId: selectedTemplateId,
+                              contactLists: selectedLists
+                            },
+                            {
+                              onSuccess: (response: CampaignResponse) => {
+                                // Navigate to template builder with campaign ID
+                                window.location.href = `/template-builder/${response.id}`;
+                              }
+                            }
+                          );
                         }}
                       >
                         Create & Proceed to Editor
@@ -345,6 +369,14 @@ const NewCampaignModal = ({ onClose }: NewCampaignModalProps) => {
                                     type="checkbox" 
                                     id={`list-${list.id}`} 
                                     value={list.id}
+                                    checked={selectedLists.includes(list.id.toString())}
+                                    onChange={(e) => {
+                                      if (e.target.checked) {
+                                        setSelectedLists([...selectedLists, list.id.toString()]);
+                                      } else {
+                                        setSelectedLists(selectedLists.filter(id => id !== list.id.toString()));
+                                      }
+                                    }}
                                   />
                                   <label className="form-check-label d-flex justify-content-between align-items-center w-100" htmlFor={`list-${list.id}`}>
                                     <span>{list.name}</span>
