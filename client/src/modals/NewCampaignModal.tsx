@@ -140,43 +140,8 @@ const NewCampaignModal = ({ onClose }: NewCampaignModalProps) => {
             <h5 className="modal-title">Create New Campaign</h5>
             <button type="button" className="btn-close" onClick={onClose}></button>
           </div>
-          <nav className="px-3 pt-2">
-            <div className="nav nav-tabs" role="tablist">
-              <button 
-                className={`nav-link ${activeTab === 'details' ? 'active' : ''}`} 
-                type="button" 
-                onClick={() => setActiveTab('details')}
-              >
-                Campaign Details
-              </button>
-              <button 
-                className={`nav-link ${activeTab === 'content' ? 'active' : ''}`}
-                type="button" 
-                onClick={() => setActiveTab('content')}
-              >
-                Content
-              </button>
-              <button 
-                className={`nav-link ${activeTab === 'audience' ? 'active' : ''}`}
-                type="button" 
-                onClick={() => setActiveTab('audience')}
-              >
-                Contact Lists
-                {selectedLists.length > 0 && (
-                  <span className="badge bg-primary rounded-pill ms-2">{selectedLists.length}</span>
-                )}
-              </button>
-              <button 
-                className={`nav-link ${activeTab === 'settings' ? 'active' : ''}`}
-                type="button" 
-                onClick={() => setActiveTab('settings')}
-              >
-                Settings
-              </button>
-            </div>
-          </nav>
-          <div className="modal-body">
-            <div className="tab-content">
+          <div className="d-flex">
+            <div className="modal-body flex-grow-1">
               {activeTab === 'details' && (
                 <div>
                   <Form {...form}>
@@ -616,6 +581,41 @@ const NewCampaignModal = ({ onClose }: NewCampaignModalProps) => {
                 </div>
               )}
             </div>
+            <nav className="px-3 pt-4 border-start" style={{ minWidth: '180px' }}>
+              <div className="nav flex-column nav-pills" role="tablist">
+                <button 
+                  className={`nav-link ${activeTab === 'details' ? 'active' : ''} text-start mb-2`} 
+                  type="button" 
+                  onClick={() => setActiveTab('details')}
+                >
+                  Campaign Details
+                </button>
+                <button 
+                  className={`nav-link ${activeTab === 'content' ? 'active' : ''} text-start mb-2`}
+                  type="button" 
+                  onClick={() => setActiveTab('content')}
+                >
+                  Content
+                </button>
+                <button 
+                  className={`nav-link ${activeTab === 'audience' ? 'active' : ''} text-start mb-2 d-flex justify-content-between align-items-center`}
+                  type="button" 
+                  onClick={() => setActiveTab('audience')}
+                >
+                  <span>Contact Lists</span>
+                  {selectedLists.length > 0 && (
+                    <span className="badge bg-primary rounded-pill ms-2">{selectedLists.length}</span>
+                  )}
+                </button>
+                <button 
+                  className={`nav-link ${activeTab === 'settings' ? 'active' : ''} text-start`}
+                  type="button" 
+                  onClick={() => setActiveTab('settings')}
+                >
+                  Settings
+                </button>
+              </div>
+            </nav>
           </div>
           <div className="modal-footer">
             <button type="button" className="btn btn-secondary" onClick={onClose}>Cancel</button>
