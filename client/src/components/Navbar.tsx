@@ -96,7 +96,7 @@ const Navbar = ({ sidebarOpen, setSidebarOpen }: NavbarProps) => {
           {/* Right side - User menu, notifications, create button, and client login */}
           <div className="flex items-center space-x-3">
             {/* Create button with dropdown */}
-            <div className="relative">
+            <div className="relative" ref={createMenuRef}>
               <button 
                 className="btn-blue-luxury rounded-full p-2 flex items-center"
                 onClick={() => setShowCreateMenu(!showCreateMenu)}
@@ -141,7 +141,7 @@ const Navbar = ({ sidebarOpen, setSidebarOpen }: NavbarProps) => {
             </div>
 
             {/* Help button */}
-            <div className="relative">
+            <div className="relative" ref={helpMenuRef}>
               <button 
                 className="p-1.5 rounded-full text-[#1a3a5f] hover:bg-gray-100"
                 onClick={() => setShowHelpMenu(!showHelpMenu)}
@@ -167,7 +167,7 @@ const Navbar = ({ sidebarOpen, setSidebarOpen }: NavbarProps) => {
             </div>
 
             {/* Notifications */}
-            <div className="relative">
+            <div className="relative" ref={notificationsRef}>
               <button 
                 className="p-1.5 rounded-full text-[#1a3a5f] hover:bg-gray-100 relative"
                 onClick={() => setShowNotifications(!showNotifications)}
@@ -240,7 +240,7 @@ const Navbar = ({ sidebarOpen, setSidebarOpen }: NavbarProps) => {
             </Button>
             
             {/* User menu */}
-            <div className="relative">
+            <div className="relative" ref={userMenuRef}>
               <button 
                 className="inline-flex justify-center items-center group"
                 onClick={() => setShowUserMenu(!showUserMenu)}
