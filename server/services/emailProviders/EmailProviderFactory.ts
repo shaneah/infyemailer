@@ -3,8 +3,9 @@ import { SendGridProvider } from './SendGridProvider';
 import { MailgunProvider } from './MailgunProvider';
 import { AmazonSESProvider } from './AmazonSESProvider';
 import { SendCleanProvider } from './SendCleanProvider';
+import { SendPulseProvider } from './SendPulseProvider';
 
-export type EmailProviderType = 'sendgrid' | 'mailgun' | 'amazonses' | 'sendclean';
+export type EmailProviderType = 'sendgrid' | 'mailgun' | 'amazonses' | 'sendclean' | 'sendpulse';
 
 /**
  * Factory for creating email provider instances
@@ -43,6 +44,12 @@ export class EmailProviderFactory {
         }
         return new SendCleanProvider(config.apiKey);
         
+      case 'sendpulse':
+        if (!config.userId || !config.secret) {
+          throw new Error('SendPulse user ID and secret are required');
+        }
+        return new SendPulseProvider(config.userId, config.secret);
+        
       default:
         throw new Error(`Unsupported email provider: ${providerType}`);
     }
@@ -56,7 +63,8 @@ export class EmailProviderFactory {
       { id: 'sendgrid', name: 'SendGrid' },
       { id: 'mailgun', name: 'Mailgun' },
       { id: 'amazonses', name: 'Amazon SES' },
-      { id: 'sendclean', name: 'SendClean' }
+      { id: 'sendclean', name: 'SendClean' },
+      { id: 'sendpulse', name: 'SendPulse' }
     ];
   }
 }
