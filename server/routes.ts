@@ -559,19 +559,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const lists = await storage.getLists();
       
-      // Map lists to include count
-      const listsWithCount = await Promise.all(lists.map(async (list) => {
-        const contacts = await storage.getContactsByList(list.id);
+      // Get all contactLists data for counting
+      const allContactLists = await storage.getContactLists();
+      
+      // Count contacts per list using the relationship table
+      const contactCountMap = new Map<number, number>();
+      
+      allContactLists.forEach(contactList => {
+        const listId = contactList.listId;
+        contactCountMap.set(listId, (contactCountMap.get(listId) || 0) + 1);
+      });
+      
+      // Map lists to include count from our map
+      const listsWithCount = lists.map(list => {
         return {
           id: list.id.toString(),
           name: list.name,
-          count: contacts.length,
+          count: contactCountMap.get(list.id) || 0,
           lastUpdated: list.updatedAt ? new Date(list.updatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A'
         };
-      }));
+      });
 
+      console.log('Lists with counts:', listsWithCount);
       res.json(listsWithCount);
     } catch (error) {
+      console.error('Error fetching lists:', error);
       res.status(500).json({ error: 'Failed to fetch lists' });
     }
   });
