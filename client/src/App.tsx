@@ -35,6 +35,7 @@ import ClientLogin from "@/pages/ClientLogin";
 import SimpleClientLogin from "@/pages/SimpleClientLogin";
 import ClientDashboard from "@/pages/ClientDashboard";
 import ClientRoutes from "@/pages/ClientRoutes";
+import Analytics from "@/pages/Analytics";
 
 
 function App() {
@@ -151,12 +152,18 @@ function App() {
                     <ProtectedRoute path="clients" component={Clients} />
                     <ProtectedRoute path="client-users" component={ClientUsers} />
                     <Route path="settings">
-                      {() => <div className="redirect-settings">
-                        {typeof window !== 'undefined' && window.location.replace('admin')}
-                        <div className="flex items-center justify-center h-full">
-                          <p>Redirecting to Admin Panel...</p>
-                        </div>
-                      </div>}
+                      {() => {
+                        if (typeof window !== 'undefined') {
+                          window.location.replace('admin');
+                        }
+                        return (
+                          <div className="redirect-settings">
+                            <div className="flex items-center justify-center h-full">
+                              <p>Redirecting to Admin Panel...</p>
+                            </div>
+                          </div>
+                        );
+                      }}
                     </Route>
                     <ProtectedRoute path="admin" component={AdminPanel} />
                     <ProtectedRoute path="email-validation" component={EmailValidation} />
@@ -165,6 +172,7 @@ function App() {
                     <ProtectedRoute path="email-providers" component={EmailProviders} />
                     <ProtectedRoute path="client-management" component={ClientManagement} />
                     <ProtectedRoute path="audience-personas" component={AudiencePersonas} />
+                    <ProtectedRoute path="analytics" component={Analytics} />
 
                     <Route component={NotFound} />
                   </Switch>
