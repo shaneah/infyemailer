@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { emailService } from '../services/EmailService';
 import { providerSettingsService } from '../services/ProviderSettingsService';
 import { dbStorage as storage } from '../dbStorage';
+import { Json } from 'drizzle-orm';
 
 // Email validation schema
 const sendEmailSchema = z.object({
@@ -13,6 +14,16 @@ const sendEmailSchema = z.object({
   html: z.string().optional(),
   providerName: z.string().optional()
 });
+
+type EmailMetadata = {
+  provider?: string;
+  requestedAt?: string;
+  sentAt?: string;
+  error?: string;
+  resent?: boolean;
+  resentAt?: string;
+  [key: string]: any;
+};
 
 // Direct send email endpoint
 export function registerEmailRoutes(app: any) {
@@ -33,15 +44,15 @@ export function registerEmailRoutes(app: any) {
       
       // Record the email in the database first
       const emailRecord = await storage.createEmail({
-        subject: emailData.subject,
-        content: emailData.html || emailData.text || '',
         from: emailData.from,
         to: emailData.to,
+        subject: emailData.subject,
+        content: emailData.html || emailData.text || '',
         status: 'sending',
         metadata: {
           provider: emailData.providerName || 'default',
           requestedAt: new Date().toISOString()
-        }
+        } as Json
       });
       
       // Send the email
@@ -54,14 +65,15 @@ export function registerEmailRoutes(app: any) {
       }, emailData.providerName);
       
       // Update the email record with the result
+      const metadata = emailRecord.metadata as EmailMetadata || {};
       await storage.updateEmail(emailRecord.id, {
         status: success ? 'sent' : 'failed',
         sentAt: success ? new Date() : undefined,
         metadata: {
-          ...emailRecord.metadata,
+          ...metadata,
           sentAt: success ? new Date().toISOString() : undefined,
           error: success ? undefined : 'Failed to send email'
-        }
+        } as Json
       });
       
       if (success) {
@@ -88,15 +100,18 @@ export function registerEmailRoutes(app: any) {
       const emails = await storage.getEmails();
       
       // Map emails to a more useful format
-      const emailHistory = emails.map(email => ({
-        id: email.id,
-        subject: email.subject,
-        from: email.from,
-        to: email.to,
-        status: email.status,
-        sentAt: email.sentAt,
-        provider: email.metadata?.provider || 'unknown'
-      }));
+      const emailHistory = emails.map(email => {
+        const metadata = email.metadata as EmailMetadata || {};
+        return {
+          id: email.id,
+          subject: email.subject,
+          from: email.from,
+          to: email.to,
+          status: email.status,
+          sentAt: email.sentAt,
+          provider: metadata.provider || 'unknown'
+        };
+      });
       
       return res.status(200).json(emailHistory);
     } catch (error) {
@@ -136,6 +151,8 @@ export function registerEmailRoutes(app: any) {
         return res.status(400).json({ error: 'Email already sent' });
       }
       
+      const metadata = email.metadata as EmailMetadata || {};
+      
       // Send the email
       const success = await emailService.sendEmail({
         from: email.from,
@@ -143,19 +160,19 @@ export function registerEmailRoutes(app: any) {
         subject: email.subject,
         text: email.content,
         html: email.content.startsWith('<') ? email.content : undefined
-      }, email.metadata?.provider);
+      }, metadata.provider);
       
       // Update the email record with the result
       await storage.updateEmail(email.id, {
         status: success ? 'sent' : 'failed',
         sentAt: success ? new Date() : undefined,
         metadata: {
-          ...email.metadata,
+          ...metadata,
           resent: true,
           resentAt: new Date().toISOString(),
           sentAt: success ? new Date().toISOString() : undefined,
           error: success ? undefined : 'Failed to resend email'
-        }
+        } as Json
       });
       
       if (success) {
