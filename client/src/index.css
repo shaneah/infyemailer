@@ -555,7 +555,7 @@
 }
 
 .card-header h3, .card-header h4 {
-  color: hsl(210, 100%, 50%);
+  color: #1a3a5f; /* Rich blue */
 }
 
 .card-body {
@@ -571,21 +571,23 @@
 }
 
 .form-control {
-  @apply px-3 py-2 bg-white border border-gray-300 rounded-md w-full transition-all duration-200 text-gray-800;
+  @apply px-3 py-2 border border-gray-300 rounded-md w-full transition-all duration-200 text-gray-800;
+  background-color: #f5f0e1; /* Cream */
 }
 
 .form-control:focus {
   @apply border-primary outline-none;
-  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.25); /* Gold shadow */
 }
 
 .form-select {
-  @apply px-3 py-2 bg-white border border-gray-300 rounded-md w-full transition-all duration-200 text-gray-800;
+  @apply px-3 py-2 border border-gray-300 rounded-md w-full transition-all duration-200 text-gray-800;
+  background-color: #f5f0e1; /* Cream */
 }
 
 .form-select:focus {
   @apply border-primary outline-none;
-  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.25); /* Gold shadow */
 }
 
 .form-check {
@@ -665,7 +667,8 @@
 }
 
 .badge-bg-primary {
-  @apply bg-purple-100 text-purple-800;
+  background-color: rgba(26, 58, 95, 0.1);
+  color: #1a3a5f; /* Rich blue */
 }
 
 .badge-bg-danger {
@@ -708,14 +711,14 @@
 }
 
 .template-card:hover {
-  border-color: hsl(280, 100%, 65%);
-  box-shadow: 0 4px 10px rgba(214, 102, 255, 0.4);
+  border-color: #d4af37; /* Gold */
+  box-shadow: 0 4px 10px rgba(212, 175, 55, 0.4);
   transform: translateY(-2px);
 }
 
 .template-card.selected {
-  border: 2px solid hsl(280, 100%, 65%);
-  box-shadow: 0 0 0 3px rgba(214, 102, 255, 0.25);
+  border: 2px solid #d4af37; /* Gold */
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.25);
 }
 
 /* Template preview hover effects */
@@ -758,8 +761,8 @@
 }
 
 .categories-list .list-group-item:hover:not(.active) {
-  background-color: rgba(214, 102, 255, 0.1);
-  color: hsl(280, 100%, 65%);
+  background-color: rgba(212, 175, 55, 0.1); /* Gold */
+  color: #c19b2c; /* Darker gold */
 }
 
 /* Design mode cards */
