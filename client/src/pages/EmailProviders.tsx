@@ -646,6 +646,140 @@ function EmailProviders() {
                   onChange={(e) => setSelectedProvider({ ...selectedProvider, name: e.target.value })}
                 />
               </div>
+              
+              <Separator />
+              
+              <div className="space-y-4">
+                <h3 className="text-sm font-medium">Authentication Details</h3>
+                
+                {selectedProvider.provider === 'sendgrid' && (
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <Label htmlFor="apiKey">API Key</Label>
+                      <Badge variant="outline" className="text-xs">Required</Badge>
+                    </div>
+                    <Input
+                      id="apiKey"
+                      type="password"
+                      placeholder="Your SendGrid API Key"
+                      value={selectedProvider.config['API Key'] || ''}
+                      onChange={(e) => {
+                        const updatedConfig = { ...selectedProvider.config, 'API Key': e.target.value };
+                        setSelectedProvider({ ...selectedProvider, config: updatedConfig });
+                      }}
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      SendGrid API keys must start with 'SG.' prefix.
+                    </p>
+                  </div>
+                )}
+                
+                {selectedProvider.provider === 'mailgun' && (
+                  <>
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <Label htmlFor="apiKey">API Key</Label>
+                        <Badge variant="outline" className="text-xs">Required</Badge>
+                      </div>
+                      <Input
+                        id="apiKey"
+                        type="password"
+                        placeholder="Your Mailgun API Key"
+                        value={selectedProvider.config['API Key'] || ''}
+                        onChange={(e) => {
+                          const updatedConfig = { ...selectedProvider.config, 'API Key': e.target.value };
+                          setSelectedProvider({ ...selectedProvider, config: updatedConfig });
+                        }}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <Label htmlFor="domain">Domain</Label>
+                        <Badge variant="outline" className="text-xs">Required</Badge>
+                      </div>
+                      <Input
+                        id="domain"
+                        placeholder="Your Mailgun Domain"
+                        value={selectedProvider.config['Domain'] || ''}
+                        onChange={(e) => {
+                          const updatedConfig = { ...selectedProvider.config, 'Domain': e.target.value };
+                          setSelectedProvider({ ...selectedProvider, config: updatedConfig });
+                        }}
+                      />
+                    </div>
+                  </>
+                )}
+                
+                {selectedProvider.provider === 'amazon-ses' && (
+                  <>
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <Label htmlFor="accessKeyId">Access Key ID</Label>
+                        <Badge variant="outline" className="text-xs">Required</Badge>
+                      </div>
+                      <Input
+                        id="accessKeyId"
+                        placeholder="AWS Access Key ID"
+                        value={selectedProvider.config['Access Key ID'] || ''}
+                        onChange={(e) => {
+                          const updatedConfig = { ...selectedProvider.config, 'Access Key ID': e.target.value };
+                          setSelectedProvider({ ...selectedProvider, config: updatedConfig });
+                        }}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <Label htmlFor="secretAccessKey">Secret Access Key</Label>
+                        <Badge variant="outline" className="text-xs">Required</Badge>
+                      </div>
+                      <Input
+                        id="secretAccessKey"
+                        type="password"
+                        placeholder="AWS Secret Access Key"
+                        value={selectedProvider.config['Secret Access Key'] || ''}
+                        onChange={(e) => {
+                          const updatedConfig = { ...selectedProvider.config, 'Secret Access Key': e.target.value };
+                          setSelectedProvider({ ...selectedProvider, config: updatedConfig });
+                        }}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <Label htmlFor="region">Region</Label>
+                        <Badge variant="outline" className="text-xs">Required</Badge>
+                      </div>
+                      <Input
+                        id="region"
+                        placeholder="AWS Region (e.g., us-east-1)"
+                        value={selectedProvider.config['Region'] || ''}
+                        onChange={(e) => {
+                          const updatedConfig = { ...selectedProvider.config, 'Region': e.target.value };
+                          setSelectedProvider({ ...selectedProvider, config: updatedConfig });
+                        }}
+                      />
+                    </div>
+                  </>
+                )}
+                
+                {selectedProvider.provider === 'sendclean' && (
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <Label htmlFor="apiKey">API Key</Label>
+                      <Badge variant="outline" className="text-xs">Required</Badge>
+                    </div>
+                    <Input
+                      id="apiKey"
+                      type="password"
+                      placeholder="Your SendClean API Key"
+                      value={selectedProvider.config['API Key'] || ''}
+                      onChange={(e) => {
+                        const updatedConfig = { ...selectedProvider.config, 'API Key': e.target.value };
+                        setSelectedProvider({ ...selectedProvider, config: updatedConfig });
+                      }}
+                    />
+                  </div>
+                )}
+              </div>
 
               <div className="flex items-center space-x-2">
                 <input
