@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
+import { useLocation } from 'wouter';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -26,12 +27,14 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { BarChart3, Eye } from 'lucide-react';
 import SubjectLineGenerator from '@/components/emails/SubjectLineGenerator';
 
 const Emails = () => {
   const [activeTab, setActiveTab] = useState('inbox');
   const [isComposeOpen, setIsComposeOpen] = useState(false);
   const [showAiSubjectGenerator, setShowAiSubjectGenerator] = useState(false);
+  const [_, navigate] = useLocation();
   const [emailForm, setEmailForm] = useState({
     to: '',
     subject: '',
@@ -55,10 +58,7 @@ const Emails = () => {
   // Mutation to send email
   const { mutate: sendEmail, isPending } = useMutation({
     mutationFn: async (emailData: any) => {
-      return apiRequest('/api/emails', {
-        method: 'POST',
-        body: JSON.stringify(emailData)
-      });
+      return apiRequest('POST', '/api/emails', emailData);
     },
     onSuccess: () => {
       toast({
@@ -238,6 +238,14 @@ const Emails = () => {
                   </CardContent>
                   <CardFooter className="py-3">
                     <div className="flex gap-2">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => navigate(`/email-preview/${email.id}`)}
+                      >
+                        <Eye className="w-4 h-4 mr-1" />
+                        Preview
+                      </Button>
                       <Button variant="outline" size="sm">Resend</Button>
                       <Button variant="ghost" size="sm">Forward</Button>
                       <Button variant="ghost" size="sm" className="text-red-500">Delete</Button>
