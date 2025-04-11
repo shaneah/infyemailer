@@ -27,7 +27,7 @@ export class SendGridProvider implements IEmailProvider {
   private mailService: MailService;
   private fromEmail: string;
   private fromName: string;
-  
+
   constructor(config: { 
     apiKey: string;
     fromEmail?: string;
@@ -37,19 +37,19 @@ export class SendGridProvider implements IEmailProvider {
     if (!config.apiKey.startsWith('SG.')) {
       throw new Error('API key does not start with "SG.". SendGrid API keys must begin with SG. prefix.');
     }
-    
+
     this.apiKey = config.apiKey;
     this.fromEmail = config.fromEmail || 'notifications@infymailer.com';
     this.fromName = config.fromName || 'InfyMailer';
-    
+
     this.mailService = new MailService();
     this.mailService.setApiKey(this.apiKey);
   }
-  
+
   getName(): string {
     return 'SendGrid';
   }
-  
+
   async sendEmail(params: SendEmailParams): Promise<boolean> {
     try {
       // Validate that required fields are present
@@ -57,12 +57,12 @@ export class SendGridProvider implements IEmailProvider {
         console.error('[SendGrid] Missing recipient email');
         return false;
       }
-      
+
       if (!params.subject) {
         console.error('[SendGrid] Missing email subject');
         return false;
       }
-      
+
       // Format the message according to SendGrid v3 API requirements
       const msg: any = {
         to: params.to,
@@ -73,7 +73,7 @@ export class SendGridProvider implements IEmailProvider {
         subject: params.subject,
         content: []
       };
-      
+
       // Add text content if available
       if (params.text) {
         msg.content.push({
@@ -81,7 +81,7 @@ export class SendGridProvider implements IEmailProvider {
           value: params.text
         });
       }
-      
+
       // Add HTML content if available
       if (params.html) {
         msg.content.push({
@@ -89,7 +89,7 @@ export class SendGridProvider implements IEmailProvider {
           value: params.html
         });
       }
-      
+
       // If no content was added, add a default text content
       if (msg.content.length === 0) {
         msg.content.push({
@@ -97,11 +97,11 @@ export class SendGridProvider implements IEmailProvider {
           value: ' ' // Empty string with a space to satisfy SendGrid requirements
         });
       }
-      
+
       console.log('[SendGrid] Sending email with payload:', JSON.stringify(msg, null, 2));
       const response = await this.mailService.send(msg);
       console.log(`[SendGrid] Email sent to ${params.to}`, response);
-      
+
       return true;
     } catch (error) {
       if (error instanceof ResponseError) {
@@ -110,15 +110,15 @@ export class SendGridProvider implements IEmailProvider {
           message: error.message,
           response: error.response?.body || {}
         };
-        
+
         console.error('[SendGrid] API Error:', JSON.stringify(errorDetails, null, 2));
-        
+
         // Check common errors
         if (error.code === 403) {
           // Check for sender identity errors specifically
           const errorBody = error.response?.body as any;
           const errors = errorBody?.errors || [];
-          
+
           if (errors.length > 0 && errors[0].message && errors[0].message.includes('from address does not match a verified Sender Identity')) {
             console.error('[SendGrid] Sender Identity Error: The from email address is not verified in your SendGrid account.');
             console.error('[SendGrid] To fix this: Log into your SendGrid account and verify the sender email address in Sender Authentication settings.');
@@ -138,7 +138,7 @@ export class SendGridProvider implements IEmailProvider {
                 const errorMessages = errorBody.errors.map((err: any) => 
                   `${err.message || "Unknown error"} (field: ${err.field || "unknown"})`
                 ).join(", ");
-                
+
                 (global as any).lastSendGridError = errorMessages;
                 console.error('[SendGrid] Bad request details:', errorMessages);
               } else {
@@ -154,11 +154,11 @@ export class SendGridProvider implements IEmailProvider {
       } else {
         console.error('[SendGrid] Unknown error:', error);
       }
-      
+
       return false;
     }
   }
-  
+
   async verifyDomainAuthentication(params: VerifyDomainParams): Promise<DomainVerificationResult> {
     try {
       // This is a simplified version. In production, you would call SendGrid API to verify these records.
@@ -166,7 +166,7 @@ export class SendGridProvider implements IEmailProvider {
       const dkimVerified = !!params.dkimValue;
       const spfVerified = !!params.spfValue;
       const dmarcVerified = !!params.dmarcValue;
-      
+
       return {
         domain: params.domain,
         dkimVerified,
@@ -195,7 +195,7 @@ export class SendGridProvider implements IEmailProvider {
       };
     }
   }
-  
+
   getAuthenticationRequirements(): AuthenticationRequirement[] {
     return [
       {
@@ -215,7 +215,7 @@ export class SendGridProvider implements IEmailProvider {
       }
     ];
   }
-  
+
   getSupportedFeatures(): SupportedFeatures {
     return {
       transactionalEmail: true,
@@ -232,12 +232,12 @@ export class SendGridProvider implements IEmailProvider {
       oauth: false
     };
   }
-  
+
   async checkConfiguration(): Promise<ConfigurationCheckResult> {
     try {
       // Test if we can make a basic API call to get account information
       // For SendGrid, we'll try a simple ping-like request
-      
+
       // Create a test message with minimal content
       const testMessage = {
         to: 'test@example.com', // Not actually sending, just testing API connection
@@ -250,7 +250,7 @@ export class SendGridProvider implements IEmailProvider {
           }
         ]
       };
-      
+
       // Initialize result
       const result: ConfigurationCheckResult = {
         success: false,
@@ -260,24 +260,24 @@ export class SendGridProvider implements IEmailProvider {
         warnings: [],
         details: {}
       };
-      
+
       try {
         // Instead of sending an actual email, we'll just validate the API key works
         // by calling a different API endpoint that doesn't actually send emails
         // but still requires authentication
-        
+
         // For now, we'll use a simplified check - in a real implementation,
         // this would make an API call to a non-sending endpoint
-        
+
         // Check the API key format as a basic validation
         if (!this.apiKey || !this.apiKey.startsWith('SG.')) {
           result.errors!.push('API key is invalid. SendGrid API keys must start with "SG."');
           return result;
         }
-        
+
         // Simulate a successful API connection
         result.apiConnected = true;
-        
+
         // Check if the sender identity is likely to work
         // In a real implementation, this would query the SendGrid API for verified senders
         if (this.fromEmail) {
@@ -292,17 +292,17 @@ export class SendGridProvider implements IEmailProvider {
         } else {
           result.warnings!.push('No from email address specified. Sender identity verification skipped.');
         }
-        
+
         // Set success based on critical checks
         result.success = result.apiConnected && (result.errors?.length === 0);
-        
+
         return result;
       } catch (apiError) {
         console.error('[SendGrid] API verification error:', apiError);
-        
+
         if (apiError instanceof ResponseError) {
           const sgError = apiError as ResponseError;
-          
+
           if (sgError.code === 401) {
             result.errors!.push('Authentication failed. The API key appears to be invalid or revoked.');
           } else if (sgError.code === 403) {
@@ -310,7 +310,7 @@ export class SendGridProvider implements IEmailProvider {
           } else {
             result.errors!.push(`SendGrid API error (${sgError.code}): ${sgError.message}`);
           }
-          
+
           // Add detailed error information if available
           if (sgError.response?.body) {
             try {
@@ -328,7 +328,7 @@ export class SendGridProvider implements IEmailProvider {
           // Generic error handling
           result.errors!.push(`Unexpected error: ${apiError instanceof Error ? apiError.message : String(apiError)}`);
         }
-        
+
         return result;
       }
     } catch (error) {
