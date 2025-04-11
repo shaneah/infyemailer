@@ -75,7 +75,7 @@ async function checkDatabaseHealth(): Promise<ServiceHealth> {
     const endTime = Date.now();
     const latency = endTime - startTime;
     
-    if (result.rowCount > 0) {
+    if (result.rowCount && result.rowCount > 0) {
       return {
         name: 'Database',
         status: 'healthy',
@@ -166,17 +166,21 @@ async function checkSendGridHealth(): Promise<ServiceHealth> {
     
     // Check for any previous SendGrid errors - wrapped in try/catch to prevent body stream errors
     try {
-      if (global.lastSendGridError && global.lastSendGridError.includes('from address does not match a verified Sender Identity')) {
+      const hasError = global.lastSendGridError && 
+                        typeof global.lastSendGridError === 'string' && 
+                        global.lastSendGridError.includes('from address does not match a verified Sender Identity');
+                        
+      if (hasError) {
         const endTime = Date.now();
         const latency = endTime - startTime;
-      
-      return {
-        name: 'SendGrid',
-        status: 'warning',
-        latency,
-        message: 'API key valid, sender identity needs verification',
-        lastChecked: new Date()
-      };
+        
+        return {
+          name: 'SendGrid',
+          status: 'warning',
+          latency,
+          message: 'API key valid, sender identity needs verification',
+          lastChecked: new Date()
+        };
       }
     } catch (error) {
       console.error('Error checking global.lastSendGridError:', error);
