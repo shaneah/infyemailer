@@ -40,6 +40,7 @@ function EmailProviders() {
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isTestOpen, setIsTestOpen] = useState(false);
+  const [isCheckConfigOpen, setIsCheckConfigOpen] = useState(false);
   const [selectedProviderId, setSelectedProviderId] = useState<number | null>(null);
   const [selectedProvider, setSelectedProvider] = useState<EmailProvider | null>(null);
   const { toast } = useToast();
