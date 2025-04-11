@@ -214,17 +214,18 @@ export class ProviderSettingsService {
     updateFields.push('updated_at');
     updateValues.push(new Date());
     
-    // Manually construct SQL for update statement
-    let updateQuery = 'UPDATE provider_settings SET ';
-    const updateParts = [];
+    // Create an SQL query with placeholders
+    const parts = [];
+    const params = [];
     
-    // Build update clauses
     if (settings.name !== undefined) {
-      updateParts.push(`name = ${sql.parameter(settings.name)}`);
+      parts.push('name = $1');
+      params.push(settings.name);
     }
     
     if (settings.provider !== undefined) {
-      updateParts.push(`provider = ${sql.parameter(settings.provider)}`);
+      parts.push(`provider = $${params.length + 1}`);
+      params.push(settings.provider);
     }
     
     if (settings.config !== undefined) {
@@ -232,21 +233,30 @@ export class ProviderSettingsService {
         ...currentSettings.config,
         ...settings.config
       };
-      updateParts.push(`config = ${sql.parameter(JSON.stringify(updatedConfig))}`);
+      parts.push(`config = $${params.length + 1}`);
+      params.push(JSON.stringify(updatedConfig));
     }
     
     if (settings.isDefault !== undefined) {
-      updateParts.push(`is_default = ${sql.parameter(settings.isDefault)}`);
+      parts.push(`is_default = $${params.length + 1}`);
+      params.push(settings.isDefault);
     }
     
     // Always update timestamp
-    updateParts.push(`updated_at = NOW()`);
+    parts.push('updated_at = NOW()');
     
-    // Complete the query
-    updateQuery += updateParts.join(', ');
-    updateQuery += ` WHERE id = ${sql.parameter(id)} RETURNING *`;
+    // Add WHERE clause and id parameter
+    const wherePosition = params.length + 1;
+    params.push(id);
     
-    const [result] = await db.execute<ProviderSettings>(sql.raw(updateQuery));
+    const query = `
+      UPDATE provider_settings 
+      SET ${parts.join(', ')} 
+      WHERE id = $${wherePosition} 
+      RETURNING *
+    `;
+    
+    const [result] = await db.execute<ProviderSettings>(sql`${query}`, params);
     
     if (!result) return null;
     
