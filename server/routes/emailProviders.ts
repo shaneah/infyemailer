@@ -98,6 +98,21 @@ export async function registerEmailProviderRoutes(app: any) {
       res.status(201).json(provider);
     } catch (error: any) {
       console.error('Error creating provider:', error);
+      
+      // Log detailed debugging information
+      if (validatedData.provider === 'sendgrid') {
+        console.log('DEBUG - SendGrid API Key:', validatedData.config.apiKey);
+        console.log('DEBUG - SendGrid API Key format check:', validatedData.config.apiKey?.startsWith('SG.'));
+        
+        // Check if the API key starts with "SG."
+        if (validatedData.config.apiKey && !validatedData.config.apiKey.startsWith('SG.')) {
+          return res.status(400).json({
+            error: 'Invalid SendGrid API Key',
+            details: 'SendGrid API keys must start with "SG." prefix'
+          });
+        }
+      }
+      
       if (error instanceof z.ZodError) {
         return res.status(400).json({ error: 'Invalid request data', details: error.errors });
       }
@@ -110,7 +125,7 @@ export async function registerEmailProviderRoutes(app: any) {
         });
       }
       
-      res.status(500).json({ error: 'Failed to create provider' });
+      res.status(500).json({ error: 'Failed to create provider', details: error.message });
     }
   });
   
