@@ -19,7 +19,11 @@ export class EmailProviderFactory {
         if (!config.apiKey) {
           throw new Error('SendGrid API key is required');
         }
-        return new SendGridProvider(config.apiKey);
+        return new SendGridProvider({
+          apiKey: config.apiKey,
+          fromEmail: config.fromEmail,
+          fromName: config.fromName
+        });
         
       case 'mailgun':
         if (!config.apiKey || !config.domain) {

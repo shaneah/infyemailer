@@ -1,3 +1,4 @@
+import { MailService } from '@sendgrid/mail';
 import { 
   IEmailProvider, 
   SendEmailParams, 
@@ -12,9 +13,21 @@ import {
  */
 export class SendGridProvider implements IEmailProvider {
   private apiKey: string;
+  private mailService: MailService;
+  private fromEmail: string;
+  private fromName: string;
   
-  constructor(apiKey: string) {
-    this.apiKey = apiKey;
+  constructor(config: { 
+    apiKey: string;
+    fromEmail?: string;
+    fromName?: string;
+  }) {
+    this.apiKey = config.apiKey;
+    this.fromEmail = config.fromEmail || 'notifications@infymailer.com';
+    this.fromName = config.fromName || 'InfyMailer';
+    
+    this.mailService = new MailService();
+    this.mailService.setApiKey(this.apiKey);
   }
   
   getName(): string {
@@ -23,9 +36,19 @@ export class SendGridProvider implements IEmailProvider {
   
   async sendEmail(params: SendEmailParams): Promise<boolean> {
     try {
-      // In a real implementation, this would use the @sendgrid/mail package
-      // For our demo, we'll simulate the response
-      console.log(`[SendGrid] Sending email from ${params.from} to ${params.to}`);
+      const msg = {
+        to: params.to,
+        from: params.from || {
+          email: this.fromEmail,
+          name: this.fromName,
+        },
+        subject: params.subject,
+        text: params.text || '',
+        html: params.html || '',
+      };
+
+      const response = await this.mailService.send(msg);
+      console.log(`[SendGrid] Email sent to ${params.to}`, response);
       
       return true;
     } catch (error) {
@@ -35,24 +58,40 @@ export class SendGridProvider implements IEmailProvider {
   }
   
   async verifyDomainAuthentication(params: VerifyDomainParams): Promise<DomainVerificationResult> {
-    // In a real implementation, this would call SendGrid API to verify domain settings
-    return {
-      domain: params.domain,
-      dkimVerified: true,
-      spfVerified: true,
-      dmarcVerified: false,
-      dkimDetails: {
-        selector: params.dkimSelector || 'sendgrid',
-        value: params.dkimValue || 'v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDARW...'
-      },
-      spfDetails: {
-        value: params.spfValue || 'v=spf1 include:sendgrid.net ~all'
-      },
-      dmarcDetails: {
-        value: params.dmarcValue || 'v=DMARC1; p=reject; pct=100; rua=mailto:dmarc@infymailer.com'
-      },
-      errors: ['DMARC record is missing or not configured correctly.']
-    };
+    try {
+      // This is a simplified version. In production, you would call SendGrid API to verify these records.
+      // For now, we'll simulate the verification by checking if the records exist.
+      const dkimVerified = !!params.dkimValue;
+      const spfVerified = !!params.spfValue;
+      const dmarcVerified = !!params.dmarcValue;
+      
+      return {
+        domain: params.domain,
+        dkimVerified,
+        spfVerified,
+        dmarcVerified,
+        dkimDetails: params.dkimValue ? {
+          selector: params.dkimSelector || 'sendgrid',
+          value: params.dkimValue
+        } : undefined,
+        spfDetails: params.spfValue ? {
+          value: params.spfValue
+        } : undefined,
+        dmarcDetails: params.dmarcValue ? {
+          value: params.dmarcValue
+        } : undefined,
+        errors: !dmarcVerified ? ['DMARC record is missing or not configured correctly.'] : undefined
+      };
+    } catch (error) {
+      console.error('SendGrid domain verification error:', error);
+      return {
+        domain: params.domain,
+        dkimVerified: false,
+        spfVerified: false,
+        dmarcVerified: false,
+        errors: ['An error occurred while verifying domain records.']
+      };
+    }
   }
   
   getAuthenticationRequirements(): AuthenticationRequirement[] {
@@ -63,8 +102,13 @@ export class SendGridProvider implements IEmailProvider {
         required: true
       },
       {
-        name: 'Sender Authentication',
-        description: 'SendGrid requires verification of sender identities',
+        name: 'From Email',
+        description: 'The email address that will be used as the sender',
+        required: true
+      },
+      {
+        name: 'From Name',
+        description: 'The name that will appear as the sender',
         required: true
       }
     ];
