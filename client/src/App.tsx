@@ -29,6 +29,7 @@ import Reporting from "@/pages/Reporting";
 import EmailProviders from "@/pages/EmailProviders";
 import ClientManagement from "@/pages/ClientManagement";
 import AudiencePersonas from "@/pages/AudiencePersonas";
+import EmailPreview from "@/pages/EmailPreview";
 
 // Client portal pages
 import ClientLogin from "@/pages/ClientLogin";
@@ -175,6 +176,7 @@ function App() {
                     <ProtectedRoute path="audience-personas" component={AudiencePersonas} />
                     <ProtectedRoute path="analytics" component={Analytics} />
                     <ProtectedRoute path="email-test" component={EmailTest} />
+                    <ProtectedRoute path="email-preview/:id" component={EmailPreview} />
 
                     <Route component={NotFound} />
                   </Switch>

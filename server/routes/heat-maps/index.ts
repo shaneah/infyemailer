@@ -1,219 +1,194 @@
-import { Router } from 'express';
-import { z } from 'zod';
+import { Router, Request, Response } from 'express';
+import { desc, eq, sql } from 'drizzle-orm';
 import { db } from '../../db';
-import { emailHeatMaps, interactionDataPoints, insertInteractionDataPointSchema, insertEmailHeatMapSchema } from '@shared/schema';
-import { eq, and } from 'drizzle-orm';
+import { emailHeatMaps, interactionDataPoints, emails } from '@shared/schema';
 
 const router = Router();
 
-// Get all heat maps for a specific email
-router.get('/emails/:emailId/heat-maps', async (req, res) => {
+/**
+ * GET /api/heat-maps/emails/:emailId/heat-map-visualization
+ * Get heat map visualization data for a specific email
+ */
+router.get('/emails/:emailId/heat-map-visualization', async (req: Request, res: Response) => {
   try {
-    const emailId = parseInt(req.params.emailId);
+    const emailId = parseInt(req.params.emailId, 10);
     
-    if (isNaN(emailId)) {
-      return res.status(400).json({ error: 'Invalid email ID' });
-    }
-    
-    const heatMaps = await db.query.emailHeatMaps.findMany({
-      where: eq(emailHeatMaps.emailId, emailId),
-    });
-    
-    res.json(heatMaps);
-  } catch (error) {
-    console.error('Error fetching heat maps:', error);
-    res.status(500).json({ error: 'Failed to fetch heat maps' });
-  }
-});
-
-// Get a specific heat map
-router.get('/heat-maps/:id', async (req, res) => {
-  try {
-    const heatMapId = parseInt(req.params.id);
-    
-    if (isNaN(heatMapId)) {
-      return res.status(400).json({ error: 'Invalid heat map ID' });
-    }
-    
+    // Get heat map data from the database
     const heatMap = await db.query.emailHeatMaps.findFirst({
-      where: eq(emailHeatMaps.id, heatMapId),
-    });
-    
-    if (!heatMap) {
-      return res.status(404).json({ error: 'Heat map not found' });
-    }
-    
-    res.json(heatMap);
-  } catch (error) {
-    console.error('Error fetching heat map:', error);
-    res.status(500).json({ error: 'Failed to fetch heat map' });
-  }
-});
-
-// Record a new interaction data point
-router.post('/interactions', async (req, res) => {
-  try {
-    const schema = insertInteractionDataPointSchema;
-    const validationResult = schema.safeParse(req.body);
-    
-    if (!validationResult.success) {
-      return res.status(400).json({ 
-        error: 'Invalid interaction data', 
-        details: validationResult.error.format() 
-      });
-    }
-    
-    const interactionData = validationResult.data;
-    
-    // Create the interaction data point
-    const [newInteraction] = await db
-      .insert(interactionDataPoints)
-      .values(interactionData)
-      .returning();
-      
-    // Update or create a heat map for this email
-    const existingHeatMap = await db.query.emailHeatMaps.findFirst({
-      where: and(
-        eq(emailHeatMaps.emailId, interactionData.emailId),
-        eq(emailHeatMaps.campaignId, interactionData.campaignId)
-      ),
-    });
-    
-    if (existingHeatMap) {
-      // Update existing heat map
-      const heatMapData = existingHeatMap.heatMapData as any || {};
-      
-      // Create a key based on the interaction type and coordinates (rounded to nearest 5%)
-      const xPercent = Math.round(interactionData.xCoordinate / 5) * 5;
-      const yPercent = Math.round(interactionData.yCoordinate / 5) * 5;
-      const key = `${interactionData.interactionType}_${xPercent}_${yPercent}`;
-      
-      // Increment or set the count for this coordinate
-      if (heatMapData[key]) {
-        heatMapData[key]++;
-      } else {
-        heatMapData[key] = 1;
-      }
-      
-      // Update the heat map
-      await db
-        .update(emailHeatMaps)
-        .set({
-          heatMapData: heatMapData,
-          interactionCount: existingHeatMap.interactionCount + 1,
-          updatedAt: new Date()
-        })
-        .where(eq(emailHeatMaps.id, existingHeatMap.id));
-    } else {
-      // Create a new heat map
-      const heatMapData: Record<string, number> = {};
-      
-      // Create initial data
-      const xPercent = Math.round(interactionData.xCoordinate / 5) * 5;
-      const yPercent = Math.round(interactionData.yCoordinate / 5) * 5;
-      const key = `${interactionData.interactionType}_${xPercent}_${yPercent}`;
-      heatMapData[key] = 1;
-      
-      await db
-        .insert(emailHeatMaps)
-        .values({
-          emailId: interactionData.emailId,
-          campaignId: interactionData.campaignId,
-          heatMapData: heatMapData,
-          interactionCount: 1
-        });
-    }
-    
-    res.status(201).json(newInteraction);
-  } catch (error) {
-    console.error('Error recording interaction:', error);
-    res.status(500).json({ error: 'Failed to record interaction' });
-  }
-});
-
-// Get all interaction data points for an email
-router.get('/emails/:emailId/interactions', async (req, res) => {
-  try {
-    const emailId = parseInt(req.params.emailId);
-    
-    if (isNaN(emailId)) {
-      return res.status(400).json({ error: 'Invalid email ID' });
-    }
-    
-    const interactions = await db.query.interactionDataPoints.findMany({
-      where: eq(interactionDataPoints.emailId, emailId),
-      orderBy: (interactionDataPoints, { desc }) => [desc(interactionDataPoints.timestamp)]
-    });
-    
-    res.json(interactions);
-  } catch (error) {
-    console.error('Error fetching interactions:', error);
-    res.status(500).json({ error: 'Failed to fetch interactions' });
-  }
-});
-
-// Generate a heat map visualization data for a specific email
-router.get('/emails/:emailId/heat-map-visualization', async (req, res) => {
-  try {
-    const emailId = parseInt(req.params.emailId);
-    
-    if (isNaN(emailId)) {
-      return res.status(400).json({ error: 'Invalid email ID' });
-    }
-    
-    // Get all heat maps for this email
-    const heatMaps = await db.query.emailHeatMaps.findMany({
       where: eq(emailHeatMaps.emailId, emailId),
+      with: {
+        interactionDataPoints: true
+      }
     });
-    
-    if (heatMaps.length === 0) {
-      return res.json({ 
+
+    if (!heatMap) {
+      // If no heat map exists yet, return empty data
+      return res.json({
         dataPoints: [],
         maxIntensity: 0,
         totalInteractions: 0
       });
     }
-    
-    // Combine all heat map data
-    const combinedData: Record<string, number> = {};
-    let totalInteractions = 0;
-    
-    heatMaps.forEach(heatMap => {
-      const heatMapData = heatMap.heatMapData as Record<string, number> || {};
-      
-      Object.entries(heatMapData).forEach(([key, count]) => {
-        if (combinedData[key]) {
-          combinedData[key] += count;
-        } else {
-          combinedData[key] = count;
-        }
-      });
-      
-      totalInteractions += heatMap.interactionCount;
-    });
-    
-    // Convert to visualization format
-    const dataPoints = Object.entries(combinedData).map(([key, count]) => {
-      const [type, xStr, yStr] = key.split('_');
-      return {
-        x: parseInt(xStr),
-        y: parseInt(yStr),
-        value: count,
-        type
-      };
-    });
-    
-    // Calculate the maximum intensity
-    const maxIntensity = Math.max(...dataPoints.map(point => point.value));
-    
+
+    // Convert data points for visualization
+    const dataPoints = heatMap.interactionDataPoints.map(point => ({
+      x: point.xCoordinate,
+      y: point.yCoordinate,
+      value: point.intensity || 1, // Default to 1 if intensity is not set
+      type: point.interactionType
+    }));
+
+    // Calculate maximum intensity for normalization
+    const maxIntensity = Math.max(...dataPoints.map(point => point.value), 1);
+
     res.json({
       dataPoints,
       maxIntensity,
-      totalInteractions
+      totalInteractions: dataPoints.length
     });
   } catch (error) {
-    console.error('Error generating heat map visualization:', error);
-    res.status(500).json({ error: 'Failed to generate heat map visualization' });
+    console.error('Error fetching heat map visualization data:', error);
+    res.status(500).json({ error: 'Failed to fetch heat map data' });
+  }
+});
+
+/**
+ * GET /api/heat-maps/emails/:emailId/interactions
+ * Get raw interaction data for a specific email
+ */
+router.get('/emails/:emailId/interactions', async (req: Request, res: Response) => {
+  try {
+    const emailId = parseInt(req.params.emailId, 10);
+    
+    // Get all interaction data points for this email
+    const interactions = await db.query.interactionDataPoints.findMany({
+      where: eq(interactionDataPoints.emailId, emailId),
+      orderBy: [desc(interactionDataPoints.createdAt)]
+    });
+
+    res.json(interactions);
+  } catch (error) {
+    console.error('Error fetching email interaction data:', error);
+    res.status(500).json({ error: 'Failed to fetch interaction data' });
+  }
+});
+
+/**
+ * POST /api/heat-maps/interactions
+ * Record a new interaction data point
+ */
+router.post('/interactions', async (req: Request, res: Response) => {
+  try {
+    const {
+      emailId,
+      campaignId,
+      contactId,
+      elementId,
+      elementType,
+      xCoordinate,
+      yCoordinate,
+      interactionType,
+      interactionDuration,
+      metadata
+    } = req.body;
+
+    // Validate required fields
+    if (!emailId || !campaignId || !xCoordinate || !yCoordinate || !interactionType) {
+      return res.status(400).json({ 
+        error: 'Missing required fields: emailId, campaignId, xCoordinate, yCoordinate, interactionType are required' 
+      });
+    }
+
+    // Check if heat map already exists for this email
+    let heatMap = await db.query.emailHeatMaps.findFirst({
+      where: eq(emailHeatMaps.emailId, emailId),
+    });
+
+    // If no heat map exists, create one
+    if (!heatMap) {
+      const [newHeatMap] = await db.insert(emailHeatMaps)
+        .values({
+          emailId,
+          campaignId,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        })
+        .returning();
+      
+      heatMap = newHeatMap;
+    }
+
+    // Calculate intensity based on interaction type and duration
+    let intensity = 1;
+    if (interactionType === 'click') {
+      intensity = 5; // Clicks have higher intensity
+    } else if (interactionType === 'hover' && interactionDuration) {
+      // Longer hover = higher intensity (up to 3)
+      intensity = Math.min(3, Math.max(1, Math.floor(interactionDuration / 1000)));
+    }
+
+    // Insert the interaction data point
+    const [interactionDataPoint] = await db.insert(interactionDataPoints)
+      .values({
+        heatMapId: heatMap.id,
+        emailId,
+        campaignId,
+        contactId,
+        elementId,
+        elementType,
+        xCoordinate,
+        yCoordinate,
+        interactionType,
+        interactionDuration,
+        intensity,
+        metadata,
+        createdAt: new Date()
+      })
+      .returning();
+
+    // Update the heat map's last updated timestamp
+    await db.update(emailHeatMaps)
+      .set({ updatedAt: new Date() })
+      .where(eq(emailHeatMaps.id, heatMap.id));
+
+    res.status(201).json(interactionDataPoint);
+  } catch (error) {
+    console.error('Error recording interaction data:', error);
+    res.status(500).json({ error: 'Failed to record interaction data' });
+  }
+});
+
+/**
+ * GET /api/heat-maps/campaigns/:campaignId
+ * Get all heat maps for a campaign
+ */
+router.get('/campaigns/:campaignId', async (req: Request, res: Response) => {
+  try {
+    const campaignId = parseInt(req.params.campaignId, 10);
+    
+    // Get all heat maps for this campaign
+    const heatMaps = await db.query.emailHeatMaps.findMany({
+      where: eq(emailHeatMaps.campaignId, campaignId),
+      with: {
+        email: true
+      }
+    });
+
+    // Format the response
+    const formattedHeatMaps = heatMaps.map(heatMap => ({
+      id: heatMap.id,
+      emailId: heatMap.emailId,
+      campaignId: heatMap.campaignId,
+      emailName: heatMap.email?.name || 'Unknown Email',
+      emailSubject: heatMap.email?.subject || '',
+      createdAt: heatMap.createdAt,
+      updatedAt: heatMap.updatedAt
+    }));
+
+    res.json(formattedHeatMaps);
+  } catch (error) {
+    console.error('Error fetching campaign heat maps:', error);
+    res.status(500).json({ error: 'Failed to fetch campaign heat maps' });
   }
 });
 

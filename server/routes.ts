@@ -23,6 +23,7 @@ import { registerEmailProviderRoutes } from "./routes/emailProviders";
 import { registerAudiencePersonaRoutes } from "./routes/audiencePersonas";
 import { registerTestEmailRoutes } from "./routes/testEmail";
 import { registerHealthRoutes } from "./routes/health";
+import heatMapsRoutes from "./routes/heat-maps";
 import { 
   insertContactSchema, 
   insertListSchema, 
@@ -74,6 +75,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Register health check routes
   registerHealthRoutes(app);
+  
+  // Register heat maps routes
+  app.use('/api/heat-maps', heatMapsRoutes);
 
   // Mock data for dashboard stats
   app.get('/api/stats', (req: Request, res: Response) => {
