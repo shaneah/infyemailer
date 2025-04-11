@@ -171,7 +171,6 @@ export type Campaign = typeof campaigns.$inferSelect;
 // Email schema for individual emails
 export const emails = pgTable("emails", {
   id: serial("id").primaryKey(),
-  from: text("from").notNull().default("no-reply@infymailer.com"),
   to: text("to").notNull(),
   subject: text("subject").notNull(),
   content: text("content").notNull(),
@@ -182,7 +181,6 @@ export const emails = pgTable("emails", {
 });
 
 export const insertEmailSchema = createInsertSchema(emails).pick({
-  from: true,
   to: true,
   subject: true,
   content: true,

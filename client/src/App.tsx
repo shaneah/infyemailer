@@ -26,7 +26,7 @@ import AdminPanel from "@/pages/AdminPanel";
 import EmailValidation from "@/pages/EmailValidation";
 import Emails from "@/pages/Emails";
 import Reporting from "@/pages/Reporting";
-
+import EmailProviders from "@/pages/EmailProviders";
 import ClientManagement from "@/pages/ClientManagement";
 import AudiencePersonas from "@/pages/AudiencePersonas";
 
@@ -36,7 +36,6 @@ import SimpleClientLogin from "@/pages/SimpleClientLogin";
 import ClientDashboard from "@/pages/ClientDashboard";
 import ClientRoutes from "@/pages/ClientRoutes";
 import Analytics from "@/pages/Analytics";
-import SendPulseTestPage from "@/pages/SendPulseTestPage";
 
 
 function App() {
@@ -170,10 +169,10 @@ function App() {
                     <ProtectedRoute path="email-validation" component={EmailValidation} />
                     <ProtectedRoute path="emails" component={Emails} />
                     <ProtectedRoute path="reporting" component={Reporting} />
+                    <ProtectedRoute path="email-providers" component={EmailProviders} />
                     <ProtectedRoute path="client-management" component={ClientManagement} />
                     <ProtectedRoute path="audience-personas" component={AudiencePersonas} />
                     <ProtectedRoute path="analytics" component={Analytics} />
-                    <ProtectedRoute path="sendpulse-test" component={SendPulseTestPage} />
 
                     <Route component={NotFound} />
                   </Switch>
