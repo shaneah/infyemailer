@@ -97,7 +97,7 @@ const APIHealthOverview: React.FC = () => {
           </div>
         ) : (
           <div className="space-y-3">
-            {services.map((service) => (
+            {services.map((service: ServiceHealth) => (
               <div 
                 key={service.name} 
                 className={`flex items-center justify-between p-3 rounded-md border

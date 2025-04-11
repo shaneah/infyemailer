@@ -8,6 +8,7 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
+import APIHealthOverview from "@/components/APIHealthOverview";
 
 export default function Settings() {
   const { toast } = useToast();
@@ -47,6 +48,7 @@ export default function Settings() {
             <TabsList className="mb-4 w-full lg:w-auto">
               <TabsTrigger value="account">Account</TabsTrigger>
               <TabsTrigger value="team">Team Members</TabsTrigger>
+              <TabsTrigger value="system">System</TabsTrigger>
             </TabsList>
 
             {/* Account Settings */}
@@ -259,6 +261,20 @@ export default function Settings() {
               </Card>
             </TabsContent>
 
+            {/* System Settings */}
+            <TabsContent value="system">
+              <div className="grid gap-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>API Service Status</CardTitle>
+                    <CardDescription>Monitor the health and status of connected services</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <APIHealthOverview />
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
 
           </Tabs>
         </div>
