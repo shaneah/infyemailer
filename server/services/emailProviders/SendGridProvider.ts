@@ -75,7 +75,17 @@ export class SendGridProvider implements IEmailProvider {
         
         // Check common errors
         if (error.code === 403) {
-          console.error('[SendGrid] API Key does not have permission to send emails. Please verify your API Key has the necessary permissions.');
+          // Check for sender identity errors specifically
+          const errorBody = error.response?.body as any;
+          const errors = errorBody?.errors || [];
+          
+          if (errors.length > 0 && errors[0].message && errors[0].message.includes('from address does not match a verified Sender Identity')) {
+            console.error('[SendGrid] Sender Identity Error: The from email address is not verified in your SendGrid account.');
+            console.error('[SendGrid] To fix this: Log into your SendGrid account and verify the sender email address in Sender Authentication settings.');
+            console.error(`[SendGrid] Attempted to use sender: ${params.from || this.fromEmail}`);
+          } else {
+            console.error('[SendGrid] API Key does not have permission to send emails. Please verify your API Key has the necessary permissions.');
+          }
         } else if (error.code === 401) {
           console.error('[SendGrid] API Key is invalid or revoked. Please check your API Key.');
         } else if (error.code === 400) {

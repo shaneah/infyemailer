@@ -22,6 +22,7 @@ declare global {
 import { registerEmailProviderRoutes } from "./routes/emailProviders";
 import { registerAudiencePersonaRoutes } from "./routes/audiencePersonas";
 import { registerTestEmailRoutes } from "./routes/testEmail";
+import { registerHealthRoutes } from "./routes/health";
 import { 
   insertContactSchema, 
   insertListSchema, 
