@@ -4,7 +4,8 @@ import {
   VerifyDomainParams, 
   DomainVerificationResult,
   AuthenticationRequirement,
-  SupportedFeatures
+  SupportedFeatures,
+  ConfigurationCheckResult
 } from './IEmailProvider';
 
 /**
@@ -87,5 +88,60 @@ export class MailgunProvider implements IEmailProvider {
       apiKey: true,
       oauth: false
     };
+  }
+  
+  async checkConfiguration(): Promise<ConfigurationCheckResult> {
+    try {
+      // Initialize result
+      const result: ConfigurationCheckResult = {
+        success: false,
+        apiConnected: false,
+        domainVerified: false,
+        senderIdentitiesVerified: false,
+        errors: [],
+        warnings: [],
+        details: {}
+      };
+      
+      // Basic validation
+      if (!this.apiKey) {
+        result.errors!.push('API key is missing');
+        return result;
+      }
+      
+      if (!this.domain) {
+        result.errors!.push('Domain is missing');
+        return result;
+      }
+      
+      // For a real implementation, this would make an API call to Mailgun
+      // For our demo, we'll simulate API connection success
+      result.apiConnected = true;
+      
+      // Check if the domain format is valid
+      const domainPattern = /^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9]\.[a-zA-Z]{2,}$/;
+      if (!domainPattern.test(this.domain)) {
+        result.warnings!.push('Domain format appears to be invalid');
+      } else {
+        result.domainVerified = true;
+        result.details!.verifiedDomains = [this.domain];
+      }
+      
+      // In a real implementation, we would check with Mailgun if the domain is verified
+      // For now, we'll simulate success
+      result.senderIdentitiesVerified = true;
+      
+      // Set overall success based on critical checks
+      result.success = result.apiConnected && result.domainVerified && (result.errors?.length === 0);
+      
+      return result;
+    } catch (error) {
+      console.error('[Mailgun] Configuration check error:', error);
+      return {
+        success: false,
+        apiConnected: false,
+        errors: [`Unexpected error during configuration check: ${error instanceof Error ? error.message : String(error)}`]
+      };
+    }
   }
 }

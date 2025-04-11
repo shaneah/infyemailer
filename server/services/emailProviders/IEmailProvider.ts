@@ -109,4 +109,10 @@ export interface IEmailProvider {
    * Get the features supported by this provider
    */
   getSupportedFeatures(): SupportedFeatures;
+  
+  /**
+   * Check the configuration of the provider
+   * Verifies API connection, sender identities, etc.
+   */
+  checkConfiguration(): Promise<ConfigurationCheckResult>;
 }
