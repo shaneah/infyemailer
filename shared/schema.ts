@@ -727,12 +727,70 @@ export const linkTrackingRelations = defineRelations(linkTracking, {
   campaign: { relationName: "linkTracking_to_campaign", fields: [linkTracking.campaignId], references: [campaigns.id] }
 });
 
+// Email interaction heat maps
+export const emailHeatMaps = pgTable("email_heat_maps", {
+  id: serial("id").primaryKey(),
+  emailId: integer("email_id").notNull().references(() => emails.id),
+  campaignId: integer("campaign_id").notNull().references(() => campaigns.id),
+  heatMapData: json("heat_map_data").notNull().default({}),
+  interactionCount: integer("interaction_count").notNull().default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertEmailHeatMapSchema = createInsertSchema(emailHeatMaps).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertEmailHeatMap = z.infer<typeof insertEmailHeatMapSchema>;
+export type EmailHeatMap = typeof emailHeatMaps.$inferSelect;
+
+// Interaction data points for precise tracking
+export const interactionDataPoints = pgTable("interaction_data_points", {
+  id: serial("id").primaryKey(),
+  emailId: integer("email_id").notNull().references(() => emails.id),
+  campaignId: integer("campaign_id").notNull().references(() => campaigns.id),
+  contactId: integer("contact_id").references(() => contacts.id),
+  elementId: text("element_id"), // The HTML element ID that was interacted with
+  elementType: text("element_type"), // Type of element (button, image, text, etc)
+  xCoordinate: integer("x_coordinate").notNull(), // X coordinate of interaction (normalized to percentage of width)
+  yCoordinate: integer("y_coordinate").notNull(), // Y coordinate of interaction (normalized to percentage of height)
+  interactionType: text("interaction_type").notNull(), // Type of interaction (click, hover, scroll)
+  interactionDuration: integer("interaction_duration"), // Duration of interaction in milliseconds (for hovers)
+  timestamp: timestamp("timestamp").defaultNow(),
+  metadata: json("metadata").default({}),
+});
+
+export const insertInteractionDataPointSchema = createInsertSchema(interactionDataPoints).omit({
+  id: true,
+  timestamp: true,
+});
+
+export type InsertInteractionDataPoint = z.infer<typeof insertInteractionDataPointSchema>;
+export type InteractionDataPoint = typeof interactionDataPoints.$inferSelect;
+
+// Define relations for heat map tables
+export const emailHeatMapsRelations = defineRelations(emailHeatMaps, {
+  email: { relationName: "heatMap_to_email", fields: [emailHeatMaps.emailId], references: [emails.id] },
+  campaign: { relationName: "heatMap_to_campaign", fields: [emailHeatMaps.campaignId], references: [campaigns.id] }
+});
+
+export const interactionDataPointsRelations = defineRelations(interactionDataPoints, {
+  email: { relationName: "dataPoint_to_email", fields: [interactionDataPoints.emailId], references: [emails.id] },
+  campaign: { relationName: "dataPoint_to_campaign", fields: [interactionDataPoints.campaignId], references: [campaigns.id] },
+  contact: { relationName: "dataPoint_to_contact", fields: [interactionDataPoints.contactId], references: [contacts.id] }
+});
+
 // Update campaigns relations to include tracking tables (added after those tables are defined)
 export const campaignsTrackingRelations = {
   clickEvents: { relationName: "campaign_to_clickEvents", fields: [campaigns.id], references: [clickEvents.campaignId] },
   openEvents: { relationName: "campaign_to_openEvents", fields: [campaigns.id], references: [openEvents.campaignId] },
   engagementMetrics: { relationName: "campaign_to_engagementMetrics", fields: [campaigns.id], references: [engagementMetrics.campaignId] },
-  linkTracking: { relationName: "campaign_to_linkTracking", fields: [campaigns.id], references: [linkTracking.campaignId] }
+  linkTracking: { relationName: "campaign_to_linkTracking", fields: [campaigns.id], references: [linkTracking.campaignId] },
+  heatMaps: { relationName: "campaign_to_heatMaps", fields: [campaigns.id], references: [emailHeatMaps.campaignId] },
+  interactionDataPoints: { relationName: "campaign_to_interactionDataPoints", fields: [campaigns.id], references: [interactionDataPoints.campaignId] }
 };
 
 // System Credits schema
