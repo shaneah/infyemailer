@@ -747,6 +747,44 @@ function EmailProviders() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      
+      {/* Check Configuration Dialog */}
+      <Dialog open={isCheckConfigOpen} onOpenChange={setIsCheckConfigOpen}>
+        <DialogContent className="sm:max-w-[450px]">
+          <DialogHeader>
+            <DialogTitle>Check Provider Configuration</DialogTitle>
+            <DialogDescription>
+              Verify your email provider configuration to ensure it's properly set up.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="rounded-md bg-blue-50 p-4 text-sm text-blue-800">
+              <div className="flex">
+                <div className="flex-shrink-0">
+                  <Info className="h-5 w-5 text-blue-600" />
+                </div>
+                <div className="ml-3">
+                  <p className="mt-1">
+                    This will check your provider configuration by verifying the API credentials, testing the connection, and validating sender identities if applicable.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsCheckConfigOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleCheckConfiguration}
+              disabled={checkConfigurationMutation.isPending}
+            >
+              {checkConfigurationMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Check Configuration
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
