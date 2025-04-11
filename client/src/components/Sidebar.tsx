@@ -15,7 +15,8 @@ import {
   Building2, 
   UserPlus, 
   ArrowLeftCircle, 
-  ArrowRightCircle 
+  ArrowRightCircle,
+  SendHorizontal
 } from "lucide-react";
 import infyLogo from "../assets/Logo-white.png";
 import { useAuth } from "@/hooks/use-auth";
@@ -293,6 +294,18 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
               >
                 <ShieldCheck className="h-5 w-5 mr-3" />
                 Admin Panel
+              </Link>
+            </li>
+
+            <li>
+              <Link 
+                href="/sendpulse-test" 
+                className={`flex items-center px-2 py-2 rounded-md ${location === '/sendpulse-test' 
+                  ? 'text-white border-l-4 border-white bg-white/10' 
+                  : 'text-gray-300 hover:bg-white/5'}`}
+              >
+                <SendHorizontal className="h-5 w-5 mr-3" />
+                SendPulse Test
               </Link>
             </li>
           </ul>
