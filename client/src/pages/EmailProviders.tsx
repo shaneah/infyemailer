@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from "@/lib/queryClient";
-import { Check, X, Edit, Trash, AlertTriangle, Loader2, Plus, Send, Key, Info } from 'lucide-react';
+import { Check, X, Edit, Trash, AlertTriangle, Loader2, Plus, Send, Key, Info, CheckCircle } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
@@ -190,6 +190,37 @@ function EmailProviders() {
       });
     }
   });
+  
+  // Mutation to check provider configuration
+  const checkConfigurationMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const response = await apiRequest('POST', `/api/email-providers/${id}/check-configuration`);
+      return response.json();
+    },
+    onSuccess: (data) => {
+      if (data.success) {
+        toast({
+          title: "Configuration check passed",
+          description: "Provider configuration is valid and working properly.",
+        });
+      } else {
+        toast({
+          title: "Configuration issues detected",
+          description: "Provider configuration has some issues that need attention.",
+          variant: "destructive"
+        });
+      }
+      setIsCheckConfigOpen(false);
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Configuration check failed",
+        description: error.message || "An error occurred while checking the provider configuration.",
+        variant: "destructive"
+      });
+      setIsCheckConfigOpen(false);
+    }
+  });
 
   const handleProviderTypeChange = (type: string) => {
     setNewProviderType(type);
@@ -269,6 +300,16 @@ function EmailProviders() {
   const openDeleteDialog = (id: number) => {
     setSelectedProviderId(id);
     setIsDeleteOpen(true);
+  };
+  
+  const openCheckConfigurationDialog = (provider: EmailProvider) => {
+    setSelectedProviderId(provider.id);
+    setIsCheckConfigOpen(true);
+  };
+
+  const handleCheckConfiguration = () => {
+    if (selectedProviderId === null) return;
+    checkConfigurationMutation.mutate(selectedProviderId);
   };
 
   const resetNewProviderForm = () => {
@@ -367,7 +408,7 @@ function EmailProviders() {
                     </div>
                   </CardContent>
                   <CardFooter className="flex justify-between border-t pt-4">
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 flex-wrap">
                       <Button
                         variant="outline"
                         size="sm"
@@ -383,6 +424,14 @@ function EmailProviders() {
                       >
                         <Send className="h-4 w-4 mr-1" />
                         Test
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => openCheckConfigurationDialog(provider)}
+                      >
+                        <CheckCircle className="h-4 w-4 mr-1" />
+                        Check Config
                       </Button>
                     </div>
                     <Button
