@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { apiRequest } from '@/lib/queryClient';
+import { useToast } from '@/hooks/use-toast';
 
 interface EmailInteractionTrackerProps {
   emailId: number;
@@ -30,178 +30,189 @@ const EmailInteractionTracker: React.FC<EmailInteractionTrackerProps> = ({
   className = '',
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [isTracking, setIsTracking] = useState(true);
-  const hoverStartTimeRef = useRef<Record<string, number>>({});
-  
-  // Normalize coordinates to percentage of container
-  const normalizeCoordinates = (
-    clientX: number,
-    clientY: number
-  ): { x: number; y: number } | null => {
-    if (!containerRef.current) return null;
-    
-    const rect = containerRef.current.getBoundingClientRect();
-    
-    // Calculate position relative to container
-    const relativeX = clientX - rect.left;
-    const relativeY = clientY - rect.top;
-    
-    // Convert to percentage (0-100)
-    const percentX = Math.max(0, Math.min(100, (relativeX / rect.width) * 100));
-    const percentY = Math.max(0, Math.min(100, (relativeY / rect.height) * 100));
-    
-    return { x: percentX, y: percentY };
-  };
-  
-  // Track click events
-  const handleClick = (e: MouseEvent) => {
-    if (!isTracking) return;
-    
-    const target = e.target as HTMLElement;
-    const coords = normalizeCoordinates(e.clientX, e.clientY);
-    
-    if (!coords) return;
-    
-    const interactionData: InteractionData = {
-      emailId,
-      campaignId,
-      contactId,
-      elementId: target.id || undefined,
-      elementType: target.tagName.toLowerCase(),
-      xCoordinate: coords.x,
-      yCoordinate: coords.y,
-      interactionType: 'click',
-      metadata: {
-        href: target.tagName.toLowerCase() === 'a' ? (target as HTMLAnchorElement).href : undefined,
-        text: target.textContent || undefined,
-        classes: target.className || undefined,
+  const [trackingActive, setTrackingActive] = useState(true);
+  const [hoveredElementStart, setHoveredElementStart] = useState<{
+    element: HTMLElement;
+    time: number;
+  } | null>(null);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container || !trackingActive) return;
+
+    // Save current time when tracking starts
+    const trackingStartTime = Date.now();
+
+    // Track clicks
+    const handleClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      // Get coordinates relative to the container
+      const rect = container.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      const interactionData: InteractionData = {
+        emailId,
+        campaignId,
+        contactId,
+        elementId: target.id || undefined,
+        elementType: target.tagName.toLowerCase(),
+        xCoordinate: x,
+        yCoordinate: y,
+        interactionType: 'click',
+        metadata: {
+          href: target.tagName === 'A' ? (target as HTMLAnchorElement).href : undefined,
+          innerText: target.innerText?.substring(0, 50),
+          classNames: target.className,
+        },
+      };
+
+      recordInteraction(interactionData);
+    };
+
+    // Track hover events
+    const handleMouseOver = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (target && target !== container) {
+        setHoveredElementStart({
+          element: target,
+          time: Date.now(),
+        });
       }
     };
-    
-    recordInteraction(interactionData);
-  };
-  
-  // Track hover events
-  const handleMouseOver = (e: MouseEvent) => {
-    if (!isTracking) return;
-    
-    const target = e.target as HTMLElement;
-    const targetKey = `${target.tagName}_${target.id || Math.random()}`;
-    
-    // Record start time of hover
-    hoverStartTimeRef.current[targetKey] = Date.now();
-  };
-  
-  const handleMouseOut = (e: MouseEvent) => {
-    if (!isTracking) return;
-    
-    const target = e.target as HTMLElement;
-    const targetKey = `${target.tagName}_${target.id || Math.random()}`;
-    
-    // If we have a start time, calculate duration
-    if (hoverStartTimeRef.current[targetKey]) {
-      const duration = Date.now() - hoverStartTimeRef.current[targetKey];
-      
-      // Only record if hover was longer than 500ms
-      if (duration > 500) {
-        const coords = normalizeCoordinates(e.clientX, e.clientY);
+
+    const handleMouseOut = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (hoveredElementStart && hoveredElementStart.element === target) {
+        const hoverDuration = Date.now() - hoveredElementStart.time;
         
-        if (!coords) return;
+        // Only track hovers that last at least 500ms (configurable)
+        if (hoverDuration >= 500) {
+          const rect = container.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const y = e.clientY - rect.top;
+          
+          const interactionData: InteractionData = {
+            emailId,
+            campaignId,
+            contactId,
+            elementId: target.id || undefined,
+            elementType: target.tagName.toLowerCase(),
+            xCoordinate: x,
+            yCoordinate: y,
+            interactionType: 'hover',
+            interactionDuration: hoverDuration,
+            metadata: {
+              href: target.tagName === 'A' ? (target as HTMLAnchorElement).href : undefined,
+              innerText: target.innerText?.substring(0, 50),
+              classNames: target.className,
+            },
+          };
+          
+          recordInteraction(interactionData);
+        }
+        
+        setHoveredElementStart(null);
+      }
+    };
+
+    // Track scroll (record only once per second to avoid excessive data)
+    let lastScrollTime = 0;
+    const handleScroll = () => {
+      const now = Date.now();
+      if (now - lastScrollTime > 1000) {
+        lastScrollTime = now;
         
         const interactionData: InteractionData = {
           emailId,
           campaignId,
           contactId,
-          elementId: target.id || undefined,
-          elementType: target.tagName.toLowerCase(),
-          xCoordinate: coords.x,
-          yCoordinate: coords.y,
-          interactionType: 'hover',
-          interactionDuration: duration,
+          xCoordinate: container.scrollLeft,
+          yCoordinate: container.scrollTop,
+          interactionType: 'scroll',
           metadata: {
-            text: target.textContent || undefined,
-            classes: target.className || undefined,
-          }
+            scrollPercentage: Math.round((container.scrollTop / (container.scrollHeight - container.clientHeight)) * 100),
+          },
         };
         
         recordInteraction(interactionData);
       }
-      
-      // Clean up
-      delete hoverStartTimeRef.current[targetKey];
-    }
-  };
-  
-  // Track scroll events (throttled)
-  const handleScroll = (() => {
-    let lastScrollTime = 0;
-    
-    return () => {
-      if (!isTracking || !containerRef.current) return;
-      
-      const now = Date.now();
-      
-      // Throttle to once every 1000ms
-      if (now - lastScrollTime < 1000) return;
-      
-      lastScrollTime = now;
-      
-      const scrollPercentY = (containerRef.current.scrollTop / 
-        (containerRef.current.scrollHeight - containerRef.current.clientHeight)) * 100;
-      
-      const interactionData: InteractionData = {
-        emailId,
-        campaignId,
-        contactId,
-        xCoordinate: 50, // Center X
-        yCoordinate: scrollPercentY,
-        interactionType: 'scroll',
-        metadata: {
-          scrollTop: containerRef.current.scrollTop,
-          scrollHeight: containerRef.current.scrollHeight,
-          clientHeight: containerRef.current.clientHeight,
-        }
-      };
-      
-      recordInteraction(interactionData);
     };
-  })();
-  
-  // Send interaction data to the server
-  const recordInteraction = async (data: InteractionData) => {
-    try {
-      await apiRequest('POST', '/api/heat-maps/interactions', data);
-    } catch (error) {
-      console.error('Failed to record interaction:', error);
-    }
-  };
-  
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-    
+
     // Add event listeners
     container.addEventListener('click', handleClick);
     container.addEventListener('mouseover', handleMouseOver);
     container.addEventListener('mouseout', handleMouseOut);
     container.addEventListener('scroll', handleScroll);
+
+    // Record initial view
+    const initialViewData: InteractionData = {
+      emailId,
+      campaignId,
+      contactId,
+      xCoordinate: 0,
+      yCoordinate: 0,
+      interactionType: 'view',
+      metadata: {
+        viewportWidth: container.clientWidth,
+        viewportHeight: container.clientHeight,
+        devicePixelRatio: window.devicePixelRatio || 1,
+      },
+    };
     
+    recordInteraction(initialViewData);
+
+    toast({
+      title: "Interaction tracking started",
+      description: "Your interactions with this email are being recorded.",
+      duration: 3000,
+    });
+
+    // Clean up event listeners
     return () => {
-      // Remove event listeners
       container.removeEventListener('click', handleClick);
       container.removeEventListener('mouseover', handleMouseOver);
       container.removeEventListener('mouseout', handleMouseOut);
       container.removeEventListener('scroll', handleScroll);
-      setIsTracking(false);
+      
+      // Record session duration when component unmounts
+      const sessionDuration = Date.now() - trackingStartTime;
+      
+      const finalData: InteractionData = {
+        emailId,
+        campaignId,
+        contactId,
+        xCoordinate: 0,
+        yCoordinate: 0,
+        interactionType: 'session',
+        interactionDuration: sessionDuration,
+        metadata: {
+          totalDuration: sessionDuration,
+        },
+      };
+      
+      recordInteraction(finalData);
     };
-  }, [emailId, campaignId, contactId]);
-  
+  }, [emailId, campaignId, contactId, trackingActive, hoveredElementStart, toast]);
+
+  // Send interaction data to the server
+  const recordInteraction = async (data: InteractionData) => {
+    try {
+      await fetch('/api/heat-maps/interactions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+    } catch (error) {
+      console.error('Failed to record interaction:', error);
+    }
+  };
+
   return (
-    <div 
-      ref={containerRef} 
-      className={`email-interaction-tracker ${className}`}
-      style={{ position: 'relative' }}
-    >
+    <div ref={containerRef} className={className}>
       {children}
     </div>
   );

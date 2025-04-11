@@ -8,6 +8,7 @@ import { trackingService } from "./services/trackingService";
 import { emailSchema } from "../shared/validation";
 import { z } from "zod";
 import fileUpload, { UploadedFile } from "express-fileupload";
+import heatMapsRoutes from "./routes/heat-maps";
 
 // Extend Express Request type to include files property
 declare global {
@@ -23,7 +24,6 @@ import { registerEmailProviderRoutes } from "./routes/emailProviders";
 import { registerAudiencePersonaRoutes } from "./routes/audiencePersonas";
 import { registerTestEmailRoutes } from "./routes/testEmail";
 import { registerHealthRoutes } from "./routes/health";
-import heatMapsRoutes from "./routes/heat-maps";
 import { 
   insertContactSchema, 
   insertListSchema, 
