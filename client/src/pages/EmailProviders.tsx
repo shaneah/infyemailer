@@ -319,11 +319,14 @@ function EmailProviders() {
   
   const openCheckConfigurationDialog = (provider: EmailProvider) => {
     setSelectedProviderId(provider.id);
+    setConfigCheckResult(null); // Reset any previous results
     setIsCheckConfigOpen(true);
   };
 
   const handleCheckConfiguration = () => {
     if (selectedProviderId === null) return;
+    // Add logs to debug the process
+    console.log("Checking configuration for provider ID:", selectedProviderId);
     checkConfigurationMutation.mutate(selectedProviderId);
   };
 
