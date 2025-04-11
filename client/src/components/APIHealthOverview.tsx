@@ -26,7 +26,15 @@ const APIHealthOverview: React.FC = () => {
       if (!response.ok) {
         throw new Error('Failed to fetch health data');
       }
-      return response.json();
+      // Clone the response before attempting to read the body
+      const clonedResponse = response.clone();
+      try {
+        return await response.json();
+      } catch (error) {
+        // If the first attempt fails, try with the cloned response
+        console.warn('First JSON parse failed, trying with cloned response', error);
+        return await clonedResponse.json();
+      }
     },
   });
 
