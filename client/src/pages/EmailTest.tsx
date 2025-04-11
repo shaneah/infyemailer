@@ -52,19 +52,43 @@ export default function EmailTest() {
 
   const { mutate, isPending } = useMutation({
     mutationFn: async (values: TestEmailFormValues) => {
-      const response = await apiRequest('POST', '/api/test-email/sendgrid', values);
-      return response.json();
+      try {
+        const response = await apiRequest('POST', '/api/test-email/sendgrid', values);
+        // Clone the response before reading the body
+        const clonedResponse = response.clone();
+        
+        // Parse the JSON from the cloned response
+        const data = await clonedResponse.json();
+        return { success: true, data };
+      } catch (error) {
+        return { 
+          success: false, 
+          error: error instanceof Error ? error.message : String(error) 
+        };
+      }
     },
-    onSuccess: (data) => {
-      toast({
-        title: 'Email sent',
-        description: 'Test email sent successfully!',
-        variant: 'default',
-      });
-      setLastTestResult({
-        success: true,
-        message: data.message || 'Email sent successfully'
-      });
+    onSuccess: (result) => {
+      if (result.success) {
+        toast({
+          title: 'Email sent',
+          description: 'Test email sent successfully!',
+          variant: 'default',
+        });
+        setLastTestResult({
+          success: true,
+          message: result.data?.message || 'Email sent successfully'
+        });
+      } else {
+        toast({
+          title: 'Error',
+          description: `Failed to send email: ${result.error}`,
+          variant: 'destructive',
+        });
+        setLastTestResult({
+          success: false,
+          message: result.error || 'Failed to send email'
+        });
+      }
     },
     onError: (error: Error) => {
       toast({

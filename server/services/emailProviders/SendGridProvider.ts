@@ -1,4 +1,5 @@
 import { MailService } from '@sendgrid/mail';
+import { ResponseError } from '@sendgrid/helpers/classes';
 import { 
   IEmailProvider, 
   SendEmailParams, 
@@ -36,6 +37,17 @@ export class SendGridProvider implements IEmailProvider {
   
   async sendEmail(params: SendEmailParams): Promise<boolean> {
     try {
+      // Validate that required fields are present
+      if (!params.to) {
+        console.error('[SendGrid] Missing recipient email');
+        return false;
+      }
+      
+      if (!params.subject) {
+        console.error('[SendGrid] Missing email subject');
+        return false;
+      }
+      
       const msg = {
         to: params.to,
         from: params.from || {
@@ -52,7 +64,27 @@ export class SendGridProvider implements IEmailProvider {
       
       return true;
     } catch (error) {
-      console.error('SendGrid email error:', error);
+      if (error instanceof ResponseError) {
+        const errorDetails = {
+          code: error.code,
+          message: error.message,
+          response: error.response?.body || {}
+        };
+        
+        console.error('[SendGrid] API Error:', JSON.stringify(errorDetails, null, 2));
+        
+        // Check common errors
+        if (error.code === 403) {
+          console.error('[SendGrid] API Key does not have permission to send emails. Please verify your API Key has the necessary permissions.');
+        } else if (error.code === 401) {
+          console.error('[SendGrid] API Key is invalid or revoked. Please check your API Key.');
+        } else if (error.code === 400) {
+          console.error('[SendGrid] Bad request. Check the email format, sender, or recipient addresses.');
+        }
+      } else {
+        console.error('[SendGrid] Unknown error:', error);
+      }
+      
       return false;
     }
   }
