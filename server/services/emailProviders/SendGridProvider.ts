@@ -32,6 +32,11 @@ export class SendGridProvider implements IEmailProvider {
     fromEmail?: string;
     fromName?: string;
   }) {
+    // Validate that the SendGrid API key starts with "SG."
+    if (!config.apiKey.startsWith('SG.')) {
+      throw new Error('API key does not start with "SG.". SendGrid API keys must begin with SG. prefix.');
+    }
+    
     this.apiKey = config.apiKey;
     this.fromEmail = config.fromEmail || 'notifications@infymailer.com';
     this.fromName = config.fromName || 'InfyMailer';

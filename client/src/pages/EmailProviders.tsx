@@ -203,6 +203,20 @@ function EmailProviders() {
   };
 
   const handleCreateProvider = () => {
+    // Validate the SendGrid API key format if the provider type is sendgrid
+    if (newProviderType === 'sendgrid' && newProviderConfig['API Key']) {
+      const apiKey = newProviderConfig['API Key'];
+      
+      if (!apiKey.startsWith('SG.')) {
+        toast({
+          title: "Invalid SendGrid API Key",
+          description: "SendGrid API keys must start with 'SG.' prefix. Please check your API key and try again.",
+          variant: "destructive"
+        });
+        return;
+      }
+    }
+    
     createProviderMutation.mutate({
       name: newProviderName,
       provider: newProviderType,
@@ -471,6 +485,23 @@ function EmailProviders() {
 
                 <div className="space-y-4">
                   <h3 className="text-sm font-medium">Authentication Details</h3>
+                  
+                  {/* Show helper message for SendGrid API Keys */}
+                  {newProviderType === 'sendgrid' && (
+                    <div className="rounded-md bg-blue-50 p-4 text-sm text-blue-800">
+                      <div className="flex">
+                        <div className="flex-shrink-0">
+                          <InfoIcon className="h-5 w-5 text-blue-600" />
+                        </div>
+                        <div className="ml-3">
+                          <h3 className="font-medium text-blue-800">SendGrid API Key Format</h3>
+                          <p className="mt-1">
+                            SendGrid API keys must start with the "SG." prefix. You can find your API keys in your SendGrid dashboard.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                   
                   {isLoadingRequirements ? (
                     <div className="flex justify-center p-2">

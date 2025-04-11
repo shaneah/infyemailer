@@ -99,18 +99,13 @@ export async function registerEmailProviderRoutes(app: any) {
     } catch (error: any) {
       console.error('Error creating provider:', error);
       
-      // Log detailed debugging information
-      if (validatedData.provider === 'sendgrid') {
-        console.log('DEBUG - SendGrid API Key:', validatedData.config.apiKey);
-        console.log('DEBUG - SendGrid API Key format check:', validatedData.config.apiKey?.startsWith('SG.'));
-        
-        // Check if the API key starts with "SG."
-        if (validatedData.config.apiKey && !validatedData.config.apiKey.startsWith('SG.')) {
-          return res.status(400).json({
-            error: 'Invalid SendGrid API Key',
-            details: 'SendGrid API keys must start with "SG." prefix'
-          });
-        }
+      // Since the error might have occurred before validatedData was defined,
+      // we need to check the error message directly
+      if (error.message && error.message.includes('API key does not start with "SG."')) {
+        return res.status(400).json({
+          error: 'Invalid SendGrid API Key',
+          details: 'SendGrid API keys must start with "SG." prefix'
+        });
       }
       
       if (error instanceof z.ZodError) {
@@ -294,7 +289,7 @@ export async function registerEmailProviderRoutes(app: any) {
       const dummyConfig: Record<string, string> = {};
       
       if (type === 'sendgrid') {
-        dummyConfig.apiKey = 'dummy';
+        dummyConfig.apiKey = 'SG.dummyApiKey123456'; // Add SG. prefix for SendGrid keys
       } else if (type === 'mailgun') {
         dummyConfig.apiKey = 'dummy';
         dummyConfig.domain = 'dummy.com';
