@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { emailService } from '../services/EmailService';
 import { providerSettingsService } from '../services/ProviderSettingsService';
 import { dbStorage as storage } from '../dbStorage';
+import { campaigns, lists, contacts, contactList } from '@shared/schema';
 
 // Email validation schema
 const sendEmailSchema = z.object({
