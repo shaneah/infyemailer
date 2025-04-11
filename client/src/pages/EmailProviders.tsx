@@ -191,6 +191,19 @@ function EmailProviders() {
     }
   });
   
+  // State for configuration check results
+  const [configCheckResult, setConfigCheckResult] = useState<{
+    success: boolean;
+    apiConnected?: boolean;
+    senderIdentitiesVerified?: boolean;
+    errors?: string[];
+    warnings?: string[];
+    details?: {
+      verifiedSenders?: string[];
+      [key: string]: any;
+    };
+  } | null>(null);
+
   // Mutation to check provider configuration
   const checkConfigurationMutation = useMutation({
     mutationFn: async (id: number) => {
@@ -198,6 +211,8 @@ function EmailProviders() {
       return response.json();
     },
     onSuccess: (data) => {
+      setConfigCheckResult(data);
+      
       if (data.success) {
         toast({
           title: "Configuration check passed",
@@ -210,7 +225,7 @@ function EmailProviders() {
           variant: "destructive"
         });
       }
-      setIsCheckConfigOpen(false);
+      // Not closing dialog here so we can show the results
     },
     onError: (error: any) => {
       toast({
@@ -750,38 +765,160 @@ function EmailProviders() {
       
       {/* Check Configuration Dialog */}
       <Dialog open={isCheckConfigOpen} onOpenChange={setIsCheckConfigOpen}>
-        <DialogContent className="sm:max-w-[450px]">
+        <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
             <DialogTitle>Check Provider Configuration</DialogTitle>
             <DialogDescription>
               Verify your email provider configuration to ensure it's properly set up.
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4 py-2">
-            <div className="rounded-md bg-blue-50 p-4 text-sm text-blue-800">
-              <div className="flex">
-                <div className="flex-shrink-0">
-                  <Info className="h-5 w-5 text-blue-600" />
-                </div>
-                <div className="ml-3">
-                  <p className="mt-1">
-                    This will check your provider configuration by verifying the API credentials, testing the connection, and validating sender identities if applicable.
-                  </p>
+          
+          {!configCheckResult && !checkConfigurationMutation.isPending && (
+            <div className="space-y-4 py-2">
+              <div className="rounded-md bg-blue-50 p-4 text-sm text-blue-800">
+                <div className="flex">
+                  <div className="flex-shrink-0">
+                    <Info className="h-5 w-5 text-blue-600" />
+                  </div>
+                  <div className="ml-3">
+                    <p className="mt-1">
+                      This will check your provider configuration by verifying the API credentials, testing the connection, and validating sender identities if applicable.
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          )}
+          
+          {checkConfigurationMutation.isPending && (
+            <div className="py-8 flex flex-col items-center justify-center space-y-4">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              <p className="text-sm text-muted-foreground">Checking configuration...</p>
+            </div>
+          )}
+          
+          {configCheckResult && !checkConfigurationMutation.isPending && (
+            <div className="space-y-6 py-4">
+              <div className={`rounded-md p-4 text-sm ${configCheckResult.success ? 'bg-green-50 text-green-800' : 'bg-amber-50 text-amber-800'}`}>
+                <div className="flex">
+                  <div className="flex-shrink-0">
+                    {configCheckResult.success ? (
+                      <Check className="h-5 w-5 text-green-600" />
+                    ) : (
+                      <AlertTriangle className="h-5 w-5 text-amber-600" />
+                    )}
+                  </div>
+                  <div className="ml-3">
+                    <h3 className={`font-medium ${configCheckResult.success ? 'text-green-800' : 'text-amber-800'}`}>
+                      {configCheckResult.success ? 'Configuration check passed' : 'Configuration issues detected'}
+                    </h3>
+                    <p className="mt-1">
+                      {configCheckResult.success 
+                        ? 'Your email provider is configured correctly and ready to send emails.'
+                        : 'There are some issues with your email provider configuration that need attention.'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium">API Connection</p>
+                    <div className="flex items-center gap-1.5">
+                      {configCheckResult.apiConnected ? (
+                        <Check className="h-4 w-4 text-green-600" />
+                      ) : (
+                        <X className="h-4 w-4 text-red-600" />
+                      )}
+                      <p className="text-sm">{configCheckResult.apiConnected ? 'Connected' : 'Failed'}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium">Sender Identities</p>
+                    <div className="flex items-center gap-1.5">
+                      {configCheckResult.senderIdentitiesVerified ? (
+                        <Check className="h-4 w-4 text-green-600" />
+                      ) : (
+                        <X className="h-4 w-4 text-red-600" />
+                      )}
+                      <p className="text-sm">{configCheckResult.senderIdentitiesVerified ? 'Verified' : 'Not verified'}</p>
+                    </div>
+                  </div>
+                </div>
+                
+                {configCheckResult.details?.verifiedSenders && configCheckResult.details.verifiedSenders.length > 0 && (
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium">Verified Sender Emails</p>
+                    <div className="bg-gray-50 p-3 rounded-md text-sm">
+                      {configCheckResult.details.verifiedSenders.map((email, index) => (
+                        <div key={index} className="flex items-center gap-2">
+                          <Check className="h-3.5 w-3.5 text-green-600" />
+                          <p>{email}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
+                {configCheckResult.warnings && configCheckResult.warnings.length > 0 && (
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium">Warnings</p>
+                    <div className="bg-amber-50 p-3 rounded-md text-sm text-amber-800">
+                      {configCheckResult.warnings.map((warning, index) => (
+                        <div key={index} className="flex items-start gap-2 mb-1 last:mb-0">
+                          <AlertTriangle className="h-3.5 w-3.5 text-amber-600 mt-0.5" />
+                          <p>{warning}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
+                {configCheckResult.errors && configCheckResult.errors.length > 0 && (
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium">Errors</p>
+                    <div className="bg-red-50 p-3 rounded-md text-sm text-red-800">
+                      {configCheckResult.errors.map((error, index) => (
+                        <div key={index} className="flex items-start gap-2 mb-1 last:mb-0">
+                          <X className="h-3.5 w-3.5 text-red-600 mt-0.5" />
+                          <p>{error}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+          
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsCheckConfigOpen(false)}>
-              Cancel
-            </Button>
-            <Button
-              onClick={handleCheckConfiguration}
-              disabled={checkConfigurationMutation.isPending}
-            >
-              {checkConfigurationMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Check Configuration
-            </Button>
+            {!configCheckResult && !checkConfigurationMutation.isPending ? (
+              <>
+                <Button variant="outline" onClick={() => setIsCheckConfigOpen(false)}>
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleCheckConfiguration}
+                  disabled={checkConfigurationMutation.isPending}
+                >
+                  {checkConfigurationMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  Check Configuration
+                </Button>
+              </>
+            ) : (
+              <Button 
+                onClick={() => {
+                  if (!checkConfigurationMutation.isPending) {
+                    setConfigCheckResult(null);
+                    setIsCheckConfigOpen(false);
+                  }
+                }}
+              >
+                Close
+              </Button>
+            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>
