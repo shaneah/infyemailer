@@ -40,6 +40,9 @@ export default function AdminPanel() {
   const [selectedClientId, setSelectedClientId] = useState<number | null>(null);
   const [allocateAmount, setAllocateAmount] = useState<number>(100);
   const [allocateReason, setAllocateReason] = useState<string>("");
+  const [isRateLimitModalOpen, setIsRateLimitModalOpen] = useState<boolean>(false);
+  const [isIpWhitelistModalOpen, setIsIpWhitelistModalOpen] = useState<boolean>(false);
+  const [isApiKeyModalOpen, setIsApiKeyModalOpen] = useState<boolean>(false);
   const { toast } = useToast();
   
   // System Credits data
@@ -240,6 +243,34 @@ export default function AdminPanel() {
         ))}
       </div>
     );
+  };
+
+  // API security modal handlers
+  const handleOpenRateLimitModal = () => {
+    setIsRateLimitModalOpen(true);
+    toast({
+      title: "API Rate Limiting",
+      description: "Rate limiting configuration will be available in the next update. This feature is coming soon!",
+      variant: "default",
+    });
+  };
+
+  const handleOpenIpWhitelistModal = () => {
+    setIsIpWhitelistModalOpen(true);
+    toast({
+      title: "IP Whitelisting",
+      description: "IP whitelisting configuration will be available in the next update. This feature is coming soon!",
+      variant: "default",
+    });
+  };
+
+  const handleOpenApiKeyModal = () => {
+    setIsApiKeyModalOpen(true);
+    toast({
+      title: "API Key Management",
+      description: "API key management will be available in the next update. This feature is coming soon!",
+      variant: "default",
+    });
   };
 
   const renderAlerts = () => {
@@ -599,21 +630,21 @@ export default function AdminPanel() {
                               <h4 className="font-medium">API Rate Limiting</h4>
                               <p className="text-sm text-gray-500">Prevent abuse by limiting requests</p>
                             </div>
-                            <Button variant="outline" size="sm">Configure</Button>
+                            <Button variant="outline" size="sm" onClick={handleOpenRateLimitModal}>Configure</Button>
                           </div>
                           <div className="flex items-center justify-between">
                             <div>
                               <h4 className="font-medium">IP Whitelisting</h4>
                               <p className="text-sm text-gray-500">Restrict API access by IP address</p>
                             </div>
-                            <Button variant="outline" size="sm">Configure</Button>
+                            <Button variant="outline" size="sm" onClick={handleOpenIpWhitelistModal}>Configure</Button>
                           </div>
                           <div className="flex items-center justify-between">
                             <div>
                               <h4 className="font-medium">API Key Management</h4>
                               <p className="text-sm text-gray-500">Rotate and revoke API credentials</p>
                             </div>
-                            <Button variant="outline" size="sm">Configure</Button>
+                            <Button variant="outline" size="sm" onClick={handleOpenApiKeyModal}>Configure</Button>
                           </div>
                         </div>
                       </CardContent>
