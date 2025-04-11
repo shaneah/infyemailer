@@ -1,5 +1,5 @@
 import { MailService } from '@sendgrid/mail';
-import { ResponseError } from '@sendgrid/helpers/classes';
+import { ResponseError } from '@sendgrid/helpers/classes/response-error.js';
 import { 
   IEmailProvider, 
   SendEmailParams, 
