@@ -207,10 +207,36 @@ function EmailProviders() {
   // Mutation to check provider configuration
   const checkConfigurationMutation = useMutation({
     mutationFn: async (id: number) => {
-      const response = await apiRequest('POST', `/api/email-providers/${id}/check-configuration`);
-      return response.json();
+      console.log(`Checking configuration for provider ID: ${id}`);
+      
+      try {
+        const response = await apiRequest('POST', `/api/email-providers/${id}/check-configuration`);
+        console.log('Check configuration API response:', response);
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('Check configuration error response:', errorText);
+          
+          let errorData;
+          try {
+            errorData = JSON.parse(errorText);
+          } catch (e) {
+            throw new Error(`API error: ${response.status} - ${errorText.substring(0, 100)}`);
+          }
+          
+          throw new Error(errorData.error || errorData.details || `API error: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log('Configuration check result data:', data);
+        return data;
+      } catch (error) {
+        console.error('Error in configuration check:', error);
+        throw error;
+      }
     },
     onSuccess: (data) => {
+      console.log('Configuration check success:', data);
       setConfigCheckResult(data);
       
       if (data.success) {
@@ -222,18 +248,20 @@ function EmailProviders() {
         toast({
           title: "Configuration issues detected",
           description: "Provider configuration has some issues that need attention.",
-          variant: "destructive"
+          variant: "warning"
         });
       }
       // Not closing dialog here so we can show the results
     },
     onError: (error: any) => {
+      console.error('Configuration check error:', error);
       toast({
         title: "Configuration check failed",
         description: error.message || "An error occurred while checking the provider configuration.",
         variant: "destructive"
       });
-      setIsCheckConfigOpen(false);
+      // Don't close the dialog on error so user can see the error and try again
+      // setIsCheckConfigOpen(false);
     }
   });
 
