@@ -82,14 +82,15 @@ export async function registerTestEmailRoutes(app: any) {
         
         // Look for SendGrid errors in the console output to provide more specific guidance
         try {
-          const isSenderIdentityError = global.lastSendGridError && 
-                                      global.lastSendGridError.includes('from address does not match a verified Sender Identity');
+          const lastError = (global as any).lastSendGridError;
+          const isSenderIdentityError = lastError && 
+                                      lastError.includes('from address does not match a verified Sender Identity');
           
           if (isSenderIdentityError) {
             return res.status(403).json({ 
               error: 'SendGrid Sender Identity Error', 
               message: 'The sender email address is not verified in your SendGrid account. Please verify the email in SendGrid Sender Authentication settings.',
-              details: global.lastSendGridError
+              details: lastError
             });
           }
         } catch (error) {

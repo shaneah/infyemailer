@@ -9,6 +9,15 @@ import {
   SupportedFeatures
 } from './IEmailProvider';
 
+// Declare global type for error tracking
+declare global {
+  namespace NodeJS {
+    interface Global {
+      lastSendGridError?: string;
+    }
+  }
+}
+
 /**
  * SendGrid Email Provider Implementation
  */
@@ -48,17 +57,42 @@ export class SendGridProvider implements IEmailProvider {
         return false;
       }
       
-      const msg = {
+      // Format the message according to SendGrid v3 API requirements
+      const msg: any = {
         to: params.to,
         from: params.from || {
           email: this.fromEmail,
           name: this.fromName,
         },
         subject: params.subject,
-        text: params.text || '',
-        html: params.html || '',
+        content: []
       };
-
+      
+      // Add text content if available
+      if (params.text) {
+        msg.content.push({
+          type: 'text/plain',
+          value: params.text
+        });
+      }
+      
+      // Add HTML content if available
+      if (params.html) {
+        msg.content.push({
+          type: 'text/html',
+          value: params.html
+        });
+      }
+      
+      // If no content was added, add a default text content
+      if (msg.content.length === 0) {
+        msg.content.push({
+          type: 'text/plain',
+          value: ' ' // Empty string with a space to satisfy SendGrid requirements
+        });
+      }
+      
+      console.log('[SendGrid] Sending email with payload:', JSON.stringify(msg, null, 2));
       const response = await this.mailService.send(msg);
       console.log(`[SendGrid] Email sent to ${params.to}`, response);
       
@@ -89,7 +123,27 @@ export class SendGridProvider implements IEmailProvider {
         } else if (error.code === 401) {
           console.error('[SendGrid] API Key is invalid or revoked. Please check your API Key.');
         } else if (error.code === 400) {
-          console.error('[SendGrid] Bad request. Check the email format, sender, or recipient addresses.');
+          // Store the last SendGrid error message globally for reference
+          if (error.response?.body) {
+            try {
+              const errorBody = error.response.body as any;
+              if (errorBody.errors && Array.isArray(errorBody.errors)) {
+                // Format and store the error message for debugging
+                const errorMessages = errorBody.errors.map((err: any) => 
+                  `${err.message || "Unknown error"} (field: ${err.field || "unknown"})`
+                ).join(", ");
+                
+                (global as any).lastSendGridError = errorMessages;
+                console.error('[SendGrid] Bad request details:', errorMessages);
+              } else {
+                console.error('[SendGrid] Bad request. Check the email format, sender, or recipient addresses.');
+              }
+            } catch (parseError) {
+              console.error('[SendGrid] Error parsing error response:', parseError);
+            }
+          } else {
+            console.error('[SendGrid] Bad request. Check the email format, sender, or recipient addresses.');
+          }
         }
       } else {
         console.error('[SendGrid] Unknown error:', error);
