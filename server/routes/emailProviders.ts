@@ -309,4 +309,40 @@ export async function registerEmailProviderRoutes(app: any) {
       res.status(500).json({ error: 'Failed to get provider requirements' });
     }
   });
+  
+  // Check configuration for an email provider
+  app.post('/api/email-providers/:id/check-configuration', async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id, 10);
+      
+      // Get the provider settings
+      const settings = await providerSettingsService.getProviderSettings(id);
+      
+      if (!settings) {
+        return res.status(404).json({ error: 'Provider not found' });
+      }
+      
+      console.log(`[Configuration Check] Checking provider configuration for: ${settings.name}`);
+      
+      // Get the provider instance
+      const provider = emailService.getProvider(settings.name);
+      
+      if (!provider) {
+        return res.status(500).json({ error: 'Failed to instantiate provider' });
+      }
+      
+      // Perform configuration check
+      const result = await provider.checkConfiguration();
+      
+      console.log(`[Configuration Check] Result for ${settings.provider}: ${JSON.stringify(result)}`);
+      
+      res.json(result);
+    } catch (error: any) {
+      console.error('Error checking provider configuration:', error);
+      res.status(500).json({ 
+        error: 'Failed to check provider configuration', 
+        details: error.message 
+      });
+    }
+  });
 }

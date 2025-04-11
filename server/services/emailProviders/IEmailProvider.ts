@@ -69,6 +69,19 @@ export interface SupportedFeatures {
 }
 
 /**
+ * Configuration check result
+ */
+export interface ConfigurationCheckResult {
+  success: boolean;
+  apiConnected: boolean;
+  senderIdentitiesVerified?: boolean;
+  domainVerified?: boolean;
+  errors?: string[];
+  warnings?: string[];
+  details?: Record<string, any>;
+}
+
+/**
  * Interface for email provider implementations
  */
 export interface IEmailProvider {

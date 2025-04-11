@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from "@/lib/queryClient";
-import { Check, X, Edit, Trash, AlertTriangle, Loader2, Plus, Send, Key } from 'lucide-react';
+import { Check, X, Edit, Trash, AlertTriangle, Loader2, Plus, Send, Key, Info } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
@@ -491,7 +491,7 @@ function EmailProviders() {
                     <div className="rounded-md bg-blue-50 p-4 text-sm text-blue-800">
                       <div className="flex">
                         <div className="flex-shrink-0">
-                          <InfoIcon className="h-5 w-5 text-blue-600" />
+                          <Info className="h-5 w-5 text-blue-600" />
                         </div>
                         <div className="ml-3">
                           <h3 className="font-medium text-blue-800">SendGrid API Key Format</h3>
