@@ -36,6 +36,7 @@ import SimpleClientLogin from "@/pages/SimpleClientLogin";
 import ClientDashboard from "@/pages/ClientDashboard";
 import ClientRoutes from "@/pages/ClientRoutes";
 import Analytics from "@/pages/Analytics";
+import EmailTest from "@/pages/EmailTest";
 
 
 function App() {
@@ -173,6 +174,7 @@ function App() {
                     <ProtectedRoute path="client-management" component={ClientManagement} />
                     <ProtectedRoute path="audience-personas" component={AudiencePersonas} />
                     <ProtectedRoute path="analytics" component={Analytics} />
+                    <ProtectedRoute path="email-test" component={EmailTest} />
 
                     <Route component={NotFound} />
                   </Switch>

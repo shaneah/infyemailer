@@ -67,6 +67,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Register audience persona routes
   registerAudiencePersonaRoutes(app);
+  
+  // Register test email routes
+  registerTestEmailRoutes(app);
 
   // Mock data for dashboard stats
   app.get('/api/stats', (req: Request, res: Response) => {
