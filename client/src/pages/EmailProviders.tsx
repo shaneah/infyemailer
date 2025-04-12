@@ -652,22 +652,44 @@ function EmailProviders() {
                   )}
                   
                   {newProviderType === 'smtp' && (
-                    <div className="rounded-md bg-blue-50 p-4 text-sm text-blue-800">
-                      <div className="flex">
-                        <div className="flex-shrink-0">
-                          <Info className="h-5 w-5 text-blue-600" />
-                        </div>
-                        <div className="ml-3">
-                          <h3 className="font-medium text-blue-800">SMTP Configuration Tips</h3>
-                          <ul className="mt-1 list-disc list-inside space-y-1">
-                            <li>For port 465, set "secure" to "true"</li>
-                            <li>For port 587, set "secure" to "false"</li>
-                            <li>GoDaddy SMTP server is smtpout.secureserver.net</li>
-                            <li>Use your full email address as the username</li>
-                          </ul>
+                    <>
+                      <div className="rounded-md bg-blue-50 p-4 text-sm text-blue-800">
+                        <div className="flex">
+                          <div className="flex-shrink-0">
+                            <Info className="h-5 w-5 text-blue-600" />
+                          </div>
+                          <div className="ml-3">
+                            <h3 className="font-medium text-blue-800">SMTP Configuration Tips</h3>
+                            <ul className="mt-1 list-disc list-inside space-y-1">
+                              <li>For port 465, set "secure" to "true"</li>
+                              <li>For port 587, set "secure" to "false"</li>
+                              <li>Use your full email address as the username</li>
+                            </ul>
+                          </div>
                         </div>
                       </div>
-                    </div>
+                      
+                      <div className="mt-4 p-4 border border-dashed rounded-md bg-slate-50">
+                        <h4 className="text-sm font-medium mb-2">Common SMTP Servers</h4>
+                        <div className="grid grid-cols-3 gap-4 text-xs">
+                          <div>
+                            <p className="font-semibold">GoDaddy</p>
+                            <p>Host: smtpout.secureserver.net</p>
+                            <p>Port: 465 (SSL)</p>
+                          </div>
+                          <div>
+                            <p className="font-semibold">Gmail</p>
+                            <p>Host: smtp.gmail.com</p>
+                            <p>Port: 587 (TLS)</p>
+                          </div>
+                          <div>
+                            <p className="font-semibold">Outlook/Office 365</p>
+                            <p>Host: smtp.office365.com</p>
+                            <p>Port: 587 (TLS)</p>
+                          </div>
+                        </div>
+                      </div>
+                    </>
                   )}
                   
                   {isLoadingRequirements ? (
@@ -880,6 +902,142 @@ function EmailProviders() {
                       }}
                     />
                   </div>
+                )}
+                
+                {selectedProvider.provider === 'smtp' && (
+                  <>
+                    <div className="rounded-md bg-blue-50 p-4 text-sm text-blue-800">
+                      <div className="flex">
+                        <div className="flex-shrink-0">
+                          <Info className="h-5 w-5 text-blue-600" />
+                        </div>
+                        <div className="ml-3">
+                          <h3 className="font-medium text-blue-800">SMTP Configuration Tips</h3>
+                          <ul className="mt-1 list-disc list-inside space-y-1">
+                            <li>For port 465, secure will be automatically set to true</li>
+                            <li>For port 587, secure should be set to false</li>
+                            <li>Use your full email address as the username</li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="mt-4 p-4 border border-dashed rounded-md bg-slate-50">
+                      <h4 className="text-sm font-medium mb-2">Common SMTP Servers</h4>
+                      <div className="grid grid-cols-3 gap-4 text-xs">
+                        <div>
+                          <p className="font-semibold">GoDaddy</p>
+                          <p>Host: smtpout.secureserver.net</p>
+                          <p>Port: 465 (SSL)</p>
+                        </div>
+                        <div>
+                          <p className="font-semibold">Gmail</p>
+                          <p>Host: smtp.gmail.com</p>
+                          <p>Port: 587 (TLS)</p>
+                        </div>
+                        <div>
+                          <p className="font-semibold">Outlook/Office 365</p>
+                          <p>Host: smtp.office365.com</p>
+                          <p>Port: 587 (TLS)</p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <Label htmlFor="editHost">Host</Label>
+                        <Badge variant="outline" className="text-xs">Required</Badge>
+                      </div>
+                      <Input
+                        id="editHost"
+                        placeholder="e.g., smtpout.secureserver.net"
+                        value={selectedProvider.config.host || ''}
+                        onChange={(e) => {
+                          const updatedConfig = { ...selectedProvider.config, host: e.target.value };
+                          setSelectedProvider({ ...selectedProvider, config: updatedConfig });
+                        }}
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <Label htmlFor="editPort">Port</Label>
+                        <Badge variant="outline" className="text-xs">Required</Badge>
+                      </div>
+                      <Input
+                        id="editPort"
+                        placeholder="e.g., 465 or 587"
+                        value={selectedProvider.config.port || ''}
+                        onChange={(e) => {
+                          const updatedConfig = { ...selectedProvider.config, port: e.target.value };
+                          setSelectedProvider({ ...selectedProvider, config: updatedConfig });
+                        }}
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <Label htmlFor="editUsername">Username</Label>
+                        <Badge variant="outline" className="text-xs">Required</Badge>
+                      </div>
+                      <Input
+                        id="editUsername"
+                        placeholder="Your full email address"
+                        value={selectedProvider.config.username || ''}
+                        onChange={(e) => {
+                          const updatedConfig = { ...selectedProvider.config, username: e.target.value };
+                          setSelectedProvider({ ...selectedProvider, config: updatedConfig });
+                        }}
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <Label htmlFor="editPassword">Password</Label>
+                        <Badge variant="outline" className="text-xs">Required</Badge>
+                      </div>
+                      <Input
+                        id="editPassword"
+                        type="password"
+                        placeholder="Your email password"
+                        value={selectedProvider.config.password || ''}
+                        onChange={(e) => {
+                          const updatedConfig = { ...selectedProvider.config, password: e.target.value };
+                          setSelectedProvider({ ...selectedProvider, config: updatedConfig });
+                        }}
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <Label htmlFor="editFromEmail">From Email</Label>
+                      </div>
+                      <Input
+                        id="editFromEmail"
+                        placeholder="e.g., noreply@yourdomain.com"
+                        value={selectedProvider.config.fromEmail || ''}
+                        onChange={(e) => {
+                          const updatedConfig = { ...selectedProvider.config, fromEmail: e.target.value };
+                          setSelectedProvider({ ...selectedProvider, config: updatedConfig });
+                        }}
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <Label htmlFor="editFromName">From Name</Label>
+                      </div>
+                      <Input
+                        id="editFromName"
+                        placeholder="e.g., Your Company Name"
+                        value={selectedProvider.config.fromName || ''}
+                        onChange={(e) => {
+                          const updatedConfig = { ...selectedProvider.config, fromName: e.target.value };
+                          setSelectedProvider({ ...selectedProvider, config: updatedConfig });
+                        }}
+                      />
+                    </div>
+                  </>
                 )}
               </div>
 
