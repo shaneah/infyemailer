@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Link } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { 
+  Code,
   Loader2, 
   MoveRight, 
   FileText, 
@@ -27,6 +28,8 @@ import {
   Send,
   Pencil,
   Mail,
+  ExternalLink,
+  X,
   XCircle
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -50,6 +53,7 @@ import {
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -818,129 +822,212 @@ export default function Templates() {
 
       {/* Create Template Dialog */}
       <Dialog open={isCreatingTemplate} onOpenChange={setIsCreatingTemplate}>
-        <DialogContent className="sm:max-w-[800px]">
-          <DialogHeader>
-            <DialogTitle>Create New Template</DialogTitle>
-            <DialogDescription>
-              Create a new email template from scratch.
-            </DialogDescription>
-          </DialogHeader>
-
-          <Form {...updateTemplateForm}>
-            <form 
-              onSubmit={updateTemplateForm.handleSubmit(handleCreateTemplate)} 
-              className="space-y-4 py-3"
-            >
-              <FormField
-                control={updateTemplateForm.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Template Name</FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="e.g. Monthly Newsletter" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={updateTemplateForm.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Description</FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="A brief description of this template" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={updateTemplateForm.control}
-                name="subject"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Subject Line</FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="e.g. Your Monthly Update from Company" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={updateTemplateForm.control}
-                name="category"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Category</FormLabel>
-                    <Select
-                      value={field.value}
-                      onValueChange={field.onChange}
-                    >
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select a category" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="general">General</SelectItem>
-                        <SelectItem value="promotional">Promotional</SelectItem>
-                        <SelectItem value="newsletter">Newsletter</SelectItem>
-                        <SelectItem value="welcome">Welcome</SelectItem>
-                        <SelectItem value="transactional">Transactional</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={updateTemplateForm.control}
-                name="content"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>HTML Content</FormLabel>
-                    <FormControl>
-                      <Textarea 
-                        {...field} 
-                        className="font-mono text-xs h-[300px]"
-                        placeholder="<!DOCTYPE html><html><head>...</head><body>Your email content here</body></html>" 
+        <DialogContent className="sm:max-w-[900px] p-0 overflow-hidden">
+          <div className="flex h-full">
+            {/* Left sidebar with gradient */}
+            <div className="bg-gradient-to-b from-primary/90 to-primary w-64 p-6 text-white hidden md:block">
+              <h3 className="text-xl font-bold mb-6 flex items-center">
+                <FileText className="mr-2 h-5 w-5" />
+                New Template
+              </h3>
+              <div className="space-y-6">
+                <div>
+                  <h4 className="text-sm font-semibold mb-1 opacity-80">STEP 1</h4>
+                  <p className="text-sm">Enter basic template details like name, category and description</p>
+                </div>
+                <div>
+                  <h4 className="text-sm font-semibold mb-1 opacity-80">STEP 2</h4>
+                  <p className="text-sm">Craft your email subject line that recipients will see</p>
+                </div>
+                <div>
+                  <h4 className="text-sm font-semibold mb-1 opacity-80">STEP 3</h4>
+                  <p className="text-sm">Add your HTML content with your design and copy</p>
+                </div>
+                <div className="pt-6 border-t border-white/20">
+                  <p className="text-xs text-white/70">
+                    Need inspiration? Try our AI Template Generator for professionally designed templates in seconds.
+                  </p>
+                </div>
+              </div>
+            </div>
+            
+            {/* Main content */}
+            <div className="flex-1 max-h-[80vh] overflow-y-auto">
+              <div className="sticky top-0 z-10 bg-background p-6 border-b">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <h2 className="text-xl font-bold">Create New Template</h2>
+                    <p className="text-sm text-muted-foreground">
+                      Create a custom email template for your campaigns
+                    </p>
+                  </div>
+                  <Button 
+                    variant="ghost"
+                    size="icon" 
+                    onClick={() => setIsCreatingTemplate(false)}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+              
+              <div className="p-6">
+                <Form {...updateTemplateForm}>
+                  <form 
+                    onSubmit={updateTemplateForm.handleSubmit(handleCreateTemplate)} 
+                    className="space-y-6"
+                  >
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <FormField
+                        control={updateTemplateForm.control}
+                        name="name"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Template Name</FormLabel>
+                            <FormControl>
+                              <Input {...field} placeholder="e.g. Monthly Newsletter" />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
                       />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
 
-              <DialogFooter>
-                <Button 
-                  variant="outline" 
-                  onClick={() => setIsCreatingTemplate(false)} 
-                  type="button"
-                >
-                  Cancel
-                </Button>
-                <Button 
-                  type="submit" 
-                  disabled={createNewTemplateMutation.isPending}
-                >
-                  {createNewTemplateMutation.isPending ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Creating...
-                    </>
-                  ) : (
-                    "Create Template"
-                  )}
-                </Button>
-              </DialogFooter>
-            </form>
-          </Form>
+                      <FormField
+                        control={updateTemplateForm.control}
+                        name="category"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Category</FormLabel>
+                            <Select
+                              value={field.value}
+                              onValueChange={field.onChange}
+                            >
+                              <SelectTrigger className="w-full">
+                                <SelectValue placeholder="Select a category" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="general">General</SelectItem>
+                                <SelectItem value="promotional">Promotional</SelectItem>
+                                <SelectItem value="newsletter">Newsletter</SelectItem>
+                                <SelectItem value="welcome">Welcome</SelectItem>
+                                <SelectItem value="transactional">Transactional</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
+                    <FormField
+                      control={updateTemplateForm.control}
+                      name="description"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Description</FormLabel>
+                          <FormControl>
+                            <Input {...field} placeholder="A brief description of this template" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <div className="bg-blue-50/50 p-4 rounded-md border border-blue-100">
+                      <FormField
+                        control={updateTemplateForm.control}
+                        name="subject"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="flex items-center">
+                              <Mail className="h-4 w-4 mr-2" />
+                              Email Subject Line
+                            </FormLabel>
+                            <FormControl>
+                              <Input 
+                                {...field} 
+                                placeholder="e.g. Your Monthly Update from Company" 
+                                className="border-blue-200 focus:border-blue-400"
+                              />
+                            </FormControl>
+                            <FormDescription>
+                              This is what recipients will see in their inbox
+                            </FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
+                    <div className="border rounded-md p-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <FormLabel className="text-base flex items-center">
+                          <Code className="h-4 w-4 mr-2" />
+                          HTML Content
+                        </FormLabel>
+                        <Button 
+                          type="button" 
+                          variant="outline" 
+                          size="sm" 
+                          className="text-xs"
+                          onClick={() => window.open('https://beefree.io/templates/', '_blank')}
+                        >
+                          <ExternalLink className="h-3 w-3 mr-1" />
+                          Get Free Templates
+                        </Button>
+                      </div>
+                      <FormField
+                        control={updateTemplateForm.control}
+                        name="content"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormControl>
+                              <Textarea 
+                                {...field} 
+                                className="font-mono text-xs h-[300px] border-gray-200"
+                                placeholder="<!DOCTYPE html><html><head>...</head><body>Your email content here</body></html>" 
+                              />
+                            </FormControl>
+                            <FormDescription>
+                              Paste your HTML email template code here
+                            </FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
+                    <div className="flex justify-end gap-3 pt-2 border-t">
+                      <Button 
+                        variant="outline" 
+                        onClick={() => setIsCreatingTemplate(false)} 
+                        type="button"
+                      >
+                        Cancel
+                      </Button>
+                      <Button 
+                        type="submit" 
+                        disabled={createNewTemplateMutation.isPending}
+                        className="gap-2"
+                      >
+                        {createNewTemplateMutation.isPending ? (
+                          <>
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                            Creating...
+                          </>
+                        ) : (
+                          <>
+                            <PlusCircle className="h-4 w-4" />
+                            Create Template
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  </form>
+                </Form>
+              </div>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
