@@ -2,14 +2,22 @@ import { QueryClient, QueryFunction } from "@tanstack/react-query";
 
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
+    // Clone the response before reading to avoid "body stream already read" errors
+    const clonedRes = res.clone();
+    
     try {
       // Try to parse as JSON first
-      const errorData = await res.json();
+      const errorData = await clonedRes.json();
       throw new Error(errorData.error || `${res.status}: ${res.statusText}`);
     } catch (jsonError) {
-      // If not JSON, get as text
-      const text = await res.text();
-      throw new Error(`${res.status}: ${text || res.statusText}`);
+      try {
+        // If not JSON, get as text
+        const text = await clonedRes.text();
+        throw new Error(`${res.status}: ${text || res.statusText}`);
+      } catch (textError) {
+        // If both fail, return a generic error
+        throw new Error(`${res.status}: ${res.statusText}`);
+      }
     }
   }
 }

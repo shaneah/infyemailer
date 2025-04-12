@@ -195,7 +195,9 @@ function EmailProviders() {
           throw new Error(`Failed to send email (Status: ${response.status})`);
         }
         
-        return response.json();
+        // Clone the response before reading it to avoid the "body already read" error
+        const clonedResponse = response.clone();
+        return clonedResponse.json();
       } catch (error: any) {
         // Better handle network and other errors
         console.error('Test email error:', error);
@@ -275,7 +277,9 @@ function EmailProviders() {
           }
         }
         
-        const data = await response.json();
+        // Clone the response before reading it to avoid the "body already read" error
+        const clonedResponse = response.clone();
+        const data = await clonedResponse.json();
         console.log('Configuration check result data:', data);
         return data;
       } catch (error) {
