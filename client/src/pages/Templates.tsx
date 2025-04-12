@@ -437,9 +437,15 @@ export default function Templates() {
                 </CardHeader>
                 
                 <CardContent className="py-2 flex-grow">
-                  <div className="flex items-start gap-1.5 text-sm text-muted-foreground">
-                    <span className="font-medium">Subject:</span>
-                    <span className="line-clamp-2">{template.subject}</span>
+                  <div className="flex flex-col space-y-2">
+                    <div className="flex items-start gap-1.5 text-sm text-muted-foreground">
+                      <span className="font-medium">Subject:</span>
+                      <span className="line-clamp-2">{template.subject}</span>
+                    </div>
+                    <div className="flex items-start gap-1.5 text-sm text-muted-foreground">
+                      <span className="font-medium">Category:</span>
+                      <span className="line-clamp-1">{template.category || 'General'}</span>
+                    </div>
                   </div>
                 </CardContent>
                 
@@ -488,6 +494,10 @@ export default function Templates() {
               <div className="flex items-center mt-2">
                 <Badge variant="outline" className="mr-2">Subject:</Badge>
                 <span className="text-sm">{selectedTemplate.subject || 'No subject'}</span>
+              </div>
+              <div className="flex items-center mt-2">
+                <Badge variant="outline" className="mr-2">Category:</Badge>
+                <span className="text-sm">{selectedTemplate.category || 'General'}</span>
               </div>
             </CardHeader>
             <CardContent>
@@ -738,6 +748,32 @@ export default function Templates() {
 
               <FormField
                 control={updateTemplateForm.control}
+                name="category"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Category</FormLabel>
+                    <Select
+                      value={field.value}
+                      onValueChange={field.onChange}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select a category" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="general">General</SelectItem>
+                        <SelectItem value="promotional">Promotional</SelectItem>
+                        <SelectItem value="newsletter">Newsletter</SelectItem>
+                        <SelectItem value="welcome">Welcome</SelectItem>
+                        <SelectItem value="transactional">Transactional</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={updateTemplateForm.control}
                 name="content"
                 render={({ field }) => (
                   <FormItem>
@@ -843,23 +879,21 @@ export default function Templates() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Category</FormLabel>
-                    <FormControl>
-                      <Select
-                        value={field.value}
-                        onValueChange={field.onChange}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select a category" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="general">General</SelectItem>
-                          <SelectItem value="promotional">Promotional</SelectItem>
-                          <SelectItem value="newsletter">Newsletter</SelectItem>
-                          <SelectItem value="welcome">Welcome</SelectItem>
-                          <SelectItem value="transactional">Transactional</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </FormControl>
+                    <Select
+                      value={field.value}
+                      onValueChange={field.onChange}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select a category" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="general">General</SelectItem>
+                        <SelectItem value="promotional">Promotional</SelectItem>
+                        <SelectItem value="newsletter">Newsletter</SelectItem>
+                        <SelectItem value="welcome">Welcome</SelectItem>
+                        <SelectItem value="transactional">Transactional</SelectItem>
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}
