@@ -6,7 +6,7 @@ import AuthPage from "@/pages/auth-page";
 import Dashboard from "@/pages/Dashboard";
 import Sidebar from "@/components/Sidebar";
 import Navbar from "@/components/Navbar";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AuthProvider } from "@/hooks/use-auth";
 import { ProtectedRoute } from "@/lib/protected-route";
 import NotFound from "@/pages/not-found";
@@ -43,6 +43,20 @@ import EmailTest from "@/pages/EmailTest";
 function App() {
   const [location] = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  
+  // Load sidebar collapsed state from localStorage
+  useEffect(() => {
+    const savedCollapsedState = localStorage.getItem('sidebarCollapsed');
+    if (savedCollapsedState !== null) {
+      setSidebarCollapsed(savedCollapsedState === 'true');
+    }
+  }, []);
+
+  // Save sidebar collapsed state to localStorage when it changes
+  useEffect(() => {
+    localStorage.setItem('sidebarCollapsed', sidebarCollapsed.toString());
+  }, [sidebarCollapsed]);
   
   return (
     <QueryClientProvider client={queryClient}>
@@ -132,10 +146,20 @@ function App() {
         <Route>
           <AuthProvider>
             <div className="flex h-screen bg-background">
-              <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />
+              <Sidebar 
+                open={sidebarOpen} 
+                setOpen={setSidebarOpen} 
+                collapsed={sidebarCollapsed}
+                setCollapsed={setSidebarCollapsed}
+              />
               
               <div className="flex-1 flex flex-col overflow-hidden">
-                <Navbar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+                <Navbar 
+                  sidebarOpen={sidebarOpen} 
+                  setSidebarOpen={setSidebarOpen}
+                  sidebarCollapsed={sidebarCollapsed}
+                  setSidebarCollapsed={setSidebarCollapsed}
+                />
                 
                 <main className="flex-1 overflow-y-auto p-4">
                   <Switch>

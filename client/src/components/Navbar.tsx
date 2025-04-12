@@ -1,14 +1,21 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'wouter';
 import { Button } from '@/components/ui/button';
-import { DoorOpen, Bell, HelpCircle, Settings, LogOut, Mail, Users, BarChart2, FileText, Plus, Search, Menu } from 'lucide-react';
+import { DoorOpen, Bell, HelpCircle, Settings, LogOut, Mail, Users, BarChart2, FileText, Plus, Search, Menu, MenuSquare, LayoutSidebarIcon, PanelLeftClose, PanelLeftOpen, Sidebar as SidebarIcon } from 'lucide-react';
 
 interface NavbarProps {
   sidebarOpen: boolean;
   setSidebarOpen: (open: boolean) => void;
+  sidebarCollapsed?: boolean;
+  setSidebarCollapsed?: (collapsed: boolean) => void;
 }
 
-const Navbar = ({ sidebarOpen, setSidebarOpen }: NavbarProps) => {
+const Navbar = ({ 
+  sidebarOpen, 
+  setSidebarOpen,
+  sidebarCollapsed,
+  setSidebarCollapsed
+}: NavbarProps) => {
   const [_, setLocation] = useLocation();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
@@ -54,12 +61,19 @@ const Navbar = ({ sidebarOpen, setSidebarOpen }: NavbarProps) => {
     };
   }, [showUserMenu, showNotifications, showHelpMenu, showCreateMenu]);
 
+  const toggleSidebarCollapse = () => {
+    if (setSidebarCollapsed && sidebarCollapsed !== undefined) {
+      setSidebarCollapsed(!sidebarCollapsed);
+    }
+  };
+
   return (
     <header className="sticky top-0 bg-white z-30 border-b border-gray-200 shadow-gold-sm">
       <div className="px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Left side - Hamburger menu for mobile and logo */}
           <div className="flex items-center">
+            {/* Mobile hamburger menu */}
             <button
               className="text-[#1a3a5f] hover:text-[#d4af37] lg:hidden mr-3"
               aria-controls="sidebar"
@@ -69,6 +83,19 @@ const Navbar = ({ sidebarOpen, setSidebarOpen }: NavbarProps) => {
               <span className="sr-only">Open sidebar</span>
               <Menu className="w-6 h-6" />
             </button>
+            
+            {/* Desktop sidebar collapse toggle */}
+            {setSidebarCollapsed && sidebarCollapsed !== undefined && (
+              <button
+                className="hidden lg:flex text-[#1a3a5f] hover:text-[#d4af37] mr-3"
+                onClick={toggleSidebarCollapse}
+                title={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+              >
+                <span className="sr-only">{sidebarCollapsed ? "Expand" : "Collapse"} sidebar</span>
+                {sidebarCollapsed ? <PanelLeftOpen className="w-6 h-6" /> : <PanelLeftClose className="w-6 h-6" />}
+              </button>
+            )}
+            
             <div className="flex items-center">
               <span className="text-xl font-bold bg-gradient-to-r from-[#1a3a5f] to-[#d4af37] bg-clip-text text-transparent">InfyMailer</span>
             </div>
