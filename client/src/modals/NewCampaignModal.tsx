@@ -331,6 +331,7 @@ const NewCampaignModal = ({ onClose }: NewCampaignModalProps) => {
                             return;
                           }
                           
+                          console.log("Moving to audience tab, selected template:", selectedTemplateId);
                           // Go to audience tab
                           setActiveTab('audience');
                         }}
@@ -388,6 +389,7 @@ const NewCampaignModal = ({ onClose }: NewCampaignModalProps) => {
               
               {activeTab === 'audience' && (
                 <div>
+                  {console.log("Audience tab rendered, available lists:", lists)}
                   <div className="mb-4">
                     <label className="form-label">Select Contact List(s)</label>
                     <p className="text-muted mb-3">Choose one or more contact lists for your campaign</p>
