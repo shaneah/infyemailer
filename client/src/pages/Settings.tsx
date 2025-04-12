@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -9,12 +9,23 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 import APIHealthOverview from "@/components/APIHealthOverview";
+import { useAuth } from "@/hooks/use-auth";
+import { useLocation } from "wouter";
 
 export default function Settings() {
   const { toast } = useToast();
+  const { user } = useAuth();
+  const [location] = useLocation();
   const [activeTab, setActiveTab] = useState("account");
   const [loading, setLoading] = useState(false);
   const storageUsed = 65; // Percentage of storage used
+  
+  // Set active tab based on path (profile or settings)
+  useEffect(() => {
+    if (location === "/profile") {
+      setActiveTab("account");
+    }
+  }, [location]);
   
   const handleSave = () => {
     setLoading(true);
@@ -63,19 +74,33 @@ export default function Settings() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label htmlFor="name">Full Name</Label>
-                        <Input id="name" defaultValue="John Smith" />
+                        <Input 
+                          id="name" 
+                          defaultValue={user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'Admin User' : 'Admin User'}
+                        />
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="email">Email Address</Label>
-                        <Input id="email" type="email" defaultValue="john@example.com" />
+                        <Input 
+                          id="email" 
+                          type="email" 
+                          defaultValue={user?.email || 'admin@infymailer.com'} 
+                        />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="company">Company Name</Label>
-                        <Input id="company" defaultValue="MailFlow Inc." />
+                        <Label htmlFor="username">Username</Label>
+                        <Input 
+                          id="username" 
+                          defaultValue={user?.username || 'admin'} 
+                        />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="phone">Phone Number</Label>
-                        <Input id="phone" type="tel" defaultValue="+1 (555) 123-4567" />
+                        <Label htmlFor="role">Role</Label>
+                        <Input 
+                          id="role" 
+                          defaultValue={user?.role || 'Administrator'} 
+                          disabled
+                        />
                       </div>
                     </div>
                     <div className="space-y-2">
