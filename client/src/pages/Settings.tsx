@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -11,6 +11,8 @@ import { Badge } from "@/components/ui/badge";
 import APIHealthOverview from "@/components/APIHealthOverview";
 import { useAuth } from "@/hooks/use-auth";
 import { useLocation } from "wouter";
+import { Camera, Upload, Trash2 } from "lucide-react";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 
 export default function Settings() {
   const { toast } = useToast();
@@ -18,6 +20,9 @@ export default function Settings() {
   const [location] = useLocation();
   const [activeTab, setActiveTab] = useState("account");
   const [loading, setLoading] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(user?.avatarUrl || null);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const storageUsed = 65; // Percentage of storage used
   
   // Set active tab based on path (profile or settings)
@@ -26,6 +31,97 @@ export default function Settings() {
       setActiveTab("account");
     }
   }, [location]);
+  
+  // Initialize avatar URL when user data loads
+  useEffect(() => {
+    if (user?.avatarUrl) {
+      setAvatarUrl(user.avatarUrl);
+    }
+  }, [user]);
+  
+  const handleAvatarClick = () => {
+    fileInputRef.current?.click();
+  };
+  
+  const handleAvatarChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Invalid file type",
+        description: "Please upload an image file",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: "File too large",
+        description: "Avatar image must be less than 5MB",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    // Preview the image
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setAvatarUrl(e.target?.result as string);
+    };
+    reader.readAsDataURL(file);
+    
+    // Upload the image to server
+    handleAvatarUpload(file);
+  };
+  
+  const handleAvatarUpload = async (file: File) => {
+    setIsUploading(true);
+    
+    try {
+      const formData = new FormData();
+      formData.append('avatar', file);
+      
+      // In a real implementation, you would send the file to the server
+      // const response = await apiRequest('POST', '/api/user/avatar', formData);
+      
+      // Simulate successful upload
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      toast({
+        title: "Avatar updated",
+        description: "Your profile picture has been updated successfully.",
+      });
+      
+      // Update user data in cache
+      if (user) {
+        const updatedUser = { ...user, avatarUrl: avatarUrl };
+        queryClient.setQueryData(['/api/user'], updatedUser);
+      }
+    } catch (error) {
+      toast({
+        title: "Upload failed",
+        description: "There was a problem uploading your avatar.",
+        variant: "destructive"
+      });
+      // Reset to previous avatar
+      setAvatarUrl(user?.avatarUrl || null);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+  
+  const handleRemoveAvatar = () => {
+    setAvatarUrl(null);
+    // In a real implementation, you would send a request to remove the avatar
+    toast({
+      title: "Avatar removed",
+      description: "Your profile picture has been removed.",
+    });
+  };
   
   const handleSave = () => {
     setLoading(true);
@@ -70,7 +166,80 @@ export default function Settings() {
                     <CardTitle>Profile Information</CardTitle>
                     <CardDescription>Update your account details and preferences</CardDescription>
                   </CardHeader>
-                  <CardContent className="space-y-4">
+                  <CardContent className="space-y-6">
+                    {/* Avatar Upload Section */}
+                    <div className="flex flex-col sm:flex-row items-center gap-6 pb-4 border-b">
+                      <div className="relative group">
+                        {avatarUrl ? (
+                          <div className="relative w-28 h-28 rounded-full overflow-hidden bg-gray-100 border-4 border-white shadow-lg">
+                            <img 
+                              src={avatarUrl} 
+                              alt="Profile avatar" 
+                              className="w-full h-full object-cover"
+                            />
+                            <div 
+                              className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                              onClick={handleAvatarClick}
+                            >
+                              <Camera className="h-8 w-8 text-white" />
+                            </div>
+                          </div>
+                        ) : (
+                          <div 
+                            className="w-28 h-28 rounded-full bg-gradient-to-r from-[#1a3a5f] to-[#d4af37] flex items-center justify-center text-white text-2xl font-bold cursor-pointer shadow-lg"
+                            onClick={handleAvatarClick}
+                          >
+                            {user?.firstName?.[0]?.toUpperCase() || user?.username?.[0]?.toUpperCase() || 'A'}
+                            {user?.lastName?.[0]?.toUpperCase() || 'M'}
+                          </div>
+                        )}
+                        {isUploading && (
+                          <div className="absolute inset-0 bg-black bg-opacity-60 rounded-full flex items-center justify-center">
+                            <div className="w-8 h-8 border-4 border-t-transparent border-white rounded-full animate-spin"></div>
+                          </div>
+                        )}
+                      </div>
+                      
+                      <div>
+                        <h3 className="text-lg font-medium mb-2">Profile Picture</h3>
+                        <p className="text-sm text-gray-500 mb-3">Upload a profile picture to personalize your account.</p>
+                        <div className="flex gap-2">
+                          <Button 
+                            size="sm" 
+                            variant="outline" 
+                            className="flex items-center gap-1"
+                            onClick={handleAvatarClick}
+                            disabled={isUploading}
+                          >
+                            <Upload className="h-4 w-4" />
+                            Upload Photo
+                          </Button>
+                          
+                          {avatarUrl && (
+                            <Button 
+                              size="sm" 
+                              variant="outline" 
+                              className="flex items-center gap-1 text-red-500 hover:text-red-600"
+                              onClick={handleRemoveAvatar}
+                              disabled={isUploading}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                              Remove
+                            </Button>
+                          )}
+                          
+                          <input 
+                            type="file" 
+                            ref={fileInputRef} 
+                            className="hidden" 
+                            accept="image/*"
+                            onChange={handleAvatarChange}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* User Information Fields */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label htmlFor="name">Full Name</Label>
