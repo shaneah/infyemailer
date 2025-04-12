@@ -224,6 +224,7 @@ function EmailProviders() {
     senderIdentitiesVerified?: boolean;
     errors?: string[];
     warnings?: string[];
+    troubleshootingTips?: string[];
     details?: {
       verifiedSenders?: string[];
       [key: string]: any;
@@ -274,7 +275,7 @@ function EmailProviders() {
         toast({
           title: "Configuration issues detected",
           description: "Provider configuration has some issues that need attention.",
-          variant: "warning"
+          variant: "destructive"
         });
       }
       // Not closing dialog here so we can show the results
@@ -1077,6 +1078,20 @@ function EmailProviders() {
                           <p>{error}</p>
                         </div>
                       ))}
+                    </div>
+                  </div>
+                )}
+                
+                {/* Display troubleshooting tips if available */}
+                {configCheckResult.troubleshootingTips && configCheckResult.troubleshootingTips.length > 0 && (
+                  <div className="space-y-2 mt-4">
+                    <p className="text-sm font-medium">Troubleshooting Tips</p>
+                    <div className="bg-blue-50 p-3 rounded-md text-sm text-blue-800">
+                      <ul className="list-disc pl-4 space-y-1">
+                        {configCheckResult.troubleshootingTips.map((tip, index) => (
+                          <li key={index}>{tip}</li>
+                        ))}
+                      </ul>
                     </div>
                   </div>
                 )}
