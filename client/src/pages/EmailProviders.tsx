@@ -651,6 +651,25 @@ function EmailProviders() {
                     </div>
                   )}
                   
+                  {newProviderType === 'smtp' && (
+                    <div className="rounded-md bg-blue-50 p-4 text-sm text-blue-800">
+                      <div className="flex">
+                        <div className="flex-shrink-0">
+                          <Info className="h-5 w-5 text-blue-600" />
+                        </div>
+                        <div className="ml-3">
+                          <h3 className="font-medium text-blue-800">SMTP Configuration Tips</h3>
+                          <ul className="mt-1 list-disc list-inside space-y-1">
+                            <li>For port 465, set "secure" to "true"</li>
+                            <li>For port 587, set "secure" to "false"</li>
+                            <li>GoDaddy SMTP server is smtpout.secureserver.net</li>
+                            <li>Use your full email address as the username</li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  
                   {isLoadingRequirements ? (
                     <div className="flex justify-center p-2">
                       <Loader2 className="h-4 w-4 animate-spin" />

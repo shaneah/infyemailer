@@ -52,10 +52,14 @@ export class EmailProviderFactory {
         if (!config.host || !config.port || !config.username || !config.password) {
           throw new Error('SMTP host, port, username, and password are required');
         }
+                // For SMTP, automatically set secure to true if port is 465
+        const port = parseInt(config.port, 10);
+        const secure = port === 465 ? true : config.secure === true || config.secure === 'true';
+        
         return new SMTPProvider({
           host: config.host,
-          port: parseInt(config.port, 10),
-          secure: config.secure === true || config.secure === 'true',
+          port,
+          secure,
           username: config.username,
           password: config.password,
           fromEmail: config.fromEmail,
