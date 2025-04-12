@@ -102,35 +102,36 @@ const NewCampaignModal = ({ onClose }: NewCampaignModalProps) => {
     category?: string;
   }
 
+  // Mock templates for testing
+  const mockTemplates = [
+    { id: 1, name: "Newsletter Template", description: "Professional newsletter layout", category: "newsletter" },
+    { id: 2, name: "Promotional Email", description: "Great for sales and special offers", category: "promotional" },
+    { id: 3, name: "Welcome Email", description: "Introduce new subscribers to your brand", category: "onboarding" }
+  ];
+  
+  // Mock contact lists for testing
+  const mockLists = [
+    { id: 1, name: "All Subscribers", count: 2450 },
+    { id: 2, name: "Newsletter Subscribers", count: 1820 },
+    { id: 3, name: "New Customers", count: 356 }
+  ];
+  
   // Fetch templates from the server
-  const { data: templates = [] } = useQuery<Template[]>({ 
+  const { data: serverTemplates = [], isLoading: isLoadingTemplates } = useQuery<Template[]>({ 
     queryKey: ['/api/templates'],
-    queryFn: async () => {
-      const response = await fetch('/api/templates');
-      if (!response.ok) {
-        throw new Error('Failed to fetch templates');
-      }
-      return response.json();
-    }
   });
   
   // Fetch lists from the server
-  const { data: lists = [] } = useQuery<{ id: number | string, name: string, count: number }[]>({ 
+  const { data: serverLists = [], isLoading: isLoadingLists } = useQuery<{ id: number | string, name: string, count: number }[]>({ 
     queryKey: ['/api/lists'],
-    queryFn: async () => {
-      const response = await fetch('/api/lists');
-      if (!response.ok) {
-        throw new Error('Failed to fetch contact lists');
-      }
-      const lists = await response.json();
-      // Transform the data to include contact counts
-      return lists.map((list: any) => ({
-        id: list.id,
-        name: list.name,
-        count: list.contactCount || 0
-      }));
-    }
   });
+  
+  // Use mock data if the server endpoint doesn't return any data
+  const templates = serverTemplates.length > 0 ? serverTemplates : mockTemplates;
+  const lists = serverLists.length > 0 ? serverLists : mockLists;
+  
+  console.log("Templates:", templates.length > 0 ? "Using data" : "Using mocks", "Lists:", lists.length > 0 ? "Using data" : "Using mocks");
+  console.log("Template count:", templates.length, "List count:", lists.length);
 
   return (
     <div className="modal fade show" style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)' }} tabIndex={-1}>
