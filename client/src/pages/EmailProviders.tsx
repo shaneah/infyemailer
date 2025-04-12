@@ -696,6 +696,87 @@ function EmailProviders() {
                     <div className="flex justify-center p-2">
                       <Loader2 className="h-4 w-4 animate-spin" />
                     </div>
+                  ) : newProviderType === 'smtp' ? (
+                    <div className="space-y-3">
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2">
+                            <Label htmlFor="host">Host</Label>
+                            <Badge variant="outline" className="text-xs">Required</Badge>
+                          </div>
+                          <Input
+                            id="host"
+                            placeholder="e.g., smtpout.secureserver.net"
+                            value={newProviderConfig['host'] || ''}
+                            onChange={(e) => handleConfigChange('host', e.target.value)}
+                          />
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2">
+                            <Label htmlFor="port">Port</Label>
+                            <Badge variant="outline" className="text-xs">Required</Badge>
+                          </div>
+                          <Input
+                            id="port"
+                            placeholder="e.g., 465 or 587"
+                            value={newProviderConfig['port'] || ''}
+                            onChange={(e) => handleConfigChange('port', e.target.value)}
+                          />
+                        </div>
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2">
+                            <Label htmlFor="username">Username</Label>
+                            <Badge variant="outline" className="text-xs">Required</Badge>
+                          </div>
+                          <Input
+                            id="username"
+                            placeholder="Your full email address"
+                            value={newProviderConfig['username'] || ''}
+                            onChange={(e) => handleConfigChange('username', e.target.value)}
+                          />
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2">
+                            <Label htmlFor="password">Password</Label>
+                            <Badge variant="outline" className="text-xs">Required</Badge>
+                          </div>
+                          <Input
+                            id="password"
+                            type="password"
+                            placeholder="Your email password"
+                            value={newProviderConfig['password'] || ''}
+                            onChange={(e) => handleConfigChange('password', e.target.value)}
+                          />
+                        </div>
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-2">
+                          <Label htmlFor="fromEmail">From Email</Label>
+                          <Input
+                            id="fromEmail"
+                            placeholder="noreply@yourdomain.com"
+                            value={newProviderConfig['fromEmail'] || ''}
+                            onChange={(e) => handleConfigChange('fromEmail', e.target.value)}
+                          />
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <Label htmlFor="fromName">From Name</Label>
+                          <Input
+                            id="fromName"
+                            placeholder="Your Company Name"
+                            value={newProviderConfig['fromName'] || ''}
+                            onChange={(e) => handleConfigChange('fromName', e.target.value)}
+                          />
+                        </div>
+                      </div>
+                    </div>
                   ) : (
                     authRequirements.map((req) => (
                       <div key={req.name} className="space-y-2">
