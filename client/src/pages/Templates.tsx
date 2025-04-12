@@ -56,6 +56,13 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -67,6 +74,7 @@ interface Template {
   description: string;
   content: string;
   subject: string;
+  category: string;
   metadata?: {
     generatedByAI?: boolean;
     icon?: string;
@@ -167,7 +175,8 @@ export default function Templates() {
       name: selectedTemplate ? selectedTemplate.name : "",
       description: selectedTemplate ? selectedTemplate.description : "",
       subject: selectedTemplate ? selectedTemplate.subject : "",
-      content: selectedTemplate ? selectedTemplate.content : ""
+      content: selectedTemplate ? selectedTemplate.content : "",
+      category: selectedTemplate?.category || "general"
     }
   });
 
@@ -178,7 +187,8 @@ export default function Templates() {
         name: selectedTemplate.name,
         description: selectedTemplate.description,
         subject: selectedTemplate.subject,
-        content: selectedTemplate.content
+        content: selectedTemplate.content,
+        category: selectedTemplate.category || "general"
       });
       
       testEmailForm.reset({
@@ -280,7 +290,8 @@ export default function Templates() {
       name: "",
       description: "",
       subject: "",
-      content: ""
+      content: "",
+      category: "general"
     });
     setIsCreatingTemplate(true);
   };
@@ -820,6 +831,34 @@ export default function Templates() {
                     <FormLabel>Subject Line</FormLabel>
                     <FormControl>
                       <Input {...field} placeholder="e.g. Your Monthly Update from Company" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={updateTemplateForm.control}
+                name="category"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Category</FormLabel>
+                    <FormControl>
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a category" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="general">General</SelectItem>
+                          <SelectItem value="promotional">Promotional</SelectItem>
+                          <SelectItem value="newsletter">Newsletter</SelectItem>
+                          <SelectItem value="welcome">Welcome</SelectItem>
+                          <SelectItem value="transactional">Transactional</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
