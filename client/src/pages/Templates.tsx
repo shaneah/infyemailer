@@ -89,6 +89,7 @@ const updateTemplateSchema = z.object({
   description: z.string().min(1, "Description is required"),
   subject: z.string().min(1, "Subject line is required"),
   content: z.string().min(1, "HTML content is required"),
+  category: z.string().default("general"),
 });
 
 export default function Templates() {
