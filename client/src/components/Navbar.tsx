@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'wouter';
 import { Button } from '@/components/ui/button';
-import { DoorOpen, Bell, HelpCircle, Settings, LogOut, Mail, Users, BarChart2, FileText, Plus, Search, Menu, MenuSquare, LayoutSidebarIcon, PanelLeftClose, PanelLeftOpen, Sidebar as SidebarIcon } from 'lucide-react';
+import { DoorOpen, Bell, HelpCircle, Settings, LogOut, Mail, Users, BarChart2, FileText, Plus, Search, Menu, PanelLeftClose, PanelLeftOpen, UserCircle } from 'lucide-react';
+import { useAuth } from '@/hooks/use-auth';
 
 interface NavbarProps {
   sidebarOpen: boolean;
@@ -16,6 +17,7 @@ const Navbar = ({
   sidebarCollapsed,
   setSidebarCollapsed
 }: NavbarProps) => {
+  const { user, logoutMutation } = useAuth();
   const [_, setLocation] = useLocation();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
@@ -27,6 +29,11 @@ const Navbar = ({
   const notificationsRef = useRef<HTMLDivElement>(null);
   const helpMenuRef = useRef<HTMLDivElement>(null);
   const createMenuRef = useRef<HTMLDivElement>(null);
+  
+  const handleLogout = (e: React.MouseEvent) => {
+    e.preventDefault();
+    logoutMutation.mutate();
+  };
   
   // Handle click outside to close dropdowns
   useEffect(() => {
@@ -273,10 +280,23 @@ const Navbar = ({
                 onClick={() => setShowUserMenu(!showUserMenu)}
               >
                 <div className="flex items-center">
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-r from-[#1a3a5f] to-[#d4af37] flex items-center justify-center text-white font-medium text-sm">
-                    AM
-                  </div>
-                  <span className="hidden md:block truncate ml-2 text-sm font-medium text-[#1a3a5f] group-hover:text-[#d4af37]">Aadi Mughal</span>
+                  {user?.avatarUrl ? (
+                    <div className="w-8 h-8 rounded-full overflow-hidden border-2 border-white shadow">
+                      <img 
+                        src={user.avatarUrl} 
+                        alt="User avatar" 
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  ) : (
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-r from-[#1a3a5f] to-[#d4af37] flex items-center justify-center text-white font-medium text-sm">
+                      {user?.firstName?.[0]?.toUpperCase() || user?.username?.[0]?.toUpperCase() || 'A'}
+                      {user?.lastName?.[0]?.toUpperCase() || ''}
+                    </div>
+                  )}
+                  <span className="hidden md:block truncate ml-2 text-sm font-medium text-[#1a3a5f] group-hover:text-[#d4af37]">
+                    {user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.username : 'Admin User'}
+                  </span>
                   <svg className="hidden md:block w-3 h-3 shrink-0 ml-1 fill-current text-gray-400" viewBox="0 0 12 12">
                     <path d="M5.9 11.4L.5 6l1.4-1.4 4 4 4-4L11.3 6z" />
                   </svg>
@@ -287,17 +307,24 @@ const Navbar = ({
                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-gold-lg border border-gray-100 z-20">
                   <div className="py-1">
                     <div className="px-4 py-2 border-b border-gray-100">
-                      <p className="text-sm font-medium text-gray-900">Aadi Mughal</p>
-                      <p className="text-xs text-gray-500">admin@infymailer.com</p>
+                      <p className="text-sm font-medium text-gray-900">
+                        {user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.username : 'Admin User'}
+                      </p>
+                      <p className="text-xs text-gray-500">{user?.email || 'admin@infymailer.com'}</p>
                     </div>
-                    <a href="/profile" className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
-                      Your Profile
-                    </a>
-                    <a href="/settings" className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                    <Link href="/profile" className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                      <UserCircle className="h-4 w-4 mr-2 text-gray-400" />
+                      <span>Your Profile</span>
+                    </Link>
+                    <Link href="/settings" className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
                       <Settings className="h-4 w-4 mr-2 text-gray-400" />
                       <span>Settings</span>
-                    </a>
-                    <a href="/logout" className="flex items-center px-4 py-2 text-sm text-red-600 hover:bg-gray-50">
+                    </Link>
+                    <a 
+                      href="#"
+                      onClick={handleLogout}
+                      className="flex items-center px-4 py-2 text-sm text-red-600 hover:bg-gray-50"
+                    >
                       <LogOut className="h-4 w-4 mr-2 text-red-500" />
                       <span>Sign out</span>
                     </a>
