@@ -762,7 +762,7 @@ export default function AdminPanel() {
                         <>
                           <h3 className="text-sm font-medium text-gray-500">Total System Credits</h3>
                           <div className="mt-2">
-                            <p className="text-2xl font-semibold">{systemCredits?.totalCredits.toLocaleString()}</p>
+                            <p className="text-2xl font-semibold">{systemCredits?.totalCredits?.toLocaleString() || "0"}</p>
                             <p className="text-sm text-muted-foreground">Available for allocation</p>
                           </div>
                         </>
@@ -781,7 +781,7 @@ export default function AdminPanel() {
                         <>
                           <h3 className="text-sm font-medium text-gray-500">Allocated Credits</h3>
                           <div className="mt-2">
-                            <p className="text-2xl font-semibold">{systemCredits?.allocatedCredits.toLocaleString()}</p>
+                            <p className="text-2xl font-semibold">{systemCredits?.allocatedCredits?.toLocaleString() || "0"}</p>
                             <p className="text-sm text-muted-foreground">Distributed to clients</p>
                           </div>
                         </>
@@ -800,7 +800,7 @@ export default function AdminPanel() {
                         <>
                           <h3 className="text-sm font-medium text-gray-500">Available System Credits</h3>
                           <div className="mt-2">
-                            <p className="text-2xl font-semibold">{systemCredits?.availableCredits.toLocaleString()}</p>
+                            <p className="text-2xl font-semibold">{systemCredits?.availableCredits?.toLocaleString() || "0"}</p>
                             <p className="text-sm text-muted-foreground">Ready for allocation</p>
                           </div>
                         </>
@@ -970,7 +970,7 @@ export default function AdminPanel() {
                           systemCreditsHistory.map((history) => (
                             <TableRow key={history.id}>
                               <TableCell>
-                                {new Date(history.createdAt).toLocaleDateString()} {new Date(history.createdAt).toLocaleTimeString()}
+                                {history.createdAt ? `${new Date(history.createdAt).toLocaleDateString()} ${new Date(history.createdAt).toLocaleTimeString()}` : 'N/A'}
                               </TableCell>
                               <TableCell>
                                 <Badge className={
@@ -987,9 +987,9 @@ export default function AdminPanel() {
                                 history.type === 'add' ? 'text-green-600' : 
                                 history.type === 'deduct' || history.type === 'allocate' ? 'text-red-600' : ''
                               }>
-                                {history.type === 'add' ? '+' : '-'}{history.amount.toLocaleString()}
+                                {history.type === 'add' ? '+' : '-'}{history.amount?.toLocaleString() || "0"}
                               </TableCell>
-                              <TableCell>{history.newBalance.toLocaleString()}</TableCell>
+                              <TableCell>{history.newBalance?.toLocaleString() || "0"}</TableCell>
                               <TableCell>{history.performedBy ? `User #${history.performedBy}` : 'System'}</TableCell>
                               <TableCell className="max-w-[200px] truncate" title={history.reason || ''}>
                                 {history.reason || 'N/A'}
