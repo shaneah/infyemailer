@@ -257,7 +257,15 @@ export async function registerEmailProviderRoutes(app: any) {
       if (error instanceof z.ZodError) {
         return res.status(400).json({ error: 'Invalid request data', details: error.errors });
       }
-      res.status(500).json({ error: 'Failed to send test email' });
+      
+      // Handle SMTP errors with better error messages
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorDetails = error instanceof Error && error.cause ? JSON.stringify(error.cause) : null;
+      
+      return res.status(500).json({ 
+        error: `Failed to send test email: ${errorMessage}`, 
+        details: errorDetails
+      });
     }
   });
   

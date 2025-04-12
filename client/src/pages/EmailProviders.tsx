@@ -177,11 +177,22 @@ function EmailProviders() {
         
         // If the response is not OK, try to get error details
         if (!response.ok) {
-          const errorData = await response.json().catch(() => null);
-          if (errorData && errorData.error) {
-            throw new Error(errorData.error);
+          // Clone the response before reading it to avoid the "body already read" error
+          const clonedResponse = response.clone();
+          
+          try {
+            const errorData = await clonedResponse.json();
+            if (errorData && errorData.error) {
+              throw new Error(errorData.error);
+            }
+          } catch (parseError) {
+            console.error('Error parsing error response:', parseError);
+            // If we can't parse the response as JSON, use the status text
+            throw new Error(`HTTP error ${response.status}: ${response.statusText}`);
           }
-          throw new Error(`HTTP error ${response.status}: ${response.statusText}`);
+          
+          // Fallback error message
+          throw new Error(`Failed to send email (Status: ${response.status})`);
         }
         
         return response.json();
@@ -196,6 +207,8 @@ function EmailProviders() {
           throw new Error('Connection refused. Please check your SMTP server address, port, and ensure the server is running.');
         } else if (error.message.includes('EAUTH')) {
           throw new Error('Authentication failed. Please check your username and password.');
+        } else if (error.message.includes('Greeting never received')) {
+          throw new Error('SMTP server not responding. Please check your server address, port, and firewall settings.');
         } else {
           throw error;
         }
@@ -241,17 +254,25 @@ function EmailProviders() {
         console.log('Check configuration API response:', response);
         
         if (!response.ok) {
-          const errorText = await response.text();
-          console.error('Check configuration error response:', errorText);
+          // Clone the response before reading it to avoid the "body already read" error
+          const clonedResponse = response.clone();
           
-          let errorData;
           try {
-            errorData = JSON.parse(errorText);
-          } catch (e) {
-            throw new Error(`API error: ${response.status} - ${errorText.substring(0, 100)}`);
+            const errorText = await clonedResponse.text();
+            console.error('Check configuration error response:', errorText);
+            
+            let errorData;
+            try {
+              errorData = JSON.parse(errorText);
+            } catch (e) {
+              throw new Error(`API error: ${response.status} - ${errorText.substring(0, 100)}`);
+            }
+            
+            throw new Error(errorData.error || errorData.details || `API error: ${response.status}`);
+          } catch (parseError) {
+            console.error('Error parsing error response:', parseError);
+            throw new Error(`Configuration check failed (Status: ${response.status})`);
           }
-          
-          throw new Error(errorData.error || errorData.details || `API error: ${response.status}`);
         }
         
         const data = await response.json();
