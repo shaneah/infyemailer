@@ -172,8 +172,34 @@ function EmailProviders() {
   // Mutation to send test email
   const sendTestEmailMutation = useMutation({
     mutationFn: async ({ id, data }: { id: number, data: any }) => {
-      const response = await apiRequest('POST', `/api/email-providers/${id}/test-email`, data);
-      return response.json();
+      try {
+        const response = await apiRequest('POST', `/api/email-providers/${id}/test-email`, data);
+        
+        // If the response is not OK, try to get error details
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => null);
+          if (errorData && errorData.error) {
+            throw new Error(errorData.error);
+          }
+          throw new Error(`HTTP error ${response.status}: ${response.statusText}`);
+        }
+        
+        return response.json();
+      } catch (error: any) {
+        // Better handle network and other errors
+        console.error('Test email error:', error);
+        
+        // Extract meaningful messages from errors
+        if (error.message.includes('ETIMEDOUT')) {
+          throw new Error('Connection to SMTP server timed out. Please check your server address and port.');
+        } else if (error.message.includes('ECONNREFUSED')) {
+          throw new Error('Connection refused. Please check your SMTP server address, port, and ensure the server is running.');
+        } else if (error.message.includes('EAUTH')) {
+          throw new Error('Authentication failed. Please check your username and password.');
+        } else {
+          throw error;
+        }
+      }
     },
     onSuccess: () => {
       toast({
@@ -185,7 +211,7 @@ function EmailProviders() {
     onError: (error: any) => {
       toast({
         title: "Failed to send test email",
-        description: error.message || "An error occurred while sending the test email.",
+        description: error.message || "An error occurred while sending the test email. Check console for details.",
         variant: "destructive"
       });
     }

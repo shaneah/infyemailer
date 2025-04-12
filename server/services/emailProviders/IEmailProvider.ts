@@ -78,6 +78,7 @@ export interface ConfigurationCheckResult {
   domainVerified?: boolean;
   errors?: string[];
   warnings?: string[];
+  troubleshootingTips?: string[];
   details?: Record<string, any>;
 }
 
