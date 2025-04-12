@@ -1,7 +1,5 @@
-import { db } from '../db';
 import { EmailProviderFactory, EmailProviderType } from './emailProviders';
 import { emailService } from './EmailService';
-import { sql } from 'drizzle-orm';
 
 export interface ProviderSettings {
   id: number;
@@ -14,92 +12,113 @@ export interface ProviderSettings {
 }
 
 /**
- * Service for managing email provider settings
+ * Service for managing email provider settings.
+ * This implementation uses in-memory storage instead of database for resiliency.
  */
 export class ProviderSettingsService {
+  private settings: Map<number, ProviderSettings> = new Map();
+  private nextId = 1;
+
   /**
    * Initialize the provider settings service and load saved providers
    */
   async initialize(): Promise<void> {
-    // Create provider settings table if it doesn't exist
-    await db.execute(sql`
-      CREATE TABLE IF NOT EXISTS provider_settings (
-        id SERIAL PRIMARY KEY,
-        name TEXT NOT NULL,
-        provider TEXT NOT NULL,
-        config JSONB NOT NULL,
-        is_default BOOLEAN NOT NULL DEFAULT FALSE,
-        created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-        updated_at TIMESTAMP NOT NULL DEFAULT NOW()
-      );
-    `);
-    
-    // Load saved providers
-    await this.loadSavedProviders();
+    // Initialize providers from environment variables
+    await this.initializeDefaultProviders();
   }
   
   /**
-   * Load saved providers from the database
+   * Initialize default providers from environment variables
    */
-  private async loadSavedProviders(): Promise<void> {
-    try {
-      const providers: ProviderSettings[] = await db.execute(sql`
-        SELECT * FROM provider_settings
-      `);
-      
-      // Register each provider
-      for (const settings of providers) {
+  private async initializeDefaultProviders(): Promise<void> {
+    // If no providers were loaded, register default ones based on available API keys
+    if (this.settings.size === 0) {
+      // Try SendGrid
+      const sendgridApiKey = process.env.SENDGRID_API_KEY;
+      if (sendgridApiKey) {
         try {
           const provider = EmailProviderFactory.createProvider(
-            settings.provider as EmailProviderType, 
-            settings.config
+            'sendgrid',
+            { apiKey: sendgridApiKey }
           );
           
-          emailService.registerProvider(settings.name, provider);
+          emailService.registerProvider('SendGrid', provider);
+          emailService.setDefaultProvider('SendGrid');
           
-          if (settings.isDefault) {
-            emailService.setDefaultProvider(settings.name);
-          }
+          // Save this provider
+          await this.saveProviderSettings({
+            name: 'SendGrid',
+            provider: 'sendgrid',
+            config: { apiKey: sendgridApiKey },
+            isDefault: true
+          });
+          
+          console.log('Initialized default SendGrid provider');
         } catch (error) {
-          console.error(`Failed to load provider ${settings.name}:`, error);
+          console.error('Failed to initialize default SendGrid provider:', error);
         }
       }
       
-      // If no providers were loaded, register a default one (if API key is available)
-      if (emailService.getAllProviders().length === 0) {
-        const sendgridApiKey = process.env.SENDGRID_API_KEY;
-        if (sendgridApiKey) {
-          try {
-            emailService.registerProviderWithFactory(
-              'SendGrid',
-              'sendgrid',
-              { apiKey: sendgridApiKey }
-            );
-            
-            // Save this provider
-            await this.saveProviderSettings({
-              name: 'SendGrid',
-              provider: 'sendgrid',
-              config: { apiKey: sendgridApiKey },
-              isDefault: true
-            });
-          } catch (error) {
-            console.error('Failed to initialize default SendGrid provider:', error);
+      // If SMTP settings are available
+      const smtpHost = process.env.SMTP_HOST;
+      const smtpPort = process.env.SMTP_PORT;
+      const smtpUser = process.env.SMTP_USER;
+      const smtpPass = process.env.SMTP_PASS;
+      
+      if (smtpHost && smtpPort && smtpUser && smtpPass) {
+        try {
+          const config = {
+            host: smtpHost,
+            port: parseInt(smtpPort, 10),
+            auth: {
+              user: smtpUser,
+              pass: smtpPass
+            },
+            secure: true
+          };
+          
+          const provider = EmailProviderFactory.createProvider('smtp', config);
+          
+          emailService.registerProvider('SMTP', provider);
+          
+          // Only set as default if no other default was set
+          if (!this.hasDefaultProvider()) {
+            emailService.setDefaultProvider('SMTP');
           }
+          
+          // Save this provider
+          await this.saveProviderSettings({
+            name: 'SMTP',
+            provider: 'smtp',
+            config,
+            isDefault: !this.hasDefaultProvider()
+          });
+          
+          console.log('Initialized SMTP provider');
+        } catch (error) {
+          console.error('Failed to initialize SMTP provider:', error);
         }
       }
-    } catch (error) {
-      console.error('Failed to load provider settings:', error);
     }
+  }
+  
+  /**
+   * Check if there's a default provider already set
+   */
+  private hasDefaultProvider(): boolean {
+    for (const setting of this.settings.values()) {
+      if (setting.isDefault) {
+        return true;
+      }
+    }
+    return false;
   }
   
   /**
    * Get all provider settings
    */
   async getAllProviderSettings(): Promise<ProviderSettings[]> {
-    const settings: ProviderSettings[] = await db.execute(sql`
-      SELECT * FROM provider_settings
-    `);
+    const settings = Array.from(this.settings.values());
     
     // Remove sensitive data (API keys, etc.)
     return settings.map(setting => ({
@@ -112,9 +131,7 @@ export class ProviderSettingsService {
    * Get a provider setting by ID
    */
   async getProviderSettings(id: number): Promise<ProviderSettings | null> {
-    const [settings] = await db.execute<ProviderSettings>(sql`
-      SELECT * FROM provider_settings WHERE id = ${id}
-    `);
+    const settings = this.settings.get(id);
     
     if (!settings) return null;
     
@@ -126,23 +143,35 @@ export class ProviderSettingsService {
   }
   
   /**
-   * Save or update provider settings
+   * Save new provider settings
    */
   async saveProviderSettings(settings: Omit<ProviderSettings, 'id' | 'createdAt' | 'updatedAt'>): Promise<ProviderSettings> {
     // Check if this is the default provider
     if (settings.isDefault) {
       // Unset the default flag for all other providers
-      await db.execute(sql`
-        UPDATE provider_settings SET is_default = FALSE
-      `);
+      for (const [id, providerSetting] of this.settings.entries()) {
+        if (providerSetting.isDefault) {
+          this.settings.set(id, {
+            ...providerSetting,
+            isDefault: false,
+            updatedAt: new Date()
+          });
+        }
+      }
     }
     
     // Insert the new provider
-    const [result] = await db.execute<ProviderSettings>(sql`
-      INSERT INTO provider_settings (name, provider, config, is_default)
-      VALUES (${settings.name}, ${settings.provider}, ${JSON.stringify(settings.config)}, ${settings.isDefault})
-      RETURNING *
-    `);
+    const id = this.nextId++;
+    const now = new Date();
+    
+    const result: ProviderSettings = {
+      id,
+      ...settings,
+      createdAt: now,
+      updatedAt: now
+    };
+    
+    this.settings.set(id, result);
     
     // Register the provider
     const provider = EmailProviderFactory.createProvider(
@@ -170,136 +199,70 @@ export class ProviderSettingsService {
     settings: Partial<Omit<ProviderSettings, 'id' | 'createdAt' | 'updatedAt'>>
   ): Promise<ProviderSettings | null> {
     // Get the current settings
-    const [currentSettings] = await db.execute<ProviderSettings>(sql`
-      SELECT * FROM provider_settings WHERE id = ${id}
-    `);
+    const currentSettings = this.settings.get(id);
     
     if (!currentSettings) return null;
     
     // Check if this is being set as the default provider
     if (settings.isDefault) {
       // Unset the default flag for all other providers
-      await db.execute(sql`
-        UPDATE provider_settings SET is_default = FALSE
-      `);
+      for (const [settingId, providerSetting] of this.settings.entries()) {
+        if (settingId !== id && providerSetting.isDefault) {
+          this.settings.set(settingId, {
+            ...providerSetting,
+            isDefault: false,
+            updatedAt: new Date()
+          });
+        }
+      }
     }
     
     // Update the settings
-    const updateFields: string[] = [];
-    const updateValues: any[] = [];
+    const updatedSettings = {
+      ...currentSettings,
+      name: settings.name !== undefined ? settings.name : currentSettings.name,
+      provider: settings.provider !== undefined ? settings.provider : currentSettings.provider,
+      config: settings.config !== undefined ? { ...currentSettings.config, ...settings.config } : currentSettings.config,
+      isDefault: settings.isDefault !== undefined ? settings.isDefault : currentSettings.isDefault,
+      updatedAt: new Date()
+    };
     
-    if (settings.name !== undefined) {
-      updateFields.push('name');
-      updateValues.push(settings.name);
-    }
-    
-    if (settings.provider !== undefined) {
-      updateFields.push('provider');
-      updateValues.push(settings.provider);
-    }
-    
-    if (settings.config !== undefined) {
-      updateFields.push('config');
-      updateValues.push(JSON.stringify({
-        ...currentSettings.config,
-        ...settings.config
-      }));
-    }
-    
-    if (settings.isDefault !== undefined) {
-      updateFields.push('is_default');
-      updateValues.push(settings.isDefault);
-    }
-    
-    updateFields.push('updated_at');
-    updateValues.push(new Date());
-    
-    // Create an SQL query with placeholders
-    const parts = [];
-    const params = [];
-    
-    if (settings.name !== undefined) {
-      parts.push('name = $1');
-      params.push(settings.name);
-    }
-    
-    if (settings.provider !== undefined) {
-      parts.push(`provider = $${params.length + 1}`);
-      params.push(settings.provider);
-    }
-    
-    if (settings.config !== undefined) {
-      const updatedConfig = {
-        ...currentSettings.config,
-        ...settings.config
-      };
-      parts.push(`config = $${params.length + 1}`);
-      params.push(JSON.stringify(updatedConfig));
-    }
-    
-    if (settings.isDefault !== undefined) {
-      parts.push(`is_default = $${params.length + 1}`);
-      params.push(settings.isDefault);
-    }
-    
-    // Always update timestamp
-    parts.push('updated_at = NOW()');
-    
-    // Add WHERE clause and id parameter
-    const wherePosition = params.length + 1;
-    params.push(id);
-    
-    const query = `
-      UPDATE provider_settings 
-      SET ${parts.join(', ')} 
-      WHERE id = $${wherePosition} 
-      RETURNING *
-    `;
-    
-    const [result] = await db.execute<ProviderSettings>(sql`${query}`, params);
-    
-    if (!result) return null;
+    this.settings.set(id, updatedSettings);
     
     // Update the registered provider
     try {
-      const updatedConfig = {
-        ...currentSettings.config,
-        ...(settings.config || {})
-      };
-      
       const provider = EmailProviderFactory.createProvider(
-        (settings.provider || currentSettings.provider) as EmailProviderType,
-        updatedConfig
+        updatedSettings.provider,
+        updatedSettings.config
       );
       
-      const providerName = settings.name || currentSettings.name;
+      const providerName = updatedSettings.name;
       
       // Remove the old provider if the name changed
       if (settings.name && settings.name !== currentSettings.name) {
-        // If this was the default provider, we need to update that
-        const wasDefault = currentSettings.isDefault;
+        emailService.removeProvider(currentSettings.name);
         
         // Register with the new name
         emailService.registerProvider(providerName, provider);
         
-        if (wasDefault) {
+        if (updatedSettings.isDefault) {
           emailService.setDefaultProvider(providerName);
         }
       } else {
         // Just update the existing provider
         emailService.registerProvider(providerName, provider);
         
-        if (settings.isDefault) {
+        if (updatedSettings.isDefault) {
           emailService.setDefaultProvider(providerName);
         }
       }
     } catch (error) {
-      console.error(`Failed to update provider ${result.name}:`, error);
+      console.error(`Failed to update provider ${updatedSettings.name}:`, error);
     }
     
     return {
-      ...result,
-      config: this.sanitizeConfig(result.config, result.provider as EmailProviderType)
+      ...updatedSettings,
+      config: this.sanitizeConfig(updatedSettings.config, updatedSettings.provider)
     };
   }
   
@@ -308,29 +271,23 @@ export class ProviderSettingsService {
    */
   async deleteProviderSettings(id: number): Promise<boolean> {
     // Get the current settings
-    const [currentSettings] = await db.execute<ProviderSettings>(sql`
-      SELECT * FROM provider_settings WHERE id = ${id}
-    `);
+    const currentSettings = this.settings.get(id);
     
     if (!currentSettings) return false;
     
     // Delete the settings
-    await db.execute(sql`
-      DELETE FROM provider_settings WHERE id = ${id}
-    `);
+    this.settings.delete(id);
     
     // If this was the default provider, set another one as default
     if (currentSettings.isDefault) {
-      const [newDefault] = await db.execute<ProviderSettings>(sql`
-        SELECT * FROM provider_settings LIMIT 1
-      `);
+      const providers = Array.from(this.settings.values());
       
-      if (newDefault) {
-        await db.execute(sql`
-          UPDATE provider_settings
-          SET is_default = TRUE
-          WHERE id = ${newDefault.id}
-        `);
+      if (providers.length > 0) {
+        const newDefault = providers[0];
+        newDefault.isDefault = true;
+        newDefault.updatedAt = new Date();
+        
+        this.settings.set(newDefault.id, newDefault);
         
         try {
           emailService.setDefaultProvider(newDefault.name);
@@ -374,23 +331,27 @@ export class ProviderSettingsService {
           sanitized.secretKey = this.maskString(sanitized.secretKey);
         }
         break;
+        
+      case 'smtp':
+        if (sanitized.auth?.pass) {
+          sanitized.auth.pass = this.maskString(sanitized.auth.pass);
+        }
+        break;
     }
     
     return sanitized;
   }
   
   /**
-   * Mask a string for display (show first 3 and last 3 characters)
+   * Mask a string for display (show only first 4 and last 2 characters)
    */
   private maskString(str: string): string {
-    if (!str || str.length <= 8) {
-      return '******';
-    }
+    if (!str || str.length < 8) return '******';
     
-    const firstChars = str.substring(0, 3);
-    const lastChars = str.substring(str.length - 3);
+    const firstPart = str.substring(0, 4);
+    const lastPart = str.substring(str.length - 2);
     
-    return `${firstChars}...${lastChars}`;
+    return `${firstPart}${'*'.repeat(Math.max(0, str.length - 6))}${lastPart}`;
   }
 }
 

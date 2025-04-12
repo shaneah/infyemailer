@@ -53,7 +53,7 @@ export async function registerEmailProviderRoutes(app: any) {
       // Validate the request body
       const schema = z.object({
         name: z.string().min(1),
-        provider: z.enum(['sendgrid', 'mailgun', 'amazonses', 'sendclean']),
+        provider: z.enum(['sendgrid', 'mailgun', 'amazonses', 'sendclean', 'smtp']),
         config: z.record(z.any()),
         isDefault: z.boolean().optional().default(false)
       });
@@ -89,6 +89,15 @@ export async function registerEmailProviderRoutes(app: any) {
         return res.status(400).json({ 
           error: 'Missing required configuration', 
           details: 'SendClean API key is required' 
+        });
+      } else if (providerType === 'smtp' && 
+                (!config.host || config.host.trim() === '' || 
+                 !config.port || 
+                 !config.username || config.username.trim() === '' ||
+                 !config.password || config.password.trim() === '')) {
+        return res.status(400).json({ 
+          error: 'Missing required configuration', 
+          details: 'SMTP host, port, username, and password are required' 
         });
       }
       
@@ -132,7 +141,7 @@ export async function registerEmailProviderRoutes(app: any) {
       // Validate the request body
       const schema = z.object({
         name: z.string().min(1).optional(),
-        provider: z.enum(['sendgrid', 'mailgun', 'amazonses', 'sendclean']).optional(),
+        provider: z.enum(['sendgrid', 'mailgun', 'amazonses', 'sendclean', 'smtp']).optional(),
         config: z.record(z.any()).optional(),
         isDefault: z.boolean().optional()
       });
@@ -281,7 +290,7 @@ export async function registerEmailProviderRoutes(app: any) {
       const type = req.params.type as any;
       
       // Validate the provider type
-      if (!['sendgrid', 'mailgun', 'amazonses', 'sendclean'].includes(type)) {
+      if (!['sendgrid', 'mailgun', 'amazonses', 'sendclean', 'smtp'].includes(type)) {
         return res.status(400).json({ error: 'Invalid provider type' });
       }
       
@@ -298,6 +307,12 @@ export async function registerEmailProviderRoutes(app: any) {
         dummyConfig.secretKey = 'dummy';
       } else if (type === 'sendclean') {
         dummyConfig.apiKey = 'dummy';
+      } else if (type === 'smtp') {
+        dummyConfig.host = 'smtp.example.com';
+        dummyConfig.port = '587';
+        dummyConfig.username = 'dummy';
+        dummyConfig.password = 'dummy';
+        dummyConfig.secure = 'false';
       }
       
       const provider = EmailProviderFactory.createProvider(type, dummyConfig);

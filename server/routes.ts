@@ -1,6 +1,7 @@
 import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
-import { dbStorage as storage } from "./dbStorage";
+import { storage } from "./storage"; // Use memory storage by default
+import { isDatabaseAvailable } from "./db"; // Check if database is available
 import { generateSubjectLines, generateEmailTemplate, generateColorPalette } from "./services/openai";
 import { setupAuth, hashPassword, comparePasswords } from "./auth";
 import { EmailValidationService } from "./services/emailValidation";

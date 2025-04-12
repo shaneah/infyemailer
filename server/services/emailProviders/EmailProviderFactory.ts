@@ -3,8 +3,9 @@ import { SendGridProvider } from './SendGridProvider';
 import { MailgunProvider } from './MailgunProvider';
 import { AmazonSESProvider } from './AmazonSESProvider';
 import { SendCleanProvider } from './SendCleanProvider';
+import { SMTPProvider } from './SMTPProvider';
 
-export type EmailProviderType = 'sendgrid' | 'mailgun' | 'amazonses' | 'sendclean';
+export type EmailProviderType = 'sendgrid' | 'mailgun' | 'amazonses' | 'sendclean' | 'smtp';
 
 /**
  * Factory for creating email provider instances
@@ -47,6 +48,20 @@ export class EmailProviderFactory {
         }
         return new SendCleanProvider(config.apiKey);
         
+      case 'smtp':
+        if (!config.host || !config.port || !config.username || !config.password) {
+          throw new Error('SMTP host, port, username, and password are required');
+        }
+        return new SMTPProvider({
+          host: config.host,
+          port: parseInt(config.port, 10),
+          secure: config.secure === true || config.secure === 'true',
+          username: config.username,
+          password: config.password,
+          fromEmail: config.fromEmail,
+          fromName: config.fromName
+        });
+        
       default:
         throw new Error(`Unsupported email provider: ${providerType}`);
     }
@@ -60,7 +75,8 @@ export class EmailProviderFactory {
       { id: 'sendgrid', name: 'SendGrid' },
       { id: 'mailgun', name: 'Mailgun' },
       { id: 'amazonses', name: 'Amazon SES' },
-      { id: 'sendclean', name: 'SendClean' }
+      { id: 'sendclean', name: 'SendClean' },
+      { id: 'smtp', name: 'SMTP Server' }
     ];
   }
 }
