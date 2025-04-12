@@ -25,6 +25,7 @@ import { registerEmailProviderRoutes } from "./routes/emailProviders";
 import { registerAudiencePersonaRoutes } from "./routes/audiencePersonas";
 import { registerTestEmailRoutes } from "./routes/testEmail";
 import { registerHealthRoutes } from "./routes/health";
+import AdmZip from "adm-zip";
 import { 
   insertContactSchema, 
   insertListSchema, 
@@ -841,9 +842,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Now let's actually process the ZIP file
       try {
-        // Import the AdmZip package
-        const AdmZip = require('adm-zip');
-        
         // Create a new AdmZip instance with the uploaded file
         const zip = new AdmZip(uploadedFile.tempFilePath || uploadedFile.data);
         
