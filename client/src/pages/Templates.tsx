@@ -292,8 +292,7 @@ export default function Templates() {
       template.subject?.toLowerCase().includes(searchQuery.toLowerCase());
     
     const matchesCategory = activeTab === "all" || 
-      (template.metadata?.generatedByAI && activeTab === "ai") ||
-      (!template.metadata?.generatedByAI && activeTab === "manual");
+      (template.metadata?.generatedByAI && activeTab === "ai");
     
     return matchesSearch && matchesCategory;
   });
@@ -360,13 +359,12 @@ export default function Templates() {
             Template Library
           </h2>
           
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-[400px]">
-            <TabsList className="grid grid-cols-3">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-[300px]">
+            <TabsList className="grid grid-cols-2">
               <TabsTrigger value="all">All Templates</TabsTrigger>
               <TabsTrigger value="ai" className="flex items-center">
                 <Sparkles className="h-3.5 w-3.5 mr-1.5" /> AI Templates
               </TabsTrigger>
-              <TabsTrigger value="manual">Manual Templates</TabsTrigger>
             </TabsList>
           </Tabs>
         </div>
