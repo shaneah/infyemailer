@@ -930,23 +930,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
         templates = await storage.getTemplates();
       }
 
-      // Format templates for frontend
+      // Format templates for frontend - FIXED: include all necessary fields
       const formattedTemplates = templates.map(template => {
         const metadata = template.metadata as any || {};
-        return {
+        
+        // Create a deep copy to avoid reference issues
+        const formattedTemplate = {
           id: template.id,
           name: template.name,
           description: template.description || '',
+          content: template.content,
+          category: template.category || 'general',
+          // Add subject from template or metadata
+          subject: template.subject || metadata.subject || `${template.name} Subject`,
+          createdAt: template.createdAt || new Date().toISOString(),
+          updatedAt: template.updatedAt || new Date().toISOString(),
+          metadata: metadata,
+          // Additional display helpers
           icon: metadata.icon || 'file-earmark-text',
           iconColor: metadata.iconColor || 'primary',
-          lastUsed: 'May 15, 2023', // Placeholder
+          lastUsed: metadata.lastUsed || 'Never', // Improved default
           selected: metadata.selected || false,
           new: metadata.new || false
         };
+        
+        // Log structured data for debugging
+        console.log(`Template ${template.id}: name=${template.name}, subject=${formattedTemplate.subject}`);
+        
+        return formattedTemplate;
       });
 
+      // For debugging purposes
+      console.log(`GET /api/templates: Returning ${formattedTemplates.length} templates`);
+      
       res.json(formattedTemplates);
     } catch (error) {
+      console.error('Error fetching templates:', error);
       res.status(500).json({ error: 'Failed to fetch templates' });
     }
   });

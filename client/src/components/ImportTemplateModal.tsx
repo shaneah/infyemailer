@@ -153,8 +153,27 @@ export default function ImportTemplateModal({
       }
     },
     onSuccess: (newTemplate) => {
-      // Invalidate template queries to refresh the data
+      // Construct a complete template object for consumption by parent components
+      const completeTemplate = {
+        id: newTemplate.id,
+        name: newTemplate.name,
+        description: newTemplate.description || '',
+        category: newTemplate.category || 'imported',
+        content: '', // Content is not returned in the response to save bandwidth
+        subject: newTemplate.subject || `${newTemplate.name} Subject`, 
+        // Add any other required fields with defaults
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        metadata: newTemplate.metadata || {}
+      };
+      
+      console.log('Template import success:', completeTemplate);
+      
+      // Multiple invalidation strategies for reliable cache updates
       queryClient.invalidateQueries({ queryKey: ['/api/templates'] });
+      
+      // Clear cache forcefully to ensure fresh data
+      queryClient.removeQueries({ queryKey: ['/api/templates'] });
       
       // Remind user to refresh manually if needed
       toast({
@@ -166,10 +185,10 @@ export default function ImportTemplateModal({
       
       resetForm();
       onOpenChange(false);
-      onImportSuccess(newTemplate);
+      onImportSuccess(completeTemplate);
       setFileUploading(false);
       
-      // Schedule another refresh after a delay
+      // Schedule another refresh after a delay to catch late database commits
       setTimeout(() => {
         queryClient.invalidateQueries({ queryKey: ['/api/templates'] });
       }, 2000);
