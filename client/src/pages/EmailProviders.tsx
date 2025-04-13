@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from "@/lib/queryClient";
 import { Check, X, Edit, Trash, AlertTriangle, Loader2, Plus, Send, Key, Info, CheckCircle } from 'lucide-react';
@@ -64,6 +64,35 @@ function EmailProviders() {
     replyTo: '',
     signature: ''
   });
+  
+  // Query to fetch default email settings
+  const {
+    data: fetchedDefaultSettings,
+    isLoading: isLoadingDefaultSettings
+  } = useQuery<{
+    fromEmail: string;
+    fromName: string;
+    replyTo: string;
+    signature: string;
+  }>({
+    queryKey: ['/api/email-settings/default'],
+    queryFn: async () => {
+      const response = await apiRequest('GET', '/api/email-settings/default');
+      return response.json();
+    }
+  });
+  
+  // Update state when default settings are fetched
+  React.useEffect(() => {
+    if (fetchedDefaultSettings) {
+      setDefaultSettings({
+        fromEmail: fetchedDefaultSettings.fromEmail || '',
+        fromName: fetchedDefaultSettings.fromName || '',
+        replyTo: fetchedDefaultSettings.replyTo || '',
+        signature: fetchedDefaultSettings.signature || ''
+      });
+    }
+  }, [fetchedDefaultSettings]);
   
   // Test email state
   const [testEmail, setTestEmail] = useState({
@@ -430,6 +459,9 @@ function EmailProviders() {
       return response.json();
     },
     onSuccess: () => {
+      // Invalidate the query to refresh data
+      queryClient.invalidateQueries({ queryKey: ['/api/email-settings/default'] });
+      
       toast({
         title: "Default settings saved",
         description: "Email default settings have been updated successfully.",
