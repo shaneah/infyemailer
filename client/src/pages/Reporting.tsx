@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -8,7 +8,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { BarChart3, Calendar as CalendarIcon, ChevronDown, Download, FileDown, Filter, Loader2, Mail, Printer, Share2 } from "lucide-react";
+import { BarChart3, BarChart4, Calendar as CalendarIcon, ChevronDown, Download, FileDown, Filter, Loader2, Mail, Printer, Share2 } from "lucide-react";
 import { format } from "date-fns";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend, PieChart, Pie, Cell } from 'recharts';
 import { Badge } from "@/components/ui/badge";
