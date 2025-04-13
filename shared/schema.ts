@@ -198,7 +198,6 @@ export const templates = pgTable("templates", {
   description: text("description"),
   content: text("content").notNull(),
   category: text("category").notNull(),
-  subject: text("subject"), // Added subject field for templates
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
   metadata: json("metadata")
@@ -209,7 +208,6 @@ export const insertTemplateSchema = createInsertSchema(templates).pick({
   description: true,
   content: true,
   category: true,
-  subject: true, // Added subject field to insertion schema
   metadata: true,
 });
 

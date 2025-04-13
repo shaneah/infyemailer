@@ -31,10 +31,7 @@ import {
   Trash2,
   ExternalLink,
   X,
-  XCircle,
-  Search,
-  MoreVertical,
-  Filter
+  XCircle
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -71,14 +68,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -96,11 +85,8 @@ interface Template {
     icon?: string;
     iconColor?: string;
     new?: boolean;
-    previewImage?: string;
     [key: string]: any;
   };
-  createdAt?: string;
-  updatedAt?: string;
 }
 
 // Email test form schema
@@ -119,65 +105,17 @@ const updateTemplateSchema = z.object({
   category: z.string().default("general"),
 });
 
-// Format date in a user-friendly way
-function formatDate(dateString?: string) {
-  if (!dateString) return "";
-  const date = new Date(dateString);
-  return new Intl.DateTimeFormat('en-US', {
-    month: 'numeric', 
-    day: 'numeric', 
-    year: 'numeric'
-  }).format(date);
-}
-
-// Get placeholder image based on category
-function getTemplateImage(template: Template) {
-  if (template.metadata?.previewImage) {
-    return template.metadata.previewImage;
-  }
-  
-  const category = template.category?.toLowerCase() || "";
-  
-  // Return placeholder based on category using SVG data URLs
-  if (category === "newsletter") {
-    return "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23a5b4fc'/%3E%3Cpath d='M35,30 L65,30 L65,70 L35,70 Z' fill='%234f46e5'/%3E%3Cpath d='M40,40 L60,40 L60,45 L40,45 Z' fill='white'/%3E%3Cpath d='M40,50 L60,50 L60,55 L40,55 Z' fill='white'/%3E%3Cpath d='M40,60 L55,60 L55,65 L40,65 Z' fill='white'/%3E%3C/svg%3E";
-  } else if (category === "welcome" || category === "onboarding") {
-    return "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23bfdbfe'/%3E%3Ccircle cx='50' cy='40' r='15' fill='%233b82f6'/%3E%3Cpath d='M30,85 L70,85 L70,65 C70,55 60,50 50,50 C40,50 30,55 30,65 Z' fill='%233b82f6'/%3E%3C/svg%3E";
-  } else if (category === "promotional" || category === "marketing") {
-    return "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23fecaca'/%3E%3Cpath d='M30,70 L70,70 L70,40 L50,25 L30,40 Z' fill='%23ef4444'/%3E%3Cpath d='M45,70 L55,70 L55,55 L45,55 Z' fill='%23b91c1c'/%3E%3C/svg%3E";
-  } else if (category === "events") {
-    return "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23fde68a'/%3E%3Crect x='30' y='30' width='40' height='40' fill='%23d97706'/%3E%3Cpath d='M30,30 L70,30 L70,40 L30,40 Z' fill='%23f59e0b'/%3E%3Ccircle cx='40' cy='35' r='2' fill='%23fef3c7'/%3E%3Ccircle cx='50' cy='35' r='2' fill='%23fef3c7'/%3E%3Ccircle cx='60' cy='35' r='2' fill='%23fef3c7'/%3E%3C/svg%3E";
-  } else if (category === "engagement") {
-    return "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23fbcfe8'/%3E%3Cpath d='M30,50 C30,40 35,30 50,30 C65,30 70,40 70,50 C70,65 60,70 50,70 C40,70 30,65 30,50 Z' fill='%23ec4899'/%3E%3Cpath d='M42,45 C42,45 45,40 50,45 C55,40 58,45 58,45 L50,55 Z' fill='%23fbcfe8'/%3E%3C/svg%3E";
-  }
-  
-  // Default placeholder
-  return "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23e5e7eb'/%3E%3Cpath d='M30,30 L70,30 L70,70 L30,70 Z' fill='%239ca3af'/%3E%3Cpath d='M40,40 L60,40 L60,45 L40,45 Z' fill='%23f3f4f6'/%3E%3Cpath d='M40,50 L60,50 L60,55 L40,55 Z' fill='%23f3f4f6'/%3E%3Cpath d='M40,60 L55,60 L55,65 L40,65 Z' fill='%23f3f4f6'/%3E%3C/svg%3E";
-}
-
 export default function Templates() {
   const { toast } = useToast();
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [showAIGenerator, setShowAIGenerator] = useState(false);
-  const [activeCategory, setActiveCategory] = useState<string>("all");
+  const [activeTab, setActiveTab] = useState<string>("all");
   const [showImportModal, setShowImportModal] = useState(false);
   const [isTestEmailOpen, setIsTestEmailOpen] = useState(false);
   const [isUpdateTemplateOpen, setIsUpdateTemplateOpen] = useState(false);
   const [isCreatingTemplate, setIsCreatingTemplate] = useState(false);
-  const [sortBy, setSortBy] = useState<string>("newest");
   
-  const categories = [
-    { id: 'all', name: 'All Templates' },
-    { id: 'onboarding', name: 'Onboarding' },
-    { id: 'newsletter', name: 'Newsletters' },
-    { id: 'marketing', name: 'Marketing' },
-    { id: 'promotional', name: 'Promotional' },
-    { id: 'events', name: 'Events' },
-    { id: 'engagement', name: 'Engagement' }
-  ];
-  
-  // Fetch templates
   const { data: savedTemplates = [], isLoading: isLoadingTemplates } = useQuery({
     queryKey: ['/api/templates'],
     queryFn: async () => {
@@ -397,98 +335,82 @@ export default function Templates() {
       template.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       template.subject?.toLowerCase().includes(searchQuery.toLowerCase());
     
-    const matchesCategory = 
-      activeCategory === "all" || 
-      (template.category && template.category.toLowerCase() === activeCategory.toLowerCase());
+    const matchesCategory = activeTab === "all" || 
+      (template.metadata?.generatedByAI && activeTab === "ai");
     
     return matchesSearch && matchesCategory;
-  }).sort((a: Template, b: Template) => {
-    // Sorting logic
-    if (sortBy === "newest") {
-      return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
-    } else if (sortBy === "oldest") {
-      return new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime();
-    } else if (sortBy === "name_asc") {
-      return a.name.localeCompare(b.name);
-    } else if (sortBy === "name_desc") {
-      return b.name.localeCompare(a.name);
-    }
-    return 0;
   });
   
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div className="flex items-center gap-3">
-          <div className="bg-primary/10 p-2 rounded-full">
-            <FileText className="h-5 w-5 text-primary" />
-          </div>
-          <h1 className="text-2xl font-bold tracking-tight text-purple-600">Email Templates</h1>
-        </div>
-        
-        <div className="flex gap-2">
-          <Button 
-            variant="outline"
-            onClick={() => setShowImportModal(true)}
-            className="flex items-center gap-2" 
-          >
-            Import
-          </Button>
-          <Button 
-            onClick={handleOpenCreateTemplate}
-            className="bg-indigo-700 hover:bg-indigo-800 flex items-center gap-2" 
-          >
-            <PlusCircle className="h-4 w-4" />
-            Create Template
-          </Button>
+      <div className="flex justify-between items-center border-b pb-4">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Email Templates</h1>
+          <p className="text-muted-foreground mt-1">
+            Create and manage email templates for your campaigns
+          </p>
         </div>
       </div>
       
-      <div className="flex overflow-auto pb-1">
-        <div className="flex space-x-1">
-          {categories.map(category => (
-            <button
-              key={category.id}
-              onClick={() => setActiveCategory(category.id)}
-              className={`px-4 py-2 whitespace-nowrap ${
-                activeCategory === category.id 
-                  ? "border-b-2 border-purple-500 font-medium text-purple-700" 
-                  : "text-gray-500 hover:text-gray-700"
-              }`}
-            >
-              {category.name}
-            </button>
-          ))}
-        </div>
-      </div>
-      
-      <div className="bg-gray-50 rounded-lg p-4 border">
-        <div className="flex items-center justify-between mb-4">
-          <div className="relative w-full max-w-md">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+      <div className="flex flex-col gap-4">
+        <div className="flex justify-between items-center">
+          <div className="relative w-64">
             <Input
               type="search"
               placeholder="Search templates..."
-              className="pl-10 w-full"
+              className="w-full"
               value={searchQuery}
               onChange={handleSearchChange}
             />
           </div>
           
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-500">Sort By</span>
-            <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Sort by" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="newest">Newest</SelectItem>
-                <SelectItem value="oldest">Oldest</SelectItem>
-                <SelectItem value="name_asc">Name (A-Z)</SelectItem>
-                <SelectItem value="name_desc">Name (Z-A)</SelectItem>
-              </SelectContent>
-            </Select>
+          <div className="flex gap-3">
+            <Button 
+              variant="outline" 
+              className="gap-2"
+              onClick={() => setShowAIGenerator(!showAIGenerator)}
+            >
+              {showAIGenerator ? (
+                <>Hide AI Generator</>
+              ) : (
+                <>
+                  <Wand2 className="h-4 w-4" /> 
+                  AI Template Generator
+                </>
+              )}
+            </Button>
+            <Button 
+              className="gap-2"
+              onClick={() => setShowImportModal(true)}
+            >
+              <Import className="h-4 w-4" /> 
+              Import Template
+            </Button>
           </div>
+        </div>
+
+        <Collapsible open={showAIGenerator} onOpenChange={setShowAIGenerator}>
+          <CollapsibleContent className="mt-2">
+            <AdvancedTemplateGenerator onTemplateGenerated={handleTemplateGenerated} />
+          </CollapsibleContent>
+        </Collapsible>
+      </div>
+      
+      <div className="space-y-4">
+        <div className="flex justify-between items-center">
+          <h2 className="text-xl font-semibold flex items-center">
+            <FileText className="h-5 w-5 mr-2 text-primary" />
+            Template Library
+          </h2>
+          
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-[300px]">
+            <TabsList className="grid grid-cols-2">
+              <TabsTrigger value="all">All Templates</TabsTrigger>
+              <TabsTrigger value="ai" className="flex items-center">
+                <Sparkles className="h-3.5 w-3.5 mr-1.5" /> AI Templates
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
         </div>
         
         {isLoadingTemplates ? (
@@ -497,7 +419,7 @@ export default function Templates() {
             <p className="text-muted-foreground">Loading templates...</p>
           </div>
         ) : filteredTemplates.length === 0 ? (
-          <div className="bg-white border border-gray-200 rounded-md p-6 text-center">
+          <div className="bg-blue-50 border border-blue-200 rounded-md p-6 text-center">
             <h3 className="text-lg font-medium mb-2">No templates found</h3>
             <p className="text-muted-foreground mb-4">
               {searchQuery 
@@ -515,92 +437,85 @@ export default function Templates() {
               </Button>
               <Button 
                 className="gap-2"
-                onClick={handleOpenCreateTemplate}
+                onClick={() => setShowImportModal(true)}
               >
-                <PlusCircle className="h-4 w-4" /> 
-                Create Template
+                <Import className="h-4 w-4" /> 
+                Import Template
               </Button>
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredTemplates.map((template: Template) => (
               <Card 
                 key={template.id} 
-                className="overflow-hidden border border-gray-200 hover:border-purple-300 hover:shadow-md transition-all"
+                className="flex flex-col h-full border hover:border-primary/30 hover:shadow-md transition-all"
               >
-                <div className="aspect-[4/3] relative overflow-hidden bg-gray-100">
-                  <img 
-                    src={getTemplateImage(template)} 
-                    alt={template.name}
-                    className="object-cover w-full h-full transition-transform hover:scale-105"
-                  />
-                  <div className="absolute top-2 right-2">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="bg-white/80 hover:bg-white">
-                          <MoreVertical className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => handleViewTemplate(template)}>
-                          <Eye className="h-4 w-4 mr-2" /> View Details
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => window.open(`/preview-template?id=${template.id}`, '_blank')}>
-                          <ExternalLink className="h-4 w-4 mr-2" /> Preview
-                        </DropdownMenuItem>
-                        <DropdownMenuItem asChild>
-                          <Link href={`/template-builder?id=${template.id}`}>
-                            <Pencil className="h-4 w-4 mr-2" /> Edit Template
-                          </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem 
-                          className="text-red-600 focus:text-red-600" 
-                          onClick={() => {
-                            if (window.confirm(`Are you sure you want to delete ${template.name}?`)) {
-                              deleteTemplateMutation.mutate(template.id);
-                            }
-                          }}
-                        >
-                          <Trash2 className="h-4 w-4 mr-2" /> Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                <CardHeader className="pb-2">
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center">
+                      <CardTitle className="text-lg">{template.name}</CardTitle>
+                      {template.metadata?.generatedByAI && (
+                        <div className="ml-2 bg-blue-100 text-blue-700 rounded-full px-2 py-0.5 text-[10px] font-medium flex items-center">
+                          <Sparkles className="h-2.5 w-2.5 mr-1" /> AI
+                        </div>
+                      )}
+                    </div>
+                    <Badge variant="outline">ID: {template.id}</Badge>
                   </div>
-                </div>
-                
-                <CardHeader className="pb-2 pt-3">
-                  <div className="flex justify-between items-start">
-                    <CardTitle className="text-lg line-clamp-1">{template.name}</CardTitle>
-                  </div>
-                  <div className="flex items-center">
-                    <Badge variant="outline" className="font-normal text-xs text-gray-500 capitalize">
-                      {template.category || 'General'}
-                    </Badge>
-                    {template.metadata?.generatedByAI && (
-                      <div className="ml-2 bg-blue-100 text-blue-700 rounded-full px-2 py-0.5 text-[10px] font-medium flex items-center">
-                        <Sparkles className="h-2.5 w-2.5 mr-1" /> AI
-                      </div>
-                    )}
-                  </div>
+                  <CardDescription className="line-clamp-2 mt-1">
+                    {template.description}
+                  </CardDescription>
                 </CardHeader>
                 
-                <CardContent className="py-1">
-                  <p className="text-sm text-gray-500 line-clamp-2 mb-2">
-                    {template.description}
-                  </p>
+                <CardContent className="py-2 flex-grow">
+                  <div className="flex flex-col space-y-2">
+                    <div className="flex items-start gap-1.5 text-sm text-muted-foreground">
+                      <span className="font-medium">Subject:</span>
+                      <span className="line-clamp-2">{template.subject}</span>
+                    </div>
+                    <div className="flex items-start gap-1.5 text-sm text-muted-foreground">
+                      <span className="font-medium">Category:</span>
+                      <span className="line-clamp-1">{template.category || 'General'}</span>
+                    </div>
+                  </div>
                 </CardContent>
                 
-                <CardFooter className="pt-0 pb-3 flex justify-between text-xs text-gray-500">
-                  <div>Last modified: {formatDate(template.updatedAt || new Date().toISOString())}</div>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="gap-1 text-purple-600 hover:text-purple-700 p-0"
-                    onClick={() => handleViewTemplate(template)}
-                  >
-                    Use Template
-                  </Button>
+                <CardFooter className="pt-2 border-t flex justify-between">
+                  <div className="flex gap-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => handleViewTemplate(template)}
+                    >
+                      View Details
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      onClick={() => window.open(`/preview-template?id=${template.id}`, '_blank')}
+                    >
+                      <Eye className="h-4 w-4 mr-2" />
+                      Preview
+                    </Button>
+                  </div>
+                  <div className="flex gap-2">
+                    <Link href={`/template-builder?id=${template.id}`}>
+                      <Button variant="ghost" size="sm">Edit</Button>
+                    </Link>
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                      onClick={() => {
+                        if (window.confirm(`Are you sure you want to delete ${template.name}?`)) {
+                          deleteTemplateMutation.mutate(template.id);
+                        }
+                      }}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </CardFooter>
               </Card>
             ))}
@@ -905,12 +820,10 @@ export default function Templates() {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="general">General</SelectItem>
-                        <SelectItem value="onboarding">Onboarding</SelectItem>
-                        <SelectItem value="newsletter">Newsletter</SelectItem>
-                        <SelectItem value="marketing">Marketing</SelectItem>
                         <SelectItem value="promotional">Promotional</SelectItem>
-                        <SelectItem value="events">Events</SelectItem>
-                        <SelectItem value="engagement">Engagement</SelectItem>
+                        <SelectItem value="newsletter">Newsletter</SelectItem>
+                        <SelectItem value="welcome">Welcome</SelectItem>
+                        <SelectItem value="transactional">Transactional</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -945,7 +858,6 @@ export default function Templates() {
                 </Button>
                 <Button 
                   type="submit" 
-                  className="bg-indigo-700 hover:bg-indigo-800"
                   disabled={updateTemplateMutation.isPending}
                 >
                   {updateTemplateMutation.isPending ? (
@@ -968,7 +880,7 @@ export default function Templates() {
         <DialogContent className="sm:max-w-[900px] p-0 overflow-hidden">
           <div className="flex h-full">
             {/* Left sidebar with gradient */}
-            <div className="bg-gradient-to-b from-indigo-600 to-indigo-800 w-64 p-6 text-white hidden md:block">
+            <div className="bg-gradient-to-b from-primary/90 to-primary w-64 p-6 text-white hidden md:block">
               <h3 className="text-xl font-bold mb-6 flex items-center">
                 <FileText className="mr-2 h-5 w-5" />
                 New Template
@@ -1050,12 +962,10 @@ export default function Templates() {
                               </SelectTrigger>
                               <SelectContent>
                                 <SelectItem value="general">General</SelectItem>
-                                <SelectItem value="onboarding">Onboarding</SelectItem>
-                                <SelectItem value="newsletter">Newsletter</SelectItem>
-                                <SelectItem value="marketing">Marketing</SelectItem>
                                 <SelectItem value="promotional">Promotional</SelectItem>
-                                <SelectItem value="events">Events</SelectItem>
-                                <SelectItem value="engagement">Engagement</SelectItem>
+                                <SelectItem value="newsletter">Newsletter</SelectItem>
+                                <SelectItem value="welcome">Welcome</SelectItem>
+                                <SelectItem value="transactional">Transactional</SelectItem>
                               </SelectContent>
                             </Select>
                             <FormMessage />
@@ -1085,14 +995,18 @@ export default function Templates() {
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel className="flex items-center">
-                              <span>Subject Line</span>
-                              <Badge className="ml-2 bg-blue-100 text-blue-700 hover:bg-blue-100">Email Preview</Badge>
+                              <Mail className="h-4 w-4 mr-2" />
+                              Email Subject Line
                             </FormLabel>
                             <FormControl>
-                              <Input {...field} placeholder="Your email subject line" />
+                              <Input 
+                                {...field} 
+                                placeholder="e.g. Your Monthly Update from Company" 
+                                className="border-blue-200 focus:border-blue-400"
+                              />
                             </FormControl>
                             <FormDescription>
-                              The subject line is what recipients will see in their inbox.
+                              This is what recipients will see in their inbox
                             </FormDescription>
                             <FormMessage />
                           </FormItem>
@@ -1100,44 +1014,67 @@ export default function Templates() {
                       />
                     </div>
 
-                    <FormField
-                      control={updateTemplateForm.control}
-                      name="content"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>HTML Content</FormLabel>
-                          <FormControl>
-                            <Textarea 
-                              {...field} 
-                              placeholder="Paste your HTML content here..."
-                              className="font-mono text-xs h-[300px]" 
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                    <div className="border rounded-md p-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <FormLabel className="text-base flex items-center">
+                          <Code className="h-4 w-4 mr-2" />
+                          HTML Content
+                        </FormLabel>
+                        <Button 
+                          type="button" 
+                          variant="outline" 
+                          size="sm" 
+                          className="text-xs"
+                          onClick={() => window.open('https://beefree.io/templates/', '_blank')}
+                        >
+                          <ExternalLink className="h-3 w-3 mr-1" />
+                          Get Free Templates
+                        </Button>
+                      </div>
+                      <FormField
+                        control={updateTemplateForm.control}
+                        name="content"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormControl>
+                              <Textarea 
+                                {...field} 
+                                className="font-mono text-xs h-[300px] border-gray-200"
+                                placeholder="<!DOCTYPE html><html><head>...</head><body>Your email content here</body></html>" 
+                              />
+                            </FormControl>
+                            <FormDescription>
+                              Paste your HTML email template code here
+                            </FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
 
-                    <div className="flex justify-end gap-3 pt-4">
+                    <div className="flex justify-end gap-3 pt-2 border-t">
                       <Button 
                         variant="outline" 
+                        onClick={() => setIsCreatingTemplate(false)} 
                         type="button"
-                        onClick={() => setIsCreatingTemplate(false)}
                       >
                         Cancel
                       </Button>
                       <Button 
-                        type="submit"
-                        className="bg-indigo-700 hover:bg-indigo-800" 
+                        type="submit" 
                         disabled={createNewTemplateMutation.isPending}
+                        className="gap-2"
                       >
                         {createNewTemplateMutation.isPending ? (
                           <>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            <Loader2 className="h-4 w-4 animate-spin" />
                             Creating...
                           </>
                         ) : (
-                          "Create Template"
+                          <>
+                            <PlusCircle className="h-4 w-4" />
+                            Create Template
+                          </>
                         )}
                       </Button>
                     </div>

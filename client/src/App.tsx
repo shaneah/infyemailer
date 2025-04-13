@@ -11,7 +11,7 @@ import { AuthProvider } from "@/hooks/use-auth";
 import { ProtectedRoute } from "@/lib/protected-route";
 import NotFound from "@/pages/not-found";
 import Campaigns from "@/pages/Campaigns";
-import EmailTemplatesNew from "@/pages/EmailTemplatesNew";
+import Templates from "@/pages/Templates";
 import Contacts from "@/pages/Contacts";
 import ListDetails from "@/pages/ListDetails";
 import ABTesting from "@/pages/ABTesting";
@@ -166,7 +166,7 @@ function App() {
                     <ProtectedRoute path="/" component={Dashboard} />
                     <ProtectedRoute path="dashboard" component={Dashboard} />
                     <ProtectedRoute path="campaigns" component={Campaigns} />
-                    <ProtectedRoute path="templates" component={EmailTemplatesNew} />
+                    <ProtectedRoute path="templates" component={Templates} />
                     <ProtectedRoute path="contacts" component={Contacts} />
                     <ProtectedRoute path="lists/:id" component={ListDetails} />
                     <ProtectedRoute path="ab-testing" component={ABTesting} />

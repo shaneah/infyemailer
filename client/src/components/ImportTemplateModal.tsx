@@ -1,506 +1,526 @@
-import React, { useState, useRef } from "react";
+import { useState, useRef } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogClose,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { 
-  Loader2,
-  FileUp,
-  FileCode,
-  Archive,
-  Paintbrush,
-  Code,
-  Text
-} from "lucide-react";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
-
-interface Template {
-  id: number;
-  name: string;
-  description: string;
-  content: string;
-  subject: string;
-  category?: string;
-  metadata?: any;
-  createdAt?: string;
-  updatedAt?: string;
-}
+import { Loader2, Upload, Code, File } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
 
 interface ImportTemplateModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onImportSuccess: (template: Template) => void;
+  onImportSuccess: (template: any) => void;
 }
 
-export default function ImportTemplateModal({
-  open,
-  onOpenChange,
-  onImportSuccess,
-}: ImportTemplateModalProps) {
+export default function ImportTemplateModal({ open, onOpenChange, onImportSuccess }: ImportTemplateModalProps) {
+  const [activeTab, setActiveTab] = useState<string>("html");
+  const [templateName, setTemplateName] = useState<string>("");
+  const [htmlContent, setHtmlContent] = useState<string>("");
+  const [zipFile, setZipFile] = useState<File | null>(null);
+  const [htmlFile, setHtmlFile] = useState<File | null>(null);
+  const [isDragging, setIsDragging] = useState<boolean>(false);
+  const [isHtmlDragging, setIsHtmlDragging] = useState<boolean>(false);
+  const zipFileInputRef = useRef<HTMLInputElement>(null);
+  const htmlFileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [importTab, setImportTab] = useState<string>("html");
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [subject, setSubject] = useState("");
-  const [category, setCategory] = useState("general");
-  const [content, setContent] = useState("");
-  const [file, setFile] = useState<File | null>(null);
-  const [fileUploading, setFileUploading] = useState(false);
 
-  const resetForm = () => {
-    setName("");
-    setDescription("");
-    setSubject("");
-    setCategory("general");
-    setContent("");
-    setFile(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
-  };
-
-  const importHtmlTemplateMutation = useMutation({
-    mutationFn: async () => {
-      const response = await apiRequest("POST", "/api/templates/import", {
-        name,
-        description,
-        subject,
-        category,
-        content,
-      });
-      return response.json();
-    },
-    onSuccess: (newTemplate) => {
-      queryClient.invalidateQueries({ queryKey: ['/api/templates'] });
-      resetForm();
-      onOpenChange(false);
-      onImportSuccess(newTemplate);
-    },
-    onError: (error) => {
-      toast({
-        title: "Error",
-        description: `Failed to import HTML template: ${error.message}`,
-        variant: "destructive",
-      });
-    },
-  });
-
-  const importZipTemplateMutation = useMutation({
-    mutationFn: async () => {
-      if (!file) throw new Error("No file selected");
-      
-      const formData = new FormData();
-      formData.append("name", name);
-      formData.append("description", description || "");
-      formData.append("subject", subject || "");
-      formData.append("category", category);
-      formData.append("templateFile", file);
-      
-      setFileUploading(true);
-      
+  // Import HTML template mutation
+  const importHtmlMutation = useMutation({
+    mutationFn: async (data: { name: string; content: string }) => {
+      console.log("Importing HTML template...", data.name);
       try {
-        // Use a simpler approach - immediately resolve with mock data
-        // but still send the actual request in the background
-        
-        // First, start the actual upload in the background
-        (async () => {
-          try {
-            const xhr = new XMLHttpRequest();
-            xhr.open("POST", "/api/templates/import-zip-async");
-            xhr.send(formData);
-            
-            // We don't wait for a response - just fire and forget
-            // Template will be created in the database regardless of response
-            
-            // After a delay, refresh the templates list to show the new template
-            setTimeout(() => {
-              queryClient.invalidateQueries({ queryKey: ['/api/templates'] });
-            }, 2000);
-          } catch (error) {
-            console.error("Background upload error:", error);
+        // Create a template object with responsive email structure
+        const templateData = {
+          name: data.name,
+          content: JSON.stringify({
+            name: data.name,
+            subject: `${data.name}`,
+            previewText: `${data.name} - Imported HTML Template`,
+            sections: [
+              {
+                id: `section-${Date.now()}`,
+                elements: [
+                  {
+                    id: `element-${Date.now()}`,
+                    type: "text",
+                    content: { 
+                      text: "This template was imported from HTML. You can now edit it using the drag-and-drop editor." 
+                    },
+                    styles: { 
+                      fontSize: "16px", 
+                      color: "#666666", 
+                      textAlign: "left" 
+                    }
+                  },
+                  {
+                    id: `element-${Date.now() + 1}`,
+                    type: "html",
+                    content: { 
+                      html: data.content 
+                    },
+                    styles: {}
+                  }
+                ],
+                styles: {
+                  backgroundColor: "#ffffff",
+                  padding: "12px"
+                }
+              }
+            ],
+            styles: {
+              fontFamily: "Arial, sans-serif",
+              backgroundColor: "#f4f4f4",
+              maxWidth: "600px"
+            }
+          }),
+          description: `Imported HTML template: ${data.name}`,
+          category: "imported",
+          subject: `${data.name} Subject`,
+          metadata: {
+            importedFromHtml: true,
+            new: true,
+            importMethod: htmlFile ? 'file' : 'paste',
+            originalFileName: htmlFile?.name,
+            originalHtml: data.content
           }
-        })();
-        
-        // Immediately return mock success data
-        return {
-          id: Date.now(), // Temporary ID until refresh
-          name,
-          description: description || "",
-          category: category || "imported",
-          success: true
         };
+
+        console.log("Sending template data...");
+        const response = await apiRequest("POST", "/api/templates", templateData);
+        return await response.json();
       } catch (error) {
-        console.error("Upload error:", error);
+        console.error("Error in mutation function:", error);
         throw error;
       }
     },
-    onSuccess: (newTemplate) => {
-      // Construct a complete template object for consumption by parent components
-      const completeTemplate = {
-        id: newTemplate.id,
-        name: newTemplate.name,
-        description: newTemplate.description || '',
-        category: newTemplate.category || 'imported',
-        content: '', // Content is not returned in the response to save bandwidth
-        subject: newTemplate.subject || `${newTemplate.name} Subject`, 
-        // Add any other required fields with defaults
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        metadata: newTemplate.metadata || {}
-      };
-      
-      console.log('Template import success:', completeTemplate);
-      
-      // Multiple invalidation strategies for reliable cache updates
+    onSuccess: (data) => {
+      console.log("Import success:", data);
       queryClient.invalidateQueries({ queryKey: ['/api/templates'] });
-      
-      // Clear cache forcefully to ensure fresh data
-      queryClient.removeQueries({ queryKey: ['/api/templates'] });
-      
-      // Remind user to refresh manually if needed
+      onImportSuccess(data);
       toast({
-        title: "Template Imported Successfully",
-        description: "If your template doesn't appear, click the Refresh button at the top of the page.",
-        variant: "default",
-        duration: 5000,
+        title: "Template Imported",
+        description: "HTML template has been successfully imported",
       });
-      
-      resetForm();
       onOpenChange(false);
-      onImportSuccess(completeTemplate);
-      setFileUploading(false);
-      
-      // Schedule another refresh after a delay to catch late database commits
-      setTimeout(() => {
-        queryClient.invalidateQueries({ queryKey: ['/api/templates'] });
-      }, 2000);
+      setHtmlContent("");
+      setHtmlFile(null);
+      setTemplateName("");
     },
-    onError: (error) => {
-      setFileUploading(false);
+    onError: (error: any) => {
+      console.error("Error importing template:", error);
       toast({
-        title: "Error",
-        description: `Failed to import ZIP template: ${error.message}`,
-        variant: "destructive",
+        title: "Import Failed",
+        description: "Failed to import template: " + (error.message || "Unknown error"),
+        variant: "destructive"
       });
-    },
+    }
   });
 
-  const handleHtmlSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!name || !content) {
-      toast({
-        title: "Missing information",
-        description: "Please provide both a name and HTML content",
-        variant: "destructive",
+  // Import ZIP template mutation
+  const importZipMutation = useMutation({
+    mutationFn: async (data: { name: string; file: File }) => {
+      const formData = new FormData();
+      formData.append("name", data.name);
+      formData.append("file", data.file);
+      
+      // Use regular fetch for file uploads instead of apiRequest
+      // This avoids issues with Content-Type and JSON stringification
+      const response = await fetch("/api/templates/import-zip", {
+        method: "POST",
+        body: formData,
+        credentials: "include"
       });
-      return;
-    }
-    importHtmlTemplateMutation.mutate();
-  };
-
-  const handleZipSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!name || !file) {
-      toast({
-        title: "Missing information",
-        description: "Please provide both a name and ZIP file",
-        variant: "destructive",
-      });
-      return;
-    }
-    importZipTemplateMutation.mutate();
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      const selectedFile = e.target.files[0];
-      if (selectedFile.type !== "application/zip" && 
-          selectedFile.type !== "application/x-zip-compressed" && 
-          !selectedFile.name.endsWith('.zip')) {
-        toast({
-          title: "Invalid file type",
-          description: "Please select a ZIP file",
-          variant: "destructive",
-        });
-        e.target.value = '';
-        return;
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `Server returned ${response.status}: ${response.statusText}`);
       }
-      setFile(selectedFile);
+      
+      return await response.json();
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['/api/templates'] });
+      onImportSuccess(data);
+      toast({
+        title: "Template Imported",
+        description: "ZIP template has been successfully imported",
+      });
+      onOpenChange(false);
+      setZipFile(null);
+      setTemplateName("");
+    },
+    onError: (error: any) => {
+      console.error("Error importing ZIP template:", error);
+      toast({
+        title: "Import Failed",
+        description: "Failed to import ZIP template. Please check your file.",
+        variant: "destructive"
+      });
     }
+  });
+
+  const handleHtmlImport = () => {
+    if (!templateName.trim()) {
+      toast({
+        title: "Validation Error",
+        description: "Please enter a template name",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!htmlContent.trim()) {
+      toast({
+        title: "Validation Error",
+        description: "Please enter HTML content",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    importHtmlMutation.mutate({
+      name: templateName,
+      content: htmlContent
+    });
   };
 
-  const isPending = importHtmlTemplateMutation.isPending || importZipTemplateMutation.isPending || fileUploading;
+  const handleZipImport = () => {
+    if (!templateName.trim()) {
+      toast({
+        title: "Validation Error",
+        description: "Please enter a template name",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!zipFile) {
+      toast({
+        title: "Validation Error",
+        description: "Please select a ZIP file",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    importZipMutation.mutate({
+      name: templateName,
+      file: zipFile
+    });
+  };
+
+  const handleZipFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Check for .zip extension or zip mime type
+      const isZip = file.name.toLowerCase().endsWith('.zip') || 
+                  file.type === "application/zip" || 
+                  file.type === "application/x-zip-compressed";
+      
+      if (isZip) {
+        setZipFile(file);
+      } else {
+        toast({
+          title: "Invalid File",
+          description: "Please select a valid ZIP file",
+          variant: "destructive"
+        });
+      }
+    }
+  };
+  
+  const handleHtmlFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Check for .html extension or html mime type
+      const isHtml = file.name.toLowerCase().endsWith('.html') || 
+                    file.name.toLowerCase().endsWith('.htm') || 
+                    file.type === "text/html";
+      
+      if (isHtml) {
+        setHtmlFile(file);
+        
+        // Read file content
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const content = e.target?.result as string;
+          setHtmlContent(content || "");
+        };
+        reader.readAsText(file);
+      } else {
+        toast({
+          title: "Invalid File",
+          description: "Please select a valid HTML file",
+          variant: "destructive"
+        });
+      }
+    }
+  };
 
   return (
-    <Dialog open={open} onOpenChange={(isOpen) => {
-      if (!isOpen) resetForm();
-      onOpenChange(isOpen);
-    }}>
-      <DialogContent className="sm:max-w-2xl">
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-3xl">
         <DialogHeader>
           <DialogTitle>Import Email Template</DialogTitle>
           <DialogDescription>
-            Import an email template using HTML code or a ZIP file package.
+            Import an existing email template by uploading HTML code, an HTML file, or a ZIP file with HTML and assets.
           </DialogDescription>
         </DialogHeader>
-        
-        <Tabs value={importTab} onValueChange={setImportTab} className="mt-2">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="html" className="flex items-center gap-2">
-              <Code className="h-4 w-4" />
-              <span>HTML Code</span>
-            </TabsTrigger>
-            <TabsTrigger value="zip" className="flex items-center gap-2">
-              <Archive className="h-4 w-4" />
-              <span>ZIP Package</span>
-            </TabsTrigger>
-          </TabsList>
+
+        <div className="space-y-6 py-4">
+          {importHtmlMutation.error || importZipMutation.error ? (
+            <div className="p-3 bg-destructive/15 text-destructive rounded-md mb-4">
+              <p className="text-sm font-medium">Validation Error</p>
+              <p className="text-xs mt-1">Please enter a template name</p>
+            </div>
+          ) : null}
           
-          <TabsContent value="html">
-            <form onSubmit={handleHtmlSubmit}>
-              <div className="grid gap-4 py-4">
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="html-name" className="text-right">
-                    Name
-                  </Label>
-                  <Input
-                    id="html-name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    className="col-span-3"
-                    required
-                  />
-                </div>
+          <div className="space-y-4">
+            <Label htmlFor="templateName" className="flex">
+              Template Name <span className="text-destructive ml-1">*</span>
+            </Label>
+            <Input
+              id="templateName"
+              placeholder="Enter template name"
+              value={templateName}
+              onChange={(e) => setTemplateName(e.target.value)}
+              className={!templateName.trim() ? "border-destructive focus-visible:ring-destructive" : ""}
+            />
+          </div>
 
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="html-subject" className="text-right">
-                    Subject
-                  </Label>
-                  <Input
-                    id="html-subject"
-                    value={subject}
-                    onChange={(e) => setSubject(e.target.value)}
-                    className="col-span-3"
-                  />
-                </div>
-
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="html-category" className="text-right">
-                    Category
-                  </Label>
-                  <select
-                    id="html-category"
-                    value={category}
-                    onChange={(e) => setCategory(e.target.value)}
-                    className="col-span-3 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="html" className="flex items-center gap-2">
+                <Code className="h-4 w-4" /> HTML Import
+              </TabsTrigger>
+              <TabsTrigger value="zip" className="flex items-center gap-2">
+                <File className="h-4 w-4" /> ZIP File
+              </TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="html" className="space-y-4 mt-4">
+              <div className="space-y-4">
+                {/* HTML File Upload */}
+                <div className="space-y-2">
+                  <Label>Upload HTML File</Label>
+                  <div 
+                    className={`border-2 border-dashed rounded-md p-4 flex flex-col items-center justify-center
+                      ${isHtmlDragging ? 'border-primary bg-primary/5' : 'border-border'}`}
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setIsHtmlDragging(true);
+                    }}
+                    onDragEnter={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setIsHtmlDragging(true);
+                    }}
+                    onDragLeave={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setIsHtmlDragging(false);
+                    }}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setIsHtmlDragging(false);
+                      
+                      const files = e.dataTransfer.files;
+                      if (files.length > 0) {
+                        const file = files[0];
+                        const isHtml = file.name.toLowerCase().endsWith('.html') || 
+                                    file.name.toLowerCase().endsWith('.htm') || 
+                                    file.type === "text/html";
+                        
+                        if (isHtml) {
+                          setHtmlFile(file);
+                          
+                          // Read file content
+                          const reader = new FileReader();
+                          reader.onload = (e) => {
+                            const content = e.target?.result as string;
+                            setHtmlContent(content || "");
+                          };
+                          reader.readAsText(file);
+                        } else {
+                          toast({
+                            title: "Invalid File",
+                            description: "Please select a valid HTML file",
+                            variant: "destructive"
+                          });
+                        }
+                      }
+                    }}
+                    onClick={() => htmlFileInputRef.current?.click()}
                   >
-                    <option value="general">General</option>
-                    <option value="newsletter">Newsletter</option>
-                    <option value="marketing">Marketing</option>
-                    <option value="promotional">Promotional</option>
-                    <option value="onboarding">Onboarding</option>
-                    <option value="events">Events</option>
-                    <option value="engagement">Engagement</option>
-                  </select>
-                </div>
-
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="html-description" className="text-right">
-                    Description
-                  </Label>
-                  <Textarea
-                    id="html-description"
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    className="col-span-3"
-                    rows={2}
-                  />
-                </div>
-
-                <div className="grid grid-cols-4 items-start gap-4">
-                  <Label htmlFor="content" className="text-right pt-2">
-                    HTML Content
-                  </Label>
-                  <Textarea
-                    id="content"
-                    value={content}
-                    onChange={(e) => setContent(e.target.value)}
-                    className="col-span-3 font-mono text-xs"
-                    rows={10}
-                    required
-                    placeholder="<html>&#10;  <body>&#10;    <!-- Your HTML Template Here -->&#10;  </body>&#10;</html>"
-                  />
-                </div>
-              </div>
-              <DialogFooter>
-                <DialogClose asChild>
-                  <Button variant="outline" type="button" onClick={resetForm}>
-                    Cancel
-                  </Button>
-                </DialogClose>
-                <Button 
-                  type="submit" 
-                  disabled={isPending}
-                  className="bg-purple-600 hover:bg-purple-700"
-                >
-                  {importHtmlTemplateMutation.isPending ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Importing...
-                    </>
-                  ) : (
-                    <>
-                      <FileCode className="mr-2 h-4 w-4" />
-                      Import HTML Template
-                    </>
-                  )}
-                </Button>
-              </DialogFooter>
-            </form>
-          </TabsContent>
-          
-          <TabsContent value="zip">
-            <form onSubmit={handleZipSubmit}>
-              <div className="grid gap-4 py-4">
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="zip-name" className="text-right">
-                    Name
-                  </Label>
-                  <Input
-                    id="zip-name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    className="col-span-3"
-                    required
-                  />
-                </div>
-
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="zip-subject" className="text-right">
-                    Subject
-                  </Label>
-                  <Input
-                    id="zip-subject"
-                    value={subject}
-                    onChange={(e) => setSubject(e.target.value)}
-                    className="col-span-3"
-                  />
-                </div>
-
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="zip-category" className="text-right">
-                    Category
-                  </Label>
-                  <select
-                    id="zip-category"
-                    value={category}
-                    onChange={(e) => setCategory(e.target.value)}
-                    className="col-span-3 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    <option value="general">General</option>
-                    <option value="newsletter">Newsletter</option>
-                    <option value="marketing">Marketing</option>
-                    <option value="promotional">Promotional</option>
-                    <option value="onboarding">Onboarding</option>
-                    <option value="events">Events</option>
-                    <option value="engagement">Engagement</option>
-                  </select>
-                </div>
-
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="zip-description" className="text-right">
-                    Description
-                  </Label>
-                  <Textarea
-                    id="zip-description"
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    className="col-span-3"
-                    rows={2}
-                  />
-                </div>
-
-                <div className="grid grid-cols-4 items-start gap-4">
-                  <Label htmlFor="zipFile" className="text-right pt-2">
-                    ZIP File
-                  </Label>
-                  <div className="col-span-3">
-                    <div className="grid gap-2">
-                      <Input
-                        ref={fileInputRef}
-                        id="zipFile"
-                        type="file"
-                        accept=".zip"
-                        className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100"
-                        onChange={handleFileChange}
-                        required
-                      />
-                      {file && (
-                        <div className="text-xs text-gray-500 mt-1">
-                          Selected file: <span className="font-medium">{file.name}</span> ({(file.size / 1024).toFixed(2)} KB)
-                        </div>
+                    <Upload className={`h-8 w-8 mb-2 ${isHtmlDragging ? 'text-primary' : 'text-muted-foreground'}`} />
+                    <p className="text-sm text-muted-foreground text-center mb-2">
+                      {isHtmlDragging ? (
+                        <span className="font-medium text-primary">Drop HTML file here</span>
+                      ) : (
+                        <>
+                          Drag and drop HTML file here, or click to browse
+                        </>
                       )}
-                      <div className="text-xs text-gray-500 mt-1">
-                        <p className="font-medium mb-1">ZIP package should contain:</p>
-                        <ul className="list-disc list-inside pl-2 space-y-1">
-                          <li>index.html (main template file)</li>
-                          <li>css folder (optional)</li>
-                          <li>images folder (optional)</li>
-                          <li>fonts folder (optional)</li>
-                        </ul>
-                        <p className="mt-2 text-amber-600 font-medium">
-                          Note: If your template doesn't appear after importing, click the "Refresh" button at the top of the templates page.
-                        </p>
-                      </div>
-                    </div>
+                    </p>
+                    <Input
+                      ref={htmlFileInputRef}
+                      id="htmlFile"
+                      type="file"
+                      accept=".html,.htm,text/html"
+                      className="hidden"
+                      onChange={handleHtmlFileChange}
+                    />
+                    <Button variant="outline" size="sm" type="button" onClick={(e) => {
+                      e.stopPropagation();
+                      htmlFileInputRef.current?.click();
+                    }}>
+                      <Upload className="h-4 w-4 mr-2" />
+                      Select HTML File
+                    </Button>
+                    {htmlFile && (
+                      <p className="text-sm text-primary mt-2">
+                        Selected: {htmlFile.name} ({Math.round(htmlFile.size / 1024)} KB)
+                      </p>
+                    )}
                   </div>
                 </div>
+                
+                <div className="relative my-4">
+                  <Separator />
+                  <div className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 px-2 bg-background text-xs text-muted-foreground">
+                    OR PASTE HTML CODE
+                  </div>
+                </div>
+                
+                {/* HTML Content Textarea */}
+                <div className="space-y-2">
+                  <Label htmlFor="htmlContent">HTML Content</Label>
+                  <Textarea
+                    id="htmlContent"
+                    placeholder="Paste your HTML code here"
+                    className="min-h-[200px] font-mono text-sm"
+                    value={htmlContent}
+                    onChange={(e) => setHtmlContent(e.target.value)}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Paste valid HTML code for your email template. Include all CSS inline for best email client compatibility.
+                  </p>
+                </div>
               </div>
-              <DialogFooter>
-                <DialogClose asChild>
-                  <Button variant="outline" type="button" onClick={resetForm}>
-                    Cancel
-                  </Button>
-                </DialogClose>
-                <Button 
-                  type="submit" 
-                  disabled={isPending}
-                  className="bg-purple-600 hover:bg-purple-700"
+            </TabsContent>
+
+            <TabsContent value="zip" className="space-y-4 mt-4">
+              <div className="space-y-4">
+                <Label htmlFor="zipFile">ZIP File</Label>
+                <div 
+                  className={`border-2 border-dashed rounded-md p-6 flex flex-col items-center justify-center
+                    ${isDragging ? 'border-primary bg-primary/5' : 'border-border'}`}
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setIsDragging(true);
+                  }}
+                  onDragEnter={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setIsDragging(true);
+                  }}
+                  onDragLeave={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setIsDragging(false);
+                  }}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setIsDragging(false);
+                    
+                    const files = e.dataTransfer.files;
+                    if (files.length > 0) {
+                      const file = files[0];
+                      const isZip = file.name.toLowerCase().endsWith('.zip') || 
+                                  file.type === "application/zip" ||
+                                  file.type === "application/x-zip-compressed";
+                      
+                      if (isZip) {
+                        setZipFile(file);
+                      } else {
+                        toast({
+                          title: "Invalid File",
+                          description: "Please select a valid ZIP file",
+                          variant: "destructive"
+                        });
+                      }
+                    }
+                  }}
+                  onClick={() => zipFileInputRef.current?.click()}
                 >
-                  {fileUploading || importZipTemplateMutation.isPending ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Uploading...
-                    </>
-                  ) : (
-                    <>
-                      <Archive className="mr-2 h-4 w-4" />
-                      Import ZIP Template
-                    </>
+                  <Upload className={`h-10 w-10 mb-4 ${isDragging ? 'text-primary' : 'text-muted-foreground'}`} />
+                  <p className="text-sm text-muted-foreground text-center mb-4">
+                    {isDragging ? (
+                      <span className="font-medium text-primary">Drop ZIP file here</span>
+                    ) : (
+                      <>
+                        Drag and drop your ZIP file here, or click to browse.
+                        <br />
+                        The ZIP should contain an index.html file and any assets (images, CSS) it references.
+                      </>
+                    )}
+                  </p>
+                  <Input
+                    ref={zipFileInputRef}
+                    id="zipFile"
+                    type="file"
+                    accept=".zip,.zip-compressed"
+                    className="hidden"
+                    onChange={handleZipFileChange}
+                  />
+                  <Button variant="outline" type="button" onClick={(e) => {
+                    e.stopPropagation();
+                    zipFileInputRef.current?.click();
+                  }}>
+                    <Upload className="h-4 w-4 mr-2" />
+                    Select ZIP File
+                  </Button>
+                  {zipFile && (
+                    <p className="text-sm text-primary mt-2">
+                      Selected: {zipFile.name} ({Math.round(zipFile.size / 1024)} KB)
+                    </p>
                   )}
-                </Button>
-              </DialogFooter>
-            </form>
-          </TabsContent>
-        </Tabs>
+                </div>
+              </div>
+            </TabsContent>
+          </Tabs>
+        </div>
+
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            Cancel
+          </Button>
+          <Button
+            onClick={activeTab === "html" ? handleHtmlImport : handleZipImport}
+            disabled={importHtmlMutation.isPending || importZipMutation.isPending}
+          >
+            {(importHtmlMutation.isPending || importZipMutation.isPending) ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Importing...
+              </>
+            ) : (
+              <>
+                <Upload className="h-4 w-4 mr-2" />
+                Import Template
+              </>
+            )}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
