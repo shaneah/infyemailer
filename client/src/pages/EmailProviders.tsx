@@ -83,7 +83,7 @@ function EmailProviders() {
   });
   
   // Update state when default settings are fetched
-  React.useEffect(() => {
+  useEffect(() => {
     if (fetchedDefaultSettings) {
       setDefaultSettings({
         fromEmail: fetchedDefaultSettings.fromEmail || '',
