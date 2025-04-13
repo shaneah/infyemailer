@@ -1,17 +1,33 @@
 import { IStorage } from './storage';
 import { MemStorage } from './storage';
-import { DbStorage } from './dbStorage';
 import { isDatabaseAvailable } from './db';
 import { log } from './vite';
 
-// Create instances of both storage types
+// Create memory storage instance
 const memStorage = new MemStorage();
-const dbStorage = new DbStorage();
+
+// For database storage, dynamically import to avoid circular dependencies
+let dbStorage: IStorage | null = null;
 
 // Export the appropriate storage instance based on database availability
 export function getStorage(): IStorage {
   if (isDatabaseAvailable) {
-    log('Using PostgreSQL database storage', 'storage');
+    if (!dbStorage) {
+      try {
+        // Try to use database storage
+        const { dbStorage: storage } = require('./dbStorage');
+        if (storage && typeof storage.getClients === 'function') {
+          dbStorage = storage;
+          log('Using PostgreSQL database storage', 'storage');
+        } else {
+          log('Database storage not properly initialized, falling back to memory storage', 'storage');
+          return memStorage;
+        }
+      } catch (error) {
+        log(`Error loading database storage: ${error.message}`, 'storage');
+        return memStorage;
+      }
+    }
     return dbStorage;
   } else {
     log('Using in-memory storage (database unavailable)', 'storage');
@@ -19,5 +35,5 @@ export function getStorage(): IStorage {
   }
 }
 
-// Initialize a default storage instance
+// Initialize the storage instance
 export const storageInstance = getStorage();
