@@ -226,10 +226,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
 
     try {
+      // Determine campaign status based on sendOption
+      let status = 'draft';
+      let sentAt = null;
+      
+      if (req.body.sendOption === 'now') {
+        // Send immediately
+        status = 'sent'; 
+        sentAt = new Date();
+        console.log("Campaign to be sent immediately with status:", status);
+      } else if (req.body.sendOption === 'schedule' && req.body.scheduledDate) {
+        // Schedule for future
+        status = 'scheduled';
+        console.log("Campaign scheduled for future with status:", status);
+      }
+      
       // Add default values and prepare the campaign data
       const campaignData = {
         ...validatedData,
-        status: validatedData.status || 'draft',
+        status: status,
+        sentAt: sentAt,
         metadata: {
           ...validatedData.metadata,
           subtitle: req.body.subtitle || '',
