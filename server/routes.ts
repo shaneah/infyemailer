@@ -152,28 +152,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/campaigns', async (req: Request, res: Response) => {
     try {
       const campaigns = await storage.getCampaigns();
+      console.log(`Retrieved ${campaigns.length} campaigns from storage`);
+      
       // Map campaigns to format expected by frontend
       const formattedCampaigns = campaigns.map(campaign => {
-        const metadata = campaign.metadata as any || {};
-        return {
-          id: campaign.id,
-          name: campaign.name,
-          subtitle: metadata.subtitle || '',
-          icon: metadata.icon || { name: 'envelope', color: 'primary' },
-          status: {
-            label: campaign.status.charAt(0).toUpperCase() + campaign.status.slice(1),
-            color: campaign.status === 'sent' ? 'success' : 
-                  campaign.status === 'scheduled' ? 'warning' : 
-                  campaign.status === 'active' ? 'primary' : 'secondary'
-          },
-          recipients: metadata.recipients || 0,
-          openRate: metadata.openRate || 0,
-          clickRate: metadata.clickRate || 0,
-          date: metadata.date || (campaign.scheduledAt ? new Date(campaign.scheduledAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A'),
-        };
+        try {
+          const metadata = campaign.metadata as any || {};
+          return {
+            id: campaign.id,
+            name: campaign.name,
+            subtitle: metadata.subtitle || '',
+            icon: metadata.icon || { name: 'envelope', color: 'primary' },
+            status: {
+              label: campaign.status.charAt(0).toUpperCase() + campaign.status.slice(1),
+              color: campaign.status === 'sent' ? 'success' : 
+                    campaign.status === 'scheduled' ? 'warning' : 
+                    campaign.status === 'active' ? 'primary' : 'secondary'
+            },
+            recipients: metadata.recipients || 0,
+            openRate: metadata.openRate || 0,
+            clickRate: metadata.clickRate || 0,
+            date: metadata.date || (campaign.scheduledAt ? new Date(campaign.scheduledAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A'),
+          };
+        } catch (err) {
+          console.error(`Error formatting campaign ID ${campaign.id}:`, err);
+          // Return a minimal valid object if there's an error with this campaign
+          return {
+            id: campaign.id,
+            name: campaign.name || 'Unnamed Campaign',
+            subtitle: '',
+            icon: { name: 'envelope', color: 'primary' },
+            status: { label: 'Unknown', color: 'secondary' },
+            recipients: 0,
+            openRate: 0,
+            clickRate: 0,
+            date: 'N/A'
+          };
+        }
       });
+      
       res.json(formattedCampaigns);
     } catch (error) {
+      console.error('Failed to fetch campaigns:', error);
       res.status(500).json({ error: 'Failed to fetch campaigns' });
     }
   });
