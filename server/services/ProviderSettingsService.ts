@@ -1,5 +1,6 @@
 import { EmailProviderFactory, EmailProviderType } from './emailProviders';
 import { emailService } from './EmailService';
+import * as fs from 'fs';
 
 export interface ProviderSettings {
   id: number;
@@ -13,18 +14,96 @@ export interface ProviderSettings {
 
 /**
  * Service for managing email provider settings.
- * This implementation uses in-memory storage instead of database for resiliency.
+ * This implementation uses in-memory storage with file system persistence for resiliency.
  */
 export class ProviderSettingsService {
   private settings: Map<number, ProviderSettings> = new Map();
   private nextId = 1;
+  private settingsFilePath = './email-provider-settings.json';
 
   /**
    * Initialize the provider settings service and load saved providers
    */
   async initialize(): Promise<void> {
-    // Initialize providers from environment variables
-    await this.initializeDefaultProviders();
+    // Try to load settings from file
+    await this.loadSettingsFromFile();
+    
+    // Initialize providers from environment variables if no settings were loaded
+    if (this.settings.size === 0) {
+      await this.initializeDefaultProviders();
+    } else {
+      console.log(`Loaded ${this.settings.size} providers from persistent storage`);
+      
+      // Register all loaded providers with the email service
+      for (const [_, setting] of this.settings.entries()) {
+        try {
+          const provider = EmailProviderFactory.createProvider(
+            setting.provider,
+            setting.config
+          );
+          
+          emailService.registerProvider(setting.name, provider);
+          
+          if (setting.isDefault) {
+            emailService.setDefaultProvider(setting.name);
+          }
+        } catch (error) {
+          console.error(`Failed to register provider ${setting.name}:`, error);
+        }
+      }
+    }
+  }
+  
+  /**
+   * Load settings from file if available
+   */
+  private async loadSettingsFromFile(): Promise<void> {
+    try {
+      if (fs.existsSync(this.settingsFilePath)) {
+        const data = fs.readFileSync(this.settingsFilePath, 'utf8');
+        const savedSettings = JSON.parse(data);
+        
+        if (Array.isArray(savedSettings)) {
+          // Clear existing settings
+          this.settings.clear();
+          
+          // Load saved settings
+          for (const setting of savedSettings) {
+            this.settings.set(setting.id, {
+              ...setting,
+              createdAt: new Date(setting.createdAt),
+              updatedAt: new Date(setting.updatedAt)
+            });
+            
+            // Update nextId to be greater than any existing id
+            if (setting.id >= this.nextId) {
+              this.nextId = setting.id + 1;
+            }
+          }
+          
+          console.log(`Loaded ${savedSettings.length} email providers from file`);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load provider settings from file:', error);
+    }
+  }
+  
+  /**
+   * Save settings to file for persistence
+   */
+  private async saveSettingsToFile(): Promise<void> {
+    try {
+      const settingsArray = Array.from(this.settings.values());
+      fs.writeFileSync(
+        this.settingsFilePath, 
+        JSON.stringify(settingsArray, null, 2), 
+        'utf8'
+      );
+      console.log(`Saved ${settingsArray.length} email providers to file`);
+    } catch (error) {
+      console.error('Failed to save provider settings to file:', error);
+    }
   }
   
   /**
@@ -173,6 +252,9 @@ export class ProviderSettingsService {
     
     this.settings.set(id, result);
     
+    // Save changes to file
+    await this.saveSettingsToFile();
+    
     // Register the provider
     const provider = EmailProviderFactory.createProvider(
       settings.provider,
@@ -228,6 +310,9 @@ export class ProviderSettingsService {
     };
     
     this.settings.set(id, updatedSettings);
+    
+    // Save changes to file
+    await this.saveSettingsToFile();
     
     // Update the registered provider
     try {
@@ -296,6 +381,9 @@ export class ProviderSettingsService {
         }
       }
     }
+    
+    // Save changes to file
+    await this.saveSettingsToFile();
     
     return true;
   }

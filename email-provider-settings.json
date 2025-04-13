@@ -1,0 +1,13 @@
+[
+  {
+    "id": 1,
+    "name": "SendGrid",
+    "provider": "sendgrid",
+    "config": {
+      "apiKey": "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"
+    },
+    "isDefault": true,
+    "createdAt": "2025-04-13T00:55:23.641Z",
+    "updatedAt": "2025-04-13T00:55:23.641Z"
+  }
+]
