@@ -246,6 +246,12 @@ export interface IStorage {
   deleteAudienceSegment(id: number): Promise<boolean>;
 }
 
+import { ListPersistenceService } from './services/ListPersistenceService';
+import session from 'express-session';
+import createMemoryStore from 'memorystore';
+
+const MemoryStore = createMemoryStore(session);
+
 // In-memory implementation of storage
 export class MemStorage implements IStorage {
   private contacts: Map<number, Contact>;
@@ -274,6 +280,7 @@ export class MemStorage implements IStorage {
   private systemCredits: SystemCredits | undefined;
   private systemCreditsHistory: Map<number, SystemCreditsHistory>;
   private clientEmailCreditsHistory: Map<number, ClientEmailCreditsHistory>;
+  public sessionStore: session.SessionStore;
 
   private contactId: number;
   private listId: number;
@@ -334,6 +341,9 @@ export class MemStorage implements IStorage {
     this.audienceSegments = new Map();
     this.systemCreditsHistory = new Map();
     this.clientEmailCreditsHistory = new Map();
+    this.sessionStore = new MemoryStore({
+      checkPeriod: 86400000, // 24 hours
+    });
 
     this.contactId = 1;
     this.listId = 1;
