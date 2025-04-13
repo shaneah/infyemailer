@@ -1009,8 +1009,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Import a template from a ZIP file
   app.post('/api/templates/import-zip', async (req: Request, res: Response) => {
     console.log('Import ZIP endpoint called');
+    let createdTemplateId = null;
     
     try {
+      // Set Content-Type early to ensure it's always set
+      res.setHeader('Content-Type', 'application/json');
+      
       // Check if file was uploaded
       if (!req.files || !req.files.templateFile) {
         console.log('No template file found in request:', Object.keys(req.files || {}));
@@ -1089,43 +1093,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
         });
         
+        createdTemplateId = template.id;
         console.log('Template created successfully:', template.id);
         
-        try {
-          // Prepare a clean response object
-          const responseObj = {
-            id: template.id,
-            name: template.name,
-            description: template.description || "",
-            category: template.category || "imported",
-            content: template.content ? template.content.substring(0, 100) + '...' : '',
-            metadata: template.metadata || {},
-            createdAt: template.createdAt || new Date().toISOString(),
-            updatedAt: template.updatedAt || new Date().toISOString()
-          };
-          
-          // Ensure Content-Type is correct and return as a proper JSON response
-          res.setHeader('Content-Type', 'application/json');
-          console.log('Sending response:', JSON.stringify(responseObj).substring(0, 100) + '...');
-          return res.status(201).json(responseObj);
-        } catch (responseError) {
-          console.error('Error preparing response:', responseError);
-          // Fallback to a simple response if there's an error serializing the template
-          res.setHeader('Content-Type', 'application/json');
-          return res.status(201).json({ 
-            id: template.id, 
-            name: template.name,
-            success: true,
-            message: "Template created successfully" 
-          });
-        }
+        // Create a safe, minimal response object with just the essential properties
+        const safeResponse = {
+          id: template.id,
+          name: template.name,
+          description: description || `Template: ${name}`,
+          category: category || 'imported',
+          success: true
+        };
+        
+        console.log('Sending response:', JSON.stringify(safeResponse));
+        return res.status(201).json(safeResponse);
       } catch (zipError) {
         console.error('Error processing ZIP file:', zipError);
-        return res.status(400).json({ error: 'Invalid ZIP file format: ' + zipError.message });
+        return res.status(400).json({ 
+          error: 'Invalid ZIP file format: ' + (zipError instanceof Error ? zipError.message : 'Unknown error')
+        });
       }
     } catch (error) {
       console.error('Error importing ZIP template:', error);
-      res.status(500).json({ error: 'Failed to import template: ' + (error as Error).message });
+      
+      // If we already created a template but had an error sending the response,
+      // return a simplified success response
+      if (createdTemplateId) {
+        return res.status(201).json({ 
+          id: createdTemplateId,
+          success: true,
+          message: "Template created but response data incomplete"
+        });
+      }
+      
+      return res.status(500).json({ 
+        error: 'Failed to import template: ' + (error instanceof Error ? error.message : 'Unknown error')
+      });
     }
   });
 

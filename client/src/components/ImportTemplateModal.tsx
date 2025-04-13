@@ -115,41 +115,48 @@ export default function ImportTemplateModal({
       formData.append("templateFile", file);
       
       setFileUploading(true);
-      const response = await fetch("/api/templates/import-zip", {
-        method: "POST",
-        body: formData,
-      });
-      
-      if (!response.ok) {
-        // First try to get the response as text
-        const responseText = await response.text();
-        
-        try {
-          // Try to parse the text as JSON
-          const errorData = JSON.parse(responseText);
-          const errorMessage = errorData.error || "Failed to import ZIP template";
-          throw new Error(errorMessage);
-        } catch (parseError) {
-          // If JSON parsing fails, use the raw text or a fallback message
-          if (responseText.includes('<!DOCTYPE')) {
-            // This is HTML, likely an error page
-            throw new Error("Server returned an HTML error page instead of JSON");
-          } else {
-            throw new Error(responseText || "Failed to import ZIP template");
-          }
-        }
-      }
-      
-      // First get the response as text
-      const responseText = await response.text();
       
       try {
-        // Try to parse it as JSON
-        return JSON.parse(responseText);
-      } catch (parseError) {
-        // If parsing fails, throw a meaningful error
-        console.error("Failed to parse server response as JSON:", responseText.substring(0, 100));
-        throw new Error("Server returned an invalid JSON response");
+        // Use XMLHttpRequest instead of fetch for better control over responses
+        return new Promise((resolve, reject) => {
+          const xhr = new XMLHttpRequest();
+          
+          xhr.open("POST", "/api/templates/import-zip");
+          
+          xhr.onload = function() {
+            if (xhr.status >= 200 && xhr.status < 300) {
+              try {
+                // Try to parse the response as JSON
+                const jsonResponse = JSON.parse(xhr.responseText);
+                resolve(jsonResponse);
+              } catch (parseError) {
+                console.error("Error parsing response:", xhr.responseText.substring(0, 200));
+                if (xhr.responseText.includes('<!DOCTYPE') || xhr.responseText.includes('<html')) {
+                  reject(new Error("Server returned an HTML page instead of JSON. Template might have been created but the response was invalid."));
+                } else {
+                  reject(new Error("Server returned invalid data"));
+                }
+              }
+            } else {
+              // Handle error responses
+              try {
+                const errorJson = JSON.parse(xhr.responseText);
+                reject(new Error(errorJson.error || "Failed to import template"));
+              } catch (parseError) {
+                reject(new Error("Server error: " + xhr.status));
+              }
+            }
+          };
+          
+          xhr.onerror = function() {
+            reject(new Error("Network error occurred"));
+          };
+          
+          xhr.send(formData);
+        });
+      } catch (error) {
+        console.error("Upload error:", error);
+        throw error;
       }
     },
     onSuccess: (newTemplate) => {
