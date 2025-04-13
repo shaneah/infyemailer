@@ -1,6 +1,4 @@
 import { MailService } from '@sendgrid/mail';
-import pkg from '@sendgrid/helpers/classes/response-error.js';
-const { ResponseError } = pkg;
 import { 
   IEmailProvider, 
   SendEmailParams, 
@@ -104,52 +102,57 @@ export class SendGridProvider implements IEmailProvider {
       console.log(`[SendGrid] Email sent to ${params.to}`, response);
 
       return true;
-    } catch (error) {
-      if (error instanceof ResponseError) {
-        const errorDetails = {
-          code: error.code,
-          message: error.message,
-          response: error.response?.body || {}
-        };
+    } catch (error: any) {
+      // Use a more generic error handling approach instead of using instanceof ResponseError
+      const isApiError = error && typeof error === 'object' && 'code' in error;
+      
+      if (isApiError) {
+        const errorCode = error.code;
+        const errorMessage = error.message || 'Unknown error';
+        const errorResponse = error.response?.body || {};
+        
+        console.error('[SendGrid] API Error:', {
+          code: errorCode,
+          message: errorMessage,
+          response: errorResponse
+        });
 
-        console.error('[SendGrid] API Error:', JSON.stringify(errorDetails, null, 2));
-
-        // Check common errors
-        if (error.code === 403) {
+        // Check common errors based on error code
+        if (errorCode === 403) {
           // Check for sender identity errors specifically
-          const errorBody = error.response?.body as any;
-          const errors = errorBody?.errors || [];
+          try {
+            const errorBody = errorResponse;
+            const errors = Array.isArray(errorBody?.errors) ? errorBody.errors : [];
 
-          if (errors.length > 0 && errors[0].message && errors[0].message.includes('from address does not match a verified Sender Identity')) {
-            console.error('[SendGrid] Sender Identity Error: The from email address is not verified in your SendGrid account.');
-            console.error('[SendGrid] To fix this: Log into your SendGrid account and verify the sender email address in Sender Authentication settings.');
-            console.error(`[SendGrid] Attempted to use sender: ${params.from || this.fromEmail}`);
-          } else {
-            console.error('[SendGrid] API Key does not have permission to send emails. Please verify your API Key has the necessary permissions.');
-          }
-        } else if (error.code === 401) {
-          console.error('[SendGrid] API Key is invalid or revoked. Please check your API Key.');
-        } else if (error.code === 400) {
-          // Store the last SendGrid error message globally for reference
-          if (error.response?.body) {
-            try {
-              const errorBody = error.response.body as any;
-              if (errorBody.errors && Array.isArray(errorBody.errors)) {
-                // Format and store the error message for debugging
-                const errorMessages = errorBody.errors.map((err: any) => 
-                  `${err.message || "Unknown error"} (field: ${err.field || "unknown"})`
-                ).join(", ");
-
-                (global as any).lastSendGridError = errorMessages;
-                console.error('[SendGrid] Bad request details:', errorMessages);
-              } else {
-                console.error('[SendGrid] Bad request. Check the email format, sender, or recipient addresses.');
-              }
-            } catch (parseError) {
-              console.error('[SendGrid] Error parsing error response:', parseError);
+            if (errors.length > 0 && errors[0].message && errors[0].message.includes('from address does not match a verified Sender Identity')) {
+              console.error('[SendGrid] Sender Identity Error: The from email address is not verified in your SendGrid account.');
+              console.error('[SendGrid] To fix this: Log into your SendGrid account and verify the sender email address in Sender Authentication settings.');
+              console.error(`[SendGrid] Attempted to use sender: ${params.from || this.fromEmail}`);
+            } else {
+              console.error('[SendGrid] API Key does not have permission to send emails. Please verify your API Key has the necessary permissions.');
             }
-          } else {
-            console.error('[SendGrid] Bad request. Check the email format, sender, or recipient addresses.');
+          } catch (parseError) {
+            console.error('[SendGrid] Error parsing error response:', parseError);
+          }
+        } else if (errorCode === 401) {
+          console.error('[SendGrid] API Key is invalid or revoked. Please check your API Key.');
+        } else if (errorCode === 400) {
+          // Store the last SendGrid error message globally for reference
+          try {
+            const errorBody = errorResponse;
+            if (errorBody?.errors && Array.isArray(errorBody.errors)) {
+              // Format and store the error message for debugging
+              const errorMessages = errorBody.errors.map((err: any) => 
+                `${err.message || "Unknown error"} (field: ${err.field || "unknown"})`
+              ).join(", ");
+
+              (global as any).lastSendGridError = errorMessages;
+              console.error('[SendGrid] Bad request details:', errorMessages);
+            } else {
+              console.error('[SendGrid] Bad request. Check the email format, sender, or recipient addresses.');
+            }
+          } catch (parseError) {
+            console.error('[SendGrid] Error parsing error response:', parseError);
           }
         }
       } else {
@@ -298,24 +301,28 @@ export class SendGridProvider implements IEmailProvider {
         result.success = result.apiConnected && (result.errors?.length === 0);
 
         return result;
-      } catch (apiError) {
+      } catch (apiError: any) {
         console.error('[SendGrid] API verification error:', apiError);
 
-        if (apiError instanceof ResponseError) {
-          const sgError = apiError as ResponseError;
-
-          if (sgError.code === 401) {
+        // Use a more generic error handling approach 
+        const isApiError = apiError && typeof apiError === 'object' && 'code' in apiError;
+        
+        if (isApiError) {
+          const errorCode = apiError.code;
+          const errorMessage = apiError.message || 'Unknown error';
+          
+          if (errorCode === 401) {
             result.errors!.push('Authentication failed. The API key appears to be invalid or revoked.');
-          } else if (sgError.code === 403) {
+          } else if (errorCode === 403) {
             result.errors!.push('Permission denied. The API key does not have the necessary permissions.');
           } else {
-            result.errors!.push(`SendGrid API error (${sgError.code}): ${sgError.message}`);
+            result.errors!.push(`SendGrid API error (${errorCode}): ${errorMessage}`);
           }
 
           // Add detailed error information if available
-          if (sgError.response?.body) {
+          if (apiError.response?.body) {
             try {
-              const errorBody = sgError.response.body as any;
+              const errorBody = apiError.response.body as any;
               if (errorBody.errors && Array.isArray(errorBody.errors)) {
                 errorBody.errors.forEach((err: any) => {
                   result.errors!.push(`${err.message || "Unknown error"} (field: ${err.field || "unknown"})`);

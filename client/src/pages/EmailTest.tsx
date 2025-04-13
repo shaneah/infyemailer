@@ -41,7 +41,7 @@ export default function EmailTest() {
       html: '<div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f5f0e1; border-radius: 5px; border-left: 4px solid #d4af37;">' +
             '<h2 style="color: #1a3a5f; margin-top: 0;">InfyMailer Test Email</h2>' +
             '<p>This is a test email sent from the InfyMailer application.</p>' +
-            '<p>If you received this email, it means the SendGrid integration is working correctly!</p>' +
+            '<p>If you received this email, it means your email provider integration is working correctly!</p>' +
             '<div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #d4af37; color: #666;">' +
             '<p style="margin: 0; font-size: 12px;">Sent from InfyMailer - Your Email Marketing Platform</p>' +
             '</div></div>',
@@ -110,14 +110,14 @@ export default function EmailTest() {
 
   return (
     <div className="container py-10">
-      <h1 className="text-3xl font-bold mb-8 text-center">SendGrid Email Test</h1>
+      <h1 className="text-3xl font-bold mb-8 text-center">Email Service Test</h1>
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <Card className="shadow-md">
           <CardHeader>
             <CardTitle>Send Test Email</CardTitle>
             <CardDescription>
-              Use this form to test the SendGrid email integration by sending a test email.
+              Use this form to test your email provider integration by sending a test email using the default provider.
             </CardDescription>
           </CardHeader>
           <CardContent>
