@@ -3312,7 +3312,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Audience Personas API Endpoints
+  // Audience Personas API Endpoints - REMOVED AS REQUESTED
+  /*
   app.get('/api/audience-personas', async (req: Request, res: Response) => {
     try {
       const personas = await storage.getAudiencePersonas();
@@ -3379,8 +3380,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ error: 'Failed to delete audience persona' });
     }
   });
+  */
 
-  // Audience Persona Demographics
+  // Audience Persona Demographics - REMOVED AS REQUESTED
+  /*
   app.get('/api/audience-personas/:id/demographics', async (req: Request, res: Response) => {
     const personaId = parseInt(req.params.id, 10);
     try {
@@ -3543,6 +3546,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ error: 'Failed to delete segment' });
     }
   });
+  */
 
   // Template Preview Endpoint
   app.get('/preview-template', async (req: Request, res: Response) => {

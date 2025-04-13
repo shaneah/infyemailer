@@ -205,18 +205,7 @@ const Sidebar = ({ open, setOpen, collapsed = false, setCollapsed }: SidebarProp
             </Link>
           </li>
 
-          <li>
-            <Link 
-              href="/audience-personas" 
-              className={`flex items-center px-2 py-2 rounded-md ${location === '/audience-personas' 
-                ? 'text-white border-l-4 border-white bg-white/10' 
-                : 'text-gray-300 hover:bg-white/5'}`}
-              title="Audience Personas"
-            >
-              <UserPlus className="h-5 w-5 mr-3" />
-              {!collapsed && <span>Audience Personas</span>}
-            </Link>
-          </li>
+          {/* Audience Personas removed as requested */}
           <li>
             <Link 
               href="/email-validation" 
