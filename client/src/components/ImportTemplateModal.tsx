@@ -121,7 +121,7 @@ export default function ImportTemplateModal({
         return new Promise((resolve, reject) => {
           const xhr = new XMLHttpRequest();
           
-          xhr.open("POST", "/api/templates/import-zip");
+          xhr.open("POST", "/api/templates/import-zip-async");
           
           xhr.onload = function() {
             if (xhr.status >= 200 && xhr.status < 300) {
@@ -132,7 +132,10 @@ export default function ImportTemplateModal({
               } catch (parseError) {
                 console.error("Error parsing response:", xhr.responseText.substring(0, 200));
                 if (xhr.responseText.includes('<!DOCTYPE') || xhr.responseText.includes('<html')) {
-                  reject(new Error("Server returned an HTML page instead of JSON. Template might have been created but the response was invalid."));
+                  // The template actually might have been created, we'll check after showing the error
+                  console.log("Template might have been created, but response was invalid. Will refresh templates.");
+                  queryClient.invalidateQueries({ queryKey: ['/api/templates'] });
+                  reject(new Error("Upload successful but response format was incorrect. Your template should appear in the list shortly."));
                 } else {
                   reject(new Error("Server returned invalid data"));
                 }

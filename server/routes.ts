@@ -1006,7 +1006,102 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Import a template from a ZIP file
+  // Import a template from a ZIP file - simplified endpoint for the SPA
+  app.post('/api/templates/import-zip-async', async (req: Request, res: Response) => {
+    let templateId = null;
+    let templateName = null;
+    
+    try {
+      // Set headers first to prevent them from being lost
+      res.setHeader('Content-Type', 'application/json');
+    
+      // Check if file was uploaded
+      if (!req.files || !req.files.templateFile) {
+        return res.status(400).send(JSON.stringify({ error: 'Template file is required' }));
+      }
+      
+      const templateFile = req.files.templateFile as UploadedFile;
+      const { name, description, category, subject } = req.body;
+      
+      // Simple validation
+      if (!name) {
+        return res.status(400).send(JSON.stringify({ error: 'Template name is required' }));
+      }
+      
+      // Process the ZIP file
+      const zip = new AdmZip(templateFile.data);
+      const zipEntries = zip.getEntries();
+      
+      // Find HTML entry
+      let htmlEntry = zipEntries.find(entry => 
+        !entry.isDirectory && (entry.entryName === 'index.html' || entry.entryName === 'template.html')
+      );
+      
+      if (!htmlEntry) {
+        htmlEntry = zipEntries.find(entry => 
+          !entry.isDirectory && entry.entryName.endsWith('.html') && !entry.entryName.includes('/')
+        );
+      }
+      
+      if (!htmlEntry) {
+        return res.status(400).send(JSON.stringify({ 
+          error: 'ZIP file must contain an HTML file.'  
+        }));
+      }
+      
+      // Extract the HTML content
+      const htmlContent = htmlEntry.getData().toString('utf8');
+      
+      // Create the template
+      const template = await storage.createTemplate({
+        name,
+        content: htmlContent,
+        description: description || `Template: ${name}`,
+        category: category || 'imported',
+        subject: subject || `${name} Subject`,
+        metadata: {
+          imported: true,
+          importType: 'zip',
+          importedAt: new Date().toISOString(),
+          originalFilename: templateFile.name
+        }
+      });
+      
+      templateId = template.id;
+      templateName = template.name;
+      
+      // Send simple response
+      res.status(201).send(JSON.stringify({ 
+        id: template.id, 
+        name: template.name,
+        success: true,
+        message: "Template created successfully" 
+      }));
+    } catch (error) {
+      // If a template was created but we had an error sending the response,
+      // still try to send something useful
+      if (templateId) {
+        try {
+          res.status(201).send(JSON.stringify({ 
+            id: templateId, 
+            name: templateName || "Unknown",
+            success: true, 
+            message: "Template created but encountered an error with the response" 
+          }));
+        } catch (secondError) {
+          // Last resort - if we can't even format a JSON response, send plain text
+          res.status(201).type('text').send(`Template created with ID: ${templateId}`);
+        }
+      } else {
+        // No template was created, return error
+        res.status(500).send(JSON.stringify({ 
+          error: 'Failed to import template: ' + (error instanceof Error ? error.message : 'Unknown error') 
+        }));
+      }
+    }
+  });
+  
+  // Original import endpoint (kept for compatibility) 
   app.post('/api/templates/import-zip', async (req: Request, res: Response) => {
     console.log('Import ZIP endpoint called');
     let createdTemplateId = null;
