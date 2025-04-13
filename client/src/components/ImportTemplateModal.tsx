@@ -121,20 +121,36 @@ export default function ImportTemplateModal({
       });
       
       if (!response.ok) {
-        const errorData = await response.json().catch(() => {
-          // If response is not JSON, get raw text
-          return response.text().then(text => {
-            return { error: text || "Failed to import ZIP template" };
-          });
-        });
+        // First try to get the response as text
+        const responseText = await response.text();
         
-        // Handle both JSON error objects and raw text
-        const errorMessage = errorData.error || 
-                            (typeof errorData === 'string' ? errorData : "Failed to import ZIP template");
-        throw new Error(errorMessage);
+        try {
+          // Try to parse the text as JSON
+          const errorData = JSON.parse(responseText);
+          const errorMessage = errorData.error || "Failed to import ZIP template";
+          throw new Error(errorMessage);
+        } catch (parseError) {
+          // If JSON parsing fails, use the raw text or a fallback message
+          if (responseText.includes('<!DOCTYPE')) {
+            // This is HTML, likely an error page
+            throw new Error("Server returned an HTML error page instead of JSON");
+          } else {
+            throw new Error(responseText || "Failed to import ZIP template");
+          }
+        }
       }
       
-      return response.json();
+      // First get the response as text
+      const responseText = await response.text();
+      
+      try {
+        // Try to parse it as JSON
+        return JSON.parse(responseText);
+      } catch (parseError) {
+        // If parsing fails, throw a meaningful error
+        console.error("Failed to parse server response as JSON:", responseText.substring(0, 100));
+        throw new Error("Server returned an invalid JSON response");
+      }
     },
     onSuccess: (newTemplate) => {
       queryClient.invalidateQueries({ queryKey: ['/api/templates'] });
