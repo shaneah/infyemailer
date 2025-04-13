@@ -1008,29 +1008,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Import a template from a ZIP file
   app.post('/api/templates/import-zip', async (req: Request, res: Response) => {
+    console.log('Import ZIP endpoint called');
+    
     try {
       // Check if file was uploaded
       if (!req.files || !req.files.templateFile) {
+        console.log('No template file found in request:', Object.keys(req.files || {}));
         return res.status(400).json({ error: 'Template file is required' });
       }
       
       const templateFile = req.files.templateFile as UploadedFile;
+      console.log('Template file received:', templateFile.name, templateFile.mimetype, templateFile.size);
+      
       const { name, description, category, subject } = req.body;
+      console.log('Form data received:', { name, description, category, subject });
       
       if (!name) {
+        console.log('Template name is missing');
         return res.status(400).json({ error: 'Template name is required' });
       }
       
       if (templateFile.mimetype !== 'application/zip' && 
           templateFile.mimetype !== 'application/x-zip-compressed' && 
           !templateFile.name.endsWith('.zip')) {
+        console.log('Invalid file type:', templateFile.mimetype);
         return res.status(400).json({ error: 'Invalid file type. Only ZIP files are allowed.' });
       }
       
       // Process the ZIP file
       try {
+        console.log('Attempting to process ZIP file');
         const zip = new AdmZip(templateFile.data);
         const zipEntries = zip.getEntries();
+        console.log('ZIP entries found:', zipEntries.length);
+        console.log('ZIP entries names:', zipEntries.map(e => e.entryName).join(', '));
         
         // Look for index.html in the root or template.html
         let htmlEntry = zipEntries.find(entry => 
@@ -1040,6 +1051,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         );
         
         if (!htmlEntry) {
+          console.log('No index.html or template.html found, looking for any HTML file');
           // Look for any HTML file in the root
           htmlEntry = zipEntries.find(entry => 
             !entry.isDirectory && 
@@ -1049,15 +1061,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
         
         if (!htmlEntry) {
+          console.log('No HTML file found in ZIP');
           return res.status(400).json({ 
             error: 'ZIP file must contain an HTML file. Please check and try again.' 
           });
         }
         
+        console.log('Found HTML file:', htmlEntry.entryName);
+        
         // Extract the HTML content
         const htmlContent = htmlEntry.getData().toString('utf8');
+        console.log('HTML content extracted, length:', htmlContent.length);
         
         // Create the template
+        console.log('Creating template in storage');
         const template = await storage.createTemplate({
           name,
           content: htmlContent,
@@ -1072,16 +1089,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
         });
         
+        console.log('Template created successfully:', template.id);
+        
         // Return a proper JSON response
         res.setHeader('Content-Type', 'application/json');
-        res.status(201).json(template);
+        const response = { ...template };
+        console.log('Sending response:', JSON.stringify(response).substring(0, 100) + '...');
+        res.status(201).json(response);
       } catch (zipError) {
         console.error('Error processing ZIP file:', zipError);
-        return res.status(400).json({ error: 'Invalid ZIP file format' });
+        return res.status(400).json({ error: 'Invalid ZIP file format: ' + zipError.message });
       }
     } catch (error) {
       console.error('Error importing ZIP template:', error);
-      res.status(500).json({ error: 'Failed to import template' });
+      res.status(500).json({ error: 'Failed to import template: ' + (error as Error).message });
     }
   });
 
