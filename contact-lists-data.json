@@ -1,0 +1,30 @@
+[
+  {
+    "name": "Newsletter Subscribers",
+    "description": "People who subscribed to the newsletter",
+    "id": 1,
+    "createdAt": "2025-04-13T03:42:59.760Z",
+    "updatedAt": "2025-04-13T03:42:59.760Z"
+  },
+  {
+    "name": "Product Updates",
+    "description": "People interested in product updates",
+    "id": 2,
+    "createdAt": "2025-04-13T03:42:59.761Z",
+    "updatedAt": "2025-04-13T03:42:59.761Z"
+  },
+  {
+    "name": "New Customers",
+    "description": "Recently acquired customers",
+    "id": 3,
+    "createdAt": "2025-04-13T03:42:59.761Z",
+    "updatedAt": "2025-04-13T03:42:59.761Z"
+  },
+  {
+    "name": "VIP Members",
+    "description": "Premium customers",
+    "id": 4,
+    "createdAt": "2025-04-13T03:42:59.762Z",
+    "updatedAt": "2025-04-13T03:42:59.762Z"
+  }
+]

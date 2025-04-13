@@ -373,6 +373,40 @@ export class MemStorage implements IStorage {
 
     // Initialize with some default data
     this.initializeData();
+    
+    // Load saved lists and contact-list relationships from files
+    this.loadListsFromFile();
+  }
+  
+  /**
+   * Load lists and contact-list relationships from file storage
+   */
+  private async loadListsFromFile() {
+    try {
+      // Load lists
+      const savedLists = await ListPersistenceService.loadListsFromFile();
+      if (savedLists.size > 0) {
+        // Replace in-memory lists with saved lists
+        this.lists = savedLists;
+        
+        // Update listId counter to be greater than any existing id
+        this.listId = ListPersistenceService.getNextId(savedLists);
+        console.log(`Loaded ${savedLists.size} lists from file storage`);
+      }
+      
+      // Load contact-list relationships
+      const savedContactLists = await ListPersistenceService.loadContactListsFromFile();
+      if (savedContactLists.size > 0) {
+        // Replace in-memory contact-lists with saved contact-lists
+        this.contactLists = savedContactLists;
+        
+        // Update contactListId counter to be greater than any existing id
+        this.contactListId = ListPersistenceService.getNextId(savedContactLists);
+        console.log(`Loaded ${savedContactLists.size} contact-list relationships from file storage`);
+      }
+    } catch (error) {
+      console.error('Failed to load lists from file storage:', error);
+    }
   }
 
   private initializeData() {
@@ -1202,6 +1236,10 @@ export class MemStorage implements IStorage {
       updatedAt: now
     };
     this.lists.set(id, newList);
+    
+    // Save lists to file for persistence
+    await ListPersistenceService.saveListsToFile(this.lists);
+    
     return newList;
   }
 
@@ -1215,11 +1253,32 @@ export class MemStorage implements IStorage {
       updatedAt: new Date()
     };
     this.lists.set(id, updatedList);
+    
+    // Save lists to file for persistence
+    await ListPersistenceService.saveListsToFile(this.lists);
+    
     return updatedList;
   }
 
   async deleteList(id: number): Promise<boolean> {
-    return this.lists.delete(id);
+    const result = this.lists.delete(id);
+    
+    if (result) {
+      // Save lists to file for persistence
+      await ListPersistenceService.saveListsToFile(this.lists);
+      
+      // Also remove all contact-list relationships for this list
+      for (const [clId, cl] of this.contactLists.entries()) {
+        if (cl.listId === id) {
+          this.contactLists.delete(clId);
+        }
+      }
+      
+      // Save contact-list relationships to file for persistence
+      await ListPersistenceService.saveContactListsToFile(this.contactLists);
+    }
+    
+    return result;
   }
 
   // Contact-List methods
@@ -1236,16 +1295,30 @@ export class MemStorage implements IStorage {
       addedAt: now
     };
     this.contactLists.set(id, newContactList);
+    
+    // Save contact-list relationships to file for persistence
+    await ListPersistenceService.saveContactListsToFile(this.contactLists);
+    
     return newContactList;
   }
 
   async removeContactFromList(contactId: number, listId: number): Promise<boolean> {
+    let result = false;
+    
     for (const [clId, cl] of this.contactLists.entries()) {
       if (cl.contactId === contactId && cl.listId === listId) {
-        return this.contactLists.delete(clId);
+        result = this.contactLists.delete(clId);
+        
+        if (result) {
+          // Save contact-list relationships to file for persistence
+          await ListPersistenceService.saveContactListsToFile(this.contactLists);
+        }
+        
+        break;
       }
     }
-    return false;
+    
+    return result;
   }
 
   async getContactsByList(listId: number): Promise<Contact[]> {
