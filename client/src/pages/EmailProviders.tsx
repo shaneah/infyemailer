@@ -52,6 +52,19 @@ function EmailProviders() {
   const [newProviderConfig, setNewProviderConfig] = useState<Record<string, string>>({});
   const [isDefault, setIsDefault] = useState<boolean>(false);
   
+  // Default settings state
+  const [defaultSettings, setDefaultSettings] = useState<{
+    fromEmail: string;
+    fromName: string;
+    replyTo: string;
+    signature: string;
+  }>({
+    fromEmail: '',
+    fromName: '',
+    replyTo: '',
+    signature: ''
+  });
+  
   // Test email state
   const [testEmail, setTestEmail] = useState({
     from: '',
@@ -409,6 +422,31 @@ function EmailProviders() {
     console.log("Checking configuration for provider ID:", selectedProviderId);
     checkConfigurationMutation.mutate(selectedProviderId);
   };
+  
+  // Mutation for saving default settings
+  const saveDefaultSettingsMutation = useMutation({
+    mutationFn: async (settings: any) => {
+      const response = await apiRequest('POST', '/api/email-settings/default', settings);
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Default settings saved",
+        description: "Email default settings have been updated successfully.",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Failed to save default settings",
+        description: error.message || "An error occurred while saving default settings.",
+        variant: "destructive"
+      });
+    }
+  });
+  
+  const handleSaveDefaultSettings = () => {
+    saveDefaultSettingsMutation.mutate(defaultSettings);
+  };
 
   const resetNewProviderForm = () => {
     setNewProviderType("");
@@ -561,6 +599,11 @@ function EmailProviders() {
                 <Input
                   id="defaultFromEmail"
                   placeholder="noreply@yourdomain.com"
+                  value={defaultSettings.fromEmail || ''}
+                  onChange={(e) => setDefaultSettings({
+                    ...defaultSettings,
+                    fromEmail: e.target.value
+                  })}
                 />
               </div>
               <div className="space-y-2">
@@ -568,6 +611,11 @@ function EmailProviders() {
                 <Input
                   id="defaultFromName"
                   placeholder="Your Company Name"
+                  value={defaultSettings.fromName || ''}
+                  onChange={(e) => setDefaultSettings({
+                    ...defaultSettings,
+                    fromName: e.target.value
+                  })}
                 />
               </div>
               <div className="space-y-2">
@@ -575,11 +623,31 @@ function EmailProviders() {
                 <Input
                   id="defaultReplyTo"
                   placeholder="support@yourdomain.com"
+                  value={defaultSettings.replyTo || ''}
+                  onChange={(e) => setDefaultSettings({
+                    ...defaultSettings,
+                    replyTo: e.target.value
+                  })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="defaultSignature">Default Email Signature</Label>
+                <textarea 
+                  id="defaultSignature" 
+                  className="w-full min-h-[100px] p-2 border rounded-md"
+                  placeholder="Your email signature..." 
+                  value={defaultSettings.signature || ''}
+                  onChange={(e) => setDefaultSettings({
+                    ...defaultSettings,
+                    signature: e.target.value
+                  })}
                 />
               </div>
             </CardContent>
             <CardFooter>
-              <Button>Save Settings</Button>
+              <Button onClick={handleSaveDefaultSettings}>
+                Save Settings
+              </Button>
             </CardFooter>
           </Card>
         </TabsContent>
