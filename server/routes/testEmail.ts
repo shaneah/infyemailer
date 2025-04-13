@@ -42,9 +42,22 @@ export async function registerTestEmailRoutes(app: any) {
         const firstProvider = allProviders[0];
         console.log(`[Test Email] No default provider set, using first available: ${firstProvider.name}`);
         
+        // Get the provider instance
+        const providerInstance = firstProvider.provider;
+        const providerConfig = providerInstance.constructor.name === 'SMTPProvider' 
+          ? (providerInstance as any) 
+          : null;
+        
+        // For SMTP providers, use the configured fromEmail if available
+        const fromEmail = providerConfig && providerConfig.fromEmail 
+          ? providerConfig.fromEmail 
+          : (validatedData.from || 'notifications@infymailer.com');
+        
+        console.log(`[Test Email] Using from address with first provider: ${fromEmail}`);
+        
         // Send the test email using the first available provider
         const result = await emailService.sendEmail({
-          from: validatedData.from || 'notifications@infymailer.com',
+          from: fromEmail,
           to: validatedData.to,
           subject: validatedData.subject,
           text: validatedData.text || '',
@@ -67,9 +80,22 @@ export async function registerTestEmailRoutes(app: any) {
       console.log(`[Test Email] Using default provider: ${defaultProviderName}`);
       console.log('[Test Email] Sending email to:', validatedData.to);
       
+      // Get the default provider
+      const defaultProvider = emailService.getDefaultProvider();
+      const providerConfig = defaultProvider.constructor.name === 'SMTPProvider' 
+        ? (defaultProvider as any) 
+        : null;
+      
+      // For SMTP providers, use the configured fromEmail if available
+      const fromEmail = providerConfig && providerConfig.fromEmail 
+        ? providerConfig.fromEmail 
+        : (validatedData.from || 'notifications@infymailer.com');
+      
+      console.log(`[Test Email] Using from address: ${fromEmail}`);
+      
       // Send the test email using the default provider
       const result = await emailService.sendEmail({
-        from: validatedData.from || 'notifications@infymailer.com',
+        from: fromEmail,
         to: validatedData.to,
         subject: validatedData.subject,
         text: validatedData.text || '',
@@ -163,10 +189,32 @@ export async function registerTestEmailRoutes(app: any) {
       const validatedData = schema.parse(req.body);
       console.log('[Test Email] Request data validated successfully');
       
+      // Get the SendGrid provider
+      const allProvidersAgain = emailService.getAllProviders();
+      const sendGridProviderObj = allProvidersAgain.find(p => p.provider.getName() === 'SendGrid');
+      
+      if (!sendGridProviderObj) {
+        return res.status(400).json({ 
+          error: 'SendGrid provider not found', 
+          message: 'Failed to register SendGrid provider'
+        });
+      }
+      
+      // Extract the provider configuration
+      const providerInstance = sendGridProviderObj.provider;
+      const providerConfig = providerInstance as any;
+      
+      // Use the provider's configured fromEmail if available
+      const fromEmail = providerConfig && providerConfig.fromEmail 
+        ? providerConfig.fromEmail 
+        : (validatedData.from || 'notifications@infymailer.com');
+      
+      console.log(`[Test Email] Using from address with SendGrid: ${fromEmail}`);
+      
       // Send the test email using SendGrid
       console.log('[Test Email] Sending email to:', validatedData.to);
       const result = await emailService.sendEmail({
-        from: validatedData.from || 'notifications@infymailer.com',
+        from: fromEmail,
         to: validatedData.to,
         subject: validatedData.subject,
         text: validatedData.text || '',
