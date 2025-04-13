@@ -121,8 +121,17 @@ export default function ImportTemplateModal({
       });
       
       if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(errorText || "Failed to import ZIP template");
+        const errorData = await response.json().catch(() => {
+          // If response is not JSON, get raw text
+          return response.text().then(text => {
+            return { error: text || "Failed to import ZIP template" };
+          });
+        });
+        
+        // Handle both JSON error objects and raw text
+        const errorMessage = errorData.error || 
+                            (typeof errorData === 'string' ? errorData : "Failed to import ZIP template");
+        throw new Error(errorMessage);
       }
       
       return response.json();

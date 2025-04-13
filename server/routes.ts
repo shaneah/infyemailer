@@ -1072,6 +1072,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
         });
         
+        // Return a proper JSON response
+        res.setHeader('Content-Type', 'application/json');
         res.status(201).json(template);
       } catch (zipError) {
         console.error('Error processing ZIP file:', zipError);
