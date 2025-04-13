@@ -30,19 +30,22 @@ function setupDatabaseConnection() {
       onnotice: () => {} 
     });
     
-    // Test connection
-    sql`SELECT 1`.then(() => {
-      log('PostgreSQL database connected successfully', 'db');
-      isDatabaseAvailable = true;
-    }).catch(err => {
-      log(`Database connection test failed: ${err.message}`, 'db');
-      isDatabaseAvailable = false;
-    });
-    
     // Initialize Drizzle
     db = drizzle(sql);
     log('PostgreSQL storage initialized', 'db');
-    return true;
+    
+    // Test connection (async but we'll wait for it)
+    return new Promise<boolean>((resolve) => {
+      sql`SELECT 1`.then(() => {
+        log('PostgreSQL database connected successfully', 'db');
+        isDatabaseAvailable = true;
+        resolve(true);
+      }).catch(err => {
+        log(`Database connection test failed: ${err.message}`, 'db');
+        isDatabaseAvailable = false;
+        resolve(false);
+      });
+    });
   } catch (error: any) {
     log(`Database connection failed: ${error.message}`, 'db');
     console.error('Failed to connect to PostgreSQL database:', error);
@@ -50,27 +53,41 @@ function setupDatabaseConnection() {
   }
 }
 
-// If connection fails, we'll just keep using memory storage
-try {
-  const connected = setupDatabaseConnection();
-  if (!connected) {
-    log('Database connection failed, using memory storage', 'db');
+// Set up database connection and test it
+export async function initDatabase(): Promise<boolean> {
+  try {
+    const connected = await setupDatabaseConnection();
+    if (!connected) {
+      log('Database connection failed, using memory storage', 'db');
+      isDatabaseAvailable = false;
+      
+      // Create a dummy DB client for fallback
+      log('Creating dummy db client for fallback', 'db');
+      db = {
+        select: () => ({ from: () => ({ where: () => [] }) }),
+        insert: () => ({ values: () => ({ returning: () => [] }) }),
+        update: () => ({ set: () => ({ where: () => [] }) }),
+        delete: () => ({ where: () => [] })
+      };
+      
+      return false;
+    }
+    
+    return true;
+  } catch (error: any) {
+    console.error('Error during database setup:', error);
+    log('Using memory storage instead due to database setup failure', 'db');
     isDatabaseAvailable = false;
+    
+    // Create a dummy DB client for fallback
+    log('Creating dummy db client for fallback', 'db');
+    db = {
+      select: () => ({ from: () => ({ where: () => [] }) }),
+      insert: () => ({ values: () => ({ returning: () => [] }) }),
+      update: () => ({ set: () => ({ where: () => [] }) }),
+      delete: () => ({ where: () => [] })
+    };
+    
+    return false;
   }
-} catch (error: any) {
-  console.error('Error during database setup:', error);
-  log('Using memory storage instead due to database setup failure', 'db');
-  isDatabaseAvailable = false;
-}
-
-// Export a dummy Drizzle instance to avoid errors in imports
-if (!isDatabaseAvailable) {
-  log('Creating dummy db client for fallback', 'db');
-  // We need to provide a minimal implementation to prevent errors when importing
-  db = {
-    select: () => ({ from: () => ({ where: () => [] }) }),
-    insert: () => ({ values: () => ({ returning: () => [] }) }),
-    update: () => ({ set: () => ({ where: () => [] }) }),
-    delete: () => ({ where: () => [] })
-  };
 }
