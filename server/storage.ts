@@ -286,7 +286,7 @@ export class MemStorage implements IStorage {
   private systemCredits: SystemCredits | undefined;
   private systemCreditsHistory: Map<number, SystemCreditsHistory>;
   private clientEmailCreditsHistory: Map<number, ClientEmailCreditsHistory>;
-  public sessionStore: session.SessionStore;
+  public sessionStore: any; // Express session store
 
   private contactId: number;
   private listId: number;
