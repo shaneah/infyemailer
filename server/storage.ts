@@ -33,6 +33,10 @@ import {
 } from "@shared/schema";
 import { ListPersistenceService } from './services/ListPersistenceService';
 import { TemplatePersistenceService } from './services/TemplatePersistenceService';
+import { CampaignPersistenceService } from './services/CampaignPersistenceService';
+import { ContactPersistenceService } from './services/ContactPersistenceService';
+import { DomainPersistenceService } from './services/DomainPersistenceService';
+import { ClientPersistenceService } from './services/ClientPersistenceService';
 
 // Interface for storage operations
 export interface IStorage {
