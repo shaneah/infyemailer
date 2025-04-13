@@ -976,6 +976,72 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ error: 'Failed to create template' });
     }
   });
+
+  // Get a specific template
+  app.get('/api/templates/:id', async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ error: 'Invalid template ID' });
+      }
+      
+      const template = await storage.getTemplate(id);
+      if (!template) {
+        return res.status(404).json({ error: 'Template not found' });
+      }
+      
+      res.json(template);
+    } catch (error) {
+      console.error('Error fetching template:', error);
+      res.status(500).json({ error: 'Failed to fetch template' });
+    }
+  });
+
+  // Update a template
+  app.patch('/api/templates/:id', async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ error: 'Invalid template ID' });
+      }
+      
+      const template = await storage.getTemplate(id);
+      if (!template) {
+        return res.status(404).json({ error: 'Template not found' });
+      }
+      
+      const updatedTemplate = await storage.updateTemplate(id, req.body);
+      res.json(updatedTemplate);
+    } catch (error) {
+      console.error('Error updating template:', error);
+      res.status(500).json({ error: 'Failed to update template' });
+    }
+  });
+
+  // Delete a template
+  app.delete('/api/templates/:id', async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ error: 'Invalid template ID' });
+      }
+      
+      const template = await storage.getTemplate(id);
+      if (!template) {
+        return res.status(404).json({ error: 'Template not found' });
+      }
+      
+      const success = await storage.deleteTemplate(id);
+      if (success) {
+        res.status(200).json({ message: 'Template deleted successfully' });
+      } else {
+        res.status(500).json({ error: 'Failed to delete template' });
+      }
+    } catch (error) {
+      console.error('Error deleting template:', error);
+      res.status(500).json({ error: 'Failed to delete template' });
+    }
+  });
   
   // Import ZIP template
   app.post('/api/templates/import-zip', async (req: Request, res: Response) => {

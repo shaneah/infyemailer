@@ -28,6 +28,7 @@ import {
   Send,
   Pencil,
   Mail,
+  Trash2,
   ExternalLink,
   X,
   XCircle
@@ -275,6 +276,33 @@ export default function Templates() {
       });
     }
   });
+  
+  const deleteTemplateMutation = useMutation({
+    mutationFn: async (templateId: number) => {
+      const response = await apiRequest("DELETE", `/api/templates/${templateId}`);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/templates'] });
+      toast({
+        title: "Template Deleted",
+        description: "Your template has been deleted successfully",
+        variant: "default",
+      });
+      
+      // If the deleted template was selected, clear the selection
+      if (selectedTemplate) {
+        setSelectedTemplate(null);
+      }
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: `Failed to delete template: ${error.message}`,
+        variant: "destructive",
+      });
+    }
+  });
 
   // Handler functions
   const handleSendTestEmail = (data: z.infer<typeof testEmailSchema>) => {
@@ -471,9 +499,23 @@ export default function Templates() {
                       Preview
                     </Button>
                   </div>
-                  <Link href={`/template-builder?id=${template.id}`}>
-                    <Button variant="ghost" size="sm">Edit</Button>
-                  </Link>
+                  <div className="flex gap-2">
+                    <Link href={`/template-builder?id=${template.id}`}>
+                      <Button variant="ghost" size="sm">Edit</Button>
+                    </Link>
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                      onClick={() => {
+                        if (window.confirm(`Are you sure you want to delete ${template.name}?`)) {
+                          deleteTemplateMutation.mutate(template.id);
+                        }
+                      }}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </CardFooter>
               </Card>
             ))}
@@ -532,11 +574,24 @@ export default function Templates() {
                   Preview
                 </Button>
               </div>
-              <Link href={`/template-builder?id=${selectedTemplate.id}`}>
-                <Button>
-                  Edit Template
+              <div className="flex gap-2">
+                <Link href={`/template-builder?id=${selectedTemplate.id}`}>
+                  <Button>
+                    Edit Template
+                  </Button>
+                </Link>
+                <Button 
+                  variant="destructive"
+                  onClick={() => {
+                    if (window.confirm(`Are you sure you want to delete ${selectedTemplate.name}?`)) {
+                      deleteTemplateMutation.mutate(selectedTemplate.id);
+                    }
+                  }}
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Delete Template
                 </Button>
-              </Link>
+              </div>
             </CardFooter>
           </Card>
         </div>
