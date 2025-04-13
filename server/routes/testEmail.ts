@@ -26,12 +26,41 @@ export async function registerTestEmailRoutes(app: any) {
       
       const validatedData = schema.parse(req.body);
       
+      // Get all providers to ensure we have registered providers
+      const allProviders = emailService.getAllProviders();
+      if (allProviders.length === 0) {
+        return res.status(400).json({ 
+          error: 'No email providers configured', 
+          message: 'Please set up at least one email provider in the Email Providers section'
+        });
+      }
+      
       // Get the default provider name for logging
       const defaultProviderName = emailService.getDefaultProviderName();
       if (!defaultProviderName) {
-        return res.status(400).json({ 
-          error: 'No default email provider configured', 
-          message: 'Please set up an email provider in the Email Providers section'
+        // If no default provider is explicitly set, use the first available provider
+        const firstProvider = allProviders[0];
+        console.log(`[Test Email] No default provider set, using first available: ${firstProvider.name}`);
+        
+        // Send the test email using the first available provider
+        const result = await emailService.sendEmail({
+          from: validatedData.from || 'notifications@infymailer.com',
+          to: validatedData.to,
+          subject: validatedData.subject,
+          text: validatedData.text || '',
+          html: validatedData.html || validatedData.text || ''
+        }, firstProvider.name);
+        
+        if (!result) {
+          console.error('[Test Email] Email sending failed');
+          return res.status(500).json({ error: 'Failed to send test email' });
+        }
+        
+        console.log('[Test Email] Email sent successfully');
+        return res.json({ 
+          success: true, 
+          message: `Test email sent successfully using ${firstProvider.name}`,
+          provider: firstProvider.name
         });
       }
       

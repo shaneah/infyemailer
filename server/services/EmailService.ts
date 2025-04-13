@@ -142,6 +142,34 @@ export class EmailService {
     
     return undefined;
   }
+  
+  /**
+   * Remove a provider from the registry
+   */
+  removeProvider(name: string): boolean {
+    const provider = this.providers.get(name);
+    
+    if (!provider) {
+      return false;
+    }
+    
+    // If this is the default provider, reset the default
+    if (this.defaultProvider === provider) {
+      this.defaultProvider = null;
+      
+      // Set a new default if there are other providers
+      const remainingProviders = Array.from(this.providers.entries())
+        .filter(([providerName]) => providerName !== name);
+        
+      if (remainingProviders.length > 0) {
+        const [newDefaultName, newDefaultProvider] = remainingProviders[0];
+        this.defaultProvider = newDefaultProvider;
+        console.log(`Set new default provider: ${newDefaultName}`);
+      }
+    }
+    
+    return this.providers.delete(name);
+  }
 }
 
 // Create a singleton instance
