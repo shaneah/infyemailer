@@ -379,11 +379,13 @@ export class MemStorage implements IStorage {
     // Initialize with some default data
     this.initializeData();
     
-    // Load saved lists and contact-list relationships from files
+    // Load saved data from files
     this.loadListsFromFile();
-    
-    // Load saved templates from files
     this.loadTemplatesFromFile();
+    this.loadCampaignsFromFile();
+    this.loadContactsFromFile();
+    this.loadDomainsFromFile();
+    this.loadClientsFromFile();
   }
   
   /**
@@ -434,6 +436,86 @@ export class MemStorage implements IStorage {
       }
     } catch (error) {
       console.error('Failed to load lists from file storage:', error);
+    }
+  }
+  
+  /**
+   * Load campaigns from file storage
+   */
+  private async loadCampaignsFromFile() {
+    try {
+      // Load campaigns
+      const savedCampaigns = await CampaignPersistenceService.loadCampaignsFromFile();
+      if (savedCampaigns.size > 0) {
+        // Replace in-memory campaigns with saved campaigns
+        this.campaigns = savedCampaigns;
+        
+        // Update campaignId counter to be greater than any existing id
+        this.campaignId = CampaignPersistenceService.getNextId(savedCampaigns);
+        console.log(`Loaded ${savedCampaigns.size} campaigns from file storage`);
+      }
+    } catch (error) {
+      console.error('Failed to load campaigns from file storage:', error);
+    }
+  }
+  
+  /**
+   * Load contacts from file storage
+   */
+  private async loadContactsFromFile() {
+    try {
+      // Load contacts
+      const savedContacts = await ContactPersistenceService.loadContactsFromFile();
+      if (savedContacts.size > 0) {
+        // Replace in-memory contacts with saved contacts
+        this.contacts = savedContacts;
+        
+        // Update contactId counter to be greater than any existing id
+        this.contactId = ContactPersistenceService.getNextId(savedContacts);
+        console.log(`Loaded ${savedContacts.size} contacts from file storage`);
+      }
+    } catch (error) {
+      console.error('Failed to load contacts from file storage:', error);
+    }
+  }
+  
+  /**
+   * Load domains from file storage
+   */
+  private async loadDomainsFromFile() {
+    try {
+      // Load domains
+      const savedDomains = await DomainPersistenceService.loadDomainsFromFile();
+      if (savedDomains.size > 0) {
+        // Replace in-memory domains with saved domains
+        this.domains = savedDomains;
+        
+        // Update domainId counter to be greater than any existing id
+        this.domainId = DomainPersistenceService.getNextId(savedDomains);
+        console.log(`Loaded ${savedDomains.size} domains from file storage`);
+      }
+    } catch (error) {
+      console.error('Failed to load domains from file storage:', error);
+    }
+  }
+  
+  /**
+   * Load clients from file storage
+   */
+  private async loadClientsFromFile() {
+    try {
+      // Load clients
+      const savedClients = await ClientPersistenceService.loadClientsFromFile();
+      if (savedClients.size > 0) {
+        // Replace in-memory clients with saved clients
+        this.clients = savedClients;
+        
+        // Update clientId counter to be greater than any existing id
+        this.clientId = ClientPersistenceService.getNextId(savedClients);
+        console.log(`Loaded ${savedClients.size} clients from file storage`);
+      }
+    } catch (error) {
+      console.error('Failed to load clients from file storage:', error);
     }
   }
 
