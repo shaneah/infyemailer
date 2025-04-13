@@ -3171,6 +3171,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Get campaigns performance data for reporting
+  app.get('/api/campaigns/performance', async (req: Request, res: Response) => {
+    try {
+      const campaigns = await storage.getCampaigns();
+      
+      // Transform campaigns into performance data format
+      const performanceData = await Promise.all(campaigns.map(async (campaign) => {
+        try {
+          // Get the latest engagement metrics for this campaign
+          const metrics = await trackingService.getEngagementMetrics(campaign.id, 30);
+          const latestMetrics = metrics.length > 0 ? metrics[metrics.length - 1] : null;
+          
+          return {
+            name: campaign.name,
+            opens: latestMetrics?.totalOpens || 0,
+            clicks: latestMetrics?.totalClicks || 0,
+            unsubscribes: 0 // This would need to be tracked separately
+          };
+        } catch (error) {
+          console.error(`Error getting performance data for campaign ${campaign.id}:`, error);
+          // Return default values if there's an error
+          return {
+            name: campaign.name,
+            opens: 0,
+            clicks: 0,
+            unsubscribes: 0
+          };
+        }
+      }));
+      
+      res.json(performanceData);
+    } catch (error) {
+      console.error('Campaign performance data error:', error);
+      res.status(500).json({ error: 'Failed to fetch campaign performance data' });
+    }
+  });
+  
   // Get click events for a campaign
   app.get('/api/campaigns/:id/clicks', async (req: Request, res: Response) => {
     try {

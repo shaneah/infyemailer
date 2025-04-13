@@ -26,14 +26,32 @@ const Reporting = () => {
   const [selectedSegment, setSelectedSegment] = useState("all");
   const [selectedTab, setSelectedTab] = useState("overview");
 
-  // Sample data for charts
-  const campaignPerformanceData = [
-    { name: 'Weekly Newsletter', opens: 4500, clicks: 2300, unsubscribes: 120 },
-    { name: 'Product Update', opens: 3800, clicks: 1900, unsubscribes: 90 },
-    { name: 'Summer Sale', opens: 5200, clicks: 3600, unsubscribes: 70 },
-    { name: 'Customer Survey', opens: 2900, clicks: 1400, unsubscribes: 150 },
-    { name: 'Webinar Invite', opens: 3400, clicks: 2100, unsubscribes: 60 },
-  ];
+  // Campaign performance data from API
+  const [campaignPerformanceData, setCampaignPerformanceData] = useState<any[]>([]);
+  const [isLoadingPerformanceData, setIsLoadingPerformanceData] = useState(true);
+  
+  // Fetch campaign performance data
+  useEffect(() => {
+    const fetchCampaignPerformance = async () => {
+      try {
+        setIsLoadingPerformanceData(true);
+        const response = await fetch('/api/campaigns/performance');
+        if (!response.ok) {
+          throw new Error('Failed to fetch campaign performance data');
+        }
+        const data = await response.json();
+        setCampaignPerformanceData(data);
+      } catch (error) {
+        console.error('Error fetching campaign performance data:', error);
+        // If there's an error, we'll show empty data
+        setCampaignPerformanceData([]);
+      } finally {
+        setIsLoadingPerformanceData(false);
+      }
+    };
+    
+    fetchCampaignPerformance();
+  }, []);
 
   const timeSeriesData = [
     { date: '2025-03-01', opens: 1200, clicks: 800, unsubscribes: 40 },
@@ -320,21 +338,33 @@ const Reporting = () => {
               </CardHeader>
               <CardContent>
                 <div className="h-[300px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart
-                      data={campaignPerformanceData}
-                      margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-                    >
-                      <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                      <XAxis dataKey="name" className="text-xs" />
-                      <YAxis className="text-xs" />
-                      <Tooltip />
-                      <Legend />
-                      <Bar dataKey="opens" fill="#0088FE" name="Opens" />
-                      <Bar dataKey="clicks" fill="#00C49F" name="Clicks" />
-                      <Bar dataKey="unsubscribes" fill="#FF8042" name="Unsubscribes" />
-                    </BarChart>
-                  </ResponsiveContainer>
+                  {isLoadingPerformanceData ? (
+                    <div className="h-full flex items-center justify-center">
+                      <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                    </div>
+                  ) : campaignPerformanceData.length === 0 ? (
+                    <div className="h-full flex flex-col items-center justify-center text-muted-foreground">
+                      <BarChart4 className="h-12 w-12 mb-2" />
+                      <p>No campaign performance data available</p>
+                      <p className="text-sm">Create and send campaigns to see analytics here</p>
+                    </div>
+                  ) : (
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart
+                        data={campaignPerformanceData}
+                        margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                        <XAxis dataKey="name" className="text-xs" />
+                        <YAxis className="text-xs" />
+                        <Tooltip />
+                        <Legend />
+                        <Bar dataKey="opens" fill="#0088FE" name="Opens" />
+                        <Bar dataKey="clicks" fill="#00C49F" name="Clicks" />
+                        <Bar dataKey="unsubscribes" fill="#FF8042" name="Unsubscribes" />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  )}
                 </div>
               </CardContent>
             </Card>
