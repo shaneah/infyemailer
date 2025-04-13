@@ -10,6 +10,8 @@ import { emailSchema } from "../shared/validation";
 import { z } from "zod";
 import fileUpload, { UploadedFile } from "express-fileupload";
 import heatMapsRoutes from "./routes/heat-maps";
+import { emailService } from "./services/EmailService";
+import { defaultEmailSettings } from "./routes/emailSettings";
 
 // Extend Express Request type to include files property
 declare global {
@@ -226,6 +228,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
 
     try {
+      // Import email service if it doesn't exist in the current scope
+      if (typeof emailService === 'undefined') {
+        const { emailService } = await import('./services/EmailService');
+      }
+      
+      // Import default email settings if needed
+      if (typeof defaultEmailSettings === 'undefined') {
+        const { defaultEmailSettings } = await import('./routes/emailSettings');
+      }
+      
       // Determine campaign status based on sendOption
       let status = 'draft';
       let sentAt = null;
@@ -259,6 +271,97 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const campaign = await storage.createCampaign(campaignData as any);
       console.log("Campaign created successfully:", campaign);
+      
+      // Actually send the campaign if sendOption is "now"
+      if (req.body.sendOption === 'now') {
+        setTimeout(async () => {
+          try {
+            console.log("Attempting to send campaign immediately...");
+            
+            // Get template content
+            const templateId = parseInt(req.body.templateId);
+            const template = await storage.getTemplate(templateId);
+            
+            if (!template) {
+              console.error("Template not found for campaign:", templateId);
+              return;
+            }
+            
+            // Get contacts for the lists
+            const contactLists = Array.isArray(req.body.contactLists) ? req.body.contactLists : [];
+            let contactsToEmail = [];
+            
+            for (const listId of contactLists) {
+              const contacts = await storage.getContactsByList(parseInt(listId));
+              contactsToEmail = [...contactsToEmail, ...contacts];
+            }
+            
+            console.log(`Found ${contactsToEmail.length} contacts to receive campaign`);
+            
+            if (contactsToEmail.length === 0) {
+              console.log("No contacts found for the selected lists");
+              return;
+            }
+            
+            const providerName = emailService.getDefaultProviderName();
+            if (!providerName) {
+              console.error("No default email provider set");
+              return;
+            }
+            
+            console.log("Using email provider:", providerName);
+            
+            // Send to each contact
+            let sentCount = 0;
+            for (const contact of contactsToEmail) {
+              try {
+                if (!contact.email) {
+                  console.error("Contact missing email:", contact);
+                  continue;
+                }
+                
+                const emailParams = {
+                  from: defaultEmailSettings.fromEmail || req.body.senderName,
+                  fromName: req.body.senderName || defaultEmailSettings.fromName,
+                  to: contact.email,
+                  subject: req.body.subject,
+                  html: template.content
+                };
+                
+                console.log(`Sending campaign email to ${contact.email}`);
+                await emailService.sendEmail(emailParams);
+                sentCount++;
+                
+                // Update campaign metadata to track recipients
+                const campaignToUpdate = await storage.getCampaign(campaign.id);
+                if (campaignToUpdate) {
+                  let metadata = campaignToUpdate.metadata || {};
+                  if (typeof metadata === 'string') {
+                    try {
+                      metadata = JSON.parse(metadata);
+                    } catch (e) {
+                      metadata = {};
+                    }
+                  }
+                  
+                  metadata.recipients = (metadata.recipients || 0) + 1;
+                  await storage.updateCampaign(campaign.id, {
+                    metadata: metadata
+                  });
+                }
+              } catch (emailError) {
+                console.error(`Failed to send campaign email to ${contact.email}:`, emailError);
+              }
+            }
+            
+            console.log(`Campaign ${campaign.id} sent to ${sentCount} recipients`);
+            
+          } catch (sendError) {
+            console.error("Error sending campaign:", sendError);
+          }
+        }, 100); // Slight delay to avoid blocking the response
+      }
+      
       res.status(201).json(campaign);
     } catch (error) {
       console.error("Campaign creation error:", error);
