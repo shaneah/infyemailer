@@ -1,0 +1,42 @@
+[
+  {
+    "name": "Newsletter",
+    "description": "Standard newsletter layout",
+    "content": "<h1>Newsletter Template</h1><p>This is a sample newsletter template.</p>",
+    "category": "newsletter",
+    "metadata": {
+      "icon": "file-earmark-text",
+      "iconColor": "primary"
+    },
+    "id": 1,
+    "createdAt": "2025-04-13T03:57:34.086Z",
+    "updatedAt": "2025-04-13T03:57:34.086Z"
+  },
+  {
+    "name": "Promotional",
+    "description": "For sales and offers",
+    "content": "<h1>Promotional Template</h1><p>This is a sample promotional template.</p>",
+    "category": "promotional",
+    "metadata": {
+      "icon": "megaphone",
+      "iconColor": "danger",
+      "selected": true
+    },
+    "id": 2,
+    "createdAt": "2025-04-13T03:57:34.087Z",
+    "updatedAt": "2025-04-13T03:57:34.087Z"
+  },
+  {
+    "name": "Welcome",
+    "description": "For new subscribers",
+    "content": "<h1>Welcome Template</h1><p>This is a sample welcome template.</p>",
+    "category": "transactional",
+    "metadata": {
+      "icon": "envelope-check",
+      "iconColor": "success"
+    },
+    "id": 3,
+    "createdAt": "2025-04-13T03:57:34.087Z",
+    "updatedAt": "2025-04-13T03:57:34.087Z"
+  }
+]

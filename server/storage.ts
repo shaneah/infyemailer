@@ -31,6 +31,8 @@ import {
   insertPersonaInsightSchema,
   insertAudienceSegmentSchema
 } from "@shared/schema";
+import { ListPersistenceService } from './services/ListPersistenceService';
+import { TemplatePersistenceService } from './services/TemplatePersistenceService';
 
 // Interface for storage operations
 export interface IStorage {
@@ -246,8 +248,6 @@ export interface IStorage {
   deleteAudienceSegment(id: number): Promise<boolean>;
 }
 
-import { ListPersistenceService } from './services/ListPersistenceService';
-import { TemplatePersistenceService } from './services/TemplatePersistenceService';
 import session from 'express-session';
 import createMemoryStore from 'memorystore';
 
@@ -377,6 +377,29 @@ export class MemStorage implements IStorage {
     
     // Load saved lists and contact-list relationships from files
     this.loadListsFromFile();
+    
+    // Load saved templates from files
+    this.loadTemplatesFromFile();
+  }
+  
+  /**
+   * Load templates from file storage
+   */
+  private async loadTemplatesFromFile() {
+    try {
+      // Load templates
+      const savedTemplates = await TemplatePersistenceService.loadTemplatesFromFile();
+      if (savedTemplates.size > 0) {
+        // Replace in-memory templates with saved templates
+        this.templates = savedTemplates;
+        
+        // Update templateId counter to be greater than any existing id
+        this.templateId = TemplatePersistenceService.getNextId(savedTemplates);
+        console.log(`Loaded ${savedTemplates.size} templates from file storage`);
+      }
+    } catch (error) {
+      console.error('Failed to load templates from file storage:', error);
+    }
   }
   
   /**
@@ -1439,6 +1462,10 @@ export class MemStorage implements IStorage {
       updatedAt: now
     };
     this.templates.set(id, newTemplate);
+    
+    // Save templates to file after creating a new one
+    await TemplatePersistenceService.saveTemplatesToFile(this.templates);
+    
     return newTemplate;
   }
 
@@ -1452,11 +1479,22 @@ export class MemStorage implements IStorage {
       updatedAt: new Date()
     };
     this.templates.set(id, updatedTemplate);
+    
+    // Save templates to file after updating
+    await TemplatePersistenceService.saveTemplatesToFile(this.templates);
+    
     return updatedTemplate;
   }
 
   async deleteTemplate(id: number): Promise<boolean> {
-    return this.templates.delete(id);
+    const result = this.templates.delete(id);
+    
+    // If deletion was successful, save the updated templates to file
+    if (result) {
+      await TemplatePersistenceService.saveTemplatesToFile(this.templates);
+    }
+    
+    return result;
   }
 
   // Analytics methods
