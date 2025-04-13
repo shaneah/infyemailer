@@ -55,23 +55,41 @@ const NewCampaignModal = ({ onClose }: NewCampaignModalProps) => {
 
   const createCampaignMutation = useMutation<CampaignResponse, Error, z.infer<typeof campaignSchema>>({
     mutationFn: async (values: z.infer<typeof campaignSchema>) => {
+      console.log("Creating campaign with values:", values);
+      
       const response = await apiRequest("POST", "/api/campaigns", {
         ...values,
         templateId: selectedTemplateId,
         contactLists: selectedLists,
         sendOption
       });
-      return await response.json();
+      
+      const data = await response.json();
+      console.log("Campaign created successfully:", data);
+      return data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log("Invalidating /api/campaigns query cache");
+      
+      // Invalidate multiple queries to ensure everything is refreshed
       queryClient.invalidateQueries({ queryKey: ['/api/campaigns'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/campaigns/stats'] });
+      
+      setTimeout(() => {
+        // Force a refetch after a short delay
+        queryClient.refetchQueries({ queryKey: ['/api/campaigns'] });
+        queryClient.refetchQueries({ queryKey: ['/api/campaigns/stats'] });
+      }, 300);
+      
       toast({
         title: "Success",
-        description: "Your campaign has been scheduled successfully!",
+        description: "Your campaign has been created successfully!",
       });
+      
       onClose();
     },
     onError: (error) => {
+      console.error("Campaign creation error:", error);
       toast({
         title: "Error",
         description: `Failed to create campaign: ${error.message}`,

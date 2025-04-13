@@ -213,16 +213,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Create a new campaign
   app.post('/api/campaigns', async (req: Request, res: Response) => {
+    console.log("Creating campaign with data:", req.body);
+    
     const validatedData = validate(insertCampaignSchema, req.body);
     if ('error' in validatedData) {
+      console.error("Campaign validation error:", validatedData.error);
       return res.status(400).json({ error: validatedData.error });
     }
 
     try {
-      const campaign = await storage.createCampaign(validatedData);
+      // Add default values and prepare the campaign data
+      const campaignData = {
+        ...validatedData,
+        status: validatedData.status || 'draft',
+        metadata: {
+          ...validatedData.metadata,
+          subtitle: req.body.subtitle || '',
+          icon: req.body.icon || { name: 'envelope', color: 'primary' },
+          recipients: req.body.recipients || 0,
+          openRate: 0,
+          clickRate: 0,
+          date: req.body.scheduledDate ? new Date(req.body.scheduledDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+        }
+      };
+      
+      const campaign = await storage.createCampaign(campaignData as any);
+      console.log("Campaign created successfully:", campaign);
       res.status(201).json(campaign);
     } catch (error) {
-      res.status(500).json({ error: 'Failed to create campaign' });
+      console.error("Campaign creation error:", error);
+      res.status(500).json({ error: 'Failed to create campaign', details: error.message });
     }
   });
 

@@ -25,9 +25,15 @@ interface Campaign {
 
 const CampaignsTable = () => {
   const { toast } = useToast();
-  const { data: campaigns = [], isLoading } = useQuery<Campaign[]>({
+  const { data: campaigns = [], isLoading, isError, refetch } = useQuery<Campaign[]>({
     queryKey: ['/api/campaigns'],
+    staleTime: 10000, // Reduce stale time to 10 seconds
+    retry: 2, // Retry failed requests
+    refetchOnWindowFocus: true
   });
+  
+  // For debugging purposes - log the campaigns data
+  console.log("Campaigns data:", campaigns);
   
   const deleteCampaignMutation = useMutation({
     mutationFn: async (campaignId: number) => {
