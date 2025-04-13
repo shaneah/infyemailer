@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import { z } from 'zod';
 
 // Define the settings file path
-const settingsFilePath = './email-default-settings.json';
+const settingsFilePath = 'email-default-settings.json';
 
 // Default settings schema
 const defaultSettingsSchema = z.object({
@@ -45,12 +45,28 @@ function loadSettingsFromFile() {
 // Save settings to file
 function saveSettingsToFile() {
   try {
+    // Make sure the file path is correct
+    const absoluteFilePath = settingsFilePath.startsWith('./') 
+      ? settingsFilePath.substring(2) // Remove the ./ prefix
+      : settingsFilePath;
+    
+    console.log(`Saving default email settings to: ${absoluteFilePath}`);
+    console.log('Settings content:', JSON.stringify(defaultEmailSettings, null, 2));
+    
     fs.writeFileSync(
       settingsFilePath,
       JSON.stringify(defaultEmailSettings, null, 2),
       'utf8'
     );
-    console.log('Saved default email settings to file');
+    console.log('Successfully saved default email settings to file');
+    
+    // Verify the file was created
+    if (fs.existsSync(settingsFilePath)) {
+      const fileContent = fs.readFileSync(settingsFilePath, 'utf8');
+      console.log(`File exists after save. Content length: ${fileContent.length} bytes`);
+    } else {
+      console.error(`File does not exist after save attempt: ${settingsFilePath}`);
+    }
   } catch (error) {
     console.error('Failed to save default email settings to file:', error);
   }
