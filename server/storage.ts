@@ -815,6 +815,10 @@ export class MemStorage implements IStorage {
       lastCampaignAt: null
     };
     this.clients.set(id, newClient);
+    
+    // Save clients to file for persistence
+    await ClientPersistenceService.saveClientsToFile(this.clients);
+    
     return newClient;
   }
 
@@ -824,11 +828,22 @@ export class MemStorage implements IStorage {
 
     const updatedClient = { ...existingClient, ...client };
     this.clients.set(id, updatedClient);
+    
+    // Save clients to file for persistence
+    await ClientPersistenceService.saveClientsToFile(this.clients);
+    
     return updatedClient;
   }
 
   async deleteClient(id: number): Promise<boolean> {
-    return this.clients.delete(id);
+    const result = this.clients.delete(id);
+    
+    if (result) {
+      // Save clients to file for persistence
+      await ClientPersistenceService.saveClientsToFile(this.clients);
+    }
+    
+    return result;
   }
 
   async getClientCampaigns(clientId: number): Promise<Campaign[]> {
@@ -1469,6 +1484,10 @@ export class MemStorage implements IStorage {
       updatedAt: now
     };
     this.campaigns.set(id, newCampaign);
+    
+    // Save campaigns to file for persistence
+    await CampaignPersistenceService.saveCampaignsToFile(this.campaigns);
+    
     return newCampaign;
   }
 
@@ -1482,11 +1501,20 @@ export class MemStorage implements IStorage {
       updatedAt: new Date()
     };
     this.campaigns.set(id, updatedCampaign);
+    
+    // Save campaigns to file for persistence
+    await CampaignPersistenceService.saveCampaignsToFile(this.campaigns);
+    
     return updatedCampaign;
   }
 
   async deleteCampaign(id: number): Promise<boolean> {
-    return this.campaigns.delete(id);
+    const result = this.campaigns.delete(id);
+    
+    // Save campaigns to file for persistence
+    await CampaignPersistenceService.saveCampaignsToFile(this.campaigns);
+    
+    return result;
   }
 
   // Email methods
@@ -1671,6 +1699,10 @@ export class MemStorage implements IStorage {
       lastUsedAt: null
     };
     this.domains.set(id, newDomain);
+    
+    // Save domains to file for persistence
+    await DomainPersistenceService.saveDomainsToFile(this.domains);
+    
     return newDomain;
   }
   
@@ -1690,11 +1722,22 @@ export class MemStorage implements IStorage {
     }
     
     this.domains.set(id, updatedDomain);
+    
+    // Save domains to file for persistence
+    await DomainPersistenceService.saveDomainsToFile(this.domains);
+    
     return updatedDomain;
   }
   
   async deleteDomain(id: number): Promise<boolean> {
-    return this.domains.delete(id);
+    const result = this.domains.delete(id);
+    
+    if (result) {
+      // Save domains to file for persistence
+      await DomainPersistenceService.saveDomainsToFile(this.domains);
+    }
+    
+    return result;
   }
   
   async setDefaultDomain(id: number): Promise<Domain | undefined> {
@@ -1705,6 +1748,9 @@ export class MemStorage implements IStorage {
     for (const [domainId, domainValue] of this.domains.entries()) {
       this.domains.set(domainId, { ...domainValue, defaultDomain: domainId === id });
     }
+    
+    // Save domains to file for persistence
+    await DomainPersistenceService.saveDomainsToFile(this.domains);
     
     return this.getDomain(id);
   }
