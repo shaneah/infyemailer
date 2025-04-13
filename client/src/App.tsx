@@ -24,7 +24,7 @@ import ClientUsers from "@/pages/ClientUsers";
 import Settings from "@/pages/Settings";
 import AdminPanel from "@/pages/AdminPanel";
 import EmailValidation from "@/pages/EmailValidation";
-import Emails from "@/pages/Emails";
+// Emails import removed
 import Reporting from "@/pages/Reporting";
 import EmailProviders from "@/pages/EmailProviders";
 import ClientManagement from "@/pages/ClientManagement";
@@ -181,7 +181,7 @@ function App() {
                     <ProtectedRoute path="profile" component={Settings} />
                     <ProtectedRoute path="admin" component={AdminPanel} />
                     <ProtectedRoute path="email-validation" component={EmailValidation} />
-                    <ProtectedRoute path="emails" component={Emails} />
+                    {/* Emails route removed */}
                     <ProtectedRoute path="reporting" component={Reporting} />
                     <ProtectedRoute path="email-providers" component={EmailProviders} />
                     <ProtectedRoute path="client-management" component={ClientManagement} />
