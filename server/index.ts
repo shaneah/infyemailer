@@ -2,7 +2,7 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import fileUpload from "express-fileupload";
-import { isDatabaseAvailable } from "./db";
+import { isDatabaseAvailable, initDatabase } from "./db";
 
 const app = express();
 // Increase the JSON payload size limit to 50MB
@@ -47,11 +47,15 @@ app.use((req, res, next) => {
   next();
 });
 
-// Log storage mode
-log(`Using ${isDatabaseAvailable ? 'PostgreSQL database' : 'memory storage'} for data operations`, 'server');
-
+// Initialize the application
 (async () => {
   try {
+    // Initialize database connection first
+    await initDatabase();
+    
+    // Log storage mode after database initialization
+    log(`Using ${isDatabaseAvailable ? 'PostgreSQL database' : 'memory storage'} for data operations`, 'server');
+    
     // Register API routes
     const server = await registerRoutes(app);
 
