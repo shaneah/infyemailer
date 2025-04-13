@@ -247,6 +247,7 @@ export interface IStorage {
 }
 
 import { ListPersistenceService } from './services/ListPersistenceService';
+import { TemplatePersistenceService } from './services/TemplatePersistenceService';
 import session from 'express-session';
 import createMemoryStore from 'memorystore';
 
