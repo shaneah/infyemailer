@@ -26,8 +26,13 @@ function setupDatabaseConnection() {
     
     log('Connecting to Neon Postgres database', 'db');
     
-    // Create Neon PostgreSQL connection
-    pool = new Pool({ connectionString: databaseUrl });
+    // Create Neon PostgreSQL connection with more robust settings
+    pool = new Pool({ 
+      connectionString: databaseUrl,
+      connectionTimeoutMillis: 5000, // 5 second timeout
+      max: 20, // maximum connection pool size
+      idleTimeoutMillis: 30000 // how long a client is allowed to remain idle before being closed
+    });
     
     // Initialize Drizzle
     db = drizzle(pool);
@@ -35,11 +40,20 @@ function setupDatabaseConnection() {
     
     // Test connection (async but we'll wait for it)
     return new Promise<boolean>((resolve) => {
+      // Add a timeout to the connection test
+      const timeout = setTimeout(() => {
+        log('Database connection test timed out after 5 seconds', 'db');
+        isDatabaseAvailable = false;
+        resolve(false);
+      }, 5000);
+      
       pool.query('SELECT 1').then(() => {
+        clearTimeout(timeout);
         log('PostgreSQL database connected successfully', 'db');
         isDatabaseAvailable = true;
         resolve(true);
       }).catch((err: Error) => {
+        clearTimeout(timeout);
         log(`Database connection test failed: ${err.message}`, 'db');
         isDatabaseAvailable = false;
         resolve(false);
