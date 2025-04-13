@@ -3,6 +3,73 @@ import { z } from 'zod';
 import { emailService } from '../services/EmailService';
 
 export async function registerTestEmailRoutes(app: any) {
+  // Send a test email using the default provider
+  app.post('/api/test-email', async (req: Request, res: Response) => {
+    try {
+      // Log the request for debugging
+      console.log('[Test Email] Received request:', {
+        to: req.body.to,
+        subject: req.body.subject,
+        from: req.body.from,
+        fromName: req.body.fromName
+      });
+      
+      // Validate the request body
+      const schema = z.object({
+        to: z.string().email(),
+        subject: z.string().min(1),
+        text: z.string().optional(),
+        html: z.string().optional(),
+        from: z.string().email().optional(),
+        fromName: z.string().optional()
+      });
+      
+      const validatedData = schema.parse(req.body);
+      
+      // Get the default provider name for logging
+      const defaultProviderName = emailService.getDefaultProviderName();
+      if (!defaultProviderName) {
+        return res.status(400).json({ 
+          error: 'No default email provider configured', 
+          message: 'Please set up an email provider in the Email Providers section'
+        });
+      }
+      
+      console.log(`[Test Email] Using default provider: ${defaultProviderName}`);
+      console.log('[Test Email] Sending email to:', validatedData.to);
+      
+      // Send the test email using the default provider
+      const result = await emailService.sendEmail({
+        from: validatedData.from || 'notifications@infymailer.com',
+        to: validatedData.to,
+        subject: validatedData.subject,
+        text: validatedData.text || '',
+        html: validatedData.html || validatedData.text || ''
+      });
+      
+      if (!result) {
+        console.error('[Test Email] Email sending failed');
+        return res.status(500).json({ error: 'Failed to send test email' });
+      }
+      
+      console.log('[Test Email] Email sent successfully');
+      return res.json({ 
+        success: true, 
+        message: `Test email sent successfully using ${defaultProviderName}`,
+        provider: defaultProviderName
+      });
+    } catch (error) {
+      console.error('[Test Email] Error sending test email:', error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: 'Invalid request data', details: error.errors });
+      }
+      return res.status(500).json({ 
+        error: 'Failed to send test email',
+        details: error instanceof Error ? error.message : String(error)
+      });
+    }
+  });
+  
   // Send a test email directly using SendGrid
   app.post('/api/test-email/sendgrid', async (req: Request, res: Response) => {
     try {

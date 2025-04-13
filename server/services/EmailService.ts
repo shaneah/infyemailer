@@ -112,6 +112,36 @@ export class EmailService {
   hasProvider(name: string): boolean {
     return this.providers.has(name);
   }
+  
+  /**
+   * Check if a provider is the default provider
+   */
+  isDefaultProvider(name: string): boolean {
+    if (!this.defaultProvider) return false;
+    
+    const provider = this.providers.get(name);
+    if (!provider) return false;
+    
+    return provider === this.defaultProvider;
+  }
+  
+  /**
+   * Get the name of the default provider
+   */
+  getDefaultProviderName(): string | undefined {
+    if (!this.defaultProvider) return undefined;
+    
+    // Convert entries to array first to avoid iterator issues
+    const providersArray = Array.from(this.providers.entries());
+    
+    for (const [name, provider] of providersArray) {
+      if (provider === this.defaultProvider) {
+        return name;
+      }
+    }
+    
+    return undefined;
+  }
 }
 
 // Create a singleton instance

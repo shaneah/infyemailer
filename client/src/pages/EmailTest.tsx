@@ -53,7 +53,7 @@ export default function EmailTest() {
   const { mutate, isPending } = useMutation({
     mutationFn: async (values: TestEmailFormValues) => {
       try {
-        const response = await apiRequest('POST', '/api/test-email/sendgrid', values);
+        const response = await apiRequest('POST', '/api/test-email', values);
         // Clone the response before reading the body
         const clonedResponse = response.clone();
         
