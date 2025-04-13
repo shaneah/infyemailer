@@ -483,13 +483,15 @@ export default function Templates() {
                 
                 <CardFooter className="pt-2 border-t flex justify-between">
                   <div className="flex gap-2">
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => handleViewTemplate(template)}
-                    >
-                      View Details
-                    </Button>
+                    <Link href={`/campaigns?templateId=${template.id}`}>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                      >
+                        <Send className="h-4 w-4 mr-2" />
+                        Use Template
+                      </Button>
+                    </Link>
                     <Button 
                       variant="ghost" 
                       size="sm"
