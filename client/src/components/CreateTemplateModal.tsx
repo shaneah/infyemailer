@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useMutation } from "@tanstack/react-query";
+import React, { useState, useEffect } from "react";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import {
@@ -62,6 +62,12 @@ export default function CreateTemplateModal({
   const [tags, setTags] = useState("");
   const [startingPoint, setStartingPoint] = useState<"blank" | "existing">("blank");
   const [existingTemplateId, setExistingTemplateId] = useState<number | null>(null);
+  
+  // Fetch all templates for the dropdown
+  const { data: templates = [] } = useQuery<Template[]>({
+    queryKey: ['/api/templates'],
+    enabled: open && startingPoint === 'existing'
+  });
 
   const resetForm = () => {
     setName("");
@@ -255,9 +261,14 @@ export default function CreateTemplateModal({
                   className="col-span-3 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                   onChange={(e) => setExistingTemplateId(parseInt(e.target.value))}
                   value={existingTemplateId || ""}
+                  required={startingPoint === 'existing'}
                 >
                   <option value="" disabled>Select a template</option>
-                  {/* We'd dynamically load templates here */}
+                  {templates.map((template) => (
+                    <option key={template.id} value={template.id}>
+                      {template.name}
+                    </option>
+                  ))}
                 </select>
               </div>
             )}
