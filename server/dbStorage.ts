@@ -1,1022 +1,1358 @@
-import {
-  Contact, InsertContact,
-  List, InsertList,
-  ContactList, InsertContactList,
-  Campaign, InsertCampaign,
-  Email, InsertEmail,
-  Template, InsertTemplate,
-  Analytics, InsertAnalytics,
-  CampaignVariant, InsertCampaignVariant,
-  VariantAnalytics, InsertVariantAnalytics,
-  Domain, InsertDomain,
-  CampaignDomain, InsertCampaignDomain,
-  Client, InsertClient,
-  ClientUser, InsertClientUser,
-  User, InsertUser,
-  ClientEmailCreditsHistory, InsertClientEmailCreditsHistory,
-  users, contacts, lists, contactLists, campaigns, emails, templates, analytics,
-  campaignVariants, variantAnalytics, domains, campaignDomains, clients, clientUsers,
-  clientEmailCreditsHistory,
-  clickEvents, openEvents, engagementMetrics, linkTracking,
-  InsertClickEvent, InsertOpenEvent, InsertEngagementMetrics, InsertLinkTracking,
-  ClickEvent, OpenEvent, EngagementMetrics, LinkTracking
-} from '@shared/schema';
 import { IStorage } from './storage';
-import { db, pool } from './db';
-import { eq, and } from 'drizzle-orm';
+import { db } from './db';
+import { eq, desc, and, gt, lt, isNull, count } from 'drizzle-orm';
+import * as schema from '../shared/schema';
 import { log } from './vite';
 
+/**
+ * Implementation of the storage interface using PostgreSQL database
+ */
 export class DbStorage implements IStorage {
   constructor() {
-    log('PostgreSQL storage initialized', 'db');
-  }
-  
-  // Helper method to hash passwords
-  async hashPassword(password: string) {
-    const { scrypt, randomBytes } = await import('crypto');
-    const { promisify } = await import('util');
-    const scryptAsync = promisify(scrypt);
-    
-    const salt = randomBytes(16).toString("hex");
-    const buf = (await scryptAsync(password, salt, 64)) as Buffer;
-    return `${buf.toString("hex")}.${salt}`;
-  }
-
-  // Helper method to compare passwords
-  async comparePasswords(supplied: string, stored: string) {
-    const { scrypt } = await import('crypto');
-    const { promisify } = await import('util');
-    const { timingSafeEqual } = await import('crypto');
-    const scryptAsync = promisify(scrypt);
-    
-    const [hashed, salt] = stored.split(".");
-    const hashedBuf = Buffer.from(hashed, "hex");
-    const suppliedBuf = (await scryptAsync(supplied, salt, 64)) as Buffer;
-    return timingSafeEqual(hashedBuf, suppliedBuf);
-  }
-
-  // User methods (admin)
-  async getUsers(): Promise<User[]> {
-    return await db.select().from(users);
-  }
-
-  async getUser(id: number): Promise<User | undefined> {
-    const result = await db.select().from(users).where(eq(users.id, id));
-    return result[0];
-  }
-
-  async getUserByUsername(username: string): Promise<User | undefined> {
-    const result = await db.select().from(users).where(eq(users.username, username));
-    return result[0];
-  }
-
-  async getUserByEmail(email: string): Promise<User | undefined> {
-    const result = await db.select().from(users).where(eq(users.email, email));
-    return result[0];
-  }
-
-  async createUser(user: InsertUser): Promise<User> {
-    const result = await db.insert(users).values({
-      ...user,
-      status: user.status || 'active'
-    }).returning();
-    return result[0];
-  }
-
-  async updateUser(id: number, user: Partial<User>): Promise<User | undefined> {
-    const result = await db.update(users)
-      .set(user)
-      .where(eq(users.id, id))
-      .returning();
-    return result[0];
-  }
-
-  async deleteUser(id: number): Promise<boolean> {
-    const result = await db.delete(users).where(eq(users.id, id)).returning();
-    return result.length > 0;
-  }
-
-  async verifyUserLogin(usernameOrEmail: string, password: string): Promise<User | undefined> {
-    let user = await this.getUserByUsername(usernameOrEmail);
-    if (!user) {
-      user = await this.getUserByEmail(usernameOrEmail);
-    }
-    
-    if (!user) {
-      return undefined;
-    }
-    
-    const isMatch = await this.comparePasswords(password, user.password);
-    if (!isMatch) {
-      return undefined;
-    }
-    
-    // Update last login time
-    await this.updateUser(user.id, { lastLoginAt: new Date() });
-    
-    return user;
+    log('Database storage initialized', 'db-storage');
   }
 
   // Client methods
-  async getClients(): Promise<Client[]> {
-    return await db.select().from(clients);
-  }
-
-  async getClient(id: number): Promise<Client | undefined> {
-    const result = await db.select().from(clients).where(eq(clients.id, id));
-    return result[0];
-  }
-
-  async getClientByEmail(email: string): Promise<Client | undefined> {
-    const result = await db.select().from(clients).where(eq(clients.email, email));
-    return result[0];
-  }
-
-  async createClient(client: InsertClient): Promise<Client> {
-    const result = await db.insert(clients).values({
-      ...client,
-      status: client.status || 'active'
-    }).returning();
-    return result[0];
-  }
-
-  async updateClient(id: number, client: Partial<Client>): Promise<Client | undefined> {
-    const result = await db.update(clients)
-      .set(client)
-      .where(eq(clients.id, id))
-      .returning();
-    return result[0];
-  }
-
-  async deleteClient(id: number): Promise<boolean> {
-    const result = await db.delete(clients).where(eq(clients.id, id)).returning();
-    return result.length > 0;
-  }
-
-  async getClientCampaigns(clientId: number): Promise<Campaign[]> {
-    return await db.select().from(campaigns).where(eq(campaigns.clientId, clientId));
-  }
-  
-  // Client email credits methods
-  async updateClientEmailCredits(id: number, emailCredits: number): Promise<Client | undefined> {
-    const client = await this.getClient(id);
-    if (!client) return undefined;
-    
-    // Create history record
-    await db.insert(clientEmailCreditsHistory).values({
-      clientId: id,
-      amount: emailCredits - (client.emailCredits || 0),
-      type: 'set',
-      previousBalance: client.emailCredits || 0,
-      newBalance: emailCredits,
-      reason: 'Manual adjustment',
-      createdAt: new Date(),
-      metadata: { action: 'set', adminAction: true }
-    });
-    
-    // Update client record
-    const result = await db.update(clients)
-      .set({ 
-        emailCredits: emailCredits,
-        lastCreditUpdateAt: new Date()
-      })
-      .where(eq(clients.id, id))
-      .returning();
-    
-    return result[0];
-  }
-  
-  async addClientEmailCredits(id: number, emailCredits: number): Promise<Client | undefined> {
-    const client = await this.getClient(id);
-    if (!client) return undefined;
-    
-    const currentCredits = client.emailCredits || 0;
-    const newBalance = currentCredits + emailCredits;
-    
-    // Create history record
-    await db.insert(clientEmailCreditsHistory).values({
-      clientId: id,
-      amount: emailCredits,
-      type: 'add',
-      previousBalance: currentCredits,
-      newBalance: newBalance,
-      reason: 'Credits added',
-      createdAt: new Date(),
-      metadata: { action: 'add', adminAction: true }
-    });
-    
-    // Update client record
-    const result = await db.update(clients)
-      .set({ 
-        emailCredits: newBalance,
-        emailCreditsPurchased: (client.emailCreditsPurchased || 0) + emailCredits,
-        lastCreditUpdateAt: new Date()
-      })
-      .where(eq(clients.id, id))
-      .returning();
-    
-    return result[0];
-  }
-  
-  async deductClientEmailCredits(id: number, emailCredits: number): Promise<Client | undefined> {
-    const client = await this.getClient(id);
-    if (!client) return undefined;
-    
-    const currentCredits = client.emailCredits || 0;
-    
-    // Check if client has enough credits
-    if (currentCredits < emailCredits) {
-      throw new Error('Insufficient email credits');
+  async getClient(id: number) {
+    try {
+      const [client] = await db.select().from(schema.clients).where(eq(schema.clients.id, id));
+      return client;
+    } catch (error) {
+      console.error('Error getting client:', error);
+      return undefined;
     }
-    
-    const newBalance = currentCredits - emailCredits;
-    
-    // Create history record
-    await db.insert(clientEmailCreditsHistory).values({
-      clientId: id,
-      amount: emailCredits,
-      type: 'deduct',
-      previousBalance: currentCredits,
-      newBalance: newBalance,
-      reason: 'Credits used',
-      createdAt: new Date(),
-      metadata: { action: 'deduct', systemAction: true }
-    });
-    
-    // Update client record
-    const result = await db.update(clients)
-      .set({ 
-        emailCredits: newBalance,
-        emailCreditsUsed: (client.emailCreditsUsed || 0) + emailCredits,
-        lastCreditUpdateAt: new Date()
-      })
-      .where(eq(clients.id, id))
-      .returning();
-    
-    return result[0];
-  }
-  
-  async getClientEmailCreditsHistory(clientId: number): Promise<ClientEmailCreditsHistory[]> {
-    return await db.select()
-      .from(clientEmailCreditsHistory)
-      .where(eq(clientEmailCreditsHistory.clientId, clientId))
-      .orderBy(clientEmailCreditsHistory.createdAt);
   }
 
-  // Contact methods
-  async getContacts(): Promise<Contact[]> {
-    return await db.select().from(contacts);
+  async getClientByEmail(email: string) {
+    try {
+      const [client] = await db.select().from(schema.clients).where(eq(schema.clients.email, email));
+      return client;
+    } catch (error) {
+      console.error('Error getting client by email:', error);
+      return undefined;
+    }
   }
 
-  async getContact(id: number): Promise<Contact | undefined> {
-    const result = await db.select().from(contacts).where(eq(contacts.id, id));
-    return result[0];
-  }
-
-  async getContactByEmail(email: string): Promise<Contact | undefined> {
-    const result = await db.select().from(contacts).where(eq(contacts.email, email));
-    return result[0];
-  }
-
-  async createContact(contact: InsertContact): Promise<Contact> {
-    const result = await db.insert(contacts).values(contact).returning();
-    return result[0];
-  }
-
-  async updateContact(id: number, contact: Partial<Contact>): Promise<Contact | undefined> {
-    const result = await db.update(contacts)
-      .set(contact)
-      .where(eq(contacts.id, id))
-      .returning();
-    return result[0];
-  }
-
-  async deleteContact(id: number): Promise<boolean> {
-    const result = await db.delete(contacts).where(eq(contacts.id, id)).returning();
-    return result.length > 0;
-  }
-
-  // List methods
-  async getLists(): Promise<List[]> {
-    return await db.select().from(lists);
-  }
-
-  async getList(id: number): Promise<List | undefined> {
-    const result = await db.select().from(lists).where(eq(lists.id, id));
-    return result[0];
-  }
-
-  async createList(list: InsertList): Promise<List> {
-    const result = await db.insert(lists).values(list).returning();
-    return result[0];
-  }
-
-  async updateList(id: number, list: Partial<List>): Promise<List | undefined> {
-    const result = await db.update(lists)
-      .set({
-        ...list,
-        updatedAt: new Date()
-      })
-      .where(eq(lists.id, id))
-      .returning();
-    return result[0];
-  }
-
-  async deleteList(id: number): Promise<boolean> {
-    const result = await db.delete(lists).where(eq(lists.id, id)).returning();
-    return result.length > 0;
-  }
-
-  // Contact-List methods
-  async getContactLists(): Promise<ContactList[]> {
-    return await db.select().from(contactLists);
-  }
-
-  async addContactToList(contactList: InsertContactList): Promise<ContactList> {
-    const result = await db.insert(contactLists).values(contactList).returning();
-    return result[0];
-  }
-
-  async removeContactFromList(contactId: number, listId: number): Promise<boolean> {
-    const result = await db.delete(contactLists)
-      .where(
-        and(
-          eq(contactLists.contactId, contactId),
-          eq(contactLists.listId, listId)
-        )
-      )
-      .returning();
-    return result.length > 0;
-  }
-
-  async getContactsByList(listId: number): Promise<Contact[]> {
-    const relationRows = await db.select()
-      .from(contactLists)
-      .where(eq(contactLists.listId, listId));
-    
-    if (relationRows.length === 0) {
+  async getClients() {
+    try {
+      const clients = await db.select().from(schema.clients).orderBy(desc(schema.clients.createdAt));
+      return clients;
+    } catch (error) {
+      console.error('Error getting clients:', error);
       return [];
     }
-
-    const contactIds = relationRows.map(row => row.contactId);
-    const contactResults = [];
-    
-    // Fetch each contact one by one to ensure typesafety
-    for (const id of contactIds) {
-      const contact = await this.getContact(id);
-      if (contact) {
-        contactResults.push(contact);
-      }
-    }
-    
-    return contactResults;
   }
 
-  async getListsByContact(contactId: number): Promise<List[]> {
-    const relationRows = await db.select()
-      .from(contactLists)
-      .where(eq(contactLists.contactId, contactId));
-    
-    if (relationRows.length === 0) {
+  async createClient(client: Omit<schema.InsertClient, 'id'>) {
+    try {
+      const [newClient] = await db.insert(schema.clients).values(client).returning();
+      return newClient;
+    } catch (error) {
+      console.error('Error creating client:', error);
+      throw error;
+    }
+  }
+
+  async updateClient(id: number, update: Partial<schema.InsertClient>) {
+    try {
+      const [updatedClient] = await db
+        .update(schema.clients)
+        .set(update)
+        .where(eq(schema.clients.id, id))
+        .returning();
+      return updatedClient;
+    } catch (error) {
+      console.error('Error updating client:', error);
+      return undefined;
+    }
+  }
+
+  async deleteClient(id: number) {
+    try {
+      const [deletedClient] = await db
+        .delete(schema.clients)
+        .where(eq(schema.clients.id, id))
+        .returning();
+      return deletedClient;
+    } catch (error) {
+      console.error('Error deleting client:', error);
+      return undefined;
+    }
+  }
+
+  // Client users methods
+  async getClientUser(id: number) {
+    try {
+      const [user] = await db.select().from(schema.clientUsers).where(eq(schema.clientUsers.id, id));
+      return user;
+    } catch (error) {
+      console.error('Error getting client user:', error);
+      return undefined;
+    }
+  }
+
+  async getClientUserByUsername(username: string) {
+    try {
+      const [user] = await db.select().from(schema.clientUsers).where(eq(schema.clientUsers.username, username));
+      return user;
+    } catch (error) {
+      console.error('Error getting client user by username:', error);
+      return undefined;
+    }
+  }
+
+  async getClientUsers() {
+    try {
+      const users = await db.select().from(schema.clientUsers).orderBy(desc(schema.clientUsers.createdAt));
+      return users;
+    } catch (error) {
+      console.error('Error getting client users:', error);
       return [];
     }
+  }
 
-    const listIds = relationRows.map(row => row.listId);
-    const listResults = [];
-    
-    // Fetch each list one by one
-    for (const id of listIds) {
-      const list = await this.getList(id);
-      if (list) {
-        listResults.push(list);
-      }
+  async getClientUsersByClientId(clientId: number) {
+    try {
+      const users = await db
+        .select()
+        .from(schema.clientUsers)
+        .where(eq(schema.clientUsers.clientId, clientId))
+        .orderBy(desc(schema.clientUsers.createdAt));
+      return users;
+    } catch (error) {
+      console.error('Error getting client users by client ID:', error);
+      return [];
     }
-    
-    return listResults;
   }
 
-  // Campaign methods
-  async getCampaigns(): Promise<Campaign[]> {
-    return await db.select().from(campaigns);
+  async createClientUser(user: Omit<schema.InsertClientUser, 'id'>) {
+    try {
+      const [newUser] = await db.insert(schema.clientUsers).values(user).returning();
+      return newUser;
+    } catch (error) {
+      console.error('Error creating client user:', error);
+      throw error;
+    }
   }
 
-  async getCampaign(id: number): Promise<Campaign | undefined> {
-    const result = await db.select().from(campaigns).where(eq(campaigns.id, id));
-    return result[0];
+  async updateClientUser(id: number, update: Partial<schema.InsertClientUser>) {
+    try {
+      const [updatedUser] = await db
+        .update(schema.clientUsers)
+        .set(update)
+        .where(eq(schema.clientUsers.id, id))
+        .returning();
+      return updatedUser;
+    } catch (error) {
+      console.error('Error updating client user:', error);
+      return undefined;
+    }
   }
 
-  async createCampaign(campaign: InsertCampaign): Promise<Campaign> {
-    const result = await db.insert(campaigns).values(campaign).returning();
-    return result[0];
+  async deleteClientUser(id: number) {
+    try {
+      const [deletedUser] = await db
+        .delete(schema.clientUsers)
+        .where(eq(schema.clientUsers.id, id))
+        .returning();
+      return deletedUser;
+    } catch (error) {
+      console.error('Error deleting client user:', error);
+      return undefined;
+    }
   }
 
-  async updateCampaign(id: number, campaign: Partial<Campaign>): Promise<Campaign | undefined> {
-    const result = await db.update(campaigns)
-      .set({
-        ...campaign,
-        updatedAt: new Date()
+  // Admin user methods
+  async getUser(id: number) {
+    try {
+      const [user] = await db.select().from(schema.users).where(eq(schema.users.id, id));
+      return user;
+    } catch (error) {
+      console.error('Error getting user:', error);
+      return undefined;
+    }
+  }
+
+  async getUserByUsername(username: string) {
+    try {
+      const [user] = await db.select().from(schema.users).where(eq(schema.users.username, username));
+      return user;
+    } catch (error) {
+      console.error('Error getting user by username:', error);
+      return undefined;
+    }
+  }
+
+  async getUsers() {
+    try {
+      const users = await db.select().from(schema.users).orderBy(desc(schema.users.createdAt));
+      return users;
+    } catch (error) {
+      console.error('Error getting users:', error);
+      return [];
+    }
+  }
+
+  async createUser(user: Omit<schema.InsertUser, 'id'>) {
+    try {
+      const [newUser] = await db.insert(schema.users).values(user).returning();
+      return newUser;
+    } catch (error) {
+      console.error('Error creating user:', error);
+      throw error;
+    }
+  }
+
+  async updateUser(id: number, update: Partial<schema.InsertUser>) {
+    try {
+      const [updatedUser] = await db
+        .update(schema.users)
+        .set(update)
+        .where(eq(schema.users.id, id))
+        .returning();
+      return updatedUser;
+    } catch (error) {
+      console.error('Error updating user:', error);
+      return undefined;
+    }
+  }
+
+  async deleteUser(id: number) {
+    try {
+      const [deletedUser] = await db
+        .delete(schema.users)
+        .where(eq(schema.users.id, id))
+        .returning();
+      return deletedUser;
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      return undefined;
+    }
+  }
+
+  // Campaigns methods
+  async getCampaign(id: number) {
+    try {
+      const [campaign] = await db.select().from(schema.campaigns).where(eq(schema.campaigns.id, id));
+      return campaign;
+    } catch (error) {
+      console.error('Error getting campaign:', error);
+      return undefined;
+    }
+  }
+
+  async getCampaigns() {
+    try {
+      const campaigns = await db.select().from(schema.campaigns).orderBy(desc(schema.campaigns.createdAt));
+      return campaigns;
+    } catch (error) {
+      console.error('Error getting campaigns:', error);
+      return [];
+    }
+  }
+
+  async createCampaign(campaign: Omit<schema.InsertCampaign, 'id'>) {
+    try {
+      const [newCampaign] = await db.insert(schema.campaigns).values(campaign).returning();
+      return newCampaign;
+    } catch (error) {
+      console.error('Error creating campaign:', error);
+      throw error;
+    }
+  }
+
+  async updateCampaign(id: number, update: Partial<schema.InsertCampaign>) {
+    try {
+      const [updatedCampaign] = await db
+        .update(schema.campaigns)
+        .set(update)
+        .where(eq(schema.campaigns.id, id))
+        .returning();
+      return updatedCampaign;
+    } catch (error) {
+      console.error('Error updating campaign:', error);
+      return undefined;
+    }
+  }
+
+  async deleteCampaign(id: number) {
+    try {
+      const [deletedCampaign] = await db
+        .delete(schema.campaigns)
+        .where(eq(schema.campaigns.id, id))
+        .returning();
+      return deletedCampaign;
+    } catch (error) {
+      console.error('Error deleting campaign:', error);
+      return undefined;
+    }
+  }
+
+  // Email credits methods
+  async getClientEmailCredits(clientId: number) {
+    try {
+      // Get latest credit information for the client
+      const result = await db.query.clients.findFirst({
+        where: eq(schema.clients.id, clientId),
+        columns: {
+          id: true,
+          emailCredits: true,
+          emailCreditsPurchased: true,
+          emailCreditsUsed: true,
+          lastCreditUpdateAt: true
+        }
+      });
+      
+      if (!result) return null;
+      
+      return {
+        clientId: result.id,
+        available: result.emailCredits || 0,
+        purchased: result.emailCreditsPurchased || 0,
+        used: result.emailCreditsUsed || 0,
+        lastUpdated: result.lastCreditUpdateAt
+      };
+    } catch (error) {
+      console.error('Error getting client email credits:', error);
+      return null;
+    }
+  }
+  
+  async updateClientEmailCredits(clientId: number, credits: number, action: 'add' | 'deduct' | 'set', reason: string) {
+    try {
+      // Get current client to verify it exists and get current credits
+      const client = await this.getClient(clientId);
+      if (!client) throw new Error('Client not found');
+      
+      const currentCredits = client.emailCredits || 0;
+      let newCredits = currentCredits;
+      
+      // Calculate the new credit balance based on action
+      if (action === 'add') {
+        newCredits = currentCredits + credits;
+      } else if (action === 'deduct') {
+        if (currentCredits < credits) throw new Error('Insufficient credits');
+        newCredits = currentCredits - credits;
+      } else if (action === 'set') {
+        newCredits = credits;
+      }
+
+      // Update client credits
+      const [updatedClient] = await db
+        .update(schema.clients)
+        .set({
+          emailCredits: newCredits,
+          emailCreditsPurchased: action === 'add' ? (client.emailCreditsPurchased || 0) + credits : client.emailCreditsPurchased,
+          emailCreditsUsed: action === 'deduct' ? (client.emailCreditsUsed || 0) + credits : client.emailCreditsUsed,
+          lastCreditUpdateAt: new Date()
+        })
+        .where(eq(schema.clients.id, clientId))
+        .returning();
+      
+      // Record credit history
+      const history = await this.addClientEmailCreditHistory(clientId, {
+        amount: credits,
+        type: action,
+        previousBalance: currentCredits,
+        newBalance: newCredits,
+        reason: reason,
+        performedBy: null,
+        systemCreditsDeducted: 0
+      });
+      
+      return {
+        client: updatedClient,
+        history: history,
+        previousCredits: currentCredits,
+        newCredits: newCredits
+      };
+    } catch (error) {
+      console.error('Error updating client email credits:', error);
+      throw error;
+    }
+  }
+
+  async getClientEmailCreditsHistory(clientId: number, options: { 
+    start_date?: string;
+    end_date?: string;
+    type?: '' | 'add' | 'deduct' | 'set';
+    limit?: number;
+  } = {}) {
+    try {
+      let query = db.select().from(schema.clientEmailCreditsHistory)
+        .where(eq(schema.clientEmailCreditsHistory.clientId, clientId));
+      
+      // Apply filters
+      if (options.start_date) {
+        query = query.where(gt(schema.clientEmailCreditsHistory.createdAt, new Date(options.start_date)));
+      }
+      
+      if (options.end_date) {
+        query = query.where(lt(schema.clientEmailCreditsHistory.createdAt, new Date(options.end_date)));
+      }
+      
+      if (options.type && options.type !== '') {
+        query = query.where(eq(schema.clientEmailCreditsHistory.type, options.type));
+      }
+      
+      // Apply sorting and limit
+      query = query.orderBy(desc(schema.clientEmailCreditsHistory.createdAt));
+      
+      if (options.limit) {
+        query = query.limit(options.limit);
+      }
+      
+      const history = await query;
+      return history;
+    } catch (error) {
+      console.error('Error getting client email credits history:', error);
+      return [];
+    }
+  }
+  
+  async addClientEmailCreditHistory(clientId: number, data: {
+    amount: number;
+    type: 'add' | 'deduct' | 'set';
+    previousBalance: number;
+    newBalance: number;
+    reason: string;
+    performedBy: number | null;
+    systemCreditsDeducted: number | null;
+  }) {
+    try {
+      const [history] = await db.insert(schema.clientEmailCreditsHistory)
+        .values({
+          clientId,
+          amount: data.amount,
+          type: data.type,
+          previousBalance: data.previousBalance,
+          newBalance: data.newBalance,
+          reason: data.reason,
+          performedBy: data.performedBy,
+          systemCreditsDeducted: data.systemCreditsDeducted,
+          metadata: {
+            action: data.type === 'add' ? 'added' : data.type === 'deduct' ? 'deducted' : 'set',
+            adminAction: data.performedBy !== null,
+            systemAction: data.systemCreditsDeducted !== null && data.systemCreditsDeducted > 0
+          },
+          createdAt: new Date()
+        })
+        .returning();
+      
+      return history;
+    } catch (error) {
+      console.error('Error adding client email credit history:', error);
+      throw error;
+    }
+  }
+
+  // System credits methods
+  async getSystemCredits() {
+    try {
+      const [systemCredits] = await db.select().from(schema.systemCredits).limit(1);
+      if (!systemCredits) {
+        // Initialize system credits if they don't exist
+        return this.initializeSystemCredits();
+      }
+      return systemCredits;
+    } catch (error) {
+      console.error('Error getting system credits:', error);
+      return null;
+    }
+  }
+  
+  private async initializeSystemCredits() {
+    try {
+      const [systemCredits] = await db.insert(schema.systemCredits)
+        .values({
+          totalCredits: 0,
+          allocatedCredits: 0,
+          availableCredits: 0,
+          lastUpdatedAt: new Date()
+        })
+        .returning();
+      
+      return systemCredits;
+    } catch (error) {
+      console.error('Error initializing system credits:', error);
+      throw error;
+    }
+  }
+  
+  async updateSystemCredits(params: {
+    totalCredits?: number;
+    allocatedCredits?: number;
+    availableCredits?: number;
+  }) {
+    try {
+      // Get current system credits
+      const currentSystemCredits = await this.getSystemCredits();
+      if (!currentSystemCredits) throw new Error('System credits not found');
+      
+      // Update system credits
+      const [updatedSystemCredits] = await db.update(schema.systemCredits)
+        .set({
+          ...params,
+          lastUpdatedAt: new Date()
+        })
+        .where(eq(schema.systemCredits.id, currentSystemCredits.id))
+        .returning();
+      
+      return updatedSystemCredits;
+    } catch (error) {
+      console.error('Error updating system credits:', error);
+      throw error;
+    }
+  }
+  
+  async addSystemCredits(amount: number, reason: string) {
+    try {
+      // Get current system credits
+      const currentSystemCredits = await this.getSystemCredits();
+      if (!currentSystemCredits) throw new Error('System credits not found');
+      
+      const currentTotal = currentSystemCredits.totalCredits;
+      const currentAvailable = currentSystemCredits.availableCredits;
+      
+      // Update system credits
+      const updatedSystemCredits = await this.updateSystemCredits({
+        totalCredits: currentTotal + amount,
+        availableCredits: currentAvailable + amount
+      });
+      
+      // Record system credits history
+      const history = await this.addSystemCreditsHistory({
+        amount,
+        type: 'add',
+        previousBalance: currentTotal,
+        newBalance: currentTotal + amount,
+        reason,
+        performedBy: null,
+        clientId: null
+      });
+      
+      return {
+        systemCredits: updatedSystemCredits,
+        history,
+        previousTotal: currentTotal,
+        newTotal: currentTotal + amount
+      };
+    } catch (error) {
+      console.error('Error adding system credits:', error);
+      throw error;
+    }
+  }
+  
+  async deductSystemCredits(amount: number, reason: string) {
+    try {
+      // Get current system credits
+      const currentSystemCredits = await this.getSystemCredits();
+      if (!currentSystemCredits) throw new Error('System credits not found');
+      
+      const currentTotal = currentSystemCredits.totalCredits;
+      const currentAvailable = currentSystemCredits.availableCredits;
+      
+      // Check if there are enough available credits
+      if (currentAvailable < amount) {
+        throw new Error('Insufficient available system credits');
+      }
+      
+      // Update system credits
+      const updatedSystemCredits = await this.updateSystemCredits({
+        totalCredits: currentTotal - amount,
+        availableCredits: currentAvailable - amount
+      });
+      
+      // Record system credits history
+      const history = await this.addSystemCreditsHistory({
+        amount,
+        type: 'deduct',
+        previousBalance: currentTotal,
+        newBalance: currentTotal - amount,
+        reason,
+        performedBy: null,
+        clientId: null
+      });
+      
+      return {
+        systemCredits: updatedSystemCredits,
+        history,
+        previousTotal: currentTotal,
+        newTotal: currentTotal - amount
+      };
+    } catch (error) {
+      console.error('Error deducting system credits:', error);
+      throw error;
+    }
+  }
+  
+  async allocateSystemCreditsToClient(clientId: number, amount: number, reason: string) {
+    try {
+      // Get current system credits
+      const currentSystemCredits = await this.getSystemCredits();
+      if (!currentSystemCredits) throw new Error('System credits not found');
+      
+      const currentAvailable = currentSystemCredits.availableCredits;
+      const currentAllocated = currentSystemCredits.allocatedCredits;
+      
+      // Check if there are enough available credits
+      if (currentAvailable < amount) {
+        throw new Error('Insufficient available system credits');
+      }
+      
+      // Update system credits - move from available to allocated
+      const updatedSystemCredits = await this.updateSystemCredits({
+        availableCredits: currentAvailable - amount,
+        allocatedCredits: currentAllocated + amount
+      });
+      
+      // Record system credits history
+      const sysHistory = await this.addSystemCreditsHistory({
+        amount,
+        type: 'allocate',
+        previousBalance: currentAvailable,
+        newBalance: currentAvailable - amount,
+        reason,
+        performedBy: null,
+        clientId
+      });
+      
+      // Add credits to client
+      const clientUpdate = await this.updateClientEmailCredits(clientId, amount, 'add', 'Allocated from system pool: ' + reason);
+      
+      return {
+        systemCredits: updatedSystemCredits,
+        systemHistory: sysHistory,
+        clientUpdate,
+        previousAvailable: currentAvailable,
+        newAvailable: currentAvailable - amount
+      };
+    } catch (error) {
+      console.error('Error allocating system credits to client:', error);
+      throw error;
+    }
+  }
+  
+  async getSystemCreditsHistory(options: {
+    start_date?: string;
+    end_date?: string;
+    type?: '' | 'add' | 'deduct' | 'allocate';
+    limit?: number;
+  } = {}) {
+    try {
+      let query = db.select().from(schema.systemCreditsHistory);
+      
+      // Apply filters
+      if (options.start_date) {
+        query = query.where(gt(schema.systemCreditsHistory.createdAt, new Date(options.start_date)));
+      }
+      
+      if (options.end_date) {
+        query = query.where(lt(schema.systemCreditsHistory.createdAt, new Date(options.end_date)));
+      }
+      
+      if (options.type && options.type !== '') {
+        query = query.where(eq(schema.systemCreditsHistory.type, options.type));
+      }
+      
+      // Apply sorting and limit
+      query = query.orderBy(desc(schema.systemCreditsHistory.createdAt));
+      
+      if (options.limit) {
+        query = query.limit(options.limit);
+      }
+      
+      const history = await query;
+      return history;
+    } catch (error) {
+      console.error('Error getting system credits history:', error);
+      return [];
+    }
+  }
+  
+  async addSystemCreditsHistory(data: {
+    amount: number;
+    type: 'add' | 'deduct' | 'allocate';
+    previousBalance: number;
+    newBalance: number;
+    reason: string;
+    performedBy: number | null;
+    clientId: number | null;
+  }) {
+    try {
+      const [history] = await db.insert(schema.systemCreditsHistory)
+        .values({
+          amount: data.amount,
+          type: data.type,
+          previousBalance: data.previousBalance,
+          newBalance: data.newBalance,
+          reason: data.reason,
+          performedBy: data.performedBy,
+          clientId: data.clientId,
+          metadata: {
+            action: data.type === 'add' ? 'added' : data.type === 'deduct' ? 'deducted' : 'allocated',
+            adminAction: data.performedBy !== null,
+            systemAction: true
+          },
+          createdAt: new Date()
+        })
+        .returning();
+      
+      return history;
+    } catch (error) {
+      console.error('Error adding system credits history:', error);
+      throw error;
+    }
+  }
+
+  // Contacts methods
+  async getContact(id: number) {
+    try {
+      const [contact] = await db.select().from(schema.contacts).where(eq(schema.contacts.id, id));
+      return contact;
+    } catch (error) {
+      console.error('Error getting contact:', error);
+      return undefined;
+    }
+  }
+
+  async getContacts() {
+    try {
+      const contacts = await db.select().from(schema.contacts).orderBy(desc(schema.contacts.createdAt));
+      return contacts;
+    } catch (error) {
+      console.error('Error getting contacts:', error);
+      return [];
+    }
+  }
+
+  async getContactByEmail(email: string) {
+    try {
+      const [contact] = await db.select().from(schema.contacts).where(eq(schema.contacts.email, email));
+      return contact;
+    } catch (error) {
+      console.error('Error getting contact by email:', error);
+      return undefined;
+    }
+  }
+
+  async createContact(contact: Omit<schema.InsertContact, 'id'>) {
+    try {
+      const [newContact] = await db.insert(schema.contacts).values(contact).returning();
+      return newContact;
+    } catch (error) {
+      console.error('Error creating contact:', error);
+      throw error;
+    }
+  }
+
+  async updateContact(id: number, update: Partial<schema.InsertContact>) {
+    try {
+      const [updatedContact] = await db
+        .update(schema.contacts)
+        .set(update)
+        .where(eq(schema.contacts.id, id))
+        .returning();
+      return updatedContact;
+    } catch (error) {
+      console.error('Error updating contact:', error);
+      return undefined;
+    }
+  }
+
+  async deleteContact(id: number) {
+    try {
+      const [deletedContact] = await db
+        .delete(schema.contacts)
+        .where(eq(schema.contacts.id, id))
+        .returning();
+      return deletedContact;
+    } catch (error) {
+      console.error('Error deleting contact:', error);
+      return undefined;
+    }
+  }
+
+  // Contact lists methods
+  async getList(id: number) {
+    try {
+      const [list] = await db.select().from(schema.contactLists).where(eq(schema.contactLists.id, id));
+      return list;
+    } catch (error) {
+      console.error('Error getting list:', error);
+      return undefined;
+    }
+  }
+
+  async getLists() {
+    try {
+      const lists = await db.select().from(schema.contactLists).orderBy(desc(schema.contactLists.createdAt));
+      return lists;
+    } catch (error) {
+      console.error('Error getting lists:', error);
+      return [];
+    }
+  }
+
+  async createList(list: Omit<schema.InsertContactList, 'id'>) {
+    try {
+      const [newList] = await db.insert(schema.contactLists).values(list).returning();
+      return newList;
+    } catch (error) {
+      console.error('Error creating list:', error);
+      throw error;
+    }
+  }
+
+  async updateList(id: number, update: Partial<schema.InsertContactList>) {
+    try {
+      const [updatedList] = await db
+        .update(schema.contactLists)
+        .set(update)
+        .where(eq(schema.contactLists.id, id))
+        .returning();
+      return updatedList;
+    } catch (error) {
+      console.error('Error updating list:', error);
+      return undefined;
+    }
+  }
+
+  async deleteList(id: number) {
+    try {
+      const [deletedList] = await db
+        .delete(schema.contactLists)
+        .where(eq(schema.contactLists.id, id))
+        .returning();
+      return deletedList;
+    } catch (error) {
+      console.error('Error deleting list:', error);
+      return undefined;
+    }
+  }
+
+  async getContactListRelations(contactId: number, listId?: number) {
+    try {
+      let query = db.select().from(schema.contactListRelations).where(eq(schema.contactListRelations.contactId, contactId));
+      
+      if (listId) {
+        query = query.where(eq(schema.contactListRelations.listId, listId));
+      }
+      
+      const relations = await query;
+      return relations;
+    } catch (error) {
+      console.error('Error getting contact list relations:', error);
+      return [];
+    }
+  }
+
+  async addContactToList(contactId: number, listId: number) {
+    try {
+      // Check if the relation already exists
+      const existing = await db.select()
+        .from(schema.contactListRelations)
+        .where(and(
+          eq(schema.contactListRelations.contactId, contactId),
+          eq(schema.contactListRelations.listId, listId)
+        ));
+      
+      if (existing.length > 0) {
+        return existing[0]; // Relation already exists
+      }
+      
+      // Create a new relation
+      const [relation] = await db.insert(schema.contactListRelations)
+        .values({
+          contactId,
+          listId,
+          addedAt: new Date()
+        })
+        .returning();
+      
+      return relation;
+    } catch (error) {
+      console.error('Error adding contact to list:', error);
+      throw error;
+    }
+  }
+
+  async removeContactFromList(contactId: number, listId: number) {
+    try {
+      const [deletedRelation] = await db.delete(schema.contactListRelations)
+        .where(and(
+          eq(schema.contactListRelations.contactId, contactId),
+          eq(schema.contactListRelations.listId, listId)
+        ))
+        .returning();
+      
+      return deletedRelation;
+    } catch (error) {
+      console.error('Error removing contact from list:', error);
+      return undefined;
+    }
+  }
+
+  async getContactsInList(listId: number) {
+    try {
+      // Join contact_list_relations with contacts
+      const contactsInList = await db.select({
+        contact: schema.contacts
       })
-      .where(eq(campaigns.id, id))
-      .returning();
-    return result[0];
+      .from(schema.contactListRelations)
+      .innerJoin(schema.contacts, eq(schema.contactListRelations.contactId, schema.contacts.id))
+      .where(eq(schema.contactListRelations.listId, listId));
+      
+      return contactsInList.map(item => item.contact);
+    } catch (error) {
+      console.error('Error getting contacts in list:', error);
+      return [];
+    }
   }
 
-  async deleteCampaign(id: number): Promise<boolean> {
-    const result = await db.delete(campaigns).where(eq(campaigns.id, id)).returning();
-    return result.length > 0;
+  async getContactLists(contactId: number) {
+    try {
+      // Join contact_list_relations with contact_lists
+      const lists = await db.select({
+        list: schema.contactLists
+      })
+      .from(schema.contactListRelations)
+      .innerJoin(schema.contactLists, eq(schema.contactListRelations.listId, schema.contactLists.id))
+      .where(eq(schema.contactListRelations.contactId, contactId));
+      
+      return lists.map(item => item.list);
+    } catch (error) {
+      console.error('Error getting contact lists:', error);
+      return [];
+    }
+  }
+
+  async getListCount(listId: number) {
+    try {
+      const result = await db.select({
+        count: count()
+      })
+      .from(schema.contactListRelations)
+      .where(eq(schema.contactListRelations.listId, listId));
+      
+      return result[0]?.count || 0;
+    } catch (error) {
+      console.error('Error getting list count:', error);
+      return 0;
+    }
+  }
+
+  // Templates methods
+  async getTemplate(id: number) {
+    try {
+      const [template] = await db.select().from(schema.templates).where(eq(schema.templates.id, id));
+      return template;
+    } catch (error) {
+      console.error('Error getting template:', error);
+      return undefined;
+    }
+  }
+
+  async getTemplates() {
+    try {
+      const templates = await db.select().from(schema.templates).orderBy(desc(schema.templates.createdAt));
+      return templates;
+    } catch (error) {
+      console.error('Error getting templates:', error);
+      return [];
+    }
+  }
+
+  async createTemplate(template: Omit<schema.InsertTemplate, 'id'>) {
+    try {
+      const [newTemplate] = await db.insert(schema.templates).values(template).returning();
+      return newTemplate;
+    } catch (error) {
+      console.error('Error creating template:', error);
+      throw error;
+    }
+  }
+
+  async updateTemplate(id: number, update: Partial<schema.InsertTemplate>) {
+    try {
+      const [updatedTemplate] = await db
+        .update(schema.templates)
+        .set(update)
+        .where(eq(schema.templates.id, id))
+        .returning();
+      return updatedTemplate;
+    } catch (error) {
+      console.error('Error updating template:', error);
+      return undefined;
+    }
+  }
+
+  async deleteTemplate(id: number) {
+    try {
+      const [deletedTemplate] = await db
+        .delete(schema.templates)
+        .where(eq(schema.templates.id, id))
+        .returning();
+      return deletedTemplate;
+    } catch (error) {
+      console.error('Error deleting template:', error);
+      return undefined;
+    }
+  }
+
+  // Domain methods
+  async getDomain(id: number) {
+    try {
+      const [domain] = await db.select().from(schema.domains).where(eq(schema.domains.id, id));
+      return domain;
+    } catch (error) {
+      console.error('Error getting domain:', error);
+      return undefined;
+    }
+  }
+
+  async getDomains() {
+    try {
+      const domains = await db.select().from(schema.domains).orderBy(desc(schema.domains.createdAt));
+      return domains;
+    } catch (error) {
+      console.error('Error getting domains:', error);
+      return [];
+    }
+  }
+
+  async getDomainByName(name: string) {
+    try {
+      const [domain] = await db.select().from(schema.domains).where(eq(schema.domains.name, name));
+      return domain;
+    } catch (error) {
+      console.error('Error getting domain by name:', error);
+      return undefined;
+    }
+  }
+
+  async createDomain(domain: Omit<schema.InsertDomain, 'id'>) {
+    try {
+      // If this is the first domain, make it the default
+      let isDefault = false;
+      const existingDomains = await this.getDomains();
+      if (existingDomains.length === 0) {
+        isDefault = true;
+      }
+      
+      const [newDomain] = await db.insert(schema.domains)
+        .values({
+          ...domain,
+          defaultDomain: isDefault
+        })
+        .returning();
+      
+      return newDomain;
+    } catch (error) {
+      console.error('Error creating domain:', error);
+      throw error;
+    }
+  }
+
+  async updateDomain(id: number, update: Partial<schema.InsertDomain>) {
+    try {
+      const [updatedDomain] = await db
+        .update(schema.domains)
+        .set(update)
+        .where(eq(schema.domains.id, id))
+        .returning();
+      return updatedDomain;
+    } catch (error) {
+      console.error('Error updating domain:', error);
+      return undefined;
+    }
+  }
+
+  async deleteDomain(id: number) {
+    try {
+      const domain = await this.getDomain(id);
+      if (!domain) return undefined;
+      
+      // If this is the default domain, don't allow deletion
+      if (domain.defaultDomain) {
+        throw new Error('Cannot delete the default domain');
+      }
+      
+      const [deletedDomain] = await db
+        .delete(schema.domains)
+        .where(eq(schema.domains.id, id))
+        .returning();
+      
+      return deletedDomain;
+    } catch (error) {
+      console.error('Error deleting domain:', error);
+      throw error;
+    }
+  }
+
+  async setDefaultDomain(id: number) {
+    try {
+      // Clear default from all domains
+      await db.update(schema.domains)
+        .set({ defaultDomain: false })
+        .where(eq(schema.domains.defaultDomain, true));
+      
+      // Set the new default
+      const [updatedDomain] = await db
+        .update(schema.domains)
+        .set({ defaultDomain: true })
+        .where(eq(schema.domains.id, id))
+        .returning();
+      
+      return updatedDomain;
+    } catch (error) {
+      console.error('Error setting default domain:', error);
+      return undefined;
+    }
+  }
+
+  async getDefaultDomain() {
+    try {
+      const [domain] = await db
+        .select()
+        .from(schema.domains)
+        .where(eq(schema.domains.defaultDomain, true));
+      
+      return domain;
+    } catch (error) {
+      console.error('Error getting default domain:', error);
+      return undefined;
+    }
+  }
+
+  // Campaign domain relations methods
+  async getCampaignDomains(campaignId: number) {
+    try {
+      // Join campaignDomainRelations with domains
+      const domains = await db.select({
+        domain: schema.domains
+      })
+      .from(schema.campaignDomainRelations)
+      .innerJoin(schema.domains, eq(schema.campaignDomainRelations.domainId, schema.domains.id))
+      .where(eq(schema.campaignDomainRelations.campaignId, campaignId));
+      
+      return domains.map(item => item.domain);
+    } catch (error) {
+      console.error('Error getting campaign domains:', error);
+      return [];
+    }
+  }
+
+  async getDomainCampaigns(domainId: number) {
+    try {
+      // Join campaignDomainRelations with campaigns
+      const campaigns = await db.select({
+        campaign: schema.campaigns
+      })
+      .from(schema.campaignDomainRelations)
+      .innerJoin(schema.campaigns, eq(schema.campaignDomainRelations.campaignId, schema.campaigns.id))
+      .where(eq(schema.campaignDomainRelations.domainId, domainId));
+      
+      return campaigns.map(item => item.campaign);
+    } catch (error) {
+      console.error('Error getting domain campaigns:', error);
+      return [];
+    }
+  }
+
+  async addDomainToCampaign(campaignId: number, domainId: number) {
+    try {
+      // Check if the relation already exists
+      const existing = await db
+        .select()
+        .from(schema.campaignDomainRelations)
+        .where(and(
+          eq(schema.campaignDomainRelations.campaignId, campaignId),
+          eq(schema.campaignDomainRelations.domainId, domainId)
+        ));
+      
+      if (existing.length > 0) {
+        return existing[0]; // Relation already exists
+      }
+      
+      // Create a new relation
+      const [relation] = await db
+        .insert(schema.campaignDomainRelations)
+        .values({
+          campaignId,
+          domainId,
+          createdAt: new Date(),
+          metadata: {}
+        })
+        .returning();
+      
+      return relation;
+    } catch (error) {
+      console.error('Error adding domain to campaign:', error);
+      throw error;
+    }
+  }
+
+  async removeDomainFromCampaign(campaignId: number, domainId: number) {
+    try {
+      const [deletedRelation] = await db
+        .delete(schema.campaignDomainRelations)
+        .where(and(
+          eq(schema.campaignDomainRelations.campaignId, campaignId),
+          eq(schema.campaignDomainRelations.domainId, domainId)
+        ))
+        .returning();
+      
+      return deletedRelation;
+    } catch (error) {
+      console.error('Error removing domain from campaign:', error);
+      return undefined;
+    }
   }
 
   // Email methods
-  async getEmails(): Promise<Email[]> {
-    return await db.select().from(emails);
-  }
-
-  async getEmail(id: number): Promise<Email | undefined> {
-    const result = await db.select().from(emails).where(eq(emails.id, id));
-    return result[0];
-  }
-
-  async createEmail(email: InsertEmail): Promise<Email> {
-    const result = await db.insert(emails).values(email).returning();
-    return result[0];
-  }
-
-  async updateEmail(id: number, email: Partial<Email>): Promise<Email | undefined> {
-    const result = await db.update(emails)
-      .set(email)
-      .where(eq(emails.id, id))
-      .returning();
-    return result[0];
-  }
-
-  async deleteEmail(id: number): Promise<boolean> {
-    const result = await db.delete(emails).where(eq(emails.id, id)).returning();
-    return result.length > 0;
-  }
-
-  // Template methods
-  async getTemplates(): Promise<Template[]> {
-    return await db.select().from(templates);
-  }
-
-  async getTemplatesByCategory(category: string): Promise<Template[]> {
-    return await db.select().from(templates).where(eq(templates.category, category));
-  }
-
-  async getTemplate(id: number): Promise<Template | undefined> {
-    const result = await db.select().from(templates).where(eq(templates.id, id));
-    return result[0];
-  }
-
-  async createTemplate(template: InsertTemplate): Promise<Template> {
-    const result = await db.insert(templates).values(template).returning();
-    return result[0];
-  }
-
-  async updateTemplate(id: number, template: Partial<Template>): Promise<Template | undefined> {
-    const result = await db.update(templates)
-      .set({
-        ...template,
-        updatedAt: new Date()
-      })
-      .where(eq(templates.id, id))
-      .returning();
-    return result[0];
-  }
-
-  async deleteTemplate(id: number): Promise<boolean> {
-    const result = await db.delete(templates).where(eq(templates.id, id)).returning();
-    return result.length > 0;
-  }
-
-  // Analytics methods
-  async getAnalytics(): Promise<Analytics[]> {
-    return await db.select().from(analytics);
-  }
-
-  async getAnalyticsByCampaign(campaignId: number): Promise<Analytics[]> {
-    return await db.select().from(analytics).where(eq(analytics.campaignId, campaignId));
-  }
-
-  async recordAnalytic(analytic: InsertAnalytics): Promise<Analytics> {
-    const result = await db.insert(analytics).values(analytic).returning();
-    return result[0];
-  }
-  
-  // Campaign Variant methods for A/B Testing
-  async getCampaignVariants(campaignId: number): Promise<CampaignVariant[]> {
-    return await db.select().from(campaignVariants).where(eq(campaignVariants.campaignId, campaignId));
-  }
-  
-  async getCampaignVariant(id: number): Promise<CampaignVariant | undefined> {
-    const result = await db.select().from(campaignVariants).where(eq(campaignVariants.id, id));
-    return result[0];
-  }
-  
-  async createCampaignVariant(variant: InsertCampaignVariant): Promise<CampaignVariant> {
-    const result = await db.insert(campaignVariants).values(variant).returning();
-    return result[0];
-  }
-  
-  async updateCampaignVariant(id: number, variant: Partial<CampaignVariant>): Promise<CampaignVariant | undefined> {
-    const result = await db.update(campaignVariants)
-      .set({
-        ...variant,
-        updatedAt: new Date()
-      })
-      .where(eq(campaignVariants.id, id))
-      .returning();
-    return result[0];
-  }
-  
-  async deleteCampaignVariant(id: number): Promise<boolean> {
-    const result = await db.delete(campaignVariants).where(eq(campaignVariants.id, id)).returning();
-    return result.length > 0;
-  }
-  
-  // Variant Analytics methods for A/B Testing
-  async getVariantAnalytics(variantId: number): Promise<VariantAnalytics[]> {
-    return await db.select().from(variantAnalytics).where(eq(variantAnalytics.variantId, variantId));
-  }
-  
-  async getVariantAnalyticsByCampaign(campaignId: number): Promise<VariantAnalytics[]> {
-    return await db.select().from(variantAnalytics).where(eq(variantAnalytics.campaignId, campaignId));
-  }
-  
-  async recordVariantAnalytic(analytic: InsertVariantAnalytics): Promise<VariantAnalytics> {
-    const result = await db.insert(variantAnalytics).values(analytic).returning();
-    return result[0];
-  }
-  
-  // A/B Test specific methods
-  async setWinningVariant(campaignId: number, variantId: number): Promise<Campaign | undefined> {
-    return await this.updateCampaign(campaignId, { winningVariantId: variantId });
-  }
-  
-  async getAbTestCampaigns(): Promise<Campaign[]> {
-    return await db.select().from(campaigns).where(eq(campaigns.isAbTest, true));
-  }
-  
-  // Domain methods
-  async getDomains(): Promise<Domain[]> {
-    return await db.select().from(domains);
-  }
-  
-  async getDomain(id: number): Promise<Domain | undefined> {
-    const result = await db.select().from(domains).where(eq(domains.id, id));
-    return result[0];
-  }
-  
-  async getDomainByName(name: string): Promise<Domain | undefined> {
-    const result = await db.select().from(domains).where(eq(domains.name, name));
-    return result[0];
-  }
-  
-  async createDomain(domain: InsertDomain): Promise<Domain> {
-    const result = await db.insert(domains).values(domain).returning();
-    return result[0];
-  }
-  
-  async updateDomain(id: number, domain: Partial<Domain>): Promise<Domain | undefined> {
-    // If this domain is set as default, unset default for all other domains
-    if (domain.defaultDomain === true) {
-      await db.update(domains)
-        .set({ defaultDomain: false })
-        .where(eq(domains.id, id).not());
-    }
-    
-    const result = await db.update(domains)
-      .set(domain)
-      .where(eq(domains.id, id))
-      .returning();
-    
-    return result[0];
-  }
-  
-  async deleteDomain(id: number): Promise<boolean> {
-    const result = await db.delete(domains).where(eq(domains.id, id)).returning();
-    return result.length > 0;
-  }
-  
-  async setDefaultDomain(id: number): Promise<Domain | undefined> {
-    // Unset default for all domains
-    await db.update(domains).set({ defaultDomain: false });
-    
-    // Set this domain as default
-    const result = await db.update(domains)
-      .set({ defaultDomain: true })
-      .where(eq(domains.id, id))
-      .returning();
-    
-    return result[0];
-  }
-  
-  // Campaign-Domain methods
-  async assignDomainToCampaign(campaignDomain: InsertCampaignDomain): Promise<CampaignDomain> {
-    // Update the lastUsedAt field of the domain
-    await db.update(domains)
-      .set({ lastUsedAt: new Date() })
-      .where(eq(domains.id, campaignDomain.domainId));
-    
-    const result = await db.insert(campaignDomains).values(campaignDomain).returning();
-    return result[0];
-  }
-  
-  async removeDomainFromCampaign(campaignId: number, domainId: number): Promise<boolean> {
-    const result = await db.delete(campaignDomains)
-      .where(
-        and(
-          eq(campaignDomains.campaignId, campaignId),
-          eq(campaignDomains.domainId, domainId)
-        )
-      )
-      .returning();
-    
-    return result.length > 0;
-  }
-  
-  async getCampaignDomains(campaignId: number): Promise<Domain[]> {
-    const relations = await db.select()
-      .from(campaignDomains)
-      .where(eq(campaignDomains.campaignId, campaignId));
-    
-    if (relations.length === 0) {
-      return [];
-    }
-    
-    const domainIds = relations.map(relation => relation.domainId);
-    const domainResults = [];
-    
-    // Fetch each domain one by one
-    for (const id of domainIds) {
-      const domain = await this.getDomain(id);
-      if (domain) {
-        domainResults.push(domain);
-      }
-    }
-    
-    return domainResults;
-  }
-  
-  async getDomainCampaigns(domainId: number): Promise<Campaign[]> {
-    const relations = await db.select()
-      .from(campaignDomains)
-      .where(eq(campaignDomains.domainId, domainId));
-    
-    if (relations.length === 0) {
-      return [];
-    }
-    
-    const campaignIds = relations.map(relation => relation.campaignId);
-    const campaignResults = [];
-    
-    // Fetch each campaign one by one
-    for (const id of campaignIds) {
-      const campaign = await this.getCampaign(id);
-      if (campaign) {
-        campaignResults.push(campaign);
-      }
-    }
-    
-    return campaignResults;
-  }
-  
-  // Client User methods
-  async getClientUsers(): Promise<ClientUser[]> {
-    return await db.select().from(clientUsers);
-  }
-  
-  async getClientUser(id: number): Promise<ClientUser | undefined> {
-    const result = await db.select().from(clientUsers).where(eq(clientUsers.id, id));
-    return result[0];
-  }
-  
-  async getClientUserByUsername(username: string): Promise<ClientUser | undefined> {
-    console.log(`Looking for client user with username: "${username}"`);
-    
-    // First, let's get all client users to debug
-    const allUsers = await db.select().from(clientUsers);
-    console.log('All client users in DB:', allUsers.map(u => u.username));
-    
-    // Query the database and print the raw SQL query
-    const query = db.select().from(clientUsers).where(eq(clientUsers.username, username));
-    const sql = query.toSQL();
-    console.log('SQL Query:', sql.sql);
-    console.log('SQL Values:', sql.params);
-    
-    const result = await query;
-    console.log('Query result:', result);
-    return result[0];
-  }
-  
-  async getClientUsersByClientId(clientId: number): Promise<ClientUser[]> {
-    return await db.select().from(clientUsers).where(eq(clientUsers.clientId, clientId));
-  }
-  
-  async createClientUser(clientUser: InsertClientUser): Promise<ClientUser> {
-    const result = await db.insert(clientUsers).values(clientUser).returning();
-    return result[0];
-  }
-  
-  async updateClientUser(id: number, clientUser: Partial<ClientUser>): Promise<ClientUser | undefined> {
-    const result = await db.update(clientUsers)
-      .set(clientUser)
-      .where(eq(clientUsers.id, id))
-      .returning();
-    return result[0];
-  }
-  
-  async deleteClientUser(id: number): Promise<boolean> {
-    const result = await db.delete(clientUsers).where(eq(clientUsers.id, id)).returning();
-    return result.length > 0;
-  }
-  
-  async verifyClientLogin(username: string, password: string): Promise<ClientUser | undefined> {
-    const user = await this.getClientUserByUsername(username);
-    if (!user) return undefined;
-    
-    // Check if the password is hashed (contains a period which separates hash and salt)
-    if (user.password.includes('.')) {
-      // Use our secure hash comparison
-      const isMatch = await this.comparePasswords(password, user.password);
-      if (!isMatch) {
-        return undefined;
-      }
-    } else {
-      // Fallback for plain text passwords (legacy compatibility)
-      if (user.password !== password) {
-        return undefined;
-      }
-    }
-    
-    // Update last login timestamp
-    await this.updateClientUser(user.id, { lastLoginAt: new Date() });
-    return user;
-  }
-
-  // Initialize the database with sample data
-  async initializeWithSampleData() {
+  async getEmail(id: number) {
     try {
-      log('Initializing database with sample data', 'db');
-      
-      // Check if we already have users
-      const existingUsers = await this.getUsers();
-      if (existingUsers.length === 0) {
-        // Create admin user with hashed password
-        log('Creating default admin user', 'db');
-        const hashedPassword = await this.hashPassword('admin123');
-        await this.createUser({
-          username: 'admin',
-          email: 'admin@infymailer.com',
-          password: hashedPassword,
-          firstName: 'Admin',
-          lastName: 'User',
-          role: 'admin',
-          status: 'active',
-          avatarUrl: null,
-          metadata: {
-            permissions: ['all'],
-            theme: 'light'
-          }
-        });
-      } else {
-        log('Admin user already exists, skipping user creation', 'db');
-      }
-      
-      // Check if we already have templates
-      const existingTemplates = await this.getTemplates();
-      if (existingTemplates.length > 0) {
-        log('Database already has data, skipping initialization', 'db');
-        return;
-      }
-
-      // Add default templates
-      await this.createTemplate({
-        name: "Newsletter",
-        description: "Standard newsletter layout",
-        content: "<h1>Newsletter Template</h1><p>This is a sample newsletter template.</p>",
-        category: "newsletter",
-        metadata: { icon: "file-earmark-text", iconColor: "primary" }
-      });
-
-      await this.createTemplate({
-        name: "Promotional",
-        description: "For sales and offers",
-        content: "<h1>Promotional Template</h1><p>This is a sample promotional template.</p>",
-        category: "promotional",
-        metadata: { icon: "megaphone", iconColor: "danger", selected: true }
-      });
-
-      await this.createTemplate({
-        name: "Welcome",
-        description: "For new subscribers",
-        content: "<h1>Welcome Template</h1><p>This is a sample welcome template.</p>",
-        category: "transactional",
-        metadata: { icon: "envelope-check", iconColor: "success" }
-      });
-
-      // Add default lists
-      await this.createList({
-        name: "Newsletter Subscribers",
-        description: "People who subscribed to the newsletter"
-      });
-
-      await this.createList({
-        name: "Product Updates",
-        description: "People interested in product updates"
-      });
-
-      await this.createList({
-        name: "New Customers",
-        description: "Recently acquired customers"
-      });
-
-      await this.createList({
-        name: "VIP Members",
-        description: "Premium customers"
-      });
-
-      // Add default campaigns
-      await this.createCampaign({
-        name: "Monthly Newsletter",
-        subject: "May Newsletter",
-        previewText: "Check out our latest updates",
-        senderName: "Your Company",
-        replyToEmail: "info@example.com",
-        content: "<h1>Monthly Newsletter</h1><p>Here are our latest updates...</p>",
-        status: "sent",
-        scheduledAt: new Date("2023-05-15T09:00:00"),
-        metadata: {
-          icon: { name: "envelope-fill", color: "primary" },
-          subtitle: "May 2023",
-          recipients: 12483,
-          openRate: 46.2,
-          clickRate: 21.8,
-          date: "May 15, 2023"
-        }
-      });
-
-      await this.createCampaign({
-        name: "Product Launch",
-        subject: "Introducing ProMax X1",
-        previewText: "Our newest product has arrived",
-        senderName: "Your Company",
-        replyToEmail: "info@example.com",
-        content: "<h1>Product Launch</h1><p>Meet our newest product...</p>",
-        status: "sent",
-        scheduledAt: new Date("2023-05-08T09:00:00"),
-        metadata: {
-          icon: { name: "megaphone-fill", color: "danger" },
-          subtitle: "ProMax X1",
-          recipients: 24192,
-          openRate: 58.7,
-          clickRate: 32.4,
-          date: "May 8, 2023"
-        }
-      });
-
-      await this.createCampaign({
-        name: "Spring Sale",
-        subject: "25% Off Everything",
-        previewText: "Limited time spring sale",
-        senderName: "Your Company",
-        replyToEmail: "info@example.com",
-        content: "<h1>Spring Sale</h1><p>Don't miss our biggest sale...</p>",
-        status: "scheduled",
-        scheduledAt: new Date("2023-05-20T09:00:00"),
-        metadata: {
-          icon: { name: "tag-fill", color: "warning" },
-          subtitle: "25% Discount",
-          recipients: 18743,
-          openRate: 0,
-          clickRate: 0,
-          date: "May 20, 2023"
-        }
-      });
-
-      await this.createCampaign({
-        name: "Welcome Series",
-        subject: "Welcome to Our Family",
-        previewText: "Get started with our products",
-        senderName: "Your Company",
-        replyToEmail: "info@example.com",
-        content: "<h1>Welcome Series</h1><p>Thanks for joining us...</p>",
-        status: "active",
-        scheduledAt: null,
-        metadata: {
-          icon: { name: "envelope-fill", color: "info" },
-          subtitle: "Automation",
-          recipients: 3891,
-          openRate: 52.1,
-          clickRate: 27.5,
-          date: "Ongoing"
-        }
-      });
-      
-      // Create a sample A/B test campaign
-      const abTestCampaign = await this.createCampaign({
-        name: "Summer Sale A/B Test",
-        subject: "Summer Specials Inside",
-        previewText: "Check out our best summer deals",
-        senderName: "Your Company",
-        replyToEmail: "info@example.com",
-        content: "<h1>Summer Sale</h1><p>Our main summer deals content...</p>",
-        status: "draft",
-        isAbTest: true,
-        scheduledAt: new Date("2023-06-15T09:00:00"),
-        metadata: {
-          icon: { name: "sun-fill", color: "warning" },
-          subtitle: "A/B Test",
-          recipients: 0,
-          openRate: 0,
-          clickRate: 0,
-          date: "June 15, 2023"
-        }
-      });
-      
-      // Create two variants for the A/B test
-      await this.createCampaignVariant({
-        campaignId: abTestCampaign.id,
-        name: "Variant A - Discount Focus",
-        subject: "Summer Sale: 30% OFF Everything",
-        previewText: "Limited time summer discounts inside",
-        content: "<h1>SUMMER SALE - 30% OFF</h1><p>Get huge discounts on all our summer products...</p>",
-        weight: 50,
-        metadata: { variantType: "discount" }
-      });
-      
-      await this.createCampaignVariant({
-        campaignId: abTestCampaign.id,
-        name: "Variant B - Scarcity Focus",
-        subject: "Summer Collection: Limited Stock",
-        previewText: "Exclusive summer items before they're gone",
-        content: "<h1>SUMMER COLLECTION - LIMITED STOCK</h1><p>Get our exclusive summer items before they sell out...</p>",
-        weight: 50,
-        metadata: { variantType: "scarcity" }
-      });
-
-      // Add default domains
-      await this.createDomain({
-        name: "marketing.example.com",
-        status: "active",
-        verified: true,
-        defaultDomain: true,
-        metadata: { 
-          type: "primary",
-          dkimVerified: true,
-          spfVerified: true
-        }
-      });
-      
-      await this.createDomain({
-        name: "newsletters.example.com",
-        status: "active",
-        verified: true,
-        defaultDomain: false,
-        metadata: { 
-          type: "newsletters",
-          dkimVerified: true,
-          spfVerified: true
-        }
-      });
-      
-      await this.createDomain({
-        name: "promos.example.com",
-        status: "active",
-        verified: true,
-        defaultDomain: false,
-        metadata: { 
-          type: "promotions",
-          dkimVerified: true,
-          spfVerified: true
-        }
-      });
-      
-      // Add domains to campaigns
-      await this.assignDomainToCampaign({
-        campaignId: 1, // Monthly Newsletter
-        domainId: 2,   // newsletters.example.com
-        metadata: { primary: true }
-      });
-      
-      await this.assignDomainToCampaign({
-        campaignId: 2, // Product Launch
-        domainId: 1,   // marketing.example.com
-        metadata: { primary: true }
-      });
-      
-      await this.assignDomainToCampaign({
-        campaignId: 3, // Spring Sale
-        domainId: 3,   // promos.example.com
-        metadata: { primary: true }
-      });
-      
-      log('Sample data initialization completed', 'db');
+      const [email] = await db.select().from(schema.emails).where(eq(schema.emails.id, id));
+      return email;
     } catch (error) {
-      console.error('Error initializing sample data:', error);
+      console.error('Error getting email:', error);
+      return undefined;
     }
   }
+
+  async getEmails() {
+    try {
+      const emails = await db.select().from(schema.emails).orderBy(desc(schema.emails.createdAt));
+      return emails;
+    } catch (error) {
+      console.error('Error getting emails:', error);
+      return [];
+    }
+  }
+
+  async createEmail(email: Omit<schema.InsertEmail, 'id'>) {
+    try {
+      const [newEmail] = await db.insert(schema.emails).values(email).returning();
+      return newEmail;
+    } catch (error) {
+      console.error('Error creating email:', error);
+      throw error;
+    }
+  }
+
+  async updateEmail(id: number, update: Partial<schema.InsertEmail>) {
+    try {
+      const [updatedEmail] = await db
+        .update(schema.emails)
+        .set(update)
+        .where(eq(schema.emails.id, id))
+        .returning();
+      return updatedEmail;
+    } catch (error) {
+      console.error('Error updating email:', error);
+      return undefined;
+    }
+  }
+
+  async deleteEmail(id: number) {
+    try {
+      const [deletedEmail] = await db
+        .delete(schema.emails)
+        .where(eq(schema.emails.id, id))
+        .returning();
+      return deletedEmail;
+    } catch (error) {
+      console.error('Error deleting email:', error);
+      return undefined;
+    }
+  }
+
+  // Campaign analytics methods
+  async getCampaignAnalytics(campaignId: number) {
+    try {
+      const analytics = await db
+        .select()
+        .from(schema.campaignAnalytics)
+        .where(eq(schema.campaignAnalytics.campaignId, campaignId))
+        .orderBy(desc(schema.campaignAnalytics.date));
+      
+      return analytics;
+    } catch (error) {
+      console.error('Error getting campaign analytics:', error);
+      return [];
+    }
+  }
+
+  async createCampaignAnalytics(analytics: Omit<schema.InsertCampaignAnalytics, 'id'>) {
+    try {
+      const [newAnalytics] = await db
+        .insert(schema.campaignAnalytics)
+        .values(analytics)
+        .returning();
+      
+      return newAnalytics;
+    } catch (error) {
+      console.error('Error creating campaign analytics:', error);
+      throw error;
+    }
+  }
+
+  async updateCampaignAnalytics(id: number, update: Partial<schema.InsertCampaignAnalytics>) {
+    try {
+      const [updatedAnalytics] = await db
+        .update(schema.campaignAnalytics)
+        .set(update)
+        .where(eq(schema.campaignAnalytics.id, id))
+        .returning();
+      
+      return updatedAnalytics;
+    } catch (error) {
+      console.error('Error updating campaign analytics:', error);
+      return undefined;
+    }
+  }
+
+  // Other methods required by IStorage interface
+  // These are placeholders to satisfy the interface and should be implemented as needed
+  getContactsCount() { return Promise.resolve(0); }
+  getListsCount() { return Promise.resolve(0); }
+  getTemplatesCount() { return Promise.resolve(0); }
+  getCampaignsCount() { return Promise.resolve(0); }
+  getDomainVerificationStatus() { return Promise.resolve({ success: false, details: 'Not implemented' }); }
+  updateDomainVerificationStatus() { return Promise.resolve(false); }
+  getEmailOpen() { return Promise.resolve(undefined); }
+  createEmailOpen() { return Promise.resolve(undefined); }
+  getEmailClick() { return Promise.resolve(undefined); }
+  createEmailClick() { return Promise.resolve(undefined); }
+  getCampaignPerformance() { return Promise.resolve(undefined); }
+  createCampaignPerformance() { return Promise.resolve(undefined); }
+  updateCampaignPerformance() { return Promise.resolve(undefined); }
+  getCampaignLink() { return Promise.resolve(undefined); }
+  getCampaignLinks() { return Promise.resolve([]); }
+  createCampaignLink() { return Promise.resolve(undefined); }
+  updateCampaignLink() { return Promise.resolve(undefined); }
+  getAudiencePersona() { return Promise.resolve(undefined); }
+  getAudiencePersonas() { return Promise.resolve([]); }
+  createAudiencePersona() { return Promise.resolve(undefined); }
+  updateAudiencePersona() { return Promise.resolve(undefined); }
+  deleteAudiencePersona() { return Promise.resolve(undefined); }
+  getPersonaDemographics() { return Promise.resolve(undefined); }
+  createPersonaDemographics() { return Promise.resolve(undefined); }
+  updatePersonaDemographics() { return Promise.resolve(undefined); }
+  getPersonaBehavior() { return Promise.resolve(undefined); }
+  createPersonaBehavior() { return Promise.resolve(undefined); }
+  updatePersonaBehavior() { return Promise.resolve(undefined); }
+  getPersonaInsight() { return Promise.resolve(undefined); }
+  getPersonaInsights() { return Promise.resolve([]); }
+  createPersonaInsight() { return Promise.resolve(undefined); }
+  updatePersonaInsight() { return Promise.resolve(undefined); }
+  getSegment() { return Promise.resolve(undefined); }
+  getSegments() { return Promise.resolve([]); }
+  createSegment() { return Promise.resolve(undefined); }
+  updateSegment() { return Promise.resolve(undefined); }
+  deleteSegment() { return Promise.resolve(undefined); }
 }
 
-// Create a singleton instance
+// Create a singleton instance of the database storage
 export const dbStorage = new DbStorage();

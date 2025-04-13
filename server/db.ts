@@ -1,9 +1,10 @@
 import { Pool, neonConfig } from '@neondatabase/serverless';
 import { drizzle } from 'drizzle-orm/neon-serverless';
-import ws from 'ws';
+import * as schema from '@shared/schema';
 import { log } from './vite';
+import ws from 'ws';
 
-// Configure neon to use websockets
+// Configure Neon to use WebSockets
 neonConfig.webSocketConstructor = ws;
 
 // Flag to track if database is available
@@ -16,7 +17,7 @@ export let pool: any;
 // Actual database connection logic - wrapped in a function to avoid top-level errors
 function setupDatabaseConnection() {
   try {
-    // For Neon Postgres
+    // For PostgreSQL
     const databaseUrl = process.env.DATABASE_URL;
     
     if (!databaseUrl) {
@@ -24,19 +25,16 @@ function setupDatabaseConnection() {
       throw new Error('DATABASE_URL environment variable is not set');
     }
     
-    log('Connecting to Neon Postgres database', 'db');
+    log('Connecting to PostgreSQL database using Neon serverless driver', 'db');
     
-    // Create Neon PostgreSQL connection with more robust settings
+    // Create Neon PostgreSQL connection
     pool = new Pool({ 
-      connectionString: databaseUrl,
-      connectionTimeoutMillis: 5000, // 5 second timeout
-      max: 20, // maximum connection pool size
-      idleTimeoutMillis: 30000 // how long a client is allowed to remain idle before being closed
+      connectionString: databaseUrl
     });
     
-    // Initialize Drizzle
-    db = drizzle(pool);
-    log('PostgreSQL storage initialized', 'db');
+    // Initialize Drizzle with schema
+    db = drizzle(pool, { schema });
+    log('PostgreSQL storage initialized with Neon driver', 'db');
     
     // Test connection (async but we'll wait for it)
     return new Promise<boolean>((resolve) => {
@@ -49,7 +47,7 @@ function setupDatabaseConnection() {
       
       pool.query('SELECT 1').then(() => {
         clearTimeout(timeout);
-        log('PostgreSQL database connected successfully', 'db');
+        log('PostgreSQL database connected successfully via Neon', 'db');
         isDatabaseAvailable = true;
         resolve(true);
       }).catch((err: Error) => {
