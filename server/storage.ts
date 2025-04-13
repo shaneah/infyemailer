@@ -381,10 +381,11 @@ export class MemStorage implements IStorage {
     this.initializeData();
     
     // Load saved data from files
-    this.loadListsFromFile();
+    this.loadListsFromFile();         // Load lists first
+    this.loadContactsFromFile();      // Load contacts before relationships
+    this.loadContactListRelations();  // Load contact-list relationships
     this.loadTemplatesFromFile();
     this.loadCampaignsFromFile();
-    this.loadContactsFromFile();
     this.loadDomainsFromFile();
     this.loadClientsFromFile();
     this.loadEmailsFromFile();
@@ -411,7 +412,7 @@ export class MemStorage implements IStorage {
   }
   
   /**
-   * Load lists and contact-list relationships from file storage
+   * Load lists from file storage
    */
   private async loadListsFromFile() {
     try {
@@ -425,7 +426,16 @@ export class MemStorage implements IStorage {
         this.listId = ListPersistenceService.getNextId(savedLists);
         console.log(`Loaded ${savedLists.size} lists from file storage`);
       }
-      
+    } catch (error) {
+      console.error('Failed to load lists from file storage:', error);
+    }
+  }
+  
+  /**
+   * Load contact-list relationships from file storage
+   */
+  private async loadContactListRelations() {
+    try {
       // Load contact-list relationships
       const savedContactLists = await ListPersistenceService.loadContactListsFromFile();
       if (savedContactLists.size > 0) {
@@ -437,7 +447,7 @@ export class MemStorage implements IStorage {
         console.log(`Loaded ${savedContactLists.size} contact-list relationships from file storage`);
       }
     } catch (error) {
-      console.error('Failed to load lists from file storage:', error);
+      console.error('Failed to load contact-list relationships from file storage:', error);
     }
   }
   
