@@ -153,11 +153,26 @@ export default function ImportTemplateModal({
       }
     },
     onSuccess: (newTemplate) => {
+      // Invalidate template queries to refresh the data
       queryClient.invalidateQueries({ queryKey: ['/api/templates'] });
+      
+      // Remind user to refresh manually if needed
+      toast({
+        title: "Template Imported Successfully",
+        description: "If your template doesn't appear, click the Refresh button at the top of the page.",
+        variant: "default",
+        duration: 5000,
+      });
+      
       resetForm();
       onOpenChange(false);
       onImportSuccess(newTemplate);
       setFileUploading(false);
+      
+      // Schedule another refresh after a delay
+      setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: ['/api/templates'] });
+      }, 2000);
     },
     onError: (error) => {
       setFileUploading(false);
@@ -432,6 +447,9 @@ export default function ImportTemplateModal({
                           <li>images folder (optional)</li>
                           <li>fonts folder (optional)</li>
                         </ul>
+                        <p className="mt-2 text-amber-600 font-medium">
+                          Note: If your template doesn't appear after importing, click the "Refresh" button at the top of the templates page.
+                        </p>
                       </div>
                     </div>
                   </div>
