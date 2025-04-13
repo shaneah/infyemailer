@@ -136,23 +136,23 @@ function getTemplateImage(template: Template) {
     return template.metadata.previewImage;
   }
   
-  const category = template.category.toLowerCase();
+  const category = template.category?.toLowerCase() || "";
   
-  // Return specific placeholder based on category
+  // Return placeholder based on category using SVG data URLs
   if (category === "newsletter") {
-    return "https://images.unsplash.com/photo-1591258739299-5b65d5cbb235?q=80&w=1000";
+    return "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23a5b4fc'/%3E%3Cpath d='M35,30 L65,30 L65,70 L35,70 Z' fill='%234f46e5'/%3E%3Cpath d='M40,40 L60,40 L60,45 L40,45 Z' fill='white'/%3E%3Cpath d='M40,50 L60,50 L60,55 L40,55 Z' fill='white'/%3E%3Cpath d='M40,60 L55,60 L55,65 L40,65 Z' fill='white'/%3E%3C/svg%3E";
   } else if (category === "welcome" || category === "onboarding") {
-    return "https://images.unsplash.com/photo-1517816743773-6e0fd518b4a6?q=80&w=1000";
+    return "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23bfdbfe'/%3E%3Ccircle cx='50' cy='40' r='15' fill='%233b82f6'/%3E%3Cpath d='M30,85 L70,85 L70,65 C70,55 60,50 50,50 C40,50 30,55 30,65 Z' fill='%233b82f6'/%3E%3C/svg%3E";
   } else if (category === "promotional" || category === "marketing") {
-    return "https://images.unsplash.com/photo-1583847268964-b28dc8f51f92?q=80&w=1000";
+    return "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23fecaca'/%3E%3Cpath d='M30,70 L70,70 L70,40 L50,25 L30,40 Z' fill='%23ef4444'/%3E%3Cpath d='M45,70 L55,70 L55,55 L45,55 Z' fill='%23b91c1c'/%3E%3C/svg%3E";
   } else if (category === "events") {
-    return "https://images.unsplash.com/photo-1528605248644-14dd04022da1?q=80&w=1000";
+    return "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23fde68a'/%3E%3Crect x='30' y='30' width='40' height='40' fill='%23d97706'/%3E%3Cpath d='M30,30 L70,30 L70,40 L30,40 Z' fill='%23f59e0b'/%3E%3Ccircle cx='40' cy='35' r='2' fill='%23fef3c7'/%3E%3Ccircle cx='50' cy='35' r='2' fill='%23fef3c7'/%3E%3Ccircle cx='60' cy='35' r='2' fill='%23fef3c7'/%3E%3C/svg%3E";
   } else if (category === "engagement") {
-    return "https://images.unsplash.com/photo-1600880292203-757bb62b4baf?q=80&w=1000";
+    return "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23fbcfe8'/%3E%3Cpath d='M30,50 C30,40 35,30 50,30 C65,30 70,40 70,50 C70,65 60,70 50,70 C40,70 30,65 30,50 Z' fill='%23ec4899'/%3E%3Cpath d='M42,45 C42,45 45,40 50,45 C55,40 58,45 58,45 L50,55 Z' fill='%23fbcfe8'/%3E%3C/svg%3E";
   }
   
   // Default placeholder
-  return "https://images.unsplash.com/photo-1634128221889-82ed6efebfc3?q=80&w=1000";
+  return "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23e5e7eb'/%3E%3Cpath d='M30,30 L70,30 L70,70 L30,70 Z' fill='%239ca3af'/%3E%3Cpath d='M40,40 L60,40 L60,45 L40,45 Z' fill='%23f3f4f6'/%3E%3Cpath d='M40,50 L60,50 L60,55 L40,55 Z' fill='%23f3f4f6'/%3E%3Cpath d='M40,60 L55,60 L55,65 L40,65 Z' fill='%23f3f4f6'/%3E%3C/svg%3E";
 }
 
 export default function Templates() {
