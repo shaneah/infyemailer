@@ -1153,7 +1153,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
             size: entry.header.size
           }));
         
-        // Create the template
+        // Create the template with additional logging
+        console.log(`Importing ZIP template: ${name}`);
+        
         const template = await storage.createTemplate({
           name: name,
           content: JSON.stringify(templateContent),
@@ -1171,6 +1173,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
         });
         
+        console.log(`ZIP template imported successfully with ID: ${template.id}`);
         res.status(201).json(template);
       } catch (zipError) {
         console.error('Error processing ZIP file:', zipError);

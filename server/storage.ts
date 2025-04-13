@@ -1665,9 +1665,10 @@ export class MemStorage implements IStorage {
   async deleteTemplate(id: number): Promise<boolean> {
     const result = this.templates.delete(id);
     
-    // If deletion was successful, save the updated templates to file
+    // If deletion was successful, immediately save the updated templates to file
     if (result) {
       await TemplatePersistenceService.saveTemplatesToFile(this.templates);
+      console.log(`Template ${id} deleted and template store saved to file`);
     }
     
     return result;
