@@ -18,9 +18,12 @@ import {
   Trash2,
   Search,
   MoreVertical,
+  Import,
+  RefreshCcw
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import ImportTemplateModal from "@/components/ImportTemplateModal";
+import CreateTemplateModal from "@/components/CreateTemplateModal";
 import {
   Select,
   SelectContent,
@@ -96,6 +99,7 @@ export default function EmailTemplatesNew() {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState<string>("all");
   const [showImportModal, setShowImportModal] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
   const [sortBy, setSortBy] = useState<string>("newest");
   
   const categories = [
@@ -111,10 +115,16 @@ export default function EmailTemplatesNew() {
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
   };
-
-  const handleCreateTemplate = () => {
-    // Navigate to template builder or show template creation modal
-    window.location.href = "/template-builder";
+  
+  const handleTemplateCreated = (template: Template) => {
+    toast({
+      title: "Template Created",
+      description: "Your template has been successfully created",
+      variant: "default",
+    });
+    
+    // Refresh templates list
+    refetchTemplates();
   };
   
   const handleImportSuccess = (template: Template) => {
@@ -123,6 +133,9 @@ export default function EmailTemplatesNew() {
       description: "Your template has been successfully imported",
       variant: "default",
     });
+    
+    // Refresh templates list
+    refetchTemplates();
   };
 
   // Fetch templates with a dedicated refetch function
@@ -233,7 +246,7 @@ export default function EmailTemplatesNew() {
             Import
           </Button>
           <Button 
-            onClick={handleCreateTemplate}
+            onClick={() => setShowCreateModal(true)}
             className="bg-indigo-700 hover:bg-indigo-800 flex items-center gap-2" 
           >
             <PlusCircle className="h-4 w-4" />
@@ -305,7 +318,7 @@ export default function EmailTemplatesNew() {
             <div className="flex gap-3 justify-center">
               <Button 
                 className="gap-2"
-                onClick={handleCreateTemplate}
+                onClick={() => setShowCreateModal(true)}
               >
                 <PlusCircle className="h-4 w-4" /> 
                 Create Template
@@ -399,6 +412,12 @@ export default function EmailTemplatesNew() {
         open={showImportModal}
         onOpenChange={setShowImportModal}
         onImportSuccess={handleImportSuccess}
+      />
+      
+      <CreateTemplateModal
+        open={showCreateModal}
+        onOpenChange={setShowCreateModal}
+        onSuccess={handleTemplateCreated}
       />
     </div>
   );
