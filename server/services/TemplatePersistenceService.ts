@@ -28,6 +28,24 @@ export class TemplatePersistenceService {
   }
 
   /**
+   * Save a single template to the templates file
+   * This ensures the template is immediately flushed to disk
+   */
+  static async saveTemplateToFile(template: Template, templates: Map<number, Template>): Promise<void> {
+    try {
+      // First add the template to the map if not already present
+      templates.set(template.id, template);
+      
+      // Then save the entire map to file
+      await TemplatePersistenceService.saveTemplatesToFile(templates);
+      
+      console.log(`Template ${template.id} (${template.name}) saved to file`);
+    } catch (error) {
+      console.error(`Failed to save template ${template.id} to file:`, error);
+    }
+  }
+
+  /**
    * Load templates from file if available
    */
   static async loadTemplatesFromFile(): Promise<Map<number, Template>> {

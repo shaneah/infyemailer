@@ -1639,8 +1639,8 @@ export class MemStorage implements IStorage {
     };
     this.templates.set(id, newTemplate);
     
-    // Save templates to file after creating a new one
-    await TemplatePersistenceService.saveTemplatesToFile(this.templates);
+    // Use the enhanced method to ensure immediate persistence to file
+    await TemplatePersistenceService.saveTemplateToFile(newTemplate, this.templates);
     
     return newTemplate;
   }
@@ -1656,8 +1656,8 @@ export class MemStorage implements IStorage {
     };
     this.templates.set(id, updatedTemplate);
     
-    // Save templates to file after updating
-    await TemplatePersistenceService.saveTemplatesToFile(this.templates);
+    // Use the enhanced method to ensure immediate persistence to file
+    await TemplatePersistenceService.saveTemplateToFile(updatedTemplate, this.templates);
     
     return updatedTemplate;
   }
