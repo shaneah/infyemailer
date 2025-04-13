@@ -387,6 +387,7 @@ export class MemStorage implements IStorage {
     this.loadContactsFromFile();
     this.loadDomainsFromFile();
     this.loadClientsFromFile();
+    this.loadEmailsFromFile();
   }
   
   /**
@@ -517,6 +518,26 @@ export class MemStorage implements IStorage {
       }
     } catch (error) {
       console.error('Failed to load clients from file storage:', error);
+    }
+  }
+  
+  /**
+   * Load emails from file storage
+   */
+  private async loadEmailsFromFile() {
+    try {
+      // Load emails
+      const savedEmails = await EmailPersistenceService.loadEmailsFromFile();
+      if (savedEmails.size > 0) {
+        // Replace in-memory emails with saved emails
+        this.emails = savedEmails;
+        
+        // Update emailId counter to be greater than any existing id
+        this.emailId = EmailPersistenceService.getNextId(savedEmails);
+        console.log(`Loaded ${savedEmails.size} emails from file storage`);
+      }
+    } catch (error) {
+      console.error('Failed to load emails from file storage:', error);
     }
   }
 
@@ -1552,6 +1573,10 @@ export class MemStorage implements IStorage {
       createdAt: now
     };
     this.emails.set(id, newEmail);
+    
+    // Save emails to file for persistence
+    await EmailPersistenceService.saveEmailsToFile(this.emails);
+    
     return newEmail;
   }
 
@@ -1561,11 +1586,22 @@ export class MemStorage implements IStorage {
 
     const updatedEmail = { ...existingEmail, ...email };
     this.emails.set(id, updatedEmail);
+    
+    // Save emails to file for persistence
+    await EmailPersistenceService.saveEmailsToFile(this.emails);
+    
     return updatedEmail;
   }
 
   async deleteEmail(id: number): Promise<boolean> {
-    return this.emails.delete(id);
+    const result = this.emails.delete(id);
+    
+    if (result) {
+      // Save emails to file for persistence
+      await EmailPersistenceService.saveEmailsToFile(this.emails);
+    }
+    
+    return result;
   }
 
   // Template methods

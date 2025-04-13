@@ -1,0 +1,19 @@
+  /**
+   * Load emails from file storage
+   */
+  private async loadEmailsFromFile() {
+    try {
+      // Load emails
+      const savedEmails = await EmailPersistenceService.loadEmailsFromFile();
+      if (savedEmails.size > 0) {
+        // Replace in-memory emails with saved emails
+        this.emails = savedEmails;
+        
+        // Update emailId counter to be greater than any existing id
+        this.emailId = EmailPersistenceService.getNextId(savedEmails);
+        console.log(`Loaded ${savedEmails.size} emails from file storage`);
+      }
+    } catch (error) {
+      console.error('Failed to load emails from file storage:', error);
+    }
+  }
