@@ -1,13 +1,16 @@
 [
   {
-    "id": 1,
-    "name": "SendGrid",
-    "provider": "sendgrid",
+    "id": 2,
+    "name": "Aadi Mughal",
+    "provider": "smtp",
     "config": {
-      "apiKey": "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"
+      "host": "smtpout.secureserver.net",
+      "port": "465",
+      "username": "mailer@ingmailer.com",
+      "password": "Aadi@786@"
     },
     "isDefault": true,
-    "createdAt": "2025-04-13T00:55:23.641Z",
-    "updatedAt": "2025-04-13T00:55:23.641Z"
+    "createdAt": "2025-04-13T01:00:09.309Z",
+    "updatedAt": "2025-04-13T01:00:13.988Z"
   }
 ]

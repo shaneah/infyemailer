@@ -3,6 +3,7 @@
  */
 export interface SendEmailParams {
   from: string;
+  fromName?: string;
   to: string;
   subject: string;
   text?: string;

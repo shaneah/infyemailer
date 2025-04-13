@@ -2,6 +2,9 @@ import { Request, Response } from 'express';
 import { z } from 'zod';
 import { emailService } from '../services/EmailService';
 
+// Import the default email settings from the emailSettings route
+import { defaultEmailSettings } from './emailSettings';
+
 export async function registerTestEmailRoutes(app: any) {
   // Send a test email using the default provider
   app.post('/api/test-email', async (req: Request, res: Response) => {
@@ -42,22 +45,21 @@ export async function registerTestEmailRoutes(app: any) {
         const firstProvider = allProviders[0];
         console.log(`[Test Email] No default provider set, using first available: ${firstProvider.name}`);
         
-        // Get the provider instance
-        const providerInstance = firstProvider.provider;
-        const providerConfig = providerInstance.constructor.name === 'SMTPProvider' 
-          ? (providerInstance as any) 
-          : null;
-        
-        // For SMTP providers, use the configured fromEmail if available
-        const fromEmail = providerConfig && providerConfig.fromEmail 
-          ? providerConfig.fromEmail 
+        // Use the global email settings if available
+        const fromEmail = defaultEmailSettings.fromEmail 
+          ? defaultEmailSettings.fromEmail
           : (validatedData.from || 'notifications@infymailer.com');
+        
+        const fromName = defaultEmailSettings.fromName
+          ? defaultEmailSettings.fromName
+          : (validatedData.fromName || 'InfyMailer');
         
         console.log(`[Test Email] Using from address with first provider: ${fromEmail}`);
         
         // Send the test email using the first available provider
         const result = await emailService.sendEmail({
           from: fromEmail,
+          fromName: fromName,
           to: validatedData.to,
           subject: validatedData.subject,
           text: validatedData.text || '',
@@ -80,22 +82,21 @@ export async function registerTestEmailRoutes(app: any) {
       console.log(`[Test Email] Using default provider: ${defaultProviderName}`);
       console.log('[Test Email] Sending email to:', validatedData.to);
       
-      // Get the default provider
-      const defaultProvider = emailService.getDefaultProvider();
-      const providerConfig = defaultProvider.constructor.name === 'SMTPProvider' 
-        ? (defaultProvider as any) 
-        : null;
-      
-      // For SMTP providers, use the configured fromEmail if available
-      const fromEmail = providerConfig && providerConfig.fromEmail 
-        ? providerConfig.fromEmail 
+      // Use the global email settings if available
+      const fromEmail = defaultEmailSettings.fromEmail 
+        ? defaultEmailSettings.fromEmail
         : (validatedData.from || 'notifications@infymailer.com');
+      
+      const fromName = defaultEmailSettings.fromName
+        ? defaultEmailSettings.fromName
+        : (validatedData.fromName || 'InfyMailer');
       
       console.log(`[Test Email] Using from address: ${fromEmail}`);
       
       // Send the test email using the default provider
       const result = await emailService.sendEmail({
         from: fromEmail,
+        fromName: fromName,
         to: validatedData.to,
         subject: validatedData.subject,
         text: validatedData.text || '',

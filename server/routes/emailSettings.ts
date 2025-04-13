@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 
 // Email settings service code would go here in a real implementation
 // For now, we'll just use in-memory storage
-let defaultEmailSettings = {
+export let defaultEmailSettings = {
   fromEmail: '',
   fromName: '',
   replyTo: '',
