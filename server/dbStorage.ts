@@ -22,7 +22,7 @@ import {
   ClickEvent, OpenEvent, EngagementMetrics, LinkTracking
 } from '@shared/schema';
 import { IStorage } from './storage';
-import { db } from './db';
+import { db, pool } from './db';
 import { eq, and } from 'drizzle-orm';
 import { log } from './vite';
 

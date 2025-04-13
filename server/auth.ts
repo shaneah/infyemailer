@@ -6,6 +6,8 @@ import { scrypt, randomBytes, timingSafeEqual } from "crypto";
 import { promisify } from "util";
 import { storage } from "./storage";
 import memorystore from "memorystore";
+import { pool, isDatabaseAvailable } from "./db";
+import connectPgSimple from "connect-pg-simple";
 
 declare global {
   namespace Express {
@@ -59,11 +61,24 @@ export async function comparePasswords(supplied: string, stored: string) {
 }
 
 export function setupAuth(app: Express) {
-  // Use memory store for now to avoid database session table issues
-  const MemoryStore = memorystore(session);
-  const sessionStore = new MemoryStore({
-    checkPeriod: 86400000 // prune expired entries every 24h
-  });
+  // Determine which session store to use based on database availability
+  let sessionStore;
+  
+  if (isDatabaseAvailable) {
+    console.log('Using PostgreSQL for session storage');
+    const PgSessionStore = connectPgSimple(session);
+    sessionStore = new PgSessionStore({
+      pool,
+      tableName: 'session', // Default table name
+      createTableIfMissing: true
+    });
+  } else {
+    console.log('Using memory store for session storage');
+    const MemoryStore = memorystore(session);
+    sessionStore = new MemoryStore({
+      checkPeriod: 86400000 // prune expired entries every 24h
+    });
+  }
 
   const sessionSettings: session.SessionOptions = {
     secret: process.env.SESSION_SECRET || 'infy-mailer-secret',
