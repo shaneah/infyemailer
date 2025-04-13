@@ -37,6 +37,7 @@ import { CampaignPersistenceService } from './services/CampaignPersistenceServic
 import { ContactPersistenceService } from './services/ContactPersistenceService';
 import { DomainPersistenceService } from './services/DomainPersistenceService';
 import { ClientPersistenceService } from './services/ClientPersistenceService';
+import { EmailPersistenceService } from './services/EmailPersistenceService';
 
 // Interface for storage operations
 export interface IStorage {
@@ -1326,6 +1327,10 @@ export class MemStorage implements IStorage {
       createdAt: now
     };
     this.contacts.set(id, newContact);
+    
+    // Save contacts to file for persistence
+    await ContactPersistenceService.saveContactsToFile(this.contacts);
+    
     return newContact;
   }
 
@@ -1335,11 +1340,22 @@ export class MemStorage implements IStorage {
 
     const updatedContact = { ...existingContact, ...contact };
     this.contacts.set(id, updatedContact);
+    
+    // Save contacts to file for persistence
+    await ContactPersistenceService.saveContactsToFile(this.contacts);
+    
     return updatedContact;
   }
 
   async deleteContact(id: number): Promise<boolean> {
-    return this.contacts.delete(id);
+    const result = this.contacts.delete(id);
+    
+    if (result) {
+      // Save contacts to file for persistence
+      await ContactPersistenceService.saveContactsToFile(this.contacts);
+    }
+    
+    return result;
   }
 
   // List methods
