@@ -1,14 +1,28 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import CampaignsTable from "@/components/CampaignsTable";
 import NewCampaignModal from "@/modals/NewCampaignModal";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useLocation } from "wouter";
 
 export default function Campaigns() {
   const [showNewCampaignModal, setShowNewCampaignModal] = useState(false);
+  const [initialTemplateId, setInitialTemplateId] = useState<string | null>(null);
+  const [location] = useLocation();
   const { data: campaignStats, isLoading } = useQuery({
     queryKey: ['/api/campaigns/stats'],
   });
+  
+  useEffect(() => {
+    // Check if the URL has a templateId parameter
+    const params = new URLSearchParams(location.split('?')[1]);
+    const templateId = params.get('templateId');
+    
+    if (templateId) {
+      setInitialTemplateId(templateId);
+      setShowNewCampaignModal(true);
+    }
+  }, [location]);
 
   return (
     <>
@@ -69,7 +83,13 @@ export default function Campaigns() {
       <CampaignsTable />
 
       {showNewCampaignModal && (
-        <NewCampaignModal onClose={() => setShowNewCampaignModal(false)} />
+        <NewCampaignModal 
+          onClose={() => {
+            setShowNewCampaignModal(false);
+            setInitialTemplateId(null);
+          }} 
+          initialTemplateId={initialTemplateId}
+        />
       )}
     </>
   );

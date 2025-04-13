@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -23,14 +23,22 @@ const campaignSchema = z.object({
 
 interface NewCampaignModalProps {
   onClose: () => void;
+  initialTemplateId?: string | null;
 }
 
-const NewCampaignModal = ({ onClose }: NewCampaignModalProps) => {
+const NewCampaignModal = ({ onClose, initialTemplateId = null }: NewCampaignModalProps) => {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("details");
   const [sendOption, setSendOption] = useState("schedule");
-  const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(initialTemplateId);
   const [selectedLists, setSelectedLists] = useState<string[]>([]);
+  
+  // If an initial template ID is provided, switch to the content tab
+  useEffect(() => {
+    if (initialTemplateId) {
+      setActiveTab("content");
+    }
+  }, [initialTemplateId]);
   
   const form = useForm<z.infer<typeof campaignSchema>>({
     resolver: zodResolver(campaignSchema),
