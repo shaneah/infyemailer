@@ -1530,10 +1530,11 @@ export class MemStorage implements IStorage {
       createdAt: now,
       updatedAt: now
     };
-    this.campaigns.set(id, newCampaign);
     
-    // Save campaigns to file for persistence
-    await CampaignPersistenceService.saveCampaignsToFile(this.campaigns);
+    // Save campaign directly to file for immediate persistence
+    await CampaignPersistenceService.saveCampaignToFile(newCampaign, this.campaigns);
+    
+    console.log(`Campaign created: ${newCampaign.id} (${newCampaign.name}) - immediate file save completed`);
     
     return newCampaign;
   }
@@ -1547,19 +1548,27 @@ export class MemStorage implements IStorage {
       ...campaign,
       updatedAt: new Date()
     };
-    this.campaigns.set(id, updatedCampaign);
     
-    // Save campaigns to file for persistence
-    await CampaignPersistenceService.saveCampaignsToFile(this.campaigns);
+    // Save campaign directly to file for immediate persistence
+    await CampaignPersistenceService.saveCampaignToFile(updatedCampaign, this.campaigns);
+    
+    console.log(`Campaign updated: ${updatedCampaign.id} (${updatedCampaign.name}) - immediate file save completed`);
     
     return updatedCampaign;
   }
 
   async deleteCampaign(id: number): Promise<boolean> {
+    // Get the campaign name before deletion for logging
+    const campaign = this.campaigns.get(id);
+    const campaignName = campaign ? campaign.name : 'unknown';
+    
     const result = this.campaigns.delete(id);
     
-    // Save campaigns to file for persistence
-    await CampaignPersistenceService.saveCampaignsToFile(this.campaigns);
+    if (result) {
+      // Save campaigns to file for persistence
+      await CampaignPersistenceService.saveCampaignsToFile(this.campaigns);
+      console.log(`Campaign deleted: ${id} (${campaignName}) - campaigns saved to file`);
+    }
     
     return result;
   }

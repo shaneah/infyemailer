@@ -26,6 +26,24 @@ export class CampaignPersistenceService {
       console.error('Failed to save campaigns to file:', error);
     }
   }
+  
+  /**
+   * Save a single campaign to file
+   * This ensures the campaign is immediately persisted to disk
+   */
+  static async saveCampaignToFile(campaign: Campaign, campaigns: Map<number, Campaign>): Promise<void> {
+    try {
+      // First add/update the campaign in the map
+      campaigns.set(campaign.id, campaign);
+      
+      // Then save the entire map to file for consistency
+      await CampaignPersistenceService.saveCampaignsToFile(campaigns);
+      
+      console.log(`Campaign ${campaign.id} (${campaign.name}) saved to file`);
+    } catch (error) {
+      console.error(`Failed to save campaign ${campaign.id} to file:`, error);
+    }
+  }
 
   /**
    * Load campaigns from file if available
