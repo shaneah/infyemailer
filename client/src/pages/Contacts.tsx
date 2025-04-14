@@ -357,7 +357,10 @@ export default function Contacts() {
       return apiRequest("POST", "/api/contacts", values);
     },
     onSuccess: () => {
+      // Invalidate both contacts and lists queries to ensure UI updates
       queryClient.invalidateQueries({ queryKey: ['/api/contacts'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/lists'] });
+      
       toast({
         title: "Contact added",
         description: "The contact has been added successfully.",
@@ -385,8 +388,9 @@ export default function Contacts() {
       return apiRequest("POST", "/api/contacts/import", data);
     },
     onSuccess: (data: any) => {
-      // Force a refresh of the contacts list
+      // Force a refresh of both contacts and lists
       queryClient.invalidateQueries({ queryKey: ['/api/contacts'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/lists'] });
       
       // Update the results display
       setImportResults({
@@ -458,7 +462,10 @@ export default function Contacts() {
       return apiRequest("PATCH", `/api/contacts/${id}`, data);
     },
     onSuccess: () => {
+      // Invalidate both contacts and lists queries
       queryClient.invalidateQueries({ queryKey: ['/api/contacts'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/lists'] });
+      
       toast({
         title: "Contact updated",
         description: "Contact has been updated successfully.",
@@ -471,7 +478,10 @@ export default function Contacts() {
       return apiRequest("DELETE", `/api/contacts/${id}`);
     },
     onSuccess: () => {
+      // Invalidate both contacts and lists queries
       queryClient.invalidateQueries({ queryKey: ['/api/contacts'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/lists'] });
+      
       toast({
         title: "Contact deleted",
         description: "Contact has been deleted successfully.",
@@ -486,7 +496,10 @@ export default function Contacts() {
       return Promise.all(ids.map(id => apiRequest("DELETE", `/api/contacts/${id}`)));
     },
     onSuccess: (_data, variables) => {
+      // Invalidate both contacts and lists queries
       queryClient.invalidateQueries({ queryKey: ['/api/contacts'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/lists'] });
+      
       setSelectedContacts([]);
       setSelectAll(false);
       setBulkDeleteDialogOpen(false);
