@@ -2,7 +2,8 @@ import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { getStorage } from "./storageManager"; // Use dynamic storage selection
 const storage = getStorage();
-import { isDatabaseAvailable } from "./db"; // Check if database is available
+import { isDatabaseAvailable, db } from "./db"; // Import db and check if database is available
+import { eq, desc } from "drizzle-orm"; // Import Drizzle operators
 import { generateSubjectLines, generateEmailTemplate, generateColorPalette } from "./services/openai";
 import { setupAuth, hashPassword, comparePasswords } from "./auth";
 import { EmailValidationService } from "./services/emailValidation";
@@ -38,6 +39,7 @@ import {
   insertTemplateSchema, 
   insertAnalyticsSchema,
   insertCampaignVariantSchema,
+  engagementMetrics,
   insertVariantAnalyticsSchema,
   insertDomainSchema,
   insertCampaignDomainSchema,
