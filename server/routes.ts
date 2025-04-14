@@ -161,11 +161,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const campaigns = await storage.getCampaigns();
       console.log(`Retrieved ${campaigns.length} campaigns from storage`);
       
-      // Map campaigns to format expected by frontend
-      const formattedCampaigns = campaigns.map(campaign => {
+      // Create an array to store the formatted campaigns
+      const formattedCampaigns = [];
+      
+      // Process each campaign with its engagement metrics
+      for (const campaign of campaigns) {
         try {
           const metadata = campaign.metadata as any || {};
-          return {
+          
+          // Get the engagement metrics for this campaign from the database
+          const metrics = await db.select()
+            .from(engagementMetrics)
+            .where(eq(engagementMetrics.campaignId, campaign.id))
+            .orderBy(desc(engagementMetrics.date))
+            .limit(1);
+          
+          // Calculate the open rate and click rate from metrics
+          // If we have metrics data, use it; otherwise, fall back to metadata
+          let openRate = 0;
+          let clickRate = 0;
+          
+          if (metrics && metrics.length > 0) {
+            // Metrics stores clickThroughRate as percentage * 100, convert back to decimal
+            const uniqueOpens = metrics[0].uniqueOpens || 0;
+            const totalOpens = metrics[0].totalOpens || 0;
+            const uniqueClicks = metrics[0].uniqueClicks || 0;
+            const totalClicks = metrics[0].totalClicks || 0;
+            const recipients = metadata.recipients || 0;
+            
+            // Calculate rates - avoid division by zero
+            openRate = recipients > 0 ? (uniqueOpens / recipients) * 100 : 0;
+            clickRate = uniqueOpens > 0 ? (uniqueClicks / uniqueOpens) * 100 : 0;
+          } else {
+            // Fall back to metadata if no metrics found
+            openRate = metadata.openRate || 0;
+            clickRate = metadata.clickRate || 0;
+          }
+          
+          formattedCampaigns.push({
             id: campaign.id,
             name: campaign.name,
             subtitle: metadata.subtitle || '',
@@ -177,14 +210,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
                     campaign.status === 'active' ? 'primary' : 'secondary'
             },
             recipients: metadata.recipients || 0,
-            openRate: metadata.openRate || 0,
-            clickRate: metadata.clickRate || 0,
+            openRate: openRate,
+            clickRate: clickRate,
             date: metadata.date || (campaign.scheduledAt ? new Date(campaign.scheduledAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A'),
-          };
+          });
         } catch (err) {
           console.error(`Error formatting campaign ID ${campaign.id}:`, err);
           // Return a minimal valid object if there's an error with this campaign
-          return {
+          formattedCampaigns.push({
             id: campaign.id,
             name: campaign.name || 'Unnamed Campaign',
             subtitle: '',
@@ -194,9 +227,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
             openRate: 0,
             clickRate: 0,
             date: 'N/A'
-          };
+          });
         }
-      });
+      }
       
       res.json(formattedCampaigns);
     } catch (error) {
