@@ -39,7 +39,7 @@ export const insertClientSchema = createInsertSchema(clients).pick({
 export type InsertClient = z.infer<typeof insertClientSchema>;
 export type Client = typeof clients.$inferSelect;
 
-// User schema (for administrators)
+// User schema (for administrators and staff)
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   username: text("username").notNull().unique(),
@@ -47,7 +47,6 @@ export const users = pgTable("users", {
   password: text("password").notNull(),
   firstName: text("first_name"),
   lastName: text("last_name"),
-  role: text("role").notNull().default("admin"),
   status: text("status").notNull().default("active"),
   lastLoginAt: timestamp("last_login_at"),
   createdAt: timestamp("created_at").defaultNow(),
@@ -61,11 +60,85 @@ export const insertUserSchema = createInsertSchema(users).pick({
   password: true,
   firstName: true,
   lastName: true,
-  role: true,
   status: true,
   avatarUrl: true,
   metadata: true,
 });
+
+// Roles definition
+export const roles = pgTable("roles", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull().unique(),
+  description: text("description"),
+  isSystem: boolean("is_system").notNull().default(false), // System roles cannot be deleted
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  metadata: json("metadata")
+});
+
+export const insertRoleSchema = createInsertSchema(roles).pick({
+  name: true,
+  description: true,
+  isSystem: true,
+  metadata: true,
+});
+
+// Permissions definition
+export const permissions = pgTable("permissions", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull().unique(),
+  description: text("description"),
+  category: text("category").notNull(), // Group permissions by category (e.g., campaigns, users, templates)
+  action: text("action").notNull(), // The action this permission grants (e.g., view, create, edit, delete)
+  createdAt: timestamp("created_at").defaultNow(),
+  metadata: json("metadata")
+});
+
+export const insertPermissionSchema = createInsertSchema(permissions).pick({
+  name: true,
+  description: true,
+  category: true,
+  action: true,
+  metadata: true,
+});
+
+// Role-Permission relationship
+export const rolePermissions = pgTable("role_permissions", {
+  id: serial("id").primaryKey(),
+  roleId: integer("role_id").notNull().references(() => roles.id),
+  permissionId: integer("permission_id").notNull().references(() => permissions.id),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertRolePermissionSchema = createInsertSchema(rolePermissions).pick({
+  roleId: true,
+  permissionId: true,
+});
+
+// User-Role relationship
+export const userRoles = pgTable("user_roles", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  roleId: integer("role_id").notNull().references(() => roles.id),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertUserRoleSchema = createInsertSchema(userRoles).pick({
+  userId: true,
+  roleId: true,
+});
+
+export type InsertRole = z.infer<typeof insertRoleSchema>;
+export type Role = typeof roles.$inferSelect;
+
+export type InsertPermission = z.infer<typeof insertPermissionSchema>;
+export type Permission = typeof permissions.$inferSelect;
+
+export type InsertRolePermission = z.infer<typeof insertRolePermissionSchema>;
+export type RolePermission = typeof rolePermissions.$inferSelect;
+
+export type InsertUserRole = z.infer<typeof insertUserRoleSchema>;
+export type UserRole = typeof userRoles.$inferSelect;
 
 export const userLoginSchema = z.object({
   usernameOrEmail: z.string().min(1, "Username or email is required"),
@@ -382,7 +455,26 @@ export type ClientUser = typeof clientUsers.$inferSelect;
 
 // Define table relations
 export const usersRelations = defineRelations(users, {
-  // No relations for users yet
+  userRoles: { relationName: "user_to_roles", fields: [users.id], references: [userRoles.userId] }
+});
+
+export const rolesRelations = defineRelations(roles, {
+  userRoles: { relationName: "role_to_users", fields: [roles.id], references: [userRoles.roleId] },
+  rolePermissions: { relationName: "role_to_permissions", fields: [roles.id], references: [rolePermissions.roleId] }
+});
+
+export const permissionsRelations = defineRelations(permissions, {
+  rolePermissions: { relationName: "permission_to_roles", fields: [permissions.id], references: [rolePermissions.permissionId] }
+});
+
+export const rolePermissionsRelations = defineRelations(rolePermissions, {
+  role: { relationName: "rolePermission_to_role", fields: [rolePermissions.roleId], references: [roles.id] },
+  permission: { relationName: "rolePermission_to_permission", fields: [rolePermissions.permissionId], references: [permissions.id] }
+});
+
+export const userRolesRelations = defineRelations(userRoles, {
+  user: { relationName: "userRole_to_user", fields: [userRoles.userId], references: [users.id] },
+  role: { relationName: "userRole_to_role", fields: [userRoles.roleId], references: [roles.id] }
 });
 
 export const clientsRelations = defineRelations(clients, {
