@@ -5,6 +5,10 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { useParams, useLocation } from "wouter";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import EmailEditor from "@/components/EmailEditor";
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
+import { BlocksGrid, StructuresGrid } from "@/components/DraggableBlock";
+import DroppableArea from "@/components/DroppableArea";
 import {
   ArrowLeft, 
   Loader2, 
@@ -199,6 +203,41 @@ export default function TemplateBuilder() {
       setActiveNavTab('visual');
     }
   };
+  
+  // Handle drag and drop of content blocks
+  const [emailSections, setEmailSections] = useState<any[]>([]);
+  
+  const handleBlockDrop = (item: any) => {
+    console.log('Block dropped:', item);
+    // Add a new section with the dropped block
+    const newSection = {
+      id: `section-${Date.now()}`,
+      type: item.type,
+      content: getDefaultContentForType(item.type),
+    };
+    
+    setEmailSections([...emailSections, newSection]);
+    toast({
+      title: 'Block added',
+      description: `Added a new ${item.type} block to your template`,
+    });
+  };
+  
+  // Helper function to get default content based on block type
+  const getDefaultContentForType = (type: string) => {
+    switch (type) {
+      case 'text':
+        return 'Double-click to edit this text';
+      case 'button':
+        return 'Click Me';
+      case 'image':
+        return 'https://via.placeholder.com/600x200?text=Your+Image+Here';
+      case 'spacer':
+        return { height: '20px' };
+      default:
+        return 'New content';
+    }
+  };
 
   return (
     <div className="flex flex-col h-screen max-h-screen overflow-hidden">
@@ -329,116 +368,68 @@ export default function TemplateBuilder() {
                 <div className="flex-1 overflow-auto">
                   <div className="p-4">
                     <h3 className="font-medium text-sm mb-3">Structures</h3>
-                    <div className="grid grid-cols-2 gap-2 mb-6">
-                      <div className="border border-gray-200 rounded p-2 hover:border-[#1a3a5f]/60 cursor-pointer transition-colors">
-                        <div className="h-10 flex items-center justify-center">
-                          <div className="w-full h-2 bg-gray-200 rounded"></div>
-                        </div>
-                        <p className="text-xs text-center mt-2">1 Column</p>
-                      </div>
-                      <div className="border border-gray-200 rounded p-2 hover:border-[#1a3a5f]/60 cursor-pointer transition-colors">
-                        <div className="h-10 flex items-center justify-center space-x-1">
-                          <div className="w-1/2 h-2 bg-gray-200 rounded"></div>
-                          <div className="w-1/2 h-2 bg-gray-200 rounded"></div>
-                        </div>
-                        <p className="text-xs text-center mt-2">2 Columns</p>
-                      </div>
-                      <div className="border border-gray-200 rounded p-2 hover:border-[#1a3a5f]/60 cursor-pointer transition-colors">
-                        <div className="h-10 flex items-center justify-center space-x-1">
-                          <div className="w-1/3 h-2 bg-gray-200 rounded"></div>
-                          <div className="w-1/3 h-2 bg-gray-200 rounded"></div>
-                          <div className="w-1/3 h-2 bg-gray-200 rounded"></div>
-                        </div>
-                        <p className="text-xs text-center mt-2">3 Columns</p>
-                      </div>
-                      <div className="border border-gray-200 rounded p-2 hover:border-[#1a3a5f]/60 cursor-pointer transition-colors">
-                        <div className="h-10 flex items-center justify-center space-x-1">
-                          <div className="w-1/3 h-2 bg-gray-200 rounded"></div>
-                          <div className="w-2/3 h-2 bg-gray-200 rounded"></div>
-                        </div>
-                        <p className="text-xs text-center mt-2">1:2 Ratio</p>
-                      </div>
-                    </div>
+                    <StructuresGrid />
 
                     <h3 className="font-medium text-sm mb-3">Blocks</h3>
-                    <div className="grid grid-cols-3 gap-2">
-                      <div className="border border-gray-200 rounded p-2 hover:border-[#1a3a5f]/60 cursor-pointer transition-colors text-center">
-                        <div className="flex justify-center mb-1.5">
-                          <ImageIcon className="h-5 w-5 text-gray-600" />
-                        </div>
-                        <p className="text-xs">Image</p>
+                    <BlocksGrid onBlockDrop={handleBlockDrop} />
+                  </div>
+                </div>
+              )}
+
+              {/* Appearance Settings */}
+              {activeSidebar === 'appearance' && (
+                <div className="flex-1 overflow-auto">
+                  <div className="p-4 space-y-4">
+                    <h3 className="font-medium text-sm mb-3">Template Style</h3>
+                    <div className="space-y-3">
+                      <div>
+                        <Label htmlFor="font-family" className="text-xs mb-1 block">
+                          Font Family
+                        </Label>
+                        <Input 
+                          id="font-family" 
+                          defaultValue="Arial, sans-serif" 
+                          className="h-8 text-sm" 
+                        />
                       </div>
-                      <div className="border border-gray-200 rounded p-2 hover:border-[#1a3a5f]/60 cursor-pointer transition-colors text-center">
-                        <div className="flex justify-center mb-1.5">
-                          <Type className="h-5 w-5 text-gray-600" />
+                      <div>
+                        <Label htmlFor="background-color" className="text-xs mb-1 block">
+                          Background Color
+                        </Label>
+                        <div className="flex items-center">
+                          <div className="w-6 h-6 rounded border border-gray-300 bg-gray-100 mr-2"></div>
+                          <Input 
+                            id="background-color" 
+                            defaultValue="#f4f4f4" 
+                            className="h-8 text-sm" 
+                          />
                         </div>
-                        <p className="text-xs">Text</p>
                       </div>
-                      <div className="border border-gray-200 rounded p-2 hover:border-[#1a3a5f]/60 cursor-pointer transition-colors text-center">
-                        <div className="flex justify-center mb-1.5">
-                          <div className="h-5 w-5 flex items-center justify-center text-gray-600">
-                            <div className="w-4 h-3 border border-gray-600 rounded text-[10px] flex items-center justify-center">
-                              B
-                            </div>
-                          </div>
+                      <div>
+                        <Label htmlFor="text-color" className="text-xs mb-1 block">
+                          Text Color
+                        </Label>
+                        <div className="flex items-center">
+                          <div className="w-6 h-6 rounded border border-gray-300 bg-gray-800 mr-2"></div>
+                          <Input 
+                            id="text-color" 
+                            defaultValue="#333333" 
+                            className="h-8 text-sm" 
+                          />
                         </div>
-                        <p className="text-xs">Button</p>
                       </div>
-                      <div className="border border-gray-200 rounded p-2 hover:border-[#1a3a5f]/60 cursor-pointer transition-colors text-center">
-                        <div className="flex justify-center mb-1.5">
-                          <div className="h-5 w-5 flex flex-col justify-center items-center">
-                            <div className="h-0.5 w-4 bg-gray-600"></div>
-                          </div>
+                      <div>
+                        <Label htmlFor="link-color" className="text-xs mb-1 block">
+                          Link Color
+                        </Label>
+                        <div className="flex items-center">
+                          <div className="w-6 h-6 rounded border border-gray-300 bg-blue-600 mr-2"></div>
+                          <Input 
+                            id="link-color" 
+                            defaultValue="#1a73e8" 
+                            className="h-8 text-sm" 
+                          />
                         </div>
-                        <p className="text-xs">Spacer</p>
-                      </div>
-                      <div className="border border-gray-200 rounded p-2 hover:border-[#1a3a5f]/60 cursor-pointer transition-colors text-center">
-                        <div className="flex justify-center mb-1.5">
-                          <Video className="h-5 w-5 text-gray-600" />
-                        </div>
-                        <p className="text-xs">Video</p>
-                      </div>
-                      <div className="border border-gray-200 rounded p-2 hover:border-[#1a3a5f]/60 cursor-pointer transition-colors text-center">
-                        <div className="flex justify-center mb-1.5">
-                          <Share2 className="h-5 w-5 text-gray-600" />
-                        </div>
-                        <p className="text-xs">Social</p>
-                      </div>
-                      <div className="border border-gray-200 rounded p-2 hover:border-[#1a3a5f]/60 cursor-pointer transition-colors text-center">
-                        <div className="flex justify-center mb-1.5">
-                          <Menu className="h-5 w-5 text-gray-600" />
-                        </div>
-                        <p className="text-xs">Menu</p>
-                      </div>
-                      <div className="border border-gray-200 rounded p-2 hover:border-[#1a3a5f]/60 cursor-pointer transition-colors text-center">
-                        <div className="flex justify-center mb-1.5">
-                          <Clock className="h-5 w-5 text-gray-600" />
-                        </div>
-                        <p className="text-xs">Timer</p>
-                      </div>
-                      <div className="border border-gray-200 rounded p-2 hover:border-[#1a3a5f]/60 cursor-pointer transition-colors text-center">
-                        <div className="flex justify-center mb-1.5">
-                          <SlidersHorizontal className="h-5 w-5 text-gray-600" />
-                        </div>
-                        <p className="text-xs">Carousel</p>
-                      </div>
-                      <div className="border border-gray-200 rounded p-2 hover:border-[#1a3a5f]/60 cursor-pointer transition-colors text-center">
-                        <div className="flex justify-center mb-1.5">
-                          <ChevronsUpDown className="h-5 w-5 text-gray-600" />
-                        </div>
-                        <p className="text-xs">Accordion</p>
-                      </div>
-                      <div className="border border-gray-200 rounded p-2 hover:border-[#1a3a5f]/60 cursor-pointer transition-colors text-center">
-                        <div className="flex justify-center mb-1.5">
-                          <FileCode className="h-5 w-5 text-gray-600" />
-                        </div>
-                        <p className="text-xs">HTML</p>
-                      </div>
-                      <div className="border border-gray-200 rounded p-2 hover:border-[#1a3a5f]/60 cursor-pointer transition-colors text-center">
-                        <div className="flex justify-center mb-1.5">
-                          <FormInput className="h-5 w-5 text-gray-600" />
-                        </div>
-                        <p className="text-xs">Form</p>
                       </div>
                     </div>
                   </div>
@@ -475,83 +466,21 @@ export default function TemplateBuilder() {
                   <h3 className="font-medium text-sm mb-3">Dynamic Content</h3>
                   <div className="bg-gray-50 border border-gray-200 rounded-md p-3 mb-4">
                     <p className="text-xs text-gray-600 mb-2">
-                      Insert personalization variables in your email content
+                      Insert personalization variables in your email:
                     </p>
                     <div className="grid grid-cols-2 gap-2">
-                      <Button size="sm" variant="outline" className="text-xs justify-start h-7">
-                        <span>{'{{first_name}}'}</span>
+                      <Button variant="outline" size="sm" className="text-xs justify-start">
+                        {"{{firstName}}"}
                       </Button>
-                      <Button size="sm" variant="outline" className="text-xs justify-start h-7">
-                        <span>{'{{last_name}}'}</span>
+                      <Button variant="outline" size="sm" className="text-xs justify-start">
+                        {"{{lastName}}"}
                       </Button>
-                      <Button size="sm" variant="outline" className="text-xs justify-start h-7">
-                        <span>{'{{email}}'}</span>
+                      <Button variant="outline" size="sm" className="text-xs justify-start">
+                        {"{{companyName}}"}
                       </Button>
-                      <Button size="sm" variant="outline" className="text-xs justify-start h-7">
-                        <span>{'{{company}}'}</span>
+                      <Button variant="outline" size="sm" className="text-xs justify-start">
+                        {"{{unsubscribeLink}}"}
                       </Button>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Appearance Management */}
-              {activeSidebar === 'appearance' && (
-                <div className="flex-1 overflow-auto p-4">
-                  <h3 className="font-medium text-sm mb-3">Template Style</h3>
-                  <div className="space-y-3 mb-6">
-                    <div>
-                      <Label htmlFor="font-family" className="text-xs mb-1 block">
-                        Font Family
-                      </Label>
-                      <select 
-                        id="font-family" 
-                        className="w-full h-8 text-sm rounded-md border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
-                      >
-                        <option>Arial, sans-serif</option>
-                        <option>Helvetica, Arial, sans-serif</option>
-                        <option>Georgia, serif</option>
-                        <option>Tahoma, Verdana, sans-serif</option>
-                      </select>
-                    </div>
-                    <div>
-                      <Label htmlFor="background-color" className="text-xs mb-1 block">
-                        Background Color
-                      </Label>
-                      <div className="flex items-center">
-                        <div className="w-6 h-6 rounded border border-gray-300 bg-slate-50 mr-2"></div>
-                        <Input 
-                          id="background-color" 
-                          defaultValue="#f4f4f4" 
-                          className="h-8 text-sm" 
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <Label htmlFor="text-color" className="text-xs mb-1 block">
-                        Text Color
-                      </Label>
-                      <div className="flex items-center">
-                        <div className="w-6 h-6 rounded border border-gray-300 bg-gray-800 mr-2"></div>
-                        <Input 
-                          id="text-color" 
-                          defaultValue="#333333" 
-                          className="h-8 text-sm" 
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <Label htmlFor="link-color" className="text-xs mb-1 block">
-                        Link Color
-                      </Label>
-                      <div className="flex items-center">
-                        <div className="w-6 h-6 rounded border border-gray-300 bg-blue-600 mr-2"></div>
-                        <Input 
-                          id="link-color" 
-                          defaultValue="#1a73e8" 
-                          className="h-8 text-sm" 
-                        />
-                      </div>
                     </div>
                   </div>
                 </div>
@@ -570,19 +499,80 @@ export default function TemplateBuilder() {
                     </div>
                   </div>
                 ) : (
-                  <div className="mx-auto max-w-[600px] bg-white rounded shadow-sm p-4 min-h-[600px]">
-                    <div className="border-2 border-dashed border-gray-200 rounded-md p-4 mb-4 min-h-[120px] flex items-center justify-center text-gray-400 hover:border-blue-300 transition-colors cursor-pointer">
-                      <p className="text-center text-sm">Drop content here</p>
+                  <DndProvider backend={HTML5Backend}>
+                    <div className="mx-auto max-w-[600px] bg-white rounded shadow-sm p-4 min-h-[600px]">
+                      <DroppableArea 
+                        onDrop={handleBlockDrop} 
+                        placeholder="Drag and drop content blocks here"
+                      />
+                      
+                      {/* Display dropped content */}
+                      {emailSections.map((section) => (
+                        <div 
+                          key={section.id}
+                          className="p-3 mb-4 border border-gray-200 rounded relative hover:border-blue-300 group"
+                        >
+                          <div className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              className="h-6 w-6 text-gray-400 hover:text-red-500"
+                              onClick={() => {
+                                setEmailSections(emailSections.filter(s => s.id !== section.id));
+                              }}
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </div>
+                          <div className="flex items-center mb-2 text-sm font-medium text-gray-700">
+                            {section.type === 'text' && <Type className="h-4 w-4 mr-2" />}
+                            {section.type === 'image' && <ImageIcon className="h-4 w-4 mr-2" />}
+                            {section.type === 'button' && <div className="w-4 h-4 mr-2 flex items-center justify-center text-gray-600">B</div>}
+                            {section.type.charAt(0).toUpperCase() + section.type.slice(1)}
+                          </div>
+                          
+                          {section.type === 'text' && (
+                            <div 
+                              className="p-2 min-h-[50px] bg-gray-50 rounded"
+                              contentEditable
+                              suppressContentEditableWarning
+                              onBlur={(e) => {
+                                const updatedSections = emailSections.map(s => 
+                                  s.id === section.id ? {...s, content: e.target.textContent} : s
+                                );
+                                setEmailSections(updatedSections);
+                              }}
+                            >
+                              {section.content}
+                            </div>
+                          )}
+                          
+                          {section.type === 'image' && (
+                            <div className="bg-gray-50 p-2 rounded">
+                              <img src={section.content} alt="Template content" className="max-w-full h-auto" />
+                            </div>
+                          )}
+                          
+                          {section.type === 'button' && (
+                            <div className="flex justify-center p-2">
+                              <button className="px-4 py-2 bg-blue-600 text-white rounded">
+                                {section.content}
+                              </button>
+                            </div>
+                          )}
+                          
+                          {section.type === 'spacer' && (
+                            <div style={{ height: section.content.height }} className="bg-gray-50"></div>
+                          )}
+                        </div>
+                      ))}
+                      
+                      <DroppableArea 
+                        onDrop={handleBlockDrop} 
+                        placeholder="Drag more content blocks here"
+                      />
                     </div>
-                    
-                    <div className="border-2 border-dashed border-gray-200 rounded-md p-4 mb-4 min-h-[120px] flex items-center justify-center text-gray-400 hover:border-blue-300 transition-colors cursor-pointer">
-                      <p className="text-center text-sm">Drop content here</p>
-                    </div>
-                    
-                    <div className="border-2 border-dashed border-gray-200 rounded-md p-4 min-h-[120px] flex items-center justify-center text-gray-400 hover:border-blue-300 transition-colors cursor-pointer">
-                      <p className="text-center text-sm">Drop content here</p>
-                    </div>
-                  </div>
+                  </DndProvider>
                 )}
               </div>
             </div>
