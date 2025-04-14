@@ -218,19 +218,22 @@ const CampaignsTable = () => {
                     <div className="relative inline-block text-left group">
                       <button 
                         type="button" 
-                        className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 w-9 p-0"
+                        aria-label="Campaign actions"
+                        title="Campaign actions"
+                        className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 w-9 p-0 relative"
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                           <circle cx="12" cy="12" r="1"></circle>
                           <circle cx="12" cy="5" r="1"></circle>
                           <circle cx="12" cy="19" r="1"></circle>
                         </svg>
+                        <span className="absolute -top-1 -right-1 w-2 h-2 bg-blue-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
                       </button>
-                      <div className="absolute right-0 mt-2 w-48 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 hidden group-hover:block z-10 divide-y divide-gray-100">
+                      <div className="absolute right-0 mt-2 w-48 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 opacity-0 group-hover:opacity-100 invisible group-hover:visible z-10 divide-y divide-gray-100 transition-all duration-150">
                         <div className="py-1">
                           <Link 
                             href={`/campaigns/${campaign.id}`} 
-                            className="group flex items-center px-4 py-2 text-sm hover:bg-slate-50"
+                            className="group flex items-center px-4 py-2 text-sm hover:bg-slate-50 hover:text-blue-600 transition-colors duration-150"
                           >
                             <svg xmlns="http://www.w3.org/2000/svg" className="mr-3 h-4 w-4 text-slate-400 group-hover:text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                               <path d="M2 9.88V4a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-6"></path>
@@ -241,7 +244,7 @@ const CampaignsTable = () => {
                           </Link>
                           <Link 
                             href={`/campaigns/${campaign.id}/edit`} 
-                            className="group flex items-center px-4 py-2 text-sm hover:bg-slate-50"
+                            className="group flex items-center px-4 py-2 text-sm hover:bg-slate-50 hover:text-blue-600 transition-colors duration-150"
                           >
                             <svg xmlns="http://www.w3.org/2000/svg" className="mr-3 h-4 w-4 text-slate-400 group-hover:text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                               <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
@@ -250,7 +253,7 @@ const CampaignsTable = () => {
                             Edit
                           </Link>
                           <button 
-                            className="group flex w-full items-center px-4 py-2 text-sm hover:bg-slate-50"
+                            className="group flex w-full items-center px-4 py-2 text-sm hover:bg-slate-50 hover:text-blue-600 transition-colors duration-150"
                             onClick={(e) => {
                               e.preventDefault();
                               window.confirm('Do you want to duplicate this campaign?');
