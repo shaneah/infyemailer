@@ -206,11 +206,8 @@ export default function ClientUsers() {
         clientId: selectedClientId
       };
       
-      const response = await fetch('/api/client-users', {
-        method: 'POST',
-        body: JSON.stringify(clientUserData),
-        headers: { 'Content-Type': 'application/json' }
-      });
+      // Use apiRequest utility for consistent API calls
+      const response = await apiRequest('POST', '/api/client-users', clientUserData);
       
       if (!response.ok) {
         const errorData = await response.json();
@@ -243,11 +240,8 @@ export default function ClientUsers() {
     mutationFn: async (userData: ClientUserFormValues & { id: number }) => {
       const { id, ...userDataWithoutId } = userData;
       
-      const response = await fetch(`/api/client-users/${id}`, {
-        method: 'PATCH',
-        body: JSON.stringify(userDataWithoutId),
-        headers: { 'Content-Type': 'application/json' }
-      });
+      // Use apiRequest utility for consistent API calls
+      const response = await apiRequest('PATCH', `/api/client-users/${id}`, userDataWithoutId);
       
       if (!response.ok) {
         const errorData = await response.json();
@@ -276,9 +270,8 @@ export default function ClientUsers() {
   // Delete client user mutation
   const deleteClientUserMutation = useMutation({
     mutationFn: async (id: number) => {
-      const response = await fetch(`/api/client-users/${id}`, {
-        method: 'DELETE'
-      });
+      // Use apiRequest utility for consistent API calls
+      const response = await apiRequest('DELETE', `/api/client-users/${id}`);
       
       if (!response.ok) {
         const errorData = await response.json();
