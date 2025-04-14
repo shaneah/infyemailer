@@ -186,11 +186,23 @@ const UserManagement = () => {
     const roleData = {
       name: formData.get("name") as string,
       description: formData.get("description") as string,
-      status: "active"
+      isSystem: false // This matches the schema field (not status)
     };
 
     try {
-      // Placeholder for actual API call - to be implemented
+      const response = await fetch('/api/roles', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(roleData)
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to create role: ${response.statusText}`);
+      }
+
+      const newRole = await response.json();
       toast({
         title: "Role created",
         description: `Role ${roleData.name} has been created successfully.`,
@@ -198,9 +210,10 @@ const UserManagement = () => {
       setIsNewRoleDialogOpen(false);
       queryClient.invalidateQueries({ queryKey: ["/api/roles"] });
     } catch (error) {
+      console.error("Error creating role:", error);
       toast({
         title: "Error creating role",
-        description: "There was an error creating the role. Please try again.",
+        description: (error as Error).message || "There was an error creating the role. Please try again.",
         variant: "destructive",
       });
     }
@@ -232,16 +245,47 @@ const UserManagement = () => {
 
   const handleUserRoleChange = async (userId: number, roleId: number) => {
     try {
-      // Placeholder for actual API call - to be implemented
+      // First check if the user already has a role assigned
+      const existingUserRole = userRoles.find(ur => ur.userId === userId);
+      
+      if (existingUserRole) {
+        // Update existing role assignment
+        const response = await fetch(`/api/users/${userId}/roles/${existingUserRole.roleId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ roleId })
+        });
+        
+        if (!response.ok) {
+          throw new Error(`Failed to update role: ${response.statusText}`);
+        }
+      } else {
+        // Create new role assignment
+        const response = await fetch(`/api/users/${userId}/roles`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ roleId })
+        });
+        
+        if (!response.ok) {
+          throw new Error(`Failed to assign role: ${response.statusText}`);
+        }
+      }
+      
       toast({
         title: "Role assigned",
         description: `Role has been assigned to the user successfully.`,
       });
       queryClient.invalidateQueries({ queryKey: ["/api/user-roles"] });
     } catch (error) {
+      console.error("Error assigning role:", error);
       toast({
         title: "Error assigning role",
-        description: "There was an error assigning the role. Please try again.",
+        description: (error as Error).message || "There was an error assigning the role. Please try again.",
         variant: "destructive",
       });
     }
@@ -251,20 +295,37 @@ const UserManagement = () => {
     try {
       if (currentlyAssigned) {
         // Remove permission from role
-        // Placeholder for actual API call - to be implemented
+        const response = await fetch(`/api/roles/${roleId}/permissions/${permissionId}`, {
+          method: 'DELETE',
+        });
+        
+        if (!response.ok) {
+          throw new Error(`Failed to remove permission: ${response.statusText}`);
+        }
       } else {
         // Add permission to role
-        // Placeholder for actual API call - to be implemented
+        const response = await fetch(`/api/roles/${roleId}/permissions/${permissionId}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error(`Failed to add permission: ${response.statusText}`);
+        }
       }
+      
       toast({
         title: currentlyAssigned ? "Permission removed" : "Permission added",
         description: `Permission has been ${currentlyAssigned ? "removed from" : "added to"} the role.`,
       });
       queryClient.invalidateQueries({ queryKey: ["/api/role-permissions"] });
     } catch (error) {
+      console.error(`Error ${currentlyAssigned ? "removing" : "adding"} permission:`, error);
       toast({
         title: `Error ${currentlyAssigned ? "removing" : "adding"} permission`,
-        description: `There was an error ${currentlyAssigned ? "removing" : "adding"} the permission. Please try again.`,
+        description: (error as Error).message || `There was an error ${currentlyAssigned ? "removing" : "adding"} the permission. Please try again.`,
         variant: "destructive",
       });
     }
