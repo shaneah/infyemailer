@@ -19,6 +19,14 @@ const campaignSchema = z.object({
   status: z.string().optional(),
   templateId: z.string().optional(),
   contactLists: z.array(z.string()).optional(),
+  isAbTest: z.boolean().optional().default(false),
+  variants: z.array(z.object({
+    name: z.string().min(1, "Variant name is required"),
+    subject: z.string().min(1, "Subject is required"),
+    previewText: z.string().optional(),
+    content: z.string().optional(),
+    weight: z.number().min(1).max(99).optional().default(50),
+  })).optional().default([]),
 });
 
 interface NewCampaignModalProps {
@@ -32,6 +40,15 @@ const NewCampaignModal = ({ onClose, initialTemplateId = null }: NewCampaignModa
   const [sendOption, setSendOption] = useState("schedule");
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(initialTemplateId);
   const [selectedLists, setSelectedLists] = useState<string[]>([]);
+  const [isAbTesting, setIsAbTesting] = useState(false);
+  const [variants, setVariants] = useState<Array<{
+    id: string;
+    name: string;
+    subject: string;
+    previewText: string;
+    content?: string;
+    weight: number;
+  }>>([]);
   
   // If an initial template ID is provided, switch to the content tab
   useEffect(() => {
@@ -116,7 +133,15 @@ const NewCampaignModal = ({ onClose, initialTemplateId = null }: NewCampaignModa
       setActiveTab('audience');
       return;
     }
-    createCampaignMutation.mutate(values);
+    
+    // Add A/B testing data if enabled
+    const campaignData = {
+      ...values,
+      isAbTest: isAbTesting,
+      variants: isAbTesting ? variants : []
+    };
+    
+    createCampaignMutation.mutate(campaignData);
   };
   
   // Define template interface
