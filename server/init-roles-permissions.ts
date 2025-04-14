@@ -14,66 +14,66 @@ export async function initializeRolesAndPermissions() {
     // Default permissions by category
     const defaultPermissions = [
       // User Management Permissions
-      { name: "View Users", category: "User Management", description: "Can view system users" },
-      { name: "Create Users", category: "User Management", description: "Can create new system users" },
-      { name: "Edit Users", category: "User Management", description: "Can edit existing system users" },
-      { name: "Delete Users", category: "User Management", description: "Can delete system users" },
+      { name: "View Users", category: "User Management", action: "read", description: "Can view system users" },
+      { name: "Create Users", category: "User Management", action: "create", description: "Can create new system users" },
+      { name: "Edit Users", category: "User Management", action: "update", description: "Can edit existing system users" },
+      { name: "Delete Users", category: "User Management", action: "delete", description: "Can delete system users" },
       
       // Role Management Permissions
-      { name: "View Roles", category: "Role Management", description: "Can view roles" },
-      { name: "Create Roles", category: "Role Management", description: "Can create new roles" },
-      { name: "Edit Roles", category: "Role Management", description: "Can edit existing roles" },
-      { name: "Delete Roles", category: "Role Management", description: "Can delete roles" },
-      { name: "Assign Permissions", category: "Role Management", description: "Can assign permissions to roles" },
+      { name: "View Roles", category: "Role Management", action: "read", description: "Can view roles" },
+      { name: "Create Roles", category: "Role Management", action: "create", description: "Can create new roles" },
+      { name: "Edit Roles", category: "Role Management", action: "update", description: "Can edit existing roles" },
+      { name: "Delete Roles", category: "Role Management", action: "delete", description: "Can delete roles" },
+      { name: "Assign Permissions", category: "Role Management", action: "assign", description: "Can assign permissions to roles" },
       
       // Campaign Management Permissions
-      { name: "View Campaigns", category: "Campaign Management", description: "Can view email campaigns" },
-      { name: "Create Campaigns", category: "Campaign Management", description: "Can create new email campaigns" },
-      { name: "Edit Campaigns", category: "Campaign Management", description: "Can edit existing campaigns" },
-      { name: "Delete Campaigns", category: "Campaign Management", description: "Can delete campaigns" },
-      { name: "Send Campaigns", category: "Campaign Management", description: "Can send email campaigns" },
+      { name: "View Campaigns", category: "Campaign Management", action: "read", description: "Can view email campaigns" },
+      { name: "Create Campaigns", category: "Campaign Management", action: "create", description: "Can create new email campaigns" },
+      { name: "Edit Campaigns", category: "Campaign Management", action: "update", description: "Can edit existing campaigns" },
+      { name: "Delete Campaigns", category: "Campaign Management", action: "delete", description: "Can delete campaigns" },
+      { name: "Send Campaigns", category: "Campaign Management", action: "send", description: "Can send email campaigns" },
       
       // Template Management Permissions
-      { name: "View Templates", category: "Template Management", description: "Can view email templates" },
-      { name: "Create Templates", category: "Template Management", description: "Can create new email templates" },
-      { name: "Edit Templates", category: "Template Management", description: "Can edit existing templates" },
-      { name: "Delete Templates", category: "Template Management", description: "Can delete templates" },
+      { name: "View Templates", category: "Template Management", action: "read", description: "Can view email templates" },
+      { name: "Create Templates", category: "Template Management", action: "create", description: "Can create new email templates" },
+      { name: "Edit Templates", category: "Template Management", action: "update", description: "Can edit existing templates" },
+      { name: "Delete Templates", category: "Template Management", action: "delete", description: "Can delete templates" },
       
       // Contact Management Permissions
-      { name: "View Contacts", category: "Contact Management", description: "Can view contacts" },
-      { name: "Create Contacts", category: "Contact Management", description: "Can create new contacts" },
-      { name: "Edit Contacts", category: "Contact Management", description: "Can edit existing contacts" },
-      { name: "Delete Contacts", category: "Contact Management", description: "Can delete contacts" },
-      { name: "Import Contacts", category: "Contact Management", description: "Can import contacts from CSV" },
-      { name: "Export Contacts", category: "Contact Management", description: "Can export contacts to CSV" },
+      { name: "View Contacts", category: "Contact Management", action: "read", description: "Can view contacts" },
+      { name: "Create Contacts", category: "Contact Management", action: "create", description: "Can create new contacts" },
+      { name: "Edit Contacts", category: "Contact Management", action: "update", description: "Can edit existing contacts" },
+      { name: "Delete Contacts", category: "Contact Management", action: "delete", description: "Can delete contacts" },
+      { name: "Import Contacts", category: "Contact Management", action: "import", description: "Can import contacts from CSV" },
+      { name: "Export Contacts", category: "Contact Management", action: "export", description: "Can export contacts to CSV" },
       
       // List Management Permissions
-      { name: "View Lists", category: "List Management", description: "Can view contact lists" },
-      { name: "Create Lists", category: "List Management", description: "Can create new contact lists" },
-      { name: "Edit Lists", category: "List Management", description: "Can edit existing contact lists" },
-      { name: "Delete Lists", category: "List Management", description: "Can delete contact lists" },
-      { name: "Manage List Contacts", category: "List Management", description: "Can add/remove contacts from lists" },
+      { name: "View Lists", category: "List Management", action: "read", description: "Can view contact lists" },
+      { name: "Create Lists", category: "List Management", action: "create", description: "Can create new contact lists" },
+      { name: "Edit Lists", category: "List Management", action: "update", description: "Can edit existing contact lists" },
+      { name: "Delete Lists", category: "List Management", action: "delete", description: "Can delete contact lists" },
+      { name: "Manage List Contacts", category: "List Management", action: "manage", description: "Can add/remove contacts from lists" },
       
       // Domain Management Permissions
-      { name: "View Domains", category: "Domain Management", description: "Can view email domains" },
-      { name: "Create Domains", category: "Domain Management", description: "Can add new domains" },
-      { name: "Edit Domains", category: "Domain Management", description: "Can edit existing domains" },
-      { name: "Delete Domains", category: "Domain Management", description: "Can delete domains" },
-      { name: "Verify Domains", category: "Domain Management", description: "Can verify domain ownership" },
+      { name: "View Domains", category: "Domain Management", action: "read", description: "Can view email domains" },
+      { name: "Create Domains", category: "Domain Management", action: "create", description: "Can add new domains" },
+      { name: "Edit Domains", category: "Domain Management", action: "update", description: "Can edit existing domains" },
+      { name: "Delete Domains", category: "Domain Management", action: "delete", description: "Can delete domains" },
+      { name: "Verify Domains", category: "Domain Management", action: "verify", description: "Can verify domain ownership" },
       
       // Client Management Permissions
-      { name: "View Clients", category: "Client Management", description: "Can view clients" },
-      { name: "Create Clients", category: "Client Management", description: "Can create new clients" },
-      { name: "Edit Clients", category: "Client Management", description: "Can edit existing clients" },
-      { name: "Delete Clients", category: "Client Management", description: "Can delete clients" },
-      { name: "Manage Client Credits", category: "Client Management", description: "Can manage client email credits" },
+      { name: "View Clients", category: "Client Management", action: "read", description: "Can view clients" },
+      { name: "Create Clients", category: "Client Management", action: "create", description: "Can create new clients" },
+      { name: "Edit Clients", category: "Client Management", action: "update", description: "Can edit existing clients" },
+      { name: "Delete Clients", category: "Client Management", action: "delete", description: "Can delete clients" },
+      { name: "Manage Client Credits", category: "Client Management", action: "manage_credits", description: "Can manage client email credits" },
       
       // System Settings Permissions
-      { name: "View Settings", category: "System Settings", description: "Can view system settings" },
-      { name: "Edit Settings", category: "System Settings", description: "Can edit system settings" },
-      { name: "Manage Providers", category: "System Settings", description: "Can manage email providers" },
-      { name: "View System Credits", category: "System Settings", description: "Can view system credit balance" },
-      { name: "Manage System Credits", category: "System Settings", description: "Can add/remove system credits" },
+      { name: "View Settings", category: "System Settings", action: "read", description: "Can view system settings" },
+      { name: "Edit Settings", category: "System Settings", action: "update", description: "Can edit system settings" },
+      { name: "Manage Providers", category: "System Settings", action: "manage_providers", description: "Can manage email providers" },
+      { name: "View System Credits", category: "System Settings", action: "read_credits", description: "Can view system credit balance" },
+      { name: "Manage System Credits", category: "System Settings", action: "manage_credits", description: "Can add/remove system credits" },
     ];
     
     // Create all permissions
@@ -82,6 +82,7 @@ export async function initializeRolesAndPermissions() {
       await storage.createPermission({
         name: permData.name,
         category: permData.category,
+        action: permData.action,
         description: permData.description,
       });
     }
@@ -118,7 +119,7 @@ export async function initializeRolesAndPermissions() {
       const role = await storage.createRole({
         name: roleData.name,
         description: roleData.description,
-        status: "active"
+        isSystem: true
       });
       createdRoles.push(role);
     }
