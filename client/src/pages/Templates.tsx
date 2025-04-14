@@ -332,14 +332,8 @@ export default function Templates() {
   };
 
   const handleOpenCreateTemplate = () => {
-    updateTemplateForm.reset({
-      name: "",
-      description: "",
-      subject: "",
-      content: "",
-      category: "general"
-    });
-    setIsCreatingTemplate(true);
+    // Instead of opening the create template modal, navigate directly to the template builder
+    window.location.href = '/template-builder';
   };
 
   // Filter templates based on search query and selected category
@@ -553,6 +547,14 @@ export default function Templates() {
               </Button>
               <Button 
                 className="gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
+                onClick={handleOpenCreateTemplate}
+              >
+                <PlusCircle className="h-4 w-4" /> 
+                Create Template
+              </Button>
+              <Button 
+                variant="outline"
+                className="gap-2 border-blue-200 bg-white shadow-sm"
                 onClick={() => setShowImportModal(true)}
               >
                 <Import className="h-4 w-4" /> 
