@@ -76,6 +76,11 @@ export interface IStorage {
   getUserRolesByRoleId(roleId: number): Promise<UserRole[]>;
   assignRoleToUser(userRole: InsertUserRole): Promise<UserRole>;
   removeRoleFromUser(userId: number, roleId: number): Promise<boolean>;
+  
+  // Client-Provider Management Methods
+  getClientProviders(clientId: number): Promise<ClientProvider[]>;
+  assignProviderToClient(clientId: number, providerId: string, settings: any): Promise<ClientProvider>;
+  removeProviderFromClient(clientId: number, providerId: string): Promise<boolean>;
   removeRoleFromUsers(roleId: number): Promise<boolean>;
   
   // Role-Permission Management Methods
@@ -370,6 +375,7 @@ export class MemStorage implements IStorage {
   private rolePermissionId: number;
   private systemCreditsHistoryId: number;
   private clientEmailCreditsHistoryId: number;
+  private clientProviderId: number;
 
   // Schema validation objects
   public audiencePersonaSchema = insertAudiencePersonaSchema;
@@ -408,6 +414,7 @@ export class MemStorage implements IStorage {
     this.rolePermissions = new Map();
     this.systemCreditsHistory = new Map();
     this.clientEmailCreditsHistory = new Map();
+    this.clientProviders = new Map();
     this.sessionStore = new MemoryStore({
       checkPeriod: 86400000, // 24 hours
     });
@@ -441,6 +448,7 @@ export class MemStorage implements IStorage {
     this.rolePermissionId = 1;
     this.systemCreditsHistoryId = 1;
     this.clientEmailCreditsHistoryId = 1;
+    this.clientProviderId = 1;
 
     // Initialize with some default data
     this.initializeData();
