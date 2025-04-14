@@ -405,23 +405,23 @@ const UserManagement = () => {
   }, {} as Record<string, Permission[]>);
 
   return (
-    <div className="container mx-auto p-4 max-w-7xl bg-[#f5f0e1] rounded-lg shadow-md">
-      <div className="flex justify-between items-center mb-6 border-b border-[#d4af37] pb-4">
+    <div className="container mx-auto p-6 max-w-7xl bg-white rounded-lg shadow-lg">
+      <div className="flex justify-between items-center mb-6 border-b border-[#d4af37]/30 pb-4">
         <h1 className="text-3xl font-bold bg-gradient-to-r from-[#d4af37] to-[#b8860b] bg-clip-text text-transparent">User Management</h1>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="grid grid-cols-2 w-[400px] bg-[#1a3a5f]">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <TabsList className="grid grid-cols-2 w-[400px] bg-[#1a3a5f] rounded-md border border-[#d4af37]/30">
           <TabsTrigger 
             value="users" 
-            className="flex items-center space-x-2 data-[state=active]:bg-[#d4af37] data-[state=active]:text-[#1a3a5f]"
+            className="flex items-center space-x-2 data-[state=active]:bg-[#d4af37] data-[state=active]:text-[#1a3a5f] text-white rounded-sm"
           >
             <Users className="h-4 w-4" />
             <span>Users</span>
           </TabsTrigger>
           <TabsTrigger 
             value="roles" 
-            className="flex items-center space-x-2 data-[state=active]:bg-[#d4af37] data-[state=active]:text-[#1a3a5f]"
+            className="flex items-center space-x-2 data-[state=active]:bg-[#d4af37] data-[state=active]:text-[#1a3a5f] text-white rounded-sm"
           >
             <UserPlus className="h-4 w-4" />
             <span>Roles & Permissions</span>
@@ -430,11 +430,11 @@ const UserManagement = () => {
 
         {/* Users Tab */}
         <TabsContent value="users" className="space-y-4">
-          <div className="flex justify-between items-center">
-            <h2 className="text-xl font-semibold">System Users</h2>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-semibold text-[#1a3a5f]">System Users</h2>
             <Dialog open={isNewUserDialogOpen} onOpenChange={setIsNewUserDialogOpen}>
               <DialogTrigger asChild>
-                <Button className="bg-blue-luxury hover:bg-blue-900">
+                <Button className="bg-[#1a3a5f] hover:bg-[#2c5a8f] text-white border border-[#d4af37]/30 hover:border-[#d4af37]">
                   <Plus className="mr-2 h-4 w-4" />
                   Add User
                 </Button>
@@ -487,29 +487,39 @@ const UserManagement = () => {
                     </div>
                   </div>
                   <DialogFooter>
-                    <Button variant="outline" type="button" onClick={() => setIsNewUserDialogOpen(false)}>
+                    <Button 
+                      variant="outline" 
+                      type="button" 
+                      className="border-[#d4af37]/30 text-[#1a3a5f] hover:bg-[#f5f0e1] hover:text-[#1a3a5f] hover:border-[#d4af37]"
+                      onClick={() => setIsNewUserDialogOpen(false)}
+                    >
                       Cancel
                     </Button>
-                    <Button type="submit" className="bg-blue-luxury hover:bg-blue-900">Create User</Button>
+                    <Button 
+                      type="submit" 
+                      className="bg-[#1a3a5f] hover:bg-[#2c5a8f] border border-[#d4af37]/30 hover:border-[#d4af37] text-white"
+                    >
+                      Create User
+                    </Button>
                   </DialogFooter>
                 </form>
               </DialogContent>
             </Dialog>
           </div>
 
-          <Card className="border border-[#d4af37] shadow-lg">
+          <Card className="border border-[#d4af37]/30 shadow-lg overflow-hidden hover:border-[#d4af37] transition-colors duration-200">
             <CardContent className="p-0 overflow-auto">
               <Table>
                 <TableHeader className="bg-[#1a3a5f]">
                   <TableRow>
-                    <TableHead className="text-white">Username</TableHead>
-                    <TableHead className="text-white">Name</TableHead>
-                    <TableHead className="text-white">Email</TableHead>
-                    <TableHead className="text-white">Role</TableHead>
-                    <TableHead className="text-white">Status</TableHead>
-                    <TableHead className="text-white">Created</TableHead>
-                    <TableHead className="text-white">Last Login</TableHead>
-                    <TableHead className="text-white text-right">Actions</TableHead>
+                    <TableHead className="text-white font-semibold">Username</TableHead>
+                    <TableHead className="text-white font-semibold">Name</TableHead>
+                    <TableHead className="text-white font-semibold">Email</TableHead>
+                    <TableHead className="text-white font-semibold">Role</TableHead>
+                    <TableHead className="text-white font-semibold">Status</TableHead>
+                    <TableHead className="text-white font-semibold">Created</TableHead>
+                    <TableHead className="text-white font-semibold">Last Login</TableHead>
+                    <TableHead className="text-white font-semibold text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -642,9 +652,9 @@ const UserManagement = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Roles List */}
-            <Card className="md:col-span-1 border border-[#d4af37] shadow-lg">
-              <CardHeader className="bg-[#1a3a5f] text-white">
-                <CardTitle className="text-white">Available Roles</CardTitle>
+            <Card className="md:col-span-1 border border-[#d4af37]/30 shadow-lg overflow-hidden hover:border-[#d4af37] transition-colors duration-200">
+              <CardHeader className="bg-[#1a3a5f] text-white pb-4">
+                <CardTitle className="text-white font-semibold">Available Roles</CardTitle>
                 <CardDescription className="text-gray-300">Select a role to manage its permissions</CardDescription>
               </CardHeader>
               <CardContent className="p-0">
@@ -657,7 +667,7 @@ const UserManagement = () => {
                     roles.map((role) => (
                       <div 
                         key={role.id} 
-                        className={`p-4 cursor-pointer hover:bg-[#f5f0e1] ${selectedRole?.id === role.id ? 'bg-[#f5f0e1] border-l-4 border-[#d4af37]' : ''}`}
+                        className={`p-4 cursor-pointer hover:bg-[#f5f0e1] transition-colors duration-200 ${selectedRole?.id === role.id ? 'bg-[#f5f0e1] border-l-4 border-[#d4af37]' : ''}`}
                         onClick={() => setSelectedRole(role)}
                       >
                         <h3 className="font-medium text-[#1a3a5f]">{role.name}</h3>
@@ -672,9 +682,9 @@ const UserManagement = () => {
             </Card>
 
             {/* Permissions Management */}
-            <Card className="md:col-span-2 border border-[#d4af37] shadow-lg">
+            <Card className="md:col-span-2 border border-[#d4af37]/30 shadow-lg overflow-hidden hover:border-[#d4af37] transition-colors duration-200">
               <CardHeader className="border-b border-[#d4af37]/20">
-                <CardTitle className="text-[#1a3a5f]">
+                <CardTitle className="text-[#1a3a5f] font-semibold">
                   {selectedRole ? `Permissions for ${selectedRole.name}` : "Permissions"}
                 </CardTitle>
                 <CardDescription>
