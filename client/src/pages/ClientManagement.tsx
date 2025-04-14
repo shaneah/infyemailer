@@ -107,9 +107,11 @@ type CreditHistory = {
 type EmailProvider = {
   id: number;
   name: string;
-  type: string;
-  status: string;
+  provider: string; // sendgrid, mailgun, amazonses, sendclean, smtp
+  isDefault: boolean;
   createdAt: string | null;
+  updatedAt: string | null;
+  config?: any;
 };
 
 type ClientProvider = {
