@@ -146,23 +146,23 @@ const Reporting = () => {
       <Separator />
       
       {/* Filters */}
-      <div className="bg-background border rounded-lg p-4">
-        <div className="flex items-center gap-2 mb-4">
-          <Filter className="h-5 w-5" />
-          <h2 className="text-lg font-medium">Report Filters</h2>
+      <div className="bg-background border rounded-lg p-6 shadow-sm">
+        <div className="flex items-center gap-2 mb-6 border-b pb-4">
+          <Filter className="h-5 w-5 text-primary" />
+          <h2 className="text-xl font-semibold">Report Filters</h2>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           <div className="space-y-2">
-            <Label htmlFor="dateRange">Date Range</Label>
+            <Label htmlFor="dateRange" className="text-sm font-medium">Date Range</Label>
             <Popover>
               <PopoverTrigger asChild>
                 <Button
                   id="dateRange"
                   variant={"outline"}
-                  className="w-full justify-start text-left font-normal"
+                  className="w-full justify-start text-left font-normal h-10"
                 >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  <CalendarIcon className="mr-2 h-4 w-4 text-muted-foreground" />
                   {dateRange.from ? (
                     dateRange.to ? (
                       <>
@@ -191,9 +191,9 @@ const Reporting = () => {
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="campaign">Campaign</Label>
+            <Label htmlFor="campaign" className="text-sm font-medium">Campaign</Label>
             <Select defaultValue={selectedCampaign} onValueChange={setSelectedCampaign}>
-              <SelectTrigger id="campaign">
+              <SelectTrigger id="campaign" className="h-10">
                 <SelectValue placeholder="Select campaign" />
               </SelectTrigger>
               <SelectContent>
@@ -208,9 +208,9 @@ const Reporting = () => {
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="metric">Metric</Label>
+            <Label htmlFor="metric" className="text-sm font-medium">Metric</Label>
             <Select defaultValue={selectedMetric} onValueChange={setSelectedMetric}>
-              <SelectTrigger id="metric">
+              <SelectTrigger id="metric" className="h-10">
                 <SelectValue placeholder="Select metric" />
               </SelectTrigger>
               <SelectContent>
@@ -224,9 +224,9 @@ const Reporting = () => {
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="segment">Audience Segment</Label>
+            <Label htmlFor="segment" className="text-sm font-medium">Audience Segment</Label>
             <Select defaultValue={selectedSegment} onValueChange={setSelectedSegment}>
-              <SelectTrigger id="segment">
+              <SelectTrigger id="segment" className="h-10">
                 <SelectValue placeholder="Select segment" />
               </SelectTrigger>
               <SelectContent>
@@ -238,13 +238,18 @@ const Reporting = () => {
               </SelectContent>
             </Select>
           </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="search">Search</Label>
-            <div className="flex gap-2">
-              <Input id="search" placeholder="Search..." />
-              <Button variant="secondary">Apply</Button>
-            </div>
+        </div>
+        
+        <div className="mt-6 flex flex-col sm:flex-row items-center gap-4">
+          <div className="w-full sm:w-3/4">
+            <Label htmlFor="search" className="text-sm font-medium mb-2 block">Search Keywords</Label>
+            <Input id="search" placeholder="Enter keywords to search in reports..." className="h-10" />
+          </div>
+          <div className="w-full sm:w-1/4 flex justify-end self-end">
+            <Button variant="default" className="w-full sm:w-auto h-10">
+              <Filter className="h-4 w-4 mr-2" />
+              Apply Filters
+            </Button>
           </div>
         </div>
       </div>
