@@ -833,27 +833,29 @@ function EmailProviders() {
                       <div className="grid grid-cols-2 gap-3">
                         <div className="space-y-2">
                           <div className="flex items-center gap-2">
-                            <Label htmlFor="host">Host</Label>
-                            <Badge variant="outline" className="text-xs">Required</Badge>
+                            <Label htmlFor="host" className="text-[#1a3a5f] font-medium">Host</Label>
+                            <Badge variant="outline" className="text-xs text-[#1a3a5f] border-[#d4af37]/50">Required</Badge>
                           </div>
                           <Input
                             id="host"
                             placeholder="e.g., smtpout.secureserver.net"
                             value={newProviderConfig['host'] || ''}
                             onChange={(e) => handleConfigChange('host', e.target.value)}
+                            className="border-[#1a3a5f]/20 focus:border-[#1a3a5f] focus:ring-[#1a3a5f]/10"
                           />
                         </div>
                         
                         <div className="space-y-2">
                           <div className="flex items-center gap-2">
-                            <Label htmlFor="port">Port</Label>
-                            <Badge variant="outline" className="text-xs">Required</Badge>
+                            <Label htmlFor="port" className="text-[#1a3a5f] font-medium">Port</Label>
+                            <Badge variant="outline" className="text-xs text-[#1a3a5f] border-[#d4af37]/50">Required</Badge>
                           </div>
                           <Input
                             id="port"
                             placeholder="e.g., 465 or 587"
                             value={newProviderConfig['port'] || ''}
                             onChange={(e) => handleConfigChange('port', e.target.value)}
+                            className="border-[#1a3a5f]/20 focus:border-[#1a3a5f] focus:ring-[#1a3a5f]/10"
                           />
                         </div>
                       </div>
@@ -861,21 +863,22 @@ function EmailProviders() {
                       <div className="grid grid-cols-2 gap-3">
                         <div className="space-y-2">
                           <div className="flex items-center gap-2">
-                            <Label htmlFor="username">Username</Label>
-                            <Badge variant="outline" className="text-xs">Required</Badge>
+                            <Label htmlFor="username" className="text-[#1a3a5f] font-medium">Username</Label>
+                            <Badge variant="outline" className="text-xs text-[#1a3a5f] border-[#d4af37]/50">Required</Badge>
                           </div>
                           <Input
                             id="username"
                             placeholder="Your full email address"
                             value={newProviderConfig['username'] || ''}
                             onChange={(e) => handleConfigChange('username', e.target.value)}
+                            className="border-[#1a3a5f]/20 focus:border-[#1a3a5f] focus:ring-[#1a3a5f]/10"
                           />
                         </div>
                         
                         <div className="space-y-2">
                           <div className="flex items-center gap-2">
-                            <Label htmlFor="password">Password</Label>
-                            <Badge variant="outline" className="text-xs">Required</Badge>
+                            <Label htmlFor="password" className="text-[#1a3a5f] font-medium">Password</Label>
+                            <Badge variant="outline" className="text-xs text-[#1a3a5f] border-[#d4af37]/50">Required</Badge>
                           </div>
                           <Input
                             id="password"
@@ -883,28 +886,31 @@ function EmailProviders() {
                             placeholder="Your email password"
                             value={newProviderConfig['password'] || ''}
                             onChange={(e) => handleConfigChange('password', e.target.value)}
+                            className="border-[#1a3a5f]/20 focus:border-[#1a3a5f] focus:ring-[#1a3a5f]/10"
                           />
                         </div>
                       </div>
                       
                       <div className="grid grid-cols-2 gap-3">
                         <div className="space-y-2">
-                          <Label htmlFor="fromEmail">From Email</Label>
+                          <Label htmlFor="fromEmail" className="text-[#1a3a5f] font-medium">From Email</Label>
                           <Input
                             id="fromEmail"
                             placeholder="noreply@yourdomain.com"
                             value={newProviderConfig['fromEmail'] || ''}
                             onChange={(e) => handleConfigChange('fromEmail', e.target.value)}
+                            className="border-[#1a3a5f]/20 focus:border-[#1a3a5f] focus:ring-[#1a3a5f]/10"
                           />
                         </div>
                         
                         <div className="space-y-2">
-                          <Label htmlFor="fromName">From Name</Label>
+                          <Label htmlFor="fromName" className="text-[#1a3a5f] font-medium">From Name</Label>
                           <Input
                             id="fromName"
                             placeholder="Your Company Name"
                             value={newProviderConfig['fromName'] || ''}
                             onChange={(e) => handleConfigChange('fromName', e.target.value)}
+                            className="border-[#1a3a5f]/20 focus:border-[#1a3a5f] focus:ring-[#1a3a5f]/10"
                           />
                         </div>
                       </div>
@@ -967,8 +973,8 @@ function EmailProviders() {
       {/* Edit Provider Dialog */}
       <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
         <DialogContent className="sm:max-w-[500px]">
-          <DialogHeader>
-            <DialogTitle>Edit Email Provider</DialogTitle>
+          <DialogHeader className="pb-2 border-b border-[#d4af37]/30">
+            <DialogTitle className="text-[#1a3a5f] font-semibold">Edit Email Provider</DialogTitle>
             <DialogDescription>
               Update your email provider settings.
             </DialogDescription>
@@ -976,18 +982,19 @@ function EmailProviders() {
           {selectedProvider && (
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="editProviderName">Provider Name</Label>
+                <Label htmlFor="editProviderName" className="text-[#1a3a5f] font-medium">Provider Name</Label>
                 <Input
                   id="editProviderName"
                   value={selectedProvider.name}
                   onChange={(e) => setSelectedProvider({ ...selectedProvider, name: e.target.value })}
+                  className="border-[#1a3a5f]/20 focus:border-[#1a3a5f] focus:ring-[#1a3a5f]/10"
                 />
               </div>
               
-              <Separator />
+              <Separator className="bg-[#1a3a5f]/10" />
               
               <div className="space-y-4">
-                <h3 className="text-sm font-medium">Authentication Details</h3>
+                <h3 className="text-[#1a3a5f] font-medium">Authentication Details</h3>
                 
                 {selectedProvider.provider === 'sendgrid' && (
                   <div className="space-y-2">
@@ -1119,13 +1126,13 @@ function EmailProviders() {
                 
                 {selectedProvider.provider === 'smtp' && (
                   <>
-                    <div className="rounded-md bg-blue-50 p-4 text-sm text-blue-800 mb-4">
+                    <div className="rounded-md bg-gradient-to-r from-[#f5f0e1] to-[#f5f0e1]/50 border border-[#d4af37]/30 p-4 text-sm text-[#1a3a5f] mb-4">
                       <div className="flex">
                         <div className="flex-shrink-0">
-                          <Info className="h-5 w-5 text-blue-600" />
+                          <Info className="h-5 w-5 text-[#d4af37]" />
                         </div>
                         <div className="ml-3">
-                          <h3 className="font-medium text-blue-800">SMTP Configuration Tips</h3>
+                          <h3 className="font-medium text-[#1a3a5f]">SMTP Configuration Tips</h3>
                           <ul className="mt-1 list-disc list-inside space-y-1">
                             <li>For port 465, secure will be automatically set to true</li>
                             <li>For port 587, secure should be set to false</li>
@@ -1138,8 +1145,8 @@ function EmailProviders() {
                     
                     <div className="space-y-2">
                       <div className="flex items-center gap-2">
-                        <Label htmlFor="editHost">Host</Label>
-                        <Badge variant="outline" className="text-xs">Required</Badge>
+                        <Label htmlFor="editHost" className="text-[#1a3a5f] font-medium">Host</Label>
+                        <Badge variant="outline" className="text-xs text-[#1a3a5f] border-[#d4af37]/50">Required</Badge>
                       </div>
                       <Input
                         id="editHost"
@@ -1149,6 +1156,7 @@ function EmailProviders() {
                           const updatedConfig = { ...selectedProvider.config, host: e.target.value };
                           setSelectedProvider({ ...selectedProvider, config: updatedConfig });
                         }}
+                        className="border-[#1a3a5f]/20 focus:border-[#1a3a5f] focus:ring-[#1a3a5f]/10"
                       />
                     </div>
                     
