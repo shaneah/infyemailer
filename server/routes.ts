@@ -436,7 +436,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const contacts = await storage.getContacts();
       // For demo purposes, create some contacts if none exist
-      if (contacts.length === 0) {
+      if (!contacts || contacts.length === 0) {
         const sampleContacts = [
           {
             id: 1,
@@ -466,26 +466,53 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.json(sampleContacts);
       }
 
-      // Map contacts to include list info
-      const contactsWithLists = await Promise.all(contacts.map(async (contact) => {
-        const lists = await storage.getListsByContact(contact.id);
-        return {
-          id: contact.id,
-          name: contact.name,
-          email: contact.email,
-          status: { 
-            label: contact.status.charAt(0).toUpperCase() + contact.status.slice(1), 
-            color: contact.status === 'active' ? 'success' : 
-                  contact.status === 'unsubscribed' ? 'danger' : 
-                  contact.status === 'bounced' ? 'warning' : 'secondary'
-          },
-          lists: lists.map(list => ({ id: list.id, name: list.name })),
-          addedOn: contact.createdAt ? new Date(contact.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A'
-        };
-      }));
+      try {
+        // Map contacts to include list info
+        const contactsWithLists = await Promise.all(contacts.map(async (contact) => {
+          try {
+            const lists = await storage.getListsByContact(contact.id);
+            return {
+              id: contact.id,
+              name: contact.name || 'Unnamed Contact',
+              email: contact.email,
+              status: { 
+                label: (contact.status || 'unknown').charAt(0).toUpperCase() + (contact.status || 'unknown').slice(1), 
+                color: contact.status === 'active' ? 'success' : 
+                      contact.status === 'unsubscribed' ? 'danger' : 
+                      contact.status === 'bounced' ? 'warning' : 'secondary'
+              },
+              lists: lists && Array.isArray(lists) ? lists.map(list => ({ id: list.id, name: list.name })) : [],
+              addedOn: contact.createdAt ? new Date(contact.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A'
+            };
+          } catch (err) {
+            console.error(`Error processing contact ${contact.id}:`, err);
+            return {
+              id: contact.id,
+              name: contact.name || 'Unnamed Contact',
+              email: contact.email,
+              status: { label: 'Unknown', color: 'secondary' },
+              lists: [],
+              addedOn: 'N/A'
+            };
+          }
+        }));
 
-      res.json(contactsWithLists);
+        res.json(contactsWithLists);
+      } catch (mappingError) {
+        console.error('Error mapping contacts:', mappingError);
+        // Fallback to returning basic contact info without lists
+        const basicContacts = contacts.map(contact => ({
+          id: contact.id,
+          name: contact.name || 'Unnamed Contact',
+          email: contact.email,
+          status: { label: 'Unknown', color: 'secondary' },
+          lists: [],
+          addedOn: 'N/A'
+        }));
+        res.json(basicContacts);
+      }
     } catch (error) {
+      console.error('Failed to fetch contacts:', error);
       res.status(500).json({ error: 'Failed to fetch contacts' });
     }
   });
