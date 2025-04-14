@@ -7,24 +7,36 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useMutation } from "@tanstack/react-query";
 import { useLocation, Link } from "wouter";
 import { apiRequest } from "@/lib/queryClient";
 import { useState, useEffect } from "react";
 import infyLogo from "@/assets/Logo-white.png";
 
-const loginSchema = z.object({
+// Admin login schema
+const adminLoginSchema = z.object({
   usernameOrEmail: z.string().min(1, "Username or email is required"),
   password: z.string().min(1, "Password is required"),
   rememberMe: z.boolean().optional().default(false)
 });
 
-type LoginFormValues = z.infer<typeof loginSchema>;
+// Client login schema
+const clientLoginSchema = z.object({
+  username: z.string().min(1, "Username is required"),
+  password: z.string().min(1, "Password is required"),
+  rememberMe: z.boolean().optional().default(false)
+});
+
+type AdminLoginFormValues = z.infer<typeof adminLoginSchema>;
+type ClientLoginFormValues = z.infer<typeof clientLoginSchema>;
 
 export default function Login() {
   const { toast } = useToast();
   const [_, setLocation] = useLocation();
-  const [isLoading, setIsLoading] = useState(false);
+  const [isAdminLoading, setIsAdminLoading] = useState(false);
+  const [isClientLoading, setIsClientLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState<string>("admin");
   
   // Check if user is already logged in
   useEffect(() => {
@@ -32,10 +44,16 @@ export default function Login() {
     if (user) {
       setLocation('/');
     }
+    
+    const clientUser = localStorage.getItem('clientUser') || sessionStorage.getItem('clientUser');
+    if (clientUser) {
+      setLocation('/client-dashboard');
+    }
   }, [setLocation]);
   
-  const form = useForm<LoginFormValues>({
-    resolver: zodResolver(loginSchema),
+  // Admin login form
+  const adminForm = useForm<AdminLoginFormValues>({
+    resolver: zodResolver(adminLoginSchema),
     defaultValues: {
       usernameOrEmail: "",
       password: "",
@@ -43,18 +61,29 @@ export default function Login() {
     }
   });
 
-  const loginMutation = useMutation({
-    mutationFn: async (data: LoginFormValues) => {
+  // Client login form
+  const clientForm = useForm<ClientLoginFormValues>({
+    resolver: zodResolver(clientLoginSchema),
+    defaultValues: {
+      username: "",
+      password: "",
+      rememberMe: false
+    }
+  });
+
+  // Admin login mutation
+  const adminLoginMutation = useMutation({
+    mutationFn: async (data: AdminLoginFormValues) => {
       const response = await apiRequest('POST', '/api/login', data);
       return response.json();
     },
     onSuccess: (data) => {
       toast({
         title: "Login successful",
-        description: "Welcome back!"
+        description: "Welcome back to the admin dashboard!"
       });
       // Store user data in localStorage or sessionStorage based on remember me
-      if (form.getValues().rememberMe) {
+      if (adminForm.getValues().rememberMe) {
         localStorage.setItem('user', JSON.stringify(data));
       } else {
         sessionStorage.setItem('user', JSON.stringify(data));
@@ -64,18 +93,81 @@ export default function Login() {
     onError: (error: any) => {
       toast({
         title: "Login failed",
-        description: error.message || "Invalid credentials. Please try again.",
+        description: error.message || "Invalid admin credentials. Please try again.",
         variant: "destructive"
       });
     },
     onSettled: () => {
-      setIsLoading(false);
+      setIsAdminLoading(false);
     }
   });
 
-  function onSubmit(data: LoginFormValues) {
-    setIsLoading(true);
-    loginMutation.mutate(data);
+  // Client login (direct demo implementation mirroring SimpleClientLogin functionality)
+  const clientLoginMutation = useMutation({
+    mutationFn: async (data: ClientLoginFormValues) => {
+      // For demo, we'll validate directly here instead of making a server call
+      if (data.username !== 'client1') {
+        throw new Error('Invalid username. Please use "client1" for demo purposes.');
+      }
+      
+      // Create mock user data for demo purposes
+      return {
+        id: 5,
+        username: data.username,
+        clientId: 1,
+        clientName: 'Demo Client',
+        clientCompany: 'ACME Corp',
+        permissions: {
+          emailValidation: true,
+          campaigns: true,
+          contacts: true,
+          templates: true,
+          reporting: true,
+          domains: true,
+          abTesting: true
+        }
+      };
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "Login successful",
+        description: "Welcome to InfyMailer client portal!"
+      });
+      
+      // Store user data in localStorage or sessionStorage based on remember me
+      if (clientForm.getValues().rememberMe) {
+        localStorage.setItem('clientUser', JSON.stringify(data));
+      } else {
+        sessionStorage.setItem('clientUser', JSON.stringify(data));
+      }
+      
+      // Short delay to show loading state
+      setTimeout(() => {
+        setLocation('/client-dashboard');
+      }, 500);
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Login failed",
+        description: error.message || "Invalid client credentials. Please try again.",
+        variant: "destructive"
+      });
+    },
+    onSettled: () => {
+      setIsClientLoading(false);
+    }
+  });
+
+  // Admin form submit handler
+  function onAdminSubmit(data: AdminLoginFormValues) {
+    setIsAdminLoading(true);
+    adminLoginMutation.mutate(data);
+  }
+  
+  // Client form submit handler
+  function onClientSubmit(data: ClientLoginFormValues) {
+    setIsClientLoading(true);
+    clientLoginMutation.mutate(data);
   }
 
   return (
@@ -105,106 +197,198 @@ export default function Login() {
           {/* Left side - Card with form */}
           <div className="flex-1 bg-white rounded-2xl shadow-xl overflow-hidden">
             <div className="px-6 py-8 sm:px-10">
-              <div className="mb-8 text-center">
-                <img src={infyLogo} alt="InfyMailer Logo" className="h-14 mx-auto mb-6" />
+              <div className="mb-6 text-center">
+                <img src={infyLogo} alt="InfyMailer Logo" className="h-14 mx-auto mb-4" />
                 <h2 className="text-3xl font-extrabold text-gray-900 mb-1">
-                  Admin Login
+                  Welcome to InfyMailer
                 </h2>
-                <p className="text-sm text-gray-600">
-                  Sign in to access your admin dashboard
+                <p className="text-sm text-gray-600 mb-4">
+                  Select your login type below
                 </p>
               </div>
               
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                  <FormField
-                    control={form.control}
-                    name="usernameOrEmail"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-gray-700 font-medium">Username or Email</FormLabel>
-                        <FormControl>
-                          <Input 
-                            placeholder="admin" 
-                            {...field} 
-                            className="rounded-lg border-gray-300 focus:ring-2 focus:ring-primary/50" 
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="password"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-gray-700 font-medium">Password</FormLabel>
-                        <FormControl>
-                          <Input 
-                            type="password" 
-                            placeholder="••••••••" 
-                            {...field} 
-                            className="rounded-lg border-gray-300 focus:ring-2 focus:ring-primary/50" 
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <div className="flex items-center justify-between">
-                    <FormField
-                      control={form.control}
-                      name="rememberMe"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-row items-start space-x-2 space-y-0">
-                          <FormControl>
-                            <Checkbox
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
-                              className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-                            />
-                          </FormControl>
-                          <div className="space-y-1 leading-none">
-                            <FormLabel className="font-normal text-gray-700">Remember me</FormLabel>
-                          </div>
-                        </FormItem>
-                      )}
-                    />
-                    <div className="text-sm">
-                      <a href="#" className="font-medium text-primary hover:text-primary-dark">
-                        Forgot password?
-                      </a>
-                    </div>
-                  </div>
-                  <Button 
-                    type="submit" 
-                    className="w-full py-2.5 bg-primary hover:bg-primary/90 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center"
-                    disabled={isLoading}
-                  >
-                    {isLoading ? (
-                      <>
-                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        Signing in...
-                      </>
-                    ) : "Sign in"}
-                  </Button>
-                  
-                  <div className="bg-primary/5 rounded-lg p-3 text-xs text-gray-700 text-center">
-                    <p className="mb-1 font-medium">For demo purposes:</p>
-                    <p>Username: <strong>admin</strong> | Password: <strong>admin123</strong></p>
-                  </div>
-                </form>
-              </Form>
-              
-              <div className="mt-6 text-sm text-center">
-                <Link to="/client-login" className="font-medium text-primary hover:text-primary-dark">
-                  Switch to Client Login
-                </Link>
-              </div>
+              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                <TabsList className="grid grid-cols-2 mb-6">
+                  <TabsTrigger value="admin" className="data-[state=active]:bg-primary data-[state=active]:text-white">Admin Login</TabsTrigger>
+                  <TabsTrigger value="client" className="data-[state=active]:bg-primary data-[state=active]:text-white">Client Portal</TabsTrigger>
+                </TabsList>
+                
+                {/* Admin Login Form */}
+                <TabsContent value="admin" className="mt-0">
+                  <Form {...adminForm}>
+                    <form onSubmit={adminForm.handleSubmit(onAdminSubmit)} className="space-y-6">
+                      <FormField
+                        control={adminForm.control}
+                        name="usernameOrEmail"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-gray-700 font-medium">Admin Username or Email</FormLabel>
+                            <FormControl>
+                              <Input 
+                                placeholder="admin" 
+                                {...field} 
+                                className="rounded-lg border-gray-300 focus:ring-2 focus:ring-primary/50" 
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={adminForm.control}
+                        name="password"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-gray-700 font-medium">Password</FormLabel>
+                            <FormControl>
+                              <Input 
+                                type="password" 
+                                placeholder="••••••••" 
+                                {...field} 
+                                className="rounded-lg border-gray-300 focus:ring-2 focus:ring-primary/50" 
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <div className="flex items-center justify-between">
+                        <FormField
+                          control={adminForm.control}
+                          name="rememberMe"
+                          render={({ field }) => (
+                            <FormItem className="flex flex-row items-start space-x-2 space-y-0">
+                              <FormControl>
+                                <Checkbox
+                                  checked={field.value}
+                                  onCheckedChange={field.onChange}
+                                  className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                                />
+                              </FormControl>
+                              <div className="space-y-1 leading-none">
+                                <FormLabel className="font-normal text-gray-700">Remember me</FormLabel>
+                              </div>
+                            </FormItem>
+                          )}
+                        />
+                        <div className="text-sm">
+                          <a href="#" className="font-medium text-primary hover:text-primary-dark">
+                            Forgot password?
+                          </a>
+                        </div>
+                      </div>
+                      <Button 
+                        type="submit" 
+                        className="w-full py-2.5 bg-primary hover:bg-primary/90 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center"
+                        disabled={isAdminLoading}
+                      >
+                        {isAdminLoading ? (
+                          <>
+                            <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Signing in...
+                          </>
+                        ) : "Sign in to Admin"}
+                      </Button>
+                      
+                      <div className="bg-primary/5 rounded-lg p-3 text-xs text-gray-700 text-center">
+                        <p className="mb-1 font-medium">For admin demo:</p>
+                        <p>Username: <strong>admin</strong> | Password: <strong>admin123</strong></p>
+                      </div>
+                    </form>
+                  </Form>
+                </TabsContent>
+                
+                {/* Client Login Form */}
+                <TabsContent value="client" className="mt-0">
+                  <Form {...clientForm}>
+                    <form onSubmit={clientForm.handleSubmit(onClientSubmit)} className="space-y-6">
+                      <FormField
+                        control={clientForm.control}
+                        name="username"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-gray-700 font-medium">Client Username</FormLabel>
+                            <FormControl>
+                              <Input 
+                                placeholder="client1" 
+                                {...field} 
+                                className="rounded-lg border-gray-300 focus:ring-2 focus:ring-primary/50" 
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={clientForm.control}
+                        name="password"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-gray-700 font-medium">Password</FormLabel>
+                            <FormControl>
+                              <Input 
+                                type="password" 
+                                placeholder="••••••••" 
+                                {...field} 
+                                className="rounded-lg border-gray-300 focus:ring-2 focus:ring-primary/50" 
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <div className="flex items-center justify-between">
+                        <FormField
+                          control={clientForm.control}
+                          name="rememberMe"
+                          render={({ field }) => (
+                            <FormItem className="flex flex-row items-start space-x-2 space-y-0">
+                              <FormControl>
+                                <Checkbox
+                                  checked={field.value}
+                                  onCheckedChange={field.onChange}
+                                  className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                                />
+                              </FormControl>
+                              <div className="space-y-1 leading-none">
+                                <FormLabel className="font-normal text-gray-700">Remember me</FormLabel>
+                              </div>
+                            </FormItem>
+                          )}
+                        />
+                        <div className="text-sm">
+                          <a href="#" className="font-medium text-primary hover:text-primary-dark">
+                            Forgot password?
+                          </a>
+                        </div>
+                      </div>
+                      <Button 
+                        type="submit" 
+                        className="w-full py-2.5 bg-primary hover:bg-primary/90 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center"
+                        disabled={isClientLoading}
+                      >
+                        {isClientLoading ? (
+                          <>
+                            <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Signing in...
+                          </>
+                        ) : "Sign in to Client Portal"}
+                      </Button>
+                      
+                      <div className="bg-primary/5 rounded-lg p-3 text-xs text-gray-700 text-center">
+                        <p className="mb-1 font-medium">For client demo:</p>
+                        <p>Username: <strong>client1</strong> | Password: <strong>clientdemo</strong> (any password works)</p>
+                      </div>
+                    </form>
+                  </Form>
+                </TabsContent>
+              </Tabs>
             </div>
           </div>
           

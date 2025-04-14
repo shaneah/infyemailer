@@ -40,6 +40,7 @@ import ClientDashboard from "@/pages/ClientDashboard";
 import ClientRoutes from "@/pages/ClientRoutes";
 import Analytics from "@/pages/Analytics";
 import EmailTest from "@/pages/EmailTest";
+import Login from "@/pages/Login";
 
 
 function App() {
@@ -63,6 +64,14 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <Switch>
+        {/* Authentication Routes */}
+        <Route path="login">
+          <div className="bg-background min-h-screen">
+            <Login />
+            <Toaster />
+          </div>
+        </Route>
+        
         {/* Client Portal Routes */}
         <Route path="client-login">
           <div className="bg-background min-h-screen">
