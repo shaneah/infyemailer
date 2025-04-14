@@ -606,9 +606,9 @@ const UserManagement = () => {
             <h2 className="text-xl font-semibold">Roles & Permissions</h2>
             <Dialog open={isNewRoleDialogOpen} onOpenChange={setIsNewRoleDialogOpen}>
               <DialogTrigger asChild>
-                <Button className="bg-[#1a3a5f] hover:bg-[#2c5a8f] border border-[#d4af37]/30 hover:border-[#d4af37] text-white">
-                  <Plus className="mr-2 h-4 w-4" />
-                  Add Role
+                <Button className="bg-gradient-to-r from-[#1a3a5f] to-[#2c5a8f] text-white hover:from-[#1a3a5f]/90 hover:to-[#2c5a8f]/90 hover:shadow-md transition-all duration-300 border border-[#d4af37]/30 hover:border-[#d4af37]">
+                  <Plus className="mr-2 h-4 w-4 text-[#d4af37]" />
+                  <span className="bg-gradient-to-r from-white to-[#d4af37]/80 bg-clip-text text-transparent font-medium">Add Role</span>
                 </Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-[500px]">
@@ -640,9 +640,9 @@ const UserManagement = () => {
                     </Button>
                     <Button 
                       type="submit" 
-                      className="bg-[#1a3a5f] hover:bg-[#2c5a8f] border border-[#d4af37]/30 hover:border-[#d4af37] text-white"
+                      className="bg-gradient-to-r from-[#1a3a5f] to-[#2c5a8f] text-white hover:from-[#1a3a5f]/90 hover:to-[#2c5a8f]/90 hover:shadow-md transition-all duration-300 border border-[#d4af37]/30 hover:border-[#d4af37]"
                     >
-                      Create Role
+                      <span className="bg-gradient-to-r from-white to-[#d4af37]/80 bg-clip-text text-transparent font-medium">Create Role</span>
                     </Button>
                   </DialogFooter>
                 </form>
@@ -667,10 +667,18 @@ const UserManagement = () => {
                     roles.map((role) => (
                       <div 
                         key={role.id} 
-                        className={`p-4 cursor-pointer hover:bg-[#f5f0e1] transition-colors duration-200 ${selectedRole?.id === role.id ? 'bg-[#f5f0e1] border-l-4 border-[#d4af37]' : ''}`}
+                        className={`p-4 cursor-pointer transition-all duration-200 hover:bg-[#f5f0e1] 
+                          ${selectedRole?.id === role.id 
+                            ? 'bg-[#f5f0e1] border-l-4 border-[#d4af37] shadow-sm' 
+                            : 'border-l-4 border-transparent'
+                          }`}
                         onClick={() => setSelectedRole(role)}
                       >
-                        <h3 className="font-medium text-[#1a3a5f]">{role.name}</h3>
+                        <h3 className={`font-medium ${selectedRole?.id === role.id 
+                          ? 'text-[#1a3a5f] font-semibold' 
+                          : 'text-[#1a3a5f]'}`}>
+                          {role.name}
+                        </h3>
                         <p className="text-sm text-muted-foreground mt-1">
                           {role.description || "No description provided."}
                         </p>
@@ -707,8 +715,9 @@ const UserManagement = () => {
                     ) : (
                       Object.entries(permissionsByCategory).map(([category, categoryPermissions]) => (
                         <div key={category} className="space-y-3">
-                          <h3 className="font-semibold bg-gradient-to-r from-[#1a3a5f] to-[#2c5a8f] text-transparent bg-clip-text text-md border-b border-[#d4af37]/30 pb-2">
-                            {category} Permissions
+                          <h3 className="font-semibold bg-gradient-to-r from-[#1a3a5f] to-[#2c5a8f] text-transparent bg-clip-text text-md border-b border-[#d4af37]/30 pb-2 mb-3 flex items-center">
+                            <span className="mr-2 text-[#d4af37]">•</span>
+                            <span>{category} Permissions</span>
                           </h3>
                           <div className="grid grid-cols-1 gap-y-2">
                             {categoryPermissions.map((permission) => {
@@ -716,11 +725,19 @@ const UserManagement = () => {
                                 rp => rp.roleId === selectedRole.id && rp.permissionId === permission.id
                               );
                               return (
-                                <div key={permission.id} className={`flex items-start space-x-3 p-2 rounded-md hover:bg-[#f5f0e1] border ${isAssigned ? 'border-[#d4af37]/30 bg-[#f5f0e1]/50' : 'border-transparent'}`}>
+                                <div 
+                                  key={permission.id} 
+                                  className={`flex items-start space-x-3 p-3 rounded-md transition-all duration-200 hover:bg-[#f5f0e1] border ${
+                                    isAssigned ? 'border-[#d4af37]/50 bg-[#f5f0e1]/50 shadow-sm' : 'border-transparent'
+                                  }`}
+                                >
                                   <Checkbox 
                                     id={`permission-${permission.id}`} 
                                     checked={isAssigned}
-                                    className={isAssigned ? "border-[#d4af37] data-[state=checked]:bg-[#d4af37] data-[state=checked]:text-white" : ""}
+                                    className={isAssigned 
+                                      ? "border-[#d4af37] data-[state=checked]:bg-[#d4af37] data-[state=checked]:text-white"
+                                      : "border-[#1a3a5f]/30"
+                                    }
                                     onCheckedChange={(checked) => {
                                       handleTogglePermission(
                                         selectedRole.id, 
@@ -732,12 +749,14 @@ const UserManagement = () => {
                                   <div className="grid gap-1.5 leading-none">
                                     <Label 
                                       htmlFor={`permission-${permission.id}`}
-                                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                      className={`text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 ${
+                                        isAssigned ? 'text-[#1a3a5f] font-semibold' : ''
+                                      }`}
                                     >
                                       {permission.name}
                                     </Label>
                                     {permission.description && (
-                                      <p className="text-xs text-muted-foreground">
+                                      <p className="text-xs text-muted-foreground mt-1">
                                         {permission.description}
                                       </p>
                                     )}
