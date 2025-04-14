@@ -596,7 +596,7 @@ const UserManagement = () => {
             <h2 className="text-xl font-semibold">Roles & Permissions</h2>
             <Dialog open={isNewRoleDialogOpen} onOpenChange={setIsNewRoleDialogOpen}>
               <DialogTrigger asChild>
-                <Button className="bg-[#1a3a5f] hover:bg-[#2c5a8f] border border-[#d4af37]/30 hover:border-[#d4af37]">
+                <Button className="bg-[#1a3a5f] hover:bg-[#2c5a8f] border border-[#d4af37]/30 hover:border-[#d4af37] text-white">
                   <Plus className="mr-2 h-4 w-4" />
                   Add Role
                 </Button>
@@ -620,10 +620,20 @@ const UserManagement = () => {
                     </div>
                   </div>
                   <DialogFooter>
-                    <Button variant="outline" type="button" onClick={() => setIsNewRoleDialogOpen(false)}>
+                    <Button 
+                      variant="outline" 
+                      type="button" 
+                      className="border-[#d4af37]/30 text-[#1a3a5f] hover:bg-[#f5f0e1] hover:text-[#1a3a5f] hover:border-[#d4af37]"
+                      onClick={() => setIsNewRoleDialogOpen(false)}
+                    >
                       Cancel
                     </Button>
-                    <Button type="submit" className="bg-blue-luxury hover:bg-blue-900">Create Role</Button>
+                    <Button 
+                      type="submit" 
+                      className="bg-[#1a3a5f] hover:bg-[#2c5a8f] border border-[#d4af37]/30 hover:border-[#d4af37] text-white"
+                    >
+                      Create Role
+                    </Button>
                   </DialogFooter>
                 </form>
               </DialogContent>
@@ -734,7 +744,11 @@ const UserManagement = () => {
               </CardContent>
               {selectedRole && (
                 <CardFooter className="border-t px-6 py-4">
-                  <Button variant="outline" className="w-full" onClick={() => setSelectedRole(null)}>
+                  <Button 
+                    variant="outline" 
+                    className="w-full border-[#d4af37]/30 text-[#1a3a5f] hover:bg-[#f5f0e1] hover:text-[#1a3a5f] hover:border-[#d4af37]" 
+                    onClick={() => setSelectedRole(null)}
+                  >
                     Cancel
                   </Button>
                 </CardFooter>
