@@ -13,7 +13,7 @@ import {
   AlignLeft, AlignCenter, AlignRight, Bold, Italic, Underline, Image, 
   Link, List, ListOrdered, Type, Grid, Layout, Columns, Rows, Save, 
   ArrowLeft, Loader2, SeparatorHorizontal, X, ArrowDown, Settings, Palette,
-  Plus, Trash2, MoveVertical, Copy, Code, Eye, ArrowUp
+  Plus, Trash2, MoveVertical, Copy, Code, Eye, ArrowUp, GripVertical
 } from "lucide-react";
 
 // Define types for our email elements
@@ -105,21 +105,46 @@ const ToolboxItem: React.FC<ToolboxItemProps> = ({ type, icon, label, onDragStar
 };
 
 // Element renderer component
-const ElementRenderer: React.FC<ElementRendererProps> = ({ element, isSelected, onClick }) => {
-  const { type, content, styles } = element;
+const ElementRenderer: React.FC<ElementRendererProps> = ({ 
+  element, 
+  isSelected, 
+  onClick, 
+  onDragStart, 
+  onDragEnd, 
+  onDragOver, 
+  onDrop, 
+  isDragging, 
+  isDraggedOver 
+}) => {
+  const { type, content, styles, id } = element;
 
   const baseClass = `group relative transition-all duration-150 ${
     isSelected 
       ? 'outline outline-2 outline-primary/80 shadow-sm' 
       : 'hover:outline hover:outline-1 hover:outline-primary/40'
-  } rounded-sm`;
+  } ${
+    isDragging ? 'opacity-50' : ''
+  } ${
+    isDraggedOver ? 'border-2 border-dashed border-primary/60 bg-primary/5' : ''
+  } rounded-sm cursor-grab active:cursor-grabbing`;
 
   switch (type) {
     case 'header':
       return (
-        <div onClick={onClick} className={`${baseClass} p-3`}>
+        <div 
+          onClick={onClick} 
+          className={`${baseClass} p-3`}
+          draggable
+          onDragStart={(e) => onDragStart(e, id)}
+          onDragEnd={onDragEnd}
+          onDragOver={onDragOver}
+          onDrop={(e) => onDrop(e, id)}
+        >
           <div className={`absolute top-0 right-0 ${isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} transition-opacity bg-primary text-white text-xs rounded-bl-md px-1.5 py-0.5`}>
             Heading
+          </div>
+          <div className="absolute -left-4 top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <GripVertical className="h-4 w-4 text-gray-400" />
           </div>
           <h1 
             style={{ 
@@ -138,9 +163,20 @@ const ElementRenderer: React.FC<ElementRendererProps> = ({ element, isSelected, 
     
     case 'text':
       return (
-        <div onClick={onClick} className={`${baseClass} p-3`}>
+        <div 
+          onClick={onClick} 
+          className={`${baseClass} p-3`}
+          draggable
+          onDragStart={(e) => onDragStart(e, id)}
+          onDragEnd={onDragEnd}
+          onDragOver={onDragOver}
+          onDrop={(e) => onDrop(e, id)}
+        >
           <div className={`absolute top-0 right-0 ${isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} transition-opacity bg-primary text-white text-xs rounded-bl-md px-1.5 py-0.5`}>
             Text
+          </div>
+          <div className="absolute -left-4 top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <GripVertical className="h-4 w-4 text-gray-400" />
           </div>
           <p 
             style={{ 
@@ -367,14 +403,29 @@ const Section: React.FC<SectionProps> = ({
           </div>
         ) : (
           <div className="space-y-1">
-            {section.elements.map((element) => (
-              <ElementRenderer 
-                key={element.id} 
-                element={element} 
-                isSelected={selectedElementId === element.id}
-                onClick={() => onElementClick(element.id)} 
-              />
-            ))}
+            {section.elements.map((element) => {
+              // Need to check which elements are being dragged or dragged over
+              const isDragging = window.draggingElementId === element.id;
+              const isDraggedOver = window.draggedOverElementId === element.id;
+              
+              return (
+                <ElementRenderer 
+                  key={element.id} 
+                  element={element} 
+                  isSelected={selectedElementId === element.id}
+                  onClick={() => onElementClick(element.id)}
+                  onDragStart={(e, id) => window.handleElementDragStart(e, id)}
+                  onDragEnd={() => window.handleElementDragEnd()}
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    window.setDraggedOverElementId(element.id);
+                  }}
+                  onDrop={(e, id) => window.handleElementDrop(e, id)}
+                  isDragging={isDragging}
+                  isDraggedOver={isDraggedOver}
+                />
+              );
+            })}
           </div>
         )}
       </div>
@@ -1181,6 +1232,19 @@ const EmailPreviewDialog: React.FC<{
 };
 
 // Main EmailEditor component
+// Extend Window interface to add our drag-and-drop state
+declare global {
+  interface Window {
+    draggingElementId: string | null;
+    draggedOverElementId: string | null;
+    dragSourceSectionId: string | null;
+    handleElementDragStart: (e: React.DragEvent, id: string) => void;
+    handleElementDragEnd: () => void;
+    handleElementDrop: (e: React.DragEvent, id: string) => void;
+    setDraggedOverElementId: (id: string | null) => void;
+  }
+}
+
 const EmailEditor: React.FC<{
   initialTemplate?: EmailTemplate;
   onSave: (template: EmailTemplate, html: string) => void;
@@ -1212,6 +1276,33 @@ const EmailEditor: React.FC<{
   const [isStylingDialogOpen, setIsStylingDialogOpen] = useState(false);
   const [isPreviewDialogOpen, setIsPreviewDialogOpen] = useState(false);
   const [previewHtml, setPreviewHtml] = useState('');
+  
+  // Drag-and-drop state
+  const [draggingElementId, setDraggingElementId] = useState<string | null>(null);
+  const [draggedOverElementId, setDraggedOverElementId] = useState<string | null>(null);
+  const [dragSourceSectionId, setDragSourceSectionId] = useState<string | null>(null);
+  
+  // Expose drag-and-drop functions to window for accessing from section component
+  useEffect(() => {
+    window.draggingElementId = draggingElementId;
+    window.draggedOverElementId = draggedOverElementId;
+    window.dragSourceSectionId = dragSourceSectionId;
+    window.handleElementDragStart = handleElementDragStart;
+    window.handleElementDragEnd = handleElementDragEnd;
+    window.handleElementDrop = handleElementDrop;
+    window.setDraggedOverElementId = setDraggedOverElementId;
+    
+    return () => {
+      // Clean up
+      window.draggingElementId = null;
+      window.draggedOverElementId = null;
+      window.dragSourceSectionId = null;
+      window.handleElementDragStart = () => {};
+      window.handleElementDragEnd = () => {};
+      window.handleElementDrop = () => {};
+      window.setDraggedOverElementId = () => {};
+    };
+  }, [draggingElementId, draggedOverElementId, dragSourceSectionId]);
   
   // Get selected element
   const selectedElement = selectedElementId 
@@ -1349,6 +1440,118 @@ const EmailEditor: React.FC<{
     if (sectionWithElement) {
       setSelectedSectionId(sectionWithElement.id);
     }
+  };
+  
+  // Handle element drag start
+  const handleElementDragStart = (e: React.DragEvent, elementId: string) => {
+    e.dataTransfer.setData("elementId", elementId);
+    e.dataTransfer.effectAllowed = "move";
+    setDraggingElementId(elementId);
+    
+    // Find which section contains this element
+    const sectionWithElement = sections.find(section => 
+      section.elements.some(element => element.id === elementId)
+    );
+    
+    if (sectionWithElement) {
+      setDragSourceSectionId(sectionWithElement.id);
+    }
+  };
+  
+  // Handle element drag end
+  const handleElementDragEnd = () => {
+    setDraggingElementId(null);
+    setDraggedOverElementId(null);
+    setDragSourceSectionId(null);
+  };
+  
+  // Handle element drag over
+  const handleElementDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+  };
+  
+  // Handle element drop
+  const handleElementDrop = (e: React.DragEvent, targetElementId: string) => {
+    e.preventDefault();
+    const sourceElementId = e.dataTransfer.getData("elementId");
+    
+    // If no source element ID, return
+    if (!sourceElementId) return;
+    
+    // If dropping on itself, return
+    if (sourceElementId === targetElementId) return;
+    
+    // Find the source and target elements and their sections
+    let sourceElement: EmailElement | null = null;
+    let sourceSectionId: string | null = null;
+    let sourceIndex = -1;
+    
+    let targetElement: EmailElement | null = null;
+    let targetSectionId: string | null = null;
+    let targetIndex = -1;
+    
+    sections.forEach(section => {
+      section.elements.forEach((element, index) => {
+        if (element.id === sourceElementId) {
+          sourceElement = element;
+          sourceSectionId = section.id;
+          sourceIndex = index;
+        }
+        if (element.id === targetElementId) {
+          targetElement = element;
+          targetSectionId = section.id;
+          targetIndex = index;
+        }
+      });
+    });
+    
+    // If source or target not found, return
+    if (!sourceElement || !targetElement || !sourceSectionId || !targetSectionId) return;
+    
+    // Create new sections array
+    setSections(prevSections => {
+      const newSections = [...prevSections];
+      
+      // If same section, just reorder
+      if (sourceSectionId === targetSectionId) {
+        const sectionIndex = newSections.findIndex(s => s.id === sourceSectionId);
+        if (sectionIndex === -1) return prevSections;
+        
+        const newElements = [...newSections[sectionIndex].elements];
+        // Remove the source element
+        newElements.splice(sourceIndex, 1);
+        // Add it at the target position
+        newElements.splice(targetIndex, 0, sourceElement!);
+        
+        newSections[sectionIndex].elements = newElements;
+      } else {
+        // Remove from source section
+        const sourceSectionIndex = newSections.findIndex(s => s.id === sourceSectionId);
+        if (sourceSectionIndex === -1) return prevSections;
+        
+        const targetSectionIndex = newSections.findIndex(s => s.id === targetSectionId);
+        if (targetSectionIndex === -1) return prevSections;
+        
+        // Remove from source
+        const newSourceElements = [...newSections[sourceSectionIndex].elements];
+        newSourceElements.splice(sourceIndex, 1);
+        newSections[sourceSectionIndex].elements = newSourceElements;
+        
+        // Add to target
+        const newTargetElements = [...newSections[targetSectionIndex].elements];
+        newTargetElements.splice(targetIndex, 0, sourceElement!);
+        newSections[targetSectionIndex].elements = newTargetElements;
+      }
+      
+      return newSections;
+    });
+    
+    toast({
+      title: "Element moved",
+      description: "The element has been repositioned.",
+      duration: 2000,
+    });
   };
   
   // Handle section selection
