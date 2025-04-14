@@ -1011,13 +1011,16 @@ export default function Contacts() {
 
   return (
     <>
-      <div className="flex justify-between items-center py-4">
-        <h1 className="text-3xl font-bold">Contacts</h1>
-        <div className="flex gap-2">
+      <div className="flex justify-between items-center py-5 mb-6">
+        <div>
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 via-primary to-primary-700 bg-clip-text text-transparent">Contacts Management</h1>
+          <p className="text-muted-foreground mt-1">Manage and organize your subscriber contacts</p>
+        </div>
+        <div className="flex gap-3">
           <Dialog open={importDialogOpen} onOpenChange={setImportDialogOpen}>
             <DialogTrigger asChild>
-              <Button variant="outline" className="flex items-center gap-2">
-                <Upload size={16} />
+              <Button variant="outline" className="flex items-center gap-2 border-primary/20 hover:bg-primary/5">
+                <Upload size={16} className="text-primary" />
                 Import
               </Button>
             </DialogTrigger>
