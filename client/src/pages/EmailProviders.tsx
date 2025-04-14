@@ -512,20 +512,42 @@ function EmailProviders() {
 
   return (
     <div className="container mx-auto py-6 space-y-8">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold">Email Providers</h1>
-          <p className="text-muted-foreground">Manage your email service providers for sending emails</p>
+      <div className="relative overflow-hidden rounded-xl p-6 md:p-8 mb-8 shadow-xl bg-[#1a3a5f]">
+        <div className="absolute inset-0 opacity-10" style={{ 
+          backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.2'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")",
+          backgroundSize: "30px 30px"
+        }}></div>
+        <div className="relative z-10">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2 text-white">
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#f5f0e1] via-[#d4af37] to-[#f5f0e1]">
+              Email Providers
+            </span>
+          </h1>
+          <p className="text-[#f5f0e1]/90 text-base md:text-lg max-w-3xl mb-4">
+            Configure and manage your email service providers for sending campaigns
+          </p>
+          <Button 
+            onClick={() => setIsNewProviderOpen(true)}
+            className="bg-[#d4af37] hover:bg-[#d4af37]/90 text-[#1a3a5f] font-medium">
+            <Plus className="mr-2 h-4 w-4" /> Add Provider
+          </Button>
         </div>
-        <Button onClick={() => setIsNewProviderOpen(true)}>
-          <Plus className="mr-2 h-4 w-4" /> Add Provider
-        </Button>
       </div>
 
       <Tabs defaultValue="providers" value={activeTab} onValueChange={setActiveTab}>
-        <TabsList>
-          <TabsTrigger value="providers">Email Providers</TabsTrigger>
-          <TabsTrigger value="settings">Default Settings</TabsTrigger>
+        <TabsList className="bg-[#f5f0e1] rounded-lg p-1">
+          <TabsTrigger 
+            value="providers" 
+            className="data-[state=active]:bg-[#1a3a5f] data-[state=active]:text-white rounded-md"
+          >
+            Email Providers
+          </TabsTrigger>
+          <TabsTrigger 
+            value="settings" 
+            className="data-[state=active]:bg-[#1a3a5f] data-[state=active]:text-white rounded-md"
+          >
+            Default Settings
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="providers" className="space-y-6">
@@ -547,37 +569,45 @@ function EmailProviders() {
           ) : (
             <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
               {providers.map((provider) => (
-                <Card key={provider.id} className="border shadow-sm">
-                  <CardHeader className="pb-2">
+                <Card key={provider.id} className="border hover:shadow-md transition-all duration-300 overflow-hidden">
+                  <div className={`h-1 w-full ${provider.isDefault ? 'bg-[#d4af37]' : 'bg-[#1a3a5f]'}`}></div>
+                  <CardHeader className="pb-2 relative">
                     <div className="flex justify-between items-start">
-                      <CardTitle>{provider.name}</CardTitle>
+                      <CardTitle className="text-[#1a3a5f] font-semibold">
+                        {provider.name}
+                      </CardTitle>
                       <div className="flex gap-1">
                         {provider.isDefault && (
-                          <Badge variant="default" className="ml-2">Default</Badge>
+                          <Badge 
+                            className="bg-[#d4af37]/90 hover:bg-[#d4af37] text-[#1a3a5f] font-medium"
+                          >
+                            Default
+                          </Badge>
                         )}
                       </div>
                     </div>
-                    <CardDescription>
+                    <CardDescription className="text-[#1a3a5f]/70">
                       {provider.provider.charAt(0).toUpperCase() + provider.provider.slice(1)}
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="pb-4">
-                    <div className="text-sm text-muted-foreground">
+                  <CardContent className="pb-4 bg-[#f5f0e1]/30">
+                    <div className="text-sm text-[#1a3a5f]">
                       <div className="grid grid-cols-2 gap-2">
                         <div>
-                          <p className="font-medium">Created</p>
+                          <p className="font-medium text-[#1a3a5f]">Created</p>
                           <p>{new Date(provider.createdAt).toLocaleDateString()}</p>
                         </div>
                         <div>
-                          <p className="font-medium">Last Updated</p>
+                          <p className="font-medium text-[#1a3a5f]">Last Updated</p>
                           <p>{new Date(provider.updatedAt).toLocaleDateString()}</p>
                         </div>
                       </div>
                     </div>
                   </CardContent>
-                  <CardFooter className="flex justify-between border-t pt-4">
+                  <CardFooter className="flex justify-between border-t pt-4 bg-white">
                     <div className="flex gap-2 flex-wrap">
                       <Button
+                        className="border-[#1a3a5f] text-[#1a3a5f] hover:bg-[#1a3a5f] hover:text-white"
                         variant="outline"
                         size="sm"
                         onClick={() => openEditDialog(provider)}
@@ -586,6 +616,7 @@ function EmailProviders() {
                         Edit
                       </Button>
                       <Button
+                        className="border-[#1a3a5f] text-[#1a3a5f] hover:bg-[#1a3a5f] hover:text-white"
                         variant="outline"
                         size="sm"
                         onClick={() => openTestDialog(provider)}
@@ -594,12 +625,13 @@ function EmailProviders() {
                         Test
                       </Button>
                       <Button
+                        className="border-[#1a3a5f] text-[#1a3a5f] hover:bg-[#1a3a5f] hover:text-white"
                         variant="outline"
                         size="sm"
                         onClick={() => openCheckConfigurationDialog(provider)}
                       >
                         <CheckCircle className="h-4 w-4 mr-1" />
-                        Check Config
+                        Check
                       </Button>
                     </div>
                     <Button
@@ -618,18 +650,23 @@ function EmailProviders() {
         </TabsContent>
 
         <TabsContent value="settings">
-          <Card>
-            <CardHeader>
-              <CardTitle>Default Email Settings</CardTitle>
-              <CardDescription>
+          <Card className="border overflow-hidden">
+            <div className="h-1 w-full bg-[#d4af37]"></div>
+            <CardHeader className="bg-[#1a3a5f] text-white">
+              <CardTitle className="text-xl font-semibold flex items-center">
+                <Settings className="h-5 w-5 mr-2" />
+                Default Email Settings
+              </CardTitle>
+              <CardDescription className="text-[#f5f0e1]/80 mt-1">
                 Configure default settings for all email providers
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-5 pt-6 bg-gradient-to-b from-[#f5f0e1]/30 to-white">
               <div className="space-y-2">
-                <Label htmlFor="defaultFromEmail">Default From Email</Label>
+                <Label htmlFor="defaultFromEmail" className="text-[#1a3a5f] font-medium">Default From Email</Label>
                 <Input
                   id="defaultFromEmail"
+                  className="border-[#1a3a5f]/20 focus:border-[#1a3a5f] focus:ring-[#1a3a5f]/10"
                   placeholder="noreply@yourdomain.com"
                   value={defaultSettings.fromEmail || ''}
                   onChange={(e) => setDefaultSettings({
@@ -639,9 +676,10 @@ function EmailProviders() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="defaultFromName">Default From Name</Label>
+                <Label htmlFor="defaultFromName" className="text-[#1a3a5f] font-medium">Default From Name</Label>
                 <Input
                   id="defaultFromName"
+                  className="border-[#1a3a5f]/20 focus:border-[#1a3a5f] focus:ring-[#1a3a5f]/10"
                   placeholder="Your Company Name"
                   value={defaultSettings.fromName || ''}
                   onChange={(e) => setDefaultSettings({
@@ -651,9 +689,10 @@ function EmailProviders() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="defaultReplyTo">Default Reply-To Email</Label>
+                <Label htmlFor="defaultReplyTo" className="text-[#1a3a5f] font-medium">Default Reply-To Email</Label>
                 <Input
                   id="defaultReplyTo"
+                  className="border-[#1a3a5f]/20 focus:border-[#1a3a5f] focus:ring-[#1a3a5f]/10"
                   placeholder="support@yourdomain.com"
                   value={defaultSettings.replyTo || ''}
                   onChange={(e) => setDefaultSettings({
@@ -663,10 +702,10 @@ function EmailProviders() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="defaultSignature">Default Email Signature</Label>
+                <Label htmlFor="defaultSignature" className="text-[#1a3a5f] font-medium">Default Email Signature</Label>
                 <textarea 
                   id="defaultSignature" 
-                  className="w-full min-h-[100px] p-2 border rounded-md"
+                  className="w-full min-h-[100px] p-3 border border-[#1a3a5f]/20 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1a3a5f]/10 focus:border-[#1a3a5f]"
                   placeholder="Your email signature..." 
                   value={defaultSettings.signature || ''}
                   onChange={(e) => setDefaultSettings({
@@ -676,8 +715,12 @@ function EmailProviders() {
                 />
               </div>
             </CardContent>
-            <CardFooter>
-              <Button onClick={handleSaveDefaultSettings}>
+            <CardFooter className="bg-white border-t py-4">
+              <Button 
+                onClick={handleSaveDefaultSettings}
+                className="bg-[#1a3a5f] hover:bg-[#1a3a5f]/90 text-white"
+              >
+                <Save className="h-4 w-4 mr-2" />
                 Save Settings
               </Button>
             </CardFooter>
