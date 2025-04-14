@@ -26,6 +26,8 @@ interface Campaign {
 
 const CampaignsTable = () => {
   const { toast } = useToast();
+  const [activeDropdown, setActiveDropdown] = useState<number | null>(null);
+  
   const { data: campaigns = [], isLoading, isError, refetch } = useQuery<Campaign[]>({
     queryKey: ['/api/campaigns'],
     staleTime: 10000, // Reduce stale time to 10 seconds
@@ -36,27 +38,34 @@ const CampaignsTable = () => {
   // For debugging purposes - log the campaigns data
   console.log("Campaigns data:", campaigns);
   
+  // Function to toggle a dropdown
+  const toggleDropdown = (campaignId: number) => {
+    setActiveDropdown(prevState => prevState === campaignId ? null : campaignId);
+  };
+  
   // Add click outside handler to close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      const dropdowns = document.querySelectorAll('.campaign-actions-dropdown:not(.hidden)');
+      // Check if we have an active dropdown
+      if (activeDropdown === null) return;
       
-      dropdowns.forEach((dropdown) => {
-        // Only proceed if the click target is not inside the dropdown
-        if (dropdown && !dropdown.contains(event.target as Node)) {
-          // Get the campaign ID from the dropdown ID
-          const dropdownId = dropdown.id;
-          const campaignId = dropdownId.replace('dropdown-', '');
-          
-          // Get the button that toggles this dropdown
-          const toggleButton = document.querySelector(`button[data-campaign-id="${campaignId}"]`);
-          
-          // Only hide if the click wasn't on the toggle button
-          if (!toggleButton || !toggleButton.contains(event.target as Node)) {
-            dropdown.classList.add('hidden');
-          }
-        }
-      });
+      // Check if clicked element is the toggle button for active dropdown
+      const targetElement = event.target as HTMLElement;
+      const activeButton = document.querySelector(`button[data-campaign-id="${activeDropdown}"]`);
+      
+      // If clicking the active button, let the click handler above handle it
+      if (activeButton && activeButton.contains(targetElement)) {
+        return;
+      }
+      
+      // Check if clicked element is inside the active dropdown
+      const activeDropdownElement = document.getElementById(`dropdown-${activeDropdown}`);
+      if (activeDropdownElement && activeDropdownElement.contains(targetElement)) {
+        return;
+      }
+      
+      // If we got here, we're clicking outside both the button and dropdown
+      setActiveDropdown(null);
     };
     
     document.addEventListener('mousedown', handleClickOutside);
@@ -64,7 +73,7 @@ const CampaignsTable = () => {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, []);
+  }, [activeDropdown]);
   
   const deleteCampaignMutation = useMutation({
     mutationFn: async (campaignId: number) => {
@@ -246,22 +255,14 @@ const CampaignsTable = () => {
                       View
                     </Link>
                     <div className="relative inline-block text-left">
-                      {/* Replace hover-based menu with click-based dropdown */}
+                      {/* React-state based dropdown implementation */}
                       <button 
                         type="button" 
                         aria-label="Campaign actions"
                         title="Campaign actions"
                         data-campaign-id={campaign.id.toString()}
-                        onClick={() => {
-                          const dropdowns = document.querySelectorAll('.campaign-actions-dropdown');
-                          dropdowns.forEach(d => {
-                            if (d.id !== `dropdown-${campaign.id}`) {
-                              d.classList.add('hidden');
-                            }
-                          });
-                          const dropdown = document.getElementById(`dropdown-${campaign.id}`);
-                          dropdown?.classList.toggle('hidden');
-                        }}
+                        data-action-button="true"
+                        onClick={() => toggleDropdown(campaign.id)}
                         className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 w-9 p-0 relative"
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -271,7 +272,10 @@ const CampaignsTable = () => {
                         </svg>
                         <span className="absolute -top-1 -right-1 w-2 h-2 bg-blue-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
                       </button>
-                      <div id={`dropdown-${campaign.id}`} className="campaign-actions-dropdown absolute right-0 mt-2 w-48 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 hidden z-10 divide-y divide-gray-100">
+                      <div 
+                        id={`dropdown-${campaign.id}`} 
+                        className={`campaign-actions-dropdown absolute right-0 mt-2 w-48 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 ${activeDropdown === campaign.id ? '' : 'hidden'} z-10 divide-y divide-gray-100`}
+                      >
                         <div className="py-1">
                           <Link 
                             href={`/campaigns/${campaign.id}`} 
