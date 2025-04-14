@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertCircle, CheckCircle2, XCircle, Upload, RefreshCw, Download, FileUp, FileDown, FileType, FileJson, FileText as FileTextIcon, ChevronUp, ChevronDown, Sparkles, Copy } from "lucide-react";
+import { AlertCircle, CheckCircle2, XCircle, Upload, RefreshCw, Download, FileUp, FileDown, FileType, FileJson, FileText as FileTextIcon, ChevronUp, ChevronDown, Sparkles, Copy, Wand2 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
