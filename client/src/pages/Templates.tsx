@@ -1509,6 +1509,96 @@ export default function Templates() {
                     <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
                       <h3 className="flex items-center mb-4">
                         <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-r from-[#1a3a5f] to-[#09152E] text-white font-semibold text-sm mr-3 shadow-md">3</div>
+                        <span className="text-lg font-semibold text-[#1a3a5f] border-b-2 border-[#d4af37]/50 pb-1">Image Resources</span>
+                      </h3>
+                      
+                      <div className="mb-5">
+                        <h4 className="text-[#1a3a5f] font-medium mb-3 flex items-center">
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 mr-2 text-[#1a3a5f]">
+                            <path fillRule="evenodd" d="M1.5 6a2.25 2.25 0 012.25-2.25h16.5A2.25 2.25 0 0122.5 6v12a2.25 2.25 0 01-2.25 2.25H3.75A2.25 2.25 0 011.5 18V6zM3 16.06V18c0 .414.336.75.75.75h16.5A.75.75 0 0021 18v-1.94l-2.69-2.689a1.5 1.5 0 00-2.12 0l-.88.879.97.97a.75.75 0 11-1.06 1.06l-5.16-5.159a1.5 1.5 0 00-2.12 0L3 16.061zm10.125-7.81a1.125 1.125 0 112.25 0 1.125 1.125 0 01-2.25 0z" clipRule="evenodd" />
+                          </svg>
+                          Upload Images for Your Template
+                        </h4>
+                        
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div className="relative border-2 border-dashed border-[#1a3a5f]/20 rounded-lg p-4 transition-all hover:border-[#d4af37]/40 bg-gray-50 hover:bg-gray-50/80">
+                            <input 
+                              type="file" 
+                              accept="image/*" 
+                              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" 
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                  // Here you'd handle the file upload
+                                  toast({
+                                    title: "Image Selected",
+                                    description: `${file.name} is ready to upload`,
+                                    variant: "default",
+                                  });
+                                }
+                              }}
+                            />
+                            <div className="text-center py-6">
+                              <div className="mb-3 bg-[#1a3a5f]/10 inline-flex p-3 rounded-full">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6 text-[#1a3a5f]">
+                                  <path fillRule="evenodd" d="M11.47 2.47a.75.75 0 011.06 0l4.5 4.5a.75.75 0 01-1.06 1.06l-3.22-3.22V16.5a.75.75 0 01-1.5 0V4.81L8.03 8.03a.75.75 0 01-1.06-1.06l4.5-4.5zM3 15.75a.75.75 0 01.75.75v2.25a1.5 1.5 0 001.5 1.5h13.5a1.5 1.5 0 001.5-1.5V16.5a.75.75 0 011.5 0v2.25a3 3 0 01-3 3H5.25a3 3 0 01-3-3V16.5a.75.75 0 01.75-.75z" clipRule="evenodd" />
+                                </svg>
+                              </div>
+                              <h5 className="text-[#1a3a5f] font-medium mb-1">Upload Image</h5>
+                              <p className="text-xs text-gray-500">Drag and drop or click to select</p>
+                              <p className="text-xs text-gray-500 mt-1">(Max 5MB, PNG/JPG)</p>
+                            </div>
+                          </div>
+                          
+                          <div className="bg-white rounded-lg border border-[#1a3a5f]/20 shadow-sm p-4">
+                            <h5 className="text-[#1a3a5f] font-medium text-sm mb-2 flex items-center">
+                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 mr-1.5 text-[#d4af37]">
+                                <path fillRule="evenodd" d="M10.5 3A1.501 1.501 0 009 4.5h6A1.5 1.5 0 0013.5 3h-3zm-2.693.178A3 3 0 0110.5 1.5h3a3 3 0 012.694 1.678c.497.042.992.092 1.486.15 1.497.173 2.57 1.46 2.57 2.929V19.5a3 3 0 01-3 3H6.75a3 3 0 01-3-3V6.257c0-1.47 1.073-2.756 2.57-2.93.493-.057.989-.107 1.487-.15z" clipRule="evenodd" />
+                              </svg>
+                              Image Tips
+                            </h5>
+                            <ul className="text-xs text-gray-600 space-y-1.5">
+                              <li className="flex items-start">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-3.5 h-3.5 text-green-500 mt-0.5 mr-1.5 flex-shrink-0">
+                                  <path fillRule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm13.36-1.814a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clipRule="evenodd" />
+                                </svg>
+                                Use 2:1 or 3:2 aspect ratio for banners
+                              </li>
+                              <li className="flex items-start">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-3.5 h-3.5 text-green-500 mt-0.5 mr-1.5 flex-shrink-0">
+                                  <path fillRule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm13.36-1.814a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clipRule="evenodd" />
+                                </svg>
+                                Keep file sizes under 200KB for fast loading
+                              </li>
+                              <li className="flex items-start">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-3.5 h-3.5 text-green-500 mt-0.5 mr-1.5 flex-shrink-0">
+                                  <path fillRule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm13.36-1.814a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clipRule="evenodd" />
+                                </svg>
+                                Include alt text for accessibility
+                              </li>
+                            </ul>
+                            <div className="mt-3 pt-3 border-t border-gray-100">
+                              <Button 
+                                type="button" 
+                                variant="outline" 
+                                size="sm" 
+                                className="w-full text-xs border-[#1a3a5f]/20 text-[#1a3a5f] hover:bg-[#1a3a5f]/5"
+                                onClick={() => window.open('https://unsplash.com/', '_blank')}
+                              >
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-3.5 h-3.5 mr-1">
+                                  <path fillRule="evenodd" d="M1.5 6a2.25 2.25 0 012.25-2.25h16.5A2.25 2.25 0 0122.5 6v12a2.25 2.25 0 01-2.25 2.25H3.75A2.25 2.25 0 011.5 18V6zM3 16.06V18c0 .414.336.75.75.75h16.5A.75.75 0 0021 18v-1.94l-2.69-2.689a1.5 1.5 0 00-2.12 0l-.88.879.97.97a.75.75 0 11-1.06 1.06l-5.16-5.159a1.5 1.5 0 00-2.12 0L3 16.061zm10.125-7.81a1.125 1.125 0 112.25 0 1.125 1.125 0 01-2.25 0z" clipRule="evenodd" />
+                                </svg>
+                                Find Free Stock Images
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+                      <h3 className="flex items-center mb-4">
+                        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-r from-[#1a3a5f] to-[#09152E] text-white font-semibold text-sm mr-3 shadow-md">4</div>
                         <span className="text-lg font-semibold text-[#1a3a5f] border-b-2 border-[#d4af37]/50 pb-1">HTML Content</span>
                       </h3>
                       
