@@ -647,11 +647,11 @@ export default function Templates() {
             ))}
           </div>
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {filteredTemplates.map((template: Template) => (
                   <Card 
                     key={template.id} 
-                    className="border border-gray-200 hover:border-blue-300 hover:shadow-md transition-all duration-300"
+                    className="border border-gray-200 hover:border-blue-300 hover:shadow-md transition-all duration-300 group"
                     onClick={() => handleViewTemplate(template)}
                   >
                     <div className="grid grid-cols-1 md:grid-cols-8 gap-3 p-3">
