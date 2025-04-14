@@ -662,25 +662,29 @@ export default function Templates() {
                   >
                     <div className="grid grid-cols-1 md:grid-cols-8 gap-3 p-3">
                       <div className="md:col-span-1 flex items-center justify-center">
-                        <div className="relative w-16 h-16 overflow-hidden rounded-md border border-gray-100">
+                        <div className="relative w-16 h-16 overflow-hidden rounded-md border border-gray-100 shadow-sm">
                           <iframe 
                             srcDoc={template.content}
                             className="absolute inset-0 w-full h-full transform scale-[0.25] origin-top-left"
                             title={`Thumbnail of ${template.name}`}
+                            loading="lazy"
                           />
                           <div className="absolute inset-0 bg-gradient-to-br from-transparent to-white/40"></div>
                         </div>
                       </div>
                       
                       <div className="md:col-span-6 flex flex-col justify-center">
-                        <div className="flex items-center gap-2 mb-1">
-                          <h3 className="font-semibold text-gray-800">{template.name}</h3>
+                        <div className="flex flex-wrap items-center gap-2 mb-1">
+                          <h3 className="font-semibold text-gray-800 hover:text-blue-700 transition-colors">{template.name}</h3>
                           {template.metadata?.generatedByAI && (
                             <Badge className="bg-gradient-to-r from-blue-600 to-indigo-600 text-xs">
                               <Sparkles className="h-3 w-3 mr-1" /> AI
                             </Badge>
                           )}
-                          <Badge variant="outline" className="text-xs text-gray-500">{template.category}</Badge>
+                          <Badge variant="outline" className="text-xs text-gray-500 bg-gray-50">{template.category}</Badge>
+                          {template.metadata?.new && (
+                            <Badge className="bg-green-600 text-xs">New</Badge>
+                          )}
                         </div>
                         <p className="text-sm text-gray-500 line-clamp-1">{template.description}</p>
                         <div className="flex items-center gap-1 mt-1 text-xs text-gray-500">
@@ -694,6 +698,32 @@ export default function Templates() {
                       </div>
                       
                       <div className="md:col-span-1 flex items-center justify-end space-x-2">
+                        <div className="hidden sm:flex space-x-1">
+                          <Button 
+                            size="sm" 
+                            variant="ghost" 
+                            className="h-8 w-8 p-0 text-blue-600 hover:text-blue-800 hover:bg-blue-50"
+                            title="Preview Template"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              window.open(`/preview-template?id=${template.id}`, '_blank');
+                            }}
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            variant="ghost" 
+                            className="h-8 w-8 p-0 text-blue-600 hover:text-blue-800 hover:bg-blue-50"
+                            title="Edit Template"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              window.location.href = `/template-builder?id=${template.id}`;
+                            }}
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                        </div>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
