@@ -49,6 +49,7 @@ app.use((req, res, next) => {
 
 // Import the updateStorageReferences function
 import { updateStorageReferences } from './storageManager';
+import { initializeRolesAndPermissions } from './init-roles-permissions';
 
 // Initialize the application
 (async () => {
@@ -61,6 +62,9 @@ import { updateStorageReferences } from './storageManager';
     
     // Log storage mode after database initialization
     log(`Using ${isDatabaseAvailable ? 'PostgreSQL database' : 'memory storage'} for data operations`, 'server');
+    
+    // Initialize roles and permissions
+    await initializeRolesAndPermissions();
     
     // Register API routes
     const server = await registerRoutes(app);
