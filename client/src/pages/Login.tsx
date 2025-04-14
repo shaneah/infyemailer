@@ -171,46 +171,113 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-tr from-[#0c2f6c]/90 via-[#1a3a5f] to-[#0c2f6c] relative overflow-hidden">
+    <div className="min-h-screen flex flex-col bg-[#09152E] relative overflow-hidden">
       {/* Background decorative elements */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
-        <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[50%] rounded-full bg-gradient-to-br from-[#d4af37]/20 to-[#d4af37]/5 blur-3xl opacity-80"></div>
-        <div className="absolute bottom-[-15%] right-[-10%] w-[50%] h-[50%] rounded-full bg-gradient-to-tl from-[#d4af37]/15 to-transparent blur-3xl"></div>
-        <div className="absolute top-[25%] right-[10%] w-[35%] h-[30%] rounded-full bg-gradient-to-bl from-[#f5f0e1]/20 to-[#d4af37]/10 blur-3xl"></div>
-        
-        {/* Wave pattern overlay */}
-        <div className="absolute inset-0 opacity-10" 
+        {/* Luxury overlay pattern - diagonal gold lines */}
+        <div className="absolute inset-0 opacity-5" 
              style={{
-               backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'100\' height=\'20\' viewBox=\'0 0 100 20\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M21.184 20c.357-.13.72-.264 1.088-.402l1.768-.661C33.64 15.347 39.647 14 50 14c10.271 0 15.362 1.222 24.629 4.928.955.383 1.869.74 2.75 1.072h6.225c-2.51-.73-5.139-1.691-8.233-2.928C65.888 13.278 60.562 12 50 12c-10.626 0-16.855 1.397-26.66 5.063l-1.767.662c-2.475.923-4.66 1.674-6.724 2.275h6.335zm0-20C13.258 2.892 8.077 4 0 4V2c5.744 0 9.951-.574 14.85-2h6.334zM77.38 0C85.239 2.966 90.502 4 100 4V2c-6.842 0-11.386-.542-16.396-2h-6.225zM0 14c8.44 0 13.718-1.21 22.272-4.402l1.768-.661C33.64 5.347 39.647 4 50 4c10.271 0 15.362 1.222 24.629 4.928C84.112 12.722 89.438 14 100 14v-2c-10.271 0-15.362-1.222-24.629-4.928C65.888 3.278 60.562 2 50 2 39.374 2 33.145 3.397 23.34 7.063l-1.767.662C13.223 10.84 8.163 12 0 12v2z\' fill=\'%23d4af37\' fill-opacity=\'0.1\' fill-rule=\'evenodd\'/%3E%3C/svg%3E")',
-               backgroundSize: '100px 20px'
+               backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'24\' height=\'24\' viewBox=\'0 0 24 24\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M12 0l12 12-12 12L0 12 12 0zm0 4.686L4.686 12 12 19.314 19.314 12 12 4.686z\' fill=\'%23d4af37\' fill-opacity=\'1\' fill-rule=\'evenodd\'/%3E%3C/svg%3E")',
+               backgroundSize: '24px 24px'
              }}
         ></div>
         
-        {/* Subtle animated floating particles */}
-        <div className="absolute top-1/4 left-1/3 w-2 h-2 rounded-full bg-[#d4af37]/40 animate-pulse" style={{animationDuration: '4s'}}></div>
-        <div className="absolute top-2/3 left-1/5 w-3 h-3 rounded-full bg-[#f5f0e1]/30 animate-pulse" style={{animationDuration: '6s'}}></div>
-        <div className="absolute top-1/2 right-1/4 w-2 h-2 rounded-full bg-[#d4af37]/40 animate-pulse" style={{animationDuration: '5s'}}></div>
-        <div className="absolute bottom-1/4 right-1/3 w-4 h-1 rounded-full bg-[#f5f0e1]/30 animate-pulse" style={{animationDuration: '7s'}}></div>
+        {/* Luxury gradient orbs */}
+        <div className="absolute top-0 right-0 w-[50vw] h-[50vw] max-w-[800px] max-h-[800px] rounded-full 
+                        bg-gradient-to-b from-[#d4af37]/10 via-[#d4af37]/5 to-transparent 
+                        blur-3xl opacity-40 transform translate-x-1/4 -translate-y-1/4"></div>
+        <div className="absolute bottom-0 left-0 w-[60vw] h-[60vw] max-w-[900px] max-h-[900px] rounded-full 
+                        bg-gradient-to-tr from-[#09152E] via-[#1e3a66]/30 to-[#d4af37]/10 
+                        blur-3xl opacity-30 transform -translate-x-1/4 translate-y-1/4"></div>
+        
+        {/* Subtle top decorative bar */}
+        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#d4af37]/50 to-transparent"></div>
       </div>
-      <div className="flex-1 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-5xl w-full space-y-8 flex flex-col lg:flex-row gap-8">
-          {/* Left side - Card with form */}
-          <div className="flex-1 bg-white rounded-2xl shadow-xl overflow-hidden">
-            <div className="px-6 py-8 sm:px-10">
-              <div className="mb-6 text-center">
-                <img src={infyLogo} alt="InfyMailer Logo" className="h-14 mx-auto mb-4" />
-                <h2 className="text-3xl font-extrabold text-gray-900 mb-1">
-                  Welcome to InfyMailer
+      
+      {/* Content container with vertical and horizontal centering */}
+      <div className="flex-1 flex items-center justify-center py-6 px-4 sm:px-6 lg:px-8 z-10">
+        <div className="max-w-7xl w-full flex flex-col lg:flex-row gap-10 xl:gap-16">
+          {/* Left side - Brand messaging with glass card effect */}
+          <div className="flex-1 hidden lg:flex flex-col justify-between p-12 
+                         bg-gradient-to-br from-[#ffffff08] to-[#ffffff03] 
+                         backdrop-blur-sm rounded-2xl border border-[#ffffff15]
+                         shadow-[0_10px_50px_-12px_rgba(212,175,55,0.1)]">
+            <div>
+              <img src={infyLogo} alt="InfyMailer Logo" className="h-20 mb-10" />
+              <h1 className="text-4xl font-bold mb-6">
+                <span className="text-white">Welcome to the</span><br />
+                <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#d4af37] to-[#f5f0e1] font-extrabold tracking-tight">
+                  InfyMailer Platform
+                </span>
+              </h1>
+              <p className="text-xl text-gray-300 mb-8 font-light">
+                The premium email marketing solution designed for modern businesses
+              </p>
+              
+              <div className="space-y-6 mt-12">
+                <div className="flex items-center">
+                  <div className="mr-4 p-2 rounded-full bg-[#d4af37]/10">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-[#d4af37]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="text-[#d4af37] font-medium">Enterprise-Grade Security</h3>
+                    <p className="text-gray-400 text-sm">Advanced protection for your data and campaigns</p>
+                  </div>
+                </div>
+                <div className="flex items-center">
+                  <div className="mr-4 p-2 rounded-full bg-[#d4af37]/10">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-[#d4af37]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="text-[#d4af37] font-medium">Real-Time Analytics</h3>
+                    <p className="text-gray-400 text-sm">Track performance with detailed insights and metrics</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="text-gray-500 text-sm pt-6 border-t border-[#ffffff10] mt-10">
+              &copy; {new Date().getFullYear()} InfyMailer. Premium email marketing platform.
+            </div>
+          </div>
+          
+          {/* Right side - Login form with glass card effect */}
+          <div className="flex-1 bg-gradient-to-br from-[#ffffff10] to-[#ffffff05] backdrop-blur-md
+                          rounded-2xl border border-[#ffffff15] shadow-xl overflow-hidden">
+            <div className="px-8 py-10 sm:px-12">
+              <div className="lg:hidden mb-8 text-center">
+                <img src={infyLogo} alt="InfyMailer Logo" className="h-16 mx-auto mb-4" />
+                <h2 className="text-2xl font-bold text-white">
+                  <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#d4af37] to-[#f5f0e1]">
+                    InfyMailer Portal
+                  </span>
                 </h2>
-                <p className="text-sm text-gray-600 mb-4">
-                  Select your login type below
-                </p>
               </div>
               
+              <h2 className="text-2xl font-bold text-white mb-6 lg:mb-8">
+                Sign in to your account
+              </h2>
+              
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="grid grid-cols-2 mb-6 border border-[#d4af37]/30 rounded-md p-1">
-                  <TabsTrigger value="admin" className="data-[state=active]:bg-[#1a3a5f] data-[state=active]:text-[#d4af37] font-medium">Admin Login</TabsTrigger>
-                  <TabsTrigger value="client" className="data-[state=active]:bg-[#1a3a5f] data-[state=active]:text-[#d4af37] font-medium">Client Portal</TabsTrigger>
+                <TabsList className="grid grid-cols-2 mb-8 rounded-lg overflow-hidden border border-[#ffffff20]">
+                  <TabsTrigger 
+                    value="admin" 
+                    className="py-3 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0c2f6c] data-[state=active]:to-[#193555] 
+                             data-[state=active]:text-[#d4af37] data-[state=inactive]:bg-[#ffffff08]
+                             data-[state=inactive]:text-gray-400 font-medium">
+                    Admin Dashboard
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="client"
+                    className="py-3 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0c2f6c] data-[state=active]:to-[#193555] 
+                             data-[state=active]:text-[#d4af37] data-[state=inactive]:bg-[#ffffff08]  
+                             data-[state=inactive]:text-gray-400 font-medium">
+                    Client Portal
+                  </TabsTrigger>
                 </TabsList>
                 
                 {/* Admin Login Form */}
@@ -222,15 +289,15 @@ export default function Login() {
                         name="usernameOrEmail"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="text-gray-700 font-medium">Admin Username or Email</FormLabel>
+                            <FormLabel className="text-white/90 font-medium text-sm">Admin Username</FormLabel>
                             <FormControl>
                               <Input 
                                 placeholder="admin" 
                                 {...field} 
-                                className="rounded-lg border-gray-300 focus:ring-2 focus:ring-[#d4af37]/50 focus:border-[#d4af37] focus:shadow-[0_0_0_1px_rgba(212,175,55,0.1)]" 
+                                className="rounded-lg bg-[#ffffff10] border-[#ffffff20] focus:border-[#d4af37] focus:bg-[#ffffff15] text-white placeholder:text-white/40 shadow-inner" 
                               />
                             </FormControl>
-                            <FormMessage />
+                            <FormMessage className="text-[#ffb4b4]" />
                           </FormItem>
                         )}
                       />
@@ -239,16 +306,16 @@ export default function Login() {
                         name="password"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="text-gray-700 font-medium">Password</FormLabel>
+                            <FormLabel className="text-white/90 font-medium text-sm">Password</FormLabel>
                             <FormControl>
                               <Input 
                                 type="password" 
                                 placeholder="••••••••" 
                                 {...field} 
-                                className="rounded-lg border-gray-300 focus:ring-2 focus:ring-primary/50" 
+                                className="rounded-lg bg-[#ffffff10] border-[#ffffff20] focus:border-[#d4af37] focus:bg-[#ffffff15] text-white placeholder:text-white/40 shadow-inner" 
                               />
                             </FormControl>
-                            <FormMessage />
+                            <FormMessage className="text-[#ffb4b4]" />
                           </FormItem>
                         )}
                       />
@@ -257,34 +324,34 @@ export default function Login() {
                           control={adminForm.control}
                           name="rememberMe"
                           render={({ field }) => (
-                            <FormItem className="flex flex-row items-start space-x-2 space-y-0">
+                            <FormItem className="flex flex-row items-center space-x-2 space-y-0">
                               <FormControl>
                                 <Checkbox
                                   checked={field.value}
                                   onCheckedChange={field.onChange}
-                                  className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                                  className="data-[state=checked]:bg-[#d4af37] data-[state=checked]:border-[#d4af37]"
                                 />
                               </FormControl>
-                              <div className="space-y-1 leading-none">
-                                <FormLabel className="font-normal text-gray-700">Remember me</FormLabel>
+                              <div className="leading-none">
+                                <FormLabel className="font-normal text-sm text-white/80">Remember me</FormLabel>
                               </div>
                             </FormItem>
                           )}
                         />
                         <div className="text-sm">
-                          <a href="#" className="font-medium text-primary hover:text-primary-dark">
+                          <a href="#" className="font-medium text-[#d4af37] hover:text-[#f5f0e1] transition-colors">
                             Forgot password?
                           </a>
                         </div>
                       </div>
                       <Button 
                         type="submit" 
-                        className="w-full py-2.5 bg-[#1a3a5f] hover:bg-[#0c2f6c] text-[#d4af37] font-medium rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center border border-[#d4af37]/30"
+                        className="w-full mt-2 py-3 bg-gradient-to-r from-[#d4af37] to-[#b38728] hover:from-[#b38728] hover:to-[#d4af37] text-[#09152E] font-medium rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center"
                         disabled={isAdminLoading}
                       >
                         {isAdminLoading ? (
                           <>
-                            <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-[#d4af37]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-[#09152E]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                             </svg>
@@ -293,8 +360,8 @@ export default function Login() {
                         ) : "Sign in to Admin"}
                       </Button>
                       
-                      <div className="bg-primary/5 rounded-lg p-3 text-xs text-gray-700 text-center">
-                        <p className="mb-1 font-medium">For admin demo:</p>
+                      <div className="mt-4 rounded-lg p-4 text-xs text-white/80 text-center border border-[#ffffff15] bg-[#ffffff05]">
+                        <p className="mb-1 font-medium text-[#d4af37]">Demo Credentials</p>
                         <p>Username: <strong>admin</strong> | Password: <strong>admin123</strong></p>
                       </div>
                     </form>
@@ -310,15 +377,15 @@ export default function Login() {
                         name="username"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="text-gray-700 font-medium">Client Username</FormLabel>
+                            <FormLabel className="text-white/90 font-medium text-sm">Client Username</FormLabel>
                             <FormControl>
                               <Input 
                                 placeholder="client1" 
                                 {...field} 
-                                className="rounded-lg border-gray-300 focus:ring-2 focus:ring-primary/50" 
+                                className="rounded-lg bg-[#ffffff10] border-[#ffffff20] focus:border-[#d4af37] focus:bg-[#ffffff15] text-white placeholder:text-white/40 shadow-inner" 
                               />
                             </FormControl>
-                            <FormMessage />
+                            <FormMessage className="text-[#ffb4b4]" />
                           </FormItem>
                         )}
                       />
@@ -327,16 +394,16 @@ export default function Login() {
                         name="password"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="text-gray-700 font-medium">Password</FormLabel>
+                            <FormLabel className="text-white/90 font-medium text-sm">Password</FormLabel>
                             <FormControl>
                               <Input 
                                 type="password" 
                                 placeholder="••••••••" 
                                 {...field} 
-                                className="rounded-lg border-gray-300 focus:ring-2 focus:ring-primary/50" 
+                                className="rounded-lg bg-[#ffffff10] border-[#ffffff20] focus:border-[#d4af37] focus:bg-[#ffffff15] text-white placeholder:text-white/40 shadow-inner" 
                               />
                             </FormControl>
-                            <FormMessage />
+                            <FormMessage className="text-[#ffb4b4]" />
                           </FormItem>
                         )}
                       />
@@ -345,34 +412,34 @@ export default function Login() {
                           control={clientForm.control}
                           name="rememberMe"
                           render={({ field }) => (
-                            <FormItem className="flex flex-row items-start space-x-2 space-y-0">
+                            <FormItem className="flex flex-row items-center space-x-2 space-y-0">
                               <FormControl>
                                 <Checkbox
                                   checked={field.value}
                                   onCheckedChange={field.onChange}
-                                  className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                                  className="data-[state=checked]:bg-[#d4af37] data-[state=checked]:border-[#d4af37]"
                                 />
                               </FormControl>
-                              <div className="space-y-1 leading-none">
-                                <FormLabel className="font-normal text-gray-700">Remember me</FormLabel>
+                              <div className="leading-none">
+                                <FormLabel className="font-normal text-sm text-white/80">Remember me</FormLabel>
                               </div>
                             </FormItem>
                           )}
                         />
                         <div className="text-sm">
-                          <a href="#" className="font-medium text-primary hover:text-primary-dark">
+                          <a href="#" className="font-medium text-[#d4af37] hover:text-[#f5f0e1] transition-colors">
                             Forgot password?
                           </a>
                         </div>
                       </div>
                       <Button 
                         type="submit" 
-                        className="w-full py-2.5 bg-[#1a3a5f] hover:bg-[#0c2f6c] text-[#d4af37] font-medium rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center border border-[#d4af37]/30"
+                        className="w-full mt-2 py-3 bg-gradient-to-r from-[#0c2f6c] to-[#193555] hover:from-[#193555] hover:to-[#0c2f6c] text-[#d4af37] font-medium rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center border border-[#d4af37]/20"
                         disabled={isClientLoading}
                       >
                         {isClientLoading ? (
                           <>
-                            <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-[#d4af37]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-[#d4af37]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                             </svg>
@@ -381,9 +448,9 @@ export default function Login() {
                         ) : "Sign in to Client Portal"}
                       </Button>
                       
-                      <div className="bg-primary/5 rounded-lg p-3 text-xs text-gray-700 text-center">
-                        <p className="mb-1 font-medium">For client demo:</p>
-                        <p>Username: <strong>client1</strong> | Password: <strong>clientdemo</strong> (any password works)</p>
+                      <div className="mt-4 rounded-lg p-4 text-xs text-white/80 text-center border border-[#ffffff15] bg-[#ffffff05]">
+                        <p className="mb-1 font-medium text-[#d4af37]">Demo Credentials</p>
+                        <p>Username: <strong>client1</strong> | Password: <strong>clientdemo</strong></p>
                       </div>
                     </form>
                   </Form>
