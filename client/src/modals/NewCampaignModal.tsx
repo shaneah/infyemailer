@@ -662,6 +662,16 @@ const NewCampaignModal = ({ onClose, initialTemplateId = null }: NewCampaignModa
                   )}
                 </button>
                 <button 
+                  className={`nav-link ${activeTab === 'ab-testing' ? 'active' : ''} text-start mb-2 d-flex justify-content-between align-items-center`}
+                  type="button" 
+                  onClick={() => setActiveTab('ab-testing')}
+                >
+                  <span>A/B Testing</span>
+                  {isAbTesting && (
+                    <span className="badge bg-success rounded-pill ms-2">{variants.length}</span>
+                  )}
+                </button>
+                <button 
                   className={`nav-link ${activeTab === 'settings' ? 'active' : ''} text-start`}
                   type="button" 
                   onClick={() => setActiveTab('settings')}
