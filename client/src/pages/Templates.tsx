@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
+import { formatDistanceToNow } from "date-fns";
 import { 
   Card, 
   CardHeader, 
@@ -31,7 +32,10 @@ import {
   Trash2,
   ExternalLink,
   X,
-  XCircle
+  XCircle,
+  MoreVertical,
+  Calendar,
+  MoreHorizontal
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
