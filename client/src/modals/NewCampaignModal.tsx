@@ -522,6 +522,238 @@ const NewCampaignModal = ({ onClose, initialTemplateId = null }: NewCampaignModa
                 </div>
               )}
               
+              {activeTab === 'ab-testing' && (
+                <div>
+                  <div className="mb-4">
+                    <div className="form-check form-switch mb-3">
+                      <input
+                        className="form-check-input"
+                        type="checkbox"
+                        id="abTestingSwitch"
+                        checked={isAbTesting}
+                        onChange={() => setIsAbTesting(!isAbTesting)}
+                      />
+                      <label className="form-check-label fw-medium" htmlFor="abTestingSwitch">
+                        Enable A/B Testing
+                      </label>
+                    </div>
+
+                    {isAbTesting && (
+                      <>
+                        <div className="alert alert-info mb-4">
+                          <div className="d-flex">
+                            <div className="me-3 fs-5"><i className="bi bi-info-circle-fill"></i></div>
+                            <div>
+                              <p className="mb-1 fw-bold">How A/B Testing Works</p>
+                              <p className="small mb-0">Create multiple variants of your email with different subjects, content, or preview text. InfyMailer will automatically distribute these variants to your audience and track which performs better, allowing you to determine the winning variant based on open rates, click rates, and conversions.</p>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="card mb-4 border-0 shadow-sm">
+                          <div className="card-header bg-gradient-primary text-white d-flex justify-content-between align-items-center">
+                            <h5 className="card-title mb-0">Email Variants</h5>
+                            <span className="badge bg-white text-primary">{variants.length} variant{variants.length !== 1 ? 's' : ''}</span>
+                          </div>
+                          <div className="card-body">
+                            {variants.length > 0 ? (
+                              <div className="mb-3">
+                                {variants.map((variant, index) => (
+                                  <div key={variant.id} className="card mb-3 border shadow-sm">
+                                    <div className="card-header bg-gradient-light d-flex justify-content-between align-items-center py-2">
+                                      <h6 className="mb-0 fw-bold">Variant {index + 1}: {variant.name}</h6>
+                                      <div>
+                                        <button 
+                                          type="button" 
+                                          className="btn btn-sm btn-outline-primary me-2"
+                                          onClick={() => {
+                                            // Implement edit variant functionality
+                                            // For now, we'll just open a simple prompt to rename
+                                            const newName = prompt("Enter a new name for this variant:", variant.name);
+                                            if (newName && newName.trim() !== '') {
+                                              const updatedVariants = [...variants];
+                                              updatedVariants[index] = {
+                                                ...variant,
+                                                name: newName.trim()
+                                              };
+                                              setVariants(updatedVariants);
+                                            }
+                                          }}
+                                        >
+                                          Edit
+                                        </button>
+                                        <button 
+                                          type="button" 
+                                          className="btn btn-sm btn-outline-danger"
+                                          onClick={() => {
+                                            setVariants(variants.filter(v => v.id !== variant.id));
+                                          }}
+                                        >
+                                          Remove
+                                        </button>
+                                      </div>
+                                    </div>
+                                    <div className="card-body">
+                                      <div className="row g-3">
+                                        <div className="col-md-12">
+                                          <div className="d-flex align-items-center">
+                                            <div className="badge bg-primary me-2 fs-6 px-2">A</div>
+                                            <div>
+                                              <div className="text-muted small mb-1">Subject Line</div>
+                                              <div className="fw-medium">{variant.subject}</div>
+                                            </div>
+                                          </div>
+                                        </div>
+                                        <div className="col-md-12">
+                                          <div className="d-flex align-items-center">
+                                            <div className="badge bg-secondary me-2 fs-6 px-2">P</div>
+                                            <div>
+                                              <div className="text-muted small mb-1">Preview Text</div>
+                                              <div className="fw-medium">{variant.previewText}</div>
+                                            </div>
+                                          </div>
+                                        </div>
+                                        {index === 0 && (
+                                          <div className="col-12">
+                                            <div className="alert alert-success mb-0 py-2">
+                                              <div className="d-flex align-items-center">
+                                                <div className="me-2"><i className="bi bi-star-fill"></i></div>
+                                                <div className="small">Control variant (original email)</div>
+                                              </div>
+                                            </div>
+                                          </div>
+                                        )}
+                                      </div>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <div className="text-center p-4 border border-dashed rounded mb-3">
+                                <div className="text-muted mb-3"><i className="bi bi-envelope-plus fs-2"></i></div>
+                                <p className="text-muted mb-0">No variants created yet. Add at least one variant to use A/B testing.</p>
+                              </div>
+                            )}
+
+                            <button 
+                              type="button" 
+                              className="btn btn-primary w-100 mb-3"
+                              onClick={() => {
+                                // Clone the template as a new variant
+                                const selectedTemplate = templates.find(t => t.id.toString() === selectedTemplateId);
+                                
+                                if (!selectedTemplate) {
+                                  toast({
+                                    title: "Template Not Found",
+                                    description: "Please select a template first",
+                                    variant: "destructive"
+                                  });
+                                  return;
+                                }
+                                
+                                const newVariant = {
+                                  id: `variant-${Date.now()}`,
+                                  name: `Variant ${variants.length + 1}`,
+                                  subject: form.getValues('subject') || 'New Subject',
+                                  previewText: form.getValues('previewText') || 'Preview text for this variant',
+                                  content: selectedTemplate.content
+                                };
+                                
+                                setVariants([...variants, newVariant]);
+                              }}
+                            >
+                              <i className="bi bi-plus-circle me-2"></i> Add New Variant
+                            </button>
+                          </div>
+                        </div>
+                        
+                        {variants.length > 0 && (
+                          <div className="card mb-4 border-0 shadow-sm">
+                            <div className="card-header bg-gradient-primary text-white">
+                              <h5 className="card-title mb-0">Test Settings</h5>
+                            </div>
+                            <div className="card-body">
+                              <div className="form-group mb-3">
+                                <label className="form-label fw-medium">Distribution Method</label>
+                                <select className="form-select mb-2">
+                                  <option value="even">Even Split (Default)</option>
+                                  <option value="percent">Custom Percentages</option>
+                                </select>
+                                <div className="form-text text-muted small">
+                                  Even Split distributes your audience equally across all variants. Custom Percentages allows you to set specific weights for each variant.
+                                </div>
+                              </div>
+                              
+                              <div className="form-group mb-3">
+                                <label className="form-label fw-medium">Success Metric</label>
+                                <select className="form-select mb-2">
+                                  <option value="open_rate">Open Rate (Default)</option>
+                                  <option value="click_rate">Click Rate</option>
+                                  <option value="conversion">Conversion Rate</option>
+                                </select>
+                                <div className="form-text text-muted small">
+                                  Select which metric to use when determining the winning variant.
+                                </div>
+                              </div>
+                              
+                              <div className="form-group">
+                                <label className="form-label fw-medium">Winner Selection</label>
+                                <div className="form-check mb-2">
+                                  <input className="form-check-input" type="radio" name="winnerSelection" id="automatic" checked />
+                                  <label className="form-check-label" htmlFor="automatic">
+                                    Automatic (After 48 hours)
+                                  </label>
+                                </div>
+                                <div className="form-check">
+                                  <input className="form-check-input" type="radio" name="winnerSelection" id="manual" />
+                                  <label className="form-check-label" htmlFor="manual">
+                                    Manual Selection
+                                  </label>
+                                </div>
+                                <div className="form-text text-muted small">
+                                  Choose whether InfyMailer should automatically select the winning variant based on the success metric, or if you want to choose manually.
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </div>
+                  
+                  <div className="text-end">
+                    <div className="d-flex justify-content-between">
+                      <button 
+                        type="button" 
+                        className="btn btn-outline-secondary" 
+                        onClick={() => setActiveTab('audience')}
+                      >
+                        Back
+                      </button>
+                      <button 
+                        type="button" 
+                        className="btn btn-primary" 
+                        onClick={() => {
+                          if (isAbTesting && variants.length === 0) {
+                            toast({
+                              title: "Missing Variants",
+                              description: "Please add at least one variant or disable A/B testing",
+                              variant: "destructive"
+                            });
+                            return;
+                          }
+                          
+                          // Go to settings tab
+                          setActiveTab('settings');
+                        }}
+                      >
+                        Next: Settings
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+              
               {activeTab === 'settings' && (
                 <div>
                   <Form {...form}>
