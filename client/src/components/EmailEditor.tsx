@@ -73,6 +73,12 @@ interface ElementRendererProps {
   element: EmailElement;
   isSelected: boolean;
   onClick: () => void;
+  onDragStart: (e: React.DragEvent, elementId: string) => void;
+  onDragEnd: () => void;
+  onDragOver: (e: React.DragEvent) => void;
+  onDrop: (e: React.DragEvent, targetElementId: string) => void;
+  isDragging: boolean;
+  isDraggedOver: boolean;
 }
 
 interface PropertyEditorProps {
