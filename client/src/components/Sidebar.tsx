@@ -292,6 +292,18 @@ const Sidebar = ({ open, setOpen, collapsed = false, setCollapsed }: SidebarProp
               {!collapsed && <span className="font-medium">Client Portal</span>}
             </Link>
           </li>
+          <li>
+            <Link 
+              href="/login" 
+              className={`flex items-center px-2 py-2 mt-2 rounded-md bg-[#d4af37]/10 border border-[#d4af37]/30 ${location === '/login' 
+                ? 'text-white border-l-4 border-[#d4af37] bg-white/10' 
+                : 'text-[#d4af37] hover:bg-[#d4af37]/20'}`}
+              title="Login Page"
+            >
+              <LogOut className="h-5 w-5 mr-3" />
+              {!collapsed && <span className="font-medium">Login Page</span>}
+            </Link>
+          </li>
         </ul>
         
         {/* Logout Button */}
