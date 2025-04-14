@@ -20,7 +20,6 @@ import TemplateBuilder from "@/pages/TemplateBuilder";
 import Domains from "@/pages/Domains";
 
 import Clients from "@/pages/Clients";
-import ClientUsers from "@/pages/ClientUsers";
 import Settings from "@/pages/Settings";
 import AdminPanel from "@/pages/AdminPanel";
 import EmailValidation from "@/pages/EmailValidation";
@@ -180,7 +179,6 @@ function App() {
                     <ProtectedRoute path="template-builder/:id" component={TemplateBuilder} />
                     <ProtectedRoute path="domains" component={Domains} />
                     <ProtectedRoute path="clients" component={Clients} />
-                    <ProtectedRoute path="client-users" component={ClientUsers} />
                     <ProtectedRoute path="user-management" component={UserManagement} />
                     <ProtectedRoute path="settings" component={Settings} />
                     <ProtectedRoute path="profile" component={Settings} />

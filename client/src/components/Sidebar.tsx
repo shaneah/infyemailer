@@ -133,18 +133,6 @@ const Sidebar = ({ open, setOpen, collapsed = false, setCollapsed }: SidebarProp
 
           <li>
             <Link 
-              href="/client-users" 
-              className={`flex items-center px-2 py-2 rounded-md ${location === '/client-users' 
-                ? 'text-white border-l-4 border-[#d4af37] bg-white/10' 
-                : 'text-gray-300 hover:bg-white/5'}`}
-              title="Client Users"
-            >
-              <Users className="h-5 w-5 mr-3" />
-              {!collapsed && <span>Client Users</span>}
-            </Link>
-          </li>
-          <li>
-            <Link 
               href="/client-management" 
               className={`flex items-center px-2 py-2 rounded-md ${location === '/client-management' 
                 ? 'text-white border-l-4 border-[#d4af37] bg-white/10' 
