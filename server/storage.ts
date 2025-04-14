@@ -55,19 +55,35 @@ export interface IStorage {
   deleteUser(id: number): Promise<boolean>;
   verifyUserLogin(usernameOrEmail: string, password: string): Promise<User | undefined>;
   
-  // Role methods
+  // Role Management Methods
   getRoles(): Promise<Role[]>;
   getRole(id: number): Promise<Role | undefined>;
   createRole(role: InsertRole): Promise<Role>;
-  updateRole(id: number, role: Partial<Role>): Promise<Role | undefined>;
+  updateRole(id: number, updates: Partial<Role>): Promise<Role | undefined>;
   deleteRole(id: number): Promise<boolean>;
   
-  // Permission methods
+  // Permission Management Methods
   getPermissions(): Promise<Permission[]>;
   getPermission(id: number): Promise<Permission | undefined>;
   createPermission(permission: InsertPermission): Promise<Permission>;
-  updatePermission(id: number, permission: Partial<Permission>): Promise<Permission | undefined>;
+  updatePermission(id: number, updates: Partial<Permission>): Promise<Permission | undefined>;
   deletePermission(id: number): Promise<boolean>;
+  
+  // User-Role Management Methods
+  getUserRoles(): Promise<UserRole[]>;
+  getUserRolesByUserId(userId: number): Promise<UserRole[]>;
+  getUserRolesByRoleId(roleId: number): Promise<UserRole[]>;
+  assignRoleToUser(userRole: InsertUserRole): Promise<UserRole>;
+  removeRoleFromUser(userId: number, roleId: number): Promise<boolean>;
+  removeRoleFromUsers(roleId: number): Promise<boolean>;
+  
+  // Role-Permission Management Methods
+  getRolePermissions(): Promise<RolePermission[]>;
+  getRolePermissionsByRoleId(roleId: number): Promise<Array<Permission & { rolePermissionId: number }>>;
+  getRolePermissionsByPermissionId(permissionId: number): Promise<RolePermission[]>;
+  assignPermissionToRole(roleId: number, permissionId: number): Promise<RolePermission>;
+  removePermissionFromRole(roleId: number, permissionId: number): Promise<boolean>;
+  removeRolePermissions(roleId: number): Promise<boolean>;
   
   // User-Role methods
   getUserRoles(): Promise<UserRole[]>;
@@ -76,13 +92,6 @@ export interface IStorage {
   removeRoleFromUser(userId: number, roleId: number): Promise<boolean>;
   removeUserRoles(userId: number): Promise<boolean>;
   removeRoleFromUsers(roleId: number): Promise<boolean>;
-  
-  // Role-Permission methods
-  getRolePermissions(): Promise<RolePermission[]>;
-  getRolePermissionsByRoleId(roleId: number): Promise<Array<Permission & { rolePermissionId: number }>>;
-  assignPermissionToRole(roleId: number, permissionId: number): Promise<RolePermission>;
-  removePermissionFromRole(roleId: number, permissionId: number): Promise<boolean>;
-  removeRolePermissions(roleId: number): Promise<boolean>;
 
   // Client methods
   getClients(): Promise<Client[]>;
@@ -2191,6 +2200,312 @@ export class MemStorage implements IStorage {
     return updatedLink;
   }
   
+  // Role Management Methods
+  async getRoles(): Promise<Role[]> {
+    return Array.from(this.roles.values());
+  }
+
+  async getRole(id: number): Promise<Role | undefined> {
+    return this.roles.get(id);
+  }
+
+  async createRole(role: InsertRole): Promise<Role> {
+    const id = this.roleId++;
+    const now = new Date();
+    const newRole: Role = {
+      ...role,
+      id,
+      createdAt: now,
+      updatedAt: now
+    };
+    this.roles.set(id, newRole);
+    return newRole;
+  }
+
+  async updateRole(id: number, updates: Partial<Role>): Promise<Role | undefined> {
+    const existingRole = this.roles.get(id);
+    if (!existingRole) return undefined;
+    
+    const updatedRole = {
+      ...existingRole,
+      ...updates,
+      updatedAt: new Date()
+    };
+    
+    this.roles.set(id, updatedRole);
+    return updatedRole;
+  }
+
+  async deleteRole(id: number): Promise<boolean> {
+    // First check if role has users assigned
+    const hasUsers = Array.from(this.userRoles.values()).some(
+      userRole => userRole.roleId === id
+    );
+    
+    if (hasUsers) {
+      // Cannot delete a role that has users assigned
+      return false;
+    }
+    
+    // Also check if role has permissions assigned
+    const hasPermissions = Array.from(this.rolePermissions.values()).some(
+      rolePermission => rolePermission.roleId === id
+    );
+    
+    if (hasPermissions) {
+      // Cannot delete a role that has permissions assigned - must remove all permissions first
+      return false;
+    }
+    
+    // If safe to delete, remove the role
+    return this.roles.delete(id);
+  }
+
+  // Permission Management Methods
+  async getPermissions(): Promise<Permission[]> {
+    return Array.from(this.permissions.values());
+  }
+
+  async getPermission(id: number): Promise<Permission | undefined> {
+    return this.permissions.get(id);
+  }
+
+  async createPermission(permission: InsertPermission): Promise<Permission> {
+    const id = this.permissionId++;
+    const now = new Date();
+    const newPermission: Permission = {
+      ...permission,
+      id,
+      createdAt: now
+    };
+    this.permissions.set(id, newPermission);
+    return newPermission;
+  }
+
+  async updatePermission(id: number, updates: Partial<Permission>): Promise<Permission | undefined> {
+    const existingPermission = this.permissions.get(id);
+    if (!existingPermission) return undefined;
+    
+    const updatedPermission = {
+      ...existingPermission,
+      ...updates
+    };
+    
+    this.permissions.set(id, updatedPermission);
+    return updatedPermission;
+  }
+
+  async deletePermission(id: number): Promise<boolean> {
+    // First check if permission is assigned to any role
+    const isAssigned = Array.from(this.rolePermissions.values()).some(
+      rolePermission => rolePermission.permissionId === id
+    );
+    
+    if (isAssigned) {
+      // Cannot delete a permission that is assigned to roles
+      return false;
+    }
+    
+    // If safe to delete, remove the permission
+    return this.permissions.delete(id);
+  }
+
+  // User-Role Management Methods
+  async getUserRoles(): Promise<UserRole[]> {
+    return Array.from(this.userRoles.values());
+  }
+
+  async getUserRolesByUserId(userId: number): Promise<UserRole[]> {
+    return Array.from(this.userRoles.values()).filter(
+      userRole => userRole.userId === userId
+    );
+  }
+
+  async getUserRolesByRoleId(roleId: number): Promise<UserRole[]> {
+    return Array.from(this.userRoles.values()).filter(
+      userRole => userRole.roleId === roleId
+    );
+  }
+
+  // Support both function signatures for assignRoleToUser
+  async assignRoleToUser(userRoleOrUserId: InsertUserRole | number, roleId?: number): Promise<UserRole> {
+    let userRole: InsertUserRole;
+    
+    if (typeof userRoleOrUserId === 'number' && roleId !== undefined) {
+      // Called with (userId, roleId) signature
+      userRole = {
+        userId: userRoleOrUserId,
+        roleId: roleId
+      };
+    } else {
+      // Called with (userRole) signature
+      userRole = userRoleOrUserId as InsertUserRole;
+    }
+    
+    // Check if user and role exist
+    const userExists = this.users.has(userRole.userId);
+    const roleExists = this.roles.has(userRole.roleId);
+    
+    if (!userExists || !roleExists) {
+      throw new Error("User or role does not exist");
+    }
+    
+    // Check if assignment already exists
+    const existingAssignment = Array.from(this.userRoles.values()).find(
+      ur => ur.userId === userRole.userId && ur.roleId === userRole.roleId
+    );
+    
+    if (existingAssignment) {
+      return existingAssignment; // Assignment already exists
+    }
+    
+    // Create new assignment
+    const id = this.userRoleId++;
+    const now = new Date();
+    const newUserRole: UserRole = {
+      ...userRole,
+      id,
+      createdAt: now
+    };
+    
+    this.userRoles.set(id, newUserRole);
+    return newUserRole;
+  }
+
+  async removeRoleFromUser(userId: number, roleId: number): Promise<boolean> {
+    const userRoleToRemove = Array.from(this.userRoles.values()).find(
+      ur => ur.userId === userId && ur.roleId === roleId
+    );
+    
+    if (!userRoleToRemove) {
+      return false; // Assignment doesn't exist
+    }
+    
+    return this.userRoles.delete(userRoleToRemove.id);
+  }
+
+  async removeRoleFromUsers(roleId: number): Promise<boolean> {
+    let success = true;
+    const userRolesToRemove = Array.from(this.userRoles.values()).filter(
+      ur => ur.roleId === roleId
+    );
+    
+    for (const userRole of userRolesToRemove) {
+      const removed = this.userRoles.delete(userRole.id);
+      if (!removed) {
+        success = false;
+      }
+    }
+    
+    return success;
+  }
+  
+  async removeUserRoles(userId: number): Promise<boolean> {
+    let success = true;
+    const userRolesToRemove = Array.from(this.userRoles.values()).filter(
+      ur => ur.userId === userId
+    );
+    
+    for (const userRole of userRolesToRemove) {
+      const removed = this.userRoles.delete(userRole.id);
+      if (!removed) {
+        success = false;
+      }
+    }
+    
+    return success;
+  }
+
+  // Role-Permission Management Methods
+  async getRolePermissions(): Promise<RolePermission[]> {
+    return Array.from(this.rolePermissions.values());
+  }
+
+  async getRolePermissionsByRoleId(roleId: number): Promise<RolePermission[]> {
+    return Array.from(this.rolePermissions.values()).filter(
+      rp => rp.roleId === roleId
+    );
+  }
+
+  async getRolePermissionsByPermissionId(permissionId: number): Promise<RolePermission[]> {
+    return Array.from(this.rolePermissions.values()).filter(
+      rp => rp.permissionId === permissionId
+    );
+  }
+
+  // Support both function signatures for assignPermissionToRole
+  async assignPermissionToRole(roleIdOrRolePermission: number | InsertRolePermission, permissionId?: number): Promise<RolePermission> {
+    let rolePermission: InsertRolePermission;
+    
+    if (typeof roleIdOrRolePermission === 'number' && permissionId !== undefined) {
+      // Called with (roleId, permissionId) signature
+      rolePermission = {
+        roleId: roleIdOrRolePermission,
+        permissionId: permissionId
+      };
+    } else {
+      // Called with (rolePermission) signature
+      rolePermission = roleIdOrRolePermission as InsertRolePermission;
+    }
+    
+    // Check if role and permission exist
+    const roleExists = this.roles.has(rolePermission.roleId);
+    const permissionExists = this.permissions.has(rolePermission.permissionId);
+    
+    if (!roleExists || !permissionExists) {
+      throw new Error("Role or permission does not exist");
+    }
+    
+    // Check if assignment already exists
+    const existingAssignment = Array.from(this.rolePermissions.values()).find(
+      rp => rp.roleId === rolePermission.roleId && rp.permissionId === rolePermission.permissionId
+    );
+    
+    if (existingAssignment) {
+      return existingAssignment; // Assignment already exists
+    }
+    
+    // Create new assignment
+    const id = this.rolePermissionId++;
+    const now = new Date();
+    const newRolePermission: RolePermission = {
+      ...rolePermission,
+      id,
+      createdAt: now
+    };
+    
+    this.rolePermissions.set(id, newRolePermission);
+    return newRolePermission;
+  }
+
+  async removePermissionFromRole(roleId: number, permissionId: number): Promise<boolean> {
+    const rolePermissionToRemove = Array.from(this.rolePermissions.values()).find(
+      rp => rp.roleId === roleId && rp.permissionId === permissionId
+    );
+    
+    if (!rolePermissionToRemove) {
+      return false; // Assignment doesn't exist
+    }
+    
+    return this.rolePermissions.delete(rolePermissionToRemove.id);
+  }
+
+  async removeRolePermissions(roleId: number): Promise<boolean> {
+    let success = true;
+    const rolePermissionsToRemove = Array.from(this.rolePermissions.values()).filter(
+      rp => rp.roleId === roleId
+    );
+    
+    for (const rolePermission of rolePermissionsToRemove) {
+      const removed = this.rolePermissions.delete(rolePermission.id);
+      if (!removed) {
+        success = false;
+      }
+    }
+    
+    return success;
+  }
+
   // AudiencePersona methods
   async getAudiencePersonas(clientId?: number): Promise<AudiencePersona[]> {
     let personas = Array.from(this.audiencePersonas.values());
