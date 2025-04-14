@@ -477,9 +477,47 @@ export const userRolesRelations = defineRelations(userRoles, {
   role: { relationName: "userRole_to_role", fields: [userRoles.roleId], references: [roles.id] }
 });
 
+// Email Providers table
+export const emailProviders = pgTable("email_providers", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  provider: text("provider").notNull(), // sendgrid, mailgun, amazonses, sendclean, smtp
+  config: json("config").notNull(),
+  isDefault: boolean("is_default").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow()
+});
+
+export const insertEmailProviderSchema = createInsertSchema(emailProviders).pick({
+  name: true,
+  provider: true,
+  config: true,
+  isDefault: true
+});
+
+export type InsertEmailProvider = z.infer<typeof insertEmailProviderSchema>;
+export type EmailProvider = typeof emailProviders.$inferSelect;
+
+// Client to Provider relationships
+export const clientProviders = pgTable("client_providers", {
+  id: serial("id").primaryKey(),
+  clientId: integer("client_id").notNull().references(() => clients.id),
+  providerId: integer("provider_id").notNull().references(() => emailProviders.id),
+  createdAt: timestamp("created_at").defaultNow()
+});
+
+export const insertClientProviderSchema = createInsertSchema(clientProviders).pick({
+  clientId: true,
+  providerId: true
+});
+
+export type InsertClientProvider = z.infer<typeof insertClientProviderSchema>;
+export type ClientProvider = typeof clientProviders.$inferSelect;
+
 export const clientsRelations = defineRelations(clients, {
   clientUsers: { relationName: "client_to_users", fields: [clients.id], references: [clientUsers.clientId] },
-  campaigns: { relationName: "client_to_campaigns", fields: [clients.id], references: [campaigns.clientId] }
+  campaigns: { relationName: "client_to_campaigns", fields: [clients.id], references: [campaigns.clientId] },
+  clientProviders: { relationName: "client_to_providers", fields: [clients.id], references: [clientProviders.clientId] }
 });
 
 export const contactsRelations = defineRelations(contacts, {
