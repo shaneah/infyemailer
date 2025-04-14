@@ -27,20 +27,20 @@ export default function Campaigns() {
   }, [location]);
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 px-4 py-6 max-w-[1600px] mx-auto">
       {/* Header section with gradient background */}
-      <div className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 rounded-xl p-6 shadow-sm border border-blue-100">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 rounded-xl p-4 sm:p-6 shadow-sm border border-blue-100">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
+            <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
               Email Campaigns
             </h1>
-            <p className="text-slate-600 mt-1">
+            <p className="text-slate-600 mt-1 text-sm sm:text-base">
               Create, manage, and analyze your email marketing campaigns
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <div className="hidden md:flex">
+            <div className="hidden sm:flex">
               <Button variant="outline" size="sm" className="mr-2 border-blue-200">
                 <Filter className="h-4 w-4 mr-2" />
                 Filter
@@ -51,22 +51,22 @@ export default function Campaigns() {
               </Button>
             </div>
             <Button 
-              className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
+              className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 whitespace-nowrap text-sm"
               onClick={() => setShowNewCampaignModal(true)}
             >
-              <PlusCircle className="h-4 w-4 mr-2" />
-              New Campaign
+              <PlusCircle className="h-4 w-4 mr-1 sm:mr-2 flex-shrink-0" />
+              <span className="whitespace-nowrap">New Campaign</span>
             </Button>
           </div>
         </div>
       </div>
 
       {/* Stats cards with modern styling */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {isLoading ? (
           [...Array(4)].map((_, index) => (
             <div key={index} className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-              <div className="p-5">
+              <div className="p-4">
                 <Skeleton className="h-5 w-32 mb-3" />
                 <div className="flex items-center">
                   <Skeleton className="h-10 w-24 mr-3" />
@@ -101,17 +101,17 @@ export default function Campaigns() {
             
             return (
               <div key={stat.id} className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md hover:border-blue-200">
-                <div className="p-5">
+                <div className="p-4">
                   <div className="flex items-center justify-between mb-3">
-                    <p className="text-sm font-medium text-gray-500">{stat.title}</p>
-                    <div className={`p-2 rounded-full bg-gradient-to-r ${gradientFrom} ${gradientTo} text-white`}>
-                      <StatIcon className="h-4 w-4" />
+                    <p className="text-xs sm:text-sm font-medium text-gray-500">{stat.title}</p>
+                    <div className={`p-1.5 sm:p-2 rounded-full bg-gradient-to-r ${gradientFrom} ${gradientTo} text-white`}>
+                      <StatIcon className="h-3 w-3 sm:h-4 sm:w-4" />
                     </div>
                   </div>
                   <div className="flex items-center">
-                    <div className="text-2xl font-bold mr-3">{stat.value}</div>
+                    <div className="text-lg sm:text-2xl font-bold mr-2 sm:mr-3">{stat.value}</div>
                     {stat.change && (
-                      <span className={`text-xs font-medium px-2 py-1 rounded-full ${
+                      <span className={`text-xs font-medium px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-full ${
                         stat.change.color === 'success' ? 'bg-green-100 text-green-800' : 
                         stat.change.color === 'danger' ? 'bg-red-100 text-red-800' : 
                         'bg-blue-100 text-blue-800'
@@ -120,7 +120,7 @@ export default function Campaigns() {
                       </span>
                     )}
                   </div>
-                  <p className="text-xs text-gray-500 mt-2">{stat.description}</p>
+                  <p className="text-xs text-gray-500 mt-2 line-clamp-2">{stat.description}</p>
                 </div>
                 {/* Bottom border with gradient */}
                 <div className={`h-1 w-full bg-gradient-to-r ${gradientFrom} ${gradientTo}`}></div>

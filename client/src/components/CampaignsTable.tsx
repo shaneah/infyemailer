@@ -110,60 +110,65 @@ const CampaignsTable = () => {
 
   if (isLoading) {
     return (
-      <div className="rounded-lg border shadow-sm">
-        <div className="flex justify-between items-center px-6 py-4 border-b">
-          <h3 className="text-lg font-semibold">Recent Campaigns</h3>
-          <div className="text-sm px-3 py-1.5 rounded-md border bg-white">
+      <div>
+        <div className="flex justify-between items-center px-6 py-5 border-b border-gray-200">
+          <h3 className="text-lg font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
+            Recent Campaigns
+          </h3>
+          <div className="text-sm px-4 py-2 rounded-md border border-blue-200 bg-white shadow-sm flex items-center gap-1">
             View all
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M9 18l6-6-6-6"></path>
+            </svg>
           </div>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b bg-slate-50">
-                <th className="text-left py-3 px-6 text-sm font-medium text-slate-500">Campaign</th>
-                <th className="text-left py-3 px-6 text-sm font-medium text-slate-500">Status</th>
-                <th className="text-left py-3 px-6 text-sm font-medium text-slate-500">Recipients</th>
-                <th className="text-left py-3 px-6 text-sm font-medium text-slate-500">Open Rate</th>
-                <th className="text-left py-3 px-6 text-sm font-medium text-slate-500">Click Rate</th>
-                <th className="text-left py-3 px-6 text-sm font-medium text-slate-500">Date</th>
-                <th className="text-right py-3 px-6 text-sm font-medium text-slate-500">Actions</th>
+              <tr className="border-b bg-gradient-to-r from-blue-50 to-indigo-50">
+                <th className="text-left py-4 px-6 text-sm font-semibold text-gray-600">Campaign</th>
+                <th className="text-left py-4 px-6 text-sm font-semibold text-gray-600">Status</th>
+                <th className="text-left py-4 px-6 text-sm font-semibold text-gray-600">Recipients</th>
+                <th className="text-left py-4 px-6 text-sm font-semibold text-gray-600">Open Rate</th>
+                <th className="text-left py-4 px-6 text-sm font-semibold text-gray-600">Click Rate</th>
+                <th className="text-left py-4 px-6 text-sm font-semibold text-gray-600">Date</th>
+                <th className="text-right py-4 px-6 text-sm font-semibold text-gray-600">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y">
               {[...Array(4)].map((_, index) => (
                 <tr key={index}>
-                  <td className="py-4 px-6">
+                  <td className="py-5 px-6">
                     <div className="flex items-center">
-                      <Skeleton className="h-10 w-10 rounded-md mr-3"/>
+                      <Skeleton className="h-10 w-10 rounded-full mr-4"/>
                       <div>
                         <Skeleton className="h-5 w-32 mb-1"/>
                         <Skeleton className="h-3 w-24"/>
                       </div>
                     </div>
                   </td>
-                  <td className="py-4 px-6">
-                    <Skeleton className="h-6 w-20 rounded-full"/>
+                  <td className="py-5 px-6">
+                    <Skeleton className="h-7 w-24 rounded-full"/>
                   </td>
-                  <td className="py-4 px-6">
-                    <Skeleton className="h-5 w-12"/>
+                  <td className="py-5 px-6">
+                    <Skeleton className="h-5 w-16"/>
                   </td>
-                  <td className="py-4 px-6">
+                  <td className="py-5 px-6">
                     <div className="flex items-center">
-                      <Skeleton className="h-5 w-10 mr-2"/>
-                      <Skeleton className="h-1.5 w-24 rounded-full"/>
+                      <Skeleton className="h-5 w-10 mr-3"/>
+                      <Skeleton className="h-2 w-28 rounded-full"/>
                     </div>
                   </td>
-                  <td className="py-4 px-6">
+                  <td className="py-5 px-6">
                     <div className="flex items-center">
-                      <Skeleton className="h-5 w-10 mr-2"/>
-                      <Skeleton className="h-1.5 w-24 rounded-full"/>
+                      <Skeleton className="h-5 w-10 mr-3"/>
+                      <Skeleton className="h-2 w-28 rounded-full"/>
                     </div>
                   </td>
-                  <td className="py-4 px-6">
+                  <td className="py-5 px-6">
                     <Skeleton className="h-5 w-24"/>
                   </td>
-                  <td className="py-4 px-6 text-right">
+                  <td className="py-5 px-6 text-right">
                     <div className="inline-flex items-center space-x-2">
                       <Skeleton className="h-9 w-20 rounded-md"/>
                       <Skeleton className="h-9 w-9 rounded-md"/>

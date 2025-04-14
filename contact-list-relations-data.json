@@ -4,12 +4,6 @@
     "listId": 5,
     "id": 1,
     "addedAt": "2025-04-14T14:03:56.919Z",
-    "createdAt": null
-  },
-  {
-    "contactId": 3,
-    "listId": 1,
-    "id": 2,
-    "addedAt": "2025-04-14T16:18:53.066Z"
+    "createdAt": "1970-01-01T00:00:00.000Z"
   }
 ]
