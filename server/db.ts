@@ -32,7 +32,7 @@ function setupDatabaseConnection() {
       connectionString: databaseUrl
     });
     
-    // Initialize Drizzle with schema
+    // Initialize Drizzle with schema - pass all schema without trying to extract relations
     db = drizzle(pool, { schema });
     log('PostgreSQL storage initialized with Neon driver', 'db');
     
