@@ -342,32 +342,44 @@ export default function Templates() {
   });
   
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center border-b pb-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Email Templates</h1>
-          <p className="text-muted-foreground mt-1">
-            Create and manage email templates for your campaigns
-          </p>
+    <div className="space-y-8">
+      <div className="relative overflow-hidden bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 rounded-xl p-8 mb-6">
+        <div className="absolute inset-0 bg-grid-primary-500/10 [mask-image:linear-gradient(0deg,#fff2,transparent)] bg-fixed"></div>
+        <div className="relative">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div>
+              <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-primary to-indigo-600 bg-clip-text text-transparent">Email Templates</h1>
+              <p className="text-muted-foreground mt-2 max-w-2xl">
+                Create professional email templates to elevate your campaigns and boost engagement with your audience
+              </p>
+            </div>
+            <Button 
+              className="rounded-full shadow-md gap-2 px-5 bg-gradient-to-r from-primary to-indigo-600 hover:from-primary/90 hover:to-indigo-600/90 transition-all"
+              onClick={handleOpenCreateTemplate}
+            >
+              <PlusCircle className="h-4 w-4" /> 
+              Create Template
+            </Button>
+          </div>
         </div>
       </div>
       
-      <div className="flex flex-col gap-4">
-        <div className="flex justify-between items-center">
-          <div className="relative w-64">
+      <div className="flex flex-col gap-6">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div className="relative w-full md:w-64">
             <Input
               type="search"
               placeholder="Search templates..."
-              className="w-full"
+              className="w-full border-primary/20 focus-visible:ring-primary/30"
               value={searchQuery}
               onChange={handleSearchChange}
             />
           </div>
           
-          <div className="flex gap-3">
+          <div className="flex flex-wrap gap-3">
             <Button 
               variant="outline" 
-              className="gap-2"
+              className="gap-2 border-primary/20 text-primary hover:bg-primary/5 hover:text-primary transition-colors"
               onClick={() => setShowAIGenerator(!showAIGenerator)}
             >
               {showAIGenerator ? (
@@ -380,7 +392,8 @@ export default function Templates() {
               )}
             </Button>
             <Button 
-              className="gap-2"
+              variant="outline"
+              className="gap-2 border-primary/20 text-primary hover:bg-primary/5 hover:text-primary transition-colors"
               onClick={() => setShowImportModal(true)}
             >
               <Import className="h-4 w-4" /> 
@@ -391,22 +404,24 @@ export default function Templates() {
 
         <Collapsible open={showAIGenerator} onOpenChange={setShowAIGenerator}>
           <CollapsibleContent className="mt-2">
-            <AdvancedTemplateGenerator onTemplateGenerated={handleTemplateGenerated} />
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-lg border border-blue-100">
+              <AdvancedTemplateGenerator onTemplateGenerated={handleTemplateGenerated} />
+            </div>
           </CollapsibleContent>
         </Collapsible>
       </div>
       
-      <div className="space-y-4">
-        <div className="flex justify-between items-center">
-          <h2 className="text-xl font-semibold flex items-center">
-            <FileText className="h-5 w-5 mr-2 text-primary" />
+      <div className="space-y-6">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b pb-3">
+          <h2 className="text-xl font-semibold flex items-center text-primary">
+            <FileText className="h-5 w-5 mr-2" />
             Template Library
           </h2>
           
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-[300px]">
-            <TabsList className="grid grid-cols-2">
-              <TabsTrigger value="all">All Templates</TabsTrigger>
-              <TabsTrigger value="ai" className="flex items-center">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full md:w-[300px]">
+            <TabsList className="grid grid-cols-2 bg-blue-50/50">
+              <TabsTrigger value="all" className="data-[state=active]:bg-white">All Templates</TabsTrigger>
+              <TabsTrigger value="ai" className="flex items-center data-[state=active]:bg-white">
                 <Sparkles className="h-3.5 w-3.5 mr-1.5" /> AI Templates
               </TabsTrigger>
             </TabsList>
@@ -445,90 +460,99 @@ export default function Templates() {
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredTemplates.map((template: Template) => (
               <Card 
                 key={template.id} 
-                className="flex flex-col h-full border hover:border-primary/30 hover:shadow-md transition-all group"
+                className="flex flex-col h-full overflow-hidden border border-transparent hover:border-primary/20 hover:shadow-lg transition-all group rounded-xl"
                 onClick={() => handleViewTemplate(template)}
               >
-                <div className="relative overflow-hidden h-[180px] rounded-t-lg border-b bg-slate-50">
+                <div className="relative overflow-hidden h-[200px] bg-gradient-to-br from-blue-50 to-indigo-50">
                   {/* Template preview thumbnail */}
                   <div 
-                    className="absolute inset-0 flex items-center justify-center p-2 overflow-hidden" 
-                    style={{ backgroundColor: '#f8fafc' }}
+                    className="absolute inset-0 flex items-center justify-center p-3 overflow-hidden"
                   >
-                    <iframe 
-                      srcDoc={template.content}
-                      className="w-full h-full transform scale-[0.6] origin-top border shadow-md bg-white rounded"
-                      title={`Preview of ${template.name}`}
-                    />
+                    <div className="relative w-full h-full bg-white rounded-lg shadow-md overflow-hidden transform transition-transform group-hover:scale-[1.02] origin-center">
+                      <iframe 
+                        srcDoc={template.content}
+                        className="w-full h-full transform scale-[0.6] origin-top bg-white"
+                        title={`Preview of ${template.name}`}
+                      />
+                      
+                      {/* Gradient overlay at bottom for text readability */}
+                      <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-white/90 to-transparent"></div>
+                    </div>
                   </div>
                   
                   {/* Quick action overlay */}
-                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
-                    <Button 
-                      variant="secondary" 
-                      size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        window.open(`/preview-template?id=${template.id}`, '_blank');
-                      }}
-                    >
-                      <Eye className="h-4 w-4 mr-2" />
-                      Preview
-                    </Button>
-                    <Link 
-                      href={`/template-builder?id=${template.id}`}
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <Button variant="secondary" size="sm">
-                        <Pencil className="h-4 w-4 mr-2" />
-                        Edit
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3 p-4">
+                    <div className="absolute bottom-4 w-full flex justify-center gap-2">
+                      <Button 
+                        variant="secondary" 
+                        size="sm"
+                        className="shadow-md"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          window.open(`/preview-template?id=${template.id}`, '_blank');
+                        }}
+                      >
+                        <Eye className="h-4 w-4 mr-1.5" />
+                        Preview
                       </Button>
-                    </Link>
+                      <Link 
+                        href={`/template-builder?id=${template.id}`}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <Button variant="secondary" size="sm" className="shadow-md">
+                          <Pencil className="h-4 w-4 mr-1.5" />
+                          Edit
+                        </Button>
+                      </Link>
+                    </div>
                   </div>
 
-                  {/* Category tag */}
-                  <div className="absolute top-2 left-2 px-2 py-1 bg-white/90 rounded text-xs font-medium shadow-sm">
+                  {/* Category pill */}
+                  <div className="absolute top-3 left-3 px-2.5 py-1 bg-white shadow-sm rounded-full text-xs font-medium text-primary/90 backdrop-blur-sm">
                     {template.category || 'General'}
                   </div>
                   
                   {/* AI badge if applicable */}
                   {template.metadata?.generatedByAI && (
-                    <div className="absolute top-2 right-2 bg-blue-600 text-white rounded-full px-2 py-0.5 text-xs font-medium flex items-center shadow-sm">
-                      <Sparkles className="h-3 w-3 mr-1" /> AI
+                    <div className="absolute top-3 right-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-full px-2.5 py-1 text-xs font-medium flex items-center shadow-sm">
+                      <Sparkles className="h-3 w-3 mr-1.5" /> AI Generated
                     </div>
                   )}
                 </div>
                 
-                <CardHeader className="pb-2 pt-3">
-                  <div className="flex justify-between items-center">
-                    <div className="flex items-center">
-                      <CardTitle className="text-lg font-bold">{template.name}</CardTitle>
+                <CardHeader className="pb-1.5 pt-4">
+                  <div className="flex justify-between items-start gap-2">
+                    <div>
+                      <CardTitle className="text-lg font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
+                        {template.name}
+                      </CardTitle>
+                      <CardDescription className="line-clamp-2 mt-1 text-sm">
+                        {template.description}
+                      </CardDescription>
                     </div>
-                    <Badge variant="outline" className="text-xs">ID: {template.id}</Badge>
+                    <Badge variant="outline" className="text-xs text-gray-500 shrink-0">ID: {template.id}</Badge>
                   </div>
-                  <CardDescription className="line-clamp-2 mt-1">
-                    {template.description}
-                  </CardDescription>
                 </CardHeader>
                 
-                <CardContent className="py-2 flex-grow">
+                <CardContent className="py-1.5 flex-grow">
                   <div className="flex flex-col space-y-2">
                     <div className="flex items-start gap-1.5 text-sm text-muted-foreground">
-                      <span className="font-medium">Subject:</span>
+                      <span className="font-medium text-primary/80">Subject:</span>
                       <span className="line-clamp-2">{template.subject}</span>
                     </div>
                   </div>
                 </CardContent>
                 
-                <CardFooter className="pt-2 border-t flex justify-between">
-                  <Link href={`/campaigns?templateId=${template.id}`}>
+                <CardFooter className="pt-3 pb-4 border-t border-gray-100 flex justify-between">
+                  <Link href={`/campaigns?templateId=${template.id}`} className="flex-1 mr-2">
                     <Button 
                       variant="outline" 
                       size="sm"
-                      className="w-full"
+                      className="w-full border-primary/20 text-primary hover:bg-primary/5"
                     >
                       <Send className="h-4 w-4 mr-2" />
                       Use In Campaign
@@ -537,7 +561,7 @@ export default function Templates() {
                   <Button 
                     variant="ghost" 
                     size="sm"
-                    className="text-red-500 hover:text-red-700 hover:bg-red-50 ml-2"
+                    className="text-red-500 hover:text-red-700 hover:bg-red-50"
                     onClick={(e) => {
                       e.stopPropagation();
                       if (window.confirm(`Are you sure you want to delete ${template.name}?`)) {
@@ -555,76 +579,147 @@ export default function Templates() {
       </div>
       
       {selectedTemplate && (
-        <div>
-          <h2 className="text-xl font-semibold mb-4">Template Details</h2>
-          <Card className="border">
-            <CardHeader>
-              <div className="flex items-center">
-                <CardTitle>{selectedTemplate.name}</CardTitle>
-                {selectedTemplate.metadata?.generatedByAI && (
-                  <div className="ml-2 bg-blue-100 text-blue-700 rounded-full px-2 py-0.5 text-xs font-medium flex items-center">
-                    <Sparkles className="h-3 w-3 mr-1" /> AI Generated
+        <div className="mt-4">
+          <div className="flex items-center justify-between pb-4 border-b mb-6">
+            <h2 className="text-xl font-semibold flex items-center gap-1.5 text-primary">
+              <FileText className="h-5 w-5" />
+              Template Details
+            </h2>
+            <div className="flex items-center gap-2">
+              <Badge variant="outline" className="text-sm bg-blue-50 border-blue-200">ID: {selectedTemplate.id}</Badge>
+              {selectedTemplate.metadata?.generatedByAI && (
+                <Badge className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-sm flex items-center">
+                  <Sparkles className="h-3.5 w-3.5 mr-1.5" /> AI Generated
+                </Badge>
+              )}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+            <div className="md:col-span-2">
+              <Card className="border border-gray-100 shadow-sm rounded-xl overflow-hidden">
+                <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b">
+                  <div className="flex flex-col gap-2">
+                    <CardTitle className="text-xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
+                      {selectedTemplate.name}
+                    </CardTitle>
+                    <CardDescription className="text-base">
+                      {selectedTemplate.description}
+                    </CardDescription>
                   </div>
-                )}
-              </div>
-              <CardDescription>{selectedTemplate.description}</CardDescription>
-              <div className="flex items-center mt-2">
-                <Badge variant="outline" className="mr-2">Subject:</Badge>
-                <span className="text-sm">{selectedTemplate.subject || 'No subject'}</span>
-              </div>
-              <div className="flex items-center mt-2">
-                <Badge variant="outline" className="mr-2">Category:</Badge>
-                <span className="text-sm">{selectedTemplate.category || 'General'}</span>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="relative">
-                <div className="flex justify-between items-center bg-muted p-2 rounded-t-md">
-                  <span className="text-xs font-medium">Template HTML</span>
-                  <Button variant="ghost" size="sm" onClick={handleCopyHtmlCode}>
-                    <Copy className="h-4 w-4 mr-2" />
-                    Copy Code
-                  </Button>
-                </div>
-                <pre className="p-4 text-xs bg-zinc-950 text-zinc-100 overflow-auto rounded-b-md max-h-[400px]">
-                  <code>{selectedTemplate.content || 'No template content available.'}</code>
-                </pre>
-              </div>
-            </CardContent>
-            <CardFooter className="flex justify-between">
-              <div className="flex gap-2">
-                <Button variant="outline" onClick={handleCopyHtmlCode}>
-                  <Copy className="h-4 w-4 mr-2" />
-                  Copy HTML
-                </Button>
-                <Button 
-                  variant="secondary"
-                  onClick={() => window.open(`/preview-template?id=${selectedTemplate.id}`, '_blank')}
-                >
-                  <Eye className="h-4 w-4 mr-2" />
-                  Preview
-                </Button>
-              </div>
-              <div className="flex gap-2">
-                <Link href={`/template-builder?id=${selectedTemplate.id}`}>
-                  <Button>
-                    Edit Template
-                  </Button>
-                </Link>
-                <Button 
-                  variant="destructive"
-                  onClick={() => {
-                    if (window.confirm(`Are you sure you want to delete ${selectedTemplate.name}?`)) {
-                      deleteTemplateMutation.mutate(selectedTemplate.id);
-                    }
-                  }}
-                >
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  Delete Template
-                </Button>
-              </div>
-            </CardFooter>
-          </Card>
+                </CardHeader>
+                <CardContent className="p-5">
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="flex flex-col gap-1.5">
+                        <span className="text-sm font-medium text-primary">Subject Line</span>
+                        <div className="p-2 bg-blue-50/50 rounded-md text-sm">
+                          {selectedTemplate.subject || 'No subject'}
+                        </div>
+                      </div>
+                      <div className="flex flex-col gap-1.5">
+                        <span className="text-sm font-medium text-primary">Category</span>
+                        <div className="p-2 bg-blue-50/50 rounded-md text-sm">
+                          {selectedTemplate.category || 'General'}
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="relative mt-4">
+                      <div className="flex justify-between items-center bg-gradient-to-r from-gray-100 to-gray-50 p-3 rounded-t-md border border-gray-200">
+                        <span className="font-medium text-sm text-gray-700">Template HTML</span>
+                        <Button variant="ghost" size="sm" onClick={handleCopyHtmlCode} className="text-primary">
+                          <Copy className="h-4 w-4 mr-2" />
+                          Copy Code
+                        </Button>
+                      </div>
+                      <div className="border border-t-0 border-gray-200 rounded-b-md">
+                        <pre className="p-4 text-xs bg-zinc-950 text-zinc-100 overflow-auto max-h-[350px] rounded-b-md">
+                          <code>{selectedTemplate.content || 'No template content available.'}</code>
+                        </pre>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+            
+            <div className="flex flex-col gap-4">
+              <Card className="border border-gray-100 shadow-sm rounded-xl overflow-hidden">
+                <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 pb-3 pt-3 border-b">
+                  <CardTitle className="text-base font-semibold">Template Actions</CardTitle>
+                </CardHeader>
+                <CardContent className="p-4">
+                  <div className="space-y-3">
+                    <Button 
+                      className="w-full justify-start gap-2"
+                      onClick={() => window.open(`/preview-template?id=${selectedTemplate.id}`, '_blank')}
+                    >
+                      <Eye className="h-4 w-4" />
+                      Preview Template
+                    </Button>
+                    
+                    <Link href={`/template-builder?id=${selectedTemplate.id}`} className="w-full">
+                      <Button className="w-full justify-start gap-2">
+                        <Pencil className="h-4 w-4" />
+                        Edit Template
+                      </Button>
+                    </Link>
+                    
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start gap-2 border-primary/20"
+                      onClick={() => setIsTestEmailOpen(true)}
+                    >
+                      <Mail className="h-4 w-4" />
+                      Send Test Email
+                    </Button>
+                    
+                    <Link href={`/campaigns?templateId=${selectedTemplate.id}`} className="w-full">
+                      <Button 
+                        variant="outline" 
+                        className="w-full justify-start gap-2 border-primary/20"
+                      >
+                        <Send className="h-4 w-4" />
+                        Use In Campaign
+                      </Button>
+                    </Link>
+                    
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start gap-2 border-primary/20"
+                      onClick={handleCopyHtmlCode}
+                    >
+                      <Copy className="h-4 w-4" />
+                      Copy HTML Code
+                    </Button>
+                    
+                    <Button 
+                      variant="destructive"
+                      className="w-full justify-start gap-2 mt-4"
+                      onClick={() => {
+                        if (window.confirm(`Are you sure you want to delete ${selectedTemplate.name}?`)) {
+                          deleteTemplateMutation.mutate(selectedTemplate.id);
+                        }
+                      }}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      Delete Template
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Button
+                variant="outline"
+                className="gap-2 justify-center"
+                onClick={() => setSelectedTemplate(null)}
+              >
+                <XCircle className="h-4 w-4" />
+                Close Details
+              </Button>
+            </div>
+          </div>
         </div>
       )}
       
