@@ -445,23 +445,69 @@ export default function Templates() {
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredTemplates.map((template: Template) => (
               <Card 
                 key={template.id} 
-                className="flex flex-col h-full border hover:border-primary/30 hover:shadow-md transition-all"
+                className="flex flex-col h-full border hover:border-primary/30 hover:shadow-md transition-all group"
+                onClick={() => handleViewTemplate(template)}
               >
-                <CardHeader className="pb-2">
+                <div className="relative overflow-hidden h-[180px] rounded-t-lg border-b bg-slate-50">
+                  {/* Template preview thumbnail */}
+                  <div 
+                    className="absolute inset-0 flex items-center justify-center p-2 overflow-hidden" 
+                    style={{ backgroundColor: '#f8fafc' }}
+                  >
+                    <iframe 
+                      srcDoc={template.content}
+                      className="w-full h-full transform scale-[0.6] origin-top border shadow-md bg-white rounded"
+                      title={`Preview of ${template.name}`}
+                    />
+                  </div>
+                  
+                  {/* Quick action overlay */}
+                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
+                    <Button 
+                      variant="secondary" 
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        window.open(`/preview-template?id=${template.id}`, '_blank');
+                      }}
+                    >
+                      <Eye className="h-4 w-4 mr-2" />
+                      Preview
+                    </Button>
+                    <Link 
+                      href={`/template-builder?id=${template.id}`}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <Button variant="secondary" size="sm">
+                        <Pencil className="h-4 w-4 mr-2" />
+                        Edit
+                      </Button>
+                    </Link>
+                  </div>
+
+                  {/* Category tag */}
+                  <div className="absolute top-2 left-2 px-2 py-1 bg-white/90 rounded text-xs font-medium shadow-sm">
+                    {template.category || 'General'}
+                  </div>
+                  
+                  {/* AI badge if applicable */}
+                  {template.metadata?.generatedByAI && (
+                    <div className="absolute top-2 right-2 bg-blue-600 text-white rounded-full px-2 py-0.5 text-xs font-medium flex items-center shadow-sm">
+                      <Sparkles className="h-3 w-3 mr-1" /> AI
+                    </div>
+                  )}
+                </div>
+                
+                <CardHeader className="pb-2 pt-3">
                   <div className="flex justify-between items-center">
                     <div className="flex items-center">
-                      <CardTitle className="text-lg">{template.name}</CardTitle>
-                      {template.metadata?.generatedByAI && (
-                        <div className="ml-2 bg-blue-100 text-blue-700 rounded-full px-2 py-0.5 text-[10px] font-medium flex items-center">
-                          <Sparkles className="h-2.5 w-2.5 mr-1" /> AI
-                        </div>
-                      )}
+                      <CardTitle className="text-lg font-bold">{template.name}</CardTitle>
                     </div>
-                    <Badge variant="outline">ID: {template.id}</Badge>
+                    <Badge variant="outline" className="text-xs">ID: {template.id}</Badge>
                   </div>
                   <CardDescription className="line-clamp-2 mt-1">
                     {template.description}
@@ -474,50 +520,33 @@ export default function Templates() {
                       <span className="font-medium">Subject:</span>
                       <span className="line-clamp-2">{template.subject}</span>
                     </div>
-                    <div className="flex items-start gap-1.5 text-sm text-muted-foreground">
-                      <span className="font-medium">Category:</span>
-                      <span className="line-clamp-1">{template.category || 'General'}</span>
-                    </div>
                   </div>
                 </CardContent>
                 
                 <CardFooter className="pt-2 border-t flex justify-between">
-                  <div className="flex gap-2">
-                    <Link href={`/campaigns?templateId=${template.id}`}>
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                      >
-                        <Send className="h-4 w-4 mr-2" />
-                        Use Template
-                      </Button>
-                    </Link>
+                  <Link href={`/campaigns?templateId=${template.id}`}>
                     <Button 
-                      variant="ghost" 
+                      variant="outline" 
                       size="sm"
-                      onClick={() => window.open(`/preview-template?id=${template.id}`, '_blank')}
+                      className="w-full"
                     >
-                      <Eye className="h-4 w-4 mr-2" />
-                      Preview
+                      <Send className="h-4 w-4 mr-2" />
+                      Use In Campaign
                     </Button>
-                  </div>
-                  <div className="flex gap-2">
-                    <Link href={`/template-builder?id=${template.id}`}>
-                      <Button variant="ghost" size="sm">Edit</Button>
-                    </Link>
-                    <Button 
-                      variant="ghost" 
-                      size="sm"
-                      className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                      onClick={() => {
-                        if (window.confirm(`Are you sure you want to delete ${template.name}?`)) {
-                          deleteTemplateMutation.mutate(template.id);
-                        }
-                      }}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
+                  </Link>
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    className="text-red-500 hover:text-red-700 hover:bg-red-50 ml-2"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (window.confirm(`Are you sure you want to delete ${template.name}?`)) {
+                        deleteTemplateMutation.mutate(template.id);
+                      }
+                    }}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
                 </CardFooter>
               </Card>
             ))}
