@@ -75,7 +75,7 @@ const Navbar = ({
   };
 
   return (
-    <header className="sticky top-0 bg-white z-30 border-b border-gray-200 shadow-gold-sm">
+    <header className="sticky top-0 z-30 bg-gradient-to-r from-[#f5f0e1] to-[#f8f5ec] shadow-gold">
       <div className="px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Left side - Hamburger menu for mobile and logo */}
@@ -109,20 +109,20 @@ const Navbar = ({
           </div>
 
           {/* Center - Main navigation menu */}
-          <nav className="hidden md:flex items-center space-x-6">
-            <a href="/dashboard" className="flex items-center text-[#1a3a5f] hover:text-[#d4af37] font-medium text-sm px-2 py-1">
+          <nav className="hidden md:flex items-center space-x-8">
+            <a href="/dashboard" className="flex items-center font-medium text-sm py-3 px-4 border-b-2 border-transparent hover:border-[#d4af37] transition-all duration-200 bg-gradient-to-r from-[#1a3a5f] to-[#1a3a5f] bg-clip-text text-transparent hover:from-[#d4af37] hover:to-[#c19b2c]">
               Dashboard
             </a>
-            <a href="/campaigns" className="flex items-center text-[#1a3a5f] hover:text-[#d4af37] font-medium text-sm px-2 py-1">
+            <a href="/campaigns" className="flex items-center font-medium text-sm py-3 px-4 border-b-2 border-transparent hover:border-[#d4af37] transition-all duration-200 bg-gradient-to-r from-[#1a3a5f] to-[#1a3a5f] bg-clip-text text-transparent hover:from-[#d4af37] hover:to-[#c19b2c]">
               Campaigns
             </a>
-            <a href="/templates" className="flex items-center text-[#1a3a5f] hover:text-[#d4af37] font-medium text-sm px-2 py-1">
+            <a href="/templates" className="flex items-center font-medium text-sm py-3 px-4 border-b-2 border-transparent hover:border-[#d4af37] transition-all duration-200 bg-gradient-to-r from-[#1a3a5f] to-[#1a3a5f] bg-clip-text text-transparent hover:from-[#d4af37] hover:to-[#c19b2c]">
               Templates
             </a>
-            <a href="/contacts" className="flex items-center text-[#1a3a5f] hover:text-[#d4af37] font-medium text-sm px-2 py-1">
+            <a href="/contacts" className="flex items-center font-medium text-sm py-3 px-4 border-b-2 border-transparent hover:border-[#d4af37] transition-all duration-200 bg-gradient-to-r from-[#1a3a5f] to-[#1a3a5f] bg-clip-text text-transparent hover:from-[#d4af37] hover:to-[#c19b2c]">
               Contacts
             </a>
-            <a href="/analytics" className="flex items-center text-[#1a3a5f] hover:text-[#d4af37] font-medium text-sm px-2 py-1">
+            <a href="/analytics" className="flex items-center font-medium text-sm py-3 px-4 border-b-2 border-transparent hover:border-[#d4af37] transition-all duration-200 bg-gradient-to-r from-[#1a3a5f] to-[#1a3a5f] bg-clip-text text-transparent hover:from-[#d4af37] hover:to-[#c19b2c]">
               Analytics
             </a>
           </nav>
@@ -177,22 +177,22 @@ const Navbar = ({
             {/* Help button */}
             <div className="relative" ref={helpMenuRef}>
               <button 
-                className="p-1.5 rounded-full text-[#1a3a5f] hover:bg-gray-100"
+                className="p-1.5 rounded-full bg-gradient-to-r from-white to-[#f5f0e1] shadow-sm border border-[rgba(212,175,55,0.2)] text-[#1a3a5f] hover:text-[#d4af37] transition-all duration-200"
                 onClick={() => setShowHelpMenu(!showHelpMenu)}
               >
                 <HelpCircle size={20} />
               </button>
               
               {showHelpMenu && (
-                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-gold-lg border border-gray-100 z-20">
+                <div className="absolute right-0 mt-2 w-48 bg-gradient-to-b from-white to-[#f5f0e1] rounded-md shadow-gold-lg border border-[rgba(212,175,55,0.2)] z-20">
                   <div className="py-1">
-                    <a href="/support" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                    <a href="/support" className="block px-4 py-2 text-sm text-[#1a3a5f] hover:bg-white hover:text-[#d4af37] transition-colors duration-200">
                       Help Center
                     </a>
-                    <a href="/documentation" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                    <a href="/documentation" className="block px-4 py-2 text-sm text-[#1a3a5f] hover:bg-white hover:text-[#d4af37] transition-colors duration-200">
                       Documentation
                     </a>
-                    <a href="/contact" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                    <a href="/contact" className="block px-4 py-2 text-sm text-[#1a3a5f] hover:bg-white hover:text-[#d4af37] transition-colors duration-200">
                       Contact Support
                     </a>
                   </div>
@@ -203,11 +203,11 @@ const Navbar = ({
             {/* Notifications */}
             <div className="relative" ref={notificationsRef}>
               <button 
-                className="p-1.5 rounded-full text-[#1a3a5f] hover:bg-gray-100 relative"
+                className="p-1.5 rounded-full bg-gradient-to-r from-white to-[#f5f0e1] shadow-sm border border-[rgba(212,175,55,0.2)] text-[#1a3a5f] hover:text-[#d4af37] transition-all duration-200 relative"
                 onClick={() => setShowNotifications(!showNotifications)}
               >
                 <Bell size={20} />
-                <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500"></span>
+                <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-gradient-to-r from-red-500 to-red-600 border border-white"></span>
               </button>
               
               {showNotifications && (
