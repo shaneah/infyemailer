@@ -338,19 +338,66 @@ const EmailValidation = () => {
 
   return (
     <div className="container mx-auto py-8">
-      <h1 className="text-3xl font-bold mb-8">Email Validation & Cleaning</h1>
+      <div className="relative overflow-hidden bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-xl p-8 mb-8 shadow-lg">
+        <div className="absolute inset-0 bg-grid-white/10 [mask-image:linear-gradient(0deg,#fff2,transparent)] bg-fixed"></div>
+        <div className="relative">
+          <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">Email Validation & Cleaning</h1>
+          <p className="text-white/80 text-lg max-w-3xl">
+            Improve your email marketing effectiveness by validating and cleaning your email lists
+          </p>
+          <div className="flex flex-wrap gap-4 mt-4">
+            <div className="flex items-center text-white/90 text-sm">
+              <CheckCircle2 className="h-5 w-5 mr-2 text-emerald-300" />
+              <span>Remove invalid emails</span>
+            </div>
+            <div className="flex items-center text-white/90 text-sm">
+              <CheckCircle2 className="h-5 w-5 mr-2 text-emerald-300" />
+              <span>Detect and fix typos</span>
+            </div>
+            <div className="flex items-center text-white/90 text-sm">
+              <CheckCircle2 className="h-5 w-5 mr-2 text-emerald-300" />
+              <span>Identify disposable emails</span>
+            </div>
+            <div className="flex items-center text-white/90 text-sm">
+              <CheckCircle2 className="h-5 w-5 mr-2 text-emerald-300" />
+              <span>Boost deliverability rates</span>
+            </div>
+          </div>
+        </div>
+      </div>
       
       <Tabs defaultValue="single" className="mb-8">
         <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="single">Single Email Validation</TabsTrigger>
-          <TabsTrigger value="bulk">Bulk Email Validation</TabsTrigger>
+          <TabsTrigger value="single" className="data-[state=active]:bg-indigo-500 data-[state=active]:text-white">
+            <div className="flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M22 10.5V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v12c0 1.1.9 2 2 2h16a2 2 0 0 0 2-2v-7.5" />
+                <path d="m22 6-10 7L2 6" />
+              </svg>
+              Single Email Validation
+            </div>
+          </TabsTrigger>
+          <TabsTrigger value="bulk" className="data-[state=active]:bg-indigo-500 data-[state=active]:text-white">
+            <div className="flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M18 3a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3H6a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3V6a3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3h12a3 3 0 0 0 3-3 3 3 0 0 0-3-3z" />
+              </svg>
+              Bulk Email Validation
+            </div>
+          </TabsTrigger>
         </TabsList>
         
         <TabsContent value="single">
-          <Card>
-            <CardHeader>
-              <CardTitle>Validate Individual Email</CardTitle>
-              <CardDescription>
+          <Card className="border-0 shadow-lg overflow-hidden">
+            <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-50 border-b">
+              <CardTitle className="text-xl text-indigo-800 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-indigo-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M22 10.5V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v12c0 1.1.9 2 2 2h16a2 2 0 0 0 2-2v-7.5" />
+                  <path d="m22 6-10 7L2 6" />
+                </svg>
+                Validate Individual Email
+              </CardTitle>
+              <CardDescription className="text-indigo-600/70">
                 Check if an email address is valid, deliverable, and not disposable
               </CardDescription>
             </CardHeader>
@@ -365,12 +412,27 @@ const EmailValidation = () => {
                       value={singleEmail}
                       onChange={(e) => setSingleEmail(e.target.value)}
                     />
-                    <Button onClick={validateSingleEmail} disabled={isLoading}>
-                      {isLoading ? <RefreshCw className="h-4 w-4 animate-spin mr-2" /> : null}
+                    <Button 
+                      onClick={validateSingleEmail} 
+                      disabled={isLoading}
+                      className="bg-indigo-600 hover:bg-indigo-700 text-white"
+                    >
+                      {isLoading ? 
+                        <RefreshCw className="h-4 w-4 animate-spin mr-2" /> : 
+                        <CheckCircle2 className="h-4 w-4 mr-2" />
+                      }
                       Validate
                     </Button>
-                    <Button variant="outline" onClick={checkEmailHealth} disabled={isLoading}>
-                      {isLoading ? <RefreshCw className="h-4 w-4 animate-spin mr-2" /> : null}
+                    <Button 
+                      variant="outline" 
+                      onClick={checkEmailHealth} 
+                      disabled={isLoading}
+                      className="border-indigo-300 text-indigo-700 hover:bg-indigo-50"
+                    >
+                      {isLoading ? 
+                        <RefreshCw className="h-4 w-4 animate-spin mr-2" /> : 
+                        <AlertCircle className="h-4 w-4 mr-2" />
+                      }
                       Health Check
                     </Button>
                   </div>
@@ -456,11 +518,16 @@ const EmailValidation = () => {
         </TabsContent>
         
         <TabsContent value="bulk">
-          <Card>
-            <CardHeader>
-              <CardTitle>Bulk Email Validation</CardTitle>
-              <CardDescription>
-                Validate multiple email addresses at once
+          <Card className="border-0 shadow-lg overflow-hidden">
+            <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-50 border-b">
+              <CardTitle className="text-xl text-indigo-800 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-indigo-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M18 3a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3H6a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3V6a3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3h12a3 3 0 0 0 3-3 3 3 0 0 0-3-3z" />
+                </svg>
+                Bulk Email Validation
+              </CardTitle>
+              <CardDescription className="text-indigo-600/70">
+                Validate multiple email addresses at once, clean lists and fix typos
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -477,11 +544,22 @@ const EmailValidation = () => {
                 </div>
                 
                 <div className="flex flex-col sm:flex-row gap-2">
-                  <Button onClick={validateBulkEmails} disabled={isLoading} className="flex-1">
-                    {isLoading ? <RefreshCw className="h-4 w-4 animate-spin mr-2" /> : null}
+                  <Button 
+                    onClick={validateBulkEmails} 
+                    disabled={isLoading} 
+                    className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white"
+                  >
+                    {isLoading ? 
+                      <RefreshCw className="h-4 w-4 animate-spin mr-2" /> : 
+                      <CheckCircle2 className="h-4 w-4 mr-2" />
+                    }
                     Validate & Clean Emails
                   </Button>
-                  <Button variant="outline" onClick={handleImportEmails} className="flex-1">
+                  <Button 
+                    variant="outline" 
+                    onClick={handleImportEmails} 
+                    className="flex-1 border-indigo-300 text-indigo-700 hover:bg-indigo-50"
+                  >
                     <FileUp className="h-4 w-4 mr-2" />
                     Import Emails
                   </Button>
@@ -496,7 +574,7 @@ const EmailValidation = () => {
                     <>
                       <div className="flex w-full sm:w-auto">
                         <Select value={exportFormat} onValueChange={(value: any) => setExportFormat(value)}>
-                          <SelectTrigger className="w-[100px] rounded-r-none">
+                          <SelectTrigger className="w-[100px] rounded-r-none border-indigo-300">
                             <SelectValue placeholder="Format" />
                           </SelectTrigger>
                           <SelectContent>
@@ -505,7 +583,11 @@ const EmailValidation = () => {
                             <SelectItem value="json">JSON</SelectItem>
                           </SelectContent>
                         </Select>
-                        <Button variant="outline" onClick={downloadValidEmails} className="rounded-l-none flex-1">
+                        <Button 
+                          variant="outline" 
+                          onClick={downloadValidEmails} 
+                          className="rounded-l-none flex-1 border-indigo-300 text-indigo-700 hover:bg-indigo-50"
+                        >
                           <Download className="h-4 w-4 mr-2" />
                           Export Emails
                         </Button>
@@ -592,10 +674,24 @@ const EmailValidation = () => {
                       <div className="flex justify-between items-center">
                         <h3 className="text-lg font-medium">Validation Results</h3>
                         <div className="flex space-x-2">
-                          <Button variant="outline" size="sm" onClick={() => setShowDetailedReport(!showDetailedReport)}>
-                            {showDetailedReport ? "Hide Details" : "Show Details"}
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            onClick={() => setShowDetailedReport(!showDetailedReport)}
+                            className="border-indigo-300 text-indigo-700 hover:bg-indigo-50"
+                          >
+                            {showDetailedReport ? (
+                              <><ChevronUp className="h-4 w-4 mr-2" />Hide Details</>
+                            ) : (
+                              <><ChevronDown className="h-4 w-4 mr-2" />Show Details</>
+                            )}
                           </Button>
-                          <Button variant="outline" size="sm" onClick={downloadReport}>
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            onClick={downloadReport}
+                            className="border-indigo-300 text-indigo-700 hover:bg-indigo-50"
+                          >
                             <Upload className="h-4 w-4 mr-2" />
                             Export Report
                           </Button>
