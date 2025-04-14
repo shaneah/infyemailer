@@ -2,58 +2,44 @@ import { IStorage } from './storage';
 import { MemStorage } from './storage';
 import { isDatabaseAvailable } from './db';
 import { log } from './vite';
+import { DbStorage } from './dbStorage';
 
 // Create memory storage instance
 const memStorage = new MemStorage();
 
-// For database storage, dynamically import to avoid circular dependencies
-let dbStorage: IStorage | null = null;
-let lastStorageCheck = 0;
-const STORAGE_CHECK_INTERVAL = 60000; // 1 minute
+// Create database storage instance
+const dbStorage = new DbStorage();
 
 /**
  * Returns the appropriate storage instance based on database availability
- * Includes caching and periodic re-checks to handle database reconnection
  */
 export function getStorage(): IStorage {
-  const now = Date.now();
-  
-  // Should we try to reconnect to the database?
-  if (!dbStorage && lastStorageCheck > 0 && (now - lastStorageCheck) > STORAGE_CHECK_INTERVAL) {
-    log('Attempting to reconnect to database storage after timeout', 'storage');
-    // Reset the check time
-    lastStorageCheck = now;
-  }
-  
   if (isDatabaseAvailable) {
-    if (!dbStorage) {
-      try {
-        // Try to use database storage
-        const { dbStorage: storage } = require('./dbStorage');
-        if (storage && typeof storage.getClients === 'function') {
-          dbStorage = storage;
-          log('Successfully connected to PostgreSQL database storage', 'storage');
-        } else {
-          log('Database storage not properly initialized, falling back to memory storage', 'storage');
-          lastStorageCheck = now;
-          return memStorage;
-        }
-      } catch (error: any) {
-        log(`Error loading database storage: ${error?.message || 'Unknown error'}`, 'storage');
-        console.error('Detailed database storage error:', error);
-        lastStorageCheck = now;
-        return memStorage;
-      }
-    }
+    log('Using PostgreSQL database storage', 'storage');
     return dbStorage;
   } else {
-    if (lastStorageCheck === 0) {
-      log('Using in-memory storage (database unavailable)', 'storage');
-      lastStorageCheck = now;
-    }
+    log('Using in-memory storage (database unavailable)', 'storage');
     return memStorage;
   }
 }
 
-// Initialize the storage instance with proper type safety
-export const storageInstance: IStorage = getStorage();
+/**
+ * Helper function to switch storage at runtime
+ * This allows modules that have already imported storage to get the updated instance
+ */
+export function updateStorageReferences(): void {
+  // Use the imported storage object directly and modify its properties
+  import('./storage.js').then(storageModule => {
+    if (isDatabaseAvailable) {
+      // We can't reassign the exported const, but we can copy all properties
+      // from dbStorage to the existing storage object
+      Object.assign(storageModule.storage, dbStorage);
+      log('Storage references updated to use database storage', 'storage');
+    } else {
+      Object.assign(storageModule.storage, memStorage);
+      log('Storage references updated to use memory storage', 'storage');
+    }
+  }).catch(error => {
+    log(`Error updating storage references: ${error.message}`, 'storage');
+  });
+}

@@ -47,11 +47,17 @@ app.use((req, res, next) => {
   next();
 });
 
+// Import the updateStorageReferences function
+import { updateStorageReferences } from './storageManager';
+
 // Initialize the application
 (async () => {
   try {
     // Initialize database connection first
     await initDatabase();
+    
+    // Update storage references to use the appropriate storage implementation
+    updateStorageReferences();
     
     // Log storage mode after database initialization
     log(`Using ${isDatabaseAvailable ? 'PostgreSQL database' : 'memory storage'} for data operations`, 'server');

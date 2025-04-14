@@ -1,6 +1,7 @@
 import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
-import { storageInstance as storage } from "./storageManager"; // Use dynamic storage selection
+import { getStorage } from "./storageManager"; // Use dynamic storage selection
+const storage = getStorage();
 import { isDatabaseAvailable } from "./db"; // Check if database is available
 import { generateSubjectLines, generateEmailTemplate, generateColorPalette } from "./services/openai";
 import { setupAuth, hashPassword, comparePasswords } from "./auth";

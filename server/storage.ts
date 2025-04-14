@@ -2381,7 +2381,7 @@ export class MemStorage implements IStorage {
 // Create an instance of MemStorage for in-memory storage
 const memStorage = new MemStorage();
 
-// Always use memory storage for now (database connection issues)
-// This ensures the application works consistently regardless of database state
-console.log('Using memory storage for all operations');
+// Use dynamic storage selection based on database availability
+// Initialize with memory storage, but allow dynamic switching through storageManager
+// This avoids circular dependency issues
 export const storage = memStorage;
