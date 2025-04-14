@@ -25,6 +25,10 @@ import {
   PersonaBehavior, InsertPersonaBehavior,
   PersonaInsight, InsertPersonaInsight,
   AudienceSegment, InsertAudienceSegment,
+  Role, InsertRole,
+  Permission, InsertPermission,
+  UserRole, InsertUserRole,
+  RolePermission, InsertRolePermission,
   insertAudiencePersonaSchema,
   insertPersonaDemographicSchema,
   insertPersonaBehaviorSchema,
@@ -50,6 +54,35 @@ export interface IStorage {
   updateUser(id: number, user: Partial<User>): Promise<User | undefined>;
   deleteUser(id: number): Promise<boolean>;
   verifyUserLogin(usernameOrEmail: string, password: string): Promise<User | undefined>;
+  
+  // Role methods
+  getRoles(): Promise<Role[]>;
+  getRole(id: number): Promise<Role | undefined>;
+  createRole(role: InsertRole): Promise<Role>;
+  updateRole(id: number, role: Partial<Role>): Promise<Role | undefined>;
+  deleteRole(id: number): Promise<boolean>;
+  
+  // Permission methods
+  getPermissions(): Promise<Permission[]>;
+  getPermission(id: number): Promise<Permission | undefined>;
+  createPermission(permission: InsertPermission): Promise<Permission>;
+  updatePermission(id: number, permission: Partial<Permission>): Promise<Permission | undefined>;
+  deletePermission(id: number): Promise<boolean>;
+  
+  // User-Role methods
+  getUserRoles(): Promise<UserRole[]>;
+  getUserRolesByUserId(userId: number): Promise<Array<Role & { userRoleId: number }>>;
+  assignRoleToUser(userId: number, roleId: number): Promise<UserRole>;
+  removeRoleFromUser(userId: number, roleId: number): Promise<boolean>;
+  removeUserRoles(userId: number): Promise<boolean>;
+  removeRoleFromUsers(roleId: number): Promise<boolean>;
+  
+  // Role-Permission methods
+  getRolePermissions(): Promise<RolePermission[]>;
+  getRolePermissionsByRoleId(roleId: number): Promise<Array<Permission & { rolePermissionId: number }>>;
+  assignPermissionToRole(roleId: number, permissionId: number): Promise<RolePermission>;
+  removePermissionFromRole(roleId: number, permissionId: number): Promise<boolean>;
+  removeRolePermissions(roleId: number): Promise<boolean>;
 
   // Client methods
   getClients(): Promise<Client[]>;
@@ -283,6 +316,10 @@ export class MemStorage implements IStorage {
   private personaBehaviors: Map<number, PersonaBehavior>;
   private personaInsights: Map<number, PersonaInsight>;
   private audienceSegments: Map<number, AudienceSegment>;
+  private roles: Map<number, Role>;
+  private permissions: Map<number, Permission>;
+  private userRoles: Map<number, UserRole>;
+  private rolePermissions: Map<number, RolePermission>;
   private systemCredits: SystemCredits | undefined;
   private systemCreditsHistory: Map<number, SystemCreditsHistory>;
   private clientEmailCreditsHistory: Map<number, ClientEmailCreditsHistory>;
@@ -311,6 +348,10 @@ export class MemStorage implements IStorage {
   private personaBehaviorId: number;
   private personaInsightId: number;
   private audienceSegmentId: number;
+  private roleId: number;
+  private permissionId: number;
+  private userRoleId: number;
+  private rolePermissionId: number;
   private systemCreditsHistoryId: number;
   private clientEmailCreditsHistoryId: number;
 
@@ -345,6 +386,10 @@ export class MemStorage implements IStorage {
     this.personaBehaviors = new Map();
     this.personaInsights = new Map();
     this.audienceSegments = new Map();
+    this.roles = new Map();
+    this.permissions = new Map();
+    this.userRoles = new Map();
+    this.rolePermissions = new Map();
     this.systemCreditsHistory = new Map();
     this.clientEmailCreditsHistory = new Map();
     this.sessionStore = new MemoryStore({
@@ -374,6 +419,10 @@ export class MemStorage implements IStorage {
     this.personaBehaviorId = 1;
     this.personaInsightId = 1;
     this.audienceSegmentId = 1;
+    this.roleId = 1;
+    this.permissionId = 1;
+    this.userRoleId = 1;
+    this.rolePermissionId = 1;
     this.systemCreditsHistoryId = 1;
     this.clientEmailCreditsHistoryId = 1;
 
