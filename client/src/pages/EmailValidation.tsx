@@ -337,37 +337,37 @@ const EmailValidation = () => {
   };
 
   return (
-    <div className="container mx-auto py-8">
-      <div className="relative overflow-hidden rounded-xl p-8 mb-8 shadow-xl bg-[#1a3a5f]">
+    <div className="container mx-auto px-4 py-8">
+      <div className="relative overflow-hidden rounded-xl p-6 md:p-8 mb-8 shadow-xl bg-[#1a3a5f]">
         <div className="absolute inset-0 opacity-10" style={{ 
           backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.2'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")",
           backgroundSize: "30px 30px"
         }}></div>
-        <div className="relative">
-          <h1 className="text-3xl md:text-4xl font-bold mb-2 text-white">
+        <div className="relative z-10">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2 text-white">
             <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#f5f0e1] via-[#d4af37] to-[#f5f0e1]">
               Email Validation & Cleaning
             </span>
           </h1>
-          <p className="text-[#f5f0e1]/90 text-lg max-w-3xl mb-6">
+          <p className="text-[#f5f0e1]/90 text-base md:text-lg max-w-3xl mb-4 md:mb-6">
             Enhance your campaign performance with our premium email validation service
           </p>
-          <div className="grid md:grid-cols-2 gap-4 mt-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4 mt-4">
             <div className="flex items-center p-3 rounded-lg bg-[#1a3a5f]/50 backdrop-blur border border-[#d4af37]/30">
-              <CheckCircle2 className="h-5 w-5 mr-3 text-[#d4af37]" />
-              <span className="text-[#f5f0e1]">Remove invalid emails</span>
+              <CheckCircle2 className="h-4 w-4 md:h-5 md:w-5 mr-3 text-[#d4af37]" />
+              <span className="text-[#f5f0e1] text-sm md:text-base">Remove invalid emails</span>
             </div>
             <div className="flex items-center p-3 rounded-lg bg-[#1a3a5f]/50 backdrop-blur border border-[#d4af37]/30">
-              <CheckCircle2 className="h-5 w-5 mr-3 text-[#d4af37]" />
-              <span className="text-[#f5f0e1]">Detect and fix typos</span>
+              <CheckCircle2 className="h-4 w-4 md:h-5 md:w-5 mr-3 text-[#d4af37]" />
+              <span className="text-[#f5f0e1] text-sm md:text-base">Detect and fix typos</span>
             </div>
             <div className="flex items-center p-3 rounded-lg bg-[#1a3a5f]/50 backdrop-blur border border-[#d4af37]/30">
-              <CheckCircle2 className="h-5 w-5 mr-3 text-[#d4af37]" />
-              <span className="text-[#f5f0e1]">Identify disposable emails</span>
+              <CheckCircle2 className="h-4 w-4 md:h-5 md:w-5 mr-3 text-[#d4af37]" />
+              <span className="text-[#f5f0e1] text-sm md:text-base">Identify disposable emails</span>
             </div>
             <div className="flex items-center p-3 rounded-lg bg-[#1a3a5f]/50 backdrop-blur border border-[#d4af37]/30">
-              <CheckCircle2 className="h-5 w-5 mr-3 text-[#d4af37]" />
-              <span className="text-[#f5f0e1]">Boost deliverability rates</span>
+              <CheckCircle2 className="h-4 w-4 md:h-5 md:w-5 mr-3 text-[#d4af37]" />
+              <span className="text-[#f5f0e1] text-sm md:text-base">Boost deliverability rates</span>
             </div>
           </div>
         </div>
@@ -422,7 +422,7 @@ const EmailValidation = () => {
                     <Button 
                       onClick={validateSingleEmail} 
                       disabled={isLoading}
-                      className="bg-indigo-600 hover:bg-indigo-700 text-white"
+                      className="bg-[#1a3a5f] hover:bg-[#1a3a5f]/90 text-white border border-[#d4af37]/30"
                     >
                       {isLoading ? 
                         <RefreshCw className="h-4 w-4 animate-spin mr-2" /> : 
@@ -434,11 +434,11 @@ const EmailValidation = () => {
                       variant="outline" 
                       onClick={checkEmailHealth} 
                       disabled={isLoading}
-                      className="border-indigo-300 text-indigo-700 hover:bg-indigo-50"
+                      className="border-[#d4af37]/40 text-[#1a3a5f] hover:bg-[#f5f0e1]"
                     >
                       {isLoading ? 
                         <RefreshCw className="h-4 w-4 animate-spin mr-2" /> : 
-                        <AlertCircle className="h-4 w-4 mr-2" />
+                        <AlertCircle className="h-4 w-4 mr-2 text-[#d4af37]" />
                       }
                       Health Check
                     </Button>
@@ -500,14 +500,15 @@ const EmailValidation = () => {
                       </div>
                       
                       {singleHealthResult.suggestedFix && (
-                        <div className="mt-4 p-3 bg-blue-50 text-blue-800 rounded">
-                          <p><strong>Suggestion:</strong> Did you mean {singleHealthResult.suggestedFix}?</p>
+                        <div className="mt-4 p-3 bg-[#f5f0e1]/70 text-[#1a3a5f] rounded border border-[#d4af37]/30">
+                          <p><strong>Suggestion:</strong> Did you mean <span className="text-[#d4af37] font-semibold">{singleHealthResult.suggestedFix}</span>?</p>
                           <Button 
                             variant="outline" 
                             size="sm" 
-                            className="mt-2"
+                            className="mt-2 border-[#d4af37]/40 text-[#1a3a5f] hover:bg-[#f5f0e1]"
                             onClick={() => setSingleEmail(singleHealthResult.suggestedFix || '')}
                           >
+                            <Sparkles className="h-4 w-4 mr-2 text-[#d4af37]" />
                             Apply Suggestion
                           </Button>
                         </div>
@@ -611,8 +612,7 @@ const EmailValidation = () => {
                     </div>
                     <Progress 
                       value={(processingStatus.current / processingStatus.total) * 100} 
-                      className="bg-[#f5f0e1]"
-                      indicatorClassName="bg-[#1a3a5f]"
+                      className="bg-[#f5f0e1] [&>div]:bg-[#1a3a5f]"
                     />
                   </div>
                 )}
@@ -678,19 +678,20 @@ const EmailValidation = () => {
                     </div>
                     
                     {bulkAnalysisResult.suggestedFixes.length > 0 && (
-                      <Alert className="bg-blue-50 border-blue-200">
-                        <AlertCircle className="h-5 w-5 text-blue-600" />
-                        <AlertTitle className="text-blue-800">
+                      <Alert className="bg-[#f5f0e1]/80 border-[#d4af37]/30">
+                        <Sparkles className="h-5 w-5 text-[#d4af37]" />
+                        <AlertTitle className="text-[#1a3a5f] font-medium">
                           Found {bulkAnalysisResult.suggestedFixes.length} emails with possible typos
                         </AlertTitle>
-                        <AlertDescription className="text-blue-700">
+                        <AlertDescription className="text-[#1a3a5f]/80">
                           <p>We detected some common email typos that can be automatically fixed.</p>
                           <Button 
                             variant="outline"
                             size="sm" 
-                            className="mt-2 border-blue-300 hover:bg-blue-100"
+                            className="mt-2 border-[#d4af37]/40 text-[#1a3a5f] hover:bg-[#f5f0e1] flex items-center"
                             onClick={handleFixSuggestions}
                           >
+                            <Wand2 className="h-4 w-4 mr-2 text-[#d4af37]" />
                             Apply All Suggestions
                           </Button>
                         </AlertDescription>
@@ -756,7 +757,7 @@ const EmailValidation = () => {
                                   {bulkAnalysisResult.invalidEmails.map((item, index) => (
                                     <li key={index} className="text-sm">
                                       <span className="font-mono text-[#1a3a5f]">{item.email}</span>
-                                      <Badge variant="outline" className="ml-2 text-xs border-red-300 text-red-700 bg-red-50">
+                                      <Badge variant="outline" className="ml-2 text-xs border-[#1a3a5f]/30 text-[#1a3a5f] bg-[#f5f0e1]/70">
                                         {item.reason}
                                       </Badge>
                                     </li>
