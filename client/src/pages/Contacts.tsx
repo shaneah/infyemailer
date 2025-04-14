@@ -59,7 +59,8 @@ import {
   CheckCircle,
   Trash2,
   Users,
-  X
+  X,
+  Search
 } from "lucide-react";
 
 // Contact Row Component
@@ -85,39 +86,62 @@ function ContactTableRow({ contact, onUpdate, onDelete, isSelected, onSelect }: 
     }
   });
   
+  // Format the date for better display
+  const formattedDate = contact.addedOn ? new Date(contact.addedOn).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric'
+  }) : '-';
+  
   return (
-    <TableRow className={isSelected ? "bg-muted/50" : undefined}>
-      <TableCell className="w-[40px]">
+    <TableRow className={isSelected ? "bg-blue-50/40 hover:bg-blue-50/60" : "hover:bg-gray-50"}>
+      <TableCell className="w-[40px] py-3">
         <Checkbox 
           checked={isSelected}
           onCheckedChange={(checked) => onSelect(checked as boolean)}
           aria-label={`Select ${contact.email}`}
+          className="rounded-sm border-muted-foreground/30"
         />
       </TableCell>
-      <TableCell>{contact.name || '-'}</TableCell>
-      <TableCell className="font-medium">{contact.email}</TableCell>
-      <TableCell>
+      <TableCell className="py-3">
+        <div className="flex items-center gap-2">
+          <div className="flex-shrink-0 h-8 w-8 bg-primary/10 rounded-full flex items-center justify-center text-primary">
+            {contact.name ? contact.name.charAt(0).toUpperCase() : 
+             contact.email ? contact.email.charAt(0).toUpperCase() : 'U'}
+          </div>
+          <div>
+            <p className="font-medium text-gray-800">{contact.name || '-'}</p>
+          </div>
+        </div>
+      </TableCell>
+      <TableCell className="py-3 text-gray-600">{contact.email}</TableCell>
+      <TableCell className="py-3">
         {contact.status?.label ? (
-          <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-            contact.status.color === 'success' ? 'bg-green-100 text-green-800' :
-            contact.status.color === 'warning' ? 'bg-yellow-100 text-yellow-800' :
-            contact.status.color === 'danger' ? 'bg-red-100 text-red-800' :
-            'bg-blue-100 text-blue-800'
+          <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ${
+            contact.status.color === 'success' ? 'bg-green-50 text-green-700 border border-green-200' :
+            contact.status.color === 'warning' ? 'bg-yellow-50 text-yellow-700 border border-yellow-200' :
+            contact.status.color === 'danger' ? 'bg-red-50 text-red-700 border border-red-200' :
+            'bg-blue-50 text-blue-700 border border-blue-200'
           }`}>
+            <span className={`mr-1.5 h-1.5 w-1.5 rounded-full ${
+              contact.status.color === 'success' ? 'bg-green-500' :
+              contact.status.color === 'warning' ? 'bg-yellow-500' :
+              contact.status.color === 'danger' ? 'bg-red-500' :
+              'bg-blue-500'
+            }`}></span>
             {contact.status.label}
           </span>
         ) : '-'}
       </TableCell>
-      <TableCell>
+      <TableCell className="py-3">
         <div className="flex flex-wrap gap-1">
           {contact.lists?.length ? 
             contact.lists.map((list: any) => (
               <a 
                 key={list.id} 
                 href={`/lists/${list.id}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium hover:bg-muted transition-colors"
+                className="inline-flex items-center rounded-full bg-gray-50 border border-gray-200 
+                           px-2.5 py-0.5 text-xs font-medium text-gray-700 hover:bg-gray-100 transition-colors"
               >
                 {list.name}
               </a>
@@ -126,16 +150,16 @@ function ContactTableRow({ contact, onUpdate, onDelete, isSelected, onSelect }: 
           }
         </div>
       </TableCell>
-      <TableCell>
-        {contact.addedOn || '-'}
+      <TableCell className="py-3 text-sm text-gray-600">
+        {formattedDate}
       </TableCell>
-      <TableCell className="text-right">
-        <div className="flex justify-end">
+      <TableCell className="text-right py-3">
+        <div className="flex justify-end space-x-1">
           {/* Edit Dialog */}
           <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
             <DialogTrigger asChild>
-              <Button variant="ghost" size="icon">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-pencil">
+              <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-500 hover:text-gray-700">
+                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-pencil">
                   <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
                   <path d="m15 5 4 4"/>
                 </svg>
@@ -1321,13 +1345,16 @@ export default function Contacts() {
         </div>
       </div>
 
-      <Card className="mb-4">
-        <CardHeader>
+      <Card className="mb-6 border-0 shadow-md bg-gradient-to-br from-white to-gray-50">
+        <CardHeader className="border-b pb-4">
           <div className="flex justify-between items-center">
-            <h5 className="text-lg font-medium">Contact Lists</h5>
+            <div>
+              <h5 className="text-lg font-semibold text-gray-800">Contact Lists</h5>
+              <p className="text-sm text-muted-foreground">Organize your contacts into targeted groups</p>
+            </div>
             <Dialog open={listDialogOpen} onOpenChange={setListDialogOpen}>
               <DialogTrigger asChild>
-                <Button size="sm" className="flex items-center gap-2" onClick={() => setListDialogOpen(true)}>
+                <Button size="sm" className="flex items-center gap-2 bg-primary hover:bg-primary/90" onClick={() => setListDialogOpen(true)}>
                   <Plus size={16} />
                   New List
                 </Button>
@@ -1444,31 +1471,35 @@ export default function Contacts() {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
+      <Card className="border-0 shadow-md">
+        <CardHeader className="border-b pb-4">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <div className="flex items-center gap-2">
-              <h5 className="text-lg font-medium">All Contacts</h5>
+            <div>
+              <h5 className="text-lg font-semibold text-gray-800">Contact Database</h5>
+              <p className="text-sm text-muted-foreground">Manage and organize your audience</p>
+            </div>
+            <div className="flex flex-wrap gap-3 w-full md:w-auto md:flex-row">
               {selectedContacts.length > 0 && (
                 <Button 
                   variant="destructive" 
                   size="sm" 
                   onClick={() => setBulkDeleteDialogOpen(true)}
-                  className="ml-2"
+                  className="flex-shrink-0 border-red-200 bg-red-50 hover:bg-red-100 text-red-600"
                 >
                   <Trash2 size={16} className="mr-2" />
                   Delete Selected ({selectedContacts.length})
                 </Button>
               )}
-            </div>
-            <div className="flex gap-2 w-full md:w-auto flex-col md:flex-row">
-              <Input 
-                type="search" 
-                placeholder="Search contacts..." 
-                className="max-w-64"
-              />
+              <div className="relative flex-grow md:flex-grow-0">
+                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
+                <Input 
+                  type="search" 
+                  placeholder="Search contacts..." 
+                  className="pl-8 max-w-64 border-muted-foreground/20 focus-visible:ring-primary/30"
+                />
+              </div>
               <Select defaultValue="all">
-                <SelectTrigger className="w-[180px]">
+                <SelectTrigger className="w-[180px] border-muted-foreground/20">
                   <SelectValue placeholder="Filter by status" />
                 </SelectTrigger>
                 <SelectContent>
@@ -1482,11 +1513,11 @@ export default function Contacts() {
             </div>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-0">
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead className="w-[40px]">
+              <TableRow className="bg-muted/40 hover:bg-muted/40">
+                <TableHead className="w-[40px] h-10">
                   <Checkbox 
                     checked={selectAll}
                     onCheckedChange={(checked) => {
@@ -1503,12 +1534,12 @@ export default function Contacts() {
                     aria-label="Select all contacts"
                   />
                 </TableHead>
-                <TableHead>Name</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Lists</TableHead>
-                <TableHead>Added On</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead className="font-medium">Name</TableHead>
+                <TableHead className="font-medium">Email</TableHead>
+                <TableHead className="font-medium">Status</TableHead>
+                <TableHead className="font-medium">Lists</TableHead>
+                <TableHead className="font-medium">Added On</TableHead>
+                <TableHead className="text-right font-medium">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
