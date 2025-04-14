@@ -777,9 +777,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Check if the contact already exists
       const existing = await storage.getContactByEmail(validatedData.email);
       if (existing) {
-        return res.status(400).json({ error: 'A contact with this email already exists' });
+        // Option 1: You can either return an error with additional info
+        return res.status(400).json({ 
+          error: 'A contact with this email already exists',
+          contactId: existing.id,
+          contact: existing
+        });
+        
+        // Option 2: Auto-update the existing contact (commented out)
+        /*
+        // Update existing contact
+        const updatedContact = await storage.updateContact(existing.id, {
+          name: validatedData.name,
+          // Any other fields to update
+        });
+        
+        // Add to list if specified
+        if (req.body.list) {
+          const listId = parseInt(req.body.list);
+          await storage.addContactToList({ contactId: existing.id, listId });
+        }
+        
+        return res.status(200).json({
+          ...updatedContact,
+          message: 'Contact already existed and was updated'
+        });
+        */
       }
 
+      console.log('Creating new contact:', validatedData);
       const contact = await storage.createContact(validatedData);
       
       // If a list is specified, add the contact to it
@@ -790,6 +816,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       res.status(201).json(contact);
     } catch (error) {
+      console.error('Error creating contact:', error);
       res.status(500).json({ error: 'Failed to create contact' });
     }
   });
