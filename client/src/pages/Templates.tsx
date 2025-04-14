@@ -1256,65 +1256,87 @@ export default function Templates() {
 
       {/* Create Template Dialog */}
       <Dialog open={isCreatingTemplate} onOpenChange={setIsCreatingTemplate}>
-        <DialogContent className="sm:max-w-[900px] p-0 max-h-[90vh] overflow-hidden rounded-xl">
+        <DialogContent className="sm:max-w-[1100px] p-0 max-h-[92vh] overflow-hidden rounded-xl">
           <div className="flex h-full">
-            {/* Left sidebar with luxury gradient */}
-            <div className="bg-gradient-to-b from-[#09152E] via-[#1a3a5f] to-[#09152E] w-64 p-6 text-white hidden md:block">
-              <div className="h-full flex flex-col">
+            {/* Left sidebar with ultra-luxury gradient */}
+            <div className="bg-[#09152E] relative w-64 p-0 text-white hidden md:block overflow-hidden">
+              {/* Decorative elements */}
+              <div className="absolute inset-0 overflow-hidden">
+                <div className="absolute w-[500px] h-[500px] -top-[250px] -left-[250px] rounded-full bg-gradient-to-r from-[#1a3a5f]/20 to-transparent"></div>
+                <div className="absolute w-[300px] h-[300px] top-[40%] -right-[150px] rounded-full bg-gradient-to-l from-[#1a3a5f]/30 to-transparent"></div>
+                <div className="absolute w-[200px] h-full top-0 left-0 bg-gradient-to-r from-[#d4af37]/5 to-transparent"></div>
+                <div className="absolute h-px w-full top-[30%] bg-gradient-to-r from-transparent via-[#d4af37]/20 to-transparent"></div>
+                <div className="absolute h-px w-full top-[60%] bg-gradient-to-r from-transparent via-[#d4af37]/10 to-transparent"></div>
+              </div>
+
+              {/* Content */}
+              <div className="relative z-10 h-full flex flex-col p-6">
                 <h3 className="text-xl font-bold mb-6 flex items-center bg-gradient-to-r from-white via-[#d4af37] to-white bg-clip-text text-transparent">
                   <FileText className="mr-2 h-5 w-5 text-[#d4af37]" />
                   New Template
                 </h3>
                 
-                <div className="space-y-8 flex-1">
+                <div className="space-y-10 flex-1">
                   <div className="relative pl-8 border-l border-[#d4af37]/30">
-                    <div className="absolute left-[-8px] top-0 w-4 h-4 rounded-full bg-[#d4af37] flex items-center justify-center text-[#09152E] font-bold text-xs">1</div>
+                    <div className="absolute left-[-12px] top-0 w-6 h-6 rounded-full bg-gradient-to-r from-[#d4af37] to-[#ebd889] flex items-center justify-center text-[#09152E] font-bold text-xs shadow-[0_0_15px_rgba(212,175,55,0.5)]">1</div>
                     <h4 className="text-sm font-semibold mb-1 text-[#d4af37]">TEMPLATE DETAILS</h4>
                     <p className="text-sm text-white/80">Name your template and choose a category</p>
                   </div>
                   
                   <div className="relative pl-8 border-l border-[#d4af37]/30">
-                    <div className="absolute left-[-8px] top-0 w-4 h-4 rounded-full bg-[#d4af37] flex items-center justify-center text-[#09152E] font-bold text-xs">2</div>
+                    <div className="absolute left-[-12px] top-0 w-6 h-6 rounded-full bg-gradient-to-r from-[#d4af37] to-[#ebd889] flex items-center justify-center text-[#09152E] font-bold text-xs shadow-[0_0_15px_rgba(212,175,55,0.5)]">2</div>
                     <h4 className="text-sm font-semibold mb-1 text-[#d4af37]">EMAIL SUBJECT</h4>
                     <p className="text-sm text-white/80">Create a compelling subject line to boost open rates</p>
                   </div>
                   
                   <div className="relative pl-8 border-l border-white/10">
-                    <div className="absolute left-[-8px] top-0 w-4 h-4 rounded-full bg-[#d4af37] flex items-center justify-center text-[#09152E] font-bold text-xs">3</div>
+                    <div className="absolute left-[-12px] top-0 w-6 h-6 rounded-full bg-gradient-to-r from-[#d4af37] to-[#ebd889] flex items-center justify-center text-[#09152E] font-bold text-xs shadow-[0_0_15px_rgba(212,175,55,0.5)]">3</div>
                     <h4 className="text-sm font-semibold mb-1 text-[#d4af37]">HTML CONTENT</h4>
                     <p className="text-sm text-white/80">Add your email design and content</p>
                   </div>
                 </div>
                 
-                <div className="mt-auto pt-6 border-t border-[#d4af37]/20">
-                  <div className="bg-[#d4af37]/10 p-3 rounded border border-[#d4af37]/20">
-                    <p className="text-xs text-white/90">
-                      <Sparkles className="h-3 w-3 text-[#d4af37] inline mr-1" />
-                      Need inspiration? Try our AI Template Generator for professionally designed templates.
-                    </p>
-                    <Button 
-                      className="w-full mt-2 text-xs h-8 bg-[#d4af37] hover:bg-[#c4a030] text-[#09152E]"
-                      onClick={() => {
-                        setIsCreatingTemplate(false);
-                        setShowAIGenerator(true);
-                      }}
-                    >
-                      <Wand2 className="h-3 w-3 mr-1" />
-                      AI Template Generator
-                    </Button>
+                <div className="mt-auto">
+                  <div className="mt-6 pt-6 border-t border-[#d4af37]/20">
+                    <div className="bg-gradient-to-r from-[#0c1b3a] to-[#1a3a5f] p-4 rounded-lg border border-[#d4af37]/20 shadow-inner">
+                      <p className="text-sm text-white/90 mb-2 font-medium">
+                        <Sparkles className="h-4 w-4 text-[#d4af37] inline mr-1" />
+                        Template Creation Options
+                      </p>
+                      <div className="space-y-2">
+                        <Button 
+                          className="w-full text-xs h-9 bg-gradient-to-r from-[#d4af37] to-[#ebd889] hover:from-[#c4a030] hover:to-[#d9c77a] text-[#09152E] font-semibold shadow-md"
+                          onClick={() => {
+                            setIsCreatingTemplate(false);
+                            setShowAIGenerator(true);
+                          }}
+                        >
+                          <Wand2 className="h-3.5 w-3.5 mr-1.5" />
+                          AI Template Generator
+                        </Button>
+                        <Button 
+                          className="w-full text-xs h-9 bg-gradient-to-r from-[#1a3a5f] to-[#2a4a6f] hover:from-[#2a4a6f] hover:to-[#3a5a7f] text-white border border-[#d4af37]/30"
+                          onClick={() => window.open('/template-builder', '_blank')}
+                        >
+                          <Pencil className="h-3.5 w-3.5 mr-1.5" />
+                          Visual Template Builder
+                        </Button>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
             
             {/* Main content */}
-            <div className="flex-1 max-h-[90vh] overflow-y-auto bg-gradient-to-b from-[#f5f0e1]/50 to-white">
-              <div className="sticky top-0 z-10 bg-white p-6 border-b shadow-sm">
-                <div className="flex justify-between items-center">
+            <div className="flex-1 max-h-[92vh] overflow-y-auto bg-white">
+              <div className="sticky top-0 z-20 bg-white shadow-md">
+                <div className="h-1.5 w-full bg-gradient-to-r from-[#09152E] via-[#1a3a5f] to-[#09152E]"></div>
+                <div className="p-6 flex justify-between items-center">
                   <div>
-                    <h2 className="text-xl font-bold text-[#1a3a5f]">Create New Template</h2>
+                    <h2 className="text-2xl font-bold bg-gradient-to-r from-[#1a3a5f] to-[#09152E] bg-clip-text text-transparent">Create New Template</h2>
                     <p className="text-sm text-[#1a3a5f]/70">
-                      Design a professional template for your email campaigns
+                      Design a professional template for your email marketing campaigns
                     </p>
                   </div>
                   <Button 
@@ -1328,30 +1350,34 @@ export default function Templates() {
                 </div>
               </div>
               
-              <div className="p-6">
+              <div className="p-6 bg-gradient-to-b from-[#f5f0e1]/30 to-white">
                 <Form {...updateTemplateForm}>
                   <form 
                     onSubmit={updateTemplateForm.handleSubmit(handleCreateTemplate)} 
                     className="space-y-6"
                   >
                     <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-                      <h3 className="text-[#1a3a5f] font-medium mb-4 flex items-center border-b pb-2">
-                        <span className="bg-[#1a3a5f] text-white w-5 h-5 rounded-full flex items-center justify-center text-xs mr-2 font-bold">1</span>
-                        Template Details
+                      <h3 className="flex items-center mb-4">
+                        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-r from-[#1a3a5f] to-[#09152E] text-white font-semibold text-sm mr-3 shadow-md">1</div>
+                        <span className="text-lg font-semibold text-[#1a3a5f] border-b-2 border-[#d4af37]/50 pb-1">Template Details</span>
                       </h3>
+                      
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <FormField
                           control={updateTemplateForm.control}
                           name="name"
                           render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="text-[#1a3a5f]">Template Name</FormLabel>
+                            <FormItem className="space-y-1.5">
+                              <FormLabel className="text-[#1a3a5f] font-medium">Template Name</FormLabel>
                               <FormControl>
-                                <Input 
-                                  {...field} 
-                                  placeholder="e.g. Monthly Newsletter" 
-                                  className="border-[#1a3a5f]/20 focus-visible:ring-[#1a3a5f]/30"
-                                />
+                                <div className="relative">
+                                  <Input 
+                                    {...field} 
+                                    placeholder="e.g. Monthly Newsletter" 
+                                    className="border-[#1a3a5f]/20 focus-visible:ring-[#1a3a5f]/30 pl-9 py-5"
+                                  />
+                                  <FileText className="h-4 w-4 text-[#1a3a5f]/60 absolute left-3 top-1/2 transform -translate-y-1/2" />
+                                </div>
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -1362,21 +1388,46 @@ export default function Templates() {
                           control={updateTemplateForm.control}
                           name="category"
                           render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="text-[#1a3a5f]">Category</FormLabel>
+                            <FormItem className="space-y-1.5">
+                              <FormLabel className="text-[#1a3a5f] font-medium">Category</FormLabel>
                               <Select
                                 value={field.value}
                                 onValueChange={field.onChange}
                               >
-                                <SelectTrigger className="w-full border-[#1a3a5f]/20 focus:ring-[#1a3a5f]/30">
+                                <SelectTrigger className="w-full border-[#1a3a5f]/20 focus:ring-[#1a3a5f]/30 py-5">
                                   <SelectValue placeholder="Select a category" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                  <SelectItem value="general">General</SelectItem>
-                                  <SelectItem value="promotional">Promotional</SelectItem>
-                                  <SelectItem value="newsletter">Newsletter</SelectItem>
-                                  <SelectItem value="welcome">Welcome</SelectItem>
-                                  <SelectItem value="transactional">Transactional</SelectItem>
+                                  <SelectItem value="general">
+                                    <div className="flex items-center">
+                                      <div className="w-2 h-2 rounded-full bg-blue-500 mr-2"></div>
+                                      General
+                                    </div>
+                                  </SelectItem>
+                                  <SelectItem value="promotional">
+                                    <div className="flex items-center">
+                                      <div className="w-2 h-2 rounded-full bg-purple-500 mr-2"></div>
+                                      Promotional
+                                    </div>
+                                  </SelectItem>
+                                  <SelectItem value="newsletter">
+                                    <div className="flex items-center">
+                                      <div className="w-2 h-2 rounded-full bg-green-500 mr-2"></div>
+                                      Newsletter
+                                    </div>
+                                  </SelectItem>
+                                  <SelectItem value="welcome">
+                                    <div className="flex items-center">
+                                      <div className="w-2 h-2 rounded-full bg-amber-500 mr-2"></div>
+                                      Welcome
+                                    </div>
+                                  </SelectItem>
+                                  <SelectItem value="transactional">
+                                    <div className="flex items-center">
+                                      <div className="w-2 h-2 rounded-full bg-red-500 mr-2"></div>
+                                      Transactional
+                                    </div>
+                                  </SelectItem>
                                 </SelectContent>
                               </Select>
                               <FormMessage />
@@ -1389,14 +1440,19 @@ export default function Templates() {
                         control={updateTemplateForm.control}
                         name="description"
                         render={({ field }) => (
-                          <FormItem className="mt-4">
-                            <FormLabel className="text-[#1a3a5f]">Description</FormLabel>
+                          <FormItem className="mt-4 space-y-1.5">
+                            <FormLabel className="text-[#1a3a5f] font-medium">Description</FormLabel>
                             <FormControl>
-                              <Input 
-                                {...field} 
-                                placeholder="A brief description of this template" 
-                                className="border-[#1a3a5f]/20 focus-visible:ring-[#1a3a5f]/30"
-                              />
+                              <div className="relative">
+                                <Input 
+                                  {...field} 
+                                  placeholder="A brief description of this template" 
+                                  className="border-[#1a3a5f]/20 focus-visible:ring-[#1a3a5f]/30 pl-9 py-5"
+                                />
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-[#1a3a5f]/60 absolute left-3 top-1/2 transform -translate-y-1/2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h7" />
+                                </svg>
+                              </div>
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -1405,30 +1461,45 @@ export default function Templates() {
                     </div>
 
                     <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-                      <h3 className="text-[#1a3a5f] font-medium mb-4 flex items-center border-b pb-2">
-                        <span className="bg-[#1a3a5f] text-white w-5 h-5 rounded-full flex items-center justify-center text-xs mr-2 font-bold">2</span>
-                        Email Subject
+                      <h3 className="flex items-center mb-4">
+                        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-r from-[#1a3a5f] to-[#09152E] text-white font-semibold text-sm mr-3 shadow-md">2</div>
+                        <span className="text-lg font-semibold text-[#1a3a5f] border-b-2 border-[#d4af37]/50 pb-1">Email Subject</span>
                       </h3>
                       
                       <FormField
                         control={updateTemplateForm.control}
                         name="subject"
                         render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="flex items-center text-[#1a3a5f]">
+                          <FormItem className="space-y-1.5">
+                            <FormLabel className="flex items-center text-[#1a3a5f] font-medium">
                               <Mail className="h-4 w-4 mr-2 text-[#1a3a5f]" />
                               Subject Line
                             </FormLabel>
                             <FormControl>
-                              <Input 
-                                {...field} 
-                                placeholder="e.g. Your Monthly Update from Company" 
-                                className="border-[#1a3a5f]/20 focus-visible:ring-[#1a3a5f]/30"
-                              />
+                              <div className="relative">
+                                <Input 
+                                  {...field} 
+                                  placeholder="e.g. Your Monthly Update from Company" 
+                                  className="border-[#1a3a5f]/20 focus-visible:ring-[#1a3a5f]/30 pl-9 py-5"
+                                />
+                                <Mail className="h-4 w-4 text-[#1a3a5f]/60 absolute left-3 top-1/2 transform -translate-y-1/2" />
+                              </div>
                             </FormControl>
-                            <FormDescription>
-                              This is what recipients will see in their inbox
-                            </FormDescription>
+                            <div className="mt-2 bg-blue-50 border border-blue-100 rounded-md p-3 flex items-start">
+                              <div className="text-blue-500 mt-0.5 mr-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
+                                  <path fillRule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm8.706-1.442c1.146-.573 2.437.463 2.126 1.706l-.709 2.836.042-.02a.75.75 0 01.67 1.34l-.04.022c-1.147.573-2.438-.463-2.127-1.706l.71-2.836-.042.02a.75.75 0 11-.671-1.34l.041-.022zM12 9a.75.75 0 100-1.5.75.75 0 000 1.5z" clipRule="evenodd" />
+                                </svg>
+                              </div>
+                              <div className="text-sm text-blue-700">
+                                <p className="font-medium">Tips for effective subject lines:</p>
+                                <ul className="mt-1 list-disc list-inside text-blue-600 text-xs space-y-0.5">
+                                  <li>Keep it under 50 characters for better open rates</li>
+                                  <li>Create a sense of urgency or curiosity</li>
+                                  <li>Personalize when possible for higher engagement</li>
+                                </ul>
+                              </div>
+                            </div>
                             <FormMessage />
                           </FormItem>
                         )}
@@ -1436,40 +1507,56 @@ export default function Templates() {
                     </div>
 
                     <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-                      <h3 className="text-[#1a3a5f] font-medium mb-4 flex items-center border-b pb-2">
-                        <span className="bg-[#1a3a5f] text-white w-5 h-5 rounded-full flex items-center justify-center text-xs mr-2 font-bold">3</span>
-                        HTML Content
+                      <h3 className="flex items-center mb-4">
+                        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-r from-[#1a3a5f] to-[#09152E] text-white font-semibold text-sm mr-3 shadow-md">3</div>
+                        <span className="text-lg font-semibold text-[#1a3a5f] border-b-2 border-[#d4af37]/50 pb-1">HTML Content</span>
                       </h3>
                       
-                      <div className="flex items-center justify-between mb-3">
-                        <FormLabel className="text-[#1a3a5f] flex items-center">
-                          <Code className="h-4 w-4 mr-2 text-[#1a3a5f]" />
-                          Email Design and Content
-                        </FormLabel>
-                        <div className="flex gap-2">
-                          <Button 
-                            type="button" 
-                            variant="outline" 
-                            size="sm" 
-                            className="text-xs border-[#1a3a5f]/20 text-[#1a3a5f] hover:bg-[#1a3a5f]/10"
+                      <div className="bg-[#f5f0e1]/30 p-4 rounded-lg border border-[#d4af37]/20 mb-4">
+                        <h4 className="text-[#1a3a5f] font-medium mb-2 flex items-center">
+                          <Sparkles className="h-4 w-4 mr-2 text-[#d4af37]" />
+                          Choose your preferred method
+                        </h4>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                          <div 
+                            className="bg-white p-3 rounded-lg border border-[#1a3a5f]/20 shadow-sm hover:shadow-md hover:border-[#d4af37]/30 transition-all cursor-pointer"
+                            onClick={() => window.open('/template-builder', '_blank')}
+                          >
+                            <div className="flex items-center mb-2">
+                              <div className="bg-[#1a3a5f] rounded-md p-1.5 mr-2">
+                                <Pencil className="h-4 w-4 text-white" />
+                              </div>
+                              <span className="font-medium text-[#1a3a5f]">Visual Builder</span>
+                            </div>
+                            <p className="text-xs text-gray-600">Create templates using our intuitive drag-and-drop interface</p>
+                          </div>
+                          <div 
+                            className="bg-white p-3 rounded-lg border border-[#1a3a5f]/20 shadow-sm hover:shadow-md hover:border-[#d4af37]/30 transition-all cursor-pointer"
                             onClick={() => {
                               setIsCreatingTemplate(false);
                               setShowAIGenerator(true);
                             }}
                           >
-                            <Wand2 className="h-3 w-3 mr-1" />
-                            Use AI
-                          </Button>
-                          <Button 
-                            type="button" 
-                            variant="outline" 
-                            size="sm" 
-                            className="text-xs border-[#1a3a5f]/20 text-[#1a3a5f] hover:bg-[#1a3a5f]/10"
+                            <div className="flex items-center mb-2">
+                              <div className="bg-[#d4af37] rounded-md p-1.5 mr-2">
+                                <Wand2 className="h-4 w-4 text-white" />
+                              </div>
+                              <span className="font-medium text-[#1a3a5f]">AI Generator</span>
+                            </div>
+                            <p className="text-xs text-gray-600">Create professional templates with AI in seconds</p>
+                          </div>
+                          <div 
+                            className="bg-white p-3 rounded-lg border border-[#1a3a5f]/20 shadow-sm hover:shadow-md hover:border-[#d4af37]/30 transition-all cursor-pointer"
                             onClick={() => window.open('https://beefree.io/templates/', '_blank')}
                           >
-                            <ExternalLink className="h-3 w-3 mr-1" />
-                            Get Free Templates
-                          </Button>
+                            <div className="flex items-center mb-2">
+                              <div className="bg-blue-500 rounded-md p-1.5 mr-2">
+                                <ExternalLink className="h-4 w-4 text-white" />
+                              </div>
+                              <span className="font-medium text-[#1a3a5f]">Import HTML</span>
+                            </div>
+                            <p className="text-xs text-gray-600">Import HTML from existing templates or online resources</p>
+                          </div>
                         </div>
                       </div>
                       
@@ -1478,27 +1565,32 @@ export default function Templates() {
                         name="content"
                         render={({ field }) => (
                           <FormItem>
+                            <FormLabel className="flex items-center text-[#1a3a5f] font-medium">
+                              <Code className="h-4 w-4 mr-2 text-[#1a3a5f]" />
+                              HTML Content
+                            </FormLabel>
                             <FormControl>
-                              <div className="relative">
+                              <div className="relative rounded-md overflow-hidden border border-[#1a3a5f]/20 focus-within:ring-1 focus-within:ring-[#1a3a5f]/30 focus-within:border-[#1a3a5f]/30">
+                                <div className="flex items-center justify-between bg-gray-50 border-b border-[#1a3a5f]/10 px-3 py-1.5">
+                                  <div className="flex space-x-1.5">
+                                    <div className="w-3 h-3 rounded-full bg-red-400"></div>
+                                    <div className="w-3 h-3 rounded-full bg-amber-400"></div>
+                                    <div className="w-3 h-3 rounded-full bg-green-400"></div>
+                                  </div>
+                                  <div className="text-xs text-gray-500 font-mono">HTML Editor</div>
+                                  <div></div>
+                                </div>
                                 <Textarea 
                                   {...field} 
-                                  className="font-mono text-xs h-[300px] border-[#1a3a5f]/20 focus-visible:ring-[#1a3a5f]/30 bg-gray-50"
+                                  className="font-mono text-xs h-[300px] border-0 focus-visible:ring-0 resize-none bg-gray-50"
                                   placeholder="<!DOCTYPE html><html><head>...</head><body>Your email content here</body></html>" 
                                 />
-                                <div className="absolute top-2 right-2">
-                                  <Button
-                                    type="button"
-                                    size="sm"
-                                    onClick={() => window.open('/template-builder', '_blank')}
-                                    className="text-xs bg-gradient-to-r from-[#1a3a5f] to-[#2a4a6f] hover:from-[#2a4a6f] hover:to-[#3a5a7f]"
-                                  >
-                                    <Pencil className="h-3 w-3 mr-1" />
-                                    Use Template Builder
-                                  </Button>
-                                </div>
                               </div>
                             </FormControl>
-                            <FormDescription>
+                            <FormDescription className="flex items-center mt-2 text-[#1a3a5f]/70">
+                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 mr-1.5">
+                                <path fillRule="evenodd" d="M12 1.5a.75.75 0 01.75.75V4.5a.75.75 0 01-1.5 0V2.25A.75.75 0 0112 1.5zM5.636 4.136a.75.75 0 011.06 0l1.592 1.591a.75.75 0 01-1.061 1.06l-1.591-1.59a.75.75 0 010-1.061zm12.728 0a.75.75 0 010 1.06l-1.591 1.592a.75.75 0 01-1.06-1.061l1.59-1.591a.75.75 0 011.061 0zm-6.816 4.496a.75.75 0 01.82.311l5.228 7.917a.75.75 0 01-.777 1.148l-2.097-.43 1.045 3.9a.75.75 0 01-1.45.388l-1.044-3.899-1.601 1.42a.75.75 0 01-1.247-.606l.569-9.47a.75.75 0 01.554-.68zM3 10.5a.75.75 0 01.75-.75H6a.75.75 0 010 1.5H3.75A.75.75 0 013 10.5zm14.25 0a.75.75 0 01.75-.75h2.25a.75.75 0 010 1.5H18a.75.75 0 01-.75-.75zm-8.962 3.712a.75.75 0 010 1.061l-1.591 1.591a.75.75 0 11-1.061-1.06l1.591-1.592a.75.75 0 011.06 0z" clipRule="evenodd" />
+                              </svg>
                               Paste your HTML email template code here or use our Template Builder for a visual editor experience
                             </FormDescription>
                             <FormMessage />
@@ -1507,32 +1599,40 @@ export default function Templates() {
                       />
                     </div>
 
-                    <div className="flex justify-end gap-3 pt-4 mt-6 border-t">
-                      <Button 
-                        variant="outline" 
-                        onClick={() => setIsCreatingTemplate(false)} 
-                        type="button"
-                        className="border-[#1a3a5f]/20 text-[#1a3a5f] hover:bg-[#1a3a5f]/10"
-                      >
-                        Cancel
-                      </Button>
-                      <Button 
-                        type="submit" 
-                        disabled={createNewTemplateMutation.isPending}
-                        className="gap-2 bg-gradient-to-r from-[#1a3a5f] to-[#2a4a6f] hover:from-[#2a4a6f] hover:to-[#3a5a7f]"
-                      >
-                        {createNewTemplateMutation.isPending ? (
-                          <>
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                            Creating...
-                          </>
-                        ) : (
-                          <>
-                            <PlusCircle className="h-4 w-4" />
-                            Create Template
-                          </>
-                        )}
-                      </Button>
+                    <div className="flex justify-between items-center pt-4 mt-6 border-t border-[#d4af37]/20">
+                      <div className="text-sm text-[#1a3a5f]/70 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 mr-2 text-[#d4af37]">
+                          <path fillRule="evenodd" d="M9 4.5a.75.75 0 01.721.544l.813 2.846a3.75 3.75 0 002.576 2.576l2.846.813a.75.75 0 010 1.442l-2.846.813a3.75 3.75 0 00-2.576 2.576l-.813 2.846a.75.75 0 01-1.442 0l-.813-2.846a3.75 3.75 0 00-2.576-2.576l-2.846-.813a.75.75 0 010-1.442l2.846-.813A3.75 3.75 0 007.466 7.89l.813-2.846A.75.75 0 019 4.5zM18 1.5a.75.75 0 01.728.568l.258 1.036c.236.94.97 1.674 1.91 1.91l1.036.258a.75.75 0 010 1.456l-1.036.258c-.94.236-1.674.97-1.91 1.91l-.258 1.036a.75.75 0 01-1.456 0l-.258-1.036a2.625 2.625 0 00-1.91-1.91l-1.036-.258a.75.75 0 010-1.456l1.036-.258a2.625 2.625 0 001.91-1.91l.258-1.036A.75.75 0 0118 1.5zM16.5 15a.75.75 0 01.712.513l.394 1.183c.15.447.5.799.948.948l1.183.395a.75.75 0 010 1.422l-1.183.395c-.447.15-.799.5-.948.948l-.395 1.183a.75.75 0 01-1.422 0l-.395-1.183a1.5 1.5 0 00-.948-.948l-1.183-.395a.75.75 0 010-1.422l1.183-.395c.447-.15.799-.5.948-.948l.395-1.183A.75.75 0 0116.5 15z" clipRule="evenodd" />
+                        </svg>
+                        All templates created here will be available in your Template Library
+                      </div>
+                      <div className="flex gap-3">
+                        <Button 
+                          variant="outline" 
+                          onClick={() => setIsCreatingTemplate(false)} 
+                          type="button"
+                          className="border-[#1a3a5f]/20 text-[#1a3a5f] hover:bg-[#1a3a5f]/10"
+                        >
+                          Cancel
+                        </Button>
+                        <Button 
+                          type="submit" 
+                          disabled={createNewTemplateMutation.isPending}
+                          className="gap-2 bg-gradient-to-r from-[#1a3a5f] to-[#2a4a6f] hover:from-[#2a4a6f] hover:to-[#3a5a7f] py-2.5 px-5"
+                        >
+                          {createNewTemplateMutation.isPending ? (
+                            <>
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                              Creating Template...
+                            </>
+                          ) : (
+                            <>
+                              <PlusCircle className="h-4 w-4" />
+                              Create Template
+                            </>
+                          )}
+                        </Button>
+                      </div>
                     </div>
                   </form>
                 </Form>
