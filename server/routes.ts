@@ -1976,6 +1976,101 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ error: 'Failed to fetch clients' });
     }
   });
+  
+  // Client Email Provider Management
+  app.get('/api/clients/:clientId/providers', async (req: Request, res: Response) => {
+    try {
+      const clientId = parseInt(req.params.clientId);
+      const clientProviders = await storage.getClientProviders(clientId);
+      
+      // Also get the full provider details
+      const providers = await providerSettingsService.getAllProviderSettings();
+      
+      // Combine the data to include provider details
+      const result = clientProviders.map(cp => {
+        const provider = providers.find(p => p.id === cp.providerId);
+        return {
+          ...cp,
+          provider: provider || null
+        };
+      });
+      
+      res.json(result);
+    } catch (error) {
+      console.error('Error fetching client providers:', error);
+      res.status(500).json({ error: 'Failed to fetch client providers' });
+    }
+  });
+  
+  app.post('/api/clients/:clientId/providers', async (req: Request, res: Response) => {
+    try {
+      const clientId = parseInt(req.params.clientId);
+      const providerId = parseInt(req.body.providerId);
+      
+      // Validate the request
+      if (isNaN(clientId) || isNaN(providerId)) {
+        return res.status(400).json({ error: 'Invalid client ID or provider ID' });
+      }
+      
+      // Check if client exists
+      const client = await storage.getClient(clientId);
+      if (!client) {
+        return res.status(404).json({ error: 'Client not found' });
+      }
+      
+      // Check if provider exists
+      const providers = await providerSettingsService.getAllProviderSettings();
+      const providerExists = providers.some(p => p.id === providerId);
+      if (!providerExists) {
+        return res.status(404).json({ error: 'Provider not found' });
+      }
+      
+      // Check if relationship already exists
+      const clientProviders = await storage.getClientProviders(clientId);
+      const relationshipExists = clientProviders.some(cp => cp.providerId === providerId);
+      if (relationshipExists) {
+        return res.status(400).json({ error: 'Provider already assigned to client' });
+      }
+      
+      // Create the relationship
+      const relationship = await storage.assignProviderToClient({ clientId, providerId });
+      
+      // Get the provider details to return in the response
+      const provider = providers.find(p => p.id === providerId);
+      
+      res.status(201).json({
+        ...relationship,
+        provider: provider || null
+      });
+    } catch (error) {
+      console.error('Error assigning provider to client:', error);
+      res.status(500).json({ error: 'Failed to assign provider to client' });
+    }
+  });
+  
+  app.delete('/api/clients/:clientId/providers/:providerId', async (req: Request, res: Response) => {
+    try {
+      const clientId = parseInt(req.params.clientId);
+      const providerId = parseInt(req.params.providerId);
+      
+      // Validate the request
+      if (isNaN(clientId) || isNaN(providerId)) {
+        return res.status(400).json({ error: 'Invalid client ID or provider ID' });
+      }
+      
+      // Remove the relationship
+      const success = await storage.removeProviderFromClient(clientId, providerId);
+      
+      if (!success) {
+        return res.status(404).json({ error: 'Relationship not found' });
+      }
+      
+      res.status(204).send();
+    } catch (error) {
+      console.error('Error removing provider from client:', error);
+      res.status(500).json({ error: 'Failed to remove provider from client' });
+    }
+  });
 
   app.get('/api/clients/:id', async (req: Request, res: Response) => {
     try {

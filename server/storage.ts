@@ -29,6 +29,7 @@ import {
   Permission, InsertPermission,
   UserRole, InsertUserRole,
   RolePermission, InsertRolePermission,
+  ClientProvider, InsertClientProvider,
   insertAudiencePersonaSchema,
   insertPersonaDemographicSchema,
   insertPersonaBehaviorSchema,
@@ -101,6 +102,11 @@ export interface IStorage {
   updateClient(id: number, client: Partial<Client>): Promise<Client | undefined>;
   deleteClient(id: number): Promise<boolean>;
   getClientCampaigns(clientId: number): Promise<Campaign[]>;
+  
+  // Client Email Provider methods
+  getClientProviders(clientId: number): Promise<ClientProvider[]>;
+  assignProviderToClient(clientProvider: InsertClientProvider): Promise<ClientProvider>;
+  removeProviderFromClient(clientId: number, providerId: number): Promise<boolean>;
   
   // Client Email Credits methods
   updateClientEmailCredits(id: number, emailCredits: number): Promise<Client | undefined>;
@@ -332,6 +338,7 @@ export class MemStorage implements IStorage {
   private systemCredits: SystemCredits | undefined;
   private systemCreditsHistory: Map<number, SystemCreditsHistory>;
   private clientEmailCreditsHistory: Map<number, ClientEmailCreditsHistory>;
+  private clientProviders: Map<number, ClientProvider>;
   public sessionStore: any; // Express session store
 
   private contactId: number;
