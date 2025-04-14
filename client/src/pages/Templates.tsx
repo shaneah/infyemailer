@@ -91,6 +91,8 @@ interface Template {
   content: string;
   subject: string;
   category: string;
+  createdAt?: Date | string;
+  updatedAt?: Date | string;
   metadata?: {
     generatedByAI?: boolean;
     icon?: string;
@@ -655,7 +657,7 @@ export default function Templates() {
                 {filteredTemplates.map((template: Template) => (
                   <Card 
                     key={template.id} 
-                    className="border border-gray-200 hover:border-blue-300 hover:shadow-md transition-all duration-300 group"
+                    className="border border-gray-200 hover:border-blue-300 hover:shadow-md transition-all duration-300 group bg-white rounded-lg overflow-hidden"
                     onClick={() => handleViewTemplate(template)}
                   >
                     <div className="grid grid-cols-1 md:grid-cols-8 gap-3 p-3">
@@ -684,6 +686,10 @@ export default function Templates() {
                         <div className="flex items-center gap-1 mt-1 text-xs text-gray-500">
                           <span className="font-medium text-blue-700">Subject:</span>
                           <span className="truncate">{template.subject}</span>
+                        </div>
+                        <div className="flex items-center mt-1.5 text-xs text-gray-400">
+                          <Calendar className="h-3 w-3 mr-1" />
+                          {template.createdAt ? formatDistanceToNow(new Date(template.createdAt), { addSuffix: true }) : 'Date unavailable'}
                         </div>
                       </div>
                       
