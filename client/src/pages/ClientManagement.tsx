@@ -776,56 +776,146 @@ const ClientManagement = () => {
                       <CardDescription>Manage email providers assigned to this client</CardDescription>
                     </CardHeader>
                     <CardContent>
-                      <div className="space-y-6">
-                        <div className="flex justify-between items-center">
-                          <div>
-                            <h3 className="text-lg font-medium">Assigned Providers</h3>
-                            <p className="text-sm text-gray-500">Email providers this client can use for sending campaigns</p>
-                          </div>
-                          <Button>
-                            <Plus className="mr-2 h-4 w-4" /> Assign Provider
-                          </Button>
+                      {isLoadingProviders || isLoadingAvailableProviders ? (
+                        <div className="text-center py-4">
+                          <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto" />
+                          <p className="mt-2 text-sm text-gray-500">Loading providers...</p>
                         </div>
-                        
-                        {/* Provider List */}
-                        <div className="border rounded-md">
-                          <Table>
-                            <TableHeader>
-                              <TableRow>
-                                <TableHead>Provider</TableHead>
-                                <TableHead>Type</TableHead>
-                                <TableHead>Status</TableHead>
-                                <TableHead>Assigned On</TableHead>
-                                <TableHead className="text-right">Actions</TableHead>
-                              </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                              {/* We'll implement this part with actual provider data from API */}
-                              <TableRow>
-                                <TableCell className="font-medium">No providers assigned</TableCell>
-                                <TableCell colSpan={4} className="text-center">
-                                  <p className="text-sm text-gray-500">Assign email providers to allow this client to send campaigns</p>
-                                </TableCell>
-                              </TableRow>
-                            </TableBody>
-                          </Table>
-                        </div>
-                        
-                        <div className="rounded-md bg-blue-50 p-4 border border-blue-200">
-                          <div className="flex">
-                            <div className="flex-shrink-0">
-                              <svg className="h-5 w-5 text-blue-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a.75.75 0 000 1.5h.253a.25.25 0 01.244.304l-.459 2.066A1.75 1.75 0 0010.747 15H11a.75.75 0 000-1.5h-.253a.25.25 0 01-.244-.304l.459-2.066A1.75 1.75 0 009.253 9H9z" clipRule="evenodd" />
-                              </svg>
+                      ) : (
+                        <div className="space-y-6">
+                          <div className="flex justify-between items-center">
+                            <div>
+                              <h3 className="text-lg font-medium">Assigned Providers</h3>
+                              <p className="text-sm text-gray-500">Email providers this client can use for sending campaigns</p>
                             </div>
-                            <div className="ml-3 flex-1 md:flex md:justify-between">
-                              <p className="text-sm text-blue-700">
-                                Clients can only use the email providers assigned to them. If no providers are assigned, they won't be able to send emails.
-                              </p>
+                            {availableProviders.length > 0 && clientProviders.length < availableProviders.length && (
+                              <Dialog>
+                                <DialogTrigger asChild>
+                                  <Button>
+                                    <Plus className="mr-2 h-4 w-4" /> Assign Provider
+                                  </Button>
+                                </DialogTrigger>
+                                <DialogContent className="sm:max-w-[425px]">
+                                  <DialogHeader>
+                                    <DialogTitle>Assign Email Provider</DialogTitle>
+                                    <DialogDescription>
+                                      Select a provider to assign to this client.
+                                    </DialogDescription>
+                                  </DialogHeader>
+                                  <div className="py-4">
+                                    <div className="space-y-4">
+                                      {availableProviders
+                                        .filter(provider => !clientProviders.some(cp => Number(cp.providerId) === provider.id))
+                                        .map((provider) => (
+                                          <div key={provider.id} className="flex items-center justify-between p-3 border rounded-md">
+                                            <div>
+                                              <h4 className="font-medium">{provider.name}</h4>
+                                              <p className="text-sm text-gray-500 capitalize">{provider.provider}</p>
+                                            </div>
+                                            <Button 
+                                              size="sm"
+                                              onClick={() => {
+                                                if (selectedClient) {
+                                                  addProviderMutation.mutate({
+                                                    clientId: selectedClient.id,
+                                                    providerId: provider.id
+                                                  });
+                                                }
+                                              }}
+                                            >
+                                              Assign
+                                            </Button>
+                                          </div>
+                                        ))}
+                                    </div>
+                                  </div>
+                                </DialogContent>
+                              </Dialog>
+                            )}
+                          </div>
+                          
+                          {/* Provider List */}
+                          <div className="border rounded-md">
+                            <Table>
+                              <TableHeader>
+                                <TableRow>
+                                  <TableHead>Provider</TableHead>
+                                  <TableHead>Type</TableHead>
+                                  <TableHead>Status</TableHead>
+                                  <TableHead>Assigned On</TableHead>
+                                  <TableHead className="text-right">Actions</TableHead>
+                                </TableRow>
+                              </TableHeader>
+                              <TableBody>
+                                {clientProviders.length === 0 ? (
+                                  <TableRow>
+                                    <TableCell className="font-medium">No providers assigned</TableCell>
+                                    <TableCell colSpan={4} className="text-center">
+                                      <p className="text-sm text-gray-500">Assign email providers to allow this client to send campaigns</p>
+                                    </TableCell>
+                                  </TableRow>
+                                ) : (
+                                  clientProviders.map((clientProvider) => {
+                                    const provider = availableProviders.find(
+                                      (p) => p.id === Number(clientProvider.providerId)
+                                    );
+                                    
+                                    return (
+                                      <TableRow key={clientProvider.id}>
+                                        <TableCell className="font-medium">
+                                          {provider?.name || `Provider ${clientProvider.providerId}`}
+                                        </TableCell>
+                                        <TableCell>
+                                          {provider?.provider ? (
+                                            <Badge variant="outline" className="capitalize">
+                                              {provider.provider}
+                                            </Badge>
+                                          ) : (
+                                            'Unknown'
+                                          )}
+                                        </TableCell>
+                                        <TableCell>
+                                          <Badge className="bg-green-500 text-white">Active</Badge>
+                                        </TableCell>
+                                        <TableCell>{formatDate(clientProvider.createdAt)}</TableCell>
+                                        <TableCell className="text-right">
+                                          <Button 
+                                            size="sm" 
+                                            variant="ghost"
+                                            onClick={() => {
+                                              if (selectedClient && window.confirm('Are you sure you want to remove this provider?')) {
+                                                removeProviderMutation.mutate({
+                                                  clientId: selectedClient.id,
+                                                  providerId: Number(clientProvider.providerId)
+                                                });
+                                              }
+                                            }}
+                                          >
+                                            <Trash2 className="h-4 w-4 text-red-500" />
+                                          </Button>
+                                        </TableCell>
+                                      </TableRow>
+                                    );
+                                  })
+                                )}
+                              </TableBody>
+                            </Table>
+                          </div>
+                          
+                          <div className="rounded-md bg-blue-50 dark:bg-blue-950 p-4 border border-blue-200 dark:border-blue-900">
+                            <div className="flex">
+                              <div className="flex-shrink-0">
+                                <InfoIcon className="h-5 w-5 text-blue-400" />
+                              </div>
+                              <div className="ml-3 flex-1 md:flex md:justify-between">
+                                <p className="text-sm text-blue-700 dark:text-blue-300">
+                                  Clients can only use the email providers assigned to them. If no providers are assigned, they won't be able to send emails.
+                                </p>
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
+                      )}
                     </CardContent>
                   </Card>
                 </TabsContent>
