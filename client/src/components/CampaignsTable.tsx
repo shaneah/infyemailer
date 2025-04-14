@@ -179,89 +179,94 @@ const CampaignsTable = () => {
   }
 
   return (
-    <div className="rounded-lg border shadow-sm">
-      <div className="flex justify-between items-center px-6 py-4 border-b">
-        <h3 className="text-lg font-semibold">Recent Campaigns</h3>
-        <Link href="/campaigns" className="text-sm px-3 py-1.5 rounded-md border bg-white hover:bg-gray-50 transition-colors">
+    <div>
+      <div className="flex justify-between items-center px-6 py-5 border-b border-gray-200">
+        <h3 className="text-lg font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
+          Recent Campaigns
+        </h3>
+        <Link href="/campaigns" className="text-sm px-4 py-2 rounded-md border border-blue-200 bg-white hover:bg-blue-50 transition-colors shadow-sm flex items-center gap-1">
           View all
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M9 18l6-6-6-6"></path>
+          </svg>
         </Link>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
-            <tr className="border-b bg-slate-50">
-              <th className="text-left py-3 px-6 text-sm font-medium text-slate-500">Campaign</th>
-              <th className="text-left py-3 px-6 text-sm font-medium text-slate-500">Status</th>
-              <th className="text-left py-3 px-6 text-sm font-medium text-slate-500">Recipients</th>
-              <th className="text-left py-3 px-6 text-sm font-medium text-slate-500">Open Rate</th>
-              <th className="text-left py-3 px-6 text-sm font-medium text-slate-500">Click Rate</th>
-              <th className="text-left py-3 px-6 text-sm font-medium text-slate-500">Date</th>
-              <th className="text-right py-3 px-6 text-sm font-medium text-slate-500">Actions</th>
+            <tr className="border-b bg-gradient-to-r from-blue-50 to-indigo-50">
+              <th className="text-left py-4 px-6 text-sm font-semibold text-gray-600">Campaign</th>
+              <th className="text-left py-4 px-6 text-sm font-semibold text-gray-600">Status</th>
+              <th className="text-left py-4 px-6 text-sm font-semibold text-gray-600">Recipients</th>
+              <th className="text-left py-4 px-6 text-sm font-semibold text-gray-600">Open Rate</th>
+              <th className="text-left py-4 px-6 text-sm font-semibold text-gray-600">Click Rate</th>
+              <th className="text-left py-4 px-6 text-sm font-semibold text-gray-600">Date</th>
+              <th className="text-right py-4 px-6 text-sm font-semibold text-gray-600">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y">
             {campaigns.map((campaign) => (
-              <tr key={campaign.id} className="hover:bg-slate-50 transition-colors">
-                <td className="py-4 px-6">
+              <tr key={campaign.id} className="hover:bg-blue-50/30 transition-colors">
+                <td className="py-5 px-6">
                   <div className="flex items-center">
-                    <div className="flex-shrink-0 h-10 w-10 rounded-md bg-slate-100 flex items-center justify-center mr-3">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-slate-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <div className="flex-shrink-0 h-10 w-10 rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center mr-4 shadow-sm border border-blue-200">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
                         <polyline points="22,6 12,13 2,6"></polyline>
                       </svg>
                     </div>
                     <div>
-                      <div className="font-medium text-slate-900">{campaign.name}</div>
-                      <div className="text-xs text-slate-500">{campaign.subtitle || 'Email campaign'}</div>
+                      <div className="font-semibold text-gray-900">{campaign.name}</div>
+                      <div className="text-xs text-gray-500">{campaign.subtitle || 'Email campaign'}</div>
                     </div>
                   </div>
                 </td>
-                <td className="py-4 px-6">
-                  <span className={`px-2.5 py-1 rounded-full text-xs font-medium inline-block
-                    ${campaign.status.color === 'success' ? 'bg-green-100 text-green-800' : 
-                     campaign.status.color === 'warning' ? 'bg-amber-100 text-amber-800' : 
-                     campaign.status.color === 'danger' ? 'bg-red-100 text-red-800' : 
-                     campaign.status.color === 'info' ? 'bg-blue-100 text-blue-800' :
-                     campaign.status.color === 'primary' ? 'bg-indigo-100 text-indigo-800' : 
-                     'bg-slate-100 text-slate-800'}`}>
+                <td className="py-5 px-6">
+                  <span className={`px-3 py-1.5 rounded-full text-xs font-medium inline-block
+                    ${campaign.status.color === 'success' ? 'bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border border-green-200' : 
+                     campaign.status.color === 'warning' ? 'bg-gradient-to-r from-amber-100 to-yellow-100 text-amber-800 border border-amber-200' : 
+                     campaign.status.color === 'danger' ? 'bg-gradient-to-r from-red-100 to-rose-100 text-red-800 border border-red-200' : 
+                     campaign.status.color === 'info' ? 'bg-gradient-to-r from-blue-100 to-sky-100 text-blue-800 border border-blue-200' :
+                     campaign.status.color === 'primary' ? 'bg-gradient-to-r from-indigo-100 to-violet-100 text-indigo-800 border border-indigo-200' : 
+                     'bg-gradient-to-r from-slate-100 to-gray-100 text-slate-800 border border-slate-200'}`}>
                     {campaign.status.label}
                   </span>
                 </td>
-                <td className="py-4 px-6 font-medium text-slate-700">
+                <td className="py-5 px-6 font-medium text-gray-700">
                   {campaign.recipients.toLocaleString()}
                 </td>
-                <td className="py-4 px-6">
+                <td className="py-5 px-6">
                   <div className="flex items-center">
-                    <span className="font-medium text-slate-900 mr-2">{campaign.openRate}%</span>
-                    <div className="bg-slate-200 h-1.5 rounded-full w-24">
+                    <span className="font-medium text-gray-900 mr-3">{campaign.openRate}%</span>
+                    <div className="bg-gray-200 h-2 rounded-full w-28">
                       <div 
-                        className="h-full rounded-full bg-blue-500" 
+                        className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-teal-500" 
                         style={{ width: `${Math.min(100, campaign.openRate)}%` }}
                       />
                     </div>
                   </div>
                 </td>
-                <td className="py-4 px-6">
+                <td className="py-5 px-6">
                   <div className="flex items-center">
-                    <span className="font-medium text-slate-900 mr-2">{campaign.clickRate}%</span>
-                    <div className="bg-slate-200 h-1.5 rounded-full w-24">
+                    <span className="font-medium text-gray-900 mr-3">{campaign.clickRate}%</span>
+                    <div className="bg-gray-200 h-2 rounded-full w-28">
                       <div 
-                        className="h-full rounded-full bg-indigo-500" 
+                        className="h-full rounded-full bg-gradient-to-r from-blue-500 to-indigo-500" 
                         style={{ width: `${Math.min(100, campaign.clickRate)}%` }}
                       />
                     </div>
                   </div>
                 </td>
-                <td className="py-4 px-6 text-slate-700">
+                <td className="py-5 px-6 text-gray-700">
                   {campaign.date}
                 </td>
-                <td className="py-4 px-6 text-right">
+                <td className="py-5 px-6 text-right">
                   <div className="inline-flex items-center space-x-2">
                     <Link 
                       href={`/campaigns/${campaign.id}`} 
-                      className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-3"
+                      className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-blue-200 bg-white hover:bg-blue-50 shadow-sm h-9 px-3"
                     >
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                         <circle cx="12" cy="12" r="3"></circle>
                       </svg>
@@ -276,9 +281,9 @@ const CampaignsTable = () => {
                         data-campaign-id={campaign.id.toString()}
                         data-action-button="true"
                         onClick={() => toggleDropdown(campaign.id)}
-                        className="action-button inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 w-9 p-0 relative"
+                        className="action-button inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-blue-200 bg-white hover:bg-blue-50 shadow-sm h-9 w-9 p-0 relative"
                       >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                           <circle cx="12" cy="12" r="1"></circle>
                           <circle cx="12" cy="5" r="1"></circle>
                           <circle cx="12" cy="19" r="1"></circle>
@@ -287,14 +292,14 @@ const CampaignsTable = () => {
                       </button>
                       <div 
                         id={`dropdown-${campaign.id}`} 
-                        className={`campaign-actions-dropdown absolute right-0 mt-2 w-48 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 ${activeDropdown === campaign.id ? '' : 'hidden'} z-10 divide-y divide-gray-100`}
+                        className={`campaign-actions-dropdown absolute right-0 mt-2 w-48 origin-top-right rounded-md bg-white shadow-xl ring-1 ring-black ring-opacity-5 ${activeDropdown === campaign.id ? '' : 'hidden'} z-10 divide-y divide-gray-100 border border-blue-100`}
                       >
                         <div className="py-1">
                           <Link 
                             href={`/campaigns/${campaign.id}`} 
-                            className="group flex items-center px-4 py-2 text-sm hover:bg-slate-50 hover:text-blue-600 transition-colors duration-150"
+                            className="group flex items-center px-4 py-2 text-sm hover:bg-blue-50 hover:text-blue-700 transition-colors duration-150"
                           >
-                            <svg xmlns="http://www.w3.org/2000/svg" className="mr-3 h-4 w-4 text-slate-400 group-hover:text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="mr-3 h-4 w-4 text-blue-400 group-hover:text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                               <path d="M2 9.88V4a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-6"></path>
                               <polygon points="11 15 15 20 20 15"></polygon>
                               <line x1="15" y1="9" x2="15" y2="20"></line>
@@ -303,9 +308,9 @@ const CampaignsTable = () => {
                           </Link>
                           <Link 
                             href={`/campaigns/${campaign.id}/edit`} 
-                            className="group flex items-center px-4 py-2 text-sm hover:bg-slate-50 hover:text-blue-600 transition-colors duration-150"
+                            className="group flex items-center px-4 py-2 text-sm hover:bg-blue-50 hover:text-blue-700 transition-colors duration-150"
                           >
-                            <svg xmlns="http://www.w3.org/2000/svg" className="mr-3 h-4 w-4 text-slate-400 group-hover:text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="mr-3 h-4 w-4 text-blue-400 group-hover:text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                               <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                               <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                             </svg>
