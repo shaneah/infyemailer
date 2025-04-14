@@ -1,11 +1,110 @@
 import { Request, Response } from 'express';
 import { z } from 'zod';
 import { emailService } from '../services/EmailService';
+import { getStorage } from '../storageManager';
+
+const storage = getStorage();
 
 // Import the default email settings from the emailSettings route
 import { defaultEmailSettings } from './emailSettings';
 
 export async function registerTestEmailRoutes(app: any) {
+  // Send a test email from a template
+  app.post('/api/templates/:id/test-email', async (req: Request, res: Response) => {
+    try {
+      const templateId = parseInt(req.params.id, 10);
+      
+      // Log the request for debugging
+      console.log(`[Template Test Email] Received request for template ID ${templateId}:`, {
+        email: req.body.email,
+        subject: req.body.subject,
+        personalizeContent: req.body.personalizeContent
+      });
+      
+      // Validate the request body
+      const schema = z.object({
+        email: z.string().email(),
+        subject: z.string().min(1),
+        personalizeContent: z.boolean().optional().default(false)
+      });
+      
+      const validatedData = schema.parse(req.body);
+      
+      // Get template from storage
+      const template = await storage.getTemplate(templateId);
+      if (!template) {
+        return res.status(404).json({ error: 'Template not found' });
+      }
+      
+      console.log(`[Template Test Email] Found template: ${template.name}`);
+      
+      // Get all providers to ensure we have registered providers
+      const allProviders = emailService.getAllProviders();
+      if (allProviders.length === 0) {
+        return res.status(400).json({ 
+          error: 'No email providers configured', 
+          message: 'Please set up at least one email provider in the Email Providers section'
+        });
+      }
+      
+      // Use default email settings if available
+      const fromEmail = defaultEmailSettings.fromEmail || 'notifications@infymailer.com';
+      const fromName = defaultEmailSettings.fromName || 'InfyMailer';
+      
+      console.log(`[Template Test Email] Using from address: ${fromEmail}`);
+      
+      let htmlContent = template.content || '';
+      
+      // Personalize content if requested
+      if (validatedData.personalizeContent) {
+        console.log('[Template Test Email] Personalizing content with test data');
+        // Replace any merge tags with test data
+        htmlContent = htmlContent
+          .replace(/{{first_name}}/gi, 'Test')
+          .replace(/{{last_name}}/gi, 'User')
+          .replace(/{{email}}/gi, validatedData.email)
+          .replace(/{{company}}/gi, 'Test Company')
+          .replace(/{{unsubscribe_link}}/gi, '#');
+      }
+      
+      // Get the default provider name for logging
+      const defaultProviderName = emailService.getDefaultProviderName();
+      const providerToUse = defaultProviderName || allProviders[0].name;
+      
+      console.log(`[Template Test Email] Using provider: ${providerToUse}`);
+      
+      // Send the test email
+      const result = await emailService.sendEmail({
+        from: fromEmail,
+        fromName: fromName,
+        to: validatedData.email,
+        subject: validatedData.subject,
+        html: htmlContent
+      }, defaultProviderName);
+      
+      if (!result) {
+        console.error('[Template Test Email] Email sending failed');
+        return res.status(500).json({ error: 'Failed to send test email' });
+      }
+      
+      console.log('[Template Test Email] Email sent successfully');
+      return res.json({ 
+        success: true, 
+        message: `Test email sent successfully using ${providerToUse}`,
+        provider: providerToUse
+      });
+    } catch (error) {
+      console.error('[Template Test Email] Error sending test email:', error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: 'Invalid request data', details: error.errors });
+      }
+      return res.status(500).json({ 
+        error: 'Failed to send test email',
+        details: error instanceof Error ? error.message : String(error)
+      });
+    }
+  });
+  
   // Send a test email using the default provider
   app.post('/api/test-email', async (req: Request, res: Response) => {
     try {
