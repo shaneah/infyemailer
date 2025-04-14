@@ -623,7 +623,7 @@ const EmailValidation = () => {
                       <Card className="bg-[#f5f0e1]/50 border border-[#d4af37]/20 shadow-md overflow-hidden">
                         <CardContent className="p-4 relative">
                           <div className="flex items-center mb-1">
-                            <FileText className="w-4 h-4 mr-2 text-[#1a3a5f]" />
+                            <FileTextIcon className="w-4 h-4 mr-2 text-[#1a3a5f]" />
                             <div className="text-sm text-[#1a3a5f]/70 font-medium">Total</div>
                           </div>
                           <div className="text-2xl font-bold text-[#1a3a5f]">{bulkAnalysisResult.summary.total}</div>
