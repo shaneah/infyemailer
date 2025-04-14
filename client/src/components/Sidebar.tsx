@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from "wouter";
 import { Mail, LayoutDashboard, Megaphone, FileText, Users, Building, BarChart2, Activity, Split, Globe, Settings as SettingsIcon, ShieldCheck, LogOut, CheckCircle2, ServerCog, Building2, UserRound, Users as UsersIcon, UserPlus, SendHorizonal, ChevronsLeft, ChevronsRight, UserCircle2 } from "lucide-react";
-import infyLogo from "@assets/Infinity Tech Logo-01.png";
+import infyLogo from "../assets/Infinity Tech Logo-01.png";
 import { useAuth } from "@/hooks/use-auth";
 
 interface SidebarProps {
@@ -28,14 +28,14 @@ const Sidebar = ({ open, setOpen, collapsed = false, setCollapsed }: SidebarProp
   return (
     <div
       id="sidebar"
-      className={`${open ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 transition-all duration-300 transform fixed z-40 left-0 top-0 lg:static lg:left-auto lg:top-auto ${collapsed ? 'lg:w-16' : 'lg:w-64'} h-screen bg-[#0c2f6c] overflow-y-auto no-scrollbar shrink-0`}
+      className={`${open ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 transition-all duration-300 transform fixed z-40 left-0 top-0 lg:static lg:left-auto lg:top-auto ${collapsed ? 'lg:w-16' : 'lg:w-64'} h-screen bg-[#0c2f6c] overflow-y-auto no-scrollbar shrink-0 shadow-md`}
     >
       <div className="h-full flex flex-col">
         {/* Logo and Collapse Toggle */}
         <div className="px-4 py-4 flex justify-between items-center">
           <Link href="/" className="text-white font-bold text-lg flex flex-col items-center">
             <img src={infyLogo} alt="Infinity Tech Logo" className="h-16 mb-2" />
-            {!collapsed && <span className="text-center">InfyMailer</span>}
+            {!collapsed && <span className="text-center text-xl bg-gradient-to-r from-[#d4af37] to-[#f5f0e1] bg-clip-text text-transparent font-semibold">InfyMailer</span>}
           </Link>
           {!collapsed && setCollapsed && (
             <button 
@@ -85,7 +85,7 @@ const Sidebar = ({ open, setOpen, collapsed = false, setCollapsed }: SidebarProp
             <Link 
               href="/" 
               className={`flex items-center px-2 py-2 rounded-md ${location === '/' 
-                ? 'text-white border-l-4 border-white bg-white/10' 
+                ? 'text-white border-l-4 border-[#d4af37] bg-white/10' 
                 : 'text-gray-300 hover:bg-white/5'}`}
               title="Dashboard"
             >
@@ -97,7 +97,7 @@ const Sidebar = ({ open, setOpen, collapsed = false, setCollapsed }: SidebarProp
             <Link 
               href="/campaigns" 
               className={`flex items-center px-2 py-2 rounded-md ${location === '/campaigns' 
-                ? 'text-white border-l-4 border-white bg-white/10' 
+                ? 'text-white border-l-4 border-[#d4af37] bg-white/10' 
                 : 'text-gray-300 hover:bg-white/5'}`}
               title="Campaigns"
             >
@@ -110,7 +110,7 @@ const Sidebar = ({ open, setOpen, collapsed = false, setCollapsed }: SidebarProp
             <Link 
               href="/templates" 
               className={`flex items-center px-2 py-2 rounded-md ${location === '/templates' || location.includes('/template-builder')
-                ? 'text-white border-l-4 border-white bg-white/10' 
+                ? 'text-white border-l-4 border-[#d4af37] bg-white/10' 
                 : 'text-gray-300 hover:bg-white/5'}`}
               title="Templates"
             >
@@ -122,7 +122,7 @@ const Sidebar = ({ open, setOpen, collapsed = false, setCollapsed }: SidebarProp
             <Link 
               href="/contacts" 
               className={`flex items-center px-2 py-2 rounded-md ${location === '/contacts' 
-                ? 'text-white border-l-4 border-white bg-white/10' 
+                ? 'text-white border-l-4 border-[#d4af37] bg-white/10' 
                 : 'text-gray-300 hover:bg-white/5'}`}
               title="Contacts"
             >
@@ -135,7 +135,7 @@ const Sidebar = ({ open, setOpen, collapsed = false, setCollapsed }: SidebarProp
             <Link 
               href="/client-users" 
               className={`flex items-center px-2 py-2 rounded-md ${location === '/client-users' 
-                ? 'text-white border-l-4 border-white bg-white/10' 
+                ? 'text-white border-l-4 border-[#d4af37] bg-white/10' 
                 : 'text-gray-300 hover:bg-white/5'}`}
               title="Client Users"
             >
@@ -147,7 +147,7 @@ const Sidebar = ({ open, setOpen, collapsed = false, setCollapsed }: SidebarProp
             <Link 
               href="/client-management" 
               className={`flex items-center px-2 py-2 rounded-md ${location === '/client-management' 
-                ? 'text-white border-l-4 border-white bg-white/10' 
+                ? 'text-white border-l-4 border-[#d4af37] bg-white/10' 
                 : 'text-gray-300 hover:bg-white/5'}`}
               title="Client Management"
             >
@@ -160,7 +160,7 @@ const Sidebar = ({ open, setOpen, collapsed = false, setCollapsed }: SidebarProp
             <Link 
               href="/reporting" 
               className={`flex items-center px-2 py-2 rounded-md ${location === '/reporting' 
-                ? 'text-white border-l-4 border-white bg-white/10' 
+                ? 'text-white border-l-4 border-[#d4af37] bg-white/10' 
                 : 'text-gray-300 hover:bg-white/5'}`}
               title="Reporting"
             >
@@ -172,7 +172,7 @@ const Sidebar = ({ open, setOpen, collapsed = false, setCollapsed }: SidebarProp
             <Link 
               href="/email-performance" 
               className={`flex items-center px-2 py-2 rounded-md ${location === '/email-performance' 
-                ? 'text-white border-l-4 border-white bg-white/10' 
+                ? 'text-white border-l-4 border-[#d4af37] bg-white/10' 
                 : 'text-gray-300 hover:bg-white/5'}`}
               title="Email Performance"
             >
@@ -184,7 +184,7 @@ const Sidebar = ({ open, setOpen, collapsed = false, setCollapsed }: SidebarProp
             <Link 
               href="/ab-testing" 
               className={`flex items-center px-2 py-2 rounded-md ${location.startsWith('/ab-testing') 
-                ? 'text-white border-l-4 border-white bg-white/10' 
+                ? 'text-white border-l-4 border-[#d4af37] bg-white/10' 
                 : 'text-gray-300 hover:bg-white/5'}`}
               title="A/B Testing"
             >
@@ -196,7 +196,7 @@ const Sidebar = ({ open, setOpen, collapsed = false, setCollapsed }: SidebarProp
             <Link 
               href="/domains" 
               className={`flex items-center px-2 py-2 rounded-md ${location === '/domains' 
-                ? 'text-white border-l-4 border-white bg-white/10' 
+                ? 'text-white border-l-4 border-[#d4af37] bg-white/10' 
                 : 'text-gray-300 hover:bg-white/5'}`}
               title="Domains"
             >
@@ -209,7 +209,7 @@ const Sidebar = ({ open, setOpen, collapsed = false, setCollapsed }: SidebarProp
             <Link 
               href="/audience-personas" 
               className={`flex items-center px-2 py-2 rounded-md ${location === '/audience-personas' 
-                ? 'text-white border-l-4 border-white bg-white/10' 
+                ? 'text-white border-l-4 border-[#d4af37] bg-white/10' 
                 : 'text-gray-300 hover:bg-white/5'}`}
               title="Audience Personas"
             >
@@ -221,7 +221,7 @@ const Sidebar = ({ open, setOpen, collapsed = false, setCollapsed }: SidebarProp
             <Link 
               href="/email-validation" 
               className={`flex items-center px-2 py-2 rounded-md ${location === '/email-validation' 
-                ? 'text-white border-l-4 border-white bg-white/10' 
+                ? 'text-white border-l-4 border-[#d4af37] bg-white/10' 
                 : 'text-gray-300 hover:bg-white/5'}`}
               title="Email Validation"
             >
@@ -233,7 +233,7 @@ const Sidebar = ({ open, setOpen, collapsed = false, setCollapsed }: SidebarProp
             <Link 
               href="/email-providers" 
               className={`flex items-center px-2 py-2 rounded-md ${location === '/email-providers' 
-                ? 'text-white border-l-4 border-white bg-white/10' 
+                ? 'text-white border-l-4 border-[#d4af37] bg-white/10' 
                 : 'text-gray-300 hover:bg-white/5'}`}
               title="Email Providers"
             >
@@ -246,7 +246,7 @@ const Sidebar = ({ open, setOpen, collapsed = false, setCollapsed }: SidebarProp
             <Link 
               href="/email-test" 
               className={`flex items-center px-2 py-2 rounded-md ${location === '/email-test' 
-                ? 'text-white border-l-4 border-white bg-white/10' 
+                ? 'text-white border-l-4 border-[#d4af37] bg-white/10' 
                 : 'text-gray-300 hover:bg-white/5'}`}
               title="Email Test"
             >
@@ -259,7 +259,7 @@ const Sidebar = ({ open, setOpen, collapsed = false, setCollapsed }: SidebarProp
             <Link 
               href="/admin" 
               className={`flex items-center px-2 py-2 rounded-md ${location === '/admin' 
-                ? 'text-white border-l-4 border-white bg-white/10' 
+                ? 'text-white border-l-4 border-[#d4af37] bg-white/10' 
                 : 'text-gray-300 hover:bg-white/5'}`}
               title="Admin Panel"
             >
