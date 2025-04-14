@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { Pencil, Trash2, Plus, CreditCard, BarChart4, User, Mail, Building2, Check, X } from 'lucide-react';
+import { Pencil, Trash2, Plus, CreditCard, BarChart4, User, Mail, Building2, Check, X, Loader2, Info as InfoIcon } from 'lucide-react';
 import { queryClient, apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 
@@ -19,6 +19,7 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
+  DialogTrigger,
 } from '@/components/ui/dialog';
 import {
   Form,
