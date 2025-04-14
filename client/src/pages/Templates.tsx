@@ -342,48 +342,59 @@ export default function Templates() {
   });
   
   return (
-    <div className="space-y-8">
-      <div className="relative overflow-hidden bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 rounded-xl p-8 mb-6">
+    <div className="space-y-8 px-4 py-6 max-w-[1600px] mx-auto">
+      {/* Hero section with gradient */}
+      <div className="relative overflow-hidden bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 rounded-xl p-6 sm:p-8 shadow-sm border border-blue-100">
         <div className="absolute inset-0 bg-grid-primary-500/10 [mask-image:linear-gradient(0deg,#fff2,transparent)] bg-fixed"></div>
         <div className="relative">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
-              <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-primary to-indigo-600 bg-clip-text text-transparent">Email Templates</h1>
-              <p className="text-muted-foreground mt-2 max-w-2xl">
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
+                Email Template Library
+              </h1>
+              <p className="text-slate-600 mt-2 max-w-2xl text-sm sm:text-base">
                 Create professional email templates to elevate your campaigns and boost engagement with your audience
               </p>
             </div>
             <Button 
-              className="rounded-full shadow-md gap-2 px-5 bg-gradient-to-r from-primary to-indigo-600 hover:from-primary/90 hover:to-indigo-600/90 transition-all"
+              className="rounded-full shadow-md gap-2 px-5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 transition-all"
               onClick={handleOpenCreateTemplate}
             >
-              <PlusCircle className="h-4 w-4" /> 
+              <PlusCircle className="h-4 w-4 mr-1" /> 
               Create Template
             </Button>
           </div>
         </div>
       </div>
       
-      <div className="flex flex-col gap-6">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <div className="relative w-full md:w-64">
+      {/* Search and action tools */}
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white rounded-xl p-4 border border-gray-200 shadow-sm">
+          <div className="relative w-full sm:w-64">
             <Input
               type="search"
               placeholder="Search templates..."
-              className="w-full border-primary/20 focus-visible:ring-primary/30"
+              className="w-full border-blue-200 focus-visible:ring-blue-300 pl-9"
               value={searchQuery}
               onChange={handleSearchChange}
             />
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-gray-400 absolute left-3 top-[50%] transform -translate-y-1/2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
           </div>
           
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-wrap gap-3 w-full sm:w-auto">
             <Button 
               variant="outline" 
-              className="gap-2 border-primary/20 text-primary hover:bg-primary/5 hover:text-primary transition-colors"
+              className="gap-2 border-blue-200 text-blue-600 hover:bg-blue-50 hover:text-blue-700 transition-colors flex-1 sm:flex-none"
               onClick={() => setShowAIGenerator(!showAIGenerator)}
             >
               {showAIGenerator ? (
-                <>Hide AI Generator</>
+                <>
+                  <XCircle className="h-4 w-4" />
+                  Hide AI Generator
+                </>
               ) : (
                 <>
                   <Wand2 className="h-4 w-4" /> 
@@ -393,7 +404,7 @@ export default function Templates() {
             </Button>
             <Button 
               variant="outline"
-              className="gap-2 border-primary/20 text-primary hover:bg-primary/5 hover:text-primary transition-colors"
+              className="gap-2 border-blue-200 text-blue-600 hover:bg-blue-50 hover:text-blue-700 transition-colors flex-1 sm:flex-none"
               onClick={() => setShowImportModal(true)}
             >
               <Import className="h-4 w-4" /> 
@@ -402,56 +413,64 @@ export default function Templates() {
           </div>
         </div>
 
+        {/* AI Generator Section */}
         <Collapsible open={showAIGenerator} onOpenChange={setShowAIGenerator}>
-          <CollapsibleContent className="mt-2">
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-lg border border-blue-100">
+          <CollapsibleContent className="mt-1">
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl border border-blue-100 shadow-sm">
               <AdvancedTemplateGenerator onTemplateGenerated={handleTemplateGenerated} />
             </div>
           </CollapsibleContent>
         </Collapsible>
       </div>
       
-      <div className="space-y-6">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b pb-3">
-          <h2 className="text-xl font-semibold flex items-center text-primary">
-            <FileText className="h-5 w-5 mr-2" />
+      {/* Template listing section */}
+      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-6">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-gray-200 pb-4">
+          <h2 className="text-xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent flex items-center">
+            <FileText className="h-5 w-5 mr-2 text-blue-600" />
             Template Library
           </h2>
           
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full md:w-[300px]">
-            <TabsList className="grid grid-cols-2 bg-blue-50/50">
-              <TabsTrigger value="all" className="data-[state=active]:bg-white">All Templates</TabsTrigger>
-              <TabsTrigger value="ai" className="flex items-center data-[state=active]:bg-white">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full sm:w-[300px]">
+            <TabsList className="grid grid-cols-2 bg-gray-100/80">
+              <TabsTrigger value="all" className="data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm">
+                All Templates
+              </TabsTrigger>
+              <TabsTrigger value="ai" className="flex items-center data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm">
                 <Sparkles className="h-3.5 w-3.5 mr-1.5" /> AI Templates
               </TabsTrigger>
             </TabsList>
           </Tabs>
         </div>
         
+        {/* Loading state */}
         {isLoadingTemplates ? (
           <div className="flex flex-col items-center justify-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
-            <p className="text-muted-foreground">Loading templates...</p>
+            <Loader2 className="h-8 w-8 animate-spin text-blue-600 mb-4" />
+            <p className="text-gray-500">Loading templates...</p>
           </div>
         ) : filteredTemplates.length === 0 ? (
-          <div className="bg-blue-50 border border-blue-200 rounded-md p-6 text-center">
-            <h3 className="text-lg font-medium mb-2">No templates found</h3>
-            <p className="text-muted-foreground mb-4">
+          <div className="bg-blue-50 border border-blue-200 rounded-xl p-8 text-center">
+            <div className="bg-white w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm border border-blue-100">
+              <FileText className="h-8 w-8 text-blue-600" />
+            </div>
+            <h3 className="text-xl font-bold text-gray-800 mb-2">No templates found</h3>
+            <p className="text-gray-500 mb-6 max-w-md mx-auto">
               {searchQuery 
                 ? `No templates match your search query "${searchQuery}".` 
-                : "You don't have any templates yet. Create your first template."}
+                : "You don't have any templates yet. Create your first template to get started."}
             </p>
-            <div className="flex gap-3 justify-center">
+            <div className="flex gap-3 justify-center flex-wrap">
               <Button 
                 variant="outline" 
-                className="gap-2"
+                className="gap-2 border-blue-200 bg-white shadow-sm"
                 onClick={() => setShowAIGenerator(true)}
               >
                 <Wand2 className="h-4 w-4" /> 
                 Use AI Generator
               </Button>
               <Button 
-                className="gap-2"
+                className="gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
                 onClick={() => setShowImportModal(true)}
               >
                 <Import className="h-4 w-4" /> 
@@ -460,19 +479,19 @@ export default function Templates() {
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredTemplates.map((template: Template) => (
               <Card 
                 key={template.id} 
-                className="flex flex-col h-full overflow-hidden border border-transparent hover:border-primary/20 hover:shadow-lg transition-all group rounded-xl"
+                className="flex flex-col h-full overflow-hidden border border-gray-200 hover:border-blue-300 hover:shadow-lg transition-all duration-300 group rounded-xl"
                 onClick={() => handleViewTemplate(template)}
               >
-                <div className="relative overflow-hidden h-[200px] bg-gradient-to-br from-blue-50 to-indigo-50">
+                <div className="relative overflow-hidden h-[180px] bg-gradient-to-br from-gray-50 to-blue-50">
                   {/* Template preview thumbnail */}
                   <div 
                     className="absolute inset-0 flex items-center justify-center p-3 overflow-hidden"
                   >
-                    <div className="relative w-full h-full bg-white rounded-lg shadow-md overflow-hidden transform transition-transform group-hover:scale-[1.02] origin-center">
+                    <div className="relative w-full h-full bg-white rounded-lg shadow-md overflow-hidden transform transition-transform group-hover:scale-[1.02] duration-300 origin-center">
                       <iframe 
                         srcDoc={template.content}
                         className="w-full h-full transform scale-[0.6] origin-top bg-white"
@@ -485,26 +504,26 @@ export default function Templates() {
                   </div>
                   
                   {/* Quick action overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3 p-4">
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3 p-4">
                     <div className="absolute bottom-4 w-full flex justify-center gap-2">
                       <Button 
                         variant="secondary" 
                         size="sm"
-                        className="shadow-md"
+                        className="shadow-md bg-white/90 backdrop-blur-sm hover:bg-white"
                         onClick={(e) => {
                           e.stopPropagation();
                           window.open(`/preview-template?id=${template.id}`, '_blank');
                         }}
                       >
-                        <Eye className="h-4 w-4 mr-1.5" />
+                        <Eye className="h-4 w-4 mr-1.5 text-blue-600" />
                         Preview
                       </Button>
                       <Link 
                         href={`/template-builder?id=${template.id}`}
                         onClick={(e) => e.stopPropagation()}
                       >
-                        <Button variant="secondary" size="sm" className="shadow-md">
-                          <Pencil className="h-4 w-4 mr-1.5" />
+                        <Button variant="secondary" size="sm" className="shadow-md bg-white/90 backdrop-blur-sm hover:bg-white">
+                          <Pencil className="h-4 w-4 mr-1.5 text-blue-600" />
                           Edit
                         </Button>
                       </Link>
@@ -512,14 +531,14 @@ export default function Templates() {
                   </div>
 
                   {/* Category pill */}
-                  <div className="absolute top-3 left-3 px-2.5 py-1 bg-white shadow-sm rounded-full text-xs font-medium text-primary/90 backdrop-blur-sm">
+                  <div className="absolute top-3 left-3 px-2.5 py-1 bg-white shadow-sm rounded-full text-xs font-medium text-blue-700 backdrop-blur-sm border border-blue-100">
                     {template.category || 'General'}
                   </div>
                   
                   {/* AI badge if applicable */}
                   {template.metadata?.generatedByAI && (
                     <div className="absolute top-3 right-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-full px-2.5 py-1 text-xs font-medium flex items-center shadow-sm">
-                      <Sparkles className="h-3 w-3 mr-1.5" /> AI Generated
+                      <Sparkles className="h-3 w-3 mr-1" /> AI Generated
                     </div>
                   )}
                 </div>
@@ -527,21 +546,21 @@ export default function Templates() {
                 <CardHeader className="pb-1.5 pt-4">
                   <div className="flex justify-between items-start gap-2">
                     <div>
-                      <CardTitle className="text-lg font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
+                      <CardTitle className="text-lg font-bold text-gray-800">
                         {template.name}
                       </CardTitle>
-                      <CardDescription className="line-clamp-2 mt-1 text-sm">
+                      <CardDescription className="line-clamp-2 mt-1 text-sm text-gray-500">
                         {template.description}
                       </CardDescription>
                     </div>
-                    <Badge variant="outline" className="text-xs text-gray-500 shrink-0">ID: {template.id}</Badge>
+                    <Badge variant="outline" className="text-xs text-gray-500 shrink-0 border-gray-200">ID: {template.id}</Badge>
                   </div>
                 </CardHeader>
                 
                 <CardContent className="py-1.5 flex-grow">
                   <div className="flex flex-col space-y-2">
-                    <div className="flex items-start gap-1.5 text-sm text-muted-foreground">
-                      <span className="font-medium text-primary/80">Subject:</span>
+                    <div className="flex items-start gap-1.5 text-sm text-gray-500">
+                      <span className="font-medium text-blue-700">Subject:</span>
                       <span className="line-clamp-2">{template.subject}</span>
                     </div>
                   </div>
@@ -552,7 +571,7 @@ export default function Templates() {
                     <Button 
                       variant="outline" 
                       size="sm"
-                      className="w-full border-primary/20 text-primary hover:bg-primary/5"
+                      className="w-full border-blue-200 text-blue-600 hover:bg-blue-50"
                     >
                       <Send className="h-4 w-4 mr-2" />
                       Use In Campaign
