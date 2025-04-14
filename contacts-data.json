@@ -10,6 +10,13 @@
     "name": "Aadi Mughal",
     "email": "adeel@ingenious.ae",
     "id": 2,
-    "createdAt": "2025-04-14T15:56:43.640Z"
+    "createdAt": "2025-04-14T15:56:43.640Z",
+    "lastActivityAt": null
+  },
+  {
+    "name": "Test Campaign",
+    "email": "sales@ingenious.ae",
+    "id": 3,
+    "createdAt": "2025-04-14T16:18:53.066Z"
   }
 ]
