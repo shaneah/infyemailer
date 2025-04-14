@@ -155,6 +155,26 @@ const ClientManagement = () => {
     },
     enabled: !!selectedClientId,
   });
+  
+  // Selected client's providers
+  const { data: clientProviders = [], isLoading: isLoadingProviders } = useQuery<ClientProvider[]>({
+    queryKey: ['/api/clients', selectedClientId, 'providers'],
+    queryFn: async () => {
+      if (!selectedClientId) return [];
+      const response = await fetch(`/api/clients/${selectedClientId}/providers`);
+      return response.json();
+    },
+    enabled: !!selectedClientId,
+  });
+  
+  // Available email providers
+  const { data: availableProviders = [], isLoading: isLoadingAvailableProviders } = useQuery<EmailProvider[]>({
+    queryKey: ['/api/email-providers'],
+    queryFn: async () => {
+      const response = await fetch('/api/email-providers');
+      return response.json();
+    },
+  });
 
   // Form for adding/editing client
   const clientForm = useForm<z.infer<typeof clientFormSchema>>({
@@ -282,6 +302,68 @@ const ClientManagement = () => {
       toast({
         title: 'Error',
         description: `Failed to update credits: ${error.message}`,
+        variant: 'destructive',
+      });
+    },
+  });
+  
+  // Add provider to client mutation
+  const addProviderMutation = useMutation({
+    mutationFn: async ({ 
+      clientId, 
+      providerId 
+    }: { 
+      clientId: number; 
+      providerId: number;
+    }) => {
+      const res = await apiRequest(
+        'POST', 
+        `/api/clients/${clientId}/providers`, 
+        { providerId }
+      );
+      return await res.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: 'Success',
+        description: 'Email provider assigned successfully.',
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/clients', selectedClientId, 'providers'] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: 'Error',
+        description: `Failed to assign provider: ${error.message}`,
+        variant: 'destructive',
+      });
+    },
+  });
+  
+  // Remove provider from client mutation
+  const removeProviderMutation = useMutation({
+    mutationFn: async ({ 
+      clientId, 
+      providerId 
+    }: { 
+      clientId: number; 
+      providerId: number;
+    }) => {
+      await apiRequest(
+        'DELETE', 
+        `/api/clients/${clientId}/providers/${providerId}`
+      );
+    },
+    onSuccess: () => {
+      toast({
+        title: 'Success',
+        description: 'Email provider removed successfully.',
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/clients', selectedClientId, 'providers'] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: 'Error',
+        description: `Failed to remove provider: ${error.message}`,
         variant: 'destructive',
       });
     },
