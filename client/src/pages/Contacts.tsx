@@ -1345,6 +1345,116 @@ export default function Contacts() {
         </div>
       </div>
 
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-8">
+        <Card className="border-0 shadow-sm relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-primary/10 z-0"></div>
+          <CardContent className="flex flex-col p-6 relative z-10">
+            <div className="flex justify-between items-start">
+              <div className="flex flex-col space-y-1">
+                <span className="text-sm font-medium text-muted-foreground">Total Contacts</span>
+                <span className="text-3xl font-bold text-gray-900 mt-1">
+                  {isLoadingContacts ? <Skeleton className="h-9 w-16" /> : contacts.length}
+                </span>
+                <span className="text-xs text-muted-foreground mt-1">
+                  {isLoadingContacts ? <Skeleton className="h-4 w-24" /> : 
+                  `Last updated ${new Date().toLocaleDateString('en-US', {month: 'short', day: 'numeric'})}`}
+                </span>
+              </div>
+              <div className="rounded-full bg-primary/10 h-12 w-12 flex items-center justify-center text-primary">
+                <Users className="h-6 w-6" />
+              </div>
+            </div>
+            <div className="mt-5">
+              <Button className="w-full bg-primary hover:bg-primary/90 text-white" onClick={() => setOpen(true)}>
+                <UserPlus className="mr-2 h-4 w-4" />
+                Add Contact
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-0 shadow-sm relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-indigo-50 to-indigo-100/80 z-0"></div>
+          <CardContent className="flex flex-col p-6 relative z-10">
+            <div className="flex justify-between items-start">
+              <div className="flex flex-col space-y-1">
+                <span className="text-sm font-medium text-muted-foreground">Total Lists</span>
+                <span className="text-3xl font-bold text-gray-900 mt-1">
+                  {isLoadingLists ? <Skeleton className="h-9 w-16" /> : lists.length}
+                </span>
+                <span className="text-xs text-muted-foreground mt-1">
+                  Organize your audience
+                </span>
+              </div>
+              <div className="rounded-full bg-indigo-100 h-12 w-12 flex items-center justify-center text-indigo-700">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-list">
+                  <line x1="8" x2="21" y1="6" y2="6"/>
+                  <line x1="8" x2="21" y1="12" y2="12"/>
+                  <line x1="8" x2="21" y1="18" y2="18"/>
+                  <line x1="3" x2="3.01" y1="6" y2="6"/>
+                  <line x1="3" x2="3.01" y1="12" y2="12"/>
+                  <line x1="3" x2="3.01" y1="18" y2="18"/>
+                </svg>
+              </div>
+            </div>
+            <div className="mt-5">
+              <Button variant="outline" className="w-full border-indigo-200 hover:bg-indigo-50 text-indigo-700" onClick={() => setListDialogOpen(true)}>
+                <Plus className="mr-2 h-4 w-4" />
+                Create List
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-0 shadow-sm relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-green-50 to-green-100/80 z-0"></div>
+          <CardContent className="flex flex-col p-6 relative z-10">
+            <div className="flex justify-between items-start">
+              <div className="flex flex-col space-y-1">
+                <span className="text-sm font-medium text-muted-foreground">Import</span>
+                <span className="text-3xl font-bold text-gray-900 mt-1">Contacts</span>
+                <span className="text-xs text-muted-foreground mt-1">
+                  CSV, Excel, or Text
+                </span>
+              </div>
+              <div className="rounded-full bg-green-100 h-12 w-12 flex items-center justify-center text-green-700">
+                <Upload className="h-6 w-6" />
+              </div>
+            </div>
+            <div className="mt-5">
+              <Button variant="outline" className="w-full border-green-200 hover:bg-green-50 text-green-700" onClick={() => setImportDialogOpen(true)}>
+                <FileUp className="mr-2 h-4 w-4" />
+                Import Contacts
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-0 shadow-sm relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-blue-100/80 z-0"></div>
+          <CardContent className="flex flex-col p-6 relative z-10">
+            <div className="flex justify-between items-start">
+              <div className="flex flex-col space-y-1">
+                <span className="text-sm font-medium text-muted-foreground">Export</span>
+                <span className="text-3xl font-bold text-gray-900 mt-1">Contacts</span>
+                <span className="text-xs text-muted-foreground mt-1">
+                  Download your data
+                </span>
+              </div>
+              <div className="rounded-full bg-blue-100 h-12 w-12 flex items-center justify-center text-blue-700">
+                <Download className="h-6 w-6" />
+              </div>
+            </div>
+            <div className="mt-5">
+              <Button variant="outline" className="w-full border-blue-200 hover:bg-blue-50 text-blue-700" onClick={() => setExportDialogOpen(true)}>
+                <FileDown className="mr-2 h-4 w-4" />
+                Export Contacts
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
       <Card className="mb-6 border-0 shadow-md bg-gradient-to-br from-white to-gray-50">
         <CardHeader className="border-b pb-4">
           <div className="flex justify-between items-center">
