@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from "wouter";
-import { Mail, LayoutDashboard, Megaphone, FileText, Users, Building, BarChart2, Activity, Split, Globe, Settings as SettingsIcon, ShieldCheck, LogOut, CheckCircle2, ServerCog, Building2, UserRound, Users as UsersIcon, UserPlus, SendHorizonal, ChevronsLeft, ChevronsRight, UserCircle2 } from "lucide-react";
+import { Mail, LayoutDashboard, Megaphone, FileText, Users, Building, BarChart2, Activity, Split, Globe, Settings as SettingsIcon, ShieldCheck, LogOut, CheckCircle2, ServerCog, Building2, UserRound, Users as UsersIcon, UserPlus, SendHorizonal, ChevronsLeft, ChevronsRight, UserCircle2, ExternalLink } from "lucide-react";
 import infyLogo from "../assets/Infinity Tech Logo-01.png";
 import { useAuth } from "@/hooks/use-auth";
 
@@ -277,6 +277,19 @@ const Sidebar = ({ open, setOpen, collapsed = false, setCollapsed }: SidebarProp
             >
               <ShieldCheck className="h-5 w-5 mr-3" />
               {!collapsed && <span>Admin Panel</span>}
+            </Link>
+          </li>
+          
+          <li>
+            <Link 
+              href="/client-dashboard" 
+              className={`flex items-center px-2 py-2 mt-4 rounded-md bg-[#d4af37]/10 border border-[#d4af37]/30 ${location === '/client-dashboard' 
+                ? 'text-white border-l-4 border-[#d4af37] bg-white/10' 
+                : 'text-[#d4af37] hover:bg-[#d4af37]/20'}`}
+              title="Client Portal"
+            >
+              <ExternalLink className="h-5 w-5 mr-3" />
+              {!collapsed && <span className="font-medium">Client Portal</span>}
             </Link>
           </li>
         </ul>

@@ -963,23 +963,31 @@ export class MemStorage implements IStorage {
       .filter(provider => provider.clientId === clientId);
   }
   
-  async assignProviderToClient(clientProvider: InsertClientProvider): Promise<ClientProvider> {
+  async assignProviderToClient(clientId: number, providerId: string, settings: any = {}): Promise<ClientProvider> {
     const id = this.clientProviderId++;
     const now = new Date();
+    
+    // Convert providerId to number for storage
+    const providerIdNum = parseInt(providerId, 10);
     
     const newClientProvider: ClientProvider = {
       id,
       createdAt: now,
-      ...clientProvider
+      clientId,
+      providerId: providerIdNum,
+      // Add the settings to metadata if needed
     };
     
     this.clientProviders.set(id, newClientProvider);
     return newClientProvider;
   }
   
-  async removeProviderFromClient(clientId: number, providerId: number): Promise<boolean> {
+  async removeProviderFromClient(clientId: number, providerId: string): Promise<boolean> {
+    // Convert providerId to number for comparison
+    const providerIdNum = parseInt(providerId, 10);
+    
     const provider = Array.from(this.clientProviders.values())
-      .find(p => p.clientId === clientId && p.providerId === providerId);
+      .find(p => p.clientId === clientId && p.providerId === providerIdNum);
     
     if (!provider) return false;
     
