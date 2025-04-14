@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertCircle, CheckCircle2, XCircle, Upload, RefreshCw, Download, FileUp, FileDown, FileType, FileJson, FileText as FileTextIcon, ChevronUp, ChevronDown } from "lucide-react";
+import { AlertCircle, CheckCircle2, XCircle, Upload, RefreshCw, Download, FileUp, FileDown, FileType, FileJson, FileText as FileTextIcon, ChevronUp, ChevronDown, Sparkles, Copy } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -338,38 +338,45 @@ const EmailValidation = () => {
 
   return (
     <div className="container mx-auto py-8">
-      <div className="relative overflow-hidden bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-xl p-8 mb-8 shadow-lg">
-        <div className="absolute inset-0 bg-grid-white/10 [mask-image:linear-gradient(0deg,#fff2,transparent)] bg-fixed"></div>
+      <div className="relative overflow-hidden rounded-xl p-8 mb-8 shadow-xl bg-[#1a3a5f]">
+        <div className="absolute inset-0 opacity-10" style={{ 
+          backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.2'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")",
+          backgroundSize: "30px 30px"
+        }}></div>
         <div className="relative">
-          <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">Email Validation & Cleaning</h1>
-          <p className="text-white/80 text-lg max-w-3xl">
-            Improve your email marketing effectiveness by validating and cleaning your email lists
+          <h1 className="text-3xl md:text-4xl font-bold mb-2 text-white">
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#f5f0e1] via-[#d4af37] to-[#f5f0e1]">
+              Email Validation & Cleaning
+            </span>
+          </h1>
+          <p className="text-[#f5f0e1]/90 text-lg max-w-3xl mb-6">
+            Enhance your campaign performance with our premium email validation service
           </p>
-          <div className="flex flex-wrap gap-4 mt-4">
-            <div className="flex items-center text-white/90 text-sm">
-              <CheckCircle2 className="h-5 w-5 mr-2 text-emerald-300" />
-              <span>Remove invalid emails</span>
+          <div className="grid md:grid-cols-2 gap-4 mt-4">
+            <div className="flex items-center p-3 rounded-lg bg-[#1a3a5f]/50 backdrop-blur border border-[#d4af37]/30">
+              <CheckCircle2 className="h-5 w-5 mr-3 text-[#d4af37]" />
+              <span className="text-[#f5f0e1]">Remove invalid emails</span>
             </div>
-            <div className="flex items-center text-white/90 text-sm">
-              <CheckCircle2 className="h-5 w-5 mr-2 text-emerald-300" />
-              <span>Detect and fix typos</span>
+            <div className="flex items-center p-3 rounded-lg bg-[#1a3a5f]/50 backdrop-blur border border-[#d4af37]/30">
+              <CheckCircle2 className="h-5 w-5 mr-3 text-[#d4af37]" />
+              <span className="text-[#f5f0e1]">Detect and fix typos</span>
             </div>
-            <div className="flex items-center text-white/90 text-sm">
-              <CheckCircle2 className="h-5 w-5 mr-2 text-emerald-300" />
-              <span>Identify disposable emails</span>
+            <div className="flex items-center p-3 rounded-lg bg-[#1a3a5f]/50 backdrop-blur border border-[#d4af37]/30">
+              <CheckCircle2 className="h-5 w-5 mr-3 text-[#d4af37]" />
+              <span className="text-[#f5f0e1]">Identify disposable emails</span>
             </div>
-            <div className="flex items-center text-white/90 text-sm">
-              <CheckCircle2 className="h-5 w-5 mr-2 text-emerald-300" />
-              <span>Boost deliverability rates</span>
+            <div className="flex items-center p-3 rounded-lg bg-[#1a3a5f]/50 backdrop-blur border border-[#d4af37]/30">
+              <CheckCircle2 className="h-5 w-5 mr-3 text-[#d4af37]" />
+              <span className="text-[#f5f0e1]">Boost deliverability rates</span>
             </div>
           </div>
         </div>
       </div>
       
       <Tabs defaultValue="single" className="mb-8">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="single" className="data-[state=active]:bg-indigo-500 data-[state=active]:text-white">
-            <div className="flex items-center">
+        <TabsList className="grid w-full grid-cols-2 p-1 bg-[#f5f0e1] rounded-lg">
+          <TabsTrigger value="single" className="data-[state=active]:bg-[#1a3a5f] data-[state=active]:text-white rounded-md">
+            <div className="flex items-center py-1">
               <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M22 10.5V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v12c0 1.1.9 2 2 2h16a2 2 0 0 0 2-2v-7.5" />
                 <path d="m22 6-10 7L2 6" />
@@ -377,8 +384,8 @@ const EmailValidation = () => {
               Single Email Validation
             </div>
           </TabsTrigger>
-          <TabsTrigger value="bulk" className="data-[state=active]:bg-indigo-500 data-[state=active]:text-white">
-            <div className="flex items-center">
+          <TabsTrigger value="bulk" className="data-[state=active]:bg-[#1a3a5f] data-[state=active]:text-white rounded-md">
+            <div className="flex items-center py-1">
               <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M18 3a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3H6a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3V6a3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3h12a3 3 0 0 0 3-3 3 3 0 0 0-3-3z" />
               </svg>
@@ -388,16 +395,16 @@ const EmailValidation = () => {
         </TabsList>
         
         <TabsContent value="single">
-          <Card className="border-0 shadow-lg overflow-hidden">
-            <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-50 border-b">
-              <CardTitle className="text-xl text-indigo-800 flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-indigo-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <Card className="border-0 shadow-xl overflow-hidden border border-[#d4af37]/20">
+            <CardHeader className="bg-gradient-to-r from-[#f5f0e1] to-[#f5f0e1]/70 border-b border-[#d4af37]/20">
+              <CardTitle className="text-xl text-[#1a3a5f] flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-[#1a3a5f]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M22 10.5V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v12c0 1.1.9 2 2 2h16a2 2 0 0 0 2-2v-7.5" />
                   <path d="m22 6-10 7L2 6" />
                 </svg>
                 Validate Individual Email
               </CardTitle>
-              <CardDescription className="text-indigo-600/70">
+              <CardDescription className="text-[#1a3a5f]/70">
                 Check if an email address is valid, deliverable, and not disposable
               </CardDescription>
             </CardHeader>
@@ -518,26 +525,26 @@ const EmailValidation = () => {
         </TabsContent>
         
         <TabsContent value="bulk">
-          <Card className="border-0 shadow-lg overflow-hidden">
-            <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-50 border-b">
-              <CardTitle className="text-xl text-indigo-800 flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-indigo-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <Card className="border-0 shadow-xl overflow-hidden border border-[#d4af37]/20">
+            <CardHeader className="bg-gradient-to-r from-[#f5f0e1] to-[#f5f0e1]/70 border-b border-[#d4af37]/20">
+              <CardTitle className="text-xl text-[#1a3a5f] flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-[#1a3a5f]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M18 3a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3H6a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3V6a3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3h12a3 3 0 0 0 3-3 3 3 0 0 0-3-3z" />
                 </svg>
                 Bulk Email Validation
               </CardTitle>
-              <CardDescription className="text-indigo-600/70">
+              <CardDescription className="text-[#1a3a5f]/70">
                 Validate multiple email addresses at once, clean lists and fix typos
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex flex-col space-y-4">
                 <div className="grid gap-2">
-                  <Label htmlFor="bulk-emails">Email Addresses (one per line, or comma/semicolon separated)</Label>
+                  <Label htmlFor="bulk-emails" className="text-[#1a3a5f]">Email Addresses (one per line, or comma/semicolon separated)</Label>
                   <Textarea
                     id="bulk-emails"
                     placeholder="email1@example.com&#10;email2@example.com&#10;email3@example.com"
-                    className="min-h-[200px]"
+                    className="min-h-[200px] border-[#d4af37]/30 focus:border-[#d4af37] focus:ring-[#d4af37]/20"
                     value={bulkEmails}
                     onChange={(e) => setBulkEmails(e.target.value)}
                   />
@@ -547,7 +554,7 @@ const EmailValidation = () => {
                   <Button 
                     onClick={validateBulkEmails} 
                     disabled={isLoading} 
-                    className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white"
+                    className="flex-1 bg-[#1a3a5f] hover:bg-[#1a3a5f]/90 text-white border border-[#d4af37]/30"
                   >
                     {isLoading ? 
                       <RefreshCw className="h-4 w-4 animate-spin mr-2" /> : 
@@ -558,9 +565,9 @@ const EmailValidation = () => {
                   <Button 
                     variant="outline" 
                     onClick={handleImportEmails} 
-                    className="flex-1 border-indigo-300 text-indigo-700 hover:bg-indigo-50"
+                    className="flex-1 border-[#d4af37]/40 text-[#1a3a5f] hover:bg-[#f5f0e1]"
                   >
-                    <FileUp className="h-4 w-4 mr-2" />
+                    <FileUp className="h-4 w-4 mr-2 text-[#d4af37]" />
                     Import Emails
                   </Button>
                   <input
@@ -574,7 +581,7 @@ const EmailValidation = () => {
                     <>
                       <div className="flex w-full sm:w-auto">
                         <Select value={exportFormat} onValueChange={(value: any) => setExportFormat(value)}>
-                          <SelectTrigger className="w-[100px] rounded-r-none border-indigo-300">
+                          <SelectTrigger className="w-[100px] rounded-r-none border-[#d4af37]/40 text-[#1a3a5f]">
                             <SelectValue placeholder="Format" />
                           </SelectTrigger>
                           <SelectContent>
@@ -586,9 +593,9 @@ const EmailValidation = () => {
                         <Button 
                           variant="outline" 
                           onClick={downloadValidEmails} 
-                          className="rounded-l-none flex-1 border-indigo-300 text-indigo-700 hover:bg-indigo-50"
+                          className="rounded-l-none flex-1 border-[#d4af37]/40 text-[#1a3a5f] hover:bg-[#f5f0e1]"
                         >
-                          <Download className="h-4 w-4 mr-2" />
+                          <Download className="h-4 w-4 mr-2 text-[#d4af37]" />
                           Export Emails
                         </Button>
                       </div>
@@ -598,54 +605,74 @@ const EmailValidation = () => {
                 
                 {isLoading && (
                   <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
+                    <div className="flex justify-between text-sm text-[#1a3a5f]">
                       <span>Validating emails...</span>
                       <span>{processingStatus.current} / {processingStatus.total}</span>
                     </div>
-                    <Progress value={(processingStatus.current / processingStatus.total) * 100} />
+                    <Progress 
+                      value={(processingStatus.current / processingStatus.total) * 100} 
+                      className="bg-[#f5f0e1]"
+                      indicatorClassName="bg-[#1a3a5f]"
+                    />
                   </div>
                 )}
                 
                 {bulkAnalysisResult && (
                   <div className="space-y-4 mt-4">
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-                      <Card className="bg-slate-50">
-                        <CardContent className="p-4">
-                          <div className="text-sm text-muted-foreground">Total</div>
-                          <div className="text-2xl font-bold">{bulkAnalysisResult.summary.total}</div>
+                      <Card className="bg-[#f5f0e1]/50 border border-[#d4af37]/20 shadow-md overflow-hidden">
+                        <CardContent className="p-4 relative">
+                          <div className="flex items-center mb-1">
+                            <FileText className="w-4 h-4 mr-2 text-[#1a3a5f]" />
+                            <div className="text-sm text-[#1a3a5f]/70 font-medium">Total</div>
+                          </div>
+                          <div className="text-2xl font-bold text-[#1a3a5f]">{bulkAnalysisResult.summary.total}</div>
+                          <div className="absolute top-0 right-0 h-full w-1 bg-[#1a3a5f]/10"></div>
                         </CardContent>
                       </Card>
-                      <Card className="bg-green-50">
-                        <CardContent className="p-4">
-                          <div className="text-sm text-muted-foreground">Valid</div>
-                          <div className="text-2xl font-bold text-green-600">
+                      <Card className="bg-[#f5f0e1]/50 border border-[#d4af37]/20 shadow-md overflow-hidden">
+                        <CardContent className="p-4 relative">
+                          <div className="flex items-center mb-1">
+                            <CheckCircle2 className="w-4 h-4 mr-2 text-green-600" />
+                            <div className="text-sm text-[#1a3a5f]/70 font-medium">Valid</div>
+                          </div>
+                          <div className="text-2xl font-bold text-[#1a3a5f]">
                             {bulkAnalysisResult.summary.valid}
-                            <span className="text-sm font-normal text-green-700 ml-2">
+                            <span className="text-sm font-normal text-[#1a3a5f]/70 ml-2">
                               ({Math.round(bulkAnalysisResult.summary.valid / bulkAnalysisResult.summary.total * 100)}%)
                             </span>
                           </div>
+                          <div className="absolute top-0 right-0 h-full w-1 bg-green-500"></div>
                         </CardContent>
                       </Card>
-                      <Card className="bg-red-50">
-                        <CardContent className="p-4">
-                          <div className="text-sm text-muted-foreground">Invalid</div>
-                          <div className="text-2xl font-bold text-red-600">
+                      <Card className="bg-[#f5f0e1]/50 border border-[#d4af37]/20 shadow-md overflow-hidden">
+                        <CardContent className="p-4 relative">
+                          <div className="flex items-center mb-1">
+                            <XCircle className="w-4 h-4 mr-2 text-red-500" />
+                            <div className="text-sm text-[#1a3a5f]/70 font-medium">Invalid</div>
+                          </div>
+                          <div className="text-2xl font-bold text-[#1a3a5f]">
                             {bulkAnalysisResult.summary.invalid}
-                            <span className="text-sm font-normal text-red-700 ml-2">
+                            <span className="text-sm font-normal text-[#1a3a5f]/70 ml-2">
                               ({Math.round(bulkAnalysisResult.summary.invalid / bulkAnalysisResult.summary.total * 100)}%)
                             </span>
                           </div>
+                          <div className="absolute top-0 right-0 h-full w-1 bg-red-500"></div>
                         </CardContent>
                       </Card>
-                      <Card className="bg-amber-50">
-                        <CardContent className="p-4">
-                          <div className="text-sm text-muted-foreground">Duplicates</div>
-                          <div className="text-2xl font-bold text-amber-600">
+                      <Card className="bg-[#f5f0e1]/50 border border-[#d4af37]/20 shadow-md overflow-hidden">
+                        <CardContent className="p-4 relative">
+                          <div className="flex items-center mb-1">
+                            <Copy className="w-4 h-4 mr-2 text-amber-500" />
+                            <div className="text-sm text-[#1a3a5f]/70 font-medium">Duplicates</div>
+                          </div>
+                          <div className="text-2xl font-bold text-[#1a3a5f]">
                             {bulkAnalysisResult.summary.duplicates}
-                            <span className="text-sm font-normal text-amber-700 ml-2">
+                            <span className="text-sm font-normal text-[#1a3a5f]/70 ml-2">
                               ({Math.round(bulkAnalysisResult.summary.duplicates / bulkAnalysisResult.summary.total * 100)}%)
                             </span>
                           </div>
+                          <div className="absolute top-0 right-0 h-full w-1 bg-amber-500"></div>
                         </CardContent>
                       </Card>
                     </div>
@@ -672,27 +699,27 @@ const EmailValidation = () => {
                     
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
-                        <h3 className="text-lg font-medium">Validation Results</h3>
+                        <h3 className="text-lg font-medium text-[#1a3a5f]">Validation Results</h3>
                         <div className="flex space-x-2">
                           <Button 
                             variant="outline" 
                             size="sm" 
                             onClick={() => setShowDetailedReport(!showDetailedReport)}
-                            className="border-indigo-300 text-indigo-700 hover:bg-indigo-50"
+                            className="border-[#d4af37]/40 text-[#1a3a5f] hover:bg-[#f5f0e1]"
                           >
                             {showDetailedReport ? (
-                              <><ChevronUp className="h-4 w-4 mr-2" />Hide Details</>
+                              <><ChevronUp className="h-4 w-4 mr-2 text-[#d4af37]" />Hide Details</>
                             ) : (
-                              <><ChevronDown className="h-4 w-4 mr-2" />Show Details</>
+                              <><ChevronDown className="h-4 w-4 mr-2 text-[#d4af37]" />Show Details</>
                             )}
                           </Button>
                           <Button 
                             variant="outline" 
                             size="sm" 
                             onClick={downloadReport}
-                            className="border-indigo-300 text-indigo-700 hover:bg-indigo-50"
+                            className="border-[#d4af37]/40 text-[#1a3a5f] hover:bg-[#f5f0e1]"
                           >
-                            <Upload className="h-4 w-4 mr-2" />
+                            <Upload className="h-4 w-4 mr-2 text-[#d4af37]" />
                             Export Report
                           </Button>
                         </div>
@@ -701,29 +728,35 @@ const EmailValidation = () => {
                       {showDetailedReport && (
                         <div className="space-y-4 mt-4">
                           <div>
-                            <h4 className="font-medium mb-2">Valid Emails ({bulkAnalysisResult.validEmails.length})</h4>
-                            <div className="bg-slate-50 p-3 rounded max-h-40 overflow-y-auto">
+                            <h4 className="font-medium mb-2 text-[#1a3a5f] flex items-center">
+                              <CheckCircle2 className="h-4 w-4 mr-2 text-[#d4af37]" />
+                              Valid Emails ({bulkAnalysisResult.validEmails.length})
+                            </h4>
+                            <div className="bg-[#f5f0e1]/50 p-3 rounded-lg max-h-40 overflow-y-auto border border-[#d4af37]/20">
                               {bulkAnalysisResult.validEmails.length > 0 ? (
                                 <ul className="space-y-1">
                                   {bulkAnalysisResult.validEmails.map((email, index) => (
-                                    <li key={index} className="text-sm font-mono">{email}</li>
+                                    <li key={index} className="text-sm font-mono text-[#1a3a5f]">{email}</li>
                                   ))}
                                 </ul>
                               ) : (
-                                <p className="text-sm text-muted-foreground">No valid emails found</p>
+                                <p className="text-sm text-[#1a3a5f]/70">No valid emails found</p>
                               )}
                             </div>
                           </div>
                           
                           {bulkAnalysisResult.invalidEmails.length > 0 && (
                             <div>
-                              <h4 className="font-medium mb-2">Invalid Emails ({bulkAnalysisResult.invalidEmails.length})</h4>
-                              <div className="bg-slate-50 p-3 rounded max-h-40 overflow-y-auto">
+                              <h4 className="font-medium mb-2 text-[#1a3a5f] flex items-center">
+                                <XCircle className="h-4 w-4 mr-2 text-red-500" />
+                                Invalid Emails ({bulkAnalysisResult.invalidEmails.length})
+                              </h4>
+                              <div className="bg-[#f5f0e1]/50 p-3 rounded-lg max-h-40 overflow-y-auto border border-[#d4af37]/20">
                                 <ul className="space-y-1">
                                   {bulkAnalysisResult.invalidEmails.map((item, index) => (
                                     <li key={index} className="text-sm">
-                                      <span className="font-mono">{item.email}</span>
-                                      <Badge variant="outline" className="ml-2 text-xs">
+                                      <span className="font-mono text-[#1a3a5f]">{item.email}</span>
+                                      <Badge variant="outline" className="ml-2 text-xs border-red-300 text-red-700 bg-red-50">
                                         {item.reason}
                                       </Badge>
                                     </li>
@@ -735,15 +768,18 @@ const EmailValidation = () => {
                           
                           {bulkAnalysisResult.suggestedFixes.length > 0 && (
                             <div>
-                              <h4 className="font-medium mb-2">Suggested Fixes ({bulkAnalysisResult.suggestedFixes.length})</h4>
-                              <div className="bg-slate-50 p-3 rounded max-h-40 overflow-y-auto">
+                              <h4 className="font-medium mb-2 text-[#1a3a5f] flex items-center">
+                                <Sparkles className="h-4 w-4 mr-2 text-[#d4af37]" />
+                                Suggested Fixes ({bulkAnalysisResult.suggestedFixes.length})
+                              </h4>
+                              <div className="bg-[#f5f0e1]/50 p-3 rounded-lg max-h-40 overflow-y-auto border border-[#d4af37]/20">
                                 <ul className="space-y-1">
                                   {bulkAnalysisResult.suggestedFixes.map((fix, index) => (
                                     <li key={index} className="text-sm flex justify-between">
                                       <div>
-                                        <span className="font-mono">{fix.original}</span>
-                                        <span className="mx-2">→</span>
-                                        <span className="font-mono text-green-600">{fix.suggestion}</span>
+                                        <span className="font-mono text-[#1a3a5f]">{fix.original}</span>
+                                        <span className="mx-2 text-[#1a3a5f]/70">→</span>
+                                        <span className="font-mono text-[#d4af37] font-semibold">{fix.suggestion}</span>
                                       </div>
                                     </li>
                                   ))}

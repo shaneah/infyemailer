@@ -7,30 +7,28 @@ import {
   CardHeader, 
   CardTitle 
 } from "@/components/ui/card";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
 import { 
-  AlertTriangle, 
   CheckCircle2, 
-  Zap, 
-  Lightbulb, 
-  Phone, 
-  ImageIcon, 
-  Link2, 
-  Settings, 
-  Clock, 
-  ShieldCheck,
+  XCircle, 
+  AlertTriangle, 
+  AlertCircle, 
+  ListChecks, 
+  Sparkles, 
+  Image, 
+  BarChart2,
+  LayoutList,
   FileText,
-  MoveRight,
-  BarChart4
+  Link,
+  FileSpreadsheet,
+  Hourglass,
+  MessageSquare,
+  MousePointer,
+  Search
 } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 
 interface EmailChecklistProps {
   emailContent?: string;
@@ -38,344 +36,599 @@ interface EmailChecklistProps {
   onFinish?: () => void;
 }
 
-export const EmailChecklistWidget: React.FC<EmailChecklistProps> = ({
-  emailContent = "",
-  emailSubject = "",
+interface CheckResult {
+  id: string;
+  title: string;
+  description: string;
+  status: 'passed' | 'failed' | 'warning' | 'checking';
+  details?: string[];
+  recommendation?: string;
+  category: 'spam' | 'content' | 'mobile' | 'delivery';
+  icon: React.ReactNode;
+}
+
+const EmailChecklistWidget: React.FC<EmailChecklistProps> = ({
+  emailContent = '',
+  emailSubject = '',
   onFinish
 }) => {
+  const [activeStep, setActiveStep] = useState(0);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [checklistResults, setChecklistResults] = useState<{
-    id: string;
-    title: string;
-    status: 'pass' | 'warn' | 'fail' | 'pending';
-    icon: React.ReactNode;
-    details: string;
-    tips: string[];
-  }[]>([
-    {
-      id: 'spam-triggers',
-      title: 'Spam Trigger Analysis',
-      status: 'pending',
-      icon: <AlertTriangle className="h-5 w-5 text-amber-500" />,
-      details: 'Checks your email content for common words and phrases that might trigger spam filters.',
-      tips: [
-        'Avoid ALL CAPS in subject lines',
-        'Don\'t use excessive exclamation marks!!!',
-        'Avoid phrases like "free", "guaranteed", "act now"',
-        'Limit the use of dollar signs and percentages'
-      ]
-    },
-    {
-      id: 'mobile-responsive',
-      title: 'Mobile Responsiveness',
-      status: 'pending',
-      icon: <Phone className="h-5 w-5 text-blue-500" />,
-      details: 'Ensures your email template displays properly on mobile devices.',
-      tips: [
-        'Use a single-column layout for mobile devices',
-        'Make CTA buttons at least 44x44 pixels for touch targets',
-        'Keep subject lines under 50 characters',
-        'Optimize images for mobile loading speeds'
-      ]
-    },
-    {
-      id: 'image-text-ratio',
-      title: 'Image-to-Text Ratio',
-      status: 'pending',
-      icon: <ImageIcon className="h-5 w-5 text-purple-500" />,
-      details: 'Evaluates the balance between images and text in your email.',
-      tips: [
-        'Aim for a 60:40 text-to-image ratio',
-        'Always include ALT text for images',
-        'Don\'t embed critical information only in images',
-        'Compress images to improve load time'
-      ]
-    },
-    {
-      id: 'links-tracking',
-      title: 'Links & Tracking',
-      status: 'pending',
-      icon: <Link2 className="h-5 w-5 text-indigo-500" />,
-      details: 'Confirms that all links are working and proper tracking is in place.',
-      tips: [
-        'Test all links before sending',
-        'Use UTM parameters for campaign tracking',
-        'Include a clear unsubscribe link',
-        'Avoid link shorteners that might get flagged'
-      ]
-    },
-    {
-      id: 'preview-text',
-      title: 'Subject & Preview Text',
-      status: 'pending',
-      icon: <FileText className="h-5 w-5 text-green-500" />,
-      details: 'Reviews your subject line and preview text for effectiveness.',
-      tips: [
-        'Keep subject lines under 50 characters',
-        'Use personalization in subject lines when possible',
-        'Create preview text that complements your subject line',
-        'A/B test different subject lines for important campaigns'
-      ]
-    },
-    {
-      id: 'sending-config',
-      title: 'Sending Configuration',
-      status: 'pending',
-      icon: <Settings className="h-5 w-5 text-slate-500" />,
-      details: 'Checks your sender configuration for optimal deliverability.',
-      tips: [
-        'Use a recognized sender name',
-        'Send from a domain with proper DKIM/SPF records',
-        'Monitor your sender reputation',
-        'Segment your audience for more targeted sending'
-      ]
-    },
-    {
-      id: 'delivery-timing',
-      title: 'Delivery Timing',
-      status: 'pending',
-      icon: <Clock className="h-5 w-5 text-orange-500" />,
-      details: 'Suggests optimal sending times based on your audience.',
-      tips: [
-        'Consider your audience\'s time zone',
-        'B2B emails typically perform better Tuesday-Thursday',
-        'B2C emails often perform better on weekends',
-        'Test different sending times for your specific audience'
-      ]
-    },
-    {
-      id: 'security-compliance',
-      title: 'Security & Compliance',
-      status: 'pending',
-      icon: <ShieldCheck className="h-5 w-5 text-emerald-500" />,
-      details: 'Ensures your email meets security standards and regulatory requirements.',
-      tips: [
-        'Include a physical address (required by law)',
-        'Provide a clear unsubscribe method',
-        'Honor opt-out requests promptly',
-        'Keep your subscriber lists clean and updated'
-      ]
-    }
-  ]);
-
-  // Simulate checklist evaluation
+  const [checkResults, setCheckResults] = useState<CheckResult[]>([]);
+  const [currentCategory, setCurrentCategory] = useState<'spam' | 'content' | 'mobile' | 'delivery'>('spam');
+  const [overallScore, setOverallScore] = useState(0);
+  
+  // Simulate analysis process
   useEffect(() => {
-    const runChecks = async () => {
-      let newProgress = 0;
-      let updatedResults = [...checklistResults];
+    if (emailContent && emailSubject) {
+      setIsAnalyzing(true);
       
-      // Function to update a specific check status
-      const updateCheckStatus = (index: number, status: 'pass' | 'warn' | 'fail') => {
-        updatedResults[index] = {
-          ...updatedResults[index],
-          status
-        };
-        setChecklistResults([...updatedResults]);
-      };
+      // Initialize progress
+      setProgress(0);
       
-      // Simulate spam trigger analysis
-      setTimeout(() => {
-        // Simulate the check based on content
-        const spamWords = ['free', 'guarantee', 'cash', 'winner', 'act now', 'buy now', 'click here'];
-        const containsSpamWords = spamWords.some(word => 
-          emailContent.toLowerCase().includes(word.toLowerCase()) || 
-          emailSubject.toLowerCase().includes(word.toLowerCase())
-        );
+      // Reset results
+      setCheckResults([]);
+      
+      // Simulate checking process with delays
+      const totalSteps = 100;
+      let currentStep = 0;
+      
+      const interval = setInterval(() => {
+        currentStep += 1;
+        setProgress(Math.min(currentStep, totalSteps));
         
-        const status = containsSpamWords ? 'warn' : 'pass';
-        updateCheckStatus(0, status);
-        newProgress += 12.5;
-        setProgress(newProgress);
-      }, 800);
-      
-      // Simulate mobile responsiveness check
-      setTimeout(() => {
-        // This would be more complex in a real implementation
-        const hasResponsiveElements = emailContent.includes('max-width') || emailContent.includes('media query');
-        const status = hasResponsiveElements ? 'pass' : 'warn';
-        updateCheckStatus(1, status);
-        newProgress += 12.5;
-        setProgress(newProgress);
-      }, 1600);
-      
-      // Simulate image-to-text ratio check
-      setTimeout(() => {
-        const imgCount = (emailContent.match(/<img/g) || []).length;
-        const textLength = emailContent.replace(/<[^>]*>/g, '').length;
-        
-        // Simple heuristic - in practice this would be more sophisticated
-        const status = imgCount > 0 && textLength > imgCount * 200 ? 'pass' : 'warn';
-        updateCheckStatus(2, status);
-        newProgress += 12.5;
-        setProgress(newProgress);
-      }, 2400);
-      
-      // Simulate links check
-      setTimeout(() => {
-        const hasLinks = emailContent.includes('href=');
-        const hasTracking = emailContent.includes('utm_') || emailContent.includes('tracking');
-        
-        let status: 'pass' | 'warn' | 'fail' = 'fail';
-        if (hasLinks && hasTracking) {
-          status = 'pass';
-        } else if (hasLinks) {
-          status = 'warn';
+        if (currentStep >= 25 && currentStep < 50) {
+          setCurrentCategory('content');
+        } else if (currentStep >= 50 && currentStep < 75) {
+          setCurrentCategory('mobile');
+        } else if (currentStep >= 75) {
+          setCurrentCategory('delivery');
         }
         
-        updateCheckStatus(3, status);
-        newProgress += 12.5;
-        setProgress(newProgress);
-      }, 3200);
+        if (currentStep >= totalSteps) {
+          clearInterval(interval);
+          setIsAnalyzing(false);
+          generateResults();
+        }
+      }, 50);
       
-      // Simulate subject & preview text check
-      setTimeout(() => {
-        const subjectLength = emailSubject.length;
-        const status = subjectLength > 0 && subjectLength < 50 ? 'pass' : 'warn';
-        updateCheckStatus(4, status);
-        newProgress += 12.5;
-        setProgress(newProgress);
-      }, 4000);
-      
-      // Simulate the final checks with default pass status for demo
-      setTimeout(() => {
-        updateCheckStatus(5, 'pass');
-        newProgress += 12.5;
-        setProgress(newProgress);
-      }, 4800);
-      
-      setTimeout(() => {
-        updateCheckStatus(6, 'pass');
-        newProgress += 12.5;
-        setProgress(newProgress);
-      }, 5600);
-      
-      setTimeout(() => {
-        updateCheckStatus(7, 'pass');
-        newProgress += 12.5;
-        setProgress(100);
-      }, 6400);
-    };
-    
-    runChecks();
+      return () => clearInterval(interval);
+    }
   }, [emailContent, emailSubject]);
-
+  
+  const generateResults = () => {
+    // Simulate checklist results based on content analysis
+    const results: CheckResult[] = [];
+    
+    // Spam Checks
+    results.push({
+      id: 'spam_subject',
+      title: 'Subject Line',
+      description: 'Checking subject line for spam triggers',
+      status: emailSubject.toUpperCase().includes('FREE') || emailSubject.includes('!!!!') 
+        ? 'failed' 
+        : 'passed',
+      details: emailSubject.toUpperCase().includes('FREE') 
+        ? ['Found potential spam word: "FREE"'] 
+        : [],
+      recommendation: emailSubject.toUpperCase().includes('FREE') 
+        ? 'Avoid using "FREE" in all caps. Try alternatives like "Complimentary" or "No Cost"' 
+        : '',
+      category: 'spam',
+      icon: <FileText className="h-5 w-5" />
+    });
+    
+    results.push({
+      id: 'spam_exclamation',
+      title: 'Excessive Punctuation',
+      description: 'Checking for overuse of exclamation points or all caps',
+      status: emailContent.includes('!!!') || /[A-Z]{10,}/.test(emailContent) 
+        ? 'failed' 
+        : 'passed',
+      details: emailContent.includes('!!!') 
+        ? ['Found multiple exclamation points together'] 
+        : [],
+      recommendation: emailContent.includes('!!!') 
+        ? 'Reduce the use of consecutive exclamation points. Use a single exclamation point for emphasis.' 
+        : '',
+      category: 'spam',
+      icon: <AlertCircle className="h-5 w-5" />
+    });
+    
+    results.push({
+      id: 'spam_buy_now',
+      title: 'Promotional Language',
+      description: 'Checking for hard-sell language',
+      status: emailContent.includes('BUY NOW') || emailContent.includes('ACT NOW') 
+        ? 'warning' 
+        : 'passed',
+      details: emailContent.includes('BUY NOW') 
+        ? ['Found promotional phrase: "BUY NOW"'] 
+        : [],
+      recommendation: emailContent.includes('BUY NOW') 
+        ? 'Consider replacing "BUY NOW" with "Learn More" or "Shop Today"' 
+        : '',
+      category: 'spam',
+      icon: <MessageSquare className="h-5 w-5" />
+    });
+    
+    // Content Checks
+    results.push({
+      id: 'content_image_text',
+      title: 'Image-to-Text Ratio',
+      description: 'Checking balance between images and text',
+      status: emailContent.includes('<img') && (emailContent.match(/<img/g) || []).length > 5 
+        ? 'warning' 
+        : 'passed',
+      details: (emailContent.match(/<img/g) || []).length > 5 
+        ? ['Found ' + (emailContent.match(/<img/g) || []).length + ' images, which may be too many'] 
+        : [],
+      recommendation: (emailContent.match(/<img/g) || []).length > 5 
+        ? 'Consider reducing the number of images to improve deliverability' 
+        : '',
+      category: 'content',
+      icon: <Image className="h-5 w-5" />
+    });
+    
+    results.push({
+      id: 'content_alt_text',
+      title: 'Image Alt Text',
+      description: 'Checking if images have proper alt text',
+      status: emailContent.includes('<img') && !emailContent.includes('alt=') 
+        ? 'failed' 
+        : 'passed',
+      details: emailContent.includes('<img') && !emailContent.includes('alt=') 
+        ? ['Images are missing alt text'] 
+        : [],
+      recommendation: emailContent.includes('<img') && !emailContent.includes('alt=') 
+        ? 'Add descriptive alt text to all images to improve accessibility' 
+        : '',
+      category: 'content',
+      icon: <FileSpreadsheet className="h-5 w-5" />
+    });
+    
+    results.push({
+      id: 'content_broken_links',
+      title: 'Link Destinations',
+      description: 'Checking for placeholder or broken links',
+      status: emailContent.includes('href="#"') || emailContent.includes('href="http://example.com') 
+        ? 'failed' 
+        : 'passed',
+      details: emailContent.includes('href="#"') 
+        ? ['Found placeholder links: href="#"'] 
+        : [],
+      recommendation: emailContent.includes('href="#"') 
+        ? 'Replace placeholder links with actual URLs' 
+        : '',
+      category: 'content',
+      icon: <Link className="h-5 w-5" />
+    });
+    
+    results.push({
+      id: 'content_click_here',
+      title: 'Meaningful Link Text',
+      description: 'Checking for generic link text like "click here"',
+      status: emailContent.toLowerCase().includes('>click here<') 
+        ? 'warning' 
+        : 'passed',
+      details: emailContent.toLowerCase().includes('>click here<') 
+        ? ['Found generic link text: "click here"'] 
+        : [],
+      recommendation: emailContent.toLowerCase().includes('>click here<') 
+        ? 'Replace "click here" with more descriptive link text' 
+        : '',
+      category: 'content',
+      icon: <MousePointer className="h-5 w-5" />
+    });
+    
+    // Mobile Checks
+    results.push({
+      id: 'mobile_viewport',
+      title: 'Viewport Meta Tag',
+      description: 'Checking if email has viewport meta tag',
+      status: emailContent.includes('viewport') 
+        ? 'passed' 
+        : 'warning',
+      details: !emailContent.includes('viewport') 
+        ? ['Missing viewport meta tag'] 
+        : [],
+      recommendation: !emailContent.includes('viewport') 
+        ? 'Add viewport meta tag for better mobile rendering: <meta name="viewport" content="width=device-width, initial-scale=1.0">' 
+        : '',
+      category: 'mobile',
+      icon: <LayoutList className="h-5 w-5" />
+    });
+    
+    results.push({
+      id: 'mobile_responsive',
+      title: 'Responsive Design',
+      description: 'Checking for responsive techniques',
+      status: emailContent.includes('@media') 
+        ? 'passed' 
+        : 'warning',
+      details: !emailContent.includes('@media') 
+        ? ['No media queries found for responsive design'] 
+        : [],
+      recommendation: !emailContent.includes('@media') 
+        ? 'Add media queries for responsive styling on mobile devices' 
+        : '',
+      category: 'mobile',
+      icon: <BarChart2 className="h-5 w-5" />
+    });
+    
+    // Delivery Checks
+    results.push({
+      id: 'delivery_unsubscribe',
+      title: 'Unsubscribe Link',
+      description: 'Checking for required unsubscribe link',
+      status: emailContent.toLowerCase().includes('unsubscribe') 
+        ? 'passed' 
+        : 'failed',
+      details: !emailContent.toLowerCase().includes('unsubscribe') 
+        ? ['Missing unsubscribe link'] 
+        : [],
+      recommendation: !emailContent.toLowerCase().includes('unsubscribe') 
+        ? 'Add a clear unsubscribe link to comply with anti-spam regulations' 
+        : '',
+      category: 'delivery',
+      icon: <Search className="h-5 w-5" />
+    });
+    
+    results.push({
+      id: 'delivery_sender',
+      title: 'Sender Information',
+      description: 'Checking for sender details and address',
+      status: emailContent.toLowerCase().includes('address') || emailContent.includes('contact') 
+        ? 'passed' 
+        : 'warning',
+      details: !emailContent.toLowerCase().includes('address') && !emailContent.includes('contact') 
+        ? ['Missing physical address or contact information'] 
+        : [],
+      recommendation: !emailContent.toLowerCase().includes('address') && !emailContent.includes('contact') 
+        ? 'Include your physical mailing address to comply with CAN-SPAM and similar regulations' 
+        : '',
+      category: 'delivery',
+      icon: <Hourglass className="h-5 w-5" />
+    });
+    
+    setCheckResults(results);
+    
+    // Calculate overall score
+    const passedCount = results.filter(r => r.status === 'passed').length;
+    const totalChecks = results.length;
+    const score = Math.round((passedCount / totalChecks) * 100);
+    setOverallScore(score);
+  };
+  
+  const getCategoryIcon = (category: string) => {
+    switch (category) {
+      case 'spam':
+        return <AlertCircle className="h-5 w-5 text-red-500" />;
+      case 'content':
+        return <FileText className="h-5 w-5 text-blue-500" />;
+      case 'mobile':
+        return <LayoutList className="h-5 w-5 text-purple-500" />;
+      case 'delivery':
+        return <Hourglass className="h-5 w-5 text-amber-500" />;
+      default:
+        return <CheckCircle2 className="h-5 w-5" />;
+    }
+  };
+  
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'pass':
-        return <CheckCircle2 className="h-4 w-4 text-green-500" />;
-      case 'warn':
-        return <AlertTriangle className="h-4 w-4 text-amber-500" />;
-      case 'fail':
-        return <AlertTriangle className="h-4 w-4 text-red-500" />;
+      case 'passed':
+        return <CheckCircle2 className="h-5 w-5 text-green-500" />;
+      case 'failed':
+        return <XCircle className="h-5 w-5 text-red-500" />;
+      case 'warning':
+        return <AlertTriangle className="h-5 w-5 text-amber-500" />;
+      case 'checking':
+        return <Hourglass className="h-5 w-5 text-blue-500 animate-spin" />;
       default:
-        return <Clock className="h-4 w-4 text-slate-400 animate-pulse" />;
+        return <CheckCircle2 className="h-5 w-5" />;
     }
   };
-
-  const getStatusBadge = (status: string) => {
+  
+  const getStatusLabel = (status: string) => {
     switch (status) {
-      case 'pass':
-        return <Badge className="bg-green-100 text-green-800 hover:bg-green-100">Pass</Badge>;
-      case 'warn':
-        return <Badge className="bg-amber-100 text-amber-800 hover:bg-amber-100">Warning</Badge>;
-      case 'fail':
-        return <Badge className="bg-red-100 text-red-800 hover:bg-red-100">Fail</Badge>;
+      case 'passed':
+        return <Badge className="bg-green-100 text-green-800 hover:bg-green-200">Passed</Badge>;
+      case 'failed':
+        return <Badge className="bg-red-100 text-red-800 hover:bg-red-200">Failed</Badge>;
+      case 'warning':
+        return <Badge className="bg-amber-100 text-amber-800 hover:bg-amber-200">Warning</Badge>;
+      case 'checking':
+        return <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-200">Checking</Badge>;
       default:
-        return <Badge className="bg-slate-100 text-slate-800 hover:bg-slate-100">Checking...</Badge>;
+        return <Badge>Unknown</Badge>;
     }
   };
-
-  const passedChecks = checklistResults.filter(item => item.status === 'pass').length;
-  const totalChecks = checklistResults.length;
-  const score = Math.round((passedChecks / totalChecks) * 100);
-
-  return (
-    <Card className="w-full shadow-md border-indigo-100">
-      <CardHeader className="bg-gradient-to-r from-indigo-50 to-blue-50 border-b border-indigo-100">
-        <div className="flex items-center justify-between">
-          <div>
-            <CardTitle className="text-xl text-indigo-900">Email Campaign Checklist</CardTitle>
-            <CardDescription className="text-indigo-700">
-              Ensure your email follows best practices before sending
-            </CardDescription>
-          </div>
-          <div className="flex items-center justify-center w-16 h-16 rounded-full bg-white border-2 border-indigo-200 shadow-sm">
-            <div className="text-center">
-              <span className="block text-2xl font-bold text-indigo-700">{score}%</span>
-              <span className="text-xs text-indigo-500">Score</span>
+  
+  const getScoreColor = (score: number) => {
+    if (score >= 90) return 'text-green-500';
+    if (score >= 70) return 'text-amber-500';
+    return 'text-red-500';
+  };
+  
+  const getProgressColor = (score: number) => {
+    if (score >= 90) return 'bg-green-500';
+    if (score >= 70) return 'bg-amber-500';
+    return 'bg-red-500';
+  };
+  
+  const getResultsByCategory = (category: string) => {
+    return checkResults.filter(result => result.category === category);
+  };
+  
+  const categoryScores = {
+    spam: Math.round((getResultsByCategory('spam').filter(r => r.status === 'passed').length / Math.max(1, getResultsByCategory('spam').length)) * 100),
+    content: Math.round((getResultsByCategory('content').filter(r => r.status === 'passed').length / Math.max(1, getResultsByCategory('content').length)) * 100),
+    mobile: Math.round((getResultsByCategory('mobile').filter(r => r.status === 'passed').length / Math.max(1, getResultsByCategory('mobile').length)) * 100),
+    delivery: Math.round((getResultsByCategory('delivery').filter(r => r.status === 'passed').length / Math.max(1, getResultsByCategory('delivery').length)) * 100),
+  };
+  
+  const categoryLabels = {
+    spam: 'Spam Check',
+    content: 'Content Quality',
+    mobile: 'Mobile Friendliness',
+    delivery: 'Deliverability',
+  };
+  
+  if (isAnalyzing) {
+    return (
+      <Card className="mb-6">
+        <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-50 border-b">
+          <CardTitle className="text-xl">
+            Analyzing Your Email
+          </CardTitle>
+          <CardDescription>
+            Checking your email content against best practices
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="pt-6">
+          <div className="flex flex-col space-y-4">
+            <div className="flex items-center space-x-2">
+              <div className="w-full">
+                <Progress value={progress} className="h-2" />
+              </div>
+              <span className="text-sm font-medium">{progress}%</span>
+            </div>
+            
+            <div className="flex items-center mt-4 text-indigo-600 animate-pulse">
+              <Sparkles className="h-5 w-5 mr-2" />
+              <span>
+                {currentCategory === 'spam' && 'Checking for spam triggers...'}
+                {currentCategory === 'content' && 'Analyzing content quality...'}
+                {currentCategory === 'mobile' && 'Evaluating mobile-friendliness...'}
+                {currentCategory === 'delivery' && 'Assessing deliverability factors...'}
+              </span>
             </div>
           </div>
-        </div>
-      </CardHeader>
-      <CardContent className="p-6">
-        <div className="mb-6">
-          <div className="flex justify-between text-sm mb-2">
-            <span className="text-slate-500">Checklist Progress</span>
-            <span className="text-indigo-700 font-medium">{Math.round(progress)}%</span>
+        </CardContent>
+      </Card>
+    );
+  }
+  
+  if (checkResults.length === 0) {
+    // This would happen if no content was provided
+    return (
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle className="text-xl">Email Checklist</CardTitle>
+          <CardDescription>
+            Please provide email content to analyze
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col items-center justify-center py-6 text-center">
+            <AlertCircle className="h-12 w-12 text-slate-300 mb-4" />
+            <h3 className="text-lg font-medium">No Content Found</h3>
+            <p className="text-slate-500 mt-2 max-w-md">
+              Enter your email content in the previous step to run the pre-send checklist
+            </p>
           </div>
-          <Progress value={progress} className="h-2 bg-slate-100" indicatorClassName="bg-indigo-600" />
-        </div>
-
-        <Accordion type="single" collapsible className="w-full">
-          {checklistResults.map(item => (
-            <AccordionItem key={item.id} value={item.id} className="border-b border-indigo-100">
-              <AccordionTrigger className="py-4 hover:no-underline">
-                <div className="flex items-center gap-3 text-left">
-                  <div className="flex-shrink-0">
-                    {item.icon}
-                  </div>
-                  <div className="flex-grow">
-                    <h3 className="font-medium text-slate-800">{item.title}</h3>
-                  </div>
-                  <div className="flex-shrink-0 ml-2">
-                    {getStatusBadge(item.status)}
-                  </div>
+        </CardContent>
+      </Card>
+    );
+  }
+  
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="col-span-1 space-y-6">
+        <Card>
+          <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-50 border-b">
+            <CardTitle className="text-xl">Overall Score</CardTitle>
+            <CardDescription>
+              Summary of your email quality check
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="pt-6">
+            <div className="flex flex-col items-center">
+              <div className="relative w-32 h-32 mb-4">
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className={`text-4xl font-bold ${getScoreColor(overallScore)}`}>
+                    {overallScore}%
+                  </span>
                 </div>
-              </AccordionTrigger>
-              <AccordionContent className="pb-4 pt-1">
-                <div className="bg-slate-50 p-4 rounded-md mb-3">
-                  <p className="text-slate-700">{item.details}</p>
+                <svg className="w-full h-full" viewBox="0 0 100 100">
+                  <circle
+                    className="text-gray-200"
+                    strokeWidth="10"
+                    stroke="currentColor"
+                    fill="transparent"
+                    r="40"
+                    cx="50"
+                    cy="50"
+                  />
+                  <circle
+                    className={getScoreColor(overallScore).replace('text-', 'text-')}
+                    strokeWidth="10"
+                    strokeDasharray={`${overallScore * 2.51327}, 251.327`}
+                    strokeLinecap="round"
+                    stroke="currentColor"
+                    fill="transparent"
+                    r="40"
+                    cx="50"
+                    cy="50"
+                    transform="rotate(-90 50 50)"
+                  />
+                </svg>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4 w-full">
+                <div className="space-y-2">
+                  <div className="flex items-center">
+                    <div className="w-3 h-3 rounded-full bg-green-500 mr-2"></div>
+                    <span className="text-sm">Passed</span>
+                  </div>
+                  <span className="text-2xl font-semibold">
+                    {checkResults.filter(r => r.status === 'passed').length}
+                  </span>
                 </div>
-                <h4 className="font-medium text-indigo-700 flex items-center gap-2 mb-2">
-                  <Lightbulb className="h-4 w-4" /> 
-                  Best Practice Tips
-                </h4>
-                <ul className="space-y-2">
-                  {item.tips.map((tip, index) => (
-                    <li key={index} className="flex items-start gap-2">
-                      <span className="mt-1 text-indigo-500">•</span>
-                      <span className="text-slate-700">{tip}</span>
-                    </li>
-                  ))}
-                </ul>
-              </AccordionContent>
-            </AccordionItem>
-          ))}
-        </Accordion>
-      </CardContent>
-      <CardFooter className="bg-gradient-to-r from-indigo-50 to-blue-50 border-t border-indigo-100 flex justify-between">
-        <div className="text-slate-700 flex items-center gap-1">
-          <Zap className="h-4 w-4 text-amber-500" />
-          <span>{passedChecks} of {totalChecks} checks passed</span>
-        </div>
-        <div className="flex gap-2">
-          <Button 
-            variant="outline" 
-            className="border-indigo-200 text-indigo-700 hover:bg-indigo-50"
-            onClick={() => window.open('https://example.com/email-best-practices', '_blank')}
-          >
-            View Best Practices
-          </Button>
-          <Button 
-            className="bg-indigo-600 hover:bg-indigo-700 text-white"
-            onClick={onFinish}
-          >
-            <span>Apply Improvements</span>
-            <MoveRight className="ml-2 h-4 w-4" />
-          </Button>
-        </div>
-      </CardFooter>
-    </Card>
+                
+                <div className="space-y-2">
+                  <div className="flex items-center">
+                    <div className="w-3 h-3 rounded-full bg-amber-500 mr-2"></div>
+                    <span className="text-sm">Warnings</span>
+                  </div>
+                  <span className="text-2xl font-semibold">
+                    {checkResults.filter(r => r.status === 'warning').length}
+                  </span>
+                </div>
+                
+                <div className="space-y-2">
+                  <div className="flex items-center">
+                    <div className="w-3 h-3 rounded-full bg-red-500 mr-2"></div>
+                    <span className="text-sm">Failed</span>
+                  </div>
+                  <span className="text-2xl font-semibold">
+                    {checkResults.filter(r => r.status === 'failed').length}
+                  </span>
+                </div>
+                
+                <div className="space-y-2">
+                  <div className="flex items-center">
+                    <div className="w-3 h-3 rounded-full bg-indigo-500 mr-2"></div>
+                    <span className="text-sm">Total</span>
+                  </div>
+                  <span className="text-2xl font-semibold">{checkResults.length}</span>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Category Scores</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-3">
+              {Object.entries(categoryLabels).map(([key, label]) => (
+                <div key={key} className="space-y-2">
+                  <div className="flex justify-between">
+                    <div className="flex items-center">
+                      {getCategoryIcon(key)}
+                      <span className="ml-2 text-sm font-medium">{label}</span>
+                    </div>
+                    <span className={`text-sm font-semibold ${getScoreColor(categoryScores[key as keyof typeof categoryScores])}`}>
+                      {categoryScores[key as keyof typeof categoryScores]}%
+                    </span>
+                  </div>
+                  <Progress 
+                    value={categoryScores[key as keyof typeof categoryScores]} 
+                    className="h-2" 
+                  />
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+      
+      <div className="col-span-1 md:col-span-2">
+        <Card>
+          <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-50 border-b">
+            <div className="flex justify-between items-center">
+              <div>
+                <CardTitle className="text-xl">Email Quality Checklist</CardTitle>
+                <CardDescription>
+                  Review issues and recommendations for your email
+                </CardDescription>
+              </div>
+              <ListChecks className="h-8 w-8 text-indigo-500" />
+            </div>
+          </CardHeader>
+          <CardContent className="pt-6">
+            <div className="space-y-6">
+              {Object.entries(categoryLabels).map(([key, label]) => (
+                <div key={key} className="space-y-4">
+                  <div className="flex items-center">
+                    {getCategoryIcon(key)}
+                    <h3 className="text-lg font-semibold ml-2">{label}</h3>
+                  </div>
+                  
+                  <div className="space-y-4 pl-6">
+                    {getResultsByCategory(key).map((result) => (
+                      <div key={result.id} className="border rounded-lg overflow-hidden">
+                        <div className="flex items-center justify-between p-4 bg-gray-50">
+                          <div className="flex items-center">
+                            {getStatusIcon(result.status)}
+                            <h4 className="font-medium ml-2">{result.title}</h4>
+                          </div>
+                          {getStatusLabel(result.status)}
+                        </div>
+                        
+                        {(result.status === 'failed' || result.status === 'warning') && (
+                          <div className="p-4 border-t">
+                            <p className="text-sm text-gray-700 mb-2">
+                              {result.description}
+                            </p>
+                            
+                            {result.details && result.details.length > 0 && (
+                              <div className="mt-2 bg-gray-50 p-3 rounded text-sm">
+                                <p className="font-medium mb-1">Issues found:</p>
+                                <ul className="list-disc pl-4 space-y-1">
+                                  {result.details.map((detail, idx) => (
+                                    <li key={idx} className="text-red-700">{detail}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+                            
+                            {result.recommendation && (
+                              <div className="mt-3 bg-blue-50 p-3 rounded text-sm text-blue-800">
+                                <p className="font-medium mb-1">Recommendation:</p>
+                                <p>{result.recommendation}</p>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                  
+                  {key !== 'delivery' && <Separator />}
+                </div>
+              ))}
+            </div>
+          </CardContent>
+          <CardFooter className="bg-gray-50 border-t">
+            <div className="flex justify-end w-full">
+              <Button
+                onClick={onFinish}
+                className="bg-indigo-600 hover:bg-indigo-700 text-white"
+              >
+                <Sparkles className="h-4 w-4 mr-2" />
+                Apply Recommendations & Optimize
+              </Button>
+            </div>
+          </CardFooter>
+        </Card>
+      </div>
+    </div>
   );
 };
 
