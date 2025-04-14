@@ -154,6 +154,8 @@ const UserManagement = () => {
   const handleCreateUser = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
+    const roleId = formData.get("roleId");
+    
     const userData = {
       username: formData.get("username") as string,
       email: formData.get("email") as string,
@@ -164,17 +166,48 @@ const UserManagement = () => {
     };
 
     try {
-      // Placeholder for actual API call - to be implemented
+      // Make API call to create the user
+      const response = await fetch('/api/users', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(userData)
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Failed to create user: ${response.statusText}`);
+      }
+      
+      const newUser = await response.json();
+      
+      // If a role was selected, assign it to the new user
+      if (roleId) {
+        const roleResponse = await fetch(`/api/users/${newUser.id}/roles`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ roleId: parseInt(roleId.toString()) })
+        });
+        
+        if (!roleResponse.ok) {
+          console.warn(`User created but failed to assign role: ${roleResponse.statusText}`);
+        }
+      }
+      
       toast({
         title: "User created",
         description: `User ${userData.username} has been created successfully.`,
       });
       setIsNewUserDialogOpen(false);
       queryClient.invalidateQueries({ queryKey: ["/api/users"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/user-roles"] });
     } catch (error) {
+      console.error("Error creating user:", error);
       toast({
         title: "Error creating user",
-        description: "There was an error creating the user. Please try again.",
+        description: (error as Error).message || "There was an error creating the user. Please try again.",
         variant: "destructive",
       });
     }
