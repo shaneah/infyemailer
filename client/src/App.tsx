@@ -28,6 +28,7 @@ import EmailChecklist from "@/pages/EmailChecklist";
 // Emails import removed
 import Reporting from "@/pages/Reporting";
 import EmailProviders from "@/pages/EmailProviders";
+import UserManagement from "@/pages/UserManagement";
 import ClientManagement from "@/pages/ClientManagement";
 import AudiencePersonas from "@/pages/AudiencePersonas";
 import EmailPreview from "@/pages/EmailPreview";
@@ -155,13 +156,6 @@ function App() {
               />
               
               <div className="flex-1 flex flex-col overflow-hidden">
-                <Navbar 
-                  sidebarOpen={sidebarOpen} 
-                  setSidebarOpen={setSidebarOpen}
-                  sidebarCollapsed={sidebarCollapsed}
-                  setSidebarCollapsed={setSidebarCollapsed}
-                />
-                
                 <main className="flex-1 overflow-y-auto p-4">
                   <Switch>
                     <ProtectedRoute path="/" component={Dashboard} />
@@ -178,6 +172,7 @@ function App() {
                     <ProtectedRoute path="domains" component={Domains} />
                     <ProtectedRoute path="clients" component={Clients} />
                     <ProtectedRoute path="client-users" component={ClientUsers} />
+                    <ProtectedRoute path="user-management" component={UserManagement} />
                     <ProtectedRoute path="settings" component={Settings} />
                     <ProtectedRoute path="profile" component={Settings} />
                     <ProtectedRoute path="admin" component={AdminPanel} />
