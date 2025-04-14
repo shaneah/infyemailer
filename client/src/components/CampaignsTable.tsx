@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -35,6 +35,32 @@ const CampaignsTable = () => {
   
   // For debugging purposes - log the campaigns data
   console.log("Campaigns data:", campaigns);
+  
+  // Add click outside handler to close dropdowns when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const dropdowns = document.querySelectorAll('.campaign-actions-dropdown:not(.hidden)');
+      
+      dropdowns.forEach((dropdown) => {
+        if (dropdown && !dropdown.contains(event.target as Node)) {
+          // Check if the click was outside the dropdown and not on the toggle button
+          const dropdownId = dropdown.id;
+          const campaignId = dropdownId.replace('dropdown-', '');
+          const toggleButton = document.querySelector(`button[aria-label="Campaign actions"][data-campaign-id="${campaignId}"]`);
+          
+          if (!toggleButton || !toggleButton.contains(event.target as Node)) {
+            dropdown.classList.add('hidden');
+          }
+        }
+      });
+    };
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
   
   const deleteCampaignMutation = useMutation({
     mutationFn: async (campaignId: number) => {
@@ -215,11 +241,22 @@ const CampaignsTable = () => {
                       </svg>
                       View
                     </Link>
-                    <div className="relative inline-block text-left group">
+                    <div className="relative inline-block text-left">
+                      {/* Replace hover-based menu with click-based dropdown */}
                       <button 
                         type="button" 
                         aria-label="Campaign actions"
                         title="Campaign actions"
+                        onClick={() => {
+                          const dropdowns = document.querySelectorAll('.campaign-actions-dropdown');
+                          dropdowns.forEach(d => {
+                            if (d.id !== `dropdown-${campaign.id}`) {
+                              d.classList.add('hidden');
+                            }
+                          });
+                          const dropdown = document.getElementById(`dropdown-${campaign.id}`);
+                          dropdown?.classList.toggle('hidden');
+                        }}
                         className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 w-9 p-0 relative"
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -229,7 +266,7 @@ const CampaignsTable = () => {
                         </svg>
                         <span className="absolute -top-1 -right-1 w-2 h-2 bg-blue-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
                       </button>
-                      <div className="absolute right-0 mt-2 w-48 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 opacity-0 group-hover:opacity-100 invisible group-hover:visible z-10 divide-y divide-gray-100 transition-all duration-150">
+                      <div id={`dropdown-${campaign.id}`} className="campaign-actions-dropdown absolute right-0 mt-2 w-48 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 hidden z-10 divide-y divide-gray-100">
                         <div className="py-1">
                           <Link 
                             href={`/campaigns/${campaign.id}`} 
