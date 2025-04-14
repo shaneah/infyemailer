@@ -121,12 +121,12 @@ const ElementRenderer: React.FC<ElementRendererProps> = ({
   const baseClass = `group relative transition-all duration-150 ${
     isSelected 
       ? 'outline outline-2 outline-primary/80 shadow-sm' 
-      : 'hover:outline hover:outline-1 hover:outline-primary/40'
-  } ${
-    isDragging ? 'opacity-50' : ''
-  } ${
-    isDraggedOver ? 'border-2 border-dashed border-primary/60 bg-primary/5' : ''
-  } rounded-sm cursor-grab active:cursor-grabbing`;
+      : isDragging 
+        ? 'outline outline-2 outline-primary/70 shadow-md z-20 bg-primary/5'
+        : isDraggedOver 
+          ? 'outline outline-2 outline-primary/70 border-2 border-dashed border-primary/60 bg-primary/10 shadow-md z-10'
+          : 'hover:outline hover:outline-1 hover:outline-primary/40'
+  } rounded-sm cursor-grab active:cursor-grabbing ${isDragging ? 'opacity-70' : ''}`;
 
   switch (type) {
     case 'header':
@@ -446,7 +446,13 @@ const Section: React.FC<SectionProps> = ({
         onDragOver={handleDragOver}
       >
         {section.elements.length === 0 ? (
-          <div className="text-center py-8 text-gray-500 border-2 border-dashed border-gray-300 rounded-md">
+          <div className={`text-center py-8 text-gray-500 border-2 border-dashed ${window.draggedOverElementId === 'new-element' && window.dragSourceSectionId !== section.id ? 'border-primary/70 bg-primary/5' : 'border-gray-300'} rounded-md transition-colors duration-200`}
+               onDragOver={(e) => {
+                 e.preventDefault();
+                 e.dataTransfer.dropEffect = "copy";
+                 window.setDraggedOverElementId('new-element');
+               }}
+          >
             <div className="flex flex-col items-center">
               <ArrowDown className="h-5 w-5 text-primary mb-2" />
               <p className="font-medium text-gray-600 mb-1">Drop content here</p>
