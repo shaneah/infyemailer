@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { Pencil, Trash2, Plus, CreditCard, BarChart4, User, Mail, Building2 } from 'lucide-react';
+import { Pencil, Trash2, Plus, CreditCard, BarChart4, User, Mail, Building2, Check, X } from 'lucide-react';
 import { queryClient, apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 
@@ -101,6 +101,22 @@ type CreditHistory = {
   reason: string | null;
   createdAt: string;
   performedBy: string | null;
+};
+
+type EmailProvider = {
+  id: number;
+  name: string;
+  type: string;
+  status: string;
+  createdAt: string | null;
+};
+
+type ClientProvider = {
+  id: number;
+  clientId: number;
+  providerId: number;
+  createdAt: string | null;
+  provider?: EmailProvider;
 };
 
 const ClientManagement = () => {
@@ -570,6 +586,7 @@ const ClientManagement = () => {
                 <TabsList>
                   <TabsTrigger value="users">Users</TabsTrigger>
                   <TabsTrigger value="credit-history">Credit History</TabsTrigger>
+                  <TabsTrigger value="email-providers">Email Providers</TabsTrigger>
                 </TabsList>
                 <TabsContent value="users">
                   <Card>
@@ -667,6 +684,66 @@ const ClientManagement = () => {
                           </TableBody>
                         </Table>
                       )}
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+                <TabsContent value="email-providers">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Email Providers</CardTitle>
+                      <CardDescription>Manage email providers assigned to this client</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-6">
+                        <div className="flex justify-between items-center">
+                          <div>
+                            <h3 className="text-lg font-medium">Assigned Providers</h3>
+                            <p className="text-sm text-gray-500">Email providers this client can use for sending campaigns</p>
+                          </div>
+                          <Button>
+                            <Plus className="mr-2 h-4 w-4" /> Assign Provider
+                          </Button>
+                        </div>
+                        
+                        {/* Provider List */}
+                        <div className="border rounded-md">
+                          <Table>
+                            <TableHeader>
+                              <TableRow>
+                                <TableHead>Provider</TableHead>
+                                <TableHead>Type</TableHead>
+                                <TableHead>Status</TableHead>
+                                <TableHead>Assigned On</TableHead>
+                                <TableHead className="text-right">Actions</TableHead>
+                              </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                              {/* We'll implement this part with actual provider data from API */}
+                              <TableRow>
+                                <TableCell className="font-medium">No providers assigned</TableCell>
+                                <TableCell colSpan={4} className="text-center">
+                                  <p className="text-sm text-gray-500">Assign email providers to allow this client to send campaigns</p>
+                                </TableCell>
+                              </TableRow>
+                            </TableBody>
+                          </Table>
+                        </div>
+                        
+                        <div className="rounded-md bg-blue-50 p-4 border border-blue-200">
+                          <div className="flex">
+                            <div className="flex-shrink-0">
+                              <svg className="h-5 w-5 text-blue-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a.75.75 0 000 1.5h.253a.25.25 0 01.244.304l-.459 2.066A1.75 1.75 0 0010.747 15H11a.75.75 0 000-1.5h-.253a.25.25 0 01-.244-.304l.459-2.066A1.75 1.75 0 009.253 9H9z" clipRule="evenodd" />
+                              </svg>
+                            </div>
+                            <div className="ml-3 flex-1 md:flex md:justify-between">
+                              <p className="text-sm text-blue-700">
+                                Clients can only use the email providers assigned to them. If no providers are assigned, they won't be able to send emails.
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </CardContent>
                   </Card>
                 </TabsContent>
