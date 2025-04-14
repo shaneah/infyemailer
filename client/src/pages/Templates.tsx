@@ -68,6 +68,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -115,6 +122,7 @@ export default function Templates() {
   const [isTestEmailOpen, setIsTestEmailOpen] = useState(false);
   const [isUpdateTemplateOpen, setIsUpdateTemplateOpen] = useState(false);
   const [isCreatingTemplate, setIsCreatingTemplate] = useState(false);
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   
   const { data: savedTemplates = [], isLoading: isLoadingTemplates } = useQuery({
     queryKey: ['/api/templates'],
@@ -426,21 +434,63 @@ export default function Templates() {
       {/* Template listing section */}
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-6">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-gray-200 pb-4">
-          <h2 className="text-xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent flex items-center">
-            <FileText className="h-5 w-5 mr-2 text-blue-600" />
-            Template Library
-          </h2>
-          
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full sm:w-[300px]">
-            <TabsList className="grid grid-cols-2 bg-gray-100/80">
-              <TabsTrigger value="all" className="data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm">
-                All Templates
-              </TabsTrigger>
-              <TabsTrigger value="ai" className="flex items-center data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm">
-                <Sparkles className="h-3.5 w-3.5 mr-1.5" /> AI Templates
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
+          <div className="flex flex-wrap items-center gap-4 w-full justify-between">
+            <h2 className="text-xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent flex items-center">
+              <FileText className="h-5 w-5 mr-2 text-blue-600" />
+              Template Library
+            </h2>
+            
+            <div className="flex items-center gap-4">
+              {/* View Mode Toggle */}
+              <div className="bg-gray-100 rounded-md p-1 flex">
+                <button
+                  onClick={() => setViewMode('grid')}
+                  className={`px-3 py-1.5 rounded flex items-center ${
+                    viewMode === 'grid'
+                      ? 'bg-white text-blue-600 shadow-sm'
+                      : 'text-gray-500 hover:text-gray-700'
+                  }`}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1.5">
+                    <rect x="3" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="3" width="7" height="7"></rect>
+                    <rect x="3" y="14" width="7" height="7"></rect>
+                    <rect x="14" y="14" width="7" height="7"></rect>
+                  </svg>
+                  Grid
+                </button>
+                <button
+                  onClick={() => setViewMode('list')}
+                  className={`px-3 py-1.5 rounded flex items-center ${
+                    viewMode === 'list'
+                      ? 'bg-white text-blue-600 shadow-sm'
+                      : 'text-gray-500 hover:text-gray-700'
+                  }`}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1.5">
+                    <line x1="8" y1="6" x2="21" y2="6"></line>
+                    <line x1="8" y1="12" x2="21" y2="12"></line>
+                    <line x1="8" y1="18" x2="21" y2="18"></line>
+                    <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                    <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                    <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                  </svg>
+                  List
+                </button>
+              </div>
+              
+              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full sm:w-[300px]">
+                <TabsList className="grid grid-cols-2 bg-gray-100/80">
+                  <TabsTrigger value="all" className="data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm">
+                    All Templates
+                  </TabsTrigger>
+                  <TabsTrigger value="ai" className="flex items-center data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm">
+                    <Sparkles className="h-3.5 w-3.5 mr-1.5" /> AI Templates
+                  </TabsTrigger>
+                </TabsList>
+              </Tabs>
+            </div>
+          </div>
         </div>
         
         {/* Loading state */}
@@ -479,13 +529,15 @@ export default function Templates() {
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredTemplates.map((template: Template) => (
-              <Card 
-                key={template.id} 
-                className="flex flex-col h-full overflow-hidden border border-gray-200 hover:border-blue-300 hover:shadow-lg transition-all duration-300 group rounded-xl"
-                onClick={() => handleViewTemplate(template)}
-              >
+          <>
+            {viewMode === 'grid' ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredTemplates.map((template: Template) => (
+                  <Card 
+                    key={template.id} 
+                    className="flex flex-col h-full overflow-hidden border border-gray-200 hover:border-blue-300 hover:shadow-lg transition-all duration-300 group rounded-xl"
+                    onClick={() => handleViewTemplate(template)}
+                  >
                 <div className="relative overflow-hidden h-[180px] bg-gradient-to-br from-gray-50 to-blue-50">
                   {/* Template preview thumbnail */}
                   <div 
@@ -594,6 +646,100 @@ export default function Templates() {
               </Card>
             ))}
           </div>
+            ) : (
+              <div className="space-y-4">
+                {filteredTemplates.map((template: Template) => (
+                  <Card 
+                    key={template.id} 
+                    className="border border-gray-200 hover:border-blue-300 hover:shadow-md transition-all duration-300"
+                    onClick={() => handleViewTemplate(template)}
+                  >
+                    <div className="grid grid-cols-1 md:grid-cols-8 gap-3 p-3">
+                      <div className="md:col-span-1 flex items-center justify-center">
+                        <div className="relative w-16 h-16 overflow-hidden rounded-md border border-gray-100">
+                          <iframe 
+                            srcDoc={template.content}
+                            className="absolute inset-0 w-full h-full transform scale-[0.25] origin-top-left"
+                            title={`Thumbnail of ${template.name}`}
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-br from-transparent to-white/40"></div>
+                        </div>
+                      </div>
+                      
+                      <div className="md:col-span-6 flex flex-col justify-center">
+                        <div className="flex items-center gap-2 mb-1">
+                          <h3 className="font-semibold text-gray-800">{template.name}</h3>
+                          {template.metadata?.generatedByAI && (
+                            <Badge className="bg-gradient-to-r from-blue-600 to-indigo-600 text-xs">
+                              <Sparkles className="h-3 w-3 mr-1" /> AI
+                            </Badge>
+                          )}
+                          <Badge variant="outline" className="text-xs text-gray-500">{template.category}</Badge>
+                        </div>
+                        <p className="text-sm text-gray-500 line-clamp-1">{template.description}</p>
+                        <div className="flex items-center gap-1 mt-1 text-xs text-gray-500">
+                          <span className="font-medium text-blue-700">Subject:</span>
+                          <span className="truncate">{template.subject}</span>
+                        </div>
+                      </div>
+                      
+                      <div className="md:col-span-1 flex items-center justify-end space-x-2">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                window.open(`/preview-template?id=${template.id}`, '_blank');
+                              }}
+                            >
+                              <Eye className="h-4 w-4 mr-2" />
+                              Preview
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                window.location.href = `/template-builder?id=${template.id}`;
+                              }}
+                            >
+                              <Pencil className="h-4 w-4 mr-2" />
+                              Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                window.location.href = `/campaigns?templateId=${template.id}`;
+                              }}
+                            >
+                              <Send className="h-4 w-4 mr-2" />
+                              Use in Campaign
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              className="text-red-600"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (window.confirm(`Are you sure you want to delete ${template.name}?`)) {
+                                  deleteTemplateMutation.mutate(template.id);
+                                }
+                              }}
+                            >
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </>
         )}
       </div>
       
