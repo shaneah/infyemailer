@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
@@ -6,19 +6,48 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { useParams, useLocation } from "wouter";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import EmailEditor from "@/components/EmailEditor";
-import { ArrowLeft, Loader2, Code } from "lucide-react";
+import {
+  ArrowLeft, 
+  Loader2, 
+  Code, 
+  Image as ImageIcon, 
+  Type, 
+  Link as LinkIcon, 
+  Save, 
+  SeparatorHorizontal, 
+  Video, 
+  Share2, 
+  Menu, 
+  Clock, 
+  SlidersHorizontal, 
+  ChevronsUpDown, 
+  FileCode, 
+  FormInput,
+  CheckSquare,
+  ArrowRightLeft,
+  Eye as EyeIcon,
+  Settings,
+  FileDown,
+  Send,
+  FileText,
+  X
+} from "lucide-react";
+import { Separator } from "@/components/ui/separator";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
-// Main Template Builder component
+// Main Template Builder component 
 export default function TemplateBuilder() {
   const { toast } = useToast();
   const params = useParams();
   const [location, navigate] = useLocation();
   const entityId = params.id;
-  const [activeTab, setActiveTab] = useState("visual");
+  const [activeTab, setActiveTab] = useState("blocks");
   const [htmlCode, setHtmlCode] = useState<string>("");
   const [isHtmlCodeVisible, setIsHtmlCodeVisible] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
+  const [activeSidebar, setActiveSidebar] = useState<'blocks' | 'appearance' | 'content'>('blocks');
 
   // Fetch template if in edit mode
   const { data: template, isLoading: isTemplateLoading } = useQuery({
@@ -170,7 +199,7 @@ export default function TemplateBuilder() {
   return (
     <div className="flex flex-col h-screen max-h-screen overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-white">
+      <div className="flex items-center justify-between px-6 py-3 border-b border-gray-200 bg-white">
         <div className="flex items-center">
           <Button 
             variant="ghost" 
@@ -181,9 +210,32 @@ export default function TemplateBuilder() {
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Templates
           </Button>
-          <h1 className="text-xl font-semibold text-gray-800">
+          <h1 className="text-lg font-semibold text-gray-800 mr-6">
             {isEditMode ? 'Edit Template' : 'Create New Template'}
           </h1>
+          
+          <div className="flex space-x-1">
+            <Button size="sm" variant="ghost" className="text-xs">
+              <Save className="h-4 w-4 mr-1.5" />
+              Save
+            </Button>
+            <Button size="sm" variant="ghost" className="text-xs">
+              <EyeIcon className="h-4 w-4 mr-1.5" />
+              Preview
+            </Button>
+            <Button size="sm" variant="ghost" className="text-xs">
+              <Send className="h-4 w-4 mr-1.5" />
+              Send Test
+            </Button>
+            <Button size="sm" variant="ghost" className="text-xs">
+              <ArrowRightLeft className="h-4 w-4 mr-1.5" />
+              Convert
+            </Button>
+            <Button size="sm" variant="ghost" className="text-xs">
+              <FileDown className="h-4 w-4 mr-1.5" />
+              Export
+            </Button>
+          </div>
         </div>
         
         <div className="flex items-center space-x-3">
@@ -196,29 +248,288 @@ export default function TemplateBuilder() {
             <Code className="h-4 w-4 mr-2" />
             {isHtmlCodeVisible ? 'Hide HTML' : 'View HTML'}
           </Button>
+          <Button 
+            variant="default" 
+            size="sm" 
+            onClick={() => saveTemplateMutation.mutate({ templateData: {}, htmlContent: "" })}
+            disabled={isSaving}
+            className="bg-[#1a3a5f] hover:bg-[#1a3a5f]/90"
+          >
+            {isSaving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
+            Save Template
+          </Button>
         </div>
       </div>
       
       {/* Editor Area */}
-      <div className="flex-1 overflow-hidden">
-        <Tabs 
-          defaultValue="visual" 
-          value={activeTab} 
-          onValueChange={setActiveTab}
-          className="h-full flex flex-col"
-        >
-          <div className="border-b border-gray-200 bg-gray-50">
-            <div className="container mx-auto">
-              <TabsList className="h-10">
-                <TabsTrigger value="visual" className="px-4">Visual Editor</TabsTrigger>
-                {isHtmlCodeVisible && (
-                  <TabsTrigger value="code" className="px-4">HTML Code</TabsTrigger>
-                )}
-              </TabsList>
+      <div className="flex flex-1 overflow-hidden">
+        {/* Sidebar */}
+        <div className="w-64 border-r border-gray-200 bg-white flex flex-col overflow-hidden">
+          {/* Sidebar Tabs */}
+          <div className="border-b border-gray-200">
+            <div className="w-full flex rounded-none h-auto">
+              <button 
+                type="button"
+                onClick={() => setActiveSidebar('blocks')}
+                className={`flex-1 rounded-none py-3 focus:outline-none ${activeSidebar === 'blocks' ? 'border-b-2 border-[#1a3a5f] font-medium' : 'text-gray-600 hover:text-gray-800'}`}
+              >
+                Blocks
+              </button>
+              <button 
+                type="button"
+                onClick={() => setActiveSidebar('appearance')}
+                className={`flex-1 rounded-none py-3 focus:outline-none ${activeSidebar === 'appearance' ? 'border-b-2 border-[#1a3a5f] font-medium' : 'text-gray-600 hover:text-gray-800'}`}
+              >
+                Appearance
+              </button>
+              <button 
+                type="button"
+                onClick={() => setActiveSidebar('content')}
+                className={`flex-1 rounded-none py-3 focus:outline-none ${activeSidebar === 'content' ? 'border-b-2 border-[#1a3a5f] font-medium' : 'text-gray-600 hover:text-gray-800'}`}
+              >
+                Content
+              </button>
             </div>
           </div>
-          
-          <TabsContent value="visual" className="flex-1 overflow-hidden mt-0 p-0">
+
+          {/* Structures & Blocks */}
+          {activeSidebar === 'blocks' && (
+            <div className="flex-1 overflow-auto">
+              <div className="p-4">
+                <h3 className="font-medium text-sm mb-3">Structures</h3>
+                <div className="grid grid-cols-2 gap-2 mb-6">
+                  <div className="border border-gray-200 rounded p-2 hover:border-[#1a3a5f]/60 cursor-pointer transition-colors">
+                    <div className="h-10 flex items-center justify-center">
+                      <div className="w-full h-2 bg-gray-200 rounded"></div>
+                    </div>
+                    <p className="text-xs text-center mt-2">1 Column</p>
+                  </div>
+                  <div className="border border-gray-200 rounded p-2 hover:border-[#1a3a5f]/60 cursor-pointer transition-colors">
+                    <div className="h-10 flex items-center justify-center space-x-1">
+                      <div className="w-1/2 h-2 bg-gray-200 rounded"></div>
+                      <div className="w-1/2 h-2 bg-gray-200 rounded"></div>
+                    </div>
+                    <p className="text-xs text-center mt-2">2 Columns</p>
+                  </div>
+                  <div className="border border-gray-200 rounded p-2 hover:border-[#1a3a5f]/60 cursor-pointer transition-colors">
+                    <div className="h-10 flex items-center justify-center space-x-1">
+                      <div className="w-1/3 h-2 bg-gray-200 rounded"></div>
+                      <div className="w-1/3 h-2 bg-gray-200 rounded"></div>
+                      <div className="w-1/3 h-2 bg-gray-200 rounded"></div>
+                    </div>
+                    <p className="text-xs text-center mt-2">3 Columns</p>
+                  </div>
+                  <div className="border border-gray-200 rounded p-2 hover:border-[#1a3a5f]/60 cursor-pointer transition-colors">
+                    <div className="h-10 flex items-center justify-center space-x-1">
+                      <div className="w-1/3 h-2 bg-gray-200 rounded"></div>
+                      <div className="w-2/3 h-2 bg-gray-200 rounded"></div>
+                    </div>
+                    <p className="text-xs text-center mt-2">1:2 Ratio</p>
+                  </div>
+                </div>
+
+                <h3 className="font-medium text-sm mb-3">Blocks</h3>
+                <div className="grid grid-cols-3 gap-2">
+                  <div className="border border-gray-200 rounded p-2 hover:border-[#1a3a5f]/60 cursor-pointer transition-colors text-center">
+                    <div className="flex justify-center mb-1.5">
+                      <ImageIcon className="h-5 w-5 text-gray-600" />
+                    </div>
+                    <p className="text-xs">Image</p>
+                  </div>
+                  <div className="border border-gray-200 rounded p-2 hover:border-[#1a3a5f]/60 cursor-pointer transition-colors text-center">
+                    <div className="flex justify-center mb-1.5">
+                      <Type className="h-5 w-5 text-gray-600" />
+                    </div>
+                    <p className="text-xs">Text</p>
+                  </div>
+                  <div className="border border-gray-200 rounded p-2 hover:border-[#1a3a5f]/60 cursor-pointer transition-colors text-center">
+                    <div className="flex justify-center mb-1.5">
+                      <Button className="h-5 w-5 text-gray-600 p-0 m-0 bg-transparent hover:bg-transparent">
+                        <div className="w-4 h-3 border border-gray-600 rounded text-[10px] flex items-center justify-center">
+                          B
+                        </div>
+                      </Button>
+                    </div>
+                    <p className="text-xs">Button</p>
+                  </div>
+                  <div className="border border-gray-200 rounded p-2 hover:border-[#1a3a5f]/60 cursor-pointer transition-colors text-center">
+                    <div className="flex justify-center mb-1.5">
+                      <div className="h-5 w-5 flex flex-col justify-center items-center">
+                        <div className="h-0.5 w-4 bg-gray-600"></div>
+                      </div>
+                    </div>
+                    <p className="text-xs">Spacer</p>
+                  </div>
+                  <div className="border border-gray-200 rounded p-2 hover:border-[#1a3a5f]/60 cursor-pointer transition-colors text-center">
+                    <div className="flex justify-center mb-1.5">
+                      <Video className="h-5 w-5 text-gray-600" />
+                    </div>
+                    <p className="text-xs">Video</p>
+                  </div>
+                  <div className="border border-gray-200 rounded p-2 hover:border-[#1a3a5f]/60 cursor-pointer transition-colors text-center">
+                    <div className="flex justify-center mb-1.5">
+                      <Share2 className="h-5 w-5 text-gray-600" />
+                    </div>
+                    <p className="text-xs">Social</p>
+                  </div>
+                  <div className="border border-gray-200 rounded p-2 hover:border-[#1a3a5f]/60 cursor-pointer transition-colors text-center">
+                    <div className="flex justify-center mb-1.5">
+                      <Menu className="h-5 w-5 text-gray-600" />
+                    </div>
+                    <p className="text-xs">Menu</p>
+                  </div>
+                  <div className="border border-gray-200 rounded p-2 hover:border-[#1a3a5f]/60 cursor-pointer transition-colors text-center">
+                    <div className="flex justify-center mb-1.5">
+                      <Clock className="h-5 w-5 text-gray-600" />
+                    </div>
+                    <p className="text-xs">Timer</p>
+                  </div>
+                  <div className="border border-gray-200 rounded p-2 hover:border-[#1a3a5f]/60 cursor-pointer transition-colors text-center">
+                    <div className="flex justify-center mb-1.5">
+                      <SlidersHorizontal className="h-5 w-5 text-gray-600" />
+                    </div>
+                    <p className="text-xs">Carousel</p>
+                  </div>
+                  <div className="border border-gray-200 rounded p-2 hover:border-[#1a3a5f]/60 cursor-pointer transition-colors text-center">
+                    <div className="flex justify-center mb-1.5">
+                      <ChevronsUpDown className="h-5 w-5 text-gray-600" />
+                    </div>
+                    <p className="text-xs">Accordion</p>
+                  </div>
+                  <div className="border border-gray-200 rounded p-2 hover:border-[#1a3a5f]/60 cursor-pointer transition-colors text-center">
+                    <div className="flex justify-center mb-1.5">
+                      <FileCode className="h-5 w-5 text-gray-600" />
+                    </div>
+                    <p className="text-xs">HTML</p>
+                  </div>
+                  <div className="border border-gray-200 rounded p-2 hover:border-[#1a3a5f]/60 cursor-pointer transition-colors text-center">
+                    <div className="flex justify-center mb-1.5">
+                      <FormInput className="h-5 w-5 text-gray-600" />
+                    </div>
+                    <p className="text-xs">Form</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Content Management */}
+          {activeSidebar === 'content' && (
+            <div className="flex-1 overflow-auto p-4">
+              <h3 className="font-medium text-sm mb-3">Email Settings</h3>
+              <div className="space-y-3 mb-6">
+                <div>
+                  <Label htmlFor="subject" className="text-xs mb-1 block">
+                    Subject Line
+                  </Label>
+                  <Input 
+                    id="subject" 
+                    placeholder="Enter email subject" 
+                    className="h-8 text-sm" 
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="preheader" className="text-xs mb-1 block">
+                    Preheader Text
+                  </Label>
+                  <Input 
+                    id="preheader" 
+                    placeholder="Enter preheader text" 
+                    className="h-8 text-sm" 
+                  />
+                </div>
+              </div>
+
+              <h3 className="font-medium text-sm mb-3">Dynamic Content</h3>
+              <div className="bg-gray-50 border border-gray-200 rounded-md p-3 mb-4">
+                <p className="text-xs text-gray-600 mb-2">
+                  Insert personalization variables in your email content
+                </p>
+                <div className="grid grid-cols-2 gap-2">
+                  <Button size="sm" variant="outline" className="text-xs justify-start h-7">
+                    <span>{'{{first_name}}'}</span>
+                  </Button>
+                  <Button size="sm" variant="outline" className="text-xs justify-start h-7">
+                    <span>{'{{last_name}}'}</span>
+                  </Button>
+                  <Button size="sm" variant="outline" className="text-xs justify-start h-7">
+                    <span>{'{{email}}'}</span>
+                  </Button>
+                  <Button size="sm" variant="outline" className="text-xs justify-start h-7">
+                    <span>{'{{company}}'}</span>
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Appearance Management */}
+          {activeSidebar === 'appearance' && (
+            <div className="flex-1 overflow-auto p-4">
+              <h3 className="font-medium text-sm mb-3">Template Style</h3>
+              <div className="space-y-3 mb-6">
+                <div>
+                  <Label htmlFor="font-family" className="text-xs mb-1 block">
+                    Font Family
+                  </Label>
+                  <select 
+                    id="font-family" 
+                    className="w-full h-8 text-sm rounded-md border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                  >
+                    <option>Arial, sans-serif</option>
+                    <option>Helvetica, Arial, sans-serif</option>
+                    <option>Georgia, serif</option>
+                    <option>Tahoma, Verdana, sans-serif</option>
+                  </select>
+                </div>
+                <div>
+                  <Label htmlFor="background-color" className="text-xs mb-1 block">
+                    Background Color
+                  </Label>
+                  <div className="flex items-center">
+                    <div className="w-6 h-6 rounded border border-gray-300 bg-slate-50 mr-2"></div>
+                    <Input 
+                      id="background-color" 
+                      defaultValue="#f4f4f4" 
+                      className="h-8 text-sm" 
+                    />
+                  </div>
+                </div>
+                <div>
+                  <Label htmlFor="text-color" className="text-xs mb-1 block">
+                    Text Color
+                  </Label>
+                  <div className="flex items-center">
+                    <div className="w-6 h-6 rounded border border-gray-300 bg-gray-800 mr-2"></div>
+                    <Input 
+                      id="text-color" 
+                      defaultValue="#333333" 
+                      className="h-8 text-sm" 
+                    />
+                  </div>
+                </div>
+                <div>
+                  <Label htmlFor="link-color" className="text-xs mb-1 block">
+                    Link Color
+                  </Label>
+                  <div className="flex items-center">
+                    <div className="w-6 h-6 rounded border border-gray-300 bg-blue-600 mr-2"></div>
+                    <Input 
+                      id="link-color" 
+                      defaultValue="#1a73e8" 
+                      className="h-8 text-sm" 
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Main Content Area */}
+        <div className="flex-1 flex flex-col bg-gray-100 overflow-hidden">
+          {/* Content Area */}
+          <div className="flex-1 overflow-auto p-4">
             {isTemplateLoading ? (
               <div className="h-full flex items-center justify-center">
                 <div className="flex flex-col items-center">
@@ -227,26 +538,45 @@ export default function TemplateBuilder() {
                 </div>
               </div>
             ) : (
-              <EmailEditor 
-                initialTemplate={initialTemplate}
-                onSave={handleSaveTemplate}
-                isSaving={isSaving}
-                className="h-full"
-              />
-            )}
-          </TabsContent>
-          
-          {isHtmlCodeVisible && (
-            <TabsContent value="code" className="flex-1 overflow-auto mt-0 p-0">
-              <div className="container mx-auto py-4 px-6">
-                <div className="bg-gray-900 text-gray-200 p-4 rounded-md overflow-auto h-[calc(100vh-180px)]">
-                  <pre className="text-sm">{htmlCode}</pre>
+              <div className="mx-auto max-w-[600px] bg-white rounded shadow-sm p-4 min-h-[600px]">
+                <div className="border-2 border-dashed border-gray-200 rounded-md p-4 mb-4 min-h-[120px] flex items-center justify-center text-gray-400 hover:border-blue-300 transition-colors cursor-pointer">
+                  <p className="text-center text-sm">Drop content here</p>
+                </div>
+                
+                <div className="border-2 border-dashed border-gray-200 rounded-md p-4 mb-4 min-h-[120px] flex items-center justify-center text-gray-400 hover:border-blue-300 transition-colors cursor-pointer">
+                  <p className="text-center text-sm">Drop content here</p>
+                </div>
+                
+                <div className="border-2 border-dashed border-gray-200 rounded-md p-4 min-h-[120px] flex items-center justify-center text-gray-400 hover:border-blue-300 transition-colors cursor-pointer">
+                  <p className="text-center text-sm">Drop content here</p>
                 </div>
               </div>
-            </TabsContent>
-          )}
-        </Tabs>
+            )}
+          </div>
+        </div>
       </div>
+      
+      {/* HTML Code Viewer (if enabled) */}
+      {isHtmlCodeVisible && (
+        <div className="absolute bottom-0 right-0 w-1/2 h-1/3 border-t border-l border-gray-300 bg-white shadow-lg rounded-tl-md overflow-hidden">
+          <div className="flex items-center justify-between bg-gray-100 px-4 py-2 border-b border-gray-200">
+            <h3 className="text-sm font-medium">HTML Code</h3>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={toggleHtmlCode} 
+              className="h-8 w-8"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+          <div className="p-2 overflow-auto h-[calc(100%-40px)]">
+            <div className="bg-gray-900 text-gray-200 p-3 rounded-md overflow-auto h-full">
+              <pre className="text-xs">{htmlCode || '<!-- No HTML code generated yet -->'}</pre>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
