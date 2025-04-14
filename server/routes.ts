@@ -12,6 +12,7 @@ import { emailSchema } from "../shared/validation";
 import { z } from "zod";
 import fileUpload, { UploadedFile } from "express-fileupload";
 import heatMapsRoutes from "./routes/heat-maps";
+import userManagementRoutes from "./routes/user-management";
 import { emailService } from "./services/EmailService";
 import { defaultEmailSettings } from "./routes/emailSettings";
 
@@ -89,6 +90,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Register heat maps routes
   app.use('/api/heat-maps', heatMapsRoutes);
+  
+  // Register user management routes
+  app.use('/api', userManagementRoutes);
 
   // Mock data for dashboard stats
   app.get('/api/stats', (req: Request, res: Response) => {
