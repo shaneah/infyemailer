@@ -171,12 +171,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         try {
           const metadata = campaign.metadata as any || {};
           
-          // Get the engagement metrics for this campaign from the database
-          const metrics = await db.select()
-            .from(engagementMetrics)
-            .where(eq(engagementMetrics.campaignId, campaign.id))
-            .orderBy(desc(engagementMetrics.date))
-            .limit(1);
+          // Handle potential missing engagement_metrics table
+          let metrics = [];
+          try {
+            // Get the engagement metrics for this campaign from the database
+            metrics = await db.select()
+              .from(engagementMetrics)
+              .where(eq(engagementMetrics.campaignId, campaign.id))
+              .orderBy(desc(engagementMetrics.date))
+              .limit(1);
+          } catch (metricsError) {
+            console.log(`Metrics query failed: ${metricsError.message}`);
+            // Table might not exist yet - this is OK, we'll use fallback values
+          }
           
           // Calculate the open rate and click rate from metrics
           // If we have metrics data, use it; otherwise, fall back to metadata
