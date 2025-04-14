@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { useQuery, useMutation } from '@tanstack/react-query';
-import { Pencil, Trash2, Plus, CreditCard, BarChart4, User, Mail, Building2, Check, X, Loader2, Info as InfoIcon } from 'lucide-react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Pencil, Trash2, Plus, CreditCard, BarChart4, User, Mail, Building2, Check, X, Loader2, Info as InfoIcon, PlusCircle, Shield } from 'lucide-react';
 import { queryClient, apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 
@@ -70,6 +70,31 @@ const creditFormSchema = z.object({
   operation: z.enum(['add', 'deduct', 'set']),
 });
 
+// Client user form schema
+const clientUserSchema = z.object({
+  username: z.string().min(3, { message: "Username must be at least 3 characters." }),
+  password: z.string().min(6, { message: "Password must be at least 6 characters." }),
+  status: z.enum(["active", "inactive"]),
+  permissions: z.object({
+    emailValidation: z.boolean().default(false),
+    campaigns: z.boolean().default(false),
+    contacts: z.boolean().default(false),
+    templates: z.boolean().default(false),
+    reporting: z.boolean().default(false),
+    domains: z.boolean().default(false),
+    abTesting: z.boolean().default(false)
+  }).default({
+    emailValidation: false,
+    campaigns: false,
+    contacts: false,
+    templates: false,
+    reporting: false,
+    domains: false,
+    abTesting: false
+  }),
+  metadata: z.record(z.any()).optional()
+});
+
 type Client = {
   id: number;
   name: string;
@@ -128,8 +153,11 @@ const ClientManagement = () => {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isCreditDialogOpen, setIsCreditDialogOpen] = useState(false);
+  const [isNewUserDialogOpen, setIsNewUserDialogOpen] = useState(false);
+  const [isEditUserDialogOpen, setIsEditUserDialogOpen] = useState(false);
   const [selectedClientId, setSelectedClientId] = useState<number | null>(null);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
+  const [selectedUser, setSelectedUser] = useState<any>(null);
 
   // Fetch clients
   const { data: clients = [] } = useQuery<Client[]>({
@@ -199,6 +227,46 @@ const ClientManagement = () => {
       amount: 100,
       operation: 'add',
     },
+  });
+  
+  // Form for adding new client user
+  const newUserForm = useForm<z.infer<typeof clientUserSchema>>({
+    resolver: zodResolver(clientUserSchema),
+    defaultValues: {
+      username: "",
+      password: "",
+      status: "active",
+      permissions: {
+        emailValidation: false,
+        campaigns: false,
+        contacts: false,
+        templates: false,
+        reporting: false,
+        domains: false,
+        abTesting: false
+      },
+      metadata: {}
+    }
+  });
+
+  // Form for editing client user
+  const editUserForm = useForm<z.infer<typeof clientUserSchema>>({
+    resolver: zodResolver(clientUserSchema),
+    defaultValues: {
+      username: "",
+      password: "",
+      status: "active",
+      permissions: {
+        emailValidation: false,
+        campaigns: false,
+        contacts: false,
+        templates: false,
+        reporting: false,
+        domains: false,
+        abTesting: false
+      },
+      metadata: {}
+    }
   });
 
   // Create client mutation
@@ -371,6 +439,85 @@ const ClientManagement = () => {
       });
     },
   });
+  
+  // Add client user mutation
+  const addClientUserMutation = useMutation({
+    mutationFn: async (userData: z.infer<typeof clientUserSchema>) => {
+      if (!selectedClientId) {
+        throw new Error("No client selected");
+      }
+      
+      const clientUserData = {
+        ...userData,
+        clientId: selectedClientId
+      };
+      
+      const response = await apiRequest('POST', '/api/client-users', clientUserData);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/clients', selectedClientId, 'users'] });
+      toast({
+        title: "User added",
+        description: "The client user has been successfully added."
+      });
+      setIsNewUserDialogOpen(false);
+      newUserForm.reset();
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: `Failed to add client user: ${error.message}`,
+        variant: "destructive"
+      });
+    }
+  });
+
+  // Update client user mutation
+  const updateClientUserMutation = useMutation({
+    mutationFn: async (userData: z.infer<typeof clientUserSchema> & { id: number }) => {
+      const { id, ...userDataWithoutId } = userData;
+      const response = await apiRequest('PATCH', `/api/client-users/${id}`, userDataWithoutId);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/clients', selectedClientId, 'users'] });
+      toast({
+        title: "User updated",
+        description: "The client user has been successfully updated."
+      });
+      setIsEditUserDialogOpen(false);
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: `Failed to update client user: ${error.message}`,
+        variant: "destructive"
+      });
+    }
+  });
+
+  // Delete client user mutation
+  const deleteClientUserMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const response = await apiRequest('DELETE', `/api/client-users/${id}`);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/clients', selectedClientId, 'users'] });
+      toast({
+        title: "User deleted",
+        description: "The client user has been successfully deleted."
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: `Failed to delete client user: ${error.message}`,
+        variant: "destructive"
+      });
+    }
+  });
 
   const onAddClient = (data: z.infer<typeof clientFormSchema>) => {
     createClientMutation.mutate(data);
@@ -420,6 +567,60 @@ const ClientManagement = () => {
     setSelectedClient(client);
     setSelectedClientId(client.id);
     setActiveTab('client-details');
+  };
+  
+  // Handle new client user submission
+  function onSubmitNewUser(data: z.infer<typeof clientUserSchema>) {
+    addClientUserMutation.mutate(data);
+  }
+
+  // Handle edit client user submission
+  function onSubmitEditUser(data: z.infer<typeof clientUserSchema>) {
+    if (selectedUser) {
+      updateClientUserMutation.mutate({
+        id: selectedUser.id,
+        ...data
+      });
+    }
+  }
+
+  // Open edit dialog with user data
+  function handleEditUser(user: any) {
+    setSelectedUser(user);
+    editUserForm.reset({
+      username: user.username,
+      password: "", // Don't populate password for security reasons
+      status: user.status,
+      permissions: user.permissions || {
+        emailValidation: false,
+        campaigns: false,
+        contacts: false,
+        templates: false,
+        reporting: false,
+        domains: false,
+        abTesting: false
+      },
+      metadata: user.metadata || {}
+    });
+    setIsEditUserDialogOpen(true);
+  }
+
+  // Handle delete user
+  function handleDeleteUser(id: number) {
+    if (window.confirm('Are you sure you want to delete this user?')) {
+      deleteClientUserMutation.mutate(id);
+    }
+  }
+
+  // Reset form when dialog closes
+  function handleCloseNewUser() {
+    newUserForm.reset();
+    setIsNewUserDialogOpen(false);
+  }
+
+  function handleCloseEditUser() {
+    editUserForm.reset();
+    setIsEditUserDialogOpen(false);
   };
 
   const formatDate = (dateString: string | null) => {
@@ -675,52 +876,79 @@ const ClientManagement = () => {
                 </TabsList>
                 <TabsContent value="users">
                   <Card>
-                    <CardHeader>
-                      <CardTitle>Client Users</CardTitle>
-                      <CardDescription>Users who can access client's account</CardDescription>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                      <div>
+                        <CardTitle>Client Users</CardTitle>
+                        <CardDescription>Users who can access client's account</CardDescription>
+                      </div>
+                      <Button 
+                        size="sm" 
+                        onClick={() => setIsNewUserDialogOpen(true)}
+                      >
+                        <PlusCircle className="mr-2 h-4 w-4" /> Add User
+                      </Button>
                     </CardHeader>
                     <CardContent>
                       {isLoadingUsers ? (
-                        <div className="text-center py-4">Loading users...</div>
+                        <div className="flex justify-center items-center h-52">
+                          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                        </div>
                       ) : clientUsers.length === 0 ? (
-                        <div className="text-center py-6">
+                        <div className="text-center py-12">
                           <User className="mx-auto h-12 w-12 text-gray-400" />
-                          <h3 className="mt-2 text-xl font-semibold">No Users Found</h3>
-                          <p className="mt-1 text-gray-500">This client doesn't have any users yet.</p>
-                          <Button className="mt-4">
-                            <Plus className="mr-2 h-4 w-4" /> Add User
+                          <h3 className="mt-4 text-xl font-semibold">No Users Found</h3>
+                          <p className="mt-2 text-gray-500 max-w-md mx-auto">
+                            This client doesn't have any users yet. Create users to allow them to access this client's account.
+                          </p>
+                          <Button 
+                            className="mt-6" 
+                            onClick={() => setIsNewUserDialogOpen(true)}
+                          >
+                            <PlusCircle className="mr-2 h-4 w-4" /> Add First User
                           </Button>
                         </div>
                       ) : (
-                        <Table>
-                          <TableHeader>
-                            <TableRow>
-                              <TableHead>Username</TableHead>
-                              <TableHead>Status</TableHead>
-                              <TableHead>Created</TableHead>
-                              <TableHead>Last Login</TableHead>
-                              <TableHead className="text-right">Actions</TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            {clientUsers.map((user) => (
-                              <TableRow key={user.id}>
-                                <TableCell className="font-medium">{user.username}</TableCell>
-                                <TableCell>{getStatusBadge(user.status)}</TableCell>
-                                <TableCell>{formatDate(user.createdAt)}</TableCell>
-                                <TableCell>{formatDate(user.lastLoginAt)}</TableCell>
-                                <TableCell className="text-right">
-                                  <Button size="sm" variant="ghost">
-                                    <Pencil className="h-4 w-4" />
-                                  </Button>
-                                  <Button size="sm" variant="ghost">
-                                    <Trash2 className="h-4 w-4 text-red-500" />
-                                  </Button>
-                                </TableCell>
+                        <div className="rounded-md border">
+                          <Table>
+                            <TableHeader>
+                              <TableRow>
+                                <TableHead>Username</TableHead>
+                                <TableHead>Status</TableHead>
+                                <TableHead>Created</TableHead>
+                                <TableHead>Last Login</TableHead>
+                                <TableHead className="text-right">Actions</TableHead>
                               </TableRow>
-                            ))}
-                          </TableBody>
-                        </Table>
+                            </TableHeader>
+                            <TableBody>
+                              {clientUsers.map((user) => (
+                                <TableRow key={user.id}>
+                                  <TableCell className="font-medium">{user.username}</TableCell>
+                                  <TableCell>{getStatusBadge(user.status)}</TableCell>
+                                  <TableCell>{formatDate(user.createdAt)}</TableCell>
+                                  <TableCell>{formatDate(user.lastLoginAt)}</TableCell>
+                                  <TableCell className="text-right">
+                                    <Button 
+                                      size="sm" 
+                                      variant="ghost"
+                                      onClick={() => handleEditUser(user)}
+                                      title="Edit User"
+                                    >
+                                      <Pencil className="h-4 w-4" />
+                                    </Button>
+                                    <Button 
+                                      size="sm" 
+                                      variant="ghost"
+                                      onClick={() => handleDeleteUser(user.id)}
+                                      title="Delete User"
+                                    >
+                                      <Trash2 className="h-4 w-4 text-red-500" />
+                                    </Button>
+                                  </TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        </div>
                       )}
                     </CardContent>
                   </Card>
@@ -1225,6 +1453,435 @@ const ClientManagement = () => {
                   disabled={manageCreditsMutation.isPending}
                 >
                   {manageCreditsMutation.isPending ? 'Updating...' : 'Update Credits'}
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
+      {/* Add Client User Dialog */}
+      <Dialog open={isNewUserDialogOpen} onOpenChange={setIsNewUserDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Add New Client User</DialogTitle>
+            <DialogDescription>
+              Create a new user account for this client.
+            </DialogDescription>
+          </DialogHeader>
+          <Form {...newUserForm}>
+            <form onSubmit={newUserForm.handleSubmit(onSubmitNewUser)} className="space-y-4">
+              <FormField
+                control={newUserForm.control}
+                name="username"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Username</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter username" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={newUserForm.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Password</FormLabel>
+                    <FormControl>
+                      <Input type="password" placeholder="Enter password" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={newUserForm.control}
+                name="status"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Status</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select status" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="active">Active</SelectItem>
+                        <SelectItem value="inactive">Inactive</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="border rounded-md p-4">
+                <h3 className="font-medium mb-2 flex items-center">
+                  <Shield className="h-4 w-4 mr-2 text-blue-500" />
+                  Permissions
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <FormField
+                    control={newUserForm.control}
+                    name="permissions.emailValidation"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center space-x-2 space-y-0">
+                        <FormControl>
+                          <input
+                            type="checkbox"
+                            checked={field.value}
+                            onChange={field.onChange}
+                            className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                          />
+                        </FormControl>
+                        <FormLabel className="text-sm font-normal">Email Validation</FormLabel>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={newUserForm.control}
+                    name="permissions.campaigns"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center space-x-2 space-y-0">
+                        <FormControl>
+                          <input
+                            type="checkbox"
+                            checked={field.value}
+                            onChange={field.onChange}
+                            className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                          />
+                        </FormControl>
+                        <FormLabel className="text-sm font-normal">Campaigns</FormLabel>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={newUserForm.control}
+                    name="permissions.contacts"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center space-x-2 space-y-0">
+                        <FormControl>
+                          <input
+                            type="checkbox"
+                            checked={field.value}
+                            onChange={field.onChange}
+                            className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                          />
+                        </FormControl>
+                        <FormLabel className="text-sm font-normal">Contacts</FormLabel>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={newUserForm.control}
+                    name="permissions.templates"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center space-x-2 space-y-0">
+                        <FormControl>
+                          <input
+                            type="checkbox"
+                            checked={field.value}
+                            onChange={field.onChange}
+                            className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                          />
+                        </FormControl>
+                        <FormLabel className="text-sm font-normal">Templates</FormLabel>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={newUserForm.control}
+                    name="permissions.reporting"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center space-x-2 space-y-0">
+                        <FormControl>
+                          <input
+                            type="checkbox"
+                            checked={field.value}
+                            onChange={field.onChange}
+                            className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                          />
+                        </FormControl>
+                        <FormLabel className="text-sm font-normal">Reporting</FormLabel>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={newUserForm.control}
+                    name="permissions.domains"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center space-x-2 space-y-0">
+                        <FormControl>
+                          <input
+                            type="checkbox"
+                            checked={field.value}
+                            onChange={field.onChange}
+                            className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                          />
+                        </FormControl>
+                        <FormLabel className="text-sm font-normal">Domains</FormLabel>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={newUserForm.control}
+                    name="permissions.abTesting"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center space-x-2 space-y-0">
+                        <FormControl>
+                          <input
+                            type="checkbox"
+                            checked={field.value}
+                            onChange={field.onChange}
+                            className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                          />
+                        </FormControl>
+                        <FormLabel className="text-sm font-normal">A/B Testing</FormLabel>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+
+              <DialogFooter>
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={handleCloseNewUser}
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  type="submit" 
+                  disabled={addClientUserMutation.isPending}
+                >
+                  {addClientUserMutation.isPending && (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  )}
+                  Add User
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Client User Dialog */}
+      <Dialog open={isEditUserDialogOpen} onOpenChange={setIsEditUserDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Edit Client User</DialogTitle>
+            <DialogDescription>
+              Update user account details.
+            </DialogDescription>
+          </DialogHeader>
+          <Form {...editUserForm}>
+            <form onSubmit={editUserForm.handleSubmit(onSubmitEditUser)} className="space-y-4">
+              <FormField
+                control={editUserForm.control}
+                name="username"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Username</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter username" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={editUserForm.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Password</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="password" 
+                        placeholder="Leave empty to keep current password" 
+                        {...field} 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={editUserForm.control}
+                name="status"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Status</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select status" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="active">Active</SelectItem>
+                        <SelectItem value="inactive">Inactive</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="border rounded-md p-4">
+                <h3 className="font-medium mb-2 flex items-center">
+                  <Shield className="h-4 w-4 mr-2 text-blue-500" />
+                  Permissions
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <FormField
+                    control={editUserForm.control}
+                    name="permissions.emailValidation"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center space-x-2 space-y-0">
+                        <FormControl>
+                          <input
+                            type="checkbox"
+                            checked={field.value}
+                            onChange={field.onChange}
+                            className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                          />
+                        </FormControl>
+                        <FormLabel className="text-sm font-normal">Email Validation</FormLabel>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={editUserForm.control}
+                    name="permissions.campaigns"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center space-x-2 space-y-0">
+                        <FormControl>
+                          <input
+                            type="checkbox"
+                            checked={field.value}
+                            onChange={field.onChange}
+                            className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                          />
+                        </FormControl>
+                        <FormLabel className="text-sm font-normal">Campaigns</FormLabel>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={editUserForm.control}
+                    name="permissions.contacts"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center space-x-2 space-y-0">
+                        <FormControl>
+                          <input
+                            type="checkbox"
+                            checked={field.value}
+                            onChange={field.onChange}
+                            className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                          />
+                        </FormControl>
+                        <FormLabel className="text-sm font-normal">Contacts</FormLabel>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={editUserForm.control}
+                    name="permissions.templates"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center space-x-2 space-y-0">
+                        <FormControl>
+                          <input
+                            type="checkbox"
+                            checked={field.value}
+                            onChange={field.onChange}
+                            className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                          />
+                        </FormControl>
+                        <FormLabel className="text-sm font-normal">Templates</FormLabel>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={editUserForm.control}
+                    name="permissions.reporting"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center space-x-2 space-y-0">
+                        <FormControl>
+                          <input
+                            type="checkbox"
+                            checked={field.value}
+                            onChange={field.onChange}
+                            className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                          />
+                        </FormControl>
+                        <FormLabel className="text-sm font-normal">Reporting</FormLabel>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={editUserForm.control}
+                    name="permissions.domains"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center space-x-2 space-y-0">
+                        <FormControl>
+                          <input
+                            type="checkbox"
+                            checked={field.value}
+                            onChange={field.onChange}
+                            className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                          />
+                        </FormControl>
+                        <FormLabel className="text-sm font-normal">Domains</FormLabel>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={editUserForm.control}
+                    name="permissions.abTesting"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center space-x-2 space-y-0">
+                        <FormControl>
+                          <input
+                            type="checkbox"
+                            checked={field.value}
+                            onChange={field.onChange}
+                            className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                          />
+                        </FormControl>
+                        <FormLabel className="text-sm font-normal">A/B Testing</FormLabel>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+
+              <DialogFooter>
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={handleCloseEditUser}
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  type="submit" 
+                  disabled={updateClientUserMutation.isPending}
+                >
+                  {updateClientUserMutation.isPending && (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  )}
+                  Update User
                 </Button>
               </DialogFooter>
             </form>
