@@ -28,7 +28,7 @@ import EmailValidation from "@/pages/EmailValidation";
 import Reporting from "@/pages/Reporting";
 import EmailProviders from "@/pages/EmailProviders";
 import ClientManagement from "@/pages/ClientManagement";
-// Audience Personas removed as requested
+import AudiencePersonas from "@/pages/AudiencePersonas";
 import EmailPreview from "@/pages/EmailPreview";
 
 // Client portal pages
@@ -185,7 +185,7 @@ function App() {
                     <ProtectedRoute path="reporting" component={Reporting} />
                     <ProtectedRoute path="email-providers" component={EmailProviders} />
                     <ProtectedRoute path="client-management" component={ClientManagement} />
-                    {/* Audience Personas removed as requested */}
+                    <ProtectedRoute path="audience-personas" component={AudiencePersonas} />
                     <ProtectedRoute path="analytics" component={Analytics} />
                     <ProtectedRoute path="email-test" component={EmailTest} />
                     <ProtectedRoute path="email-preview/:id" component={EmailPreview} />
