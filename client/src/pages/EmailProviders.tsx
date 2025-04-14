@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from "@/lib/queryClient";
-import { Check, X, Edit, Trash, AlertTriangle, Loader2, Plus, Send, Key, Info, CheckCircle } from 'lucide-react';
+import { Check, X, Edit, Trash, AlertTriangle, Loader2, Plus, Send, Key, Info, CheckCircle, Settings, Save } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
@@ -552,17 +552,21 @@ function EmailProviders() {
 
         <TabsContent value="providers" className="space-y-6">
           {providers.length === 0 ? (
-            <Card>
-              <CardContent className="flex flex-col items-center justify-center h-60 gap-4">
-                <div className="rounded-full bg-primary/10 p-3">
-                  <AlertTriangle className="h-8 w-8 text-primary" />
+            <Card className="border overflow-hidden">
+              <div className="h-1 w-full bg-[#d4af37]"></div>
+              <CardContent className="flex flex-col items-center justify-center h-80 gap-5 bg-gradient-to-b from-[#f5f0e1]/20 to-white">
+                <div className="rounded-full bg-[#1a3a5f]/10 p-5">
+                  <AlertTriangle className="h-10 w-10 text-[#1a3a5f]" />
                 </div>
-                <h3 className="text-xl font-medium">No email providers configured</h3>
-                <p className="text-muted-foreground text-center max-w-md">
-                  You haven't added any email providers yet. Add an email provider to start sending emails.
+                <h3 className="text-2xl font-semibold text-[#1a3a5f]">No Email Providers Configured</h3>
+                <p className="text-[#1a3a5f]/70 text-center max-w-md">
+                  You haven't added any email providers yet. Configure an email provider to start sending professional emails through your campaigns.
                 </p>
-                <Button onClick={() => setIsNewProviderOpen(true)}>
-                  <Plus className="mr-2 h-4 w-4" /> Add Provider
+                <Button 
+                  onClick={() => setIsNewProviderOpen(true)}
+                  className="bg-[#1a3a5f] hover:bg-[#1a3a5f]/90 text-white mt-2"
+                >
+                  <Plus className="mr-2 h-4 w-4" /> Add Email Provider
                 </Button>
               </CardContent>
             </Card>
@@ -730,24 +734,28 @@ function EmailProviders() {
 
       {/* Add New Provider Dialog */}
       <Dialog open={isNewProviderOpen} onOpenChange={setIsNewProviderOpen}>
-        <DialogContent className="sm:max-w-[500px]">
-          <DialogHeader>
-            <DialogTitle>Add Email Provider</DialogTitle>
-            <DialogDescription>
-              Add a new email provider to send emails through your application.
+        <DialogContent className="sm:max-w-[550px] border-[#1a3a5f]/20 overflow-hidden">
+          <div className="h-1 w-full bg-[#d4af37] -mt-6"></div>
+          <DialogHeader className="bg-gradient-to-b from-[#f5f0e1]/30 to-white pt-6">
+            <DialogTitle className="text-[#1a3a5f] text-xl font-semibold">Add Email Provider</DialogTitle>
+            <DialogDescription className="text-[#1a3a5f]/70">
+              Configure a new email provider to send emails through your marketing campaigns.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="providerType">Provider Type</Label>
+              <Label htmlFor="providerType" className="text-[#1a3a5f] font-medium">Provider Type</Label>
               <Select value={newProviderType} onValueChange={handleProviderTypeChange}>
-                <SelectTrigger id="providerType">
+                <SelectTrigger 
+                  id="providerType" 
+                  className="border-[#1a3a5f]/20 focus:border-[#1a3a5f] focus:ring-[#1a3a5f]/10"
+                >
                   <SelectValue placeholder="Select a provider" />
                 </SelectTrigger>
                 <SelectContent>
                   {isLoadingAvailable ? (
                     <div className="flex justify-center p-2">
-                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <Loader2 className="h-4 w-4 animate-spin text-[#1a3a5f]" />
                     </div>
                   ) : (
                     availableProviders.map((provider) => (
@@ -763,19 +771,20 @@ function EmailProviders() {
             {newProviderType && (
               <>
                 <div className="space-y-2">
-                  <Label htmlFor="providerName">Provider Name</Label>
+                  <Label htmlFor="providerName" className="text-[#1a3a5f] font-medium">Provider Name</Label>
                   <Input
                     id="providerName"
                     placeholder="My SendGrid Account"
                     value={newProviderName}
                     onChange={(e) => setNewProviderName(e.target.value)}
+                    className="border-[#1a3a5f]/20 focus:border-[#1a3a5f] focus:ring-[#1a3a5f]/10"
                   />
                 </div>
 
-                <Separator />
+                <Separator className="bg-[#1a3a5f]/10" />
 
                 <div className="space-y-4">
-                  <h3 className="text-sm font-medium">Authentication Details</h3>
+                  <h3 className="text-[#1a3a5f] font-medium">Authentication Details</h3>
                   
                   {/* Show helper message for SendGrid API Keys */}
                   {newProviderType === 'sendgrid' && (
