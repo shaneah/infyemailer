@@ -194,9 +194,20 @@ const ElementRenderer: React.FC<ElementRendererProps> = ({
     
     case 'image':
       return (
-        <div onClick={onClick} className={`${baseClass} p-3`}>
+        <div 
+          onClick={onClick} 
+          className={`${baseClass} p-3`}
+          draggable
+          onDragStart={(e) => onDragStart(e, id)}
+          onDragEnd={onDragEnd}
+          onDragOver={onDragOver}
+          onDrop={(e) => onDrop(e, id)}
+        >
           <div className={`absolute top-0 right-0 ${isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} transition-opacity bg-primary text-white text-xs rounded-bl-md px-1.5 py-0.5`}>
             Image
+          </div>
+          <div className="absolute -left-4 top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <GripVertical className="h-4 w-4 text-gray-400" />
           </div>
           <div className="text-center">
             {content.src ? (
@@ -228,9 +239,20 @@ const ElementRenderer: React.FC<ElementRendererProps> = ({
     
     case 'button':
       return (
-        <div onClick={onClick} className={`${baseClass} p-3 ${styles.alignment === 'center' ? 'text-center' : styles.alignment === 'right' ? 'text-right' : ''}`}>
+        <div 
+          onClick={onClick} 
+          className={`${baseClass} p-3 ${styles.alignment === 'center' ? 'text-center' : styles.alignment === 'right' ? 'text-right' : ''}`}
+          draggable
+          onDragStart={(e) => onDragStart(e, id)}
+          onDragEnd={onDragEnd}
+          onDragOver={onDragOver}
+          onDrop={(e) => onDrop(e, id)}
+        >
           <div className={`absolute top-0 right-0 ${isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} transition-opacity bg-primary text-white text-xs rounded-bl-md px-1.5 py-0.5`}>
             Button
+          </div>
+          <div className="absolute -left-4 top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <GripVertical className="h-4 w-4 text-gray-400" />
           </div>
           <a 
             href={content.url || '#'}
@@ -257,9 +279,20 @@ const ElementRenderer: React.FC<ElementRendererProps> = ({
     
     case 'divider':
       return (
-        <div onClick={onClick} className={`${baseClass} py-3 px-3`}>
+        <div 
+          onClick={onClick} 
+          className={`${baseClass} py-3 px-3`}
+          draggable
+          onDragStart={(e) => onDragStart(e, id)}
+          onDragEnd={onDragEnd}
+          onDragOver={onDragOver}
+          onDrop={(e) => onDrop(e, id)}
+        >
           <div className={`absolute top-0 right-0 ${isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} transition-opacity bg-primary text-white text-xs rounded-bl-md px-1.5 py-0.5`}>
             Divider
+          </div>
+          <div className="absolute -left-4 top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <GripVertical className="h-4 w-4 text-gray-400" />
           </div>
           <hr style={{ 
             borderTop: `${styles.thickness || 1}px ${styles.style || 'solid'} ${styles.color || '#dddddd'}`, 
@@ -275,9 +308,17 @@ const ElementRenderer: React.FC<ElementRendererProps> = ({
           onClick={onClick} 
           className={`${baseClass} px-3 relative flex items-center justify-center`}
           style={{ height: `${styles.height || 30}px` }}
+          draggable
+          onDragStart={(e) => onDragStart(e, id)}
+          onDragEnd={onDragEnd}
+          onDragOver={onDragOver}
+          onDrop={(e) => onDrop(e, id)}
         >
           <div className={`absolute top-0 right-0 ${isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} transition-opacity bg-primary text-white text-xs rounded-bl-md px-1.5 py-0.5`}>
             Spacer
+          </div>
+          <div className="absolute -left-4 top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <GripVertical className="h-4 w-4 text-gray-400" />
           </div>
           <div className={`${isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-60'} text-center text-xs text-gray-400 font-medium border border-dashed border-gray-300 w-full h-full flex items-center justify-center`}>
             {styles.height || 30}px
@@ -287,9 +328,20 @@ const ElementRenderer: React.FC<ElementRendererProps> = ({
       
     case 'html':
       return (
-        <div onClick={onClick} className={`${baseClass} p-3`}>
+        <div 
+          onClick={onClick} 
+          className={`${baseClass} p-3`}
+          draggable
+          onDragStart={(e) => onDragStart(e, id)}
+          onDragEnd={onDragEnd}
+          onDragOver={onDragOver}
+          onDrop={(e) => onDrop(e, id)}
+        >
           <div className={`absolute top-0 right-0 ${isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} transition-opacity bg-primary text-white text-xs rounded-bl-md px-1.5 py-0.5`}>
             HTML
+          </div>
+          <div className="absolute -left-4 top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <GripVertical className="h-4 w-4 text-gray-400" />
           </div>
           <div className="relative">
             <iframe 
