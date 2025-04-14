@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -27,6 +27,8 @@ interface Campaign {
 const CampaignsTable = () => {
   const { toast } = useToast();
   const [activeDropdown, setActiveDropdown] = useState<number | null>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
   
   const { data: campaigns = [], isLoading, isError, refetch } = useQuery<Campaign[]>({
     queryKey: ['/api/campaigns'],
@@ -40,32 +42,43 @@ const CampaignsTable = () => {
   
   // Function to toggle a dropdown
   const toggleDropdown = (campaignId: number) => {
-    setActiveDropdown(prevState => prevState === campaignId ? null : campaignId);
+    if (activeDropdown === campaignId) {
+      setActiveDropdown(null);
+    } else {
+      setActiveDropdown(campaignId);
+    }
   };
   
   // Add click outside handler to close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      // Check if we have an active dropdown
-      if (activeDropdown === null) return;
-      
-      // Check if clicked element is the toggle button for active dropdown
-      const targetElement = event.target as HTMLElement;
-      const activeButton = document.querySelector(`button[data-campaign-id="${activeDropdown}"]`);
-      
-      // If clicking the active button, let the click handler above handle it
-      if (activeButton && activeButton.contains(targetElement)) {
-        return;
+      // Close dropdown when clicking outside the dropdown
+      if (activeDropdown !== null) {
+        const target = event.target as Node;
+        const buttons = document.querySelectorAll('.action-button');
+        let clickedOnButton = false;
+        
+        // Check if click was on any action button
+        buttons.forEach(button => {
+          if (button.contains(target)) {
+            clickedOnButton = true;
+          }
+        });
+        
+        // If not clicking on button or dropdown content, close dropdown
+        const dropdowns = document.querySelectorAll('.campaign-actions-dropdown');
+        let clickedInDropdown = false;
+        
+        dropdowns.forEach(dropdown => {
+          if (dropdown.contains(target)) {
+            clickedInDropdown = true;
+          }
+        });
+        
+        if (!clickedOnButton && !clickedInDropdown) {
+          setActiveDropdown(null);
+        }
       }
-      
-      // Check if clicked element is inside the active dropdown
-      const activeDropdownElement = document.getElementById(`dropdown-${activeDropdown}`);
-      if (activeDropdownElement && activeDropdownElement.contains(targetElement)) {
-        return;
-      }
-      
-      // If we got here, we're clicking outside both the button and dropdown
-      setActiveDropdown(null);
     };
     
     document.addEventListener('mousedown', handleClickOutside);
@@ -263,7 +276,7 @@ const CampaignsTable = () => {
                         data-campaign-id={campaign.id.toString()}
                         data-action-button="true"
                         onClick={() => toggleDropdown(campaign.id)}
-                        className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 w-9 p-0 relative"
+                        className="action-button inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 w-9 p-0 relative"
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                           <circle cx="12" cy="12" r="1"></circle>
