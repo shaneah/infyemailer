@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from "wouter";
 import { Mail, LayoutDashboard, Megaphone, FileText, Users, Building, BarChart2, Activity, Split, Globe, Settings as SettingsIcon, ShieldCheck, LogOut, CheckCircle2, ServerCog, Building2, UserRound, Users as UsersIcon, UserPlus, SendHorizonal, ChevronsLeft, ChevronsRight, UserCircle2 } from "lucide-react";
-import infyLogo from "../assets/Logo-white.png";
+import infyLogo from "@assets/Infinity Tech Logo-01.png";
 import { useAuth } from "@/hooks/use-auth";
 
 interface SidebarProps {

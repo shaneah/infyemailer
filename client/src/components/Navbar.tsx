@@ -211,47 +211,47 @@ const Navbar = ({
               </button>
               
               {showNotifications && (
-                <div className="absolute right-0 mt-2 w-80 bg-white rounded-md shadow-gold-lg border border-gray-100 z-20">
-                  <div className="px-4 py-3 border-b border-gray-100">
-                    <h3 className="text-sm font-medium text-gray-900">Notifications</h3>
+                <div className="absolute right-0 mt-2 w-80 bg-gradient-to-b from-white to-[#f5f0e1] rounded-md shadow-gold-lg border border-[rgba(212,175,55,0.2)] z-20">
+                  <div className="px-4 py-3 border-b border-[rgba(212,175,55,0.2)]">
+                    <h3 className="text-sm font-medium text-[#1a3a5f]">Notifications</h3>
                   </div>
-                  <div className="divide-y divide-gray-100 max-h-80 overflow-y-auto">
-                    <div className="px-4 py-3 bg-blue-50 border-l-4 border-blue-500">
+                  <div className="divide-y divide-[rgba(212,175,55,0.1)] max-h-80 overflow-y-auto">
+                    <div className="px-4 py-3 bg-[rgba(26,58,95,0.05)] border-l-4 border-[#1a3a5f]">
                       <div className="flex">
                         <div className="flex-shrink-0">
-                          <Mail className="h-5 w-5 text-blue-600" />
+                          <Mail className="h-5 w-5 text-[#1a3a5f]" />
                         </div>
                         <div className="ml-3">
-                          <p className="text-xs text-blue-600 font-medium">Campaign "Spring Newsletter" finished sending</p>
+                          <p className="text-xs text-[#1a3a5f] font-medium">Campaign "Spring Newsletter" finished sending</p>
                           <p className="text-xs text-gray-500">5 minutes ago</p>
                         </div>
                       </div>
                     </div>
-                    <div className="px-4 py-3">
+                    <div className="px-4 py-3 hover:bg-white transition-colors duration-200">
                       <div className="flex">
                         <div className="flex-shrink-0">
-                          <Users className="h-5 w-5 text-gray-400" />
+                          <Users className="h-5 w-5 text-[#d4af37]" />
                         </div>
                         <div className="ml-3">
-                          <p className="text-xs text-gray-700">New subscriber added to "VIP Customers"</p>
+                          <p className="text-xs text-[#1a3a5f]">New subscriber added to "VIP Customers"</p>
                           <p className="text-xs text-gray-500">1 hour ago</p>
                         </div>
                       </div>
                     </div>
-                    <div className="px-4 py-3">
+                    <div className="px-4 py-3 hover:bg-white transition-colors duration-200">
                       <div className="flex">
                         <div className="flex-shrink-0">
-                          <BarChart2 className="h-5 w-5 text-gray-400" />
+                          <BarChart2 className="h-5 w-5 text-[#d4af37]" />
                         </div>
                         <div className="ml-3">
-                          <p className="text-xs text-gray-700">Weekly report is now available</p>
+                          <p className="text-xs text-[#1a3a5f]">Weekly report is now available</p>
                           <p className="text-xs text-gray-500">2 hours ago</p>
                         </div>
                       </div>
                     </div>
                   </div>
-                  <div className="px-4 py-2 border-t border-gray-100">
-                    <a href="/notifications" className="text-xs text-[#1a3a5f] font-medium hover:text-[#d4af37]">
+                  <div className="px-4 py-2 border-t border-[rgba(212,175,55,0.2)]">
+                    <a href="/notifications" className="text-xs bg-gradient-to-r from-[#1a3a5f] to-[#d4af37] bg-clip-text text-transparent font-medium hover:opacity-80 transition-opacity">
                       View all notifications
                     </a>
                   </div>
