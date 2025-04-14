@@ -405,18 +405,24 @@ const UserManagement = () => {
   }, {} as Record<string, Permission[]>);
 
   return (
-    <div className="container mx-auto p-4 max-w-7xl">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-foreground">User Management</h1>
+    <div className="container mx-auto p-4 max-w-7xl bg-[#f5f0e1] rounded-lg shadow-md">
+      <div className="flex justify-between items-center mb-6 border-b border-[#d4af37] pb-4">
+        <h1 className="text-3xl font-bold bg-gradient-to-r from-[#d4af37] to-[#b8860b] bg-clip-text text-transparent">User Management</h1>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="grid grid-cols-2 w-[400px]">
-          <TabsTrigger value="users" className="flex items-center space-x-2">
+        <TabsList className="grid grid-cols-2 w-[400px] bg-[#1a3a5f]">
+          <TabsTrigger 
+            value="users" 
+            className="flex items-center space-x-2 data-[state=active]:bg-[#d4af37] data-[state=active]:text-[#1a3a5f]"
+          >
             <Users className="h-4 w-4" />
             <span>Users</span>
           </TabsTrigger>
-          <TabsTrigger value="roles" className="flex items-center space-x-2">
+          <TabsTrigger 
+            value="roles" 
+            className="flex items-center space-x-2 data-[state=active]:bg-[#d4af37] data-[state=active]:text-[#1a3a5f]"
+          >
             <UserPlus className="h-4 w-4" />
             <span>Roles & Permissions</span>
           </TabsTrigger>
@@ -491,19 +497,19 @@ const UserManagement = () => {
             </Dialog>
           </div>
 
-          <Card>
+          <Card className="border border-[#d4af37] shadow-lg">
             <CardContent className="p-0 overflow-auto">
               <Table>
-                <TableHeader>
+                <TableHeader className="bg-[#1a3a5f]">
                   <TableRow>
-                    <TableHead>Username</TableHead>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Role</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Created</TableHead>
-                    <TableHead>Last Login</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                    <TableHead className="text-white">Username</TableHead>
+                    <TableHead className="text-white">Name</TableHead>
+                    <TableHead className="text-white">Email</TableHead>
+                    <TableHead className="text-white">Role</TableHead>
+                    <TableHead className="text-white">Status</TableHead>
+                    <TableHead className="text-white">Created</TableHead>
+                    <TableHead className="text-white">Last Login</TableHead>
+                    <TableHead className="text-white text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -590,7 +596,7 @@ const UserManagement = () => {
             <h2 className="text-xl font-semibold">Roles & Permissions</h2>
             <Dialog open={isNewRoleDialogOpen} onOpenChange={setIsNewRoleDialogOpen}>
               <DialogTrigger asChild>
-                <Button className="bg-blue-luxury hover:bg-blue-900">
+                <Button className="bg-[#1a3a5f] hover:bg-[#2c5a8f] border border-[#d4af37]/30 hover:border-[#d4af37]">
                   <Plus className="mr-2 h-4 w-4" />
                   Add Role
                 </Button>
@@ -626,13 +632,13 @@ const UserManagement = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Roles List */}
-            <Card className="md:col-span-1">
-              <CardHeader>
-                <CardTitle>Available Roles</CardTitle>
-                <CardDescription>Select a role to manage its permissions</CardDescription>
+            <Card className="md:col-span-1 border border-[#d4af37] shadow-lg">
+              <CardHeader className="bg-[#1a3a5f] text-white">
+                <CardTitle className="text-white">Available Roles</CardTitle>
+                <CardDescription className="text-gray-300">Select a role to manage its permissions</CardDescription>
               </CardHeader>
               <CardContent className="p-0">
-                <div className="divide-y">
+                <div className="divide-y divide-[#d4af37]/20">
                   {roles.length === 0 ? (
                     <div className="text-center py-8 text-sm text-muted-foreground">
                       No roles defined. Click 'Add Role' to create one.
@@ -641,10 +647,10 @@ const UserManagement = () => {
                     roles.map((role) => (
                       <div 
                         key={role.id} 
-                        className={`p-4 cursor-pointer hover:bg-accent ${selectedRole?.id === role.id ? 'bg-accent' : ''}`}
+                        className={`p-4 cursor-pointer hover:bg-[#f5f0e1] ${selectedRole?.id === role.id ? 'bg-[#f5f0e1] border-l-4 border-[#d4af37]' : ''}`}
                         onClick={() => setSelectedRole(role)}
                       >
-                        <h3 className="font-medium text-foreground">{role.name}</h3>
+                        <h3 className="font-medium text-[#1a3a5f]">{role.name}</h3>
                         <p className="text-sm text-muted-foreground mt-1">
                           {role.description || "No description provided."}
                         </p>
@@ -656,9 +662,9 @@ const UserManagement = () => {
             </Card>
 
             {/* Permissions Management */}
-            <Card className="md:col-span-2">
-              <CardHeader>
-                <CardTitle>
+            <Card className="md:col-span-2 border border-[#d4af37] shadow-lg">
+              <CardHeader className="border-b border-[#d4af37]/20">
+                <CardTitle className="text-[#1a3a5f]">
                   {selectedRole ? `Permissions for ${selectedRole.name}` : "Permissions"}
                 </CardTitle>
                 <CardDescription>
@@ -681,7 +687,7 @@ const UserManagement = () => {
                     ) : (
                       Object.entries(permissionsByCategory).map(([category, categoryPermissions]) => (
                         <div key={category} className="space-y-3">
-                          <h3 className="font-semibold text-blue-luxury text-md border-b pb-2">
+                          <h3 className="font-semibold bg-gradient-to-r from-[#1a3a5f] to-[#2c5a8f] text-transparent bg-clip-text text-md border-b border-[#d4af37]/30 pb-2">
                             {category} Permissions
                           </h3>
                           <div className="grid grid-cols-1 gap-y-2">
@@ -690,10 +696,11 @@ const UserManagement = () => {
                                 rp => rp.roleId === selectedRole.id && rp.permissionId === permission.id
                               );
                               return (
-                                <div key={permission.id} className="flex items-start space-x-3 p-2 rounded-md hover:bg-accent">
+                                <div key={permission.id} className={`flex items-start space-x-3 p-2 rounded-md hover:bg-[#f5f0e1] border ${isAssigned ? 'border-[#d4af37]/30 bg-[#f5f0e1]/50' : 'border-transparent'}`}>
                                   <Checkbox 
                                     id={`permission-${permission.id}`} 
                                     checked={isAssigned}
+                                    className={isAssigned ? "border-[#d4af37] data-[state=checked]:bg-[#d4af37] data-[state=checked]:text-white" : ""}
                                     onCheckedChange={(checked) => {
                                       handleTogglePermission(
                                         selectedRole.id, 
