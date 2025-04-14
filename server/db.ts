@@ -1,6 +1,5 @@
 import { Pool, neonConfig } from '@neondatabase/serverless';
 import { drizzle } from 'drizzle-orm/neon-serverless';
-import { migrator } from 'drizzle-orm/node-postgres/migrator';
 import ws from 'ws';
 import * as schema from '../shared/schema';
 import { log } from './vite';
@@ -34,8 +33,18 @@ function setupDatabaseConnection() {
       connectionString: databaseUrl
     });
     
-    // Initialize Drizzle with schema
-    db = drizzle(pool, { schema });
+    // Extract only table schemas from the schema object, excluding relation definitions
+    const tableSchemas: any = {};
+    for (const key in schema) {
+      const item = schema[key as keyof typeof schema];
+      // Check if the item is a table schema (has name property)
+      if (typeof item === 'object' && item !== null && 'name' in item) {
+        tableSchemas[key] = item;
+      }
+    }
+    
+    // Initialize Drizzle with only table schemas, bypassing the relation definitions
+    db = drizzle(pool, { schema: tableSchemas });
     log('PostgreSQL storage initialized with Neon driver', 'db');
     
     // Test connection (async but we'll wait for it)
@@ -85,7 +94,8 @@ export async function initDatabase(): Promise<boolean> {
           ...Object.keys(schema).reduce((acc, key) => {
             // Only add methods for tables
             if (typeof schema[key as keyof typeof schema] === 'object' && 
-                schema[key as keyof typeof schema].hasOwnProperty('$inferSelect')) {
+                schema[key as keyof typeof schema] !== null &&
+                'name' in schema[key as keyof typeof schema]) {
               acc[key] = {
                 findMany: async () => [],
                 findFirst: async () => undefined
