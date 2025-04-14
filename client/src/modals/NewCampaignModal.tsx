@@ -511,11 +511,11 @@ const NewCampaignModal = ({ onClose, initialTemplateId = null }: NewCampaignModa
                             return;
                           }
                           
-                          // Go to settings tab
-                          setActiveTab('settings');
+                          // Go to A/B testing tab
+                          setActiveTab('ab-testing');
                         }}
                       >
-                        Next: Settings
+                        Next: A/B Testing
                       </button>
                     </div>
                   </div>
@@ -626,9 +626,9 @@ const NewCampaignModal = ({ onClose, initialTemplateId = null }: NewCampaignModa
                       <button
                         type="button"
                         className="btn btn-outline-secondary"
-                        onClick={() => setActiveTab('audience')}
+                        onClick={() => setActiveTab('ab-testing')}
                       >
-                        Back to Contact Lists
+                        Back to A/B Testing
                       </button>
                     </div>
                   </div>
