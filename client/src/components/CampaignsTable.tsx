@@ -42,12 +42,16 @@ const CampaignsTable = () => {
       const dropdowns = document.querySelectorAll('.campaign-actions-dropdown:not(.hidden)');
       
       dropdowns.forEach((dropdown) => {
+        // Only proceed if the click target is not inside the dropdown
         if (dropdown && !dropdown.contains(event.target as Node)) {
-          // Check if the click was outside the dropdown and not on the toggle button
+          // Get the campaign ID from the dropdown ID
           const dropdownId = dropdown.id;
           const campaignId = dropdownId.replace('dropdown-', '');
-          const toggleButton = document.querySelector(`button[aria-label="Campaign actions"][data-campaign-id="${campaignId}"]`);
           
+          // Get the button that toggles this dropdown
+          const toggleButton = document.querySelector(`button[data-campaign-id="${campaignId}"]`);
+          
+          // Only hide if the click wasn't on the toggle button
           if (!toggleButton || !toggleButton.contains(event.target as Node)) {
             dropdown.classList.add('hidden');
           }
@@ -247,6 +251,7 @@ const CampaignsTable = () => {
                         type="button" 
                         aria-label="Campaign actions"
                         title="Campaign actions"
+                        data-campaign-id={campaign.id.toString()}
                         onClick={() => {
                           const dropdowns = document.querySelectorAll('.campaign-actions-dropdown');
                           dropdowns.forEach(d => {
