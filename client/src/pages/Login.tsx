@@ -174,47 +174,39 @@ export default function Login() {
     <div className="min-h-screen flex flex-col bg-[#09152E] relative overflow-hidden">
       {/* Background decorative elements */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
-        {/* Luxury overlay pattern - diagonal gold lines */}
-        <div className="absolute inset-0 opacity-5" 
+        {/* Dark blue diamond pattern background */}
+        <div className="absolute inset-0 opacity-10" 
              style={{
-               backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'24\' height=\'24\' viewBox=\'0 0 24 24\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M12 0l12 12-12 12L0 12 12 0zm0 4.686L4.686 12 12 19.314 19.314 12 12 4.686z\' fill=\'%23d4af37\' fill-opacity=\'1\' fill-rule=\'evenodd\'/%3E%3C/svg%3E")',
+               backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'24\' height=\'24\' viewBox=\'0 0 24 24\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M12 0l12 12-12 12L0 12 12 0zm0 4.686L4.686 12 12 19.314 19.314 12 12 4.686z\' fill=\'%23ffffff\' fill-opacity=\'1\' fill-rule=\'evenodd\'/%3E%3C/svg%3E")',
                backgroundSize: '24px 24px'
              }}
         ></div>
-        
-        {/* Luxury gradient orbs */}
-        <div className="absolute top-0 right-0 w-[50vw] h-[50vw] max-w-[800px] max-h-[800px] rounded-full 
-                        bg-gradient-to-b from-[#d4af37]/10 via-[#d4af37]/5 to-transparent 
-                        blur-3xl opacity-40 transform translate-x-1/4 -translate-y-1/4"></div>
-        <div className="absolute bottom-0 left-0 w-[60vw] h-[60vw] max-w-[900px] max-h-[900px] rounded-full 
-                        bg-gradient-to-tr from-[#09152E] via-[#1e3a66]/30 to-[#d4af37]/10 
-                        blur-3xl opacity-30 transform -translate-x-1/4 translate-y-1/4"></div>
-        
-        {/* Subtle top decorative bar */}
-        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#d4af37]/50 to-transparent"></div>
       </div>
       
-      {/* Content container with vertical and horizontal centering */}
-      <div className="flex-1 flex items-center justify-center py-6 px-4 sm:px-6 lg:px-8 z-10">
-        <div className="max-w-7xl w-full flex flex-col lg:flex-row gap-10 xl:gap-16">
-          {/* Left side - Brand messaging with glass card effect */}
-          <div className="flex-1 hidden lg:flex flex-col justify-between p-12 
-                         bg-gradient-to-br from-[#ffffff08] to-[#ffffff03] 
-                         backdrop-blur-sm rounded-2xl border border-[#ffffff15]
-                         shadow-[0_10px_50px_-12px_rgba(212,175,55,0.1)]">
+      {/* Content container with grid layout for three equal columns */}
+      <div className="flex-1 flex items-center justify-center py-10 px-6 z-10">
+        <div className="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Left column - Brand messaging with Infinity Tech logo */}
+          <div className="bg-[#0c1d3d] rounded-2xl p-8 flex flex-col shadow-xl">
             <div>
-              <img src={infyLogo} alt="InfyMailer Logo" className="h-20 mb-10" />
-              <h1 className="text-4xl font-bold mb-6">
+              <img 
+                src="/attached_assets/Infinity Tech Logo-01.png" 
+                alt="Infinity Tech Logo" 
+                className="h-10 mb-8" 
+              />
+              
+              <h1 className="text-3xl font-bold mb-4">
                 <span className="text-white">Welcome to the</span><br />
-                <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#d4af37] to-[#f5f0e1] font-extrabold tracking-tight">
+                <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#d4af37] to-[#f5f0e1] font-extrabold">
                   InfyMailer Platform
                 </span>
               </h1>
-              <p className="text-xl text-gray-300 mb-8 font-light">
+              
+              <p className="text-white/80 mb-8">
                 The premium email marketing solution designed for modern businesses
               </p>
               
-              <div className="space-y-6 mt-12">
+              <div className="space-y-6 my-8">
                 <div className="flex items-center">
                   <div className="mr-4 p-2 rounded-full bg-[#d4af37]/10">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-[#d4af37]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -223,7 +215,7 @@ export default function Login() {
                   </div>
                   <div>
                     <h3 className="text-[#d4af37] font-medium">Enterprise-Grade Security</h3>
-                    <p className="text-gray-400 text-sm">Advanced protection for your data and campaigns</p>
+                    <p className="text-white/60 text-sm">Advanced protection for your data and campaigns</p>
                   </div>
                 </div>
                 <div className="flex items-center">
@@ -234,33 +226,22 @@ export default function Login() {
                   </div>
                   <div>
                     <h3 className="text-[#d4af37] font-medium">Real-Time Analytics</h3>
-                    <p className="text-gray-400 text-sm">Track performance with detailed insights and metrics</p>
+                    <p className="text-white/60 text-sm">Track performance with detailed insights and metrics</p>
                   </div>
                 </div>
               </div>
             </div>
             
-            <div className="text-gray-500 text-sm pt-6 border-t border-[#ffffff10] mt-10">
-              &copy; {new Date().getFullYear()} InfyMailer. Premium email marketing platform.
+            <div className="text-white/40 text-sm mt-auto pt-4">
+              &copy; 2025 InfyMailer. Premium email marketing platform.
             </div>
           </div>
           
-          {/* Right side - Login form with glass card effect */}
-          <div className="flex-1 bg-gradient-to-br from-[#ffffff10] to-[#ffffff05] backdrop-blur-md
-                          rounded-2xl border border-[#ffffff15] shadow-xl overflow-hidden">
-            <div className="px-8 py-10 sm:px-12">
-              <div className="lg:hidden mb-8 text-center">
-                <img src={infyLogo} alt="InfyMailer Logo" className="h-16 mx-auto mb-4" />
-                <h2 className="text-2xl font-bold text-white">
-                  <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#d4af37] to-[#f5f0e1]">
-                    InfyMailer Portal
-                  </span>
-                </h2>
-              </div>
-              
-              <h2 className="text-2xl font-bold text-white mb-6 lg:mb-8">
-                Sign in to your account
-              </h2>
+          {/* Middle column - Login form with tab navigation */}
+          <div className="bg-[#0c1d3d] rounded-2xl p-8 flex flex-col shadow-xl">
+            <h2 className="text-2xl font-bold text-white mb-6">
+              Sign in to your account
+            </h2>
               
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                 <TabsList className="grid grid-cols-2 mb-8 rounded-lg overflow-hidden border border-[#ffffff20]">
@@ -456,11 +437,10 @@ export default function Login() {
                   </Form>
                 </TabsContent>
               </Tabs>
-            </div>
           </div>
           
           {/* Right side - Features/Marketing */}
-          <div className="hidden lg:flex lg:flex-col lg:justify-between lg:flex-1 bg-gradient-to-br from-[#1a3a5f] to-[#0c2f6c] rounded-2xl shadow-xl p-10 text-white relative overflow-hidden">
+          <div className="hidden lg:flex lg:flex-col lg:justify-between bg-[#0c1d3d] rounded-2xl p-8 shadow-xl text-white relative overflow-hidden">
             {/* Background pattern */}
             <div className="absolute inset-0 opacity-10" 
                  style={{
