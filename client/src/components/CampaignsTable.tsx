@@ -3,6 +3,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { Link } from "wouter";
 
 // Define campaign type
 interface Campaign {
@@ -129,9 +130,9 @@ const CampaignsTable = () => {
     <div className="rounded-lg border shadow-sm">
       <div className="flex justify-between items-center px-6 py-4 border-b">
         <h3 className="text-lg font-semibold">Recent Campaigns</h3>
-        <a href="/campaigns" className="text-sm px-3 py-1.5 rounded-md border bg-white hover:bg-gray-50 transition-colors">
+        <Link href="/campaigns" className="text-sm px-3 py-1.5 rounded-md border bg-white hover:bg-gray-50 transition-colors">
           View all
-        </a>
+        </Link>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full">
@@ -204,7 +205,7 @@ const CampaignsTable = () => {
                 </td>
                 <td className="py-4 px-6 text-right">
                   <div className="inline-flex items-center space-x-2">
-                    <a 
+                    <Link 
                       href={`/campaigns/${campaign.id}`} 
                       className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-3"
                     >
@@ -213,7 +214,7 @@ const CampaignsTable = () => {
                         <circle cx="12" cy="12" r="3"></circle>
                       </svg>
                       View
-                    </a>
+                    </Link>
                     <div className="relative inline-block text-left group">
                       <button 
                         type="button" 
@@ -227,7 +228,7 @@ const CampaignsTable = () => {
                       </button>
                       <div className="absolute right-0 mt-2 w-48 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 hidden group-hover:block z-10 divide-y divide-gray-100">
                         <div className="py-1">
-                          <a 
+                          <Link 
                             href={`/campaigns/${campaign.id}`} 
                             className="group flex items-center px-4 py-2 text-sm hover:bg-slate-50"
                           >
@@ -237,8 +238,8 @@ const CampaignsTable = () => {
                               <line x1="15" y1="9" x2="15" y2="20"></line>
                             </svg>
                             Analytics
-                          </a>
-                          <a 
+                          </Link>
+                          <Link 
                             href={`/campaigns/${campaign.id}/edit`} 
                             className="group flex items-center px-4 py-2 text-sm hover:bg-slate-50"
                           >
@@ -247,7 +248,7 @@ const CampaignsTable = () => {
                               <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                             </svg>
                             Edit
-                          </a>
+                          </Link>
                           <button 
                             className="group flex w-full items-center px-4 py-2 text-sm hover:bg-slate-50"
                             onClick={(e) => {
