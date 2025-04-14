@@ -449,6 +449,7 @@ export class MemStorage implements IStorage {
     this.systemCreditsHistoryId = 1;
     this.clientEmailCreditsHistoryId = 1;
     this.clientProviderId = 1;
+    this.clientProviderId = 1;
 
     // Initialize with some default data
     this.initializeData();
@@ -954,6 +955,35 @@ export class MemStorage implements IStorage {
   async getClientCampaigns(clientId: number): Promise<Campaign[]> {
     return Array.from(this.campaigns.values())
       .filter(campaign => campaign.clientId === clientId);
+  }
+  
+  // Client Provider methods
+  async getClientProviders(clientId: number): Promise<ClientProvider[]> {
+    return Array.from(this.clientProviders.values())
+      .filter(provider => provider.clientId === clientId);
+  }
+  
+  async assignProviderToClient(clientProvider: InsertClientProvider): Promise<ClientProvider> {
+    const id = this.clientProviderId++;
+    const now = new Date();
+    
+    const newClientProvider: ClientProvider = {
+      id,
+      createdAt: now,
+      ...clientProvider
+    };
+    
+    this.clientProviders.set(id, newClientProvider);
+    return newClientProvider;
+  }
+  
+  async removeProviderFromClient(clientId: number, providerId: number): Promise<boolean> {
+    const provider = Array.from(this.clientProviders.values())
+      .find(p => p.clientId === clientId && p.providerId === providerId);
+    
+    if (!provider) return false;
+    
+    return this.clientProviders.delete(provider.id);
   }
   
   // Client Email Credits methods
