@@ -434,9 +434,9 @@ const UserManagement = () => {
             <h2 className="text-xl font-semibold text-[#1a3a5f]">System Users</h2>
             <Dialog open={isNewUserDialogOpen} onOpenChange={setIsNewUserDialogOpen}>
               <DialogTrigger asChild>
-                <Button className="bg-[#1a3a5f] hover:bg-[#2c5a8f] text-white border border-[#d4af37]/30 hover:border-[#d4af37]">
-                  <Plus className="mr-2 h-4 w-4" />
-                  Add User
+                <Button className="bg-gradient-to-r from-[#1a3a5f] to-[#2c5a8f] text-white hover:from-[#1a3a5f]/90 hover:to-[#2c5a8f]/90 hover:shadow-md transition-all duration-300 border border-[#d4af37]/30 hover:border-[#d4af37]">
+                  <Plus className="mr-2 h-4 w-4 text-[#d4af37]" />
+                  <span className="bg-gradient-to-r from-white to-[#d4af37]/80 bg-clip-text text-transparent font-medium">Add User</span>
                 </Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-[500px]">
@@ -497,9 +497,9 @@ const UserManagement = () => {
                     </Button>
                     <Button 
                       type="submit" 
-                      className="bg-[#1a3a5f] hover:bg-[#2c5a8f] border border-[#d4af37]/30 hover:border-[#d4af37] text-white"
+                      className="bg-gradient-to-r from-[#1a3a5f] to-[#2c5a8f] text-white hover:from-[#1a3a5f]/90 hover:to-[#2c5a8f]/90 hover:shadow-md transition-all duration-300 border border-[#d4af37]/30 hover:border-[#d4af37]"
                     >
-                      Create User
+                      <span className="bg-gradient-to-r from-white to-[#d4af37]/80 bg-clip-text text-transparent font-medium">Create User</span>
                     </Button>
                   </DialogFooter>
                 </form>
