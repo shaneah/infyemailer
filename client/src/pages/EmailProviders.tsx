@@ -1162,8 +1162,8 @@ function EmailProviders() {
                     
                     <div className="space-y-2">
                       <div className="flex items-center gap-2">
-                        <Label htmlFor="editPort">Port</Label>
-                        <Badge variant="outline" className="text-xs">Required</Badge>
+                        <Label htmlFor="editPort" className="text-[#1a3a5f] font-medium">Port</Label>
+                        <Badge variant="outline" className="text-xs text-[#1a3a5f] border-[#d4af37]/50">Required</Badge>
                       </div>
                       <Input
                         id="editPort"
@@ -1173,13 +1173,14 @@ function EmailProviders() {
                           const updatedConfig = { ...selectedProvider.config, port: e.target.value };
                           setSelectedProvider({ ...selectedProvider, config: updatedConfig });
                         }}
+                        className="border-[#1a3a5f]/20 focus:border-[#1a3a5f] focus:ring-[#1a3a5f]/10"
                       />
                     </div>
                     
                     <div className="space-y-2">
                       <div className="flex items-center gap-2">
-                        <Label htmlFor="editUsername">Username</Label>
-                        <Badge variant="outline" className="text-xs">Required</Badge>
+                        <Label htmlFor="editUsername" className="text-[#1a3a5f] font-medium">Username</Label>
+                        <Badge variant="outline" className="text-xs text-[#1a3a5f] border-[#d4af37]/50">Required</Badge>
                       </div>
                       <Input
                         id="editUsername"
@@ -1189,13 +1190,14 @@ function EmailProviders() {
                           const updatedConfig = { ...selectedProvider.config, username: e.target.value };
                           setSelectedProvider({ ...selectedProvider, config: updatedConfig });
                         }}
+                        className="border-[#1a3a5f]/20 focus:border-[#1a3a5f] focus:ring-[#1a3a5f]/10"
                       />
                     </div>
                     
                     <div className="space-y-2">
                       <div className="flex items-center gap-2">
-                        <Label htmlFor="editPassword">Password</Label>
-                        <Badge variant="outline" className="text-xs">Required</Badge>
+                        <Label htmlFor="editPassword" className="text-[#1a3a5f] font-medium">Password</Label>
+                        <Badge variant="outline" className="text-xs text-[#1a3a5f] border-[#d4af37]/50">Required</Badge>
                       </div>
                       <Input
                         id="editPassword"
@@ -1206,12 +1208,13 @@ function EmailProviders() {
                           const updatedConfig = { ...selectedProvider.config, password: e.target.value };
                           setSelectedProvider({ ...selectedProvider, config: updatedConfig });
                         }}
+                        className="border-[#1a3a5f]/20 focus:border-[#1a3a5f] focus:ring-[#1a3a5f]/10"
                       />
                     </div>
                     
                     <div className="space-y-2">
                       <div className="flex items-center gap-2">
-                        <Label htmlFor="editFromEmail">From Email</Label>
+                        <Label htmlFor="editFromEmail" className="text-[#1a3a5f] font-medium">From Email</Label>
                       </div>
                       <Input
                         id="editFromEmail"
@@ -1221,12 +1224,13 @@ function EmailProviders() {
                           const updatedConfig = { ...selectedProvider.config, fromEmail: e.target.value };
                           setSelectedProvider({ ...selectedProvider, config: updatedConfig });
                         }}
+                        className="border-[#1a3a5f]/20 focus:border-[#1a3a5f] focus:ring-[#1a3a5f]/10"
                       />
                     </div>
                     
                     <div className="space-y-2">
                       <div className="flex items-center gap-2">
-                        <Label htmlFor="editFromName">From Name</Label>
+                        <Label htmlFor="editFromName" className="text-[#1a3a5f] font-medium">From Name</Label>
                       </div>
                       <Input
                         id="editFromName"
@@ -1236,33 +1240,39 @@ function EmailProviders() {
                           const updatedConfig = { ...selectedProvider.config, fromName: e.target.value };
                           setSelectedProvider({ ...selectedProvider, config: updatedConfig });
                         }}
+                        className="border-[#1a3a5f]/20 focus:border-[#1a3a5f] focus:ring-[#1a3a5f]/10"
                       />
                     </div>
                   </>
                 )}
               </div>
 
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-2 mt-4 border border-[#d4af37]/30 rounded-md p-3 bg-gradient-to-r from-[#f5f0e1]/40 to-transparent">
                 <input
                   type="checkbox"
                   id="editIsDefault"
                   checked={selectedProvider.isDefault}
                   onChange={(e) => setSelectedProvider({ ...selectedProvider, isDefault: e.target.checked })}
-                  className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                  className="h-4 w-4 rounded border-[#1a3a5f]/30 text-[#d4af37] focus:ring-[#d4af37]/20"
                 />
-                <Label htmlFor="editIsDefault" className="text-sm font-normal">
+                <Label htmlFor="editIsDefault" className="text-sm font-medium text-[#1a3a5f]">
                   Set as default email provider
                 </Label>
               </div>
             </div>
           )}
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsEditOpen(false)}>
+            <Button 
+              variant="outline" 
+              onClick={() => setIsEditOpen(false)}
+              className="border-[#1a3a5f]/30 text-[#1a3a5f] hover:bg-[#1a3a5f]/5"
+            >
               Cancel
             </Button>
             <Button
               onClick={handleUpdateProvider}
               disabled={!selectedProvider || updateProviderMutation.isPending}
+              className="bg-gradient-to-r from-[#1a3a5f] to-[#1a3a5f]/90 text-white hover:from-[#1a3a5f]/95 hover:to-[#1a3a5f]/85"
             >
               {updateProviderMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Save Changes
@@ -1281,13 +1291,18 @@ function EmailProviders() {
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDeleteOpen(false)}>
+            <Button 
+              variant="outline" 
+              onClick={() => setIsDeleteOpen(false)}
+              className="border-[#1a3a5f]/30 text-[#1a3a5f] hover:bg-[#1a3a5f]/5"
+            >
               Cancel
             </Button>
             <Button
               variant="destructive"
               onClick={handleDeleteProvider}
               disabled={deleteProviderMutation.isPending}
+              className="bg-red-600 hover:bg-red-700 text-white"
             >
               {deleteProviderMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Delete Provider
