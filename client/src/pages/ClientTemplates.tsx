@@ -153,6 +153,39 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
     setSelectedTemplate(template);
   };
   
+  const parseTemplateContent = (content: string): string => {
+    try {
+      // Try to parse as JSON first
+      const templateData = JSON.parse(content);
+      
+      // Handle various template formats
+      if (templateData.metadata?.originalHtml) {
+        return templateData.metadata.originalHtml;
+      } else if (templateData.sections) {
+        // Process sections with HTML elements
+        let html = '';
+        templateData.sections.forEach((section: any) => {
+          if (section.elements) {
+            section.elements.forEach((element: any) => {
+              if (element.type === 'html' && element.content?.html) {
+                html += element.content.html;
+              } else if (element.type === 'text' && element.content?.text) {
+                html += `<div style="font-size: ${element.styles?.fontSize || '16px'}; color: ${element.styles?.color || '#000000'}; text-align: ${element.styles?.textAlign || 'left'};">${element.content.text}</div>`;
+              }
+            });
+          }
+        });
+        return html || content; // Return the constructed HTML or the original content if empty
+      }
+      
+      // If we couldn't extract HTML from JSON, return a formatted display of the JSON
+      return `<pre style="white-space: pre-wrap; font-family: monospace; font-size: 14px;">${JSON.stringify(templateData, null, 2)}</pre>`;
+    } catch (e) {
+      // If parsing as JSON fails, assume it's already HTML
+      return content;
+    }
+  };
+  
   // Function to handle edit template action - redirects to client template builder
   const handleEditTemplate = (template: Template) => {
     navigate(`/client-template-builder/${template.id}`);
