@@ -19,6 +19,7 @@ export default function BasicTemplateBuilder() {
   // Template data
   const [templateName, setTemplateName] = useState("New Template");
   const [templateSubject, setTemplateSubject] = useState("Your Email Subject");
+  const [templateDescription, setTemplateDescription] = useState("A beautiful email template for your marketing campaigns");
   const [sections, setSections] = useState<Array<{
     id: string;
     type: string;
@@ -189,13 +190,12 @@ export default function BasicTemplateBuilder() {
         const templateData = {
           name: templateName,
           subject: templateSubject,
-          content: JSON.stringify({
-            sections,
-            name: templateName,
-            subject: templateSubject
-          }),
-          html: htmlContent,
-          category: "custom"
+          description: templateDescription,
+          content: htmlContent,
+          category: "custom",
+          metadata: {
+            sections: sections
+          }
         };
         
         const response = await apiRequest('POST', '/api/templates', templateData);
@@ -301,188 +301,217 @@ export default function BasicTemplateBuilder() {
         <TabsContent value="editor" className="flex-1 overflow-auto p-6">
           <div className="mx-auto max-w-3xl">
             {/* Template Details */}
-            <Card className="mb-6">
-              <CardHeader>
-                <CardTitle className="text-lg">Template Details</CardTitle>
+            <Card className="mb-6 border-blue-100 shadow-sm">
+              <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-blue-100 pb-4">
+                <CardTitle className="text-lg font-semibold text-blue-800">Template Details</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-4 pt-6">
                 <div>
-                  <Label htmlFor="templateName">Template Name</Label>
+                  <Label htmlFor="templateName" className="text-sm font-medium text-gray-700">Template Name</Label>
                   <Input
                     id="templateName"
                     value={templateName}
                     onChange={(e) => setTemplateName(e.target.value)}
                     placeholder="Enter template name"
+                    className="mt-1 focus-visible:ring-blue-300 border-blue-200"
                   />
                 </div>
                 <div>
-                  <Label htmlFor="templateSubject">Email Subject</Label>
+                  <Label htmlFor="templateSubject" className="text-sm font-medium text-gray-700">Email Subject</Label>
                   <Input
                     id="templateSubject"
                     value={templateSubject}
                     onChange={(e) => setTemplateSubject(e.target.value)}
                     placeholder="Enter email subject line"
+                    className="mt-1 focus-visible:ring-blue-300 border-blue-200"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="templateDescription" className="text-sm font-medium text-gray-700">Description</Label>
+                  <Textarea
+                    id="templateDescription"
+                    value={templateDescription}
+                    onChange={(e) => setTemplateDescription(e.target.value)}
+                    placeholder="Enter template description"
+                    className="mt-1 focus-visible:ring-blue-300 border-blue-200"
+                    rows={3}
                   />
                 </div>
               </CardContent>
             </Card>
             
             {/* Content Sections */}
-            <div className="space-y-4">
-              <div className="flex items-center justify-between mb-2">
-                <h2 className="text-lg font-medium">Content Sections</h2>
-                <div className="flex gap-2">
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={() => addSection("heading")}
-                  >
-                    <Plus className="h-4 w-4 mr-1" />
-                    Heading
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={() => addSection("text")}
-                  >
-                    <Plus className="h-4 w-4 mr-1" />
-                    Text
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={() => addSection("image")}
-                  >
-                    <Plus className="h-4 w-4 mr-1" />
-                    Image
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={() => addSection("button")}
-                  >
-                    <Plus className="h-4 w-4 mr-1" />
-                    Button
-                  </Button>
+            <Card className="border-blue-100 shadow-sm">
+              <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-blue-100 pb-4">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-lg font-semibold text-blue-800">Content Sections</CardTitle>
+                  <div className="flex gap-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => addSection("heading")}
+                      className="bg-white border-blue-200 text-blue-700 hover:bg-blue-50"
+                    >
+                      <Plus className="h-4 w-4 mr-1" />
+                      Heading
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => addSection("text")}
+                      className="bg-white border-blue-200 text-blue-700 hover:bg-blue-50"
+                    >
+                      <Plus className="h-4 w-4 mr-1" />
+                      Text
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => addSection("image")}
+                      className="bg-white border-blue-200 text-blue-700 hover:bg-blue-50"
+                    >
+                      <Plus className="h-4 w-4 mr-1" />
+                      Image
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => addSection("button")}
+                      className="bg-white border-blue-200 text-blue-700 hover:bg-blue-50"
+                    >
+                      <Plus className="h-4 w-4 mr-1" />
+                      Button
+                    </Button>
+                  </div>
                 </div>
-              </div>
-              
-              {sections.length === 0 ? (
-                <div className="text-center py-12 bg-gray-50 rounded-lg border border-dashed border-gray-300">
-                  <p className="text-gray-500 mb-4">No content sections yet</p>
-                  <Button onClick={() => addSection("text")}>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add First Section
-                  </Button>
-                </div>
-              ) : (
+              </CardHeader>
+              <CardContent className="pt-6">
                 <div className="space-y-4">
-                  {sections.map((section, index) => (
-                    <Card key={section.id}>
-                      <CardHeader className="py-3 px-4 flex flex-row items-center justify-between">
-                        <CardTitle className="text-sm">
-                          {section.type.charAt(0).toUpperCase() + section.type.slice(1)} Section
-                        </CardTitle>
-                        <div className="flex gap-1">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => {
-                              if (index > 0) {
-                                const newSections = [...sections];
-                                [newSections[index], newSections[index - 1]] = [newSections[index - 1], newSections[index]];
-                                setSections(newSections);
-                              }
-                            }}
-                            disabled={index === 0}
-                            className="h-7 w-7 p-0"
-                          >
-                            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m18 15-6-6-6 6"/></svg>
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => {
-                              if (index < sections.length - 1) {
-                                const newSections = [...sections];
-                                [newSections[index], newSections[index + 1]] = [newSections[index + 1], newSections[index]];
-                                setSections(newSections);
-                              }
-                            }}
-                            disabled={index === sections.length - 1}
-                            className="h-7 w-7 p-0"
-                          >
-                            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => removeSection(section.id)}
-                            className="h-7 w-7 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
-                          >
-                            <Trash className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </CardHeader>
-                      <CardContent>
-                        {section.type === "heading" && (
-                          <Input
-                            value={section.content}
-                            onChange={(e) => updateSectionContent(section.id, e.target.value)}
-                            placeholder="Enter heading text"
-                            className="font-medium text-lg"
-                          />
-                        )}
-                        
-                        {section.type === "text" && (
-                          <Textarea
-                            value={section.content}
-                            onChange={(e) => updateSectionContent(section.id, e.target.value)}
-                            placeholder="Enter paragraph text"
-                            rows={4}
-                          />
-                        )}
-                        
-                        {section.type === "image" && (
-                          <div className="space-y-4">
-                            <Input
-                              value={section.content}
-                              onChange={(e) => updateSectionContent(section.id, e.target.value)}
-                              placeholder="Enter image URL"
-                            />
-                            <div className="bg-gray-50 border rounded-md p-2">
-                              <img
-                                src={section.content}
-                                alt="Preview"
-                                className="max-h-[200px] mx-auto"
-                                onError={(e) => {
-                                  e.currentTarget.src = 'https://placehold.co/600x200?text=Image+Not+Found';
+                  {sections.length === 0 ? (
+                    <div className="text-center py-12 bg-gray-50 rounded-lg border border-dashed border-gray-300">
+                      <p className="text-gray-500 mb-4">No content sections yet</p>
+                      <Button 
+                        onClick={() => addSection("text")}
+                        className="bg-[#1a3a5f] hover:bg-[#1a3a5f]/90 text-white"
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add First Section
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {sections.map((section, index) => (
+                        <Card key={section.id} className="border-gray-200 shadow-sm overflow-hidden">
+                          <CardHeader className="py-3 px-4 flex flex-row items-center justify-between bg-gradient-to-r from-gray-50 to-blue-50 border-b border-gray-200">
+                            <CardTitle className="text-sm font-medium text-blue-800">
+                              {section.type.charAt(0).toUpperCase() + section.type.slice(1)} Section
+                            </CardTitle>
+                            <div className="flex gap-1">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => {
+                                  if (index > 0) {
+                                    const newSections = [...sections];
+                                    [newSections[index], newSections[index - 1]] = [newSections[index - 1], newSections[index]];
+                                    setSections(newSections);
+                                  }
                                 }}
+                                disabled={index === 0}
+                                className="h-7 w-7 p-0 text-blue-600"
+                              >
+                                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m18 15-6-6-6 6"/></svg>
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => {
+                                  if (index < sections.length - 1) {
+                                    const newSections = [...sections];
+                                    [newSections[index], newSections[index + 1]] = [newSections[index + 1], newSections[index]];
+                                    setSections(newSections);
+                                  }
+                                }}
+                                disabled={index === sections.length - 1}
+                                className="h-7 w-7 p-0 text-blue-600"
+                              >
+                                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => removeSection(section.id)}
+                                className="h-7 w-7 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
+                              >
+                                <Trash className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </CardHeader>
+                          <CardContent className="p-4">
+                            {section.type === "heading" && (
+                              <Input
+                                value={section.content}
+                                onChange={(e) => updateSectionContent(section.id, e.target.value)}
+                                placeholder="Enter heading text"
+                                className="font-medium text-lg focus-visible:ring-blue-300 border-blue-200"
                               />
-                            </div>
-                          </div>
-                        )}
-                        
-                        {section.type === "button" && (
-                          <div className="space-y-4">
-                            <Input
-                              value={section.content}
-                              onChange={(e) => updateSectionContent(section.id, e.target.value)}
-                              placeholder="Enter button text"
-                            />
-                            <div className="flex justify-center">
-                              <div className="bg-[#d4af37] text-white px-4 py-2 rounded">
-                                {section.content}
+                            )}
+                            
+                            {section.type === "text" && (
+                              <Textarea
+                                value={section.content}
+                                onChange={(e) => updateSectionContent(section.id, e.target.value)}
+                                placeholder="Enter paragraph text"
+                                rows={4}
+                                className="focus-visible:ring-blue-300 border-blue-200"
+                              />
+                            )}
+                            
+                            {section.type === "image" && (
+                              <div className="space-y-4">
+                                <Input
+                                  value={section.content}
+                                  onChange={(e) => updateSectionContent(section.id, e.target.value)}
+                                  placeholder="Enter image URL"
+                                  className="focus-visible:ring-blue-300 border-blue-200"
+                                />
+                                <div className="bg-gray-50 border rounded-md p-2">
+                                  <img
+                                    src={section.content}
+                                    alt="Preview"
+                                    className="max-h-[200px] mx-auto"
+                                    onError={(e) => {
+                                      const target = e.target as HTMLImageElement;
+                                      target.src = 'https://placehold.co/600x200?text=Image+Not+Found';
+                                    }}
+                                  />
+                                </div>
                               </div>
-                            </div>
-                          </div>
-                        )}
-                      </CardContent>
-                    </Card>
-                  ))}
+                            )}
+                            
+                            {section.type === "button" && (
+                              <div className="space-y-4">
+                                <Input
+                                  value={section.content}
+                                  onChange={(e) => updateSectionContent(section.id, e.target.value)}
+                                  placeholder="Enter button text"
+                                  className="focus-visible:ring-blue-300 border-blue-200"
+                                />
+                                <div className="flex justify-center">
+                                  <div className="bg-[#d4af37] text-white px-4 py-2 rounded">
+                                    {section.content}
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
+              </CardContent>
+            </Card>
           </div>
         </TabsContent>
         
