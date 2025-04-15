@@ -2,8 +2,8 @@ import { useEffect, useState, useMemo } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useLocation } from "wouter";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, Legend } from "recharts";
-import { Activity, Inbox, BarChart3, Users, Calendar, MailCheck, Menu, Sparkles, TrendingUp, Mail, ChevronRight, CircleUser } from "lucide-react";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart as ReChartsPieChart, Pie, Cell, LineChart, Line, Legend } from "recharts";
+import { Activity, Inbox, BarChart3, Users, Calendar, MailCheck, Menu, Sparkles, TrendingUp, Mail, ChevronRight, CircleUser, PieChart } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import ClientSidebar from "@/components/ClientSidebar";
 
@@ -316,11 +316,22 @@ export default function ClientDashboard() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
               <Card className="col-span-1 backdrop-blur-md bg-white/10 border border-white/10 overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300">
                 <CardHeader className="pb-2 border-b border-white/10">
-                  <div className="flex items-center mb-2">
-                    <div className="h-8 w-8 rounded-full bg-[#d4af37]/10 flex items-center justify-center mr-3">
-                      <BarChart3 className="h-4 w-4 text-[#d4af37]" />
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center">
+                      <div className="h-8 w-8 rounded-full bg-[#d4af37]/10 flex items-center justify-center mr-3">
+                        <BarChart3 className="h-4 w-4 text-[#d4af37]" />
+                      </div>
+                      <CardTitle className="text-xl font-bold text-white">Email Performance</CardTitle>
                     </div>
-                    <CardTitle className="text-xl font-bold text-white">Email Performance</CardTitle>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="text-[#d4af37] hover:bg-[#d4af37]/10 border border-[#d4af37]/30 rounded-full px-4 flex items-center gap-1"
+                      onClick={() => setLocation('/email-performance-dashboard')}
+                    >
+                      <Sparkles className="h-3.5 w-3.5" />
+                      <span>Advanced View</span>
+                    </Button>
                   </div>
                   <CardDescription className="text-white/70 font-medium">
                     Open and click rates over the last 6 months

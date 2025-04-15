@@ -41,6 +41,7 @@ import ClientRoutes from "@/pages/ClientRoutes";
 import Analytics from "@/pages/Analytics";
 import EmailTest from "@/pages/EmailTest";
 import Login from "@/pages/Login";
+import EmailPerformanceDashboard from "@/pages/EmailPerformanceDashboard";
 
 
 function App() {
@@ -142,6 +143,12 @@ function App() {
             <Toaster />
           </div>
         </Route>
+        <Route path="email-performance-dashboard">
+          <div className="bg-background min-h-screen">
+            <EmailPerformanceDashboard />
+            <Toaster />
+          </div>
+        </Route>
         
         {/* Auth Route */}
         <Route path="auth">
@@ -196,6 +203,7 @@ function App() {
                     <ProtectedRoute path="analytics" component={Analytics} />
                     <ProtectedRoute path="email-test" component={EmailTest} />
                     <ProtectedRoute path="email-preview/:id" component={EmailPreview} />
+                    <ProtectedRoute path="email-performance-dashboard" component={EmailPerformanceDashboard} />
 
                     <Route component={NotFound} />
                   </Switch>
