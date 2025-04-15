@@ -10,6 +10,7 @@ import AddContactModal from '@/modals/AddContactModal';
 import CreateListModal from '@/modals/CreateListModal';
 import CreateTemplateModal from '@/modals/CreateTemplateModal';
 import ClientTemplates from '@/pages/ClientTemplates';
+import BasicTemplateBuilder from '@/pages/BasicTemplateBuilder';
 
 // Campaigns component with more complete UI
 const ClientCampaigns = ({ onCreateCampaign }: { onCreateCampaign: () => void }) => {
@@ -2031,6 +2032,9 @@ export default function ClientRoutes() {
           </Route>
           <Route path="/client-templates">
             <ClientTemplates onCreateTemplate={() => setShowCreateTemplateModal(true)} />
+          </Route>
+          <Route path="/client-template-builder">
+            <BasicTemplateBuilder />
           </Route>
           <Route path="/client-reports">
             <ClientReports />
