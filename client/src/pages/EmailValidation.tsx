@@ -358,7 +358,7 @@ const EmailValidation = () => {
             <Info className="h-4 w-4 text-gray-400" />
           </div>
           <Button 
-            className="bg-yellow-400 hover:bg-yellow-500 text-black"
+            className="bg-[#d4af37] hover:bg-[#c4a027] text-white"
             onClick={handleBuyCredits}
             disabled={purchaseCreditsMutation.isPending}
           >
@@ -377,8 +377,8 @@ const EmailValidation = () => {
         <Card className="border shadow-sm">
           <CardContent className="p-6">
             <div className="flex items-start gap-4">
-              <div className="bg-purple-100 rounded-lg p-2">
-                <Mail className="text-purple-600 h-5 w-5" />
+              <div className="bg-primary/10 rounded-lg p-2">
+                <Mail className="text-primary h-5 w-5" />
               </div>
               <div className="flex-1">
                 <h3 className="text-lg font-medium mb-1">Individual Email Validation</h3>
@@ -436,14 +436,14 @@ const EmailValidation = () => {
               <div className="flex flex-col items-center justify-center">
                 {isParsing ? (
                   <>
-                    <Loader2 className="h-8 w-8 text-purple-600 animate-spin mb-2" />
+                    <Loader2 className="h-8 w-8 text-primary animate-spin mb-2" />
                     <p className="text-gray-500 text-sm mb-1">Parsing file...</p>
                     <Progress value={parseProgress} className="w-full max-w-xs h-2 mb-2" />
                     <p className="text-gray-500 text-xs">{parseProgress}%</p>
                   </>
                 ) : (
                   <>
-                    <div className="text-purple-600 mb-2">
+                    <div className="text-primary mb-2">
                       <UploadIcon className="h-8 w-8" />
                     </div>
                     <p className="text-gray-500 text-sm mb-1">Drag and drop your files here</p>
@@ -633,8 +633,8 @@ const EmailValidation = () => {
           <Card className="border shadow-sm hover:shadow cursor-pointer">
             <CardContent className="p-6">
               <div className="flex items-start gap-4">
-                <div className="bg-gray-100 rounded-lg p-2">
-                  <Mail className="text-purple-600 h-5 w-5" />
+                <div className="bg-primary/10 rounded-lg p-2">
+                  <Mail className="text-primary h-5 w-5" />
                 </div>
                 <div className="flex-1">
                   <h3 className="text-lg font-medium mb-1">Setup Email Validation Rules</h3>
@@ -651,8 +651,8 @@ const EmailValidation = () => {
           >
             <CardContent className="p-6">
               <div className="flex items-start gap-4">
-                <div className="bg-gray-100 rounded-lg p-2">
-                  <CheckCircle2 className="text-purple-600 h-5 w-5" />
+                <div className="bg-[#d4af37]/10 rounded-lg p-2">
+                  <CheckCircle2 className="text-[#d4af37] h-5 w-5" />
                 </div>
                 <div className="flex-1">
                   <h3 className="text-lg font-medium mb-1">Need more credits?</h3>
@@ -704,7 +704,7 @@ const EmailValidation = () => {
                     {singleValidationResult.suggestedFix && (
                       <div className="mt-2">
                         <p className="font-medium">Did you mean: </p>
-                        <p className="text-blue-600">{singleValidationResult.suggestedFix}</p>
+                        <p className="text-primary">{singleValidationResult.suggestedFix}</p>
                       </div>
                     )}
                   </AlertDescription>
