@@ -153,6 +153,11 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
     setSelectedTemplate(template);
   };
   
+  // Function to handle edit template action - redirects to client template builder
+  const handleEditTemplate = (template: Template) => {
+    navigate(`/client-template-builder/${template.id}`);
+  };
+  
   const handleCopyHtmlCode = () => {
     if (selectedTemplate?.content) {
       navigator.clipboard.writeText(selectedTemplate.content);
@@ -567,10 +572,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem
-                              onClick={() => {
-                                setSelectedTemplate(template);
-                                setIsUpdateTemplateOpen(true);
-                              }}
+                              onClick={() => handleEditTemplate(template)}
                               className="cursor-pointer"
                             >
                               <Pencil className="h-4 w-4 mr-2" />
@@ -673,10 +675,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
                                 variant="ghost" 
                                 size="sm" 
                                 className="h-8 w-8 p-0"
-                                onClick={() => {
-                                  setSelectedTemplate(template);
-                                  setIsUpdateTemplateOpen(true);
-                                }}
+                                onClick={() => handleEditTemplate(template)}
                               >
                                 <Pencil className="h-4 w-4 text-gray-500 hover:text-teal-600" />
                               </Button>
@@ -762,9 +761,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
                     variant="ghost" 
                     size="sm"
                     className="h-7 text-xs gap-1"
-                    onClick={() => {
-                      setIsUpdateTemplateOpen(true);
-                    }}
+                    onClick={() => handleEditTemplate(selectedTemplate)}
                   >
                     <Pencil className="h-3 w-3" />
                     Edit
