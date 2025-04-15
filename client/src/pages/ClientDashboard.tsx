@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useLocation } from "wouter";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
-import { Activity, Inbox, BarChart3, Users, Calendar, MailCheck, Menu } from "lucide-react";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, Legend } from "recharts";
+import { Activity, Inbox, BarChart3, Users, Calendar, MailCheck, Menu, Sparkles, TrendingUp, Mail, ChevronRight, CircleUser } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import ClientSidebar from "@/components/ClientSidebar";
 
@@ -122,24 +122,45 @@ export default function ClientDashboard() {
     setLocation('/client-login');
   };
 
+  // Generate animated particles for background effect
+  const particles = useMemo(() => {
+    const totalParticles = 50;
+    return Array.from({ length: totalParticles }).map(() => ({
+      x: Math.random() * 100,
+      y: Math.random() * 100,
+      size: Math.random() * 4 + 1,
+      opacity: Math.random() * 0.5 + 0.1,
+      speed: Math.random() * 0.2 + 0.1
+    }));
+  }, []);
+
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-[#0a1929] via-[#112b4a] to-[#1a3a5f]">
+        <div className="flex flex-col items-center">
+          <div className="w-16 h-16 relative">
+            <div className="absolute top-0 left-0 w-full h-full border-4 border-[#d4af37]/30 rounded-full animate-ping"></div>
+            <div className="absolute top-0 left-0 w-full h-full border-4 border-t-[#d4af37] border-r-transparent border-b-transparent border-l-transparent rounded-full animate-spin"></div>
+          </div>
+          <p className="mt-4 text-white/80 font-medium">Loading your dashboard...</p>
+        </div>
       </div>
     );
   }
 
   if (!clientData) {
     return (
-      <div className="container mx-auto py-8">
-        <Card>
+      <div className="min-h-screen bg-gradient-to-br from-[#0a1929] via-[#112b4a] to-[#1a3a5f] flex items-center justify-center p-6">
+        <Card className="w-full max-w-md backdrop-blur-sm bg-white/10 shadow-2xl border border-white/10 text-white">
           <CardHeader>
-            <CardTitle className="text-xl text-red-500">Error Loading Dashboard</CardTitle>
+            <CardTitle className="text-xl text-[#ff6b6b]">Error Loading Dashboard</CardTitle>
           </CardHeader>
           <CardContent>
-            <p>There was an error loading your dashboard data. Please try again later.</p>
-            <Button onClick={handleLogout} className="mt-4">
+            <p className="text-white/80">There was an error loading your dashboard data. Please try again later.</p>
+            <Button 
+              onClick={handleLogout} 
+              className="mt-4 bg-gradient-to-r from-[#d4af37] to-[#d4af37]/70 hover:from-[#d4af37]/70 hover:to-[#d4af37] text-white border-none"
+            >
               Return to Login
             </Button>
           </CardContent>
@@ -149,33 +170,64 @@ export default function ClientDashboard() {
   }
 
   return (
-    <div className="flex flex-col overflow-hidden">
+    <div className="flex flex-col overflow-hidden min-h-screen bg-gradient-to-br from-[#0a1929] via-[#112b4a] to-[#1a3a5f]">
+      {/* Particles background */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {particles.map((particle, index) => (
+          <div 
+            key={index}
+            className="absolute rounded-full bg-[#d4af37]"
+            style={{
+              left: `${particle.x}%`,
+              top: `${particle.y}%`,
+              width: `${particle.size}px`,
+              height: `${particle.size}px`,
+              opacity: particle.opacity,
+              boxShadow: `0 0 ${particle.size * 2}px ${particle.size}px rgba(212, 175, 55, 0.2)`
+            }}
+          />
+        ))}
+        {/* Gradient overlays */}
+        <div className="absolute top-0 left-0 right-0 h-40 bg-gradient-to-b from-[#0a1929] to-transparent"></div>
+        <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-[#0a1929] to-transparent"></div>
+        
+        {/* Decorative elements */}
+        <div className="absolute top-20 left-20 w-40 h-40 rounded-full bg-[#d4af37]/5 blur-3xl"></div>
+        <div className="absolute bottom-20 right-20 w-60 h-60 rounded-full bg-[#1a3a5f]/30 blur-3xl"></div>
+      </div>
+      
       {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 flex flex-col overflow-hidden relative z-10">
         {/* Header */}
-        <header className="bg-[#2D1164] text-white shadow-md">
-          <div className="container mx-auto py-5 px-6">
+        <header className="bg-white/5 backdrop-blur-md border-b border-white/10 text-white relative z-20 shadow-lg">
+          <div className="container mx-auto py-4 px-6">
             <div className="flex justify-between items-center">
               <div className="flex items-center gap-4">
                 <Button 
                   variant="ghost" 
                   size="lg"
-                  className="lg:hidden text-white hover:bg-[#4A1DAE]"
+                  className="lg:hidden text-white hover:bg-white/10"
                   onClick={() => setSidebarOpen(true)}
                 >
                   <Menu size={24} />
                 </Button>
                 <div>
-                  <h1 className="text-2xl font-bold tracking-tight text-white">InfyMailer Client Portal</h1>
-                  <p className="text-sm font-medium text-white">{clientData.clientCompany}</p>
+                  <h1 className="text-2xl font-bold tracking-tight bg-gradient-to-r from-white via-[#d4af37] to-white inline-block text-transparent bg-clip-text">
+                    InfyMailer NextGen Portal
+                  </h1>
+                  <div className="w-32 h-0.5 mx-auto bg-gradient-to-r from-transparent via-[#d4af37] to-transparent my-1"></div>
+                  <p className="text-sm font-medium text-white/70">{clientData.company || 'Acme Corporation'}</p>
                 </div>
               </div>
-              <div className="flex items-center gap-4 lg:hidden">
-                <span className="hidden sm:inline font-medium">Welcome, {clientData.clientName}</span>
+              <div className="flex items-center gap-4">
+                <div className="hidden md:flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-full border border-white/10">
+                  <CircleUser className="h-5 w-5 text-[#d4af37]" />
+                  <span className="text-sm font-medium text-white">Welcome, {clientUser?.name || 'User'}</span>
+                </div>
                 <Button 
                   variant="outline" 
                   onClick={handleLogout} 
-                  className="text-white border-white hover:bg-[#4A1DAE] font-medium"
+                  className="text-white border-white/20 bg-white/5 hover:bg-white/10 hover:text-[#d4af37] font-medium"
                 >
                   Logout
                 </Button>
@@ -185,67 +237,99 @@ export default function ClientDashboard() {
         </header>
 
         {/* Dashboard Content */}
-        <main className="flex-1 overflow-y-auto p-6 bg-gray-50">
+        <main className="flex-1 overflow-y-auto p-6 relative z-10">
           <div className="container mx-auto">
-            <h2 className="text-3xl font-bold mb-8 text-gray-800">Dashboard</h2>
+            <div className="flex items-center mb-8">
+              <div className="bg-[#d4af37]/10 p-2 rounded-full mr-3">
+                <Sparkles className="h-6 w-6 text-[#d4af37]" />
+              </div>
+              <h2 className="text-3xl font-bold text-white">Your Dashboard</h2>
+            </div>
             
             {/* Stats Overview */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              <Card className="shadow-md hover:shadow-lg transition-shadow border-t-4 border-[#4A1DAE]">
-                <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-base font-bold text-gray-800">Active Campaigns</CardTitle>
-                  <div className="h-10 w-10 rounded-full bg-purple-100 flex items-center justify-center">
-                    <Activity className="h-5 w-5 text-[#4A1DAE]" />
+              <Card className="backdrop-blur-md bg-white/10 border border-white/10 overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 group">
+                <CardHeader className="flex flex-row items-center justify-between pb-2 border-b border-white/10">
+                  <CardTitle className="text-base font-bold text-white">Active Campaigns</CardTitle>
+                  <div className="h-10 w-10 rounded-full bg-[#d4af37]/10 flex items-center justify-center">
+                    <Activity className="h-5 w-5 text-[#d4af37]" />
                   </div>
                 </CardHeader>
-                <CardContent>
-                  <div className="text-3xl font-bold text-gray-900">{clientData.stats.activeCampaigns}</div>
-                  <p className="text-sm text-gray-600 mt-1 font-medium">Currently running email campaigns</p>
+                <CardContent className="pt-4 relative">
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-[#d4af37]/5 rounded-full blur-xl -mt-10 -mr-10 opacity-70"></div>
+                  <div className="text-4xl font-bold bg-gradient-to-r from-white via-[#d4af37] to-white inline-block text-transparent bg-clip-text">
+                    {clientData.stats.activeCampaigns}
+                  </div>
+                  <p className="text-sm text-white/70 mt-1 font-medium">Currently running email campaigns</p>
+                  
+                  <div className="mt-4 flex items-center gap-1 text-xs text-white/50">
+                    <TrendingUp className="h-3 w-3 text-[#d4af37]" />
+                    <span>2 campaigns active this week</span>
+                  </div>
                 </CardContent>
               </Card>
-              <Card className="shadow-md hover:shadow-lg transition-shadow border-t-4 border-[#4A1DAE]">
-                <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-base font-bold text-gray-800">Total Emails</CardTitle>
-                  <div className="h-10 w-10 rounded-full bg-purple-100 flex items-center justify-center">
-                    <Inbox className="h-5 w-5 text-[#4A1DAE]" />
+              
+              <Card className="backdrop-blur-md bg-white/10 border border-white/10 overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 group">
+                <CardHeader className="flex flex-row items-center justify-between pb-2 border-b border-white/10">
+                  <CardTitle className="text-base font-bold text-white">Total Emails</CardTitle>
+                  <div className="h-10 w-10 rounded-full bg-[#d4af37]/10 flex items-center justify-center">
+                    <Mail className="h-5 w-5 text-[#d4af37]" />
                   </div>
                 </CardHeader>
-                <CardContent>
-                  <div className="text-3xl font-bold text-gray-900">{clientData.stats.totalEmails.toLocaleString()}</div>
-                  <p className="text-sm text-gray-600 mt-1 font-medium">Sent across all campaigns</p>
+                <CardContent className="pt-4 relative">
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-[#d4af37]/5 rounded-full blur-xl -mt-10 -mr-10 opacity-70"></div>
+                  <div className="text-4xl font-bold bg-gradient-to-r from-white via-[#d4af37] to-white inline-block text-transparent bg-clip-text">
+                    {clientData.stats.totalEmails.toLocaleString()}
+                  </div>
+                  <p className="text-sm text-white/70 mt-1 font-medium">Sent across all campaigns</p>
+                  
+                  <div className="mt-4 flex items-center gap-1 text-xs text-white/50">
+                    <TrendingUp className="h-3 w-3 text-[#d4af37]" />
+                    <span>1,250 emails sent this month</span>
+                  </div>
                 </CardContent>
               </Card>
-              <Card className="shadow-md hover:shadow-lg transition-shadow border-t-4 border-[#4A1DAE]">
-                <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-base font-bold text-gray-800">Open Rate</CardTitle>
-                  <div className="h-10 w-10 rounded-full bg-purple-100 flex items-center justify-center">
-                    <MailCheck className="h-5 w-5 text-[#4A1DAE]" />
+              
+              <Card className="backdrop-blur-md bg-white/10 border border-white/10 overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 group">
+                <CardHeader className="flex flex-row items-center justify-between pb-2 border-b border-white/10">
+                  <CardTitle className="text-base font-bold text-white">Open Rate</CardTitle>
+                  <div className="h-10 w-10 rounded-full bg-[#d4af37]/10 flex items-center justify-center">
+                    <MailCheck className="h-5 w-5 text-[#d4af37]" />
                   </div>
                 </CardHeader>
-                <CardContent>
-                  <div className="text-3xl font-bold text-gray-900">{clientData.stats.openRate}%</div>
-                  <p className="text-sm text-gray-600 mt-1 font-medium">Average across all campaigns</p>
+                <CardContent className="pt-4 relative">
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-[#d4af37]/5 rounded-full blur-xl -mt-10 -mr-10 opacity-70"></div>
+                  <div className="text-4xl font-bold bg-gradient-to-r from-white via-[#d4af37] to-white inline-block text-transparent bg-clip-text">
+                    {clientData.stats.openRate}%
+                  </div>
+                  <p className="text-sm text-white/70 mt-1 font-medium">Average across all campaigns</p>
+                  
+                  <div className="mt-4 flex items-center gap-1 text-xs text-white/50">
+                    <TrendingUp className="h-3 w-3 text-[#d4af37]" />
+                    <span>3.2% higher than industry average</span>
+                  </div>
                 </CardContent>
               </Card>
             </div>
 
             {/* Charts */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-              <Card className="col-span-1 shadow-md hover:shadow-lg transition-shadow border-t-4 border-[#4A1DAE]">
-                <CardHeader className="pb-2">
+              <Card className="col-span-1 backdrop-blur-md bg-white/10 border border-white/10 overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300">
+                <CardHeader className="pb-2 border-b border-white/10">
                   <div className="flex items-center mb-2">
-                    <div className="h-8 w-8 rounded-full bg-purple-100 flex items-center justify-center mr-3">
-                      <BarChart className="h-4 w-4 text-[#4A1DAE]" />
+                    <div className="h-8 w-8 rounded-full bg-[#d4af37]/10 flex items-center justify-center mr-3">
+                      <BarChart3 className="h-4 w-4 text-[#d4af37]" />
                     </div>
-                    <CardTitle className="text-xl font-bold text-gray-800">Email Performance</CardTitle>
+                    <CardTitle className="text-xl font-bold text-white">Email Performance</CardTitle>
                   </div>
-                  <CardDescription className="text-gray-600 font-medium">
+                  <CardDescription className="text-white/70 font-medium">
                     Open and click rates over the last 6 months
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="h-[320px] pt-4">
+                <CardContent className="h-[320px] pt-4 relative">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-[#d4af37]/5 rounded-full blur-xl -mt-10 -mr-10 opacity-70"></div>
                   <ResponsiveContainer width="100%" height="100%">
-                    <BarChart
+                    <LineChart
                       data={clientData.performanceData}
                       margin={{
                         top: 10,
@@ -254,45 +338,70 @@ export default function ClientDashboard() {
                         bottom: 20
                       }}
                     >
-                      <CartesianGrid strokeDasharray="3 3" stroke="#eaeaea" />
-                      <XAxis dataKey="name" tick={{fill: '#666'}} />
-                      <YAxis tick={{fill: '#666'}} />
+                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                      <XAxis dataKey="name" tick={{fill: 'rgba(255,255,255,0.7)'}} stroke="rgba(255,255,255,0.2)" />
+                      <YAxis tick={{fill: 'rgba(255,255,255,0.7)'}} stroke="rgba(255,255,255,0.2)" />
                       <Tooltip 
                         contentStyle={{
-                          backgroundColor: 'white',
-                          border: '1px solid #e2e8f0',
+                          backgroundColor: 'rgba(26, 58, 95, 0.9)',
+                          border: '1px solid rgba(212, 175, 55, 0.3)',
                           borderRadius: '6px',
-                          boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                          boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+                          color: 'white'
                         }}
+                        labelStyle={{color: '#d4af37'}}
+                        itemStyle={{color: 'white'}}
                       />
-                      <Bar dataKey="opens" fill="#4A1DAE" name="Opens" radius={[4, 4, 0, 0]} />
-                      <Bar dataKey="clicks" fill="#7C3AED" name="Clicks" radius={[4, 4, 0, 0]} />
-                    </BarChart>
+                      <Legend wrapperStyle={{color: 'white'}} />
+                      <Line 
+                        type="monotone" 
+                        dataKey="opens" 
+                        name="Opens" 
+                        stroke="#d4af37" 
+                        strokeWidth={2}
+                        dot={{fill: '#d4af37', strokeWidth: 2, r: 4, strokeDasharray: ''}}
+                        activeDot={{fill: '#d4af37', stroke: 'white', strokeWidth: 2, r: 6}}
+                      />
+                      <Line 
+                        type="monotone" 
+                        dataKey="clicks" 
+                        name="Clicks" 
+                        stroke="#ffffff" 
+                        strokeWidth={2}
+                        dot={{fill: '#ffffff', strokeWidth: 2, r: 4, strokeDasharray: ''}}
+                        activeDot={{fill: '#ffffff', stroke: '#d4af37', strokeWidth: 2, r: 6}}
+                      />
+                    </LineChart>
                   </ResponsiveContainer>
                 </CardContent>
               </Card>
 
-              <Card className="col-span-1 shadow-md hover:shadow-lg transition-shadow border-t-4 border-[#4A1DAE]">
-                <CardHeader className="pb-2">
+              <Card className="col-span-1 backdrop-blur-md bg-white/10 border border-white/10 overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300">
+                <CardHeader className="pb-2 border-b border-white/10">
                   <div className="flex items-center mb-2">
-                    <div className="h-8 w-8 rounded-full bg-purple-100 flex items-center justify-center mr-3">
-                      <PieChart className="h-4 w-4 text-[#4A1DAE]" />
+                    <div className="h-8 w-8 rounded-full bg-[#d4af37]/10 flex items-center justify-center mr-3">
+                      <PieChart className="h-4 w-4 text-[#d4af37]" />
                     </div>
-                    <CardTitle className="text-xl font-bold text-gray-800">Device Breakdown</CardTitle>
+                    <CardTitle className="text-xl font-bold text-white">Device Breakdown</CardTitle>
                   </div>
-                  <CardDescription className="text-gray-600 font-medium">
+                  <CardDescription className="text-white/70 font-medium">
                     Email opens by device type
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="h-[320px] pt-4">
+                <CardContent className="h-[320px] pt-4 relative">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-[#d4af37]/5 rounded-full blur-xl -mt-10 -mr-10 opacity-70"></div>
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
                       <Pie
                         data={clientData.deviceData}
                         cx="50%"
                         cy="50%"
-                        labelLine={true}
-                        label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                        labelLine={{stroke: 'rgba(255,255,255,0.3)'}}
+                        label={({ name, percent }) => (
+                          <text x={0} y={0} fill="#ffffff" textAnchor="middle" dominantBaseline="central">
+                            {`${name}: ${(percent * 100).toFixed(0)}%`}
+                          </text>
+                        )}
                         outerRadius={100}
                         fill="#8884d8"
                         dataKey="value"
@@ -302,20 +411,24 @@ export default function ClientDashboard() {
                           <Cell 
                             key={`cell-${index}`} 
                             fill={[
-                              "#4A1DAE", "#7C3AED", "#8B5CF6", "#A78BFA", "#C4B5FD"
+                              "#d4af37", "rgba(212, 175, 55, 0.8)", "rgba(212, 175, 55, 0.6)", 
+                              "rgba(255, 255, 255, 0.8)", "rgba(255, 255, 255, 0.6)"
                             ][index % 5]} 
-                            stroke="#fff"
+                            stroke="rgba(10, 25, 41, 0.5)"
                             strokeWidth={2}
                           />
                         ))}
                       </Pie>
                       <Tooltip 
                         contentStyle={{
-                          backgroundColor: 'white',
-                          border: '1px solid #e2e8f0',
+                          backgroundColor: 'rgba(26, 58, 95, 0.9)',
+                          border: '1px solid rgba(212, 175, 55, 0.3)',
                           borderRadius: '6px',
-                          boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                          boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+                          color: 'white'
                         }}
+                        labelStyle={{color: '#d4af37'}}
+                        itemStyle={{color: 'white'}}
                       />
                     </PieChart>
                   </ResponsiveContainer>
@@ -324,45 +437,71 @@ export default function ClientDashboard() {
             </div>
 
             {/* Recent Campaigns */}
-            <Card className="shadow-md hover:shadow-lg transition-shadow border-t-4 border-[#4A1DAE]">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-xl font-bold text-gray-800">Recent Campaigns</CardTitle>
-                <CardDescription className="text-gray-600">
+            <Card className="backdrop-blur-md bg-white/10 border border-white/10 overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300">
+              <CardHeader className="pb-2 border-b border-white/10">
+                <div className="flex items-center mb-2">
+                  <div className="h-8 w-8 rounded-full bg-[#d4af37]/10 flex items-center justify-center mr-3">
+                    <Mail className="h-4 w-4 text-[#d4af37]" />
+                  </div>
+                  <CardTitle className="text-xl font-bold text-white">Recent Campaigns</CardTitle>
+                </div>
+                <CardDescription className="text-white/70 font-medium">
                   Your latest email marketing campaigns
                 </CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="relative">
+                <div className="absolute top-0 right-0 w-40 h-40 bg-[#d4af37]/5 rounded-full blur-xl -mt-10 -mr-10 opacity-70"></div>
                 <div className="overflow-x-auto">
-                  <table className="w-full text-gray-800">
+                  <table className="w-full text-white">
                     <thead>
-                      <tr className="border-b border-gray-200 bg-gray-50">
-                        <th className="text-left py-3 px-4 font-semibold text-gray-700">Campaign</th>
-                        <th className="text-left py-3 px-4 font-semibold text-gray-700">Date</th>
-                        <th className="text-left py-3 px-4 font-semibold text-gray-700">Status</th>
-                        <th className="text-left py-3 px-4 font-semibold text-gray-700">Opens</th>
-                        <th className="text-left py-3 px-4 font-semibold text-gray-700">Clicks</th>
+                      <tr className="border-b border-white/10">
+                        <th className="text-left py-3 px-4 font-semibold text-[#d4af37]">Campaign</th>
+                        <th className="text-left py-3 px-4 font-semibold text-[#d4af37]">Date</th>
+                        <th className="text-left py-3 px-4 font-semibold text-[#d4af37]">Status</th>
+                        <th className="text-left py-3 px-4 font-semibold text-[#d4af37]">Opens</th>
+                        <th className="text-left py-3 px-4 font-semibold text-[#d4af37]">Clicks</th>
                       </tr>
                     </thead>
                     <tbody>
                       {clientData.recentCampaigns.map((campaign: any) => (
-                        <tr key={campaign.id} className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
-                          <td className="py-4 px-4 font-medium">{campaign.name}</td>
-                          <td className="py-4 px-4">{new Date(campaign.date).toLocaleDateString()}</td>
+                        <tr 
+                          key={campaign.id} 
+                          className="border-b border-white/5 hover:bg-white/5 transition-colors"
+                        >
+                          <td className="py-4 px-4 font-medium text-white">
+                            {campaign.name}
+                          </td>
+                          <td className="py-4 px-4 text-white/70">
+                            {new Date(campaign.date).toLocaleDateString()}
+                          </td>
                           <td className="py-4 px-4">
                             <span className={`px-3 py-1.5 rounded-full text-xs font-medium ${
-                              campaign.status === "Completed" ? "bg-green-100 text-green-800" :
-                              campaign.status === "Ongoing" ? "bg-blue-100 text-blue-800" :
-                              "bg-yellow-100 text-yellow-800"
+                              campaign.status === "Completed" 
+                                ? "bg-[#2a9d8f]/20 text-[#2a9d8f] border border-[#2a9d8f]/30" :
+                              campaign.status === "Ongoing" 
+                                ? "bg-[#3a86ff]/20 text-[#3a86ff] border border-[#3a86ff]/30" :
+                              "bg-[#d4af37]/20 text-[#d4af37] border border-[#d4af37]/30"
                             }`}>
                               {campaign.status}
                             </span>
                           </td>
-                          <td className="py-4 px-4 font-medium">{campaign.opens.toLocaleString()}</td>
-                          <td className="py-4 px-4 font-medium">{campaign.clicks.toLocaleString()}</td>
+                          <td className="py-4 px-4 font-medium text-white">
+                            {campaign.opens.toLocaleString()}
+                          </td>
+                          <td className="py-4 px-4 font-medium text-white">
+                            {campaign.clicks.toLocaleString()}
+                          </td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
+                </div>
+                
+                <div className="mt-6 flex justify-center">
+                  <Button className="bg-[#d4af37]/20 text-[#d4af37] hover:bg-[#d4af37]/30 border border-[#d4af37]/30 rounded-full px-6 group">
+                    View All Campaigns
+                    <ChevronRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                  </Button>
                 </div>
               </CardContent>
             </Card>
