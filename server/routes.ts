@@ -3830,6 +3830,267 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   */
 
+  // Generate shareable link for a template
+  app.post('/api/templates/:id/share', async (req: Request, res: Response) => {
+    try {
+      const templateId = req.params.id;
+      
+      if (!templateId) {
+        return res.status(400).json({ error: 'Template ID is required' });
+      }
+      
+      // Get the template from storage
+      const template = await storage.getTemplate(Number(templateId));
+      
+      if (!template) {
+        return res.status(404).json({ error: 'Template not found' });
+      }
+      
+      // Generate a unique share code (you could use a more sophisticated approach)
+      const shareCode = `${templateId}-${Date.now()}-${Math.random().toString(36).substring(2, 8)}`;
+      
+      // Update template with share information
+      // In a real implementation, you might want to store this in a separate table
+      const updatedTemplate = await storage.updateTemplate(Number(templateId), {
+        metadata: {
+          ...template.metadata,
+          shareCode,
+          shareCreatedAt: new Date().toISOString(),
+          shareExpiry: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days expiry
+        }
+      });
+      
+      // Construct shareable URL
+      const shareUrl = `${req.protocol}://${req.get('host')}/shared-template/${shareCode}`;
+      
+      res.json({ 
+        shareCode,
+        shareUrl,
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
+      });
+    } catch (error) {
+      console.error('Error generating share link:', error);
+      res.status(500).json({ error: 'Failed to generate share link' });
+    }
+  });
+
+  // Endpoint to view a shared template
+  app.get('/shared-template/:shareCode', async (req: Request, res: Response) => {
+    try {
+      const shareCode = req.params.shareCode;
+      
+      if (!shareCode) {
+        return res.status(400).send('Share code is required');
+      }
+      
+      // Extract the template ID from the share code (first part before the first dash)
+      const templateId = shareCode.split('-')[0];
+      
+      // Get the template from storage
+      const template = await storage.getTemplate(Number(templateId));
+      
+      if (!template) {
+        return res.status(404).send('Template not found');
+      }
+      
+      // Verify that the share code matches
+      if (!template.metadata || template.metadata.shareCode !== shareCode) {
+        return res.status(403).send('Invalid share code');
+      }
+      
+      // Check if the share link has expired
+      if (template.metadata.shareExpiry && new Date(template.metadata.shareExpiry) < new Date()) {
+        return res.status(403).send('This share link has expired');
+      }
+      
+      // Parse the template content (similar to preview-template)
+      let templateHtml = '';
+      
+      try {
+        // Try to parse the content as JSON first (for newer templates)
+        const templateData = JSON.parse(template.content);
+        
+        // Check if there's an originalHtml field in metadata from the content or the template
+        if (templateData.metadata?.originalHtml) {
+          templateHtml = templateData.metadata.originalHtml;
+        } else if (template.metadata && typeof template.metadata === 'object' && 'originalHtml' in template.metadata) {
+          templateHtml = template.metadata.originalHtml;
+        } else if (templateData.sections) {
+          // Handle case where we have sections with HTML elements
+          // Extract HTML from the sections if they exist
+          templateData.sections.forEach(section => {
+            section.elements.forEach(element => {
+              if (element.type === 'html' && element.content?.html) {
+                templateHtml += element.content.html;
+              } else if (element.type === 'text' && element.content?.text) {
+                templateHtml += `<div style="font-size: ${element.styles?.fontSize || '16px'}; color: ${element.styles?.color || '#000000'}; text-align: ${element.styles?.textAlign || 'left'};">${element.content.text}</div>`;
+              }
+            });
+          });
+        } else {
+          // Default fallback - just use the template content directly
+          templateHtml = template.content;
+        }
+      } catch (e) {
+        // If parsing as JSON fails, assume it's already HTML
+        console.log('Template content is not JSON, using directly:', e);
+        templateHtml = template.content;
+      }
+      
+      // Return the template HTML with a shared template UI
+      const html = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1">
+          <title>${template.name} - Shared Template</title>
+          <style>
+            body {
+              margin: 0;
+              padding: 0;
+              font-family: Arial, sans-serif;
+              background-color: #f5f5f5;
+            }
+            
+            .shared-header {
+              background-color: #1a3a5f;
+              color: white;
+              padding: 15px 20px;
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            
+            .shared-header h2 {
+              margin: 0;
+              font-size: 20px;
+              display: flex;
+              align-items: center;
+            }
+            
+            .shared-header h2 svg {
+              margin-right: 10px;
+            }
+            
+            .shared-header .company {
+              display: flex;
+              align-items: center;
+              font-size: 14px;
+            }
+            
+            .shared-header .company img {
+              height: 30px;
+              margin-right: 10px;
+            }
+            
+            .template-container {
+              background-color: white;
+              margin: 20px auto;
+              max-width: 800px;
+              border-radius: 8px;
+              box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+              overflow: hidden;
+            }
+            
+            .template-header {
+              padding: 20px;
+              border-bottom: 1px solid #e5e7eb;
+            }
+            
+            .template-header h3 {
+              margin: 0 0 5px 0;
+              color: #1a3a5f;
+              font-size: 18px;
+            }
+            
+            .template-header p {
+              margin: 0;
+              color: #6b7280;
+              font-size: 14px;
+            }
+            
+            .template-content {
+              padding: 20px;
+            }
+            
+            .template-footer {
+              padding: 15px 20px;
+              background-color: #f9fafb;
+              border-top: 1px solid #e5e7eb;
+              text-align: center;
+              font-size: 14px;
+              color: #6b7280;
+            }
+            
+            @media print {
+              .shared-header, .template-header, .template-footer {
+                display: none;
+              }
+              
+              .template-container {
+                box-shadow: none;
+                margin: 0;
+                max-width: none;
+                border-radius: 0;
+              }
+              
+              .template-content {
+                padding: 0;
+              }
+              
+              body {
+                background-color: white;
+              }
+              
+              @page {
+                margin: 0.5cm;
+              }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="shared-header">
+            <h2>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
+                <polyline points="16 6 12 2 8 6"></polyline>
+                <line x1="12" y1="2" x2="12" y2="15"></line>
+              </svg>
+              Shared Template
+            </h2>
+            <div class="company">
+              <img src="/assets/Logo-white.png" alt="InfyMailer Logo">
+              InfyMailer
+            </div>
+          </div>
+          
+          <div class="template-container">
+            <div class="template-header">
+              <h3>${template.name}</h3>
+              <p>${template.description || 'Shared with you via InfyMailer'}</p>
+            </div>
+            
+            <div class="template-content">
+              ${templateHtml}
+            </div>
+            
+            <div class="template-footer">
+              This template was shared via InfyMailer - Create and share your own templates at <a href="/">InfyMailer.com</a>
+            </div>
+          </div>
+        </body>
+        </html>
+      `;
+      
+      res.send(html);
+    } catch (error) {
+      console.error('Error displaying shared template:', error);
+      res.status(500).send('Error displaying shared template');
+    }
+  });
+
   // Template Preview Endpoint
   app.get('/preview-template', async (req: Request, res: Response) => {
     try {

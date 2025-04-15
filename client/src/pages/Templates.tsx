@@ -35,7 +35,10 @@ import {
   XCircle,
   MoreVertical,
   Calendar,
-  MoreHorizontal
+  MoreHorizontal,
+  Share2,
+  Link2,
+  Check
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -318,7 +321,35 @@ export default function Templates() {
     }
   });
 
+  // Share template mutation
+  const shareTemplateMutation = useMutation({
+    mutationFn: async (templateId: number) => {
+      const response = await apiRequest("POST", `/api/templates/${templateId}/share`);
+      return response.json();
+    },
+    onSuccess: (data) => {
+      // Copy the share URL to clipboard
+      navigator.clipboard.writeText(data.shareUrl);
+      toast({
+        title: "Template Shared",
+        description: "Share link copied to clipboard. The link expires in 7 days.",
+        variant: "default",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: `Failed to share template: ${error.message}`,
+        variant: "destructive",
+      });
+    }
+  });
+
   // Handler functions
+  const handleShareTemplate = (templateId: number) => {
+    shareTemplateMutation.mutate(templateId);
+  };
+  
   const handleSendTestEmail = (data: z.infer<typeof testEmailSchema>) => {
     sendTestEmailMutation.mutate(data);
   };
@@ -631,6 +662,18 @@ export default function Templates() {
                           Edit
                         </Button>
                       </Link>
+                      <Button 
+                        variant="secondary" 
+                        size="sm"
+                        className="shadow-md bg-white/90 backdrop-blur-sm hover:bg-white"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleShareTemplate(template.id);
+                        }}
+                      >
+                        <Share2 className="h-4 w-4 mr-1.5 text-blue-600" />
+                        Share
+                      </Button>
                     </div>
                   </div>
 
