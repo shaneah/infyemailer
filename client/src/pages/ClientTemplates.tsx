@@ -478,6 +478,15 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
         </div>
       </div>
       
+      {/* AI Template Generator */}
+      {showAIGenerator && (
+        <div className="mb-8 bg-white rounded-xl border border-teal-100 shadow-sm overflow-hidden">
+          <AdvancedTemplateGenerator 
+            onTemplateGenerated={handleTemplateGenerated}
+          />
+        </div>
+      )}
+      
       {/* Templates Grid/List View */}
       <div className="relative min-h-[200px]">
         {isLoadingTemplates && (
