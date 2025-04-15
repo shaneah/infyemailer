@@ -8,7 +8,9 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import Logo from '@/assets/Logo-white.png';
+import { Lock, Mail, Eye, EyeOff, ChevronRight } from 'lucide-react';
+import LogoWhite from '@/assets/infinity-logo-white.png';
+import LogoColor from '@/assets/infinity-logo-color.png';
 
 // Form schema
 const formSchema = z.object({
@@ -21,6 +23,7 @@ type FormValues = z.infer<typeof formSchema>;
 const ClientLogin = () => {
   const [location, setLocation] = useLocation();
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const { toast } = useToast();
 
   // Check if user is already logged in
@@ -127,39 +130,40 @@ const ClientLogin = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-tr from-primary/30 via-primary/10 to-white relative overflow-hidden">
+    <div className="min-h-screen flex flex-col relative overflow-hidden bg-gradient-to-br from-[#1a3a5f]/90 via-[#1a3a5f] to-[#0d2137]">
       {/* Background decorative elements */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
-        <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[50%] rounded-full bg-gradient-to-br from-primary/20 to-primary/5 blur-3xl opacity-80"></div>
-        <div className="absolute bottom-[-15%] right-[-10%] w-[50%] h-[50%] rounded-full bg-gradient-to-tl from-primary/15 to-transparent blur-3xl"></div>
-        <div className="absolute top-[25%] right-[10%] w-[35%] h-[30%] rounded-full bg-gradient-to-bl from-teal-200/20 to-primary/10 blur-3xl"></div>
+        {/* Gold shimmer effect */}
+        <div className="absolute top-[-10%] left-[20%] w-[70%] h-[40%] rounded-full bg-gradient-to-br from-[#d4af37]/20 to-transparent blur-3xl opacity-70"></div>
+        <div className="absolute bottom-[-5%] right-[10%] w-[50%] h-[40%] rounded-full bg-gradient-to-tl from-[#d4af37]/15 to-transparent blur-3xl opacity-60"></div>
         
-        {/* Wave pattern overlay */}
-        <div className="absolute inset-0 opacity-10" 
+        {/* Subtle pattern overlay */}
+        <div className="absolute inset-0 opacity-5" 
              style={{
-               backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'100\' height=\'20\' viewBox=\'0 0 100 20\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M21.184 20c.357-.13.72-.264 1.088-.402l1.768-.661C33.64 15.347 39.647 14 50 14c10.271 0 15.362 1.222 24.629 4.928.955.383 1.869.74 2.75 1.072h6.225c-2.51-.73-5.139-1.691-8.233-2.928C65.888 13.278 60.562 12 50 12c-10.626 0-16.855 1.397-26.66 5.063l-1.767.662c-2.475.923-4.66 1.674-6.724 2.275h6.335zm0-20C13.258 2.892 8.077 4 0 4V2c5.744 0 9.951-.574 14.85-2h6.334zM77.38 0C85.239 2.966 90.502 4 100 4V2c-6.842 0-11.386-.542-16.396-2h-6.225zM0 14c8.44 0 13.718-1.21 22.272-4.402l1.768-.661C33.64 5.347 39.647 4 50 4c10.271 0 15.362 1.222 24.629 4.928C84.112 12.722 89.438 14 100 14v-2c-10.271 0-15.362-1.222-24.629-4.928C65.888 3.278 60.562 2 50 2 39.374 2 33.145 3.397 23.34 7.063l-1.767.662C13.223 10.84 8.163 12 0 12v2z\' fill=\'%230d9488\' fill-opacity=\'0.1\' fill-rule=\'evenodd\'/%3E%3C/svg%3E")',
-               backgroundSize: '100px 20px'
+               backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'20\' height=\'20\' viewBox=\'0 0 20 20\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'%23d4af37\' fill-opacity=\'0.4\'%3E%3Cpolygon points=\'0 0 10 0 0 10\'/%3E%3Cpolygon points=\'20 0 20 10 10 0\'/%3E%3Cpolygon points=\'0 20 0 10 10 20\'/%3E%3Cpolygon points=\'10 20 20 20 20 10\'/%3E%3C/g%3E%3C/svg%3E")',
+               backgroundSize: '20px 20px'
              }}
         ></div>
         
-        {/* Subtle animated floating particles */}
-        <div className="absolute top-1/3 left-1/4 w-2 h-2 rounded-full bg-teal-400/40 animate-pulse" style={{animationDuration: '4s'}}></div>
-        <div className="absolute top-3/4 left-1/6 w-3 h-3 rounded-full bg-teal-300/30 animate-pulse" style={{animationDuration: '6s'}}></div>
-        <div className="absolute top-2/5 right-1/3 w-2 h-2 rounded-full bg-teal-500/40 animate-pulse" style={{animationDuration: '5s'}}></div>
-        <div className="absolute bottom-1/4 left-1/2 w-4 h-1 rounded-full bg-teal-200/30 animate-pulse" style={{animationDuration: '7s'}}></div>
+        {/* Gold particle effects */}
+        <div className="absolute top-1/4 left-1/3 w-1 h-1 rounded-full bg-[#d4af37]/70 animate-pulse" style={{animationDuration: '3s'}}></div>
+        <div className="absolute top-2/3 left-1/5 w-2 h-2 rounded-full bg-[#d4af37]/50 animate-pulse" style={{animationDuration: '5s'}}></div>
+        <div className="absolute top-1/2 right-1/4 w-1.5 h-1.5 rounded-full bg-[#d4af37]/60 animate-pulse" style={{animationDuration: '4s'}}></div>
+        <div className="absolute bottom-1/3 right-1/3 w-2 h-2 rounded-full bg-[#d4af37]/50 animate-pulse" style={{animationDuration: '6s'}}></div>
       </div>
-      <div className="flex-1 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      
+      <div className="flex-1 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 z-10">
         <div className="max-w-5xl w-full space-y-8 flex flex-col lg:flex-row gap-8">
           {/* Left side - Card with form */}
-          <div className="flex-1 bg-white rounded-2xl shadow-xl overflow-hidden">
+          <div className="flex-1 bg-[#f5f0e1] rounded-2xl shadow-2xl overflow-hidden border border-[#d4af37]/20">
             <div className="px-6 py-8 sm:px-10">
               <div className="mb-8 text-center">
-                <img src={Logo} alt="InfyMailer Logo" className="h-14 mx-auto mb-6" />
-                <h2 className="text-3xl font-extrabold text-gray-900 mb-1">
-                  Client Login
+                <img src={LogoColor} alt="InfyMailer Logo" className="h-16 mx-auto mb-6" />
+                <h2 className="text-3xl font-extrabold text-[#1a3a5f] mb-1">
+                  Client Portal
                 </h2>
-                <p className="text-sm text-gray-600">
-                  Sign in to access your email marketing dashboard
+                <p className="text-sm text-[#1a3a5f]/70">
+                  Sign in to access your premium email marketing dashboard
                 </p>
               </div>
               
@@ -170,15 +174,20 @@ const ClientLogin = () => {
                     name="username"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-gray-700 font-medium">Username</FormLabel>
+                        <FormLabel className="text-[#1a3a5f] font-medium">Username</FormLabel>
                         <FormControl>
-                          <Input 
-                            placeholder="your_username" 
-                            {...field} 
-                            className="rounded-lg border-gray-300 focus:ring-2 focus:ring-primary/50" 
-                          />
+                          <div className="relative">
+                            <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#1a3a5f]/60">
+                              <Mail className="h-4 w-4" />
+                            </span>
+                            <Input 
+                              placeholder="Enter your username" 
+                              {...field} 
+                              className="pl-10 rounded-lg bg-white border-[#d4af37]/30 focus:border-[#d4af37] focus:ring-1 focus:ring-[#d4af37]/50 text-[#1a3a5f]" 
+                            />
+                          </div>
                         </FormControl>
-                        <FormMessage />
+                        <FormMessage className="text-red-500" />
                       </FormItem>
                     )}
                   />
@@ -187,22 +196,35 @@ const ClientLogin = () => {
                     name="password"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-gray-700 font-medium">Password</FormLabel>
+                        <FormLabel className="text-[#1a3a5f] font-medium">Password</FormLabel>
                         <FormControl>
-                          <Input 
-                            type="password" 
-                            placeholder="••••••••" 
-                            {...field} 
-                            className="rounded-lg border-gray-300 focus:ring-2 focus:ring-primary/50" 
-                          />
+                          <div className="relative">
+                            <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#1a3a5f]/60">
+                              <Lock className="h-4 w-4" />
+                            </span>
+                            <Input 
+                              type={showPassword ? "text" : "password"}
+                              placeholder="Enter your password" 
+                              {...field} 
+                              className="pl-10 pr-10 rounded-lg bg-white border-[#d4af37]/30 focus:border-[#d4af37] focus:ring-1 focus:ring-[#d4af37]/50 text-[#1a3a5f]" 
+                            />
+                            <button 
+                              type="button"
+                              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#1a3a5f]/60 hover:text-[#1a3a5f]"
+                              onClick={() => setShowPassword(!showPassword)}
+                            >
+                              {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                            </button>
+                          </div>
                         </FormControl>
-                        <FormMessage />
+                        <FormMessage className="text-red-500" />
                       </FormItem>
                     )}
                   />
+                  
                   <Button 
                     type="submit" 
-                    className="w-full py-2.5 bg-primary hover:bg-primary/90 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center"
+                    className="w-full py-2.5 bg-gradient-to-r from-[#d4af37] to-[#b8860b] hover:from-[#b8860b] hover:to-[#d4af37] text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center border border-[#d4af37]/50"
                     disabled={isLoading}
                   >
                     {isLoading ? (
@@ -213,24 +235,28 @@ const ClientLogin = () => {
                         </svg>
                         Logging in...
                       </>
-                    ) : "Log in"}
+                    ) : (
+                      <span className="flex items-center">
+                        Sign In <ChevronRight className="ml-1 h-4 w-4" />
+                      </span>
+                    )}
                   </Button>
                   
-                  <div className="bg-primary/5 rounded-lg p-3 text-xs text-gray-700 text-center">
-                    <p className="mb-1 font-medium">For demonstration purposes:</p>
+                  <div className="bg-[#d4af37]/10 rounded-lg p-4 text-xs text-[#1a3a5f]/80 text-center border border-[#d4af37]/20">
+                    <p className="mb-1 font-medium text-[#1a3a5f]">For demonstration purposes:</p>
                     <p>Username: <strong>client1</strong> | Password: <strong>clientdemo</strong></p>
                   </div>
                 </form>
               </Form>
               
               <div className="mt-6 text-sm text-center">
-                <p className="text-gray-600 mb-2">
+                <p className="text-[#1a3a5f]/70 mb-2">
                   Only authorized users with client credentials can access this portal.
-                  <br />Contact your InfyMailer account manager if you need access.
+                  <br />Contact your account manager if you need assistance.
                 </p>
                 <a 
                   href="/auth" 
-                  className="font-medium text-primary hover:text-primary-dark"
+                  className="font-medium text-[#1a3a5f] hover:text-[#d4af37] transition-colors duration-200"
                   onClick={(e) => {
                     e.preventDefault();
                     setLocation('auth');
@@ -243,61 +269,69 @@ const ClientLogin = () => {
           </div>
           
           {/* Right side - Features/Marketing */}
-          <div className="hidden lg:flex lg:flex-col lg:justify-between lg:flex-1 bg-gradient-to-br from-teal-600 to-teal-700 rounded-2xl shadow-xl p-10 text-white relative overflow-hidden">
+          <div className="hidden lg:flex lg:flex-col lg:justify-between lg:flex-1 bg-gradient-to-br from-[#1a3a5f] to-[#0d2137] rounded-2xl shadow-2xl p-10 text-white relative overflow-hidden border border-[#d4af37]/20">
             {/* Background pattern */}
-            <div className="absolute inset-0 opacity-10" 
+            <div className="absolute inset-0 opacity-5" 
                  style={{
-                   backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'52\' height=\'26\' viewBox=\'0 0 52 26\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'0.15\'%3E%3Cpath d=\'M10 10c0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6h2c0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4v2c-3.314 0-6-2.686-6-6 0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6zm25.464-1.95l8.486 8.486-1.414 1.414-8.486-8.486 1.414-1.414z\' /%3E%3C/g%3E%3C/g%3E%3C/svg%3E")'
+                   backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23d4af37\' fill-opacity=\'0.4\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")'
                  }}
             ></div>
 
-            <div className="relative z-10">
-              <h1 className="text-3xl font-extrabold leading-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-teal-100">
-                InfyMailer Client Portal
+            <div className="relative z-10 pt-4">
+              <img src={LogoWhite} alt="InfyMailer Logo" className="h-14 mb-6" />
+              <h1 className="text-3xl font-extrabold leading-tight mb-3">
+                <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#d4af37] to-[#f5f0e1]">
+                  Premium Email Marketing
+                </span>
               </h1>
-              <p className="mt-3 text-lg text-white/90">
-                Access your email marketing campaigns, stats, and more in one convenient place
+              <p className="text-lg text-white/90">
+                Access your campaigns, analytics, and premium features in one elegant dashboard
               </p>
             </div>
             
             <div className="space-y-6 my-8 relative z-10">
-              <div className="flex items-start bg-white/10 p-4 rounded-lg hover:bg-white/15 transition-all duration-200">
-                <div className="bg-teal-400 p-2 rounded-full mr-4 text-teal-800">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <div className="flex items-start p-4 rounded-lg border border-[#d4af37]/20 bg-[#1a3a5f]/50 backdrop-blur-sm hover:bg-[#1a3a5f]/70 transition-all duration-200">
+                <div className="bg-gradient-to-br from-[#d4af37] to-[#b8860b] p-2.5 rounded-full mr-4 text-white shadow-lg">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                   </svg>
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold">View Campaign Performance</h3>
-                  <p className="text-white/90">Track opens, clicks, and conversions in real-time</p>
+                  <h3 className="text-lg font-bold text-[#d4af37]">Real-Time Analytics</h3>
+                  <p className="text-white/90">Track performance metrics with sophisticated dashboards</p>
                 </div>
               </div>
-              <div className="flex items-start bg-white/10 p-4 rounded-lg hover:bg-white/15 transition-all duration-200">
-                <div className="bg-teal-400 p-2 rounded-full mr-4 text-teal-800">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              
+              <div className="flex items-start p-4 rounded-lg border border-[#d4af37]/20 bg-[#1a3a5f]/50 backdrop-blur-sm hover:bg-[#1a3a5f]/70 transition-all duration-200">
+                <div className="bg-gradient-to-br from-[#d4af37] to-[#b8860b] p-2.5 rounded-full mr-4 text-white shadow-lg">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
                   </svg>
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold">Access Reports</h3>
-                  <p className="text-white/90">Download detailed reports and analytics</p>
+                  <h3 className="text-lg font-bold text-[#d4af37]">Advanced Reporting</h3>
+                  <p className="text-white/90">Detailed insights and exportable custom reports</p>
                 </div>
               </div>
-              <div className="flex items-start bg-white/10 p-4 rounded-lg hover:bg-white/15 transition-all duration-200">
-                <div className="bg-teal-400 p-2 rounded-full mr-4 text-teal-800">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              
+              <div className="flex items-start p-4 rounded-lg border border-[#d4af37]/20 bg-[#1a3a5f]/50 backdrop-blur-sm hover:bg-[#1a3a5f]/70 transition-all duration-200">
+                <div className="bg-gradient-to-br from-[#d4af37] to-[#b8860b] p-2.5 rounded-full mr-4 text-white shadow-lg">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                   </svg>
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold">Secure Access</h3>
-                  <p className="text-white/90">Your data is encrypted and securely stored</p>
+                  <h3 className="text-lg font-bold text-[#d4af37]">Enterprise Security</h3>
+                  <p className="text-white/90">Bank-level encryption and secure access controls</p>
                 </div>
               </div>
             </div>
             
-            <div className="pt-6 border-t border-white/20 text-sm text-white/70 relative z-10">
-              &copy; {new Date().getFullYear()} InfyMailer. All rights reserved.
+            <div className="pt-6 border-t border-[#d4af37]/20 text-sm text-white/70 relative z-10">
+              <div className="flex justify-between items-center">
+                <span>&copy; {new Date().getFullYear()} InfyMailer. All rights reserved.</span>
+                <span className="text-[#d4af37]">Premium Client Access</span>
+              </div>
             </div>
           </div>
         </div>
