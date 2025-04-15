@@ -279,8 +279,12 @@ export default function BasicTemplateBuilder() {
           }
           break;
         case "html":
-          // Include raw HTML content
-          html += section.content;
+          // Include raw HTML content as-is without escaping
+          if (section.content) {
+            html += section.content;
+          } else {
+            html += '<!-- Empty HTML section -->';
+          }
           break;
       }
     });
@@ -504,7 +508,7 @@ export default function BasicTemplateBuilder() {
                         Button
                       </Button>
                     </div>
-                    <div className="grid grid-cols-4 md:grid-cols-4 gap-2">
+                    <div className="grid grid-cols-4 md:grid-cols-4 gap-2 mb-2">
                       <Button 
                         variant="outline" 
                         size="sm" 
@@ -540,6 +544,44 @@ export default function BasicTemplateBuilder() {
                       >
                         <Plus className="h-4 w-4 mr-1" />
                         Banner
+                      </Button>
+                    </div>
+                    <div className="grid grid-cols-4 md:grid-cols-4 gap-2">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => addSection("timer")}
+                        className="bg-white border-blue-200 text-blue-700 hover:bg-blue-50"
+                      >
+                        <Plus className="h-4 w-4 mr-1" />
+                        Timer
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => addSection("menu")}
+                        className="bg-white border-blue-200 text-blue-700 hover:bg-blue-50"
+                      >
+                        <Plus className="h-4 w-4 mr-1" />
+                        Menu
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => addSection("html")}
+                        className="bg-white border-blue-200 text-blue-700 hover:bg-blue-50"
+                      >
+                        <Plus className="h-4 w-4 mr-1" />
+                        HTML
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => addSection("accordion")}
+                        className="bg-white border-blue-200 text-blue-700 hover:bg-blue-50"
+                      >
+                        <Plus className="h-4 w-4 mr-1" />
+                        Accordion
                       </Button>
                     </div>
                   </div>
@@ -805,39 +847,86 @@ export default function BasicTemplateBuilder() {
                                   Banner Section
                                 </p>
                                 <div className="grid grid-cols-1 gap-4">
-                                  <div>
-                                    <Label htmlFor={`banner-image-url-${section.id}`} className="text-sm font-medium text-gray-700 mb-1 block">
-                                      Banner Image URL
-                                    </Label>
-                                    <Input
-                                      id={`banner-image-url-${section.id}`}
-                                      type="url"
-                                      placeholder="https://example.com/your-banner-image.jpg"
-                                      className="focus-visible:ring-blue-300 border-blue-200"
-                                      onChange={(e) => {
-                                        try {
-                                          const data = JSON.parse(section.content);
-                                          updateSectionContent(section.id, JSON.stringify({
-                                            ...data,
-                                            imageUrl: e.target.value
-                                          }));
-                                        } catch {
-                                          updateSectionContent(section.id, JSON.stringify({
-                                            imageUrl: e.target.value,
-                                            title: "Banner Title",
-                                            text: "Banner description text goes here."
-                                          }));
-                                        }
-                                      }}
-                                      value={(() => {
-                                        try {
-                                          const data = JSON.parse(section.content);
-                                          return data.imageUrl || '';
-                                        } catch {
-                                          return '';
-                                        }
-                                      })()}
-                                    />
+                                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                    <div>
+                                      <Label htmlFor={`banner-image-url-${section.id}`} className="text-sm font-medium text-gray-700 mb-1 block">
+                                        Banner Image URL
+                                      </Label>
+                                      <Input
+                                        id={`banner-image-url-${section.id}`}
+                                        type="url"
+                                        placeholder="https://example.com/your-banner-image.jpg"
+                                        className="focus-visible:ring-blue-300 border-blue-200"
+                                        onChange={(e) => {
+                                          try {
+                                            const data = JSON.parse(section.content);
+                                            updateSectionContent(section.id, JSON.stringify({
+                                              ...data,
+                                              imageUrl: e.target.value
+                                            }));
+                                          } catch {
+                                            updateSectionContent(section.id, JSON.stringify({
+                                              imageUrl: e.target.value,
+                                              title: "Banner Title",
+                                              text: "Banner description text goes here."
+                                            }));
+                                          }
+                                        }}
+                                        value={(() => {
+                                          try {
+                                            const data = JSON.parse(section.content);
+                                            return data.imageUrl || '';
+                                          } catch {
+                                            return '';
+                                          }
+                                        })()}
+                                      />
+                                    </div>
+                                    <div>
+                                      <Label htmlFor={`banner-image-upload-${section.id}`} className="text-sm font-medium text-gray-700 mb-1 block">
+                                        Upload Banner Image
+                                      </Label>
+                                      <div className="flex items-center gap-2">
+                                        <Button 
+                                          type="button"
+                                          variant="outline"
+                                          onClick={() => document.getElementById(`banner-file-upload-${section.id}`)?.click()}
+                                          className="w-full border-blue-200 text-blue-700 hover:bg-blue-50"
+                                        >
+                                          Choose File
+                                        </Button>
+                                        <input 
+                                          type="file" 
+                                          id={`banner-file-upload-${section.id}`}
+                                          accept="image/*"
+                                          className="hidden"
+                                          onChange={(e) => {
+                                            const file = e.target.files?.[0];
+                                            if (file) {
+                                              const reader = new FileReader();
+                                              reader.onload = (event) => {
+                                                if (event.target?.result) {
+                                                  try {
+                                                    const data = JSON.parse(section.content);
+                                                    updateSectionContent(section.id, JSON.stringify({
+                                                      ...data,
+                                                      imageUrl: event.target.result as string
+                                                    }));
+                                                  } catch {
+                                                    updateSectionContent(section.id, JSON.stringify({
+                                                      imageUrl: event.target.result as string,
+                                                      title: "Banner Title",
+                                                      text: "Banner description text goes here."
+                                                    }));
+                                                  }
+                                                }
+                                              };
+                                              reader.readAsDataURL(file);
+                                            }
+                                          }}
+                                        />
+                                      </div>
+                                    </div>
                                   </div>
                                   <div>
                                     <Label htmlFor={`banner-title-${section.id}`} className="text-sm font-medium text-gray-700 mb-1 block">
@@ -942,6 +1031,328 @@ export default function BasicTemplateBuilder() {
                                       })()}
                                     </p>
                                   </div>
+                                </div>
+                              </div>
+                            )}
+                            
+                            {section.type === "timer" && (
+                              <div className="space-y-4">
+                                <p className="text-sm font-medium text-gray-700 mb-2">
+                                  Countdown Timer
+                                </p>
+                                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                  <div>
+                                    <Label htmlFor={`timer-date-${section.id}`} className="text-sm font-medium text-gray-700 mb-1 block">
+                                      End Date
+                                    </Label>
+                                    <Input
+                                      id={`timer-date-${section.id}`}
+                                      type="date"
+                                      className="focus-visible:ring-blue-300 border-blue-200"
+                                      onChange={(e) => {
+                                        try {
+                                          const data = JSON.parse(section.content);
+                                          updateSectionContent(section.id, JSON.stringify({
+                                            ...data,
+                                            date: e.target.value
+                                          }));
+                                        } catch {
+                                          updateSectionContent(section.id, JSON.stringify({
+                                            date: e.target.value,
+                                            title: "Limited Time Offer",
+                                            color: "#1a3a5f"
+                                          }));
+                                        }
+                                      }}
+                                      value={(() => {
+                                        try {
+                                          const data = JSON.parse(section.content);
+                                          return data.date || '';
+                                        } catch {
+                                          return '';
+                                        }
+                                      })()}
+                                    />
+                                  </div>
+                                  <div>
+                                    <Label htmlFor={`timer-title-${section.id}`} className="text-sm font-medium text-gray-700 mb-1 block">
+                                      Timer Title
+                                    </Label>
+                                    <Input
+                                      id={`timer-title-${section.id}`}
+                                      placeholder="Limited Time Offer"
+                                      className="focus-visible:ring-blue-300 border-blue-200"
+                                      onChange={(e) => {
+                                        try {
+                                          const data = JSON.parse(section.content);
+                                          updateSectionContent(section.id, JSON.stringify({
+                                            ...data,
+                                            title: e.target.value
+                                          }));
+                                        } catch {
+                                          updateSectionContent(section.id, JSON.stringify({
+                                            date: "",
+                                            title: e.target.value,
+                                            color: "#1a3a5f"
+                                          }));
+                                        }
+                                      }}
+                                      value={(() => {
+                                        try {
+                                          const data = JSON.parse(section.content);
+                                          return data.title || '';
+                                        } catch {
+                                          return '';
+                                        }
+                                      })()}
+                                    />
+                                  </div>
+                                  <div>
+                                    <Label htmlFor={`timer-color-${section.id}`} className="text-sm font-medium text-gray-700 mb-1 block">
+                                      Timer Color
+                                    </Label>
+                                    <Input
+                                      id={`timer-color-${section.id}`}
+                                      type="color"
+                                      className="h-10 p-1 focus-visible:ring-blue-300 border-blue-200"
+                                      onChange={(e) => {
+                                        try {
+                                          const data = JSON.parse(section.content);
+                                          updateSectionContent(section.id, JSON.stringify({
+                                            ...data,
+                                            color: e.target.value
+                                          }));
+                                        } catch {
+                                          updateSectionContent(section.id, JSON.stringify({
+                                            date: "",
+                                            title: "Limited Time Offer",
+                                            color: e.target.value
+                                          }));
+                                        }
+                                      }}
+                                      value={(() => {
+                                        try {
+                                          const data = JSON.parse(section.content);
+                                          return data.color || '#1a3a5f';
+                                        } catch {
+                                          return '#1a3a5f';
+                                        }
+                                      })()}
+                                    />
+                                  </div>
+                                </div>
+                                <div className="bg-gray-50 border rounded-md p-6 flex flex-col items-center">
+                                  <p className="text-center font-medium mb-4">
+                                    {(() => {
+                                      try {
+                                        const data = JSON.parse(section.content);
+                                        return data.title || 'Limited Time Offer';
+                                      } catch {
+                                        return 'Limited Time Offer';
+                                      }
+                                    })()}
+                                  </p>
+                                  <div className="grid grid-cols-4 gap-2">
+                                    {[
+                                      { label: 'Days', value: '00' },
+                                      { label: 'Hours', value: '00' },
+                                      { label: 'Minutes', value: '00' },
+                                      { label: 'Seconds', value: '00' }
+                                    ].map((item, i) => (
+                                      <div key={i} className="flex flex-col items-center">
+                                        <div 
+                                          className="w-14 h-14 flex items-center justify-center rounded-md font-mono text-white text-xl font-bold mb-1"
+                                          style={{ 
+                                            backgroundColor: (() => {
+                                              try {
+                                                const data = JSON.parse(section.content);
+                                                return data.color || '#1a3a5f';
+                                              } catch {
+                                                return '#1a3a5f';
+                                              }
+                                            })() 
+                                          }}
+                                        >
+                                          {item.value}
+                                        </div>
+                                        <span className="text-xs text-gray-500">{item.label}</span>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                                <div className="bg-amber-50 border border-amber-200 rounded-md p-3 text-amber-800 text-sm">
+                                  <p className="font-medium">Note:</p>
+                                  <p>This is a static preview. In the actual email, the countdown will be dynamic if supported by the recipient's email client.</p>
+                                </div>
+                              </div>
+                            )}
+                            
+                            {section.type === "menu" && (
+                              <div className="space-y-4">
+                                <p className="text-sm font-medium text-gray-700 mb-2">
+                                  Navigation Menu
+                                </p>
+                                <div>
+                                  <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                                    Menu Items
+                                  </Label>
+                                  <div className="space-y-3 mb-3">
+                                    {(() => {
+                                      let menuItems;
+                                      try {
+                                        menuItems = JSON.parse(section.content);
+                                        if (!Array.isArray(menuItems)) {
+                                          menuItems = [
+                                            { label: "Home", url: "#" },
+                                            { label: "Products", url: "#" },
+                                            { label: "Services", url: "#" },
+                                            { label: "Contact", url: "#" }
+                                          ];
+                                        }
+                                      } catch {
+                                        menuItems = [
+                                          { label: "Home", url: "#" },
+                                          { label: "Products", url: "#" },
+                                          { label: "Services", url: "#" },
+                                          { label: "Contact", url: "#" }
+                                        ];
+                                      }
+                                      
+                                      return menuItems.map((item, index) => (
+                                        <div key={index} className="flex gap-2">
+                                          <div className="flex-1">
+                                            <Input
+                                              placeholder="Menu label"
+                                              value={item.label}
+                                              onChange={(e) => {
+                                                const updatedItems = [...menuItems];
+                                                updatedItems[index].label = e.target.value;
+                                                updateSectionContent(section.id, JSON.stringify(updatedItems));
+                                              }}
+                                              className="focus-visible:ring-blue-300 border-blue-200"
+                                            />
+                                          </div>
+                                          <div className="flex-1">
+                                            <Input
+                                              placeholder="URL"
+                                              value={item.url}
+                                              onChange={(e) => {
+                                                const updatedItems = [...menuItems];
+                                                updatedItems[index].url = e.target.value;
+                                                updateSectionContent(section.id, JSON.stringify(updatedItems));
+                                              }}
+                                              className="focus-visible:ring-blue-300 border-blue-200"
+                                            />
+                                          </div>
+                                          <Button
+                                            type="button"
+                                            variant="outline"
+                                            size="icon"
+                                            onClick={() => {
+                                              const updatedItems = menuItems.filter((_, i) => i !== index);
+                                              updateSectionContent(section.id, JSON.stringify(updatedItems));
+                                            }}
+                                            className="flex-shrink-0 h-10 w-10 border-red-200 text-red-500 hover:text-red-600 hover:bg-red-50"
+                                          >
+                                            <Trash className="h-4 w-4" />
+                                          </Button>
+                                        </div>
+                                      ));
+                                    })()}
+                                  </div>
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={() => {
+                                      let menuItems;
+                                      try {
+                                        menuItems = JSON.parse(section.content);
+                                        if (!Array.isArray(menuItems)) {
+                                          menuItems = [
+                                            { label: "Home", url: "#" },
+                                            { label: "Products", url: "#" },
+                                            { label: "Services", url: "#" },
+                                            { label: "Contact", url: "#" }
+                                          ];
+                                        }
+                                      } catch {
+                                        menuItems = [
+                                          { label: "Home", url: "#" },
+                                          { label: "Products", url: "#" },
+                                          { label: "Services", url: "#" },
+                                          { label: "Contact", url: "#" }
+                                        ];
+                                      }
+                                      
+                                      menuItems.push({ label: "New Item", url: "#" });
+                                      updateSectionContent(section.id, JSON.stringify(menuItems));
+                                    }}
+                                    className="w-full border-blue-200 text-blue-700 hover:bg-blue-50"
+                                  >
+                                    <Plus className="h-4 w-4 mr-2" />
+                                    Add Menu Item
+                                  </Button>
+                                </div>
+                                <div className="bg-gray-50 border rounded-md p-4">
+                                  <div className="flex flex-wrap justify-center gap-4">
+                                    {(() => {
+                                      let menuItems;
+                                      try {
+                                        menuItems = JSON.parse(section.content);
+                                        if (!Array.isArray(menuItems)) {
+                                          menuItems = [
+                                            { label: "Home", url: "#" },
+                                            { label: "Products", url: "#" },
+                                            { label: "Services", url: "#" },
+                                            { label: "Contact", url: "#" }
+                                          ];
+                                        }
+                                      } catch {
+                                        menuItems = [
+                                          { label: "Home", url: "#" },
+                                          { label: "Products", url: "#" },
+                                          { label: "Services", url: "#" },
+                                          { label: "Contact", url: "#" }
+                                        ];
+                                      }
+                                      
+                                      return menuItems.map((item, index) => (
+                                        <div key={index} className="text-center">
+                                          <a href={item.url} className="px-4 py-2 text-[#1a3a5f] font-medium hover:text-blue-700">
+                                            {item.label}
+                                          </a>
+                                        </div>
+                                      ));
+                                    })()}
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                            
+                            {section.type === "html" && (
+                              <div className="space-y-4">
+                                <p className="text-sm font-medium text-gray-700 mb-2">
+                                  Custom HTML Content
+                                </p>
+                                <Textarea
+                                  value={section.content}
+                                  onChange={(e) => updateSectionContent(section.id, e.target.value)}
+                                  placeholder="Enter custom HTML code here"
+                                  rows={8}
+                                  className="font-mono text-sm focus-visible:ring-blue-300 border-blue-200"
+                                />
+                                <div className="space-y-2">
+                                  <p className="text-sm font-medium text-gray-700">Preview:</p>
+                                  <div className="bg-gray-50 border rounded-md p-4 overflow-auto">
+                                    <div 
+                                      className="html-preview" 
+                                      dangerouslySetInnerHTML={{ __html: section.content }}
+                                    />
+                                  </div>
+                                </div>
+                                <div className="bg-amber-50 border border-amber-200 rounded-md p-3 text-amber-800 text-sm">
+                                  <p className="font-medium">Warning:</p>
+                                  <p>Custom HTML could be flagged by email clients. Keep your HTML simple and well-formed.</p>
                                 </div>
                               </div>
                             )}
