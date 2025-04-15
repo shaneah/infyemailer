@@ -132,6 +132,9 @@ export default function Templates() {
   const [isUpdateTemplateOpen, setIsUpdateTemplateOpen] = useState(false);
   const [isCreatingTemplate, setIsCreatingTemplate] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
+  const [templateToShare, setTemplateToShare] = useState<number | null>(null);
+  const [shareExpiration, setShareExpiration] = useState("7"); // Default to 7 days
   
   const { data: savedTemplates = [], isLoading: isLoadingTemplates } = useQuery({
     queryKey: ['/api/templates'],
@@ -323,18 +326,24 @@ export default function Templates() {
 
   // Share template mutation
   const shareTemplateMutation = useMutation({
-    mutationFn: async (templateId: number) => {
-      const response = await apiRequest("POST", `/api/templates/${templateId}/share`);
+    mutationFn: async ({ templateId, expiresIn }: { templateId: number, expiresIn: string }) => {
+      const response = await apiRequest("POST", `/api/templates/${templateId}/share`, { expiresIn });
       return response.json();
     },
     onSuccess: (data) => {
       // Copy the share URL to clipboard
       navigator.clipboard.writeText(data.shareUrl);
+      
+      const expiryText = data.expiresIn === "never" 
+        ? "The link never expires." 
+        : `The link expires in ${data.expiresIn} days.`;
+      
       toast({
         title: "Template Shared",
-        description: "Share link copied to clipboard. The link expires in 7 days.",
+        description: `Share link copied to clipboard. ${expiryText}`,
         variant: "default",
       });
+      setIsShareDialogOpen(false);
     },
     onError: (error) => {
       toast({
@@ -347,7 +356,17 @@ export default function Templates() {
 
   // Handler functions
   const handleShareTemplate = (templateId: number) => {
-    shareTemplateMutation.mutate(templateId);
+    setTemplateToShare(templateId);
+    setIsShareDialogOpen(true);
+  };
+  
+  const handleConfirmShare = () => {
+    if (templateToShare) {
+      shareTemplateMutation.mutate({ 
+        templateId: templateToShare, 
+        expiresIn: shareExpiration 
+      });
+    }
   };
   
   const handleSendTestEmail = (data: z.infer<typeof testEmailSchema>) => {
@@ -674,18 +693,6 @@ export default function Templates() {
                           Edit
                         </Button>
                       </Link>
-                      <Button 
-                        variant="secondary" 
-                        size="sm"
-                        className="shadow-md bg-white/90 backdrop-blur-sm hover:bg-white"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleShareTemplate(template.id);
-                        }}
-                      >
-                        <Share2 className="h-4 w-4 mr-1.5 text-blue-600" />
-                        Share
-                      </Button>
                     </div>
                   </div>
 
