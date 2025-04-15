@@ -120,7 +120,7 @@ export default function CreateTemplateModal({ open, onOpenChange }: CreateTempla
           </TabsList>
           
           <TabsContent value="visual" className="space-y-4">
-            <div className="bg-gradient-to-r from-teal-50 to-blue-50 rounded-md p-5 border border-teal-100">
+            <div className="bg-gradient-to-r from-amber-50 to-yellow-50 rounded-md p-5 border border-amber-100">
               <div className="flex items-start">
                 <div className="mr-4 bg-gradient-to-r from-amber-500 to-yellow-500 p-2 rounded-md shadow-sm">
                   <FileText className="h-6 w-6 text-white" />
@@ -142,9 +142,9 @@ export default function CreateTemplateModal({ open, onOpenChange }: CreateTempla
           </TabsContent>
           
           <TabsContent value="ai" className="space-y-4">
-            <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-md p-5 border border-indigo-100">
+            <div className="bg-gradient-to-r from-amber-50 to-yellow-50 rounded-md p-5 border border-amber-100">
               <div className="flex items-start">
-                <div className="mr-4 bg-gradient-to-r from-indigo-500 to-purple-500 p-2 rounded-md shadow-sm">
+                <div className="mr-4 bg-gradient-to-r from-amber-500 to-yellow-500 p-2 rounded-md shadow-sm">
                   <Sparkles className="h-6 w-6 text-white" />
                 </div>
                 <div>
@@ -164,9 +164,9 @@ export default function CreateTemplateModal({ open, onOpenChange }: CreateTempla
           </TabsContent>
           
           <TabsContent value="import" className="space-y-4">
-            <div className="bg-gradient-to-r from-blue-50 to-sky-50 rounded-md p-5 border border-blue-100">
+            <div className="bg-gradient-to-r from-amber-50 to-yellow-50 rounded-md p-5 border border-amber-100">
               <div className="flex items-start">
-                <div className="mr-4 bg-gradient-to-r from-blue-500 to-sky-500 p-2 rounded-md shadow-sm">
+                <div className="mr-4 bg-gradient-to-r from-amber-500 to-yellow-500 p-2 rounded-md shadow-sm">
                   <Upload className="h-6 w-6 text-white" />
                 </div>
                 <div>
