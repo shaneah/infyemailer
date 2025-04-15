@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { 
   Code,
@@ -331,9 +331,11 @@ export default function Templates() {
     createNewTemplateMutation.mutate(data);
   };
 
+  const [, navigate] = useLocation();
+  
   const handleOpenCreateTemplate = () => {
     // Instead of opening the create template modal, navigate directly to the template builder
-    window.location.href = '/template-builder';
+    navigate('/template-builder');
   };
 
   // Filter templates based on search query and selected category
@@ -771,7 +773,7 @@ export default function Templates() {
                           className="w-full md:w-auto h-9 text-sm px-3 border-blue-200 text-blue-700 hover:bg-blue-50"
                           onClick={(e) => {
                             e.stopPropagation();
-                            window.location.href = `/template-builder?id=${template.id}`;
+                            navigate(`/template-builder/${template.id}`);
                           }}
                         >
                           <Pencil className="h-4 w-4 mr-1.5" />
