@@ -525,14 +525,16 @@ export default function BasicTemplateBuilder({ isClientPortal = false }: BasicTe
       
       {/* Tabs */}
       <Tabs
-        defaultValue="editor"
+        defaultValue={mode === "import" ? "import" : mode === "ai" ? "ai" : "editor"}
         value={activeTab}
         onValueChange={setActiveTab}
         className="flex-1 flex flex-col overflow-hidden"
       >
         <div className="bg-gray-50 px-4 border-b">
           <TabsList className="h-10">
-            <TabsTrigger value="editor">Editor</TabsTrigger>
+            {!showImportUI && !showAIUI && <TabsTrigger value="editor">Editor</TabsTrigger>}
+            {showImportUI && <TabsTrigger value="import">Import HTML</TabsTrigger>}
+            {showAIUI && <TabsTrigger value="ai">AI Generator</TabsTrigger>}
             <TabsTrigger value="preview">Preview</TabsTrigger>
           </TabsList>
         </div>
@@ -1838,6 +1840,278 @@ export default function BasicTemplateBuilder({ isClientPortal = false }: BasicTe
               title="Email Preview"
               className="w-full h-[calc(100vh-180px)] border-0"
             />
+          </div>
+        </TabsContent>
+        
+        {/* Import HTML Tab */}
+        <TabsContent value="import" className="flex-1 overflow-auto p-6">
+          <div className="mx-auto max-w-3xl">
+            <Card className="mb-6 border-blue-100 shadow-sm">
+              <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-blue-100 pb-4">
+                <CardTitle className="text-lg font-semibold text-blue-800">Import HTML Template</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4 pt-6">
+                <div>
+                  <Label htmlFor="templateName" className="text-sm font-medium text-gray-700">Template Name</Label>
+                  <Input
+                    id="templateName"
+                    value={templateName}
+                    onChange={(e) => setTemplateName(e.target.value)}
+                    placeholder="Enter template name"
+                    className="mt-1 focus-visible:ring-blue-300 border-blue-200"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="templateSubject" className="text-sm font-medium text-gray-700">Email Subject</Label>
+                  <Input
+                    id="templateSubject"
+                    value={templateSubject}
+                    onChange={(e) => setTemplateSubject(e.target.value)}
+                    placeholder="Enter email subject line"
+                    className="mt-1 focus-visible:ring-blue-300 border-blue-200"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="htmlContent" className="text-sm font-medium text-gray-700">HTML Content</Label>
+                  <Textarea
+                    id="htmlContent"
+                    value={htmlContent}
+                    onChange={(e) => setHtmlContent(e.target.value)}
+                    placeholder="Paste your HTML content here"
+                    className="mt-1 focus-visible:ring-blue-300 border-blue-200 font-mono text-sm"
+                    rows={15}
+                  />
+                </div>
+                <div className="flex justify-between mt-6">
+                  <Button 
+                    type="button" 
+                    variant="outline"
+                    className="border-blue-200 text-blue-700 hover:bg-blue-50"
+                    onClick={() => {
+                      setActiveTab("preview");
+                      // Convert HTML to sections if possible (simplified version)
+                      const parser = new DOMParser();
+                      try {
+                        const doc = parser.parseFromString(htmlContent, "text/html");
+                        // Just extract body content and convert to a single HTML section
+                        const bodyContent = doc.body.innerHTML;
+                        if (bodyContent) {
+                          setSections([{
+                            id: `section-${Date.now()}`,
+                            type: "html",
+                            content: bodyContent
+                          }]);
+                          toast({
+                            title: "HTML Imported",
+                            description: "Your HTML has been imported as a custom HTML block",
+                          });
+                        }
+                      } catch (error) {
+                        toast({
+                          title: "Import Error",
+                          description: "Could not parse the HTML content",
+                          variant: "destructive"
+                        });
+                      }
+                    }}
+                  >
+                    Preview
+                  </Button>
+                  <Button 
+                    onClick={async () => {
+                      if (!htmlContent) {
+                        toast({
+                          title: "Import Error",
+                          description: "Please enter some HTML content",
+                          variant: "destructive"
+                        });
+                        return;
+                      }
+                      
+                      setIsSaving(true);
+                      
+                      try {
+                        const templateData = {
+                          name: templateName,
+                          subject: templateSubject,
+                          description: templateDescription,
+                          content: htmlContent,
+                          category: "imported",
+                          metadata: {
+                            imported: true,
+                            dateImported: new Date().toISOString()
+                          }
+                        };
+                        
+                        const response = await apiRequest("POST", "/api/templates", templateData);
+                        
+                        if (!response.ok) {
+                          throw new Error("Failed to save template");
+                        }
+                        
+                        toast({
+                          title: "Template Saved",
+                          description: "Your imported template has been saved"
+                        });
+                        
+                        // Redirect back to templates page
+                        setTimeout(() => {
+                          if (isClientPortal) {
+                            navigate('/client/templates');
+                          } else {
+                            navigate('/templates');
+                          }
+                        }, 1000);
+                      } catch (error) {
+                        toast({
+                          title: "Error",
+                          description: "Failed to save template: " + (error instanceof Error ? error.message : "Unknown error"),
+                          variant: "destructive"
+                        });
+                      } finally {
+                        setIsSaving(false);
+                      }
+                    }}
+                    className="bg-[#1a3a5f] hover:bg-[#1a3a5f]/90 text-white"
+                    disabled={isSaving}
+                  >
+                    {isSaving ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Saving...
+                      </>
+                    ) : (
+                      <>
+                        <Save className="mr-2 h-4 w-4" />
+                        Save Template
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+        
+        {/* AI Generator Tab */}
+        <TabsContent value="ai" className="flex-1 overflow-auto p-6">
+          <div className="mx-auto max-w-3xl">
+            <Card className="mb-6 border-purple-100 shadow-sm">
+              <CardHeader className="bg-gradient-to-r from-purple-50 to-indigo-50 border-b border-purple-100 pb-4">
+                <CardTitle className="text-lg font-semibold text-purple-800">AI Template Generator</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4 pt-6">
+                <div>
+                  <Label htmlFor="templateName" className="text-sm font-medium text-gray-700">Template Name</Label>
+                  <Input
+                    id="templateName"
+                    value={templateName}
+                    onChange={(e) => setTemplateName(e.target.value)}
+                    placeholder="Enter template name"
+                    className="mt-1 focus-visible:ring-purple-300 border-purple-200"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="templateDescription" className="text-sm font-medium text-gray-700">
+                    Describe your template
+                  </Label>
+                  <Textarea
+                    id="aiPrompt"
+                    placeholder="Describe the email template you want to create. For example: 'Create a newsletter template for a tech company with sections for product updates, upcoming events, and a customer spotlight.'"
+                    className="mt-1 focus-visible:ring-purple-300 border-purple-200"
+                    rows={5}
+                  />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                  <div>
+                    <Label htmlFor="industry" className="text-sm font-medium text-gray-700">Industry</Label>
+                    <select
+                      id="industry"
+                      className="w-full mt-1 px-3 py-2 bg-white border border-purple-200 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-300 focus:border-transparent"
+                    >
+                      <option value="technology">Technology</option>
+                      <option value="ecommerce">E-commerce</option>
+                      <option value="healthcare">Healthcare</option>
+                      <option value="education">Education</option>
+                      <option value="finance">Finance</option>
+                      <option value="marketing">Marketing</option>
+                      <option value="travel">Travel & Hospitality</option>
+                      <option value="manufacturing">Manufacturing</option>
+                      <option value="retail">Retail</option>
+                      <option value="nonprofit">Non-profit</option>
+                    </select>
+                  </div>
+                  <div>
+                    <Label htmlFor="templateType" className="text-sm font-medium text-gray-700">Template Type</Label>
+                    <select
+                      id="templateType"
+                      className="w-full mt-1 px-3 py-2 bg-white border border-purple-200 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-300 focus:border-transparent"
+                    >
+                      <option value="newsletter">Newsletter</option>
+                      <option value="promotion">Promotion</option>
+                      <option value="announcement">Announcement</option>
+                      <option value="welcome">Welcome Email</option>
+                      <option value="event">Event Invitation</option>
+                      <option value="feedback">Feedback Request</option>
+                      <option value="product">Product Update</option>
+                      <option value="abandoned">Abandoned Cart</option>
+                      <option value="thankyou">Thank You</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="flex justify-end mt-6">
+                  <Button 
+                    onClick={() => {
+                      toast({
+                        title: "AI Template Generation",
+                        description: "Generating your template... This feature will use AI to create a template based on your description",
+                      });
+                      
+                      // For demo purposes, let's just add some sample sections after a delay
+                      setTimeout(() => {
+                        if (sections.length === 0) {
+                          setSections([
+                            {
+                              id: `section-${Date.now()}-1`,
+                              type: "heading",
+                              content: "AI Generated Template Header"
+                            },
+                            {
+                              id: `section-${Date.now()}-2`,
+                              type: "text",
+                              content: "This is sample content generated by the AI. In the real implementation, this would be actual content created by OpenAI or another AI service based on your description."
+                            },
+                            {
+                              id: `section-${Date.now()}-3`,
+                              type: "button",
+                              content: JSON.stringify({
+                                text: "AI Generated Button",
+                                url: "#"
+                              })
+                            }
+                          ]);
+                          toast({
+                            title: "Template Generated",
+                            description: "Your AI template has been created. You can now edit it in the Template Editor.",
+                          });
+                          setActiveTab("editor");
+                        }
+                      }, 1500);
+                    }}
+                    className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2">
+                      <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
+                      <path d="M5 3v4"/>
+                      <path d="M19 17v4"/>
+                      <path d="M3 5h4"/>
+                      <path d="M17 19h4"/>
+                    </svg>
+                    Generate with AI
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </TabsContent>
       </Tabs>
