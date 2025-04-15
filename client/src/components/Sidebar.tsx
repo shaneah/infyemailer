@@ -129,25 +129,29 @@ const Sidebar = ({ open, setOpen, collapsed = false, setCollapsed }: SidebarProp
           <li>
             <Link 
               href="/templates" 
-              className={`flex items-center px-2 py-2 rounded-md ${location === '/templates' || location.includes('/template-builder')
-                ? 'text-white border-l-4 border-[#d4af37] bg-white/10' 
-                : 'text-gray-300 hover:bg-white/5'}`}
+              className={`flex items-center px-3 py-2 rounded-md transition-all duration-200 ${location === '/templates' || location.includes('/template-builder')
+                ? 'text-white border-l-4 border-[#d4af37] bg-gradient-to-r from-[#d4af37]/20 to-transparent backdrop-blur-sm shadow-sm' 
+                : 'text-gray-200 hover:bg-white/5 hover:backdrop-blur-sm border-l-4 border-transparent hover:border-white/20'}`}
               title="Templates"
             >
-              <FileText className="h-5 w-5 mr-3" />
-              {!collapsed && <span>Templates</span>}
+              <div className={`${location === '/templates' || location.includes('/template-builder') ? 'text-[#d4af37]' : 'text-gray-300'} mr-3`}>
+                <FileText className="h-5 w-5" />
+              </div>
+              {!collapsed && <span className="font-medium">Templates</span>}
             </Link>
           </li>
           <li>
             <Link 
               href="/contacts" 
-              className={`flex items-center px-2 py-2 rounded-md ${location === '/contacts' 
-                ? 'text-white border-l-4 border-[#d4af37] bg-white/10' 
-                : 'text-gray-300 hover:bg-white/5'}`}
+              className={`flex items-center px-3 py-2 rounded-md transition-all duration-200 ${location === '/contacts' 
+                ? 'text-white border-l-4 border-[#d4af37] bg-gradient-to-r from-[#d4af37]/20 to-transparent backdrop-blur-sm shadow-sm' 
+                : 'text-gray-200 hover:bg-white/5 hover:backdrop-blur-sm border-l-4 border-transparent hover:border-white/20'}`}
               title="Contacts"
             >
-              <Users className="h-5 w-5 mr-3" />
-              {!collapsed && <span>Contacts</span>}
+              <div className={`${location === '/contacts' ? 'text-[#d4af37]' : 'text-gray-300'} mr-3`}>
+                <Users className="h-5 w-5" />
+              </div>
+              {!collapsed && <span className="font-medium">Contacts</span>}
             </Link>
           </li>
 

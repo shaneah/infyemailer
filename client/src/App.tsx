@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import AuthPage from "@/pages/auth-page";
 import Dashboard from "@/pages/Dashboard";
 import Sidebar from "@/components/Sidebar";
+import NewSidebar from "@/components/NewSidebar";
 import Navbar from "@/components/Navbar";
 import { useState, useEffect } from "react";
 import { AuthProvider } from "@/hooks/use-auth";
@@ -164,7 +165,7 @@ function App() {
         <Route>
           <AuthProvider>
             <div className="flex h-screen bg-background">
-              <Sidebar 
+              <NewSidebar 
                 open={sidebarOpen} 
                 setOpen={setSidebarOpen} 
                 collapsed={sidebarCollapsed}
