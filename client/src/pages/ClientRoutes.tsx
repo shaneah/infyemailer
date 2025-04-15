@@ -1860,7 +1860,7 @@ const ClientABTesting = () => (
       <div className="bg-primary/10 p-2 rounded-full">
         <Activity className="h-6 w-6 text-primary" />
       </div>
-      <h1 className="text-2xl font-bold">Client A/B Testing</h1>
+      <h1 className="text-2xl font-bold">A/B Testing</h1>
     </div>
     <div className="bg-white rounded-lg shadow p-6 border border-gray-100">
       <p className="text-gray-600">This page is under development.</p>
