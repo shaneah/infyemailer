@@ -4,10 +4,6 @@ import { useToast } from "@/hooks/use-toast";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useParams, useLocation } from "wouter";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import EmailEditor from "@/components/EmailEditor";
-// We're now using a simpler click-based approach
-import { BlocksGrid, StructuresGrid } from "@/components/DraggableBlock";
-import DroppableArea from "@/components/DroppableArea";
 import {
   ArrowLeft, 
   Loader2, 
@@ -17,26 +13,25 @@ import {
   Link as LinkIcon, 
   Save, 
   SeparatorHorizontal, 
-  Video, 
   Share2, 
   Menu, 
-  Clock, 
-  SlidersHorizontal, 
-  ChevronsUpDown, 
-  FileCode, 
-  FormInput,
-  CheckSquare,
-  ArrowRightLeft,
   Eye,
   Settings,
   FileDown,
   Send,
   FileText,
-  X
+  X,
+  Plus,
+  MoveVertical,
+  Trash2
 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 // Main Template Builder component 
 export default function TemplateBuilder() {
@@ -44,10 +39,19 @@ export default function TemplateBuilder() {
   const params = useParams();
   const [location, navigate] = useLocation();
   const entityId = params.id;
-  const [htmlCode, setHtmlCode] = useState<string>("");
-  const [isHtmlCodeVisible, setIsHtmlCodeVisible] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
+  
+  // State for template information
+  const [templateName, setTemplateName] = useState("New Email Template");
+  const [templateSubject, setTemplateSubject] = useState("Your Email Subject");
   const [isEditMode, setIsEditMode] = useState(false);
+  
+  // State for HTML preview and editing
+  const [htmlCode, setHtmlCode] = useState<string>("");
+  const [activeTab, setActiveTab] = useState("design");
+  const [isSaving, setIsSaving] = useState(false);
+  
+  // State for blocks management
+  const [selectedBlockIndex, setSelectedBlockIndex] = useState<number | null>(null);
   const [activeSidebar, setActiveSidebar] = useState<'blocks' | 'appearance' | 'content'>('blocks');
   const [activeNavTab, setActiveNavTab] = useState<'visual' | 'code'>('visual');
 
@@ -530,38 +534,41 @@ export default function TemplateBuilder() {
                         </div>
                         
                         {section.type === 'text' && (
-                          <div className="relative">
-                            <div 
-                              className="p-2 min-h-[50px] bg-gray-50 rounded border border-gray-200 focus:border-blue-300 outline-none"
-                              contentEditable={true}
-                              suppressContentEditableWarning={true}
-                              onBlur={(e) => {
+                          <div className="relative p-2 border border-gray-200 rounded">
+                            <textarea
+                              className="w-full min-h-[100px] p-2 text-sm border border-gray-200 rounded resize-y"
+                              placeholder="Enter your text here"
+                              defaultValue={section.content}
+                              onChange={(e) => {
                                 const updatedSections = emailSections.map(s => 
-                                  s.id === section.id ? {...s, content: e.target.innerHTML} : s
+                                  s.id === section.id ? {...s, content: e.target.value} : s
                                 );
                                 setEmailSections(updatedSections);
-                                console.log("Text updated:", e.target.innerHTML);
                               }}
-                              onClick={(e) => {
-                                // Ensure the div is focused for editing
-                                e.currentTarget.focus();
-                              }}
-                            >
-                              {section.content}
-                            </div>
-                            <div className="text-xs text-gray-500 mt-1">Click to edit text</div>
+                            />
                           </div>
                         )}
                         
                         {section.type === 'image' && (
                           <div className="bg-gray-50 p-2 rounded border border-gray-200">
                             <div className="flex flex-col items-center">
-                              <img src={section.content} alt="Template content" className="max-w-full h-auto mb-2" />
+                              {section.content && (
+                                <img 
+                                  src={section.content} 
+                                  alt="Template content" 
+                                  className="max-w-full h-auto mb-2" 
+                                  onError={(e) => {
+                                    e.currentTarget.src = 'https://placehold.co/400x300?text=Image+Not+Found';
+                                  }}
+                                />
+                              )}
                               <div className="w-full mt-2">
+                                <Label htmlFor={`image-url-${section.id}`} className="text-xs mb-1">Image URL:</Label>
                                 <Input
+                                  id={`image-url-${section.id}`}
                                   type="text"
-                                  placeholder="Enter image URL"
-                                  defaultValue={section.content}
+                                  placeholder="https://example.com/image.jpg"
+                                  value={section.content || ''}
                                   className="text-sm mb-2"
                                   onChange={(e) => {
                                     const updatedSections = emailSections.map(s => 
@@ -570,20 +577,27 @@ export default function TemplateBuilder() {
                                     setEmailSections(updatedSections);
                                   }}
                                 />
-                                <div className="flex justify-between">
-                                  <Button 
-                                    variant="outline" 
-                                    size="sm"
-                                    className="text-xs w-full"
-                                    onClick={() => {
-                                      // This would typically trigger a file upload dialog
-                                      // For now, just alert the user about how it would work
-                                      alert("In a production environment, this would open a file upload dialog to select an image from your computer.");
-                                    }}
-                                  >
-                                    <ImageIcon className="h-3 w-3 mr-1" />
-                                    Upload Image
-                                  </Button>
+                                <p className="text-xs text-muted-foreground mb-2">
+                                  Enter a URL above or use a sample image:
+                                </p>
+                                <div className="grid grid-cols-3 gap-2 mb-2">
+                                  {['https://placehold.co/400x200/D4AF37/ffffff?text=Sample+1', 
+                                    'https://placehold.co/400x200/1A3A5F/ffffff?text=Sample+2',
+                                    'https://placehold.co/400x200/F5F0E1/000000?text=Sample+3'
+                                  ].map((url, idx) => (
+                                    <img 
+                                      key={idx} 
+                                      src={url} 
+                                      alt={`Sample ${idx+1}`} 
+                                      className="w-full border border-gray-200 cursor-pointer hover:border-blue-400"
+                                      onClick={() => {
+                                        const updatedSections = emailSections.map(s => 
+                                          s.id === section.id ? {...s, content: url} : s
+                                        );
+                                        setEmailSections(updatedSections);
+                                      }} 
+                                    />
+                                  ))}
                                 </div>
                               </div>
                             </div>

@@ -16,7 +16,7 @@ import Contacts from "@/pages/Contacts";
 import ListDetails from "@/pages/ListDetails";
 import ABTesting from "@/pages/ABTesting";
 import EmailPerformance from "@/pages/EmailPerformance";
-import TemplateBuilder from "@/pages/TemplateBuilder";
+import SimpleTemplateBuilder from "@/pages/SimpleTemplateBuilder";
 import Domains from "@/pages/Domains";
 
 import Clients from "@/pages/Clients";
@@ -175,8 +175,8 @@ function App() {
                     <ProtectedRoute path="ab-testing" component={ABTesting} />
                     <ProtectedRoute path="ab-testing/:id" component={ABTesting} />
                     <ProtectedRoute path="email-performance" component={EmailPerformance} />
-                    <ProtectedRoute path="template-builder" component={TemplateBuilder} />
-                    <ProtectedRoute path="template-builder/:id" component={TemplateBuilder} />
+                    <ProtectedRoute path="template-builder" component={SimpleTemplateBuilder} />
+                    <ProtectedRoute path="template-builder/:id" component={SimpleTemplateBuilder} />
                     <ProtectedRoute path="domains" component={Domains} />
                     <ProtectedRoute path="clients" component={Clients} />
                     <ProtectedRoute path="user-management" component={UserManagement} />
