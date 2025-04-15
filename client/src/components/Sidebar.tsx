@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from "wouter";
 import { Mail, LayoutDashboard, Megaphone, FileText, Users, Building, BarChart2, Activity, Split, Globe, Settings as SettingsIcon, ShieldCheck, LogOut, CheckCircle2, ServerCog, Building2, UserRound, Users as UsersIcon, UserPlus, SendHorizonal, ChevronsLeft, ChevronsRight, UserCircle2, ExternalLink } from "lucide-react";
-import infyLogo from "../assets/Infinity Tech Logo-01.png";
+import infyLogo from "@assets/Infinity Tech Logo-04.png";
 import { useAuth } from "@/hooks/use-auth";
 
 interface SidebarProps {
@@ -34,8 +34,10 @@ const Sidebar = ({ open, setOpen, collapsed = false, setCollapsed }: SidebarProp
         {/* Logo and Collapse Toggle */}
         <div className="px-4 py-4 flex justify-between items-center">
           <Link href="/" className="text-white font-bold text-lg flex flex-col items-center">
-            <img src={infyLogo} alt="Infinity Tech Logo" className="h-16 mb-2" />
-            {!collapsed && <span className="text-center text-xl bg-gradient-to-r from-[#d4af37] to-[#f5f0e1] bg-clip-text text-transparent font-semibold">InfyMailer</span>}
+            <div className="w-full bg-[#0c2f6c] flex justify-center">
+              <img src={infyLogo} alt="InfyMailer Logo" className="h-12 w-auto object-contain" />
+            </div>
+            {!collapsed && <span className="text-center text-xl bg-gradient-to-r from-[#d4af37] to-[#f5f0e1] bg-clip-text text-transparent font-semibold mt-2">InfyMailer</span>}
           </Link>
           {!collapsed && setCollapsed && (
             <button 
