@@ -139,10 +139,8 @@ const SimpleClientLogin = () => {
                 <label htmlFor="username" className="text-[#1a3a5f] font-medium text-sm block mb-2">
                   Username
                 </label>
-                <div className="relative">
-                  <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#1a3a5f]/60 pointer-events-none">
-                    <Mail className="h-4 w-4" />
-                  </div>
+                <div className="flex items-center relative bg-white border border-[#d4af37]/30 rounded-lg focus-within:ring-1 focus-within:ring-[#d4af37]/50 focus-within:border-[#d4af37]">
+                  <Mail className="h-4 w-4 ml-3 mr-2 text-[#1a3a5f]/60" />
                   <input
                     id="username"
                     name="username"
@@ -150,7 +148,7 @@ const SimpleClientLogin = () => {
                     required
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
-                    className="pl-10 block w-full border border-[#d4af37]/30 bg-white rounded-lg py-2 px-3 focus:outline-none focus:ring-1 focus:ring-[#d4af37]/50 focus:border-[#d4af37] text-[#1a3a5f]"
+                    className="py-2 px-0 block w-full bg-transparent border-0 rounded-lg focus:outline-none text-[#1a3a5f]"
                     placeholder="Enter your username"
                   />
                 </div>
@@ -160,10 +158,8 @@ const SimpleClientLogin = () => {
                 <label htmlFor="password" className="text-[#1a3a5f] font-medium text-sm block mb-2">
                   Password
                 </label>
-                <div className="relative">
-                  <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#1a3a5f]/60 pointer-events-none">
-                    <Lock className="h-4 w-4" />
-                  </div>
+                <div className="flex items-center relative bg-white border border-[#d4af37]/30 rounded-lg focus-within:ring-1 focus-within:ring-[#d4af37]/50 focus-within:border-[#d4af37]">
+                  <Lock className="h-4 w-4 ml-3 mr-2 text-[#1a3a5f]/60" />
                   <input
                     id="password"
                     name="password"
@@ -171,12 +167,12 @@ const SimpleClientLogin = () => {
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="pl-10 pr-10 block w-full border border-[#d4af37]/30 bg-white rounded-lg py-2 px-3 focus:outline-none focus:ring-1 focus:ring-[#d4af37]/50 focus:border-[#d4af37] text-[#1a3a5f]"
+                    className="py-2 px-0 block w-full bg-transparent border-0 rounded-lg focus:outline-none text-[#1a3a5f]"
                     placeholder="••••••••"
                   />
                   <button 
                     type="button"
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#1a3a5f]/60 hover:text-[#1a3a5f] transition-colors z-10"
+                    className="px-3 py-2 text-[#1a3a5f]/60 hover:text-[#1a3a5f] transition-colors"
                     onClick={() => setShowPassword(!showPassword)}
                   >
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
