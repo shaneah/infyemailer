@@ -441,7 +441,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
                 )}
               </Button>
               <Button 
-                className="rounded-lg shadow-md gap-2 px-5 bg-gradient-to-r from-teal-600 to-blue-600 hover:from-teal-700 hover:to-blue-700 transition-all"
+                className="rounded-lg shadow-md gap-2 px-5 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white transition-all border border-amber-300"
                 onClick={onCreateTemplate}
               >
                 <PlusCircle className="h-4 w-4 mr-1" /> 
@@ -542,7 +542,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
             </p>
             <div className="mt-6">
               <Button 
-                className="rounded-lg gap-2 bg-gradient-to-r from-teal-600 to-blue-600 hover:from-teal-700 hover:to-blue-700 transition-all"
+                className="rounded-lg gap-2 px-5 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white transition-all border border-amber-300"
                 onClick={onCreateTemplate}
               >
                 <PlusCircle className="h-4 w-4" />

@@ -122,7 +122,7 @@ export default function CreateTemplateModal({ open, onOpenChange }: CreateTempla
           <TabsContent value="visual" className="space-y-4">
             <div className="bg-gradient-to-r from-teal-50 to-blue-50 rounded-md p-5 border border-teal-100">
               <div className="flex items-start">
-                <div className="mr-4 bg-gradient-to-r from-teal-500 to-blue-500 p-2 rounded-md shadow-sm">
+                <div className="mr-4 bg-gradient-to-r from-amber-500 to-yellow-500 p-2 rounded-md shadow-sm">
                   <FileText className="h-6 w-6 text-white" />
                 </div>
                 <div>
@@ -131,7 +131,7 @@ export default function CreateTemplateModal({ open, onOpenChange }: CreateTempla
                     Create professional email templates with our drag-and-drop visual editor - no coding required.
                   </p>
                   <Button 
-                    className="mt-4 bg-gradient-to-r from-teal-600 to-blue-600 hover:from-teal-700 hover:to-blue-700"
+                    className="mt-4 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white border border-amber-300"
                     onClick={handleVisualBuilderClick}
                   >
                     Open Visual Builder
@@ -153,7 +153,7 @@ export default function CreateTemplateModal({ open, onOpenChange }: CreateTempla
                     Generate beautiful email templates with AI by describing what you need in plain English.
                   </p>
                   <Button 
-                    className="mt-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700"
+                    className="mt-4 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white border border-amber-300"
                     onClick={handleAIGeneratorClick}
                   >
                     Generate with AI
@@ -175,7 +175,7 @@ export default function CreateTemplateModal({ open, onOpenChange }: CreateTempla
                     Import existing HTML templates or paste code from external sources.
                   </p>
                   <Button 
-                    className="mt-4 bg-gradient-to-r from-blue-600 to-sky-600 hover:from-blue-700 hover:to-sky-700"
+                    className="mt-4 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white border border-amber-300"
                     onClick={handleImportClick}
                   >
                     Import HTML
