@@ -286,6 +286,110 @@ export default function BasicTemplateBuilder() {
             html += '<!-- Empty HTML section -->';
           }
           break;
+        case "timer":
+          try {
+            // Parse the target date from the content
+            const targetDate = new Date(section.content);
+            const formattedDate = targetDate.toLocaleDateString('en-US', {
+              weekday: 'long',
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit'
+            });
+            
+            html += `
+              <div style="text-align: center; margin: 20px 0; padding: 20px; background-color: #f8f9fa; border-radius: 4px;">
+                <h3 style="margin-bottom: 10px;">Limited Time Offer</h3>
+                <p>This offer expires on: <strong>${formattedDate}</strong></p>
+                <div style="margin: 15px 0; padding: 10px; background-color: #e9ecef; border-radius: 4px; display: inline-block;">
+                  <span style="font-size: 24px; font-weight: bold;">Countdown Timer</span>
+                </div>
+                <p style="font-size: 12px; color: #6c757d; margin-top: 10px;">
+                  (This is a static preview. The actual email will display a live countdown timer if supported by the recipient's email client.)
+                </p>
+              </div>
+            `;
+          } catch (e) {
+            // Fallback for invalid date
+            html += `
+              <div style="text-align: center; margin: 20px 0; padding: 15px; background-color: #f8f9fa; border-radius: 4px;">
+                <p>Countdown Timer (Invalid date format)</p>
+              </div>
+            `;
+          }
+          break;
+        case "menu":
+          try {
+            const menuItems = JSON.parse(section.content);
+            let menuHtml = `
+              <div style="text-align: center; margin: 20px 0; padding: 10px; background-color: #f8f9fa; border-radius: 4px;">
+                <ul style="list-style: none; padding: 0; margin: 0; display: flex; justify-content: center; flex-wrap: wrap;">
+            `;
+            
+            menuItems.forEach(item => {
+              menuHtml += `
+                <li style="margin: 0 15px; padding: 5px 0;">
+                  <a href="${item.url}" style="text-decoration: none; color: #1a3a5f; font-weight: bold;">
+                    ${item.text}
+                  </a>
+                </li>
+              `;
+            });
+            
+            menuHtml += `
+                </ul>
+              </div>
+            `;
+            
+            html += menuHtml;
+          } catch (e) {
+            // Fallback for malformed menu data
+            html += `
+              <div style="text-align: center; margin: 20px 0; padding: 10px; background-color: #f8f9fa; border-radius: 4px;">
+                <p>Navigation Menu (Invalid format)</p>
+              </div>
+            `;
+          }
+          break;
+        case "accordion":
+          try {
+            const accordionItems = JSON.parse(section.content);
+            let accordionHtml = `
+              <div style="margin: 20px 0; border: 1px solid #dee2e6; border-radius: 4px; overflow: hidden;">
+            `;
+            
+            accordionItems.forEach((item, index) => {
+              accordionHtml += `
+                <div style="border-bottom: ${index < accordionItems.length - 1 ? '1px solid #dee2e6' : 'none'};">
+                  <div style="padding: 15px; background-color: #f8f9fa; font-weight: bold; cursor: pointer;">
+                    ${item.title}
+                  </div>
+                  <div style="padding: 15px; border-top: 1px solid #dee2e6;">
+                    ${item.content}
+                  </div>
+                </div>
+              `;
+            });
+            
+            accordionHtml += `
+              </div>
+              <div style="text-align: center; font-size: 12px; color: #6c757d; margin-top: 5px;">
+                (This is a static preview. The actual email will display collapsible sections if supported by the recipient's email client.)
+              </div>
+            `;
+            
+            html += accordionHtml;
+          } catch (e) {
+            // Fallback for malformed accordion data
+            html += `
+              <div style="margin: 20px 0; padding: 15px; background-color: #f8f9fa; border-radius: 4px;">
+                <p>Accordion Sections (Invalid format)</p>
+              </div>
+            `;
+          }
+          break;
       }
     });
 
