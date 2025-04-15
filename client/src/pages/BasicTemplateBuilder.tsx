@@ -50,6 +50,59 @@ export default function BasicTemplateBuilder() {
         return "https://placehold.co/600x200?text=Your+Image+Here";
       case "button":
         return "Click Me";
+      case "spacer":
+        return "30"; // Height in pixels
+      case "video": 
+        return "https://www.youtube.com/embed/dQw4w9WgXcQ";
+      case "social":
+        return JSON.stringify({
+          facebook: "https://facebook.com/your-page",
+          twitter: "https://twitter.com/your-handle",
+          instagram: "https://instagram.com/your-account",
+          linkedin: "https://linkedin.com/in/your-profile"
+        });
+      case "banner":
+        return JSON.stringify({
+          imageUrl: "https://placehold.co/1200x300?text=Banner+Image",
+          title: "Special Announcement",
+          text: "Check out our latest offers and updates!"
+        });
+      case "timer":
+        // Default to 7 days from now
+        const defaultDate = new Date();
+        defaultDate.setDate(defaultDate.getDate() + 7);
+        return defaultDate.toISOString();
+      case "menu":
+        return JSON.stringify([
+          { text: "Home", url: "#home" },
+          { text: "Products", url: "#products" },
+          { text: "About Us", url: "#about" },
+          { text: "Contact", url: "#contact" }
+        ]);
+      case "html":
+        return "<div style='padding: 20px; background-color: #f5f5f5;'>Custom HTML content goes here</div>";
+      case "carousel":
+        return JSON.stringify([
+          { imageUrl: "https://placehold.co/800x400?text=Slide+1", caption: "Slide 1" },
+          { imageUrl: "https://placehold.co/800x400?text=Slide+2", caption: "Slide 2" },
+          { imageUrl: "https://placehold.co/800x400?text=Slide+3", caption: "Slide 3" }
+        ]);
+      case "accordion":
+        return JSON.stringify([
+          { title: "Section 1", content: "Content for section 1 goes here." },
+          { title: "Section 2", content: "Content for section 2 goes here." },
+          { title: "Section 3", content: "Content for section 3 goes here." }
+        ]);
+      case "form":
+        return JSON.stringify({
+          title: "Contact Form",
+          fields: [
+            { type: "text", label: "Name", required: true },
+            { type: "email", label: "Email", required: true },
+            { type: "textarea", label: "Message", required: false }
+          ],
+          submitButton: "Submit"
+        });
       default:
         return "";
     }
@@ -172,6 +225,62 @@ export default function BasicTemplateBuilder() {
               <a href="${buttonUrl}" class="button">${buttonText}</a>
             </div>
           `;
+          break;
+        case "spacer":
+          const spacerHeight = parseInt(section.content) || 30;
+          html += `<div style="height: ${spacerHeight}px; line-height: 0; font-size: 0;">&nbsp;</div>`;
+          break;
+        case "video":
+          html += `
+            <div style="max-width: 100%; margin: 20px auto;">
+              <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+                <iframe 
+                  src="${section.content}" 
+                  style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" 
+                  frameborder="0" 
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                  allowfullscreen>
+                </iframe>
+              </div>
+            </div>
+          `;
+          break;
+        case "social":
+          try {
+            const socialData = JSON.parse(section.content);
+            html += `
+              <div style="text-align: center; margin: 20px 0;">
+                ${socialData.facebook ? `<a href="${socialData.facebook}" style="display: inline-block; margin: 0 10px;"><img src="https://cdn-icons-png.flaticon.com/128/5968/5968764.png" alt="Facebook" width="32" height="32" /></a>` : ''}
+                ${socialData.twitter ? `<a href="${socialData.twitter}" style="display: inline-block; margin: 0 10px;"><img src="https://cdn-icons-png.flaticon.com/128/5968/5968958.png" alt="Twitter" width="32" height="32" /></a>` : ''}
+                ${socialData.instagram ? `<a href="${socialData.instagram}" style="display: inline-block; margin: 0 10px;"><img src="https://cdn-icons-png.flaticon.com/128/1409/1409946.png" alt="Instagram" width="32" height="32" /></a>` : ''}
+                ${socialData.linkedin ? `<a href="${socialData.linkedin}" style="display: inline-block; margin: 0 10px;"><img src="https://cdn-icons-png.flaticon.com/128/3536/3536505.png" alt="LinkedIn" width="32" height="32" /></a>` : ''}
+              </div>
+            `;
+          } catch (e) {
+            // Fallback for malformed social data
+            html += `<div style="text-align: center; margin: 20px 0;">Social Links</div>`;
+          }
+          break;
+        case "banner":
+          try {
+            const bannerData = JSON.parse(section.content);
+            html += `
+              <div style="position: relative; margin: 20px 0;">
+                <img src="${bannerData.imageUrl}" alt="Banner" style="width: 100%; display: block;" />
+                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: rgba(0,0,0,0.5); color: white; padding: 20px; text-align: center; border-radius: 4px;">
+                  <h3 style="margin: 0 0 10px 0; color: white;">${bannerData.title}</h3>
+                  <p style="margin: 0; color: white;">${bannerData.text}</p>
+                </div>
+              </div>
+            `;
+          } catch (e) {
+            // Fallback for malformed banner data
+            html += `<div style="text-align: center; margin: 20px 0;">Banner</div>`;
+          }
+          break;
+        case "html":
+          // Include raw HTML content
+          html += section.content;
           break;
       }
     });
@@ -356,43 +465,83 @@ export default function BasicTemplateBuilder() {
               <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-blue-100 pb-4">
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-lg font-semibold text-blue-800">Content Sections</CardTitle>
-                  <div className="flex gap-2">
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={() => addSection("heading")}
-                      className="bg-white border-blue-200 text-blue-700 hover:bg-blue-50"
-                    >
-                      <Plus className="h-4 w-4 mr-1" />
-                      Heading
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={() => addSection("text")}
-                      className="bg-white border-blue-200 text-blue-700 hover:bg-blue-50"
-                    >
-                      <Plus className="h-4 w-4 mr-1" />
-                      Text
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={() => addSection("image")}
-                      className="bg-white border-blue-200 text-blue-700 hover:bg-blue-50"
-                    >
-                      <Plus className="h-4 w-4 mr-1" />
-                      Image
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={() => addSection("button")}
-                      className="bg-white border-blue-200 text-blue-700 hover:bg-blue-50"
-                    >
-                      <Plus className="h-4 w-4 mr-1" />
-                      Button
-                    </Button>
+                  <div className="flex-shrink-0">
+                    <div className="grid grid-cols-4 md:grid-cols-4 gap-2 mb-2">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => addSection("heading")}
+                        className="bg-white border-blue-200 text-blue-700 hover:bg-blue-50"
+                      >
+                        <Plus className="h-4 w-4 mr-1" />
+                        Heading
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => addSection("text")}
+                        className="bg-white border-blue-200 text-blue-700 hover:bg-blue-50"
+                      >
+                        <Plus className="h-4 w-4 mr-1" />
+                        Text
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => addSection("image")}
+                        className="bg-white border-blue-200 text-blue-700 hover:bg-blue-50"
+                      >
+                        <Plus className="h-4 w-4 mr-1" />
+                        Image
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => addSection("button")}
+                        className="bg-white border-blue-200 text-blue-700 hover:bg-blue-50"
+                      >
+                        <Plus className="h-4 w-4 mr-1" />
+                        Button
+                      </Button>
+                    </div>
+                    <div className="grid grid-cols-4 md:grid-cols-4 gap-2">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => addSection("spacer")}
+                        className="bg-white border-blue-200 text-blue-700 hover:bg-blue-50"
+                      >
+                        <Plus className="h-4 w-4 mr-1" />
+                        Spacer
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => addSection("video")}
+                        className="bg-white border-blue-200 text-blue-700 hover:bg-blue-50"
+                      >
+                        <Plus className="h-4 w-4 mr-1" />
+                        Video
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => addSection("social")}
+                        className="bg-white border-blue-200 text-blue-700 hover:bg-blue-50"
+                      >
+                        <Plus className="h-4 w-4 mr-1" />
+                        Social
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => addSection("banner")}
+                        className="bg-white border-blue-200 text-blue-700 hover:bg-blue-50"
+                      >
+                        <Plus className="h-4 w-4 mr-1" />
+                        Banner
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </CardHeader>
@@ -595,6 +744,399 @@ export default function BasicTemplateBuilder() {
                                       }
                                     })()}
                                   </div>
+                                </div>
+                              </div>
+                            )}
+                            
+                            {section.type === "spacer" && (
+                              <div className="space-y-4">
+                                <Label htmlFor={`spacer-height-${section.id}`} className="text-sm font-medium text-gray-700">
+                                  Spacer Height (px)
+                                </Label>
+                                <Input
+                                  id={`spacer-height-${section.id}`}
+                                  type="number"
+                                  min="5"
+                                  max="200"
+                                  value={section.content}
+                                  onChange={(e) => updateSectionContent(section.id, e.target.value)}
+                                  className="focus-visible:ring-blue-300 border-blue-200 w-full md:w-1/3"
+                                />
+                                <div className="bg-gray-50 border rounded-md p-2">
+                                  <div 
+                                    className="w-full mx-auto bg-gray-200 border-dashed border-2 border-gray-300 rounded"
+                                    style={{ height: `${parseInt(section.content) || 30}px` }}
+                                  ></div>
+                                </div>
+                              </div>
+                            )}
+                            
+                            {section.type === "video" && (
+                              <div className="space-y-4">
+                                <Label htmlFor={`video-url-${section.id}`} className="text-sm font-medium text-gray-700">
+                                  Video URL (YouTube or Vimeo)
+                                </Label>
+                                <Input
+                                  id={`video-url-${section.id}`}
+                                  type="url"
+                                  value={section.content}
+                                  onChange={(e) => updateSectionContent(section.id, e.target.value)}
+                                  placeholder="https://www.youtube.com/embed/..."
+                                  className="focus-visible:ring-blue-300 border-blue-200"
+                                />
+                                <div className="bg-gray-50 border rounded-md p-2">
+                                  <div className="aspect-video">
+                                    <iframe
+                                      src={section.content}
+                                      title="Video embed"
+                                      className="w-full h-full"
+                                      frameBorder="0"
+                                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                      allowFullScreen
+                                    ></iframe>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                            
+                            {section.type === "banner" && (
+                              <div className="space-y-4">
+                                <p className="text-sm font-medium text-gray-700 mb-2">
+                                  Banner Section
+                                </p>
+                                <div className="grid grid-cols-1 gap-4">
+                                  <div>
+                                    <Label htmlFor={`banner-image-url-${section.id}`} className="text-sm font-medium text-gray-700 mb-1 block">
+                                      Banner Image URL
+                                    </Label>
+                                    <Input
+                                      id={`banner-image-url-${section.id}`}
+                                      type="url"
+                                      placeholder="https://example.com/your-banner-image.jpg"
+                                      className="focus-visible:ring-blue-300 border-blue-200"
+                                      onChange={(e) => {
+                                        try {
+                                          const data = JSON.parse(section.content);
+                                          updateSectionContent(section.id, JSON.stringify({
+                                            ...data,
+                                            imageUrl: e.target.value
+                                          }));
+                                        } catch {
+                                          updateSectionContent(section.id, JSON.stringify({
+                                            imageUrl: e.target.value,
+                                            title: "Banner Title",
+                                            text: "Banner description text goes here."
+                                          }));
+                                        }
+                                      }}
+                                      value={(() => {
+                                        try {
+                                          const data = JSON.parse(section.content);
+                                          return data.imageUrl || '';
+                                        } catch {
+                                          return '';
+                                        }
+                                      })()}
+                                    />
+                                  </div>
+                                  <div>
+                                    <Label htmlFor={`banner-title-${section.id}`} className="text-sm font-medium text-gray-700 mb-1 block">
+                                      Banner Title
+                                    </Label>
+                                    <Input
+                                      id={`banner-title-${section.id}`}
+                                      placeholder="Enter banner title"
+                                      className="focus-visible:ring-blue-300 border-blue-200"
+                                      onChange={(e) => {
+                                        try {
+                                          const data = JSON.parse(section.content);
+                                          updateSectionContent(section.id, JSON.stringify({
+                                            ...data,
+                                            title: e.target.value
+                                          }));
+                                        } catch {
+                                          updateSectionContent(section.id, JSON.stringify({
+                                            imageUrl: "",
+                                            title: e.target.value,
+                                            text: "Banner description text goes here."
+                                          }));
+                                        }
+                                      }}
+                                      value={(() => {
+                                        try {
+                                          const data = JSON.parse(section.content);
+                                          return data.title || '';
+                                        } catch {
+                                          return '';
+                                        }
+                                      })()}
+                                    />
+                                  </div>
+                                  <div>
+                                    <Label htmlFor={`banner-text-${section.id}`} className="text-sm font-medium text-gray-700 mb-1 block">
+                                      Banner Text
+                                    </Label>
+                                    <Textarea
+                                      id={`banner-text-${section.id}`}
+                                      placeholder="Enter banner description text"
+                                      className="focus-visible:ring-blue-300 border-blue-200"
+                                      rows={3}
+                                      onChange={(e) => {
+                                        try {
+                                          const data = JSON.parse(section.content);
+                                          updateSectionContent(section.id, JSON.stringify({
+                                            ...data,
+                                            text: e.target.value
+                                          }));
+                                        } catch {
+                                          updateSectionContent(section.id, JSON.stringify({
+                                            imageUrl: "",
+                                            title: "Banner Title",
+                                            text: e.target.value
+                                          }));
+                                        }
+                                      }}
+                                      value={(() => {
+                                        try {
+                                          const data = JSON.parse(section.content);
+                                          return data.text || '';
+                                        } catch {
+                                          return '';
+                                        }
+                                      })()}
+                                    />
+                                  </div>
+                                </div>
+                                <div className="bg-gray-50 border rounded-md p-2 relative overflow-hidden">
+                                  <img
+                                    src={(() => {
+                                      try {
+                                        const data = JSON.parse(section.content);
+                                        return data.imageUrl || 'https://placehold.co/1200x300?text=Banner+Image';
+                                      } catch {
+                                        return 'https://placehold.co/1200x300?text=Banner+Image';
+                                      }
+                                    })()}
+                                    alt="Banner preview"
+                                    className="w-full h-auto"
+                                  />
+                                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-black bg-opacity-50 text-white p-4 rounded text-center">
+                                    <h3 className="text-lg font-semibold mb-1">
+                                      {(() => {
+                                        try {
+                                          const data = JSON.parse(section.content);
+                                          return data.title || 'Banner Title';
+                                        } catch {
+                                          return 'Banner Title';
+                                        }
+                                      })()}
+                                    </h3>
+                                    <p className="text-sm">
+                                      {(() => {
+                                        try {
+                                          const data = JSON.parse(section.content);
+                                          return data.text || 'Banner description text goes here.';
+                                        } catch {
+                                          return 'Banner description text goes here.';
+                                        }
+                                      })()}
+                                    </p>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                            
+                            {section.type === "social" && (
+                              <div className="space-y-4">
+                                <p className="text-sm font-medium text-gray-700 mb-2">
+                                  Social Media Links
+                                </p>
+                                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                  <div>
+                                    <Label htmlFor={`facebook-${section.id}`} className="text-sm font-medium text-gray-700 mb-1 block">
+                                      Facebook URL
+                                    </Label>
+                                    <Input
+                                      id={`facebook-${section.id}`}
+                                      type="url"
+                                      placeholder="https://facebook.com/your-page"
+                                      className="focus-visible:ring-blue-300 border-blue-200"
+                                      onChange={(e) => {
+                                        try {
+                                          const data = JSON.parse(section.content);
+                                          updateSectionContent(section.id, JSON.stringify({
+                                            ...data,
+                                            facebook: e.target.value
+                                          }));
+                                        } catch {
+                                          updateSectionContent(section.id, JSON.stringify({
+                                            facebook: e.target.value,
+                                            twitter: "",
+                                            instagram: "",
+                                            linkedin: ""
+                                          }));
+                                        }
+                                      }}
+                                      value={(() => {
+                                        try {
+                                          const data = JSON.parse(section.content);
+                                          return data.facebook || '';
+                                        } catch {
+                                          return '';
+                                        }
+                                      })()}
+                                    />
+                                  </div>
+                                  <div>
+                                    <Label htmlFor={`twitter-${section.id}`} className="text-sm font-medium text-gray-700 mb-1 block">
+                                      Twitter URL
+                                    </Label>
+                                    <Input
+                                      id={`twitter-${section.id}`}
+                                      type="url"
+                                      placeholder="https://twitter.com/your-handle"
+                                      className="focus-visible:ring-blue-300 border-blue-200"
+                                      onChange={(e) => {
+                                        try {
+                                          const data = JSON.parse(section.content);
+                                          updateSectionContent(section.id, JSON.stringify({
+                                            ...data,
+                                            twitter: e.target.value
+                                          }));
+                                        } catch {
+                                          updateSectionContent(section.id, JSON.stringify({
+                                            facebook: "",
+                                            twitter: e.target.value,
+                                            instagram: "",
+                                            linkedin: ""
+                                          }));
+                                        }
+                                      }}
+                                      value={(() => {
+                                        try {
+                                          const data = JSON.parse(section.content);
+                                          return data.twitter || '';
+                                        } catch {
+                                          return '';
+                                        }
+                                      })()}
+                                    />
+                                  </div>
+                                  <div>
+                                    <Label htmlFor={`instagram-${section.id}`} className="text-sm font-medium text-gray-700 mb-1 block">
+                                      Instagram URL
+                                    </Label>
+                                    <Input
+                                      id={`instagram-${section.id}`}
+                                      type="url"
+                                      placeholder="https://instagram.com/your-account"
+                                      className="focus-visible:ring-blue-300 border-blue-200"
+                                      onChange={(e) => {
+                                        try {
+                                          const data = JSON.parse(section.content);
+                                          updateSectionContent(section.id, JSON.stringify({
+                                            ...data,
+                                            instagram: e.target.value
+                                          }));
+                                        } catch {
+                                          updateSectionContent(section.id, JSON.stringify({
+                                            facebook: "",
+                                            twitter: "",
+                                            instagram: e.target.value,
+                                            linkedin: ""
+                                          }));
+                                        }
+                                      }}
+                                      value={(() => {
+                                        try {
+                                          const data = JSON.parse(section.content);
+                                          return data.instagram || '';
+                                        } catch {
+                                          return '';
+                                        }
+                                      })()}
+                                    />
+                                  </div>
+                                  <div>
+                                    <Label htmlFor={`linkedin-${section.id}`} className="text-sm font-medium text-gray-700 mb-1 block">
+                                      LinkedIn URL
+                                    </Label>
+                                    <Input
+                                      id={`linkedin-${section.id}`}
+                                      type="url"
+                                      placeholder="https://linkedin.com/in/your-profile"
+                                      className="focus-visible:ring-blue-300 border-blue-200"
+                                      onChange={(e) => {
+                                        try {
+                                          const data = JSON.parse(section.content);
+                                          updateSectionContent(section.id, JSON.stringify({
+                                            ...data,
+                                            linkedin: e.target.value
+                                          }));
+                                        } catch {
+                                          updateSectionContent(section.id, JSON.stringify({
+                                            facebook: "",
+                                            twitter: "",
+                                            instagram: "",
+                                            linkedin: e.target.value
+                                          }));
+                                        }
+                                      }}
+                                      value={(() => {
+                                        try {
+                                          const data = JSON.parse(section.content);
+                                          return data.linkedin || '';
+                                        } catch {
+                                          return '';
+                                        }
+                                      })()}
+                                    />
+                                  </div>
+                                </div>
+                                <div className="bg-gray-50 border rounded-md p-4 flex items-center justify-center gap-4">
+                                  {(() => {
+                                    try {
+                                      const data = JSON.parse(section.content);
+                                      return (
+                                        <>
+                                          {data.facebook && (
+                                            <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white">
+                                              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                                <path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z"/>
+                                              </svg>
+                                            </div>
+                                          )}
+                                          {data.twitter && (
+                                            <div className="w-10 h-10 rounded-full bg-blue-400 flex items-center justify-center text-white">
+                                              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                                <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/>
+                                              </svg>
+                                            </div>
+                                          )}
+                                          {data.instagram && (
+                                            <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-purple-600 to-pink-500 flex items-center justify-center text-white">
+                                              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                                              </svg>
+                                            </div>
+                                          )}
+                                          {data.linkedin && (
+                                            <div className="w-10 h-10 rounded-full bg-blue-700 flex items-center justify-center text-white">
+                                              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                                <path d="M4.98 3.5c0 1.381-1.11 2.5-2.48 2.5s-2.48-1.119-2.48-2.5c0-1.38 1.11-2.5 2.48-2.5s2.48 1.12 2.48 2.5zm.02 4.5h-5v16h5v-16zm7.982 0h-4.968v16h4.969v-8.399c0-4.67 6.029-5.052 6.029 0v8.399h4.988v-10.131c0-7.88-8.922-7.593-11.018-3.714v-2.155z"/>
+                                              </svg>
+                                            </div>
+                                          )}
+                                        </>
+                                      );
+                                    } catch {
+                                      return (
+                                        <div className="text-gray-400">
+                                          Social media icons will appear here
+                                        </div>
+                                      );
+                                    }
+                                  })()}
                                 </div>
                               </div>
                             )}
