@@ -371,8 +371,13 @@ export default function EmailPerformanceDashboard() {
                 </CardHeader>
                 <CardContent className="pt-4 relative">
                   <div className="absolute top-0 right-0 w-24 h-24 bg-[#d4af37]/5 rounded-full blur-xl -mt-10 -mr-10 opacity-70"></div>
-                  <div className="text-4xl font-bold bg-gradient-to-r from-white via-[#d4af37] to-white inline-block text-transparent bg-clip-text">
-                    {performanceData.engagementScore}%
+                  <div className="relative">
+                    <div className={`text-4xl font-bold bg-gradient-to-r from-white via-[#d4af37] to-white inline-block text-transparent bg-clip-text ${isRealtime ? 'animate-pulse duration-500' : ''}`}>
+                      {performanceData.engagementScore}%
+                    </div>
+                    {isRealtime && (
+                      <div className="absolute h-3 w-3 rounded-full bg-[#d4af37] -right-3 top-0 after:absolute after:h-3 after:w-3 after:rounded-full after:bg-[#d4af37]/60 after:animate-ping"></div>
+                    )}
                   </div>
                   <p className="text-sm text-white/70 mt-1 font-medium">Overall engagement rating</p>
                   
@@ -434,8 +439,13 @@ export default function EmailPerformanceDashboard() {
                 </CardHeader>
                 <CardContent className="pt-4 relative">
                   <div className="absolute top-0 right-0 w-24 h-24 bg-[#d4af37]/5 rounded-full blur-xl -mt-10 -mr-10 opacity-70"></div>
-                  <div className="text-4xl font-bold bg-gradient-to-r from-white via-[#d4af37] to-white inline-block text-transparent bg-clip-text">
-                    {performanceData.clickRate}%
+                  <div className="relative">
+                    <div className={`text-4xl font-bold bg-gradient-to-r from-white via-[#d4af37] to-white inline-block text-transparent bg-clip-text ${isRealtime ? 'animate-pulse duration-700' : ''}`}>
+                      {performanceData.clickRate}%
+                    </div>
+                    {isRealtime && (
+                      <div className="absolute h-3 w-3 rounded-full bg-[#d4af37] -right-3 top-0 after:absolute after:h-3 after:w-3 after:rounded-full after:bg-[#d4af37]/60 after:animate-ping"></div>
+                    )}
                   </div>
                   <p className="text-sm text-white/70 mt-1 font-medium">Average click-through rate</p>
                   
