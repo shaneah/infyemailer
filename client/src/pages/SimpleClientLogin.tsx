@@ -49,9 +49,26 @@ const SimpleClientLogin = () => {
       setIsLoading(true);
       console.log('Attempting direct demo login with:', { username, password });
       
-      // Simulate login delay
+      // Simulate login delay and set session storage
+      console.log('Login successful, storing client data and redirecting to dashboard...');
+      
+      // Create a mock client user object and store in session storage
+      const clientUser = {
+        id: 1,
+        username: 'client1',
+        name: 'Demo Client',
+        company: 'Acme Corporation',
+        email: 'client1@example.com',
+        role: 'client',
+        permissions: ['view_campaigns', 'edit_campaigns', 'view_contacts', 'edit_contacts']
+      };
+      
+      // Save the client user data to session storage
+      sessionStorage.setItem('clientUser', JSON.stringify(clientUser));
+      
       setTimeout(() => {
-        setLocation('/client-dashboard');
+        console.log('Navigating to /client-dashboard');
+        window.location.href = '/client-dashboard'; // Use direct navigation to ensure redirect works
         setIsLoading(false);
       }, 1000);
       return;
@@ -77,8 +94,28 @@ const SimpleClientLogin = () => {
         throw new Error(data.message || 'Login failed');
       }
       
-      // Login successful
-      setLocation('/client-dashboard');
+      // Login successful through API
+      console.log('API login successful, storing client data and redirecting to dashboard...');
+      
+      // Extract user data from response
+      const userData = await response.json();
+      
+      // Create a client user object with necessary data
+      const clientUser = {
+        id: userData.id || 1,
+        username: userData.username || username,
+        name: userData.name || `${userData.firstName || ''} ${userData.lastName || ''}`.trim() || 'API Client',
+        company: userData.company || 'API Client Company',
+        email: userData.email || `${username}@example.com`,
+        role: userData.role || 'client',
+        permissions: userData.permissions || ['view_campaigns', 'edit_campaigns', 'view_contacts', 'edit_contacts']
+      };
+      
+      // Save the client user data to session storage
+      sessionStorage.setItem('clientUser', JSON.stringify(clientUser));
+      
+      // Redirect to dashboard
+      window.location.href = '/client-dashboard';
     } catch (err: any) {
       setError(err.message || 'Failed to login. Please try again.');
     } finally {
