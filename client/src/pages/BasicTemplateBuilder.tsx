@@ -11,7 +11,11 @@ import { ArrowLeft, Save, Loader2, Plus, Trash } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-export default function BasicTemplateBuilder() {
+type BasicTemplateBuilderProps = {
+  isClientPortal?: boolean;
+};
+
+export default function BasicTemplateBuilder({ isClientPortal = false }: BasicTemplateBuilderProps) {
   const { toast } = useToast();
   const params = useParams();
   const [location, navigate] = useLocation();
@@ -450,7 +454,7 @@ export default function BasicTemplateBuilder() {
       queryClient.invalidateQueries({ queryKey: ['/api/templates'] });
       
       // Navigate back to templates
-      setTimeout(() => navigate('/templates'), 1000);
+      setTimeout(() => navigate(isClientPortal ? '/client-templates' : '/templates'), 1000);
     },
     onError: (error: any) => {
       toast({
@@ -483,10 +487,10 @@ export default function BasicTemplateBuilder() {
           <Button 
             variant="ghost" 
             size="sm" 
-            onClick={() => navigate('/templates')}
+            onClick={() => navigate(isClientPortal ? '/client-templates' : '/templates')}
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Templates
+            {isClientPortal ? "Back to My Templates" : "Back to Templates"}
           </Button>
           <h1 className="text-xl font-medium text-gray-900">
             {params.id ? "Edit Template" : "Create New Template"}

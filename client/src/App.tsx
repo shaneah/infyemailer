@@ -114,6 +114,18 @@ function App() {
             <Toaster />
           </div>
         </Route>
+        <Route path="client-template-builder">
+          <div className="bg-background min-h-screen">
+            <BasicTemplateBuilder isClientPortal={true} />
+            <Toaster />
+          </div>
+        </Route>
+        <Route path="client-template-builder/:id">
+          <div className="bg-background min-h-screen">
+            <BasicTemplateBuilder isClientPortal={true} />
+            <Toaster />
+          </div>
+        </Route>
         <Route path="client-reports">
           <div className="bg-background min-h-screen">
             <ClientRoutes />

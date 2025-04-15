@@ -80,7 +80,7 @@ export default function CreateTemplateModal({ open, onOpenChange }: CreateTempla
     onOpenChange(false);
     // Slight delay to avoid modal transition issues
     setTimeout(() => {
-      navigate('/template-builder?mode=import');
+      navigate('/client-template-builder?mode=import');
     }, 100);
   };
 
@@ -89,7 +89,7 @@ export default function CreateTemplateModal({ open, onOpenChange }: CreateTempla
     onOpenChange(false);
     // Slight delay to avoid modal transition issues
     setTimeout(() => {
-      navigate('/template-builder?mode=ai');
+      navigate('/client-template-builder?mode=ai');
     }, 100);
   };
   
@@ -98,7 +98,7 @@ export default function CreateTemplateModal({ open, onOpenChange }: CreateTempla
     onOpenChange(false);
     // Slight delay to avoid modal transition issues
     setTimeout(() => {
-      navigate('/template-builder');
+      navigate('/client-template-builder');
     }, 100);
   };
   
