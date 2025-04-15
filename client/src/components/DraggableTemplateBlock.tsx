@@ -196,6 +196,55 @@ const DraggableBlock: React.FC<DraggableBlockProps> = ({
                     placeholder="https://example.com/image.jpg"
                   />
                 </div>
+                
+                <div>
+                  <label className="block text-xs mb-1 font-medium">Or Upload an Image</label>
+                  <div className="mt-1 flex items-center gap-2">
+                    <label className="cursor-pointer px-3 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded text-xs transition-colors">
+                      <input 
+                        type="file" 
+                        className="hidden"
+                        accept="image/*"
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+                          
+                          // Create a form data object
+                          const formData = new FormData();
+                          formData.append('image', file);
+                          
+                          try {
+                            const response = await fetch('/api/upload/image', {
+                              method: 'POST',
+                              body: formData,
+                            });
+                            
+                            if (!response.ok) {
+                              const errorData = await response.json();
+                              throw new Error(errorData.error || 'Error uploading image');
+                            }
+                            
+                            const data = await response.json();
+                            
+                            // Update the src field with the imageUrl from the response
+                            setEditingContent(prev => ({
+                              ...prev,
+                              src: data.imageUrl
+                            }));
+                          } catch (error) {
+                            console.error('Image upload error:', error);
+                            alert('Failed to upload image. Please try again.');
+                          }
+                        }}
+                      />
+                      Browse for Image
+                    </label>
+                    {editingContent.src && (
+                      <span className="text-xs text-green-600">Image ready to use</span>
+                    )}
+                  </div>
+                </div>
+                
                 <div>
                   <label className="block text-xs mb-1 font-medium">Alt Text</label>
                   <input 
@@ -207,12 +256,21 @@ const DraggableBlock: React.FC<DraggableBlockProps> = ({
                     placeholder="Image description"
                   />
                 </div>
-                <button 
-                  className="px-3 py-1 bg-blue-600 text-white rounded text-xs mt-2"
-                  onClick={handleEditComplete}
-                >
-                  Save
-                </button>
+                
+                <div className="flex gap-2">
+                  <button 
+                    className="px-3 py-2 bg-blue-600 text-white rounded text-xs mt-2"
+                    onClick={handleEditComplete}
+                  >
+                    Save
+                  </button>
+                  <button 
+                    className="px-3 py-2 bg-gray-300 text-gray-700 rounded text-xs mt-2"
+                    onClick={() => setIsEditing(false)}
+                  >
+                    Cancel
+                  </button>
+                </div>
               </div>
             ) : content?.src ? (
               <img 

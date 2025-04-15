@@ -4254,6 +4254,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).send('Error displaying template preview');
     }
   });
+  
+  // Image upload endpoint for the template builder
+  app.post('/api/upload/image', (req, res) => {
+    try {
+      // Check if a file was uploaded
+      if (!req.files || !req.files.image) {
+        return res.status(400).json({ error: 'No image was uploaded' });
+      }
+      
+      // Get the uploaded file
+      const uploadedFile = req.files.image as UploadedFile;
+      
+      // Validate the file is an image
+      const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
+      if (!allowedMimeTypes.includes(uploadedFile.mimetype)) {
+        return res.status(400).json({ 
+          error: 'Invalid file type. Please upload an image (JPEG, PNG, GIF, WEBP, or SVG).' 
+        });
+      }
+      
+      // Convert image to base64 format
+      const base64Image = `data:${uploadedFile.mimetype};base64,${uploadedFile.data.toString('base64')}`;
+      
+      // Return the base64 encoded image
+      res.status(200).json({
+        success: true,
+        imageUrl: base64Image,
+        originalName: uploadedFile.name,
+        size: uploadedFile.size,
+        mimetype: uploadedFile.mimetype
+      });
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      res.status(500).json({ error: 'An error occurred while uploading the image.' });
+    }
+  });
 
   return httpServer;
 }
