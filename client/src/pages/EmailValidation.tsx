@@ -352,7 +352,7 @@ const EmailValidation = () => {
         <h1 className="text-2xl font-semibold">Validate</h1>
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
-            <span className="text-blue-600 font-medium">
+            <span className="text-primary font-medium">
               {isLoadingCredits ? "Loading..." : `${credits?.available || 0} credits`}
             </span>
             <Info className="h-4 w-4 text-gray-400" />
@@ -384,7 +384,7 @@ const EmailValidation = () => {
                 <h3 className="text-lg font-medium mb-1">Individual Email Validation</h3>
                 <p className="text-gray-500 text-sm mb-8">Verify up to 25 emails at a time. 1 credit per email.</p>
                 <Button 
-                  className="bg-purple-700 hover:bg-purple-800"
+                  className="bg-primary hover:bg-primary/90 text-white"
                   onClick={() => setShowSingleEmailModal(true)}
                 >
                   Get Started
