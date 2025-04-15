@@ -125,8 +125,8 @@ const SimpleClientLogin = () => {
         <div className="max-w-md w-full">
           <div className="bg-[#f5f0e1] p-8 rounded-2xl shadow-2xl overflow-hidden border border-[#d4af37]/20">
             <div className="text-center">
-              <img src={LogoColor} alt="InfyMailer Logo" className="h-16 mx-auto mb-6" />
-              <h2 className="text-3xl font-extrabold text-[#1a3a5f] mb-1">
+              <img src={LogoColor} alt="InfyMailer Logo" className="h-32 mx-auto mb-6" />
+              <h2 className="text-3xl font-extrabold text-[#1a3a5f] mb-2 bg-gradient-to-r from-[#1a3a5f] to-[#2c5c8f] inline-block text-transparent bg-clip-text">
                 Client Portal
               </h2>
               <p className="text-sm text-[#1a3a5f]/70">
