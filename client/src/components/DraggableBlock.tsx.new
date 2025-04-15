@@ -73,7 +73,7 @@ export const BlocksGrid: React.FC<BlocksGridProps> = ({ onBlockDrop }) => {
           type={block.type} 
           title={block.title} 
           icon={block.icon}
-          onClick={() => onBlockDrop(block.type)}
+          onClick={() => onBlockDrop({ type: block.type })}
         />
       ))}
     </div>

@@ -5,8 +5,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { useParams, useLocation } from "wouter";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import EmailEditor from "@/components/EmailEditor";
-import { DndProvider } from 'react-dnd';
-import { HTML5Backend } from 'react-dnd-html5-backend';
+// We're now using a simpler click-based approach
 import { BlocksGrid, StructuresGrid } from "@/components/DraggableBlock";
 import DroppableArea from "@/components/DroppableArea";
 import {
@@ -207,19 +206,19 @@ export default function TemplateBuilder() {
   // Handle drag and drop of content blocks
   const [emailSections, setEmailSections] = useState<any[]>([]);
   
-  const handleBlockDrop = (item: any) => {
-    console.log('Block dropped:', item);
+  const handleBlockDrop = (blockType: string) => {
+    console.log('Block dropped:', blockType);
     // Add a new section with the dropped block
     const newSection = {
       id: `section-${Date.now()}`,
-      type: item.type,
-      content: getDefaultContentForType(item.type),
+      type: blockType,
+      content: getDefaultContentForType(blockType),
     };
     
     setEmailSections([...emailSections, newSection]);
     toast({
       title: 'Block added',
-      description: `Added a new ${item.type} block to your template`,
+      description: `Added a new ${blockType} block to your template`,
     });
   };
   
@@ -499,80 +498,78 @@ export default function TemplateBuilder() {
                     </div>
                   </div>
                 ) : (
-                  <DndProvider backend={HTML5Backend}>
-                    <div className="mx-auto max-w-[600px] bg-white rounded shadow-sm p-4 min-h-[600px]">
-                      <DroppableArea 
-                        onDrop={handleBlockDrop} 
-                        placeholder="Drag and drop content blocks here"
-                      />
-                      
-                      {/* Display dropped content */}
-                      {emailSections.map((section) => (
-                        <div 
-                          key={section.id}
-                          className="p-3 mb-4 border border-gray-200 rounded relative hover:border-blue-300 group"
-                        >
-                          <div className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <Button 
-                              variant="ghost" 
-                              size="icon" 
-                              className="h-6 w-6 text-gray-400 hover:text-red-500"
-                              onClick={() => {
-                                setEmailSections(emailSections.filter(s => s.id !== section.id));
-                              }}
-                            >
-                              <X className="h-4 w-4" />
-                            </Button>
-                          </div>
-                          <div className="flex items-center mb-2 text-sm font-medium text-gray-700">
-                            {section.type === 'text' && <Type className="h-4 w-4 mr-2" />}
-                            {section.type === 'image' && <ImageIcon className="h-4 w-4 mr-2" />}
-                            {section.type === 'button' && <div className="w-4 h-4 mr-2 flex items-center justify-center text-gray-600">B</div>}
-                            {section.type.charAt(0).toUpperCase() + section.type.slice(1)}
-                          </div>
-                          
-                          {section.type === 'text' && (
-                            <div 
-                              className="p-2 min-h-[50px] bg-gray-50 rounded"
-                              contentEditable
-                              suppressContentEditableWarning
-                              onBlur={(e) => {
-                                const updatedSections = emailSections.map(s => 
-                                  s.id === section.id ? {...s, content: e.target.textContent} : s
-                                );
-                                setEmailSections(updatedSections);
-                              }}
-                            >
-                              {section.content}
-                            </div>
-                          )}
-                          
-                          {section.type === 'image' && (
-                            <div className="bg-gray-50 p-2 rounded">
-                              <img src={section.content} alt="Template content" className="max-w-full h-auto" />
-                            </div>
-                          )}
-                          
-                          {section.type === 'button' && (
-                            <div className="flex justify-center p-2">
-                              <button className="px-4 py-2 bg-blue-600 text-white rounded">
-                                {section.content}
-                              </button>
-                            </div>
-                          )}
-                          
-                          {section.type === 'spacer' && (
-                            <div style={{ height: section.content.height }} className="bg-gray-50"></div>
-                          )}
+                  <div className="mx-auto max-w-[600px] bg-white rounded shadow-sm p-4 min-h-[600px]">
+                    <DroppableArea 
+                      onDrop={handleBlockDrop} 
+                      placeholder="Click on blocks in the sidebar to add content here"
+                    />
+                    
+                    {/* Display added content */}
+                    {emailSections.map((section) => (
+                      <div 
+                        key={section.id}
+                        className="p-3 mb-4 border border-gray-200 rounded relative hover:border-blue-300 group"
+                      >
+                        <div className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="h-6 w-6 text-gray-400 hover:text-red-500"
+                            onClick={() => {
+                              setEmailSections(emailSections.filter(s => s.id !== section.id));
+                            }}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
                         </div>
-                      ))}
-                      
-                      <DroppableArea 
-                        onDrop={handleBlockDrop} 
-                        placeholder="Drag more content blocks here"
-                      />
-                    </div>
-                  </DndProvider>
+                        <div className="flex items-center mb-2 text-sm font-medium text-gray-700">
+                          {section.type === 'text' && <Type className="h-4 w-4 mr-2" />}
+                          {section.type === 'image' && <ImageIcon className="h-4 w-4 mr-2" />}
+                          {section.type === 'button' && <div className="w-4 h-4 mr-2 flex items-center justify-center text-gray-600">B</div>}
+                          {section.type.charAt(0).toUpperCase() + section.type.slice(1)}
+                        </div>
+                        
+                        {section.type === 'text' && (
+                          <div 
+                            className="p-2 min-h-[50px] bg-gray-50 rounded"
+                            contentEditable
+                            suppressContentEditableWarning
+                            onBlur={(e) => {
+                              const updatedSections = emailSections.map(s => 
+                                s.id === section.id ? {...s, content: e.target.textContent} : s
+                              );
+                              setEmailSections(updatedSections);
+                            }}
+                          >
+                            {section.content}
+                          </div>
+                        )}
+                        
+                        {section.type === 'image' && (
+                          <div className="bg-gray-50 p-2 rounded">
+                            <img src={section.content} alt="Template content" className="max-w-full h-auto" />
+                          </div>
+                        )}
+                        
+                        {section.type === 'button' && (
+                          <div className="flex justify-center p-2">
+                            <button className="px-4 py-2 bg-blue-600 text-white rounded">
+                              {section.content}
+                            </button>
+                          </div>
+                        )}
+                        
+                        {section.type === 'spacer' && (
+                          <div style={{ height: section.content.height }} className="bg-gray-50"></div>
+                        )}
+                      </div>
+                    ))}
+                    
+                    <DroppableArea 
+                      onDrop={handleBlockDrop} 
+                      placeholder="Add more content blocks here"
+                    />
+                  </div>
                 )}
               </div>
             </div>
