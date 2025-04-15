@@ -193,7 +193,9 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
   
   const handleCopyHtmlCode = () => {
     if (selectedTemplate?.content) {
-      navigator.clipboard.writeText(selectedTemplate.content);
+      // If it's a JSON template, parse it to get the actual HTML
+      const htmlContent = parseTemplateContent(selectedTemplate.content);
+      navigator.clipboard.writeText(htmlContent);
       toast({
         title: "Copied",
         description: "HTML code copied to clipboard",
@@ -830,7 +832,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
               <div className="p-4 bg-white">
                 <div 
                   className="border rounded-md min-h-[400px] overflow-auto p-2" 
-                  dangerouslySetInnerHTML={{ __html: selectedTemplate.content }}
+                  dangerouslySetInnerHTML={{ __html: parseTemplateContent(selectedTemplate.content) }}
                 />
               </div>
             </div>
