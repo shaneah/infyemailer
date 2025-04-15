@@ -140,9 +140,9 @@ const SimpleClientLogin = () => {
                   Username
                 </label>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#1a3a5f]/60">
+                  <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#1a3a5f]/60 pointer-events-none">
                     <Mail className="h-4 w-4" />
-                  </span>
+                  </div>
                   <input
                     id="username"
                     name="username"
@@ -161,9 +161,9 @@ const SimpleClientLogin = () => {
                   Password
                 </label>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#1a3a5f]/60">
+                  <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#1a3a5f]/60 pointer-events-none">
                     <Lock className="h-4 w-4" />
-                  </span>
+                  </div>
                   <input
                     id="password"
                     name="password"
@@ -176,7 +176,7 @@ const SimpleClientLogin = () => {
                   />
                   <button 
                     type="button"
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#1a3a5f]/60 hover:text-[#1a3a5f]"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#1a3a5f]/60 hover:text-[#1a3a5f] transition-colors z-10"
                     onClick={() => setShowPassword(!showPassword)}
                   >
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
