@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
 import { Link, useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { 
@@ -38,6 +39,7 @@ import {
   MoreHorizontal,
   Share2,
   Link2,
+  Info,
   Check
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
