@@ -25,11 +25,11 @@ const templateSchema = z.object({
 });
 
 type CreateTemplateModalProps = {
-  isOpen: boolean;
-  onClose: () => void;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 };
 
-export default function CreateTemplateModal({ isOpen, onClose }: CreateTemplateModalProps) {
+export default function CreateTemplateModal({ open, onOpenChange }: CreateTemplateModalProps) {
   const { toast } = useToast();
   const [, navigate] = useLocation();
   const [activeTab, setActiveTab] = useState('visual');
@@ -59,7 +59,7 @@ export default function CreateTemplateModal({ isOpen, onClose }: CreateTemplateM
         description: 'Template created successfully',
       });
       form.reset();
-      onClose();
+      onOpenChange(false);
     },
     onError: (error) => {
       toast({
@@ -77,7 +77,7 @@ export default function CreateTemplateModal({ isOpen, onClose }: CreateTemplateM
   
   const handleImportClick = () => {
     // Close this modal and navigate
-    onClose();
+    onOpenChange(false);
     // Slight delay to avoid modal transition issues
     setTimeout(() => {
       navigate('/template-builder?mode=import');
@@ -86,7 +86,7 @@ export default function CreateTemplateModal({ isOpen, onClose }: CreateTemplateM
 
   const handleAIGeneratorClick = () => {
     // Close this modal and navigate
-    onClose();
+    onOpenChange(false);
     // Slight delay to avoid modal transition issues
     setTimeout(() => {
       navigate('/template-builder?mode=ai');
@@ -95,7 +95,7 @@ export default function CreateTemplateModal({ isOpen, onClose }: CreateTemplateM
   
   const handleVisualBuilderClick = () => {
     // Close this modal and navigate
-    onClose();
+    onOpenChange(false);
     // Slight delay to avoid modal transition issues
     setTimeout(() => {
       navigate('/template-builder');
@@ -103,7 +103,7 @@ export default function CreateTemplateModal({ isOpen, onClose }: CreateTemplateM
   };
   
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold">Create New Template</DialogTitle>
