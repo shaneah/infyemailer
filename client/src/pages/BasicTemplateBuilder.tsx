@@ -1889,7 +1889,31 @@ export default function BasicTemplateBuilder({ isClientPortal = false }: BasicTe
                     className="border-blue-200 text-blue-700 hover:bg-blue-50"
                     onClick={() => {
                       setActiveTab("preview");
-                      // Convert HTML to sections if possible (simplified version)
+                      // Parse JSON if it appears to be JSON content
+                      if (htmlContent.trim().startsWith('{') && htmlContent.trim().endsWith('}')) {
+                        try {
+                          const jsonData = JSON.parse(htmlContent);
+                          
+                          // If this is a template JSON with sections
+                          if (jsonData.sections && Array.isArray(jsonData.sections)) {
+                            setSections(jsonData.sections);
+                            // Set other template properties if they exist
+                            if (jsonData.name) setTemplateName(jsonData.name);
+                            if (jsonData.subject) setTemplateSubject(jsonData.subject);
+                            if (jsonData.description) setTemplateDescription(jsonData.description);
+                            
+                            toast({
+                              title: "Template JSON Imported",
+                              description: "Your template structure has been successfully imported",
+                            });
+                            return;
+                          }
+                        } catch (error) {
+                          console.error("Failed to parse as JSON, treating as HTML");
+                        }
+                      }
+                      
+                      // If not valid JSON or doesn't have sections, treat as HTML
                       const parser = new DOMParser();
                       try {
                         const doc = parser.parseFromString(htmlContent, "text/html");
@@ -1931,16 +1955,41 @@ export default function BasicTemplateBuilder({ isClientPortal = false }: BasicTe
                       setIsSaving(true);
                       
                       try {
+                        // Determine if content is JSON or HTML
+                        let content = htmlContent;
+                        let category = "imported";
+                        let metadata = {
+                          imported: true,
+                          dateImported: new Date().toISOString()
+                        };
+                        
+                        // Check if it appears to be JSON
+                        if (htmlContent.trim().startsWith('{') && htmlContent.trim().endsWith('}')) {
+                          try {
+                            // Parse to validate and then stringify to ensure proper format
+                            const jsonData = JSON.parse(htmlContent);
+                            
+                            // If this is template JSON with sections, store with proper formatting
+                            if (jsonData.sections && Array.isArray(jsonData.sections)) {
+                              metadata = {
+                                ...metadata,
+                                isTemplateJson: true,
+                                sections: jsonData.sections
+                              };
+                              category = "json_template";
+                            }
+                          } catch (error) {
+                            console.error("Not valid JSON, treating as regular HTML");
+                          }
+                        }
+                        
                         const templateData = {
                           name: templateName,
                           subject: templateSubject,
                           description: templateDescription,
-                          content: htmlContent,
-                          category: "imported",
-                          metadata: {
-                            imported: true,
-                            dateImported: new Date().toISOString()
-                          }
+                          content: content,
+                          category: category,
+                          metadata: metadata
                         };
                         
                         const response = await apiRequest("POST", "/api/templates", templateData);
