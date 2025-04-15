@@ -4,8 +4,8 @@ import { queryClient } from "./lib/queryClient";
 import { Toaster } from "@/components/ui/toaster";
 import AuthPage from "@/pages/auth-page";
 import Dashboard from "@/pages/Dashboard";
-import Sidebar from "@/components/Sidebar";
-import NewSidebar from "@/components/NewSidebar";
+import MainSidebar from "@/components/MainSidebar";
+import ClientSidebar from "@/components/ClientSidebar";
 import Navbar from "@/components/Navbar";
 import { useState, useEffect } from "react";
 import { AuthProvider } from "@/hooks/use-auth";
@@ -165,7 +165,7 @@ function App() {
         <Route>
           <AuthProvider>
             <div className="flex h-screen bg-background">
-              <NewSidebar 
+              <MainSidebar 
                 open={sidebarOpen} 
                 setOpen={setSidebarOpen} 
                 collapsed={sidebarCollapsed}
