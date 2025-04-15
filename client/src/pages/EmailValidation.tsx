@@ -599,8 +599,8 @@ const EmailValidation = () => {
               
               <div className="flex items-center justify-between p-2 hover:bg-gray-50 rounded cursor-pointer">
                 <div className="flex items-center gap-3">
-                  <div className="bg-purple-100 rounded-full p-1">
-                    <div className="bg-purple-500 rounded-full w-6 h-6 flex items-center justify-center text-white">
+                  <div className="bg-[#1a3a5f]/10 rounded-full p-1">
+                    <div className="bg-[#1a3a5f] rounded-full w-6 h-6 flex items-center justify-center text-white">
                       <span className="text-xs font-bold">D</span>
                     </div>
                   </div>

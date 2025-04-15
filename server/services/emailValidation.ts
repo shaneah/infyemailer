@@ -115,8 +115,21 @@ export class EmailValidationService {
       };
     }
     
-    // For now, we'll skip the MX record check as it can be slow
-    // and focus on returning a valid response quickly
+    // Check MX records to see if the domain can actually receive email
+    let hasMxRecords = true;
+    try {
+      hasMxRecords = await this.checkDomainMxRecords(domain);
+      if (!hasMxRecords) {
+        return {
+          isValid: false,
+          normalizedEmail,
+          error: `Domain ${domain} does not have valid mail servers`
+        };
+      }
+    } catch (error) {
+      console.error(`MX record check failed for ${domain}:`, error);
+      // Continue processing even if MX check fails to avoid false negatives
+    }
     
     // Check if the email already exists in the database
     try {
@@ -201,8 +214,15 @@ export class EmailValidationService {
     // Check for typos
     const typoCheck = this.checkForTypos(normalizedEmail);
     
-    // Default MX records to true to avoid slow checks
-    const hasMxRecords = true;
+    // Check MX records - this is an expensive operation but critical for validation
+    let hasMxRecords = true;
+    try {
+      hasMxRecords = await this.checkDomainMxRecords(domain);
+    } catch (error) {
+      console.error(`Failed to check MX records for ${domain}:`, error);
+      // Default to true to avoid false negatives
+      hasMxRecords = true;
+    }
     
     // Default duplicate check to false to keep response fast
     const isDuplicate = false;
@@ -211,9 +231,17 @@ export class EmailValidationService {
     const details = [];
     if (disposable) details.push(`${domain} is a disposable email domain`);
     if (typoCheck.hasTypos) details.push(`Possible typo in domain - suggested: ${typoCheck.suggestion}`);
+    if (!hasMxRecords) details.push(`Domain ${domain} does not have valid mail servers`);
+    
+    // For UI consistency, an email is considered valid if it has:
+    // 1. Correct syntax
+    // 2. MX records (can actually receive mail)
+    // 3. Is not a disposable email 
+    // 4. Has no obvious typos
+    const isValid = hasMxRecords && !disposable && !typoCheck.hasTypos;
     
     return {
-      isValid: !disposable && !typoCheck.hasTypos,
+      isValid,
       hasMxRecords,
       isDisposable: disposable,
       isDuplicate,
