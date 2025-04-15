@@ -1862,8 +1862,92 @@ const ClientABTesting = () => (
       </div>
       <h1 className="text-2xl font-bold">A/B Testing</h1>
     </div>
-    <div className="bg-white rounded-lg shadow p-6 border border-gray-100">
-      <p className="text-gray-600">This page is under development.</p>
+    
+    {/* Overview Card */}
+    <div className="bg-white rounded-lg shadow p-6 border border-gray-100 mb-6">
+      <h2 className="text-lg font-semibold mb-3">A/B Testing Overview</h2>
+      <p className="text-gray-600 mb-4">
+        A/B testing allows you to test different variations of your emails to see which performs better. Create multiple versions of your email and send them to different segments of your audience to optimize your campaign performance.
+      </p>
+      <div className="bg-blue-50 border border-blue-100 rounded-md p-4">
+        <div className="flex items-start gap-3">
+          <svg className="h-5 w-5 text-blue-500 mt-0.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <path d="M12 16v-4"></path>
+            <path d="M12 8h.01"></path>
+          </svg>
+          <div>
+            <h3 className="font-medium text-blue-700">Getting Started</h3>
+            <p className="text-sm text-blue-600">To begin A/B testing, create a campaign and add multiple email variations to test different subject lines, content, or layouts.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    {/* Feature Cards */}
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+      <div className="bg-white rounded-lg shadow p-5 border border-gray-100">
+        <div className="flex items-center justify-center h-12 w-12 rounded-full bg-teal-100 text-teal-600 mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"></path>
+          </svg>
+        </div>
+        <h3 className="text-lg font-medium mb-2">Subject Line Testing</h3>
+        <p className="text-gray-600">Test different subject lines to improve open rates and engagement.</p>
+      </div>
+      
+      <div className="bg-white rounded-lg shadow p-5 border border-gray-100">
+        <div className="flex items-center justify-center h-12 w-12 rounded-full bg-indigo-100 text-indigo-600 mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <rect width="18" height="18" x="3" y="3" rx="2" />
+            <path d="M3 9h18" />
+            <path d="M3 15h18" />
+            <path d="M9 3v18" />
+            <path d="M15 3v18" />
+          </svg>
+        </div>
+        <h3 className="text-lg font-medium mb-2">Content Testing</h3>
+        <p className="text-gray-600">Compare different layouts, images, or copy to determine what resonates best.</p>
+      </div>
+      
+      <div className="bg-white rounded-lg shadow p-5 border border-gray-100">
+        <div className="flex items-center justify-center h-12 w-12 rounded-full bg-amber-100 text-amber-600 mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H7" />
+          </svg>
+        </div>
+        <h3 className="text-lg font-medium mb-2">Sender Testing</h3>
+        <p className="text-gray-600">Test different sender names or email addresses to find the best performer.</p>
+      </div>
+    </div>
+    
+    {/* Coming Soon Section */}
+    <div className="bg-gradient-to-r from-blue-50 to-teal-50 rounded-lg border border-blue-100 p-6">
+      <h2 className="text-lg font-semibold mb-3 text-blue-800">Coming Soon</h2>
+      <p className="text-blue-700 mb-4">We're working on adding more advanced A/B testing features:</p>
+      <ul className="space-y-2">
+        <li className="flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-teal-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path>
+            <path d="m9 12 2 2 4-4"></path>
+          </svg>
+          <span>Automated winner selection based on your goals</span>
+        </li>
+        <li className="flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-teal-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path>
+            <path d="m9 12 2 2 4-4"></path>
+          </svg>
+          <span>Multi-variable testing (test multiple elements at once)</span>
+        </li>
+        <li className="flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-teal-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path>
+            <path d="m9 12 2 2 4-4"></path>
+          </svg>
+          <span>Advanced analytics and reporting for test results</span>
+        </li>
+      </ul>
     </div>
   </div>
 );
