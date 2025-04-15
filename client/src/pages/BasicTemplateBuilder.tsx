@@ -19,6 +19,10 @@ export default function BasicTemplateBuilder({ isClientPortal = false }: BasicTe
   const { toast } = useToast();
   const params = useParams();
   const [location, navigate] = useLocation();
+  
+  // Get the mode from URL if it exists
+  const searchParams = new URLSearchParams(window.location.search);
+  const mode = searchParams.get('mode');
 
   // Template data
   const [templateName, setTemplateName] = useState("New Template");
@@ -29,8 +33,11 @@ export default function BasicTemplateBuilder({ isClientPortal = false }: BasicTe
     type: string;
     content: string;
   }>>([]);
-  const [activeTab, setActiveTab] = useState("editor");
+  const [activeTab, setActiveTab] = useState(mode === "import" ? "import" : mode === "ai" ? "ai" : "editor");
   const [isSaving, setIsSaving] = useState(false);
+  const [htmlContent, setHtmlContent] = useState("");
+  const [showImportUI, setShowImportUI] = useState(mode === "import");
+  const [showAIUI, setShowAIUI] = useState(mode === "ai");
 
   // Add a new section to the template
   const addSection = (type: string) => {
