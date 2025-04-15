@@ -94,11 +94,31 @@ const SimpleClientLogin = () => {
              }}
         ></div>
         
-        {/* Gold particle effects */}
-        <div className="absolute top-1/4 left-1/3 w-1 h-1 rounded-full bg-[#d4af37]/70 animate-pulse" style={{animationDuration: '3s'}}></div>
-        <div className="absolute top-2/3 left-1/5 w-2 h-2 rounded-full bg-[#d4af37]/50 animate-pulse" style={{animationDuration: '5s'}}></div>
-        <div className="absolute top-1/2 right-1/4 w-1.5 h-1.5 rounded-full bg-[#d4af37]/60 animate-pulse" style={{animationDuration: '4s'}}></div>
-        <div className="absolute bottom-1/3 right-1/3 w-2 h-2 rounded-full bg-[#d4af37]/50 animate-pulse" style={{animationDuration: '6s'}}></div>
+        {/* Enhanced gold particle effects with animation */}
+        <div className="absolute top-1/4 left-1/3 w-1.5 h-1.5 rounded-full bg-[#d4af37]/80 animate-ping" 
+             style={{animationDuration: '3s', filter: 'blur(0.5px)'}}></div>
+        <div className="absolute top-2/3 left-1/5 w-2.5 h-2.5 rounded-full bg-[#d4af37]/70 animate-ping" 
+             style={{animationDuration: '5s', filter: 'blur(1px)'}}></div>
+        <div className="absolute top-1/2 right-1/4 w-2 h-2 rounded-full bg-[#d4af37]/80 animate-ping" 
+             style={{animationDuration: '4s', filter: 'blur(0.5px)'}}></div>
+        <div className="absolute bottom-1/3 right-1/3 w-3 h-3 rounded-full bg-[#d4af37]/60 animate-ping" 
+             style={{animationDuration: '6s', filter: 'blur(1px)'}}></div>
+             
+        {/* Additional gold particles */}
+        <div className="absolute top-[15%] right-[15%] w-1 h-1 rounded-full bg-[#d4af37]/90 animate-ping" 
+             style={{animationDuration: '2.5s', filter: 'blur(0.3px)'}}></div>
+        <div className="absolute bottom-[20%] left-[25%] w-1.5 h-1.5 rounded-full bg-[#d4af37]/70 animate-ping" 
+             style={{animationDuration: '4.5s', filter: 'blur(0.7px)'}}></div>
+        <div className="absolute top-[40%] left-[60%] w-1 h-1 rounded-full bg-[#d4af37]/80 animate-ping" 
+             style={{animationDuration: '3.5s', filter: 'blur(0.4px)'}}></div>
+        <div className="absolute bottom-[15%] right-[20%] w-2 h-2 rounded-full bg-[#d4af37]/60 animate-ping" 
+             style={{animationDuration: '5.5s', filter: 'blur(0.8px)'}}></div>
+             
+        {/* Floating light streaks */}
+        <div className="absolute top-[30%] left-[10%] w-10 h-0.5 rounded-full bg-gradient-to-r from-[#d4af37]/40 to-transparent transform rotate-45 animate-pulse" 
+             style={{animationDuration: '7s'}}></div>
+        <div className="absolute bottom-[40%] right-[10%] w-12 h-0.5 rounded-full bg-gradient-to-l from-[#d4af37]/30 to-transparent transform -rotate-45 animate-pulse" 
+             style={{animationDuration: '8s'}}></div>
       </div>
       
       <div className="flex-1 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 z-10">
@@ -168,8 +188,9 @@ const SimpleClientLogin = () => {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full py-2.5 bg-gradient-to-r from-[#d4af37] to-[#b8860b] hover:from-[#b8860b] hover:to-[#d4af37] text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center border border-[#d4af37]/50"
+                  className="w-full py-2.5 bg-gradient-to-r from-[#d4af37] to-[#b8860b] hover:from-[#b8860b] hover:to-[#d4af37] text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center border border-[#d4af37]/50 overflow-hidden relative group"
                 >
+                  <span className="absolute left-0 w-0 h-full bg-white/10 transform -skew-x-12 transition-all duration-300 ease-out group-hover:w-full"></span>
                   {isLoading ? (
                     <>
                       <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
