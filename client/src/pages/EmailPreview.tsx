@@ -1,343 +1,469 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useLocation } from 'wouter';
-import { useQuery } from '@tanstack/react-query';
-import { Loader2, AlertCircle, ChevronLeft, Info, Bar, BarChart, Eye, MousePointer, Clock } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Badge } from "@/components/ui/badge";
-import { useToast } from "@/hooks/use-toast";
-import HeatMapVisualization from '@/components/HeatMapVisualization';
-import EmailInteractionTracker from '@/components/EmailInteractionTracker';
+import { useToast } from '@/hooks/use-toast';
+import { useQuery, useMutation } from '@tanstack/react-query';
+import { apiRequest, queryClient } from '@/lib/queryClient';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
+import { Slider } from '@/components/ui/slider';
+import { Separator } from '@/components/ui/separator';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { toast } from '@/hooks/use-toast';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { 
+  Mail, 
+  Smartphone, 
+  Tablet, 
+  ArrowLeft, 
+  CornerDownRight, 
+  Send, 
+  ChevronLeft, 
+  ChevronRight, 
+  Loader2, 
+  Download,
+  Copy,
+  Code,
+  Eye,
+  Settings,
+  Pen,
+  MailCheck,
+  Users,
+  Sparkles,
+  AlertCircle,
+  Layers
+} from 'lucide-react';
+import InteractiveTemplatePreview from '@/components/InteractiveTemplatePreview';
 
-type EmailPreviewParams = {
-  id: string;
-};
+// Schema for form validation
+const previewFormSchema = z.object({
+  email: z.string().email('Please enter a valid email address'),
+  subject: z.string().min(1, 'Subject is required'),
+  from: z.string().min(1, 'Sender is required'),
+  personalize: z.boolean().default(false),
+  templateId: z.number().optional(),
+  content: z.string().min(1, 'Content is required')
+});
 
-const EmailPreview = () => {
-  const { id } = useParams<EmailPreviewParams>();
-  const [_, navigate] = useLocation();
+type PreviewFormValues = z.infer<typeof previewFormSchema>;
+
+export default function EmailPreview() {
+  const [activeTab, setActiveTab] = useState('preview');
+  const [editMode, setEditMode] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState<any>(null);
+  const [isSending, setIsSending] = useState(false);
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState<string>('preview');
-  const [demoMode, setDemoMode] = useState<boolean>(false);
-  const emailId = parseInt(id, 10);
-
-  // Fetch email data
-  const {
-    data: email,
-    isLoading: emailLoading,
-    error: emailError
-  } = useQuery({
-    queryKey: [`/api/emails/${emailId}`],
-    enabled: !!emailId && !isNaN(emailId),
+  
+  // Load templates
+  const { data: templates, isLoading: isLoadingTemplates } = useQuery({
+    queryKey: ['/api/templates'],
+    queryFn: async () => {
+      const response = await apiRequest('GET', '/api/templates');
+      return response.json();
+    }
   });
-
-  // Fetch heat map data
-  const {
-    data: heatMapData,
-    isLoading: heatMapLoading,
-    error: heatMapError,
-    refetch: refetchHeatMap
-  } = useQuery({
-    queryKey: [`/api/heat-maps/emails/${emailId}/heat-map-visualization`],
-    enabled: !!emailId && !isNaN(emailId),
+  
+  // Form for preview settings
+  const form = useForm<PreviewFormValues>({
+    resolver: zodResolver(previewFormSchema),
+    defaultValues: {
+      email: '',
+      subject: '',
+      from: 'mailer@ingmailer.com',
+      personalize: false,
+      content: ''
+    }
   });
-
-  // Get campaign data if available
-  const {
-    data: campaign,
-    isLoading: campaignLoading,
-    error: campaignError
-  } = useQuery({
-    queryKey: [`/api/campaigns/${email?.campaignId}`],
-    enabled: !!email?.campaignId,
-  });
-
-  // Go back to previous page
-  const handleBack = () => {
-    navigate('/emails');
-  };
-
-  // Toggle between real and demo mode
-  const toggleDemoMode = () => {
-    setDemoMode(!demoMode);
-    
-    if (!demoMode) {
-      toast({
-        title: 'Demo Mode Activated',
-        description: 'You are now viewing simulated interaction data.',
-        variant: 'default',
-      });
-    } else {
-      toast({
-        title: 'Real Data Mode',
-        description: 'You are now viewing actual interaction data.',
-        variant: 'default',
+  
+  // Update form when selected template changes
+  useEffect(() => {
+    if (selectedTemplate) {
+      form.reset({
+        ...form.getValues(),
+        subject: selectedTemplate.subject || '',
+        templateId: selectedTemplate.id,
+        content: selectedTemplate.content || ''
       });
     }
+  }, [selectedTemplate, form]);
+  
+  // Handle template selection
+  const handleSelectTemplate = (template: any) => {
+    setSelectedTemplate(template);
   };
-
-  if (emailLoading || campaignLoading || heatMapLoading) {
-    return (
-      <div className="flex h-[calc(100vh-120px)] items-center justify-center">
-        <Loader2 className="h-10 w-10 animate-spin text-primary" />
-      </div>
-    );
-  }
-
-  if (emailError) {
-    return (
-      <Alert variant="destructive" className="max-w-2xl mx-auto mt-6">
-        <AlertCircle className="h-4 w-4" />
-        <AlertTitle>Error</AlertTitle>
-        <AlertDescription>
-          Failed to load email data. Please try again later.
-        </AlertDescription>
-        <Button onClick={handleBack} variant="outline" size="sm" className="mt-2">
-          <ChevronLeft className="h-4 w-4 mr-1" /> Go Back
-        </Button>
-      </Alert>
-    );
-  }
-
-  // Set defaults for content if not available
-  const getStatusColor = (status: string) => {
-    if (status === 'sent') return 'success';
-    if (status === 'draft') return 'secondary';
-    if (status === 'scheduled') return 'warning';
-    if (status === 'active') return 'primary';
-    return 'secondary';
-  };
-
-  const renderEmailSummary = () => {
-    return (
-      <Card className="mb-6">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <div>
-            <CardTitle className="text-2xl">{email?.name || 'Email Preview'}</CardTitle>
-            <CardDescription className="text-md">
-              {email?.subject || 'No subject provided'}
-            </CardDescription>
-          </div>
-          <div className="flex items-center gap-2">
-            <Badge variant="outline" className={`bg-${getStatusColor(email?.status || 'draft')}-50 text-${getStatusColor(email?.status || 'draft')}-600 border-${getStatusColor(email?.status || 'draft')}-200`}>
-              {email?.status?.charAt(0).toUpperCase() + email?.status?.slice(1) || 'Draft'}
-            </Badge>
-            <Button variant="outline" size="sm" onClick={handleBack}>
-              <ChevronLeft className="h-4 w-4 mr-1" /> Back
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent className="pb-2">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 py-2">
-            <div className="space-y-1">
-              <p className="text-sm text-muted-foreground">From</p>
-              <p className="text-sm font-medium">{email?.senderName || 'Unknown'} &lt;{email?.replyToEmail || 'no-reply@example.com'}&gt;</p>
-            </div>
-            <div className="space-y-1">
-              <p className="text-sm text-muted-foreground">Preview Text</p>
-              <p className="text-sm font-medium">{email?.previewText ? 
-                (email.previewText.length > 50 ? `${email.previewText.substring(0, 50)}...` : email.previewText) : 
-                'No preview text provided'}</p>
-            </div>
-            <div className="space-y-1">
-              <p className="text-sm text-muted-foreground">Campaign</p>
-              <p className="text-sm font-medium">{campaign?.name || email?.campaignName || 'Not associated with a campaign'}</p>
-            </div>
-            <div className="space-y-1">
-              <p className="text-sm text-muted-foreground">Created</p>
-              <p className="text-sm font-medium">{email?.createdAt ? new Date(email.createdAt).toLocaleDateString() : 'Unknown'}</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  };
-
-  const renderDemoStats = () => {
-    if (!demoMode) return null;
-    
-    return (
-      <Card className="mb-6">
-        <CardHeader>
-          <CardTitle className="text-md flex items-center">
-            <Info className="h-4 w-4 text-blue-500 mr-2" />
-            Demo Mode Statistics
-          </CardTitle>
-          <CardDescription>
-            These metrics are simulated for demonstration purposes
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="space-y-1">
-              <div className="flex items-center gap-2">
-                <Eye className="h-4 w-4 text-muted-foreground" />
-                <p className="text-sm text-muted-foreground">Views</p>
-              </div>
-              <p className="text-2xl font-bold">128</p>
-            </div>
-            <div className="space-y-1">
-              <div className="flex items-center gap-2">
-                <MousePointer className="h-4 w-4 text-muted-foreground" />
-                <p className="text-sm text-muted-foreground">Clicks</p>
-              </div>
-              <p className="text-2xl font-bold">43</p>
-            </div>
-            <div className="space-y-1">
-              <div className="flex items-center gap-2">
-                <BarChart className="h-4 w-4 text-muted-foreground" />
-                <p className="text-sm text-muted-foreground">Engagement</p>
-              </div>
-              <p className="text-2xl font-bold">33.6%</p>
-            </div>
-            <div className="space-y-1">
-              <div className="flex items-center gap-2">
-                <Clock className="h-4 w-4 text-muted-foreground" />
-                <p className="text-sm text-muted-foreground">Avg. Time</p>
-              </div>
-              <p className="text-2xl font-bold">48s</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  };
-
-  const renderEmailContent = () => {
-    if (!email?.content) {
-      return (
-        <Alert className="max-w-4xl mx-auto">
-          <AlertCircle className="h-4 w-4" />
-          <AlertTitle>No Content</AlertTitle>
-          <AlertDescription>
-            This email does not have any HTML content to display.
-          </AlertDescription>
-        </Alert>
-      );
+  
+  // Send test email
+  const handleSendTestEmail = async (values: PreviewFormValues) => {
+    setIsSending(true);
+    try {
+      const response = await apiRequest('POST', `/api/templates/${values.templateId}/test-email`, {
+        email: values.email,
+        subject: values.subject,
+        personalizeContent: values.personalize
+      });
+      
+      toast({
+        title: 'Email Sent',
+        description: 'Test email has been sent successfully',
+        variant: 'default'
+      });
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to send test email',
+        variant: 'destructive'
+      });
+    } finally {
+      setIsSending(false);
     }
-
-    // Sanitized content rendering
-    return (
-      <div 
-        className="border rounded-md p-0 overflow-hidden" 
-        style={{ maxWidth: '100%' }}
-      >
-        {activeTab === 'preview' && !demoMode && (
-          <iframe 
-            srcDoc={email.content}
-            title="Email preview"
-            className="w-full h-[800px] bg-white"
-            style={{ border: 'none' }}
-          />
-        )}
-        
-        {activeTab === 'preview' && demoMode && (
-          <EmailInteractionTracker 
-            emailId={emailId}
-            campaignId={email.campaignId || 0}
-            className="w-full h-[800px] bg-white overflow-auto"
-          >
-            <div dangerouslySetInnerHTML={{ __html: email.content }} />
-          </EmailInteractionTracker>
-        )}
-        
-        {activeTab === 'heatmap' && (
-          <div className="p-4 bg-white">
-            <HeatMapVisualization 
-              data={{
-                dataPoints: heatMapData?.dataPoints || [],
-                maxIntensity: heatMapData?.maxIntensity || 0
-              }}
-              emailContent={email.content}
-              width="100%"
-              height={800}
-            />
-            
-            <div className="mt-6 p-4 border-t">
-              <h3 className="font-medium mb-2">Heat Map Statistics</h3>
-              <div className="grid grid-cols-2 gap-4">
-                <Card className="shadow-sm">
-                  <CardContent className="pt-4">
-                    <p className="text-sm text-muted-foreground">Total Interactions</p>
-                    <p className="text-3xl font-bold">{heatMapData?.totalInteractions || 0}</p>
-                  </CardContent>
-                </Card>
-                <Card className="shadow-sm">
-                  <CardContent className="pt-4">
-                    <p className="text-sm text-muted-foreground">Interaction Types</p>
-                    <div className="mt-2">
-                      {(heatMapData?.dataPoints || []).reduce((acc, d) => {
-                        acc[d.type] = (acc[d.type] || 0) + 1;
-                        return acc;
-                      }, {} as Record<string, number>)}
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
-            
-            {heatMapData?.totalInteractions === 0 && (
-              <Alert className="mt-6">
-                <Info className="h-4 w-4" />
-                <AlertTitle>No interaction data yet</AlertTitle>
-                <AlertDescription>
-                  Enable demo mode to see how the heat map would look with interaction data.
-                </AlertDescription>
-              </Alert>
-            )}
-          </div>
-        )}
-        
-        {activeTab === 'code' && (
-          <pre className="p-4 bg-slate-50 overflow-auto text-sm font-mono h-[800px]">
-            {email.content}
-          </pre>
-        )}
-      </div>
-    );
+  };
+  
+  // Handle content changes
+  const handleContentChange = (content: string) => {
+    form.setValue('content', content);
+  };
+  
+  // Mock personalization data
+  const mockPersonaData = {
+    firstName: 'John',
+    lastName: 'Smith',
+    email: 'john.smith@example.com',
+    company: 'Acme Inc.',
+    city: 'New York',
+    product: 'Premium Plan',
+    date: new Date().toLocaleDateString(),
+    amount: '$99.00'
   };
 
   return (
-    <div className="container mx-auto py-6">
-      {renderEmailSummary()}
-      
-      <div className="flex justify-between items-center mb-6">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList>
-            <TabsTrigger value="preview">Preview</TabsTrigger>
-            <TabsTrigger value="heatmap">Heat Map</TabsTrigger>
-            <TabsTrigger value="code">HTML Code</TabsTrigger>
-          </TabsList>
-        </Tabs>
-        
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button 
-                variant={demoMode ? "secondary" : "outline"} 
-                size="sm" 
-                onClick={toggleDemoMode}
-                className="ml-4"
-              >
-                {demoMode ? "Exit Demo Mode" : "Demo Mode"}
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Demo mode lets you interact with the email to generate heat map data</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+    <div className="container mx-auto p-6 max-w-[1600px]">
+      {/* Header */}
+      <div className="mb-6">
+        <div className="flex items-center gap-3 mb-2">
+          <div className="bg-primary/10 p-2 rounded-full">
+            <Mail className="h-6 w-6 text-primary" />
+          </div>
+          <h1 className="text-2xl font-bold">Interactive Email Preview</h1>
+        </div>
+        <p className="text-muted-foreground">
+          Preview your email templates across different devices and see how personalized content looks
+        </p>
       </div>
-      
-      {demoMode && renderDemoStats()}
-      
-      {renderEmailContent()}
+
+      {/* Main content */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left sidebar - Template selection */}
+        <div className="lg:col-span-1">
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle>Select Template</CardTitle>
+              <CardDescription>
+                Choose a template to preview
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <div className="relative">
+                  <Input 
+                    type="search" 
+                    placeholder="Search templates..." 
+                    className="pl-9"
+                  />
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-muted-foreground absolute left-3 top-[50%] transform -translate-y-1/2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <path d="m21 21-4.3-4.3"></path>
+                  </svg>
+                </div>
+                
+                <ScrollArea className="h-[400px] pr-4 -mr-4">
+                  {isLoadingTemplates ? (
+                    <div className="py-8 flex justify-center">
+                      <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                    </div>
+                  ) : templates && templates.length > 0 ? (
+                    <div className="space-y-2 pt-2">
+                      {templates.map((template: any) => (
+                        <div
+                          key={template.id}
+                          className={`p-3 rounded-md cursor-pointer border transition-colors ${
+                            selectedTemplate?.id === template.id
+                              ? 'border-primary/50 bg-primary/5'
+                              : 'border-gray-200 hover:border-primary/30 hover:bg-gray-50'
+                          }`}
+                          onClick={() => handleSelectTemplate(template)}
+                        >
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <h3 className="font-medium text-sm">{template.name}</h3>
+                              <p className="text-xs text-muted-foreground mt-1 line-clamp-1">
+                                {template.description || 'No description'}
+                              </p>
+                            </div>
+                            {template.metadata?.generatedByAI && (
+                              <div className="bg-purple-100 text-purple-800 text-xs px-2 py-0.5 rounded-full flex items-center">
+                                <Sparkles className="h-3 w-3 mr-1" />
+                                AI
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="py-8 text-center text-muted-foreground">
+                      <p>No templates found</p>
+                    </div>
+                  )}
+                </ScrollArea>
+              </div>
+            </CardContent>
+          </Card>
+          
+          {/* Preview settings */}
+          <Card className="mt-6">
+            <CardHeader className="pb-3">
+              <CardTitle>Preview Settings</CardTitle>
+              <CardDescription>
+                Configure how you want to preview the email
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(handleSendTestEmail)} className="space-y-4">
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Test Email Address</FormLabel>
+                        <FormControl>
+                          <Input placeholder="your@email.com" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="subject"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Subject Line</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Email subject" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="from"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>From Address</FormLabel>
+                        <FormControl>
+                          <Input placeholder="sender@company.com" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="personalize"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
+                        <div className="space-y-0.5">
+                          <FormLabel>Personalization</FormLabel>
+                          <FormDescription>
+                            Show template with personalized content
+                          </FormDescription>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <Button
+                    type="submit"
+                    className="w-full"
+                    disabled={!selectedTemplate || isSending}
+                  >
+                    {isSending ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Sending...
+                      </>
+                    ) : (
+                      <>
+                        <Send className="mr-2 h-4 w-4" />
+                        Send Test Email
+                      </>
+                    )}
+                  </Button>
+                </form>
+              </Form>
+            </CardContent>
+          </Card>
+        </div>
+        
+        {/* Right content - Template preview */}
+        <div className="lg:col-span-2">
+          {!selectedTemplate ? (
+            <div className="h-full flex items-center justify-center border rounded-lg bg-gray-50 p-8 text-center">
+              <div>
+                <Layers className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                <h3 className="text-lg font-medium">No Template Selected</h3>
+                <p className="text-muted-foreground mt-2 max-w-md">
+                  Select a template from the sidebar to preview how it will look across different devices
+                </p>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              <Card className="overflow-hidden">
+                <CardHeader className="bg-gray-50 border-b pb-3">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <CardTitle>{selectedTemplate.name}</CardTitle>
+                      <CardDescription className="mt-1">
+                        {selectedTemplate.description || 'No description available'}
+                      </CardDescription>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button variant="outline" size="sm" onClick={() => setEditMode(!editMode)}>
+                        {editMode ? (
+                          <>
+                            <Eye className="h-4 w-4 mr-1" />
+                            Preview
+                          </>
+                        ) : (
+                          <>
+                            <Pen className="h-4 w-4 mr-1" />
+                            Edit
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="p-0">
+                  {editMode ? (
+                    <div className="p-4">
+                      <Label htmlFor="template-editor">HTML Content</Label>
+                      <Textarea
+                        id="template-editor"
+                        value={form.watch('content')}
+                        onChange={(e) => form.setValue('content', e.target.value)}
+                        className="font-mono text-xs min-h-[500px] mt-2"
+                      />
+                    </div>
+                  ) : (
+                    <InteractiveTemplatePreview
+                      templateContent={form.watch('content')}
+                      personalizedData={form.watch('personalize') ? mockPersonaData : undefined}
+                      onContentChange={handleContentChange}
+                    />
+                  )}
+                </CardContent>
+              </Card>
+              
+              {/* Analytics and Insights */}
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle>Smart Insights</CardTitle>
+                  <CardDescription>
+                    AI-powered analysis of your email template
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="p-4 bg-amber-50 border border-amber-100 rounded-lg">
+                        <div className="text-amber-600 mb-2">
+                          <AlertCircle className="h-5 w-5" />
+                        </div>
+                        <h4 className="font-medium">Deliverability</h4>
+                        <div className="flex items-center gap-2 mt-1">
+                          <div className="bg-amber-200 h-2 rounded-full w-full">
+                            <div className="bg-amber-500 h-2 rounded-full w-[75%]"></div>
+                          </div>
+                          <span className="text-sm font-medium text-amber-700">75%</span>
+                        </div>
+                        <p className="text-xs text-amber-800 mt-2">
+                          Consider reducing image count to improve deliverability.
+                        </p>
+                      </div>
+                      
+                      <div className="p-4 bg-green-50 border border-green-100 rounded-lg">
+                        <div className="text-green-600 mb-2">
+                          <MailCheck className="h-5 w-5" />
+                        </div>
+                        <h4 className="font-medium">Engagement Prediction</h4>
+                        <div className="flex items-center gap-2 mt-1">
+                          <div className="bg-green-200 h-2 rounded-full w-full">
+                            <div className="bg-green-500 h-2 rounded-full w-[88%]"></div>
+                          </div>
+                          <span className="text-sm font-medium text-green-700">88%</span>
+                        </div>
+                        <p className="text-xs text-green-800 mt-2">
+                          Strong call-to-action and clear value proposition.
+                        </p>
+                      </div>
+                      
+                      <div className="p-4 bg-blue-50 border border-blue-100 rounded-lg">
+                        <div className="text-blue-600 mb-2">
+                          <Users className="h-5 w-5" />
+                        </div>
+                        <h4 className="font-medium">Audience Fit</h4>
+                        <div className="flex items-center gap-2 mt-1">
+                          <div className="bg-blue-200 h-2 rounded-full w-full">
+                            <div className="bg-blue-500 h-2 rounded-full w-[92%]"></div>
+                          </div>
+                          <span className="text-sm font-medium text-blue-700">92%</span>
+                        </div>
+                        <p className="text-xs text-blue-800 mt-2">
+                          Content aligns well with your target audience.
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <Alert className="bg-gray-50">
+                      <Sparkles className="h-4 w-4" />
+                      <AlertTitle>AI-Powered Suggestions</AlertTitle>
+                      <AlertDescription className="text-sm">
+                        <ul className="list-disc pl-5 space-y-1 mt-2">
+                          <li>Add more personalization to improve engagement</li>
+                          <li>Your subject line could be more compelling</li>
+                          <li>Consider adding social media links at the bottom</li>
+                        </ul>
+                      </AlertDescription>
+                    </Alert>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
-};
-
-export default EmailPreview;
+}
