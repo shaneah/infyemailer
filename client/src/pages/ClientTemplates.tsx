@@ -1034,9 +1034,9 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
       {/* Import Template Modal */}
       {showImportModal && (
         <ImportTemplateModal 
-          isOpen={showImportModal} 
-          onClose={() => setShowImportModal(false)}
-          onSuccess={handleImportSuccess}
+          open={showImportModal} 
+          onOpenChange={() => setShowImportModal(false)}
+          onImportSuccess={handleImportSuccess}
         />
       )}
     </div>

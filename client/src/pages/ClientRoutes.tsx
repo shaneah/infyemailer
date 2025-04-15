@@ -1979,7 +1979,7 @@ export default function ClientRoutes() {
           <CreateListModal isOpen={showCreateListModal} onClose={() => setShowCreateListModal(false)} />
         }
         {showCreateTemplateModal && 
-          <CreateTemplateModal isOpen={showCreateTemplateModal} onClose={() => setShowCreateTemplateModal(false)} />
+          <CreateTemplateModal open={showCreateTemplateModal} onOpenChange={() => setShowCreateTemplateModal(false)} />
         }
       </main>
     </div>
