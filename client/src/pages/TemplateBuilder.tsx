@@ -530,37 +530,129 @@ export default function TemplateBuilder() {
                         </div>
                         
                         {section.type === 'text' && (
-                          <div 
-                            className="p-2 min-h-[50px] bg-gray-50 rounded"
-                            contentEditable
-                            suppressContentEditableWarning
-                            onBlur={(e) => {
-                              const updatedSections = emailSections.map(s => 
-                                s.id === section.id ? {...s, content: e.target.textContent} : s
-                              );
-                              setEmailSections(updatedSections);
-                            }}
-                          >
-                            {section.content}
+                          <div className="relative">
+                            <div 
+                              className="p-2 min-h-[50px] bg-gray-50 rounded border border-gray-200 focus:border-blue-300 outline-none"
+                              contentEditable={true}
+                              suppressContentEditableWarning={true}
+                              onBlur={(e) => {
+                                const updatedSections = emailSections.map(s => 
+                                  s.id === section.id ? {...s, content: e.target.innerHTML} : s
+                                );
+                                setEmailSections(updatedSections);
+                                console.log("Text updated:", e.target.innerHTML);
+                              }}
+                              onClick={(e) => {
+                                // Ensure the div is focused for editing
+                                e.currentTarget.focus();
+                              }}
+                            >
+                              {section.content}
+                            </div>
+                            <div className="text-xs text-gray-500 mt-1">Click to edit text</div>
                           </div>
                         )}
                         
                         {section.type === 'image' && (
-                          <div className="bg-gray-50 p-2 rounded">
-                            <img src={section.content} alt="Template content" className="max-w-full h-auto" />
+                          <div className="bg-gray-50 p-2 rounded border border-gray-200">
+                            <div className="flex flex-col items-center">
+                              <img src={section.content} alt="Template content" className="max-w-full h-auto mb-2" />
+                              <div className="w-full mt-2">
+                                <Input
+                                  type="text"
+                                  placeholder="Enter image URL"
+                                  defaultValue={section.content}
+                                  className="text-sm mb-2"
+                                  onChange={(e) => {
+                                    const updatedSections = emailSections.map(s => 
+                                      s.id === section.id ? {...s, content: e.target.value} : s
+                                    );
+                                    setEmailSections(updatedSections);
+                                  }}
+                                />
+                                <div className="flex justify-between">
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm"
+                                    className="text-xs w-full"
+                                    onClick={() => {
+                                      // This would typically trigger a file upload dialog
+                                      // For now, just alert the user about how it would work
+                                      alert("In a production environment, this would open a file upload dialog to select an image from your computer.");
+                                    }}
+                                  >
+                                    <ImageIcon className="h-3 w-3 mr-1" />
+                                    Upload Image
+                                  </Button>
+                                </div>
+                              </div>
+                            </div>
                           </div>
                         )}
                         
                         {section.type === 'button' && (
-                          <div className="flex justify-center p-2">
-                            <button className="px-4 py-2 bg-blue-600 text-white rounded">
-                              {section.content}
-                            </button>
+                          <div className="flex flex-col p-2">
+                            <div className="flex justify-center mb-3">
+                              <button className="px-4 py-2 bg-blue-600 text-white rounded">
+                                {section.content}
+                              </button>
+                            </div>
+                            <div className="space-y-2">
+                              <div className="flex items-center">
+                                <Label htmlFor={`button-text-${section.id}`} className="text-xs w-24">Button Text:</Label>
+                                <Input
+                                  id={`button-text-${section.id}`}
+                                  type="text"
+                                  placeholder="Button Text"
+                                  defaultValue={section.content}
+                                  className="text-sm h-8"
+                                  onChange={(e) => {
+                                    const updatedSections = emailSections.map(s => 
+                                      s.id === section.id ? {...s, content: e.target.value} : s
+                                    );
+                                    setEmailSections(updatedSections);
+                                  }}
+                                />
+                              </div>
+                              <div className="flex items-center">
+                                <Label htmlFor={`button-link-${section.id}`} className="text-xs w-24">Button Link:</Label>
+                                <Input
+                                  id={`button-link-${section.id}`}
+                                  type="text"
+                                  placeholder="https://example.com"
+                                  defaultValue="#"
+                                  className="text-sm h-8"
+                                />
+                              </div>
+                            </div>
                           </div>
                         )}
                         
                         {section.type === 'spacer' && (
-                          <div style={{ height: section.content.height }} className="bg-gray-50"></div>
+                          <div className="p-2">
+                            <div style={{ height: section.content.height }} className="bg-gray-200 w-full"></div>
+                            <div className="mt-2">
+                              <div className="flex items-center">
+                                <Label htmlFor={`spacer-height-${section.id}`} className="text-xs w-24">Height (px):</Label>
+                                <Input
+                                  id={`spacer-height-${section.id}`}
+                                  type="number"
+                                  min="1"
+                                  max="200"
+                                  placeholder="Height in pixels"
+                                  defaultValue={section.content.height ? parseInt(section.content.height) : 20}
+                                  className="text-sm h-8 w-24"
+                                  onChange={(e) => {
+                                    const height = `${e.target.value}px`;
+                                    const updatedSections = emailSections.map(s => 
+                                      s.id === section.id ? {...s, content: { height }} : s
+                                    );
+                                    setEmailSections(updatedSections);
+                                  }}
+                                />
+                              </div>
+                            </div>
+                          </div>
                         )}
                       </div>
                     ))}
