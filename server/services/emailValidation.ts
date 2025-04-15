@@ -6,8 +6,9 @@ import {
   EmailValidationResult,
   isDisposableEmail
 } from "../../shared/validation";
-import { getStorage } from "../storageManager";
-const storage = getStorage();
+import { dbStorage } from "../dbStorage";
+import { eq } from "drizzle-orm";
+import { contacts } from "../../shared/schema";
 
 // Make DNS lookups async
 const resolveMx = promisify(dns.resolveMx);
@@ -79,7 +80,8 @@ export class EmailValidationService {
       return { hasTypos: true, suggestion: correctedEmail };
     }
     
-    // Check for close matches using simple comparison
+    // Check for close matches using Levenshtein distance (simplified)
+    // This could be enhanced with a full Levenshtein implementation
     for (const [typo, correction] of Object.entries(commonTypos)) {
       if (domain.length > 3 && 
          (typo.includes(domain) || domain.includes(typo)) && 
@@ -115,25 +117,24 @@ export class EmailValidationService {
       };
     }
     
-    // Check MX records to see if the domain can actually receive email
-    let hasMxRecords = true;
+    // Check if domain has MX records (optional, can be removed if performance is a concern)
     try {
-      hasMxRecords = await this.checkDomainMxRecords(domain);
+      const hasMxRecords = await this.checkDomainMxRecords(domain);
       if (!hasMxRecords) {
         return {
           isValid: false,
           normalizedEmail,
-          error: `Domain ${domain} does not have valid mail servers`
+          error: `Domain ${domain} does not have valid MX records, emails cannot be delivered to this address`
         };
       }
     } catch (error) {
-      console.error(`MX record check failed for ${domain}:`, error);
-      // Continue processing even if MX check fails to avoid false negatives
+      // If MX check fails, we still consider the email valid
+      console.error(`MX check failed for ${domain}:`, error);
     }
-    
+
     // Check if the email already exists in the database
     try {
-      const existingContact = await storage.getContactByEmail(normalizedEmail);
+      const existingContact = await dbStorage.getContactByEmail(normalizedEmail);
       if (existingContact) {
         return { 
           isValid: false, 
@@ -174,14 +175,51 @@ export class EmailValidationService {
               emailCounts.get(email) === 1 // Keep only the first occurrence
     );
     
-    // For now, we'll skip database checks to ensure the API is responsive
+    // Check for existing emails in the database
+    const existingEmails: string[] = [];
+    
+    // We'll batch this in groups of 50 to avoid overloading the database
+    const batchSize = 50;
+    for (let i = 0; i < uniqueValidEmails.length; i += batchSize) {
+      const batch = uniqueValidEmails.slice(i, i + batchSize);
+      
+      // Check each email in the batch against the database
+      const existingBatch = await Promise.all(
+        batch.map(async (email) => {
+          try {
+            const contact = await dbStorage.getContactByEmail(email);
+            return contact ? email : null;
+          } catch (error) {
+            console.error(`Database check failed for ${email}:`, error);
+            return null;
+          }
+        })
+      );
+      
+      // Add existing emails to our list
+      existingBatch.forEach(email => {
+        if (email) existingEmails.push(email);
+      });
+    }
+    
+    // Add existing emails to our duplicates list
+    existingEmails.forEach(email => {
+      if (!duplicateEmails.includes(email)) {
+        duplicateEmails.push(email);
+      }
+    });
+    
+    // Final valid emails are those not in duplicates list
+    const finalValidEmails = uniqueValidEmails.filter(
+      email => !existingEmails.includes(email)
+    );
     
     return {
-      validCount: uniqueValidEmails.length,
+      validCount: finalValidEmails.length,
       invalidCount: initialValidation.invalidEmails.length,
       duplicateCount: duplicateEmails.length,
       totalProcessed: emails.length,
-      validEmails: uniqueValidEmails,
+      validEmails: finalValidEmails,
       invalidEmails: initialValidation.invalidEmails,
       duplicateEmails
     };
@@ -191,7 +229,6 @@ export class EmailValidationService {
    * Performs a comprehensive health check on the provided email
    */
   static async checkEmailHealth(email: string): Promise<EmailHealthResult> {
-    // First do basic validation
     const result = validateAndCleanEmail(email);
     
     if (!result.isValid) {
@@ -211,37 +248,35 @@ export class EmailValidationService {
     // Check for disposable email
     const disposable = isDisposableEmail(normalizedEmail);
     
-    // Check for typos
-    const typoCheck = this.checkForTypos(normalizedEmail);
+    // Check for duplicate in database
+    let isDuplicate = false;
+    try {
+      const existing = await dbStorage.getContactByEmail(normalizedEmail);
+      isDuplicate = !!existing;
+    } catch (error) {
+      console.error(`Database check failed for ${email}:`, error);
+    }
     
-    // Check MX records - this is an expensive operation but critical for validation
-    let hasMxRecords = true;
+    // Check for MX records
+    let hasMxRecords = false;
     try {
       hasMxRecords = await this.checkDomainMxRecords(domain);
     } catch (error) {
-      console.error(`Failed to check MX records for ${domain}:`, error);
-      // Default to true to avoid false negatives
-      hasMxRecords = true;
+      console.error(`MX check failed for ${domain}:`, error);
     }
     
-    // Default duplicate check to false to keep response fast
-    const isDuplicate = false;
+    // Check for typos
+    const typoCheck = this.checkForTypos(normalizedEmail);
     
     // Build the result
     const details = [];
+    if (!hasMxRecords) details.push(`Domain ${domain} doesn't have valid MX records`);
     if (disposable) details.push(`${domain} is a disposable email domain`);
+    if (isDuplicate) details.push(`Email already exists in the database`);
     if (typoCheck.hasTypos) details.push(`Possible typo in domain - suggested: ${typoCheck.suggestion}`);
-    if (!hasMxRecords) details.push(`Domain ${domain} does not have valid mail servers`);
-    
-    // For UI consistency, an email is considered valid if it has:
-    // 1. Correct syntax
-    // 2. MX records (can actually receive mail)
-    // 3. Is not a disposable email 
-    // 4. Has no obvious typos
-    const isValid = hasMxRecords && !disposable && !typoCheck.hasTypos;
     
     return {
-      isValid,
+      isValid: hasMxRecords && !disposable && !isDuplicate && !typoCheck.hasTypos,
       hasMxRecords,
       isDisposable: disposable,
       isDuplicate,

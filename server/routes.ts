@@ -32,7 +32,6 @@ import { registerClientProviderRoutes } from "./routes/clientProviders";
 import { registerTestEmailRoutes } from "./routes/testEmail";
 import { registerHealthRoutes } from "./routes/health";
 import { registerEmailSettingsRoutes } from "./routes/emailSettings";
-import { registerEmailValidationRoutes } from "./routes/emailValidation";
 import AdmZip from "adm-zip";
 import { 
   insertContactSchema, 
@@ -92,9 +91,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Register email settings routes
   registerEmailSettingsRoutes(app);
-  
-  // Register email validation routes
-  registerEmailValidationRoutes(app);
   
   // Register heat maps routes
   app.use('/api/heat-maps', heatMapsRoutes);
