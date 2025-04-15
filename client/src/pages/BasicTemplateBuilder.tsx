@@ -156,9 +156,20 @@ export default function BasicTemplateBuilder() {
           html += `<img src="${section.content}" alt="Email image" />`;
           break;
         case "button":
+          let buttonText = section.content;
+          let buttonUrl = "#";
+          
+          try {
+            const buttonData = JSON.parse(section.content);
+            if (buttonData.text) buttonText = buttonData.text;
+            if (buttonData.url) buttonUrl = buttonData.url;
+          } catch (e) {
+            // If not valid JSON, use content as button text with default URL
+          }
+          
           html += `
             <div class="button-container">
-              <a href="#" class="button">${section.content}</a>
+              <a href="${buttonUrl}" class="button">${buttonText}</a>
             </div>
           `;
           break;
@@ -289,7 +300,7 @@ export default function BasicTemplateBuilder() {
         defaultValue="editor"
         value={activeTab}
         onValueChange={setActiveTab}
-        className="flex-1 flex flex-col"
+        className="flex-1 flex flex-col overflow-hidden"
       >
         <div className="bg-gray-50 px-4 border-b">
           <TabsList className="h-10">
@@ -299,7 +310,7 @@ export default function BasicTemplateBuilder() {
         </div>
         
         <TabsContent value="editor" className="flex-1 overflow-auto p-6">
-          <div className="mx-auto max-w-3xl">
+          <div className="mx-auto max-w-3xl overflow-visible">
             {/* Template Details */}
             <Card className="mb-6 border-blue-100 shadow-sm">
               <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-blue-100 pb-4">
@@ -469,12 +480,54 @@ export default function BasicTemplateBuilder() {
                             
                             {section.type === "image" && (
                               <div className="space-y-4">
-                                <Input
-                                  value={section.content}
-                                  onChange={(e) => updateSectionContent(section.id, e.target.value)}
-                                  placeholder="Enter image URL"
-                                  className="focus-visible:ring-blue-300 border-blue-200"
-                                />
+                                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                  <div>
+                                    <Label htmlFor={`image-url-${section.id}`} className="text-sm font-medium text-gray-700 mb-1 block">
+                                      Image URL
+                                    </Label>
+                                    <Input
+                                      id={`image-url-${section.id}`}
+                                      value={section.content}
+                                      onChange={(e) => updateSectionContent(section.id, e.target.value)}
+                                      placeholder="Enter image URL"
+                                      className="focus-visible:ring-blue-300 border-blue-200"
+                                    />
+                                  </div>
+                                  <div>
+                                    <Label htmlFor={`image-upload-${section.id}`} className="text-sm font-medium text-gray-700 mb-1 block">
+                                      Upload Image
+                                    </Label>
+                                    <div className="flex items-center gap-2">
+                                      <Button 
+                                        type="button"
+                                        variant="outline"
+                                        onClick={() => document.getElementById(`file-upload-${section.id}`)?.click()}
+                                        className="w-full border-blue-200 text-blue-700 hover:bg-blue-50"
+                                      >
+                                        Choose File
+                                      </Button>
+                                      <input 
+                                        type="file" 
+                                        id={`file-upload-${section.id}`}
+                                        accept="image/*"
+                                        className="hidden"
+                                        onChange={(e) => {
+                                          const file = e.target.files?.[0];
+                                          if (file) {
+                                            const reader = new FileReader();
+                                            reader.onload = (event) => {
+                                              if (event.target?.result) {
+                                                updateSectionContent(section.id, event.target.result as string);
+                                              }
+                                            };
+                                            reader.readAsDataURL(file);
+                                          }
+                                        }}
+                                      />
+                                    </div>
+                                  </div>
+                                </div>
+                                
                                 <div className="bg-gray-50 border rounded-md p-2">
                                   <img
                                     src={section.content}
@@ -491,15 +544,56 @@ export default function BasicTemplateBuilder() {
                             
                             {section.type === "button" && (
                               <div className="space-y-4">
-                                <Input
-                                  value={section.content}
-                                  onChange={(e) => updateSectionContent(section.id, e.target.value)}
-                                  placeholder="Enter button text"
-                                  className="focus-visible:ring-blue-300 border-blue-200"
-                                />
+                                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                  <div>
+                                    <Label htmlFor={`button-text-${section.id}`} className="text-sm font-medium text-gray-700 mb-1 block">
+                                      Button Text
+                                    </Label>
+                                    <Input
+                                      id={`button-text-${section.id}`}
+                                      value={section.content}
+                                      onChange={(e) => updateSectionContent(section.id, e.target.value)}
+                                      placeholder="Enter button text"
+                                      className="focus-visible:ring-blue-300 border-blue-200"
+                                    />
+                                  </div>
+                                  <div>
+                                    <Label htmlFor={`button-url-${section.id}`} className="text-sm font-medium text-gray-700 mb-1 block">
+                                      Button URL
+                                    </Label>
+                                    <Input
+                                      id={`button-url-${section.id}`}
+                                      type="url"
+                                      placeholder="https://example.com"
+                                      className="focus-visible:ring-blue-300 border-blue-200"
+                                      onChange={(e) => {
+                                        const buttonData = {
+                                          text: section.content,
+                                          url: e.target.value
+                                        };
+                                        updateSectionContent(section.id, JSON.stringify(buttonData));
+                                      }}
+                                      value={(() => {
+                                        try {
+                                          const data = JSON.parse(section.content);
+                                          return data.url || '';
+                                        } catch {
+                                          return '';
+                                        }
+                                      })()}
+                                    />
+                                  </div>
+                                </div>
                                 <div className="flex justify-center">
-                                  <div className="bg-[#d4af37] text-white px-4 py-2 rounded">
-                                    {section.content}
+                                  <div className="bg-[#d4af37] text-white px-6 py-3 rounded font-medium hover:bg-[#c4a027] transition-colors cursor-pointer">
+                                    {(() => {
+                                      try {
+                                        const data = JSON.parse(section.content);
+                                        return data.text;
+                                      } catch {
+                                        return section.content;
+                                      }
+                                    })()}
                                   </div>
                                 </div>
                               </div>
