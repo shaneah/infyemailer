@@ -326,11 +326,18 @@ export default function ClientDashboard() {
                     <Button 
                       variant="ghost" 
                       size="sm" 
-                      className="text-[#d4af37] hover:bg-[#d4af37]/10 border border-[#d4af37]/30 rounded-full px-4 flex items-center gap-1"
+                      className="text-[#d4af37] hover:bg-[#d4af37]/15 border border-[#d4af37]/30 rounded-full px-4 flex items-center gap-2 transition-all duration-300 hover:shadow-md hover:shadow-[#d4af37]/20 hover:scale-105 group"
                       onClick={() => setLocation('/email-performance-dashboard')}
                     >
-                      <Sparkles className="h-3.5 w-3.5" />
-                      <span>Advanced View</span>
+                      <div className="relative">
+                        <Activity className="h-3.5 w-3.5 group-hover:opacity-0 transition-opacity duration-300" />
+                        <Sparkles className="h-3.5 w-3.5 absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      </div>
+                      <span>Real-Time Dashboard</span>
+                      <div className="relative h-2 w-2">
+                        <span className="absolute inset-0 h-2 w-2 rounded-full bg-[#d4af37]"></span>
+                        <span className="absolute inset-0 h-2 w-2 rounded-full bg-[#d4af37] opacity-60 animate-ping"></span>
+                      </div>
                     </Button>
                   </div>
                   <CardDescription className="text-white/70 font-medium">

@@ -473,8 +473,20 @@ export default function EmailPerformanceDashboard() {
                     </div>
                   </div>
                   <div className="flex items-center">
-                    <span className={`inline-flex h-3 w-3 rounded-full mr-2 ${isRealtime ? 'bg-green-500 animate-pulse' : 'bg-gray-500'}`}></span>
-                    <span className="text-sm text-white/70">{isRealtime ? 'Live data' : 'Paused'}</span>
+                    <div className="relative mr-2">
+                      <span className={`inline-flex h-3 w-3 rounded-full ${isRealtime ? 'bg-[#d4af37]' : 'bg-gray-500'}`}></span>
+                      {isRealtime && (
+                        <span className="absolute inset-0 h-3 w-3 rounded-full bg-[#d4af37] animate-ping"></span>
+                      )}
+                    </div>
+                    <span className={`text-sm ${isRealtime ? 'text-[#d4af37] font-medium' : 'text-white/70'}`}>
+                      {isRealtime ? 'Live data' : 'Paused'}
+                    </span>
+                    {isRealtime && (
+                      <div className="ml-2 px-2 py-0.5 bg-[#d4af37]/20 rounded-full border border-[#d4af37]/40">
+                        <span className="text-xs text-[#d4af37] font-medium">Realtime</span>
+                      </div>
+                    )}
                   </div>
                 </div>
               </CardHeader>
