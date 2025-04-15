@@ -135,6 +135,20 @@ const DragAndDropTemplateBuilder = () => {
     },
   });
 
+  // Save current state to history
+  const saveToHistory = useCallback((newBlocks: BlockItem[]) => {
+    // Clone blocks to avoid reference issues
+    const blocksToSave = JSON.parse(JSON.stringify(newBlocks));
+    
+    // If we're not at the end of the history, remove everything after current index
+    if (historyIndex < history.length - 1) {
+      setHistory(prev => prev.slice(0, historyIndex + 1));
+    }
+    
+    setHistory(prev => [...prev, blocksToSave]);
+    setHistoryIndex(prev => prev + 1);
+  }, [history, historyIndex]);
+
   // Initialize template data
   useEffect(() => {
     if (data) {
@@ -160,20 +174,6 @@ const DragAndDropTemplateBuilder = () => {
       }
     }
   }, [data, saveToHistory]);
-
-  // Save current state to history
-  const saveToHistory = useCallback((newBlocks: BlockItem[]) => {
-    // Clone blocks to avoid reference issues
-    const blocksToSave = JSON.parse(JSON.stringify(newBlocks));
-    
-    // If we're not at the end of the history, remove everything after current index
-    if (historyIndex < history.length - 1) {
-      setHistory(prev => prev.slice(0, historyIndex + 1));
-    }
-    
-    setHistory(prev => [...prev, blocksToSave]);
-    setHistoryIndex(prev => prev + 1);
-  }, [history, historyIndex]);
 
   // Undo action
   const handleUndo = useCallback(() => {

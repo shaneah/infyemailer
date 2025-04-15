@@ -653,6 +653,18 @@ export default function Templates() {
                         <Eye className="h-4 w-4 mr-1.5 text-blue-600" />
                         Preview
                       </Button>
+                      <Button 
+                        variant="secondary" 
+                        size="sm"
+                        className="shadow-md bg-white/90 backdrop-blur-sm hover:bg-white"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleShareTemplate(template.id);
+                        }}
+                      >
+                        <Share2 className="h-4 w-4 mr-1.5 text-blue-600" />
+                        Share
+                      </Button>
                       <Link 
                         href={`/template-builder?id=${template.id}`}
                         onClick={(e) => e.stopPropagation()}
@@ -858,6 +870,15 @@ export default function Templates() {
                             <DropdownMenuItem
                               onClick={(e) => {
                                 e.stopPropagation();
+                                handleShareTemplate(template.id);
+                              }}
+                            >
+                              <Share2 className="h-4 w-4 mr-2" />
+                              Share Template
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={(e) => {
+                                e.stopPropagation();
                                 window.navigator.clipboard.writeText(template.content);
                                 toast({
                                   title: "HTML code copied",
@@ -1000,6 +1021,15 @@ export default function Templates() {
                         Use In Campaign
                       </Button>
                     </Link>
+                    
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start gap-2 border-primary/20"
+                      onClick={() => handleShareTemplate(selectedTemplate.id)}
+                    >
+                      <Share2 className="h-4 w-4" />
+                      Share Template
+                    </Button>
                     
                     <Button
                       variant="outline"
