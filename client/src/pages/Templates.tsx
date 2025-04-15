@@ -499,14 +499,7 @@ export default function Templates() {
               <Import className="h-4 w-4" /> 
               Import Template
             </Button>
-            <Button 
-              variant="outline"
-              className="gap-2 border-blue-200 text-blue-600 hover:bg-blue-50 hover:text-blue-700 transition-colors flex-1 sm:flex-none"
-              onClick={() => navigate('/drag-drop-builder')}
-            >
-              <PlusCircle className="h-4 w-4" /> 
-              New Drag & Drop Template
-            </Button>
+
           </div>
         </div>
 
@@ -623,14 +616,7 @@ export default function Templates() {
                 <Import className="h-4 w-4" /> 
                 Import Template
               </Button>
-              <Button 
-                variant="outline"
-                className="gap-2 border-blue-200 bg-white shadow-sm"
-                onClick={() => navigate('/drag-drop-builder')}
-              >
-                <PlusCircle className="h-4 w-4" /> 
-                Try Drag & Drop Builder
-              </Button>
+
             </div>
           </div>
         ) : (

@@ -122,21 +122,7 @@ export default function CreateTemplateDialog({
                       Select the easiest way to create your email template
                     </p>
                     
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                      <div 
-                        className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm hover:shadow-md hover:border-blue-300 transition-all cursor-pointer flex flex-col items-center text-center"
-                        onClick={() => {
-                          onOpenChange(false);
-                          window.open('/template-builder', '_blank');
-                        }}
-                      >
-                        <div className="bg-blue-50 rounded-full p-3 mb-2">
-                          <Pencil className="h-5 w-5 text-blue-600" />
-                        </div>
-                        <span className="font-medium text-gray-800 mb-1">Visual Builder</span>
-                        <p className="text-xs text-gray-600">Drag-and-drop interface to create beautiful templates</p>
-                      </div>
-                      
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div 
                         className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm hover:shadow-md hover:border-blue-300 transition-all cursor-pointer flex flex-col items-center text-center"
                         onClick={() => {
