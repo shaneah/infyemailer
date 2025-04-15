@@ -1,5 +1,6 @@
 import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
+import { WebSocketServer, WebSocket } from 'ws';
 import { getStorage } from "./storageManager"; // Use dynamic storage selection
 const storage = getStorage();
 import { isDatabaseAvailable, db } from "./db"; // Import db and check if database is available
@@ -68,8 +69,13 @@ function validate<T>(schema: any, data: any): T | { error: string } {
   }
 }
 
+import { initRealTimeMetrics } from './services/realTimeMetricsService';
+
 export async function registerRoutes(app: Express): Promise<Server> {
   const httpServer = createServer(app);
+  
+  // Initialize real-time metrics service with WebSocket support
+  initRealTimeMetrics(httpServer);
   
   // Set up authentication
   setupAuth(app);
