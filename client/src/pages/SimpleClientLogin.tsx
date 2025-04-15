@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 import { useLocation } from 'wouter';
 import { useToast } from '@/hooks/use-toast';
-import Logo from '@/assets/Logo-white.png';
+import { Lock, Mail, Eye, EyeOff, ChevronRight } from 'lucide-react';
+import LogoWhite from '@/assets/Logo-white.png';
+import LogoColor from '@/assets/infinity-tech-logo.png';
 
 const SimpleClientLogin = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [location, setLocation] = useLocation();
   const { toast } = useToast();
 
@@ -76,74 +79,142 @@ const SimpleClientLogin = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-teal-500/20 to-sky-500/20">
-      <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-xl shadow-xl">
-        <div className="text-center">
-          <img src={Logo} alt="InfyMailer Logo" className="h-12 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-gray-900">Client Login</h2>
-          <p className="mt-2 text-sm text-gray-600">Sign in to access your client dashboard</p>
-        </div>
+    <div className="min-h-screen flex flex-col relative overflow-hidden bg-gradient-to-br from-[#1a3a5f]/90 via-[#1a3a5f] to-[#0d2137]">
+      {/* Background decorative elements */}
+      <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
+        {/* Gold shimmer effect */}
+        <div className="absolute top-[-10%] left-[20%] w-[70%] h-[40%] rounded-full bg-gradient-to-br from-[#d4af37]/20 to-transparent blur-3xl opacity-70"></div>
+        <div className="absolute bottom-[-5%] right-[10%] w-[50%] h-[40%] rounded-full bg-gradient-to-tl from-[#d4af37]/15 to-transparent blur-3xl opacity-60"></div>
         
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div>
-            <label htmlFor="username" className="block text-sm font-medium text-gray-700">
-              Username
-            </label>
-            <input
-              id="username"
-              name="username"
-              type="text"
-              required
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
-              placeholder="Enter your username"
-            />
-          </div>
-          
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-              Password
-            </label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
-              placeholder="••••••••"
-            />
-          </div>
-          
-          <div>
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isLoading ? 'Signing in...' : 'Sign in'}
-            </button>
-          </div>
-          
-          <div className="bg-teal-50 p-3 rounded-md text-xs">
-            <p className="font-semibold text-center text-teal-800 mb-1">Demo Credentials:</p>
-            <p className="text-center text-teal-700">Username: <strong>client1</strong> | Password: <strong>clientdemo</strong></p>
-          </div>
-        </form>
+        {/* Subtle pattern overlay */}
+        <div className="absolute inset-0 opacity-5" 
+             style={{
+               backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'20\' height=\'20\' viewBox=\'0 0 20 20\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'%23d4af37\' fill-opacity=\'0.4\'%3E%3Cpolygon points=\'0 0 10 0 0 10\'/%3E%3Cpolygon points=\'20 0 20 10 10 0\'/%3E%3Cpolygon points=\'0 20 0 10 10 20\'/%3E%3Cpolygon points=\'10 20 20 20 20 10\'/%3E%3C/g%3E%3C/svg%3E")',
+               backgroundSize: '20px 20px'
+             }}
+        ></div>
         
-        <div className="mt-4 text-center">
-          <a
-            href="#"
-            onClick={(e) => {
-              e.preventDefault();
-              setLocation('auth');
-            }}
-            className="text-sm text-teal-600 hover:text-teal-500"
-          >
-            Switch to Admin Login
-          </a>
+        {/* Gold particle effects */}
+        <div className="absolute top-1/4 left-1/3 w-1 h-1 rounded-full bg-[#d4af37]/70 animate-pulse" style={{animationDuration: '3s'}}></div>
+        <div className="absolute top-2/3 left-1/5 w-2 h-2 rounded-full bg-[#d4af37]/50 animate-pulse" style={{animationDuration: '5s'}}></div>
+        <div className="absolute top-1/2 right-1/4 w-1.5 h-1.5 rounded-full bg-[#d4af37]/60 animate-pulse" style={{animationDuration: '4s'}}></div>
+        <div className="absolute bottom-1/3 right-1/3 w-2 h-2 rounded-full bg-[#d4af37]/50 animate-pulse" style={{animationDuration: '6s'}}></div>
+      </div>
+      
+      <div className="flex-1 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 z-10">
+        <div className="max-w-md w-full">
+          <div className="bg-[#f5f0e1] p-8 rounded-2xl shadow-2xl overflow-hidden border border-[#d4af37]/20">
+            <div className="text-center">
+              <img src={LogoColor} alt="InfyMailer Logo" className="h-16 mx-auto mb-6" />
+              <h2 className="text-3xl font-extrabold text-[#1a3a5f] mb-1">
+                Client Portal
+              </h2>
+              <p className="text-sm text-[#1a3a5f]/70">
+                Sign in to access your premium email marketing dashboard
+              </p>
+            </div>
+            
+            <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+              <div>
+                <label htmlFor="username" className="text-[#1a3a5f] font-medium text-sm block mb-2">
+                  Username
+                </label>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#1a3a5f]/60">
+                    <Mail className="h-4 w-4" />
+                  </span>
+                  <input
+                    id="username"
+                    name="username"
+                    type="text"
+                    required
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    className="pl-10 block w-full border border-[#d4af37]/30 bg-white rounded-lg py-2 px-3 focus:outline-none focus:ring-1 focus:ring-[#d4af37]/50 focus:border-[#d4af37] text-[#1a3a5f]"
+                    placeholder="Enter your username"
+                  />
+                </div>
+              </div>
+              
+              <div>
+                <label htmlFor="password" className="text-[#1a3a5f] font-medium text-sm block mb-2">
+                  Password
+                </label>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#1a3a5f]/60">
+                    <Lock className="h-4 w-4" />
+                  </span>
+                  <input
+                    id="password"
+                    name="password"
+                    type={showPassword ? "text" : "password"}
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="pl-10 pr-10 block w-full border border-[#d4af37]/30 bg-white rounded-lg py-2 px-3 focus:outline-none focus:ring-1 focus:ring-[#d4af37]/50 focus:border-[#d4af37] text-[#1a3a5f]"
+                    placeholder="••••••••"
+                  />
+                  <button 
+                    type="button"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#1a3a5f]/60 hover:text-[#1a3a5f]"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
+              </div>
+              
+              <div>
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full py-2.5 bg-gradient-to-r from-[#d4af37] to-[#b8860b] hover:from-[#b8860b] hover:to-[#d4af37] text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center border border-[#d4af37]/50"
+                >
+                  {isLoading ? (
+                    <>
+                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Logging in...
+                    </>
+                  ) : (
+                    <span className="flex items-center">
+                      Sign In <ChevronRight className="ml-1 h-4 w-4" />
+                    </span>
+                  )}
+                </button>
+              </div>
+              
+              <div className="bg-[#d4af37]/10 rounded-lg p-4 text-xs text-[#1a3a5f]/80 text-center border border-[#d4af37]/20">
+                <p className="mb-1 font-medium text-[#1a3a5f]">For demonstration purposes:</p>
+                <p>Username: <strong>client1</strong> | Password: <strong>clientdemo</strong></p>
+              </div>
+            </form>
+            
+            <div className="mt-6 text-sm text-center">
+              <p className="text-[#1a3a5f]/70 mb-2">
+                Only authorized users with client credentials can access this portal.
+                <br />Contact your account manager if you need assistance.
+              </p>
+              <a 
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setLocation('auth');
+                }}
+                className="font-medium text-[#1a3a5f] hover:text-[#d4af37] transition-colors duration-200"
+              >
+                Switch to Admin Login
+              </a>
+            </div>
+          </div>
+          
+          <div className="mt-4 text-center">
+            <div className="text-white/60 text-sm">
+              &copy; {new Date().getFullYear()} InfyMailer. <span className="px-1 text-[#d4af37]">Premium Client Portal</span> All rights reserved.
+            </div>
+          </div>
         </div>
       </div>
     </div>
