@@ -98,7 +98,10 @@ const DragAndDropTemplateBuilder = () => {
   // Fetch template data if editing existing template
   const { isLoading, error, data } = useQuery<Template>({
     queryKey: ['/api/templates', id],
-    queryFn: id ? undefined : () => Promise.resolve(undefined),
+    queryFn: id ? async () => {
+      const response = await apiRequest('GET', `/api/templates/${id}`);
+      return response.json();
+    } : undefined,
     enabled: !!id,
   });
 
@@ -135,17 +138,18 @@ const DragAndDropTemplateBuilder = () => {
   // Initialize template data
   useEffect(() => {
     if (data) {
+      const templateData = data as Template;
       setTemplate({
-        name: data.name,
-        description: data.description,
-        category: data.category,
-        tags: data.tags,
-        content: data.content,
+        name: templateData.name,
+        description: templateData.description,
+        category: templateData.category,
+        tags: templateData.tags || [],
+        content: templateData.content,
       });
       
       try {
         // Try to parse content as JSON for blocks
-        const content = JSON.parse(data.content);
+        const content = JSON.parse(templateData.content);
         if (Array.isArray(content)) {
           setBlocks(content);
           saveToHistory(content);
@@ -155,7 +159,7 @@ const DragAndDropTemplateBuilder = () => {
         console.error("Failed to parse template content as JSON:", e);
       }
     }
-  }, [data]);
+  }, [data, saveToHistory]);
 
   // Save current state to history
   const saveToHistory = useCallback((newBlocks: BlockItem[]) => {
