@@ -389,6 +389,23 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
                 Import
               </Button>
               <Button 
+                variant="outline"
+                className="shadow-sm gap-2 px-4 border-teal-200 text-teal-700 hover:bg-teal-50"
+                onClick={() => setShowAIGenerator(!showAIGenerator)}
+              >
+                {showAIGenerator ? (
+                  <>
+                    <XCircle className="h-4 w-4" />
+                    Hide AI Generator
+                  </>
+                ) : (
+                  <>
+                    <Wand2 className="h-4 w-4" /> 
+                    AI Template Generator
+                  </>
+                )}
+              </Button>
+              <Button 
                 className="rounded-lg shadow-md gap-2 px-5 bg-gradient-to-r from-teal-600 to-blue-600 hover:from-teal-700 hover:to-blue-700 transition-all"
                 onClick={onCreateTemplate}
               >
