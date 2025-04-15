@@ -1187,6 +1187,160 @@ export default function BasicTemplateBuilder() {
                               </div>
                             )}
                             
+                            {section.type === "accordion" && (
+                              <div className="space-y-4">
+                                <p className="text-sm font-medium text-gray-700 mb-2">
+                                  Accordion Content
+                                </p>
+                                <div>
+                                  <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                                    Accordion Items
+                                  </Label>
+                                  <div className="space-y-3 mb-3">
+                                    {(() => {
+                                      let accordionItems;
+                                      try {
+                                        accordionItems = JSON.parse(section.content);
+                                        if (!Array.isArray(accordionItems)) {
+                                          accordionItems = [
+                                            { title: "Frequently Asked Question 1", content: "This is the answer to question 1." },
+                                            { title: "Frequently Asked Question 2", content: "This is the answer to question 2." },
+                                            { title: "Frequently Asked Question 3", content: "This is the answer to question 3." }
+                                          ];
+                                        }
+                                      } catch {
+                                        accordionItems = [
+                                          { title: "Frequently Asked Question 1", content: "This is the answer to question 1." },
+                                          { title: "Frequently Asked Question 2", content: "This is the answer to question 2." },
+                                          { title: "Frequently Asked Question 3", content: "This is the answer to question 3." }
+                                        ];
+                                      }
+                                      
+                                      return accordionItems.map((item, index) => (
+                                        <div key={index} className="border border-blue-200 rounded-md overflow-hidden">
+                                          <div className="p-3 bg-gradient-to-r from-gray-50 to-blue-50 border-b border-blue-200">
+                                            <Label className="text-sm font-medium text-gray-700 mb-1 block">
+                                              Item {index + 1} Title
+                                            </Label>
+                                            <Input
+                                              placeholder="Question title"
+                                              value={item.title}
+                                              onChange={(e) => {
+                                                const updatedItems = [...accordionItems];
+                                                updatedItems[index].title = e.target.value;
+                                                updateSectionContent(section.id, JSON.stringify(updatedItems));
+                                              }}
+                                              className="focus-visible:ring-blue-300 border-blue-200"
+                                            />
+                                          </div>
+                                          <div className="p-3">
+                                            <Label className="text-sm font-medium text-gray-700 mb-1 block">
+                                              Item {index + 1} Content
+                                            </Label>
+                                            <Textarea
+                                              placeholder="Answer content"
+                                              value={item.content}
+                                              rows={3}
+                                              onChange={(e) => {
+                                                const updatedItems = [...accordionItems];
+                                                updatedItems[index].content = e.target.value;
+                                                updateSectionContent(section.id, JSON.stringify(updatedItems));
+                                              }}
+                                              className="focus-visible:ring-blue-300 border-blue-200"
+                                            />
+                                          </div>
+                                          <div className="px-3 pb-3 flex justify-end">
+                                            <Button
+                                              type="button"
+                                              variant="outline"
+                                              size="sm"
+                                              onClick={() => {
+                                                const updatedItems = accordionItems.filter((_, i) => i !== index);
+                                                updateSectionContent(section.id, JSON.stringify(updatedItems));
+                                              }}
+                                              className="border-red-200 text-red-500 hover:text-red-600 hover:bg-red-50"
+                                            >
+                                              <Trash className="h-4 w-4 mr-1" />
+                                              Remove Item
+                                            </Button>
+                                          </div>
+                                        </div>
+                                      ));
+                                    })()}
+                                  </div>
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={() => {
+                                      let accordionItems;
+                                      try {
+                                        accordionItems = JSON.parse(section.content);
+                                        if (!Array.isArray(accordionItems)) {
+                                          accordionItems = [
+                                            { title: "Frequently Asked Question 1", content: "This is the answer to question 1." },
+                                            { title: "Frequently Asked Question 2", content: "This is the answer to question 2." },
+                                            { title: "Frequently Asked Question 3", content: "This is the answer to question 3." }
+                                          ];
+                                        }
+                                      } catch {
+                                        accordionItems = [
+                                          { title: "Frequently Asked Question 1", content: "This is the answer to question 1." },
+                                          { title: "Frequently Asked Question 2", content: "This is the answer to question 2." },
+                                          { title: "Frequently Asked Question 3", content: "This is the answer to question 3." }
+                                        ];
+                                      }
+                                      
+                                      accordionItems.push({ title: "New Question", content: "Answer goes here." });
+                                      updateSectionContent(section.id, JSON.stringify(accordionItems));
+                                    }}
+                                    className="w-full border-blue-200 text-blue-700 hover:bg-blue-50"
+                                  >
+                                    <Plus className="h-4 w-4 mr-2" />
+                                    Add Accordion Item
+                                  </Button>
+                                </div>
+                                <div className="bg-gray-50 border rounded-md p-4">
+                                  <div className="divide-y">
+                                    {(() => {
+                                      let accordionItems;
+                                      try {
+                                        accordionItems = JSON.parse(section.content);
+                                        if (!Array.isArray(accordionItems)) {
+                                          accordionItems = [
+                                            { title: "Frequently Asked Question 1", content: "This is the answer to question 1." },
+                                            { title: "Frequently Asked Question 2", content: "This is the answer to question 2." },
+                                            { title: "Frequently Asked Question 3", content: "This is the answer to question 3." }
+                                          ];
+                                        }
+                                      } catch {
+                                        accordionItems = [
+                                          { title: "Frequently Asked Question 1", content: "This is the answer to question 1." },
+                                          { title: "Frequently Asked Question 2", content: "This is the answer to question 2." },
+                                          { title: "Frequently Asked Question 3", content: "This is the answer to question 3." }
+                                        ];
+                                      }
+                                      
+                                      return accordionItems.map((item, index) => (
+                                        <div key={index} className="py-3">
+                                          <div className="font-medium text-[#1a3a5f] flex items-center justify-between cursor-pointer">
+                                            {item.title}
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                                          </div>
+                                          <div className="mt-2 text-gray-600 text-sm">
+                                            {index === 0 ? item.content : ""}
+                                          </div>
+                                        </div>
+                                      ));
+                                    })()}
+                                  </div>
+                                </div>
+                                <div className="bg-blue-50 border border-blue-200 rounded-md p-3 text-blue-800 text-sm">
+                                  <p className="font-medium">Note:</p>
+                                  <p>In the actual email, accordion functionality may not be supported by all email clients. Fallback is to show only the first item expanded.</p>
+                                </div>
+                              </div>
+                            )}
+                            
                             {section.type === "menu" && (
                               <div className="space-y-4">
                                 <p className="text-sm font-medium text-gray-700 mb-2">
