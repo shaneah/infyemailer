@@ -1831,6 +1831,80 @@ export default function Templates() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Share Template Dialog */}
+      <Dialog open={isShareDialogOpen} onOpenChange={setIsShareDialogOpen}>
+        <DialogContent className="sm:max-w-[450px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Share2 className="h-5 w-5 text-blue-600" />
+              Share Template
+            </DialogTitle>
+            <DialogDescription>
+              Create a shareable link for this template with customized expiration settings.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-2">
+            <div className="space-y-2">
+              <Label htmlFor="expiration">Link Expiration</Label>
+              <Select value={shareExpiration} onValueChange={setShareExpiration}>
+                <SelectTrigger id="expiration" className="w-full">
+                  <SelectValue placeholder="Select expiration time" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="1">1 day</SelectItem>
+                  <SelectItem value="7">7 days</SelectItem>
+                  <SelectItem value="30">30 days</SelectItem>
+                  <SelectItem value="90">90 days</SelectItem>
+                  <SelectItem value="never">Never expires</SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground mt-1">
+                {shareExpiration === "never" 
+                  ? "This link will never expire and can be accessed indefinitely."
+                  : `This link will expire ${shareExpiration} days after creation.`}
+              </p>
+            </div>
+
+            <div className="bg-blue-50 rounded-md p-3 border border-blue-100">
+              <h4 className="text-sm font-medium text-blue-800 mb-1 flex items-center gap-1.5">
+                <Info className="h-4 w-4" /> 
+                About Template Sharing
+              </h4>
+              <p className="text-xs text-blue-700">
+                Anyone with the link can view and import this template. No account is required to access shared templates.
+              </p>
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button 
+              variant="outline" 
+              onClick={() => setIsShareDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button 
+              className="gap-2"
+              onClick={handleConfirmShare}
+              disabled={shareTemplateMutation.isPending}
+            >
+              {shareTemplateMutation.isPending ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <Link2 className="h-4 w-4" />
+                  Generate Link
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
