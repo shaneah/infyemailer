@@ -78,7 +78,8 @@ export default function CreateTemplateModal({ open, onOpenChange }: CreateTempla
     onOpenChange(false);
     // Slight delay to avoid modal transition issues
     setTimeout(() => {
-      navigate('/client-template-builder');
+      // Navigate to the correct route that's defined in App.tsx
+      window.location.href = '/client-template-builder';
     }, 100);
   };
   
