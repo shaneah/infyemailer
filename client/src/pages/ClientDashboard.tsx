@@ -249,7 +249,7 @@ export default function ClientDashboard() {
               <div className="bg-teal-400/20 p-2 rounded-full mr-3">
                 <Sparkles className="h-6 w-6 text-teal-200" />
               </div>
-              <h2 className="text-3xl font-bold text-white">Your Dashboard</h2>
+              <h2 className="text-3xl font-bold bg-gradient-to-r from-white via-teal-300 to-white inline-block text-transparent bg-clip-text">Your Dashboard</h2>
             </div>
             
             {/* Stats Overview */}
