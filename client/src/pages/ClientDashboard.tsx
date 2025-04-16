@@ -321,11 +321,11 @@ export default function ClientDashboard() {
             {/* Charts */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
               <Card className="col-span-1 backdrop-blur-md bg-white/10 border border-white/10 overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300">
-                <CardHeader className="pb-2 border-b border-white/10">
+                <CardHeader className="pb-2 border-b border-white/10 bg-gradient-to-r from-blue-900/50 to-indigo-800/30">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center">
-                      <div className="h-8 w-8 rounded-full bg-teal-400/20 flex items-center justify-center mr-3">
-                        <BarChart3 className="h-4 w-4 text-teal-200" />
+                      <div className="h-8 w-8 rounded-full bg-blue-500/30 flex items-center justify-center mr-3">
+                        <BarChart3 className="h-4 w-4 text-blue-200" />
                       </div>
                       <CardTitle className="text-xl font-bold text-white">Email Performance</CardTitle>
                     </div>
@@ -387,10 +387,10 @@ export default function ClientDashboard() {
 
               {/* Device Breakdown */}
               <Card className="col-span-1 backdrop-blur-md bg-white/10 border border-white/10 overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300">
-                <CardHeader className="pb-2 border-b border-white/10">
+                <CardHeader className="pb-2 border-b border-white/10 bg-gradient-to-r from-purple-900/50 to-fuchsia-800/30">
                   <div className="flex items-center mb-2">
-                    <div className="h-8 w-8 rounded-full bg-teal-400/20 flex items-center justify-center mr-3">
-                      <PieChart className="h-4 w-4 text-teal-200" />
+                    <div className="h-8 w-8 rounded-full bg-purple-500/30 flex items-center justify-center mr-3">
+                      <PieChart className="h-4 w-4 text-purple-200" />
                     </div>
                     <CardTitle className="text-xl font-bold text-white">Device Breakdown</CardTitle>
                   </div>
@@ -423,8 +423,8 @@ export default function ClientDashboard() {
                               <Cell 
                                 key={`cell-${index}`} 
                                 fill={[
-                                  "#14b8a6", "#0d9488", "#0f766e", 
-                                  "#f0f9ff", "#e0f2fe"
+                                  "#14b8a6", "#6366f1", "#ec4899", 
+                                  "#f59e0b", "#8b5cf6"
                                 ][index % 5]} 
                                 stroke="rgba(10, 25, 41, 0.5)"
                                 strokeWidth={2}
@@ -463,10 +463,10 @@ export default function ClientDashboard() {
 
             {/* Recent Campaigns */}
             <Card className="backdrop-blur-md bg-white/10 border border-white/10 overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300">
-              <CardHeader className="pb-2 border-b border-white/10">
+              <CardHeader className="pb-2 border-b border-white/10 bg-gradient-to-r from-rose-900/50 to-pink-800/30">
                 <div className="flex items-center mb-2">
-                  <div className="h-8 w-8 rounded-full bg-teal-400/20 flex items-center justify-center mr-3">
-                    <Mail className="h-4 w-4 text-teal-200" />
+                  <div className="h-8 w-8 rounded-full bg-rose-500/30 flex items-center justify-center mr-3">
+                    <Mail className="h-4 w-4 text-rose-200" />
                   </div>
                   <CardTitle className="text-xl font-bold text-white">Recent Campaigns</CardTitle>
                 </div>
@@ -479,7 +479,7 @@ export default function ClientDashboard() {
                 <div className="overflow-x-auto">
                   <table className="w-full text-white">
                     <thead>
-                      <tr className="border-b border-white/10 bg-gradient-to-r from-teal-900/40 to-teal-800/20">
+                      <tr className="border-b border-white/10 bg-gradient-to-r from-rose-900/40 to-pink-800/20">
                         <th className="text-left py-3 px-4 font-semibold text-white">Campaign</th>
                         <th className="text-left py-3 px-4 font-semibold text-white">Date</th>
                         <th className="text-left py-3 px-4 font-semibold text-white">Status</th>
@@ -491,7 +491,7 @@ export default function ClientDashboard() {
                       {clientData.recentCampaigns.map((campaign: any) => (
                         <tr 
                           key={campaign.id} 
-                          className="border-b border-white/5 hover:bg-teal-900/30 transition-colors"
+                          className="border-b border-white/5 hover:bg-rose-900/30 transition-colors"
                         >
                           <td className="py-4 px-4 font-medium text-white">
                             {campaign.name}
@@ -502,10 +502,10 @@ export default function ClientDashboard() {
                           <td className="py-4 px-4">
                             <span className={`px-3 py-1.5 rounded-full text-xs font-medium ${
                               campaign.status === "Completed" 
-                                ? "bg-teal-900/60 text-teal-100 border border-teal-700" :
+                                ? "bg-emerald-900/70 text-emerald-100 border border-emerald-600" :
                               campaign.status === "Ongoing" 
-                                ? "bg-blue-900/60 text-blue-100 border border-blue-700" :
-                              "bg-amber-900/60 text-amber-100 border border-amber-700"
+                                ? "bg-indigo-900/70 text-indigo-100 border border-indigo-600" :
+                              "bg-amber-900/70 text-amber-100 border border-amber-600"
                             }`}>
                               {campaign.status}
                             </span>
