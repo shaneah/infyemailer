@@ -143,17 +143,20 @@ const ClientEmailPerformance: React.FC = () => {
   // Using React Query to fetch metrics data
   const { data: metricsData, isLoading: isLoadingMetrics } = useQuery<EmailMetrics>({
     queryKey: ['/api/email-performance/metrics', timeframe, campaignFilter],
+    retry: 3,
   });
   
   // Using React Query to fetch chart data
   const { data: chartData, isLoading: isLoadingCharts } = useQuery<ChartData>({
     queryKey: ['/api/email-performance/charts', timeframe, campaignFilter],
+    retry: 3,
   });
   
   // Using React Query to fetch real-time activity
   const { data: realtimeData } = useQuery<RealtimeActivity[]>({
     queryKey: ['/api/email-performance/realtime'],
     refetchInterval: 30000, // Refetch every 30 seconds
+    retry: 3,
   });
   
   // Sample campaign data
