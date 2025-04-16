@@ -8,7 +8,8 @@ import {
 } from "recharts";
 import { 
   Activity, Inbox, BarChart3, Users, Calendar, MailCheck, Menu, 
-  Sparkles, TrendingUp, Mail, ChevronRight, CircleUser, PieChart 
+  Sparkles, TrendingUp, Mail, ChevronRight, CircleUser, PieChart,
+  Bell, Home, RefreshCw, Download, LogOut
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import ClientSidebar from "@/components/ClientSidebar";
@@ -180,35 +181,81 @@ export default function ClientDashboard() {
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden relative z-10">
         {/* Header */}
-        <header className="bg-white border-b border-gray-200 text-slate-800 relative z-20 shadow-sm">
-          <div className="container mx-auto py-3 px-6">
-            <div className="flex justify-between items-center">
-              <div className="flex items-center gap-4">
-                <Button 
-                  variant="ghost" 
-                  size="lg"
-                  className="lg:hidden text-blue-700 hover:bg-blue-50"
-                  onClick={() => setSidebarOpen(true)}
-                >
-                  <Menu size={22} />
-                </Button>
-                <div className="flex flex-col">
-                  <h1 className="text-xl font-bold text-blue-700">
-                    Dashboard <span className="font-normal text-slate-500">|</span> <span className="text-amber-600">{clientData.company || 'Acme Corporation'}</span>
-                  </h1>
+        <header className="relative z-20">
+          <div className="bg-gradient-to-r from-blue-900 via-blue-800 to-blue-900 border-b border-blue-700">
+            <div className="container mx-auto py-4 px-6 relative overflow-hidden">
+              {/* Decorative elements */}
+              <div className="absolute top-0 right-0 w-96 h-96 bg-blue-600 rounded-full opacity-10 blur-3xl -mt-48 -mr-48"></div>
+              <div className="absolute bottom-0 left-0 w-64 h-64 bg-amber-400 rounded-full opacity-10 blur-3xl -mb-32 -ml-32"></div>
+              
+              <div className="flex justify-between items-center relative z-10">
+                <div className="flex items-center gap-4">
+                  <Button 
+                    variant="ghost" 
+                    size="lg"
+                    className="lg:hidden text-white hover:bg-blue-800/50"
+                    onClick={() => setSidebarOpen(true)}
+                  >
+                    <Menu size={24} />
+                  </Button>
+                  <div>
+                    <div className="flex items-end gap-2">
+                      <h1 className="text-2xl font-bold tracking-tight bg-gradient-to-r from-white via-blue-100 to-amber-200 inline-block text-transparent bg-clip-text">
+                        InfyMailer
+                      </h1>
+                      <div className="bg-amber-500 h-6 w-1.5 rounded-full mb-1 blur-[0.5px]"></div>
+                      <span className="text-lg font-medium text-blue-100 tracking-wide">Dashboard</span>
+                    </div>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
+                      <p className="text-sm font-medium text-blue-200">{clientData.company || 'Acme Corporation'}</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="hidden md:flex px-4 py-1.5 rounded-lg backdrop-blur-sm bg-white/10 border border-white/20 text-white shadow-lg">
+                    <div className="relative">
+                      <div className="absolute -left-8 top-1/2 transform -translate-y-1/2 w-6 h-6 rounded-full bg-amber-400 flex items-center justify-center">
+                        <CircleUser className="h-3.5 w-3.5 text-blue-900" />
+                      </div>
+                      <div className="flex items-center pl-0.5">
+                        <div className="flex flex-col">
+                          <span className="text-xs font-semibold opacity-70">Welcome back</span>
+                          <span className="text-sm font-bold">{clientUser?.name || 'User'}</span>
+                        </div>
+                        <Bell className="h-4 w-4 ml-5 text-amber-300" />
+                      </div>
+                    </div>
+                  </div>
+                  <Button 
+                    variant="outline" 
+                    onClick={handleLogout} 
+                    className="text-white border-white/20 hover:bg-white/10 font-medium px-4 backdrop-blur-sm"
+                  >
+                    <LogOut className="h-4 w-4 mr-2 text-amber-300" />
+                    Logout
+                  </Button>
                 </div>
               </div>
-              <div className="flex items-center gap-4">
-                <div className="hidden md:flex items-center gap-2 bg-blue-50 px-3 py-1.5 rounded-md border border-blue-100">
-                  <CircleUser className="h-5 w-5 text-blue-600" />
-                  <span className="text-sm font-medium text-slate-700">Welcome, {clientUser?.name || 'User'}</span>
-                </div>
-                <Button 
-                  variant="outline" 
-                  onClick={handleLogout} 
-                  className="text-blue-700 border-blue-200 bg-white hover:bg-blue-50 font-medium"
-                >
-                  Logout
+            </div>
+          </div>
+          
+          {/* Sub header with breadcrumbs and quick actions */}
+          <div className="bg-gradient-to-r from-blue-100/80 via-white to-blue-50/80 border-b border-blue-200 py-2 px-6 shadow-sm">
+            <div className="container mx-auto flex justify-between items-center">
+              <div className="flex items-center text-sm text-slate-600">
+                <Home className="h-3.5 w-3.5 mr-2 text-blue-600" />
+                <span className="text-blue-600 font-medium">Home</span>
+                <ChevronRight className="h-3.5 w-3.5 mx-1.5 text-slate-400" />
+                <span className="font-medium">Dashboard</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button variant="ghost" size="sm" className="h-8 text-slate-600 hover:text-blue-700 hover:bg-blue-100/50">
+                  <RefreshCw className="h-3.5 w-3.5 mr-1" /> Refresh
+                </Button>
+                <div className="h-4 border-r border-slate-300 mx-1"></div>
+                <Button variant="ghost" size="sm" className="h-8 text-slate-600 hover:text-blue-700 hover:bg-blue-100/50">
+                  <Download className="h-3.5 w-3.5 mr-1" /> Export
                 </Button>
               </div>
             </div>
