@@ -499,43 +499,25 @@ export default function TemplateBuilder() {
                     </div>
                   </div>
                 ) : (
-                  <DndProvider backend={HTML5Backend}>
-                    <div className="mx-auto max-w-[600px] bg-white rounded shadow-sm p-4 min-h-[600px]">
-                      <DroppableArea 
-                        onDrop={handleBlockDrop} 
-                        placeholder="Drag and drop content blocks here"
-                      />
-                      
-                      {/* Display dropped content */}
-                      {emailSections.map((section) => (
-                        <div 
-                          key={section.id}
-                          className="p-3 mb-4 border border-gray-200 rounded relative hover:border-blue-300 group"
-                        >
-                          <div className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <Button 
-                              variant="ghost" 
-                              size="icon" 
-                              className="h-6 w-6 text-gray-400 hover:text-red-500"
-                              onClick={() => {
-                                setEmailSections(emailSections.filter(s => s.id !== section.id));
-                              }}
-                            >
-                              <X className="h-4 w-4" />
-                            </Button>
-                          </div>
-                          <div className="flex items-center mb-2 text-sm font-medium text-gray-700">
-                            {section.type === 'text' && <Type className="h-4 w-4 mr-2" />}
-                            {section.type === 'image' && <ImageIcon className="h-4 w-4 mr-2" />}
-                            {section.type === 'button' && <div className="w-4 h-4 mr-2 flex items-center justify-center text-gray-600">B</div>}
-                            {section.type.charAt(0).toUpperCase() + section.type.slice(1)}
-                          </div>
-                          
-                          {section.type === 'text' && (
-                            <div 
-                              className="p-2 min-h-[50px] bg-gray-50 rounded"
-                              contentEditable
-                              suppressContentEditableWarning
+                  <div className="mx-auto max-w-[900px] bg-white rounded shadow-sm p-4 min-h-[600px]">
+                    {/* Using the EmailEditor component for advanced editing capabilities */}
+                    <EmailEditor 
+                      initialContent={initialTemplate ? initialTemplate.content : "<p>Start creating your email template</p>"}
+                      onSave={(content, html) => {
+                        // Create template data structure with content and HTML
+                        const templateData = {
+                          name: initialTemplate?.name || "New Email Template",
+                          subject: initialTemplate?.subject || "Your Email Subject",
+                          content: content,
+                          description: initialTemplate?.description || "Email template created with drag-and-drop editor",
+                          category: initialTemplate?.category || "general"
+                        };
+                        
+                        handleSaveTemplate(templateData, html);
+                      }}
+                      showToolbar={true}
+                      showInspector={true}
+                    />
                               onBlur={(e) => {
                                 const updatedSections = emailSections.map(s => 
                                   s.id === section.id ? {...s, content: e.target.textContent} : s

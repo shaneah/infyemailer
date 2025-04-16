@@ -387,8 +387,8 @@ export default function Templates() {
   const [, navigate] = useLocation();
   
   const handleOpenCreateTemplate = () => {
-    // Instead of opening the create template modal, navigate directly to the template builder
-    navigate('/template-builder');
+    // Open the create template dialog
+    setIsCreatingTemplate(true);
   };
 
   // Filter templates based on search query and selected category
