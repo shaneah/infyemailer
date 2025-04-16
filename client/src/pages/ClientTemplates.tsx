@@ -156,6 +156,11 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
   const parseTemplateContent = (content: string): string => {
     if (!content) return "";
     
+    // Check if it's already HTML content (starts with '<' and ends with '>')
+    if (content.trim().startsWith('<') && content.trim().endsWith('>')) {
+      return content;
+    }
+    
     try {
       // Try to parse as JSON first
       const templateData = JSON.parse(content);
@@ -165,18 +170,25 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
         return templateData.metadata.originalHtml;
       } else if (templateData.sections) {
         // Process sections with HTML elements
-        let html = '';
+        let html = '<div class="template-container">';
         templateData.sections.forEach((section: any) => {
           if (section.elements) {
+            html += '<div class="template-section">';
             section.elements.forEach((element: any) => {
               if (element.type === 'html' && element.content?.html) {
                 html += element.content.html;
               } else if (element.type === 'text' && element.content?.text) {
                 html += `<div style="font-size: ${element.styles?.fontSize || '16px'}; color: ${element.styles?.color || '#000000'}; text-align: ${element.styles?.textAlign || 'left'};">${element.content.text}</div>`;
+              } else if (element.type === 'image' && element.content?.src) {
+                html += `<div style="text-align: center;"><img src="${element.content.src}" alt="${element.content.alt || ''}" style="max-width: 100%; height: auto;" /></div>`;
+              } else if (element.type === 'button' && element.content?.text) {
+                html += `<div style="text-align: center; margin: 10px 0;"><a href="${element.content.href || '#'}" style="display: inline-block; padding: 10px 20px; background-color: #2e7d32; color: white; text-decoration: none; border-radius: 4px;">${element.content.text}</a></div>`;
               }
             });
+            html += '</div>';
           }
         });
+        html += '</div>';
         return html || content; // Return the constructed HTML or the original content if empty
       } else if (typeof templateData.html === 'string') {
         // Some templates might have HTML directly in the JSON
@@ -184,10 +196,20 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
       } else if (typeof templateData.content === 'string') {
         // Some templates might have content field directly in the JSON
         return templateData.content;
+      } else if (templateData.body && typeof templateData.body === 'string') {
+        // Another common template format
+        return templateData.body;
+      } else if (templateData.template && typeof templateData.template === 'string') {
+        // Another common template format
+        return templateData.template;
       }
       
       // If we couldn't extract HTML from JSON, return a formatted display of the JSON
-      return `<pre style="white-space: pre-wrap; font-family: monospace; font-size: 14px;">${JSON.stringify(templateData, null, 2)}</pre>`;
+      return `<div class="template-json-preview">
+        <div style="padding: 20px; background-color: #f7f7f7; border-radius: 6px; text-align: center;">
+          <p style="margin: 0; font-style: italic; color: #555;">Template preview available when edited</p>
+        </div>
+      </div>`;
     } catch (e) {
       // If parsing as JSON fails, assume it's already HTML
       return content;
@@ -846,10 +868,18 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
                 </div>
               </div>
               <div className="p-4 bg-white">
-                <div 
-                  className="border rounded-md min-h-[400px] overflow-auto p-2" 
-                  dangerouslySetInnerHTML={{ __html: parseTemplateContent(selectedTemplate.content) }}
-                />
+                <div className="border rounded-md min-h-[400px] overflow-auto p-2">
+                  {/* Check if content can be parsed */}
+                  {selectedTemplate.content ? (
+                    <div className="template-preview-content"
+                      dangerouslySetInnerHTML={{ __html: parseTemplateContent(selectedTemplate.content) }}
+                    />
+                  ) : (
+                    <div className="flex items-center justify-center h-full text-gray-400">
+                      <p>No template content available</p>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </DialogContent>

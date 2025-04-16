@@ -19,6 +19,43 @@
   border-collapse: collapse;
 }
 
+/* Template preview dialog content */
+.template-preview-content {
+  font-family: Arial, sans-serif;
+  color: #333;
+  line-height: 1.5;
+}
+
+.template-preview-content img {
+  max-width: 100%;
+  height: auto;
+}
+
+.template-preview-content table {
+  max-width: 100%;
+  border-collapse: collapse;
+}
+
+.template-container {
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 10px;
+}
+
+.template-section {
+  margin-bottom: 15px;
+}
+
+/* Template JSON preview message */
+.template-json-preview {
+  padding: 20px;
+  background-color: #f7f7f7;
+  border-radius: 8px;
+  text-align: center;
+  color: #666;
+  font-style: italic;
+}
+
 :root {
   --background: 0 0% 100%;
   --foreground: 222.2 84% 4.9%;
