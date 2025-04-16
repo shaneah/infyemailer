@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, timestamp, json, foreignKey, doublePrecision, date } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, json, foreignKey, doublePrecision, date, real } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { relations as defineRelations } from "drizzle-orm";
@@ -271,6 +271,14 @@ export const templates = pgTable("templates", {
   description: text("description"),
   content: text("content").notNull(),
   category: text("category").notNull(),
+  clientId: integer("client_id").references(() => clients.id),
+  isGlobal: boolean("is_global").default(false),
+  isPromoted: boolean("is_promoted").default(false), // Featured or promoted templates
+  previewImageUrl: text("preview_image_url"),
+  thumbnail: text("thumbnail"), // Thumbnail image for the template
+  popularity: integer("popularity").default(0), // How often the template is used
+  rating: real("rating"), // Average rating given by users (1-5)
+  ratingCount: integer("rating_count").default(0), // Number of ratings
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
   metadata: json("metadata")
@@ -281,6 +289,14 @@ export const insertTemplateSchema = createInsertSchema(templates).pick({
   description: true,
   content: true,
   category: true,
+  clientId: true,
+  isGlobal: true,
+  isPromoted: true,
+  previewImageUrl: true,
+  thumbnail: true,
+  popularity: true,
+  rating: true,
+  ratingCount: true,
   metadata: true,
 });
 
@@ -453,6 +469,120 @@ export type ClientUserLogin = z.infer<typeof clientUserLoginSchema>;
 export type InsertClientUser = z.infer<typeof insertClientUserSchema>;
 export type ClientUser = typeof clientUsers.$inferSelect;
 
+// Template Categories and Tags for smart recommendations
+export const templateTags = pgTable("template_tags", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull().unique(),
+  description: text("description"),
+  createdAt: timestamp("created_at").defaultNow(),
+  metadata: json("metadata")
+});
+
+export const insertTemplateTagSchema = createInsertSchema(templateTags).pick({
+  name: true,
+  description: true,
+  metadata: true,
+});
+
+export type InsertTemplateTag = z.infer<typeof insertTemplateTagSchema>;
+export type TemplateTag = typeof templateTags.$inferSelect;
+
+// Template-Tag relationship
+export const templateTagRelations = pgTable("template_tag_relations", {
+  id: serial("id").primaryKey(),
+  templateId: integer("template_id").notNull().references(() => templates.id),
+  tagId: integer("tag_id").notNull().references(() => templateTags.id),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertTemplateTagRelationSchema = createInsertSchema(templateTagRelations).pick({
+  templateId: true,
+  tagId: true,
+});
+
+export type InsertTemplateTagRelation = z.infer<typeof insertTemplateTagRelationSchema>;
+export type TemplateTagRelation = typeof templateTagRelations.$inferSelect;
+
+// Template Usage Statistics for recommendations
+export const templateUsageStats = pgTable("template_usage_stats", {
+  id: serial("id").primaryKey(),
+  templateId: integer("template_id").notNull().references(() => templates.id),
+  clientId: integer("client_id").references(() => clients.id),
+  totalUsage: integer("total_usage").notNull().default(0),
+  openRate: real("open_rate"),  // percentage
+  clickRate: real("click_rate"), // percentage
+  bounceRate: real("bounce_rate"), // percentage
+  conversionRate: real("conversion_rate"), // percentage
+  lastUsedAt: timestamp("last_used_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  metadata: json("metadata")
+});
+
+export const insertTemplateUsageStatSchema = createInsertSchema(templateUsageStats).pick({
+  templateId: true,
+  clientId: true,
+  totalUsage: true,
+  openRate: true,
+  clickRate: true,
+  bounceRate: true,
+  conversionRate: true,
+  lastUsedAt: true,
+  metadata: true,
+});
+
+export type InsertTemplateUsageStat = z.infer<typeof insertTemplateUsageStatSchema>;
+export type TemplateUsageStat = typeof templateUsageStats.$inferSelect;
+
+// Industry-specific template recommendations 
+export const industryTemplateRecommendations = pgTable("industry_template_recommendations", {
+  id: serial("id").primaryKey(),
+  industry: text("industry").notNull(),
+  templateId: integer("template_id").notNull().references(() => templates.id),
+  rank: integer("rank").notNull().default(0), // Higher rank = higher priority
+  relevanceScore: real("relevance_score").notNull().default(0), // 0-100 score
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  metadata: json("metadata")
+});
+
+export const insertIndustryTemplateRecommendationSchema = createInsertSchema(industryTemplateRecommendations).pick({
+  industry: true,
+  templateId: true,
+  rank: true,
+  relevanceScore: true,
+  metadata: true,
+});
+
+export type InsertIndustryTemplateRecommendation = z.infer<typeof insertIndustryTemplateRecommendationSchema>;
+export type IndustryTemplateRecommendation = typeof industryTemplateRecommendations.$inferSelect;
+
+// Template recommendations by AI
+export const templateRecommendations = pgTable("template_recommendations", {
+  id: serial("id").primaryKey(),
+  clientId: integer("client_id").references(() => clients.id),
+  templateId: integer("template_id").notNull().references(() => templates.id),
+  score: real("score").notNull().default(0), // 0-100 recommendation score
+  reason: text("reason"), // Human-readable reason for recommendation
+  createdAt: timestamp("created_at").defaultNow(),
+  expiresAt: timestamp("expires_at"), // Recommendations expire after a certain period
+  status: text("status").notNull().default("active"), // active, dismissed, used, expired
+  metadata: json("metadata")
+});
+
+export const insertTemplateRecommendationSchema = createInsertSchema(templateRecommendations).pick({
+  clientId: true,
+  templateId: true,
+  score: true,
+  reason: true,
+  expiresAt: true,
+  status: true,
+  metadata: true,
+});
+
+export type InsertTemplateRecommendation = z.infer<typeof insertTemplateRecommendationSchema>;
+export type TemplateRecommendation = typeof templateRecommendations.$inferSelect;
+
 // Define table relations
 export const usersRelations = defineRelations(users, {
   userRoles: { relationName: "user_to_roles", fields: [users.id], references: [userRoles.userId] }
@@ -517,7 +647,10 @@ export type ClientProvider = typeof clientProviders.$inferSelect;
 export const clientsRelations = defineRelations(clients, {
   clientUsers: { relationName: "client_to_users", fields: [clients.id], references: [clientUsers.clientId] },
   campaigns: { relationName: "client_to_campaigns", fields: [clients.id], references: [campaigns.clientId] },
-  clientProviders: { relationName: "client_to_providers", fields: [clients.id], references: [clientProviders.clientId] }
+  clientProviders: { relationName: "client_to_providers", fields: [clients.id], references: [clientProviders.clientId] },
+  templates: { relationName: "client_to_templates", fields: [clients.id], references: [templates.clientId] },
+  templateRecommendations: { relationName: "client_to_recommendations", fields: [clients.id], references: [templateRecommendations.clientId] },
+  templateUsageStats: { relationName: "client_to_templateUsage", fields: [clients.id], references: [templateUsageStats.clientId] }
 });
 
 export const contactsRelations = defineRelations(contacts, {
@@ -565,6 +698,37 @@ export const campaignDomainsRelations = defineRelations(campaignDomains, {
 
 export const clientUsersRelations = defineRelations(clientUsers, {
   client: { relationName: "clientUser_to_client", fields: [clientUsers.clientId], references: [clients.id] }
+});
+
+export const templatesRelations = defineRelations(templates, {
+  client: { relationName: "template_to_client", fields: [templates.clientId], references: [clients.id] },
+  templateTagRelations: { relationName: "template_to_tagRelations", fields: [templates.id], references: [templateTagRelations.templateId] },
+  templateUsageStats: { relationName: "template_to_usageStats", fields: [templates.id], references: [templateUsageStats.templateId] },
+  industryRecommendations: { relationName: "template_to_industryRecs", fields: [templates.id], references: [industryTemplateRecommendations.templateId] },
+  recommendations: { relationName: "template_to_recommendations", fields: [templates.id], references: [templateRecommendations.templateId] }
+});
+
+export const templateTagsRelations = defineRelations(templateTags, {
+  templateTagRelations: { relationName: "tag_to_relations", fields: [templateTags.id], references: [templateTagRelations.tagId] }
+});
+
+export const templateTagRelationsRelations = defineRelations(templateTagRelations, {
+  template: { relationName: "tagRelation_to_template", fields: [templateTagRelations.templateId], references: [templates.id] },
+  tag: { relationName: "tagRelation_to_tag", fields: [templateTagRelations.tagId], references: [templateTags.id] }
+});
+
+export const templateUsageStatsRelations = defineRelations(templateUsageStats, {
+  template: { relationName: "stats_to_template", fields: [templateUsageStats.templateId], references: [templates.id] },
+  client: { relationName: "stats_to_client", fields: [templateUsageStats.clientId], references: [clients.id] }
+});
+
+export const industryTemplateRecommendationsRelations = defineRelations(industryTemplateRecommendations, {
+  template: { relationName: "industryRec_to_template", fields: [industryTemplateRecommendations.templateId], references: [templates.id] }
+});
+
+export const templateRecommendationsRelations = defineRelations(templateRecommendations, {
+  template: { relationName: "rec_to_template", fields: [templateRecommendations.templateId], references: [templates.id] },
+  client: { relationName: "rec_to_client", fields: [templateRecommendations.clientId], references: [clients.id] }
 });
 
 // Audience Persona Builder - Personas
