@@ -1259,6 +1259,74 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (isNaN(id)) {
         return res.status(400).json({ error: 'Invalid template ID' });
       }
+  app.get('/api/client/:clientId/templates', async (req: Request, res: Response) => {
+    try {
+      const clientId = parseInt(req.params.clientId);
+      if (isNaN(clientId)) {
+        return res.status(400).json({ error: 'Invalid client ID' });
+      }
+      
+      const category = req.query.category as string;
+      let templates;
+      
+      if (category && category !== 'all') {
+        templates = await storage.getClientTemplatesByCategory(clientId, category);
+      } else {
+        templates = await storage.getClientTemplates(clientId);
+      }
+      
+      // Format templates for frontend
+      const formattedTemplates = templates.map(template => {
+        const metadata = template.metadata as any || {};
+        return {
+          id: template.id,
+          name: template.name,
+          description: template.description || '',
+          icon: metadata.icon || 'file-earmark-text',
+          iconColor: metadata.iconColor || 'primary',
+          lastUsed: 'May 15, 2023', // Placeholder
+          selected: metadata.selected || false,
+          new: metadata.new || false,
+          clientId: template.clientId
+        };
+      });
+      
+      res.json(formattedTemplates);
+    } catch (error) {
+      console.error('Error fetching client templates:', error);
+      res.status(500).json({ error: 'Failed to fetch client templates' });
+    }
+  });
+  
+  // Create a new client template
+  app.post('/api/client/:clientId/templates', async (req: Request, res: Response) => {
+    try {
+      const clientId = parseInt(req.params.clientId);
+      if (isNaN(clientId)) {
+        return res.status(400).json({ error: 'Invalid client ID' });
+      }
+      
+      const { name, content, description, category, subject, metadata } = req.body;
+      
+      if (!name || !content) {
+        return res.status(400).json({ error: 'Name and content are required' });
+      }
+      
+      const template = await storage.createClientTemplate(clientId, {
+        name,
+        content,
+        description: description || `Template: ${name}`,
+        category: category || 'general',
+        subject: subject || `${name} Subject`,
+        metadata: metadata || {}
+      });
+      
+      res.status(201).json(template);
+    } catch (error) {
+      console.error('Error creating client template:', error);
+      res.status(500).json({ error: 'Failed to create client template' });
+    }
+  });
       
       const { email, subject, personalizeContent } = req.body;
       
