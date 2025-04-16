@@ -360,6 +360,73 @@ const ElementRenderer: React.FC<ElementRendererProps> = ({
           </div>
         </div>
       );
+      
+    case 'emoji':
+      return (
+        <div 
+          onClick={onClick} 
+          className={`${baseClass} p-3`}
+          draggable
+          onDragStart={(e) => onDragStart(e, id)}
+          onDragEnd={onDragEnd}
+          onDragOver={onDragOver}
+          onDrop={(e) => onDrop(e, id)}
+        >
+          <div className={`absolute top-0 right-0 ${isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} transition-opacity bg-primary text-white text-xs rounded-bl-md px-1.5 py-0.5`}>
+            Emoji
+          </div>
+          <div className="absolute -left-4 top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <GripVertical className="h-4 w-4 text-gray-400" />
+          </div>
+          <div style={{ 
+            fontSize: styles.fontSize || '36px', 
+            textAlign: styles.textAlign as any || 'center',
+            margin: '0 auto'
+          }}>
+            {content.emoji || '😀'}
+          </div>
+        </div>
+      );
+      
+    case 'gif':
+      return (
+        <div 
+          onClick={onClick} 
+          className={`${baseClass} p-3`}
+          draggable
+          onDragStart={(e) => onDragStart(e, id)}
+          onDragEnd={onDragEnd}
+          onDragOver={onDragOver}
+          onDrop={(e) => onDrop(e, id)}
+        >
+          <div className={`absolute top-0 right-0 ${isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} transition-opacity bg-primary text-white text-xs rounded-bl-md px-1.5 py-0.5`}>
+            GIF
+          </div>
+          <div className="absolute -left-4 top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <GripVertical className="h-4 w-4 text-gray-400" />
+          </div>
+          <div className="text-center">
+            {content.src ? (
+              <img 
+                src={content.src} 
+                alt={content.alt || 'GIF image'} 
+                style={{ 
+                  maxWidth: styles.maxWidth || '300px', 
+                  width: styles.width || '100%',
+                  margin: styles.centered ? '0 auto' : undefined,
+                  display: 'block',
+                  borderRadius: (styles.rounded ? '0.375rem' : '0')
+                }} 
+              />
+            ) : (
+              <div className="bg-gray-100 border border-dashed border-gray-300 rounded-md p-8 flex flex-col items-center justify-center">
+                <Video className="w-8 h-8 text-gray-400 mb-2" />
+                <p className="text-sm text-gray-500">Add a GIF URL in the properties panel</p>
+              </div>
+            )}
+          </div>
+        </div>
+      );
     
     default:
       return null;
@@ -620,6 +687,8 @@ const PropertyEditor: React.FC<PropertyEditorProps> = ({
           {type === 'button' && <Link className="h-5 w-5 mr-2 text-primary" />}
           {type === 'divider' && <SeparatorHorizontal className="h-5 w-5 mr-2 text-primary" />}
           {type === 'spacer' && <Layout className="h-5 w-5 mr-2 text-primary" />}
+          {type === 'emoji' && <Smile className="h-5 w-5 mr-2 text-primary" />}
+          {type === 'gif' && <Video className="h-5 w-5 mr-2 text-primary" />}
           {type.charAt(0).toUpperCase() + type.slice(1)} Properties
         </h3>
         
