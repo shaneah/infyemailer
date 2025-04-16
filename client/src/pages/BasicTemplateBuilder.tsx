@@ -2114,7 +2114,7 @@ export default function BasicTemplateBuilder({ isClientPortal = false }: BasicTe
                 </div>
                 <div className="flex justify-end mt-6">
                   <Button 
-                    onClick={() => {
+                    onClick={async () => {
                       if (!aiPrompt || aiPrompt.trim() === '') {
                         toast({
                           title: "Error",
@@ -2130,17 +2130,41 @@ export default function BasicTemplateBuilder({ isClientPortal = false }: BasicTe
                         description: "Generating your template... This feature will use AI to create a template based on your description",
                       });
                       
-                      // For now, we're using a mock implementation
-                      // In a real implementation, this would call the OpenAI API
-                      setTimeout(() => {
-                        try {
-                          const industry = document.getElementById('industry') as HTMLSelectElement;
-                          const templateType = document.getElementById('templateType') as HTMLSelectElement;
-                          
-                          // Get the values from the form
-                          const industryValue = industry ? industry.value : 'technology';
-                          const templateTypeValue = templateType ? templateType.value : 'newsletter';
-                          
+                      try {
+                        const industry = document.getElementById('industry') as HTMLSelectElement;
+                        const templateType = document.getElementById('templateType') as HTMLSelectElement;
+                        
+                        // Get the values from the form
+                        const industryValue = industry ? industry.value : 'technology';
+                        const templateTypeValue = templateType ? templateType.value : 'newsletter';
+                        
+                        // Call our AI generation endpoint
+                        const response = await fetch('/api/templates/generate-ai', {
+                          method: 'POST',
+                          headers: {
+                            'Content-Type': 'application/json',
+                          },
+                          body: JSON.stringify({
+                            prompt: aiPrompt,
+                            industry: industryValue,
+                            templateType: templateTypeValue,
+                            targetAudience: 'general customers', // Could be enhanced with a form field
+                            brandTone: 'professional' // Could be enhanced with a form field
+                          }),
+                        });
+                        
+                        if (!response.ok) {
+                          const errorData = await response.json();
+                          throw new Error(errorData.message || 'Failed to generate template');
+                        }
+                        
+                        const data = await response.json();
+                        
+                        // If we have sections from the API, use them
+                        if (data.sections && Array.isArray(data.sections) && data.sections.length > 0) {
+                          setSections(data.sections);
+                        } else {
+                          // Fallback: Create some basic sections in case the API didn't return them
                           const headerText = `${templateType.options[templateType.selectedIndex].text} for ${industry.options[industry.selectedIndex].text}`;
                           
                           setSections([
@@ -2152,7 +2176,7 @@ export default function BasicTemplateBuilder({ isClientPortal = false }: BasicTe
                             {
                               id: `section-${Date.now()}-2`,
                               type: "text",
-                              content: `This template was created based on your description: "${aiPrompt}". In a real implementation, this would be AI-generated content tailored to your requirements.`
+                              content: `This template was created based on your description: "${aiPrompt}".`
                             },
                             {
                               id: `section-${Date.now()}-3`,
@@ -2163,25 +2187,36 @@ export default function BasicTemplateBuilder({ isClientPortal = false }: BasicTe
                               })
                             }
                           ]);
-                          
-                          toast({
-                            title: "Template Generated",
-                            description: "Your AI template has been created. You can now edit it in the Template Editor.",
-                          });
-                          
-                          // Reset states and switch to editor
-                          setIsGeneratingAi(false);
-                          setActiveTab("editor");
-                        } catch (error) {
-                          console.error("Error generating template:", error);
-                          toast({
-                            title: "Generation Failed",
-                            description: "There was an error generating your template. Please try again.",
-                            variant: "destructive"
-                          });
-                          setIsGeneratingAi(false);
                         }
-                      }, 1500);
+                        
+                        // Set template details if available from API response
+                        if (data.template) {
+                          if (data.template.name) {
+                            setTemplateName(data.template.name);
+                          }
+                          if (data.template.description) {
+                            setTemplateDescription(data.template.description);
+                          }
+                          // Could also set subject if needed
+                        }
+                        
+                        toast({
+                          title: "Template Generated",
+                          description: "Your AI template has been created. You can now edit it in the Template Editor.",
+                        });
+                        
+                        // Reset states and switch to editor
+                        setIsGeneratingAi(false);
+                        setActiveTab("editor");
+                      } catch (error) {
+                        console.error("Error generating template:", error);
+                        toast({
+                          title: "Generation Failed",
+                          description: error instanceof Error ? error.message : "There was an error generating your template. Please try again.",
+                          variant: "destructive"
+                        });
+                        setIsGeneratingAi(false);
+                      }
                     }}
                     disabled={isGeneratingAi}
                     className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"

@@ -1375,6 +1375,76 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Generate template with AI
+  app.post('/api/templates/generate-ai', async (req: Request, res: Response) => {
+    try {
+      const { 
+        prompt,
+        templateType = 'newsletter', 
+        industry = 'technology', 
+        targetAudience = 'general customers',
+        brandTone = 'professional'
+      } = req.body;
+      
+      if (!prompt) {
+        return res.status(400).json({ error: 'Prompt is required' });
+      }
+      
+      console.log('AI Template Generation:', { templateType, industry, prompt: prompt.substring(0, 50) + '...' });
+      
+      // Use the OpenAI service to generate the template
+      const generatedTemplate = await generateEmailTemplate(
+        templateType,
+        industry,
+        prompt, // Using the prompt as the purpose
+        targetAudience,
+        brandTone,
+        '' // No key points for now
+      );
+      
+      // Parse the HTML content to extract sections for the template builder
+      // This is a simplified version that extracts headings, paragraphs, and button/CTA elements
+      const sections = [];
+      
+      // Add a heading section
+      sections.push({
+        id: `section-${Date.now()}-1`,
+        type: "heading",
+        content: generatedTemplate.name || "AI Generated Template"
+      });
+      
+      // Add a text section with the description
+      sections.push({
+        id: `section-${Date.now()}-2`,
+        type: "text",
+        content: generatedTemplate.description || "AI generated content based on your description."
+      });
+      
+      // Add a sample button (can be improved with HTML parsing in the future)
+      sections.push({
+        id: `section-${Date.now()}-3`,
+        type: "button",
+        content: JSON.stringify({
+          text: "Learn More",
+          url: "#"
+        })
+      });
+      
+      // Return both the raw HTML and parsed sections
+      res.json({
+        success: true,
+        template: generatedTemplate,
+        sections: sections
+      });
+    } catch (error) {
+      console.error('Error generating AI template:', error);
+      res.status(500).json({ 
+        error: 'Failed to generate AI template', 
+        message: error.message || 'Unknown error' 
+      });
+    }
+  });
+
   // Send an individual email
   app.post('/api/emails', async (req: Request, res: Response) => {
     const validatedData = validate(insertEmailSchema, req.body);
