@@ -1441,6 +1441,20 @@ const EmailEditor: React.FC<{
           content: { src: '', alt: 'Image description' },
           styles: { width: '100%', maxWidth: '100%', rounded: false, centered: false }
         };
+      case 'emoji':
+        return {
+          id,
+          type,
+          content: { emoji: '😀' },
+          styles: { fontSize: '36px', textAlign: 'center' }
+        };
+      case 'gif':
+        return {
+          id,
+          type,
+          content: { src: '', alt: 'GIF image' },
+          styles: { width: '100%', maxWidth: '300px', rounded: true, centered: true }
+        };
       case 'button':
         return {
           id,
@@ -2043,6 +2057,18 @@ const EmailEditor: React.FC<{
                 type="html" 
                 icon={<Code className="h-4 w-4" />} 
                 label="HTML" 
+                onDragStart={handleDragStart} 
+              />
+              <ToolboxItem 
+                type="emoji" 
+                icon={<Smile className="h-4 w-4" />} 
+                label="Emoji" 
+                onDragStart={handleDragStart} 
+              />
+              <ToolboxItem 
+                type="gif" 
+                icon={<Video className="h-4 w-4" />} 
+                label="GIF" 
                 onDragStart={handleDragStart} 
               />
             </div>
