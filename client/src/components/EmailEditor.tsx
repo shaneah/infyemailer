@@ -539,24 +539,56 @@ const Section: React.FC<SectionProps> = ({
           backgroundColor: section.styles.backgroundColor || '#ffffff',
           padding: section.styles.padding || '12px',
         }}
+        data-section-id={section.id}
         onClick={(e) => {
-          // Only select section if clicked directly on section container, not on child elements
-          if (e.currentTarget === e.target) {
+          // Enhanced section selection with better handling of child elements
+          const target = e.target as HTMLElement;
+          
+          // Check if we're clicking on an element renderer, which has its own click handler
+          let isElementClick = false;
+          let parent = target;
+          
+          // Walk up the DOM tree to see if we're inside an element renderer
+          while (parent && parent !== e.currentTarget) {
+            // If we find a direct child div of section-content that contains elements, don't select section
+            if (parent.classList && 
+                (parent.classList.contains('space-y-1') || 
+                 parent.getAttribute('role') === 'button')) {
+              isElementClick = true;
+              break;
+            }
+            parent = parent.parentElement as HTMLElement;
+          }
+          
+          // If we're not clicking inside an element renderer or it's an empty section,
+          // then select the section
+          if (!isElementClick && !selectedElementId) {
             e.stopPropagation();
+            console.log('Section content clicked, section ID:', section.id, 
+                      'Target classList:', target.classList.toString(), 
+                      'Is direct section click:', e.currentTarget === e.target);
             onSelectSection(section.id);
-            console.log('Section content clicked, section ID:', section.id);
           }
         }}
         onDrop={(e) => onDrop(e, section.id)}
         onDragOver={handleDragOver}
       >
         {section.elements.length === 0 ? (
-          <div className={`text-center py-8 text-gray-500 border-2 border-dashed ${window.draggedOverElementId === 'new-element' && window.dragSourceSectionId !== section.id ? 'border-primary/70 bg-primary/5' : 'border-gray-300'} rounded-md transition-colors duration-200`}
-               onDragOver={(e) => {
-                 e.preventDefault();
-                 e.dataTransfer.dropEffect = "copy";
-                 window.setDraggedOverElementId('new-element');
-               }}
+          <div 
+            className={`text-center py-8 text-gray-500 border-2 border-dashed ${
+              window.draggedOverElementId === 'new-element' && window.dragSourceSectionId !== section.id 
+                ? 'border-primary/70 bg-primary/5' 
+                : isSelected ? 'border-primary/70 bg-primary/5' : 'border-gray-300'
+            } rounded-md transition-colors duration-200 cursor-pointer`}
+            onDragOver={(e) => {
+              e.preventDefault();
+              e.dataTransfer.dropEffect = "copy";
+              window.setDraggedOverElementId('new-element');
+            }}
+            onClick={(e) => {
+              e.stopPropagation();
+              onSelectSection(section.id);
+            }}
           >
             <div className="flex flex-col items-center">
               <ArrowDown className="h-5 w-5 text-primary mb-2" />
