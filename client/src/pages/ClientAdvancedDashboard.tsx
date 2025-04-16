@@ -185,7 +185,7 @@ const generateHourlyData = () => {
     data.push({
       hour: hour,
       opens: 10 + Math.floor(Math.random() * 90),
-      label: \`\${hour}:00\`
+      label: `${hour}:00`
     });
   }
   return data;
@@ -245,7 +245,7 @@ const ClientAdvancedDashboard = () => {
     },
     {
       title: "Avg Open Rate",
-      value: \`\${averageOpenRate.toFixed(1)}%\`,
+      value: `${averageOpenRate.toFixed(1)}%`,
       change: 5.1,
       changeText: "from last month",
       icon: Inbox,
@@ -253,7 +253,7 @@ const ClientAdvancedDashboard = () => {
     },
     {
       title: "Avg Click Rate",
-      value: \`\${averageClickRate.toFixed(1)}%\`,
+      value: `${averageClickRate.toFixed(1)}%`,
       change: -2.4,
       changeText: "from last month",
       icon: MousePointerClick,
@@ -458,7 +458,7 @@ const ClientAdvancedDashboard = () => {
                         <YAxis 
                           tickLine={false} 
                           axisLine={false} 
-                          tickFormatter={(value) => \`\${value}\`}
+                          tickFormatter={(value) => `${value}`}
                           tick={{ fontSize: 12, fill: '#64748b' }}
                         />
                         <Tooltip
@@ -519,7 +519,7 @@ const ClientAdvancedDashboard = () => {
                           fill="none" 
                           stroke={engagementScore > 60 ? "#16a34a" : engagementScore > 30 ? "#e6b302" : "#dc2626"}
                           strokeWidth="8" 
-                          strokeDasharray={`\${(engagementScore/100) * 251.2} 251.2`}
+                          strokeDasharray={`${(engagementScore/100) * 251.2} 251.2`}
                         />
                       </svg>
                     </div>
@@ -727,7 +727,7 @@ const ClientAdvancedDashboard = () => {
                         <YAxis 
                           tickLine={false} 
                           axisLine={false} 
-                          tickFormatter={(value) => \`\${value / 1000}k\`}
+                          tickFormatter={(value) => `${value / 1000}k`}
                           tick={{ fontSize: 12, fill: '#64748b' }}
                         />
                         <Tooltip
@@ -785,7 +785,7 @@ const ClientAdvancedDashboard = () => {
                           dataKey="label" 
                           axisLine={{ stroke: '#e2e8f0' }} 
                           tickLine={false}
-                          ticks={[0, 4, 8, 12, 16, 20, 23].map(h => \`\${h}:00\`)}
+                          ticks={[0, 4, 8, 12, 16, 20, 23].map(h => `${h}:00`)}
                         />
                         <YAxis 
                           tickLine={false} 
@@ -799,7 +799,7 @@ const ClientAdvancedDashboard = () => {
                             borderColor: '#e2e8f0' 
                           }}
                           formatter={(value, name) => [value, 'Opens']}
-                          labelFormatter={(value) => \`\${value} hours\`}
+                          labelFormatter={(value) => `${value} hours`}
                         />
                         <Bar 
                           dataKey="opens" 
@@ -834,7 +834,7 @@ const ClientAdvancedDashboard = () => {
                           innerRadius={60}
                           outerRadius={80}
                           paddingAngle={2}
-                          label={({ name, value }) => \`\${name}: \${value}%\`}
+                          label={({ name, value }) => `${name}: ${value}%`}
                           labelLine={{ stroke: '#64748b', strokeWidth: 0.5 }}
                         >
                           {emailClientData.map((entry, index) => (
@@ -911,7 +911,7 @@ const ClientAdvancedDashboard = () => {
                         <YAxis 
                           tickLine={false} 
                           axisLine={false} 
-                          tickFormatter={(value) => \`\${value / 1000}k\`}
+                          tickFormatter={(value) => `${value / 1000}k`}
                           tick={{ fontSize: 12, fill: '#64748b' }}
                         />
                         <Tooltip
