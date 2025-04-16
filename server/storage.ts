@@ -200,6 +200,11 @@ export interface IStorage {
   createTemplate(template: InsertTemplate): Promise<Template>;
   updateTemplate(id: number, template: Partial<Template>): Promise<Template | undefined>;
   deleteTemplate(id: number): Promise<boolean>;
+  
+  // Client-specific template methods
+  getClientTemplates(clientId: number): Promise<Template[]>;
+  getClientTemplatesByCategory(clientId: number, category: string): Promise<Template[]>;
+  createClientTemplate(clientId: number, template: InsertTemplate): Promise<Template>;
 
   // Analytics methods
   getAnalytics(): Promise<Analytics[]>;
