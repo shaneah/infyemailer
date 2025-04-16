@@ -172,27 +172,41 @@ export default function TemplateBuilder() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-50 to-gray-100">
       {/* Top navigation */}
-      <div className="flex items-center gap-4 p-4 bg-white border-b">
-        <Button variant="ghost" size="icon" onClick={handleBack}>
+      <div className="flex items-center gap-4 p-5 bg-white border-b shadow-sm">
+        <Button 
+          variant="outline" 
+          size="icon" 
+          onClick={handleBack}
+          className="rounded-full hover:bg-gray-100 hover:text-primary transition-colors"
+        >
           <ArrowLeft className="h-5 w-5" />
         </Button>
         
         <div className="flex-1">
-          <h1 className="text-xl font-semibold">
+          <h1 className="text-2xl font-semibold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
             {isEditMode ? 'Edit Template' : 'Create New Template'}
           </h1>
+          <p className="text-sm text-gray-500 mt-0.5">
+            {isEditMode ? 'Update your email template design' : 'Design a beautiful email template with our drag-and-drop editor'}
+          </p>
         </div>
         
-        <div className="flex items-center gap-2">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="mr-4">
-            <TabsList>
-              <TabsTrigger value="visual">
+        <div className="flex items-center gap-4">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="mr-2">
+            <TabsList className="bg-gray-100 p-1 rounded-lg">
+              <TabsTrigger 
+                value="visual" 
+                className="rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm"
+              >
                 <Eye className="h-4 w-4 mr-2" />
                 Visual Editor
               </TabsTrigger>
-              <TabsTrigger value="code">
+              <TabsTrigger 
+                value="code"
+                className="rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm" 
+              >
                 <FileCode className="h-4 w-4 mr-2" />
                 HTML Code
               </TabsTrigger>
@@ -201,6 +215,8 @@ export default function TemplateBuilder() {
           
           <Button
             disabled={isSaving}
+            size="lg"
+            className="bg-primary hover:bg-primary/90 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
             onClick={() => {
               if (htmlCode) {
                 handleSaveTemplate(
@@ -218,12 +234,12 @@ export default function TemplateBuilder() {
           >
             {isSaving ? (
               <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                <Loader2 className="h-5 w-5 mr-2 animate-spin" />
                 Saving...
               </>
             ) : (
               <>
-                <Save className="h-4 w-4 mr-2" />
+                <Save className="h-5 w-5 mr-2" />
                 Save Template
               </>
             )}
@@ -232,43 +248,53 @@ export default function TemplateBuilder() {
       </div>
       
       {/* Main content area */}
-      <div className="flex-1 flex overflow-hidden">
-        <Tabs value={activeTab} className="flex-1 flex flex-col">
-          <TabsContent value="visual" className="flex-1 p-4 overflow-auto mt-0">
+      <div className="flex-1 flex overflow-hidden bg-gray-50">
+        <Tabs value={activeTab} className="flex-1 flex flex-col w-full">
+          <TabsContent value="visual" className="flex-1 p-6 overflow-auto mt-0">
             {isTemplateLoading ? (
               <div className="flex items-center justify-center h-full">
-                <div className="text-center">
-                  <Loader2 className="h-10 w-10 animate-spin mx-auto mb-4 text-blue-600" />
-                  <p className="text-gray-600">Loading template...</p>
+                <div className="text-center bg-white p-8 rounded-xl shadow-lg">
+                  <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-primary" />
+                  <p className="text-gray-700 font-medium">Loading template...</p>
                 </div>
               </div>
             ) : (
-              <div className="mx-auto max-w-[900px] bg-white rounded shadow-sm p-4 min-h-[600px]">
-                <EmailEditor 
-                  initialTemplate={initialTemplate || {
-                    name: "New Email Template",
-                    subject: "Your Email Subject",
-                    previewText: "",
-                    sections: [],
-                    styles: {
-                      fontFamily: "Arial, sans-serif",
-                      backgroundColor: "#f5f5f5",
-                      width: "100%",
-                      maxWidth: "600px"
-                    }
-                  }}
-                  onSave={handleSaveTemplate}
-                  isSaving={isSaving}
-                  className="w-full"
-                />
+              <div className="mx-auto max-w-[960px]">
+                <div className="bg-white rounded-lg shadow-lg p-6 min-h-[600px] border border-gray-100">
+                  <EmailEditor 
+                    initialTemplate={initialTemplate || {
+                      name: "My Professional Template",
+                      subject: "Important: Your Email Subject Line",
+                      previewText: "A preview of your email content goes here...",
+                      sections: [],
+                      styles: {
+                        fontFamily: "Arial, sans-serif",
+                        backgroundColor: "#f5f5f5",
+                        width: "100%",
+                        maxWidth: "600px"
+                      }
+                    }}
+                    onSave={handleSaveTemplate}
+                    isSaving={isSaving}
+                    className="w-full"
+                  />
+                </div>
               </div>
             )}
           </TabsContent>
           
-          <TabsContent value="code" className="flex-1 p-4 overflow-auto mt-0">
-            <div className="mx-auto max-w-[900px]">
-              <div className="bg-gray-900 text-gray-200 p-4 rounded-md overflow-auto min-h-[600px]">
-                <pre className="text-sm">{htmlCode || '<!-- No HTML code generated yet -->'}</pre>
+          <TabsContent value="code" className="flex-1 p-6 overflow-auto mt-0">
+            <div className="mx-auto max-w-[960px]">
+              <div className="bg-gray-900 text-gray-200 p-6 rounded-lg shadow-lg overflow-auto min-h-[600px] border border-gray-800">
+                <div className="flex items-center justify-between border-b border-gray-700 pb-3 mb-4">
+                  <div className="flex space-x-2">
+                    <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                    <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+                    <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                  </div>
+                  <div className="text-xs text-gray-400">HTML Output</div>
+                </div>
+                <pre className="text-sm font-mono">{htmlCode || '<!-- No HTML code generated yet -->'}</pre>
               </div>
             </div>
           </TabsContent>
