@@ -245,11 +245,14 @@ export default function ClientDashboard() {
         {/* Dashboard Content */}
         <main className="flex-1 overflow-y-auto p-6 relative z-10">
           <div className="container mx-auto">
-            <div className="flex items-center mb-8">
-              <div className="bg-teal-400/20 p-2 rounded-full mr-3">
-                <Sparkles className="h-6 w-6 text-teal-200" />
+            <div className="flex flex-col mb-8">
+              <div className="flex items-center">
+                <div className="bg-teal-400/20 p-2 rounded-full mr-3">
+                  <Sparkles className="h-6 w-6 text-teal-200" />
+                </div>
+                <h2 className="text-3xl font-bold text-white">Your Dashboard</h2>
               </div>
-              <h2 className="text-3xl font-bold bg-gradient-to-r from-white via-teal-300 to-white inline-block text-transparent bg-clip-text">Your Dashboard</h2>
+              <div className="w-32 h-0.5 bg-teal-500/50 mt-1.5 ml-11"></div>
             </div>
             
             {/* Stats Overview */}
