@@ -150,6 +150,18 @@ function App() {
             <Toaster />
           </div>
         </Route>
+        <Route path="client-ab-testing/:id">
+          <div className="bg-background min-h-screen">
+            <ClientRoutes />
+            <Toaster />
+          </div>
+        </Route>
+        <Route path="client-email-performance">
+          <div className="bg-background min-h-screen">
+            <ClientRoutes />
+            <Toaster />
+          </div>
+        </Route>
         <Route path="client-settings">
           <div className="bg-background min-h-screen">
             <ClientRoutes />
