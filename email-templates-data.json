@@ -9,8 +9,8 @@
       "iconColor": "primary"
     },
     "id": 1,
-    "createdAt": "2025-04-16T23:03:58.379Z",
-    "updatedAt": "2025-04-16T23:03:58.379Z"
+    "createdAt": "2025-04-16T23:06:49.193Z",
+    "updatedAt": "2025-04-16T23:06:49.193Z"
   },
   {
     "name": "Promotional",
@@ -23,8 +23,8 @@
       "selected": true
     },
     "id": 2,
-    "createdAt": "2025-04-16T23:03:58.379Z",
-    "updatedAt": "2025-04-16T23:03:58.379Z"
+    "createdAt": "2025-04-16T23:06:49.193Z",
+    "updatedAt": "2025-04-16T23:06:49.193Z"
   },
   {
     "name": "Welcome",
@@ -36,7 +36,22 @@
       "iconColor": "success"
     },
     "id": 3,
-    "createdAt": "2025-04-16T23:03:58.379Z",
-    "updatedAt": "2025-04-16T23:03:58.379Z"
+    "createdAt": "2025-04-16T23:06:49.194Z",
+    "updatedAt": "2025-04-16T23:06:49.194Z"
+  },
+  {
+    "name": "real estate Newsletter",
+    "content": "<!DOCTYPE html>\n<html>\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>real estate Newsletter</title>\n</head>\n<body style=\"margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f4f4f4; color: #333333;\">\n    <table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" align=\"center\" width=\"100%\" style=\"max-width: 600px; margin: 0 auto; background-color: #ffffff; border-spacing: 0; border-collapse: collapse;\">\n        <!-- Header Section -->\n        <tr>\n            <td style=\"padding: 40px 30px; background-color: #138a3f; text-align: center;\">\n                <h1 style=\"margin: 0; color: #ffffff; font-size: 28px; font-weight: bold;\">REAL ESTATE NEWSLETTER</h1>\n            </td>\n        </tr>\n        \n        <!-- Main Content Section -->\n        <tr>\n            <td style=\"padding: 30px 30px 20px 30px;\">\n                <h2 style=\"margin-top: 0; margin-bottom: 20px; color: #138a3f; font-size: 22px;\">offer 50% off</h2>\n                <p style=\"margin-top: 0; margin-bottom: 20px; line-height: 1.6; font-size: 16px;\">Hello [Customer Name],</p>\n                <p style=\"margin-top: 0; margin-bottom: 20px; line-height: 1.6; font-size: 16px;\">We're excited to share with you our latest updates designed specifically for any.</p>\n                \n                <!-- Hero Image Placeholder -->\n                <div style=\"background-color: #f2f2f2; text-align: center; padding: 40px 0; margin-bottom: 20px;\">\n                    <p style=\"margin: 0; color: #666666;\">[Hero Image: newsletter visual]</p>\n                </div>\n                \n                <!-- Key Points Section -->\n                <h3 style=\"color: #138a3f; margin-top: 30px; margin-bottom: 20px; font-size: 18px;\">Key Highlights:</h3>\n                <ul style=\"padding-left: 20px; margin-bottom: 25px; line-height: 1.6;\">\n                    <li style=\"margin-bottom: 10px;\">sdasdasdasdasd</li>\n                </ul>\n                \n                <!-- CTA Button -->\n                <table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" align=\"center\" style=\"margin: 30px auto;\">\n                    <tr>\n                        <td style=\"border-radius: 4px; background-color: #138a3f; text-align: center;\">\n                            <a href=\"#\" target=\"_blank\" style=\"background-color: #138a3f; border: solid 1px #138a3f; border-radius: 4px; color: #ffffff; display: inline-block; font-size: 16px; font-weight: bold; padding: 12px 30px; text-decoration: none;\">Learn More</a>\n                        </td>\n                    </tr>\n                </table>\n                \n                <p style=\"margin-top: 0; margin-bottom: 20px; line-height: 1.6; font-size: 16px;\">If you have any questions, please don't hesitate to reach out to our team.</p>\n                <p style=\"margin-top: 0; margin-bottom: 20px; line-height: 1.6; font-size: 16px;\">Best regards,</p>\n                <p style=\"margin-top: 0; margin-bottom: 20px; line-height: 1.6; font-size: 16px; font-weight: bold;\">The [Company Name] Team</p>\n            </td>\n        </tr>\n        \n        <!-- Footer Section -->\n        <tr>\n            <td style=\"padding: 30px 30px; background-color: #f8f8f8; text-align: center; color: #777777; font-size: 14px;\">\n                <p style=\"margin: 0 0 10px 0;\">© 2025 [Company Name]. All rights reserved.</p>\n                <p style=\"margin: 0 0 10px 0;\">[Company Address]</p>\n                <p style=\"margin: 0 0 10px 0;\">\n                    <a href=\"#\" style=\"color: #138a3f; text-decoration: underline;\">Privacy Policy</a> | \n                    <a href=\"#\" style=\"color: #138a3f; text-decoration: underline;\">Terms of Service</a> | \n                    <a href=\"#\" style=\"color: #138a3f; text-decoration: underline;\">Unsubscribe</a>\n                </p>\n                <div style=\"margin-top: 20px;\">\n                    <a href=\"#\" style=\"margin: 0 5px; text-decoration: none;\">\n                        <img src=\"https://via.placeholder.com/30/138a3f/FFFFFF?text=FB\" alt=\"Facebook\" width=\"30\" height=\"30\" style=\"border-radius: 3px;\">\n                    </a>\n                    <a href=\"#\" style=\"margin: 0 5px; text-decoration: none;\">\n                        <img src=\"https://via.placeholder.com/30/138a3f/FFFFFF?text=TW\" alt=\"Twitter\" width=\"30\" height=\"30\" style=\"border-radius: 3px;\">\n                    </a>\n                    <a href=\"#\" style=\"margin: 0 5px; text-decoration: none;\">\n                        <img src=\"https://via.placeholder.com/30/138a3f/FFFFFF?text=IG\" alt=\"Instagram\" width=\"30\" height=\"30\" style=\"border-radius: 3px;\">\n                    </a>\n                    <a href=\"#\" style=\"margin: 0 5px; text-decoration: none;\">\n                        <img src=\"https://via.placeholder.com/30/138a3f/FFFFFF?text=LI\" alt=\"LinkedIn\" width=\"30\" height=\"30\" style=\"border-radius: 3px;\">\n                    </a>\n                </div>\n            </td>\n        </tr>\n    </table>\n</body>\n</html>",
+    "description": "A professional newsletter template for real estate businesses targeting any.",
+    "category": "newsletter",
+    "metadata": {
+      "icon": "robot",
+      "iconColor": "success",
+      "new": true,
+      "generatedByAI": true
+    },
+    "id": 4,
+    "createdAt": "2025-04-16T23:06:58.019Z",
+    "updatedAt": "2025-04-16T23:06:58.019Z"
   }
 ]
