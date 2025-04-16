@@ -29,7 +29,6 @@ import {
   Import,
   Send,
   Pencil,
-  Edit,
   Mail,
   Trash2,
   ExternalLink,
@@ -41,12 +40,7 @@ import {
   Share2,
   Link2,
   Info,
-  Check,
-  Filter,
-  ArrowUpDown,
-  LayoutGrid,
-  List,
-  Search
+  Check
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -142,7 +136,6 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
   const [templateToShare, setTemplateToShare] = useState<number | null>(null);
-  const [templateToDelete, setTemplateToDelete] = useState<number | null>(null);
   const [shareExpiration, setShareExpiration] = useState("7"); // Default to 7 days
   
   const { data: savedTemplates = [], isLoading: isLoadingTemplates } = useQuery({
@@ -379,30 +372,6 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
       toast({
         title: "Error",
         description: `Failed to share template: ${error.message}`,
-        variant: "destructive",
-      });
-    }
-  });
-  
-  // Delete template mutation
-  const deleteTemplateMutation = useMutation({
-    mutationFn: async (templateId: number) => {
-      const response = await apiRequest("DELETE", `/api/templates/${templateId}`);
-      return response;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/templates'] });
-      toast({
-        title: "Template Deleted",
-        description: "The template has been permanently deleted",
-        variant: "default",
-      });
-      setTemplateToDelete(null);
-    },
-    onError: (error) => {
-      toast({
-        title: "Error",
-        description: `Failed to delete template: ${error.message}`,
         variant: "destructive",
       });
     }

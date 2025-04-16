@@ -414,44 +414,13 @@ export default function ClientDashboard() {
                         data={clientData.deviceData}
                         cx="50%"
                         cy="50%"
-                        labelLine={false}
-                        label={({ name, value, percent, x, y, midAngle }) => {
-                          const radius = 130;
-                          const midRadius = 85;
-                          const sin = Math.sin(-midAngle * Math.PI / 180);
-                          const cos = Math.cos(-midAngle * Math.PI / 180);
-                          const sx = cx + midRadius * cos;
-                          const sy = cy + midRadius * sin;
-                          const mx = cx + radius * cos;
-                          const my = cy + radius * sin;
-                          const ex = mx + (cos >= 0 ? 1 : -1) * 22;
-                          const ey = my;
-                          const textAnchor = cos >= 0 ? 'start' : 'end';
-                          const cx = 250;
-                          const cy = 150;
-                          
-                          return (
-                            <g>
-                              <path
-                                d={`M${sx},${sy}L${mx},${my}L${ex},${ey}`}
-                                stroke="rgba(255,255,255,0.3)"
-                                fill="none"
-                              />
-                              <circle cx={ex} cy={ey} r={2} fill="#d4af37" stroke="none" />
-                              <text
-                                x={ex + (cos >= 0 ? 1 : -1) * 12}
-                                y={ey}
-                                dy={4}
-                                textAnchor={textAnchor}
-                                fill="#ffffff"
-                                fontSize={12}
-                              >
-                                {`${name}: ${(percent * 100).toFixed(0)}%`}
-                              </text>
-                            </g>
-                          );
-                        }}
-                        outerRadius={80}
+                        labelLine={{stroke: 'rgba(255,255,255,0.3)'}}
+                        label={({ name, percent }) => (
+                          <text x={0} y={0} fill="#ffffff" textAnchor="middle" dominantBaseline="central">
+                            {`${name}: ${(percent * 100).toFixed(0)}%`}
+                          </text>
+                        )}
+                        outerRadius={100}
                         fill="#8884d8"
                         dataKey="value"
                         paddingAngle={2}
