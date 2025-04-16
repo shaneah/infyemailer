@@ -243,78 +243,78 @@ export default function ClientDashboard() {
         </header>
 
         {/* Dashboard Content */}
-        <main className="flex-1 overflow-y-auto p-6 relative z-10">
+        <main className="flex-1 overflow-y-auto p-6 relative z-10 bg-white rounded-t-2xl">
           <div className="container mx-auto">
             <div className="flex flex-col mb-8">
               <div className="flex items-center">
                 <div className="bg-blue-700/20 p-2 rounded-full mr-3">
                   <Sparkles className="h-6 w-6 text-amber-300" />
                 </div>
-                <h2 className="text-3xl font-bold text-white">Your Dashboard</h2>
+                <h2 className="text-3xl font-bold text-slate-800">Your Dashboard</h2>
               </div>
               <div className="w-32 h-0.5 bg-amber-500/50 mt-1.5 ml-11"></div>
             </div>
             
             {/* Stats Overview */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              <Card className="backdrop-blur-md bg-white/10 border border-blue-900/20 overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 group">
-                <CardHeader className="flex flex-row items-center justify-between pb-2 border-b border-blue-900/30">
-                  <CardTitle className="text-base font-bold text-white">Active Campaigns</CardTitle>
-                  <div className="h-10 w-10 rounded-full bg-blue-800/30 flex items-center justify-center">
-                    <Activity className="h-5 w-5 text-amber-300" />
+              <Card className="border border-blue-200 overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 group">
+                <CardHeader className="flex flex-row items-center justify-between pb-2 border-b border-blue-100 bg-gradient-to-r from-blue-50 to-blue-100/50">
+                  <CardTitle className="text-base font-bold text-slate-700">Active Campaigns</CardTitle>
+                  <div className="h-10 w-10 rounded-full bg-blue-600 flex items-center justify-center">
+                    <Activity className="h-5 w-5 text-white" />
                   </div>
                 </CardHeader>
                 <CardContent className="pt-4 relative">
-                  <div className="absolute top-0 right-0 w-24 h-24 bg-blue-700/15 rounded-full blur-xl -mt-10 -mr-10 opacity-70"></div>
-                  <div className="text-4xl font-bold bg-gradient-to-r from-white via-amber-300 to-white inline-block text-transparent bg-clip-text">
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-blue-100 rounded-full blur-xl -mt-10 -mr-10 opacity-30"></div>
+                  <div className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 inline-block text-transparent bg-clip-text">
                     {clientData.stats.activeCampaigns}
                   </div>
-                  <p className="text-sm text-white/70 mt-1 font-medium">Currently running email campaigns</p>
+                  <p className="text-sm text-slate-600 mt-1 font-medium">Currently running email campaigns</p>
                   
-                  <div className="mt-4 flex items-center gap-1 text-xs text-white/60">
-                    <TrendingUp className="h-3 w-3 text-amber-300" />
+                  <div className="mt-4 flex items-center gap-1 text-xs text-slate-500">
+                    <TrendingUp className="h-3 w-3 text-blue-600" />
                     <span>2 campaigns active this week</span>
                   </div>
                 </CardContent>
               </Card>
               
-              <Card className="backdrop-blur-md bg-white/10 border border-blue-900/20 overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 group">
-                <CardHeader className="flex flex-row items-center justify-between pb-2 border-b border-blue-900/30">
-                  <CardTitle className="text-base font-bold text-white">Total Emails</CardTitle>
-                  <div className="h-10 w-10 rounded-full bg-blue-800/30 flex items-center justify-center">
-                    <Mail className="h-5 w-5 text-amber-300" />
+              <Card className="border border-blue-200 overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 group">
+                <CardHeader className="flex flex-row items-center justify-between pb-2 border-b border-blue-100 bg-gradient-to-r from-blue-50 to-blue-100/50">
+                  <CardTitle className="text-base font-bold text-slate-700">Total Emails</CardTitle>
+                  <div className="h-10 w-10 rounded-full bg-blue-600 flex items-center justify-center">
+                    <Mail className="h-5 w-5 text-white" />
                   </div>
                 </CardHeader>
                 <CardContent className="pt-4 relative">
-                  <div className="absolute top-0 right-0 w-24 h-24 bg-blue-700/15 rounded-full blur-xl -mt-10 -mr-10 opacity-70"></div>
-                  <div className="text-4xl font-bold bg-gradient-to-r from-white via-amber-300 to-white inline-block text-transparent bg-clip-text">
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-blue-100 rounded-full blur-xl -mt-10 -mr-10 opacity-30"></div>
+                  <div className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 inline-block text-transparent bg-clip-text">
                     {clientData.stats.totalEmails.toLocaleString()}
                   </div>
-                  <p className="text-sm text-white/70 mt-1 font-medium">Sent across all campaigns</p>
+                  <p className="text-sm text-slate-600 mt-1 font-medium">Sent across all campaigns</p>
                   
-                  <div className="mt-4 flex items-center gap-1 text-xs text-white/60">
-                    <TrendingUp className="h-3 w-3 text-amber-300" />
+                  <div className="mt-4 flex items-center gap-1 text-xs text-slate-500">
+                    <TrendingUp className="h-3 w-3 text-blue-600" />
                     <span>1,250 emails sent this month</span>
                   </div>
                 </CardContent>
               </Card>
               
-              <Card className="backdrop-blur-md bg-white/10 border border-blue-900/20 overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 group">
-                <CardHeader className="flex flex-row items-center justify-between pb-2 border-b border-blue-900/30">
-                  <CardTitle className="text-base font-bold text-white">Open Rate</CardTitle>
-                  <div className="h-10 w-10 rounded-full bg-blue-800/30 flex items-center justify-center">
-                    <MailCheck className="h-5 w-5 text-amber-300" />
+              <Card className="border border-blue-200 overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 group">
+                <CardHeader className="flex flex-row items-center justify-between pb-2 border-b border-blue-100 bg-gradient-to-r from-blue-50 to-blue-100/50">
+                  <CardTitle className="text-base font-bold text-slate-700">Open Rate</CardTitle>
+                  <div className="h-10 w-10 rounded-full bg-blue-600 flex items-center justify-center">
+                    <MailCheck className="h-5 w-5 text-white" />
                   </div>
                 </CardHeader>
                 <CardContent className="pt-4 relative">
-                  <div className="absolute top-0 right-0 w-24 h-24 bg-blue-700/15 rounded-full blur-xl -mt-10 -mr-10 opacity-70"></div>
-                  <div className="text-4xl font-bold bg-gradient-to-r from-white via-amber-300 to-white inline-block text-transparent bg-clip-text">
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-blue-100 rounded-full blur-xl -mt-10 -mr-10 opacity-30"></div>
+                  <div className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 inline-block text-transparent bg-clip-text">
                     {clientData.stats.openRate}%
                   </div>
-                  <p className="text-sm text-white/70 mt-1 font-medium">Average across all campaigns</p>
+                  <p className="text-sm text-slate-600 mt-1 font-medium">Average across all campaigns</p>
                   
-                  <div className="mt-4 flex items-center gap-1 text-xs text-white/60">
-                    <TrendingUp className="h-3 w-3 text-amber-300" />
+                  <div className="mt-4 flex items-center gap-1 text-xs text-slate-500">
+                    <TrendingUp className="h-3 w-3 text-blue-600" />
                     <span>3.2% higher than industry average</span>
                   </div>
                 </CardContent>

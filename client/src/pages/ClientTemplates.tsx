@@ -657,7 +657,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
                       <div className="absolute top-0 left-0 w-full flex justify-between p-2.5">
                         <Badge 
                           variant="outline" 
-                          className="capitalize px-2 py-0.5 text-xs bg-white bg-opacity-90 text-green-700 border-green-200 rounded-md shadow-sm"
+                          className="capitalize px-2 py-0.5 text-xs bg-white bg-opacity-90 text-blue-700 border-blue-200 rounded-md shadow-sm"
                         >
                           {template.category || "general"}
                         </Badge>
@@ -677,7 +677,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
                           <Button 
                             variant="default" 
                             size="sm"
-                            className="shadow-lg opacity-90 hover:opacity-100 bg-gradient-to-r from-green-500 to-emerald-500 border border-green-300 hover:from-green-600 hover:to-emerald-600"
+                            className="shadow-lg opacity-90 hover:opacity-100 bg-gradient-to-r from-blue-600 to-blue-800 border border-blue-300 hover:from-blue-700 hover:to-blue-900"
                             onClick={() => handleViewTemplate(template)}
                           >
                             <Eye className="h-4 w-4 mr-1" />
@@ -697,7 +697,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
                       
                       {/* NEW badge */}
                       {template.metadata?.new && (
-                        <div className="absolute top-12 -right-8 bg-gradient-to-r from-green-500 to-emerald-500 text-white text-xs px-10 py-1 font-medium shadow-md transform rotate-45">
+                        <div className="absolute top-12 -right-8 bg-gradient-to-r from-blue-600 to-blue-800 text-white text-xs px-10 py-1 font-medium shadow-md transform rotate-45">
                           NEW
                         </div>
                       )}
@@ -707,30 +707,30 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
                         <h3 className="font-medium text-base text-gray-900 line-clamp-1">{template.name}</h3>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-500 hover:text-green-600 -mt-1 -mr-2">
+                            <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-500 hover:text-blue-600 -mt-1 -mr-2">
                               <MoreHorizontal className="h-4 w-4" />
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end" className="w-48">
                             <DropdownMenuItem onClick={() => handleViewTemplate(template)}>
-                              <Eye className="h-4 w-4 mr-2 text-green-600" />
+                              <Eye className="h-4 w-4 mr-2 text-blue-600" />
                               Preview
                             </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => handleEditTemplate(template)}>
-                              <Edit className="h-4 w-4 mr-2 text-green-600" />
+                              <Edit className="h-4 w-4 mr-2 text-blue-600" />
                               Edit
                             </DropdownMenuItem>
                             <DropdownMenuItem onSelect={() => {
                               setSelectedTemplate(template);
                               setIsTestEmailOpen(true); 
                             }}>
-                              <Send className="h-4 w-4 mr-2 text-green-600" />
+                              <Send className="h-4 w-4 mr-2 text-blue-600" />
                               Send Test
                             </DropdownMenuItem>
                             <DropdownMenuItem 
                               onSelect={() => handleShareTemplate(template.id)}
                             >
-                              <Share2 className="h-4 w-4 mr-2 text-green-600" />
+                              <Share2 className="h-4 w-4 mr-2 text-blue-600" />
                               Share
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
