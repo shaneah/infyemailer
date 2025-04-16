@@ -180,35 +180,33 @@ export default function ClientDashboard() {
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden relative z-10">
         {/* Header */}
-        <header className="bg-blue-900 border-b border-blue-800 text-white relative z-20 shadow-md">
-          <div className="container mx-auto py-4 px-6">
+        <header className="bg-white border-b border-gray-200 text-slate-800 relative z-20 shadow-sm">
+          <div className="container mx-auto py-3 px-6">
             <div className="flex justify-between items-center">
               <div className="flex items-center gap-4">
                 <Button 
                   variant="ghost" 
                   size="lg"
-                  className="lg:hidden text-white hover:bg-blue-800"
+                  className="lg:hidden text-blue-700 hover:bg-blue-50"
                   onClick={() => setSidebarOpen(true)}
                 >
-                  <Menu size={24} />
+                  <Menu size={22} />
                 </Button>
-                <div>
-                  <h1 className="text-2xl font-bold tracking-tight bg-gradient-to-r from-blue-400 via-amber-300 to-blue-400 inline-block text-transparent bg-clip-text">
-                    InfyMailer NextGen Portal
+                <div className="flex flex-col">
+                  <h1 className="text-xl font-bold text-blue-700">
+                    Dashboard <span className="font-normal text-slate-500">|</span> <span className="text-amber-600">{clientData.company || 'Acme Corporation'}</span>
                   </h1>
-                  <div className="w-32 h-0.5 mx-auto bg-gradient-to-r from-transparent via-amber-400 to-transparent my-1"></div>
-                  <p className="text-sm font-medium text-white/70">{clientData.company || 'Acme Corporation'}</p>
                 </div>
               </div>
               <div className="flex items-center gap-4">
-                <div className="hidden md:flex items-center gap-2 bg-blue-800 px-3 py-1.5 rounded-full border border-blue-700">
-                  <CircleUser className="h-5 w-5 text-amber-300" />
-                  <span className="text-sm font-medium text-white">Welcome, {clientUser?.name || 'User'}</span>
+                <div className="hidden md:flex items-center gap-2 bg-blue-50 px-3 py-1.5 rounded-md border border-blue-100">
+                  <CircleUser className="h-5 w-5 text-blue-600" />
+                  <span className="text-sm font-medium text-slate-700">Welcome, {clientUser?.name || 'User'}</span>
                 </div>
                 <Button 
                   variant="outline" 
                   onClick={handleLogout} 
-                  className="text-white border-amber-500/30 bg-blue-800 hover:bg-blue-700 hover:text-amber-300 font-medium"
+                  className="text-blue-700 border-blue-200 bg-white hover:bg-blue-50 font-medium"
                 >
                   Logout
                 </Button>
