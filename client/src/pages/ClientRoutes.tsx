@@ -2015,10 +2015,10 @@ export default function ClientRoutes() {
   }
   
   return (
-    <div className="flex h-screen bg-background">
+    <div className="flex h-screen overflow-hidden bg-background">
       <ClientSidebar open={sidebarOpen} setOpen={setSidebarOpen} />
       
-      <main className="flex-1 overflow-auto">
+      <main className="flex-1 overflow-auto relative w-full">
         <Switch>
           <Route path="/client-dashboard">
             <ClientDashboard />

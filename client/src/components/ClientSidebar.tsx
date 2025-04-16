@@ -87,14 +87,14 @@ const ClientSidebar = ({ open, setOpen }: SidebarProps) => {
       {/* Mobile menu button */}
       <button
         onClick={() => setOpen(!open)}
-        className="fixed top-4 left-4 z-50 lg:hidden flex items-center justify-center w-10 h-10 rounded-md bg-blue-900 text-white"
+        className="absolute top-4 left-4 z-50 lg:hidden flex items-center justify-center w-10 h-10 rounded-md bg-blue-900 text-white"
       >
         {open ? <X size={20} /> : <Menu size={20} />}
       </button>
       
       {/* Sidebar */}
       <aside 
-        className={`fixed inset-y-0 left-0 z-40 w-64 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-auto lg:z-auto ${
+        className={`fixed inset-y-0 left-0 z-40 w-64 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-auto lg:h-screen lg:z-auto ${
           open ? 'translate-x-0' : '-translate-x-full'
         } h-full bg-gradient-to-b from-blue-950 to-blue-900 text-white flex flex-col flex-shrink-0 shadow-xl`}
       >
