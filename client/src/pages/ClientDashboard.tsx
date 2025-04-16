@@ -365,21 +365,21 @@ export default function ClientDashboard() {
                       />
                       <Tooltip 
                         contentStyle={{
-                          backgroundColor: 'rgba(30, 58, 138, 0.9)',
-                          border: '1px solid rgba(99, 102, 241, 0.3)',
+                          backgroundColor: 'rgba(15, 118, 110, 0.9)',
+                          border: '1px solid rgba(45, 212, 191, 0.3)',
                           borderRadius: '6px',
                           boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
                           color: 'white'
                         }}
-                        labelStyle={{color: '#93c5fd'}}
+                        labelStyle={{color: '#2dd4bf'}}
                         itemStyle={{color: 'white'}}
                       />
                       <Legend 
                         wrapperStyle={{color: 'white', fontSize: '12px'}}
                         formatter={(value) => <span style={{color: 'rgba(255,255,255,0.7)'}}>{value}</span>}
                       />
-                      <Bar dataKey="opens" name="Opens" fill="rgba(79, 70, 229, 1)" radius={[4, 4, 0, 0]} />
-                      <Bar dataKey="clicks" name="Clicks" fill="rgba(139, 92, 246, 0.8)" radius={[4, 4, 0, 0]} />
+                      <Bar dataKey="opens" name="Opens" fill="rgba(20, 184, 166, 1)" radius={[4, 4, 0, 0]} />
+                      <Bar dataKey="clicks" name="Clicks" fill="rgba(45, 212, 191, 0.8)" radius={[4, 4, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 </CardContent>
@@ -423,8 +423,8 @@ export default function ClientDashboard() {
                               <Cell 
                                 key={`cell-${index}`} 
                                 fill={[
-                                  "#14b8a6", "#6366f1", "#ec4899", 
-                                  "#f59e0b", "#8b5cf6"
+                                  "#14b8a6", "#0d9488", "#0f766e", 
+                                  "#115e59", "#134e4a"
                                 ][index % 5]} 
                                 stroke="rgba(10, 25, 41, 0.5)"
                                 strokeWidth={2}
@@ -433,13 +433,13 @@ export default function ClientDashboard() {
                           </Pie>
                           <Tooltip 
                             contentStyle={{
-                              backgroundColor: 'rgba(88, 28, 135, 0.9)',
-                              border: '1px solid rgba(168, 85, 247, 0.3)',
+                              backgroundColor: 'rgba(15, 118, 110, 0.9)',
+                              border: '1px solid rgba(45, 212, 191, 0.3)',
                               borderRadius: '6px',
                               boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
                               color: 'white'
                             }}
-                            labelStyle={{color: '#d8b4fe'}}
+                            labelStyle={{color: '#2dd4bf'}}
                             itemStyle={{color: 'white'}}
                           />
                         </>
@@ -502,10 +502,10 @@ export default function ClientDashboard() {
                           <td className="py-4 px-4">
                             <span className={`px-3 py-1.5 rounded-full text-xs font-medium ${
                               campaign.status === "Completed" 
-                                ? "bg-emerald-900/70 text-emerald-100 border border-emerald-600" :
+                                ? "bg-teal-900/70 text-teal-100 border border-teal-600" :
                               campaign.status === "Ongoing" 
-                                ? "bg-indigo-900/70 text-indigo-100 border border-indigo-600" :
-                              "bg-amber-900/70 text-amber-100 border border-amber-600"
+                                ? "bg-teal-800/70 text-teal-100 border border-teal-700" :
+                              "bg-teal-700/70 text-teal-100 border border-teal-600"
                             }`}>
                               {campaign.status}
                             </span>
