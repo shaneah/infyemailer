@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useLocation, Link } from 'wouter';
 import { 
-  Mail, Users, ListChecks, FileText, BarChart3, 
+  Mail, Users, ListChecks, FileText, BarChart3, LineChart,
   Globe, CheckSquare, SplitSquareVertical, Settings, LogOut, Menu, X, CreditCard
 } from 'lucide-react';
 
@@ -124,6 +124,12 @@ const ClientSidebar = ({ open, setOpen }: SidebarProps) => {
         {/* Navigation */}
         <div className="flex-1 overflow-y-auto py-4 px-1">
           <MenuSection title="Overview">
+            <MenuItem 
+              href="/client-advanced-dashboard" 
+              icon={LineChart} 
+              label="Advanced Dashboard" 
+              active={location === '/client-advanced-dashboard'} 
+            />
             <MenuItem 
               href="/client-reports" 
               icon={BarChart3} 
