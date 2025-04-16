@@ -209,8 +209,13 @@ function App() {
                     <ProtectedRoute path="ab-testing" component={ABTesting} />
                     <ProtectedRoute path="ab-testing/:id" component={ABTesting} />
                     <ProtectedRoute path="email-performance" component={EmailPerformance} />
-                    <ProtectedRoute path="template-builder" component={TemplateBuilder} />
-                    <ProtectedRoute path="template-builder/:id" component={TemplateBuilder} />
+                    {/* Template builder gets full-width layout without default padding */}
+                    <Route path="template-builder">
+                      <TemplateBuilder />
+                    </Route>
+                    <Route path="template-builder/:id">
+                      <TemplateBuilder />
+                    </Route>
                     <ProtectedRoute path="drag-drop-builder" component={DragAndDropTemplateBuilder} />
                     <ProtectedRoute path="drag-drop-builder/:id" component={DragAndDropTemplateBuilder} />
                     <ProtectedRoute path="domains" component={Domains} />
