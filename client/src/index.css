@@ -2,6 +2,23 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Template preview container */
+.template-preview {
+  font-family: Arial, sans-serif;
+  max-height: 100%;
+  overflow: hidden;
+}
+
+.template-preview img {
+  max-width: 100%;
+  height: auto;
+}
+
+.template-preview table {
+  max-width: 100%;
+  border-collapse: collapse;
+}
+
 :root {
   --background: 0 0% 100%;
   --foreground: 222.2 84% 4.9%;

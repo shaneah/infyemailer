@@ -568,11 +568,13 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
                   <Card key={template.id} className="overflow-hidden group border-0 hover:shadow-xl transition-all duration-300 bg-white rounded-xl">
                     <CardHeader className="p-0 h-48 overflow-hidden relative">
                       <div className="absolute inset-0 flex items-center justify-center p-4 bg-gradient-to-br from-green-50 via-emerald-50 to-green-50 text-center">
-                        <div className="bg-white rounded-lg p-4 shadow-lg border border-green-200 w-full max-w-[240px] mx-auto transform group-hover:scale-105 transition-transform duration-300">
-                          <div className="h-4 w-3/4 bg-gradient-to-r from-green-300 to-emerald-400 rounded-sm mb-3 mx-auto"></div>
-                          <div className="h-2 w-5/6 bg-gray-100 rounded-sm mb-2 mx-auto"></div>
-                          <div className="h-2 w-4/6 bg-gray-100 rounded-sm mb-3 mx-auto"></div>
-                          <div className="h-6 w-1/3 bg-gradient-to-r from-green-500 to-emerald-500 rounded-sm mx-auto mt-3 shadow-sm"></div>
+                        <div className="bg-white rounded-lg p-4 shadow-lg border border-green-200 w-full max-w-[240px] mx-auto transform group-hover:scale-105 transition-transform duration-300 overflow-auto">
+                          {/* Render actual template content */}
+                          <div className="template-preview" style={{fontSize: "0.6rem", lineHeight: "1.2"}} 
+                            dangerouslySetInnerHTML={{ 
+                              __html: parseTemplateContent(template.content).substring(0, 500) + (parseTemplateContent(template.content).length > 500 ? '...' : '') 
+                            }}
+                          />
                         </div>
                       </div>
                       <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-black/30 backdrop-blur-sm transition-all duration-300 flex items-center justify-center">
