@@ -2050,8 +2050,11 @@ export default function ClientRoutes() {
           <Route path="/client-email-validation">
             <ClientEmailValidation />
           </Route>
+          <Route path="/client-ab-testing/:id">
+            <ClientABTestingAdvanced />
+          </Route>
           <Route path="/client-ab-testing">
-            <ClientABTesting />
+            <ClientABTestingAdvanced />
           </Route>
           <Route path="/client-settings">
             <ClientSettings />
