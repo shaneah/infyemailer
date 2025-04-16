@@ -365,13 +365,13 @@ export default function ClientDashboard() {
                       />
                       <Tooltip 
                         contentStyle={{
-                          backgroundColor: 'rgba(26, 58, 95, 0.9)',
-                          border: '1px solid rgba(212, 175, 55, 0.3)',
+                          backgroundColor: 'rgba(15, 118, 110, 0.9)',
+                          border: '1px solid rgba(45, 212, 191, 0.3)',
                           borderRadius: '6px',
                           boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
                           color: 'white'
                         }}
-                        labelStyle={{color: '#d4af37'}}
+                        labelStyle={{color: '#2dd4bf'}}
                         itemStyle={{color: 'white'}}
                       />
                       <Legend 
@@ -433,13 +433,13 @@ export default function ClientDashboard() {
                           </Pie>
                           <Tooltip 
                             contentStyle={{
-                              backgroundColor: 'rgba(26, 58, 95, 0.9)',
-                              border: '1px solid rgba(212, 175, 55, 0.3)',
+                              backgroundColor: 'rgba(15, 118, 110, 0.9)',
+                              border: '1px solid rgba(45, 212, 191, 0.3)',
                               borderRadius: '6px',
                               boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
                               color: 'white'
                             }}
-                            labelStyle={{color: '#d4af37'}}
+                            labelStyle={{color: '#2dd4bf'}}
                             itemStyle={{color: 'white'}}
                           />
                         </>
@@ -502,10 +502,10 @@ export default function ClientDashboard() {
                           <td className="py-4 px-4">
                             <span className={`px-3 py-1.5 rounded-full text-xs font-medium ${
                               campaign.status === "Completed" 
-                                ? "bg-[#2a9d8f]/20 text-[#2a9d8f] border border-[#2a9d8f]/30" :
+                                ? "bg-teal-500/20 text-teal-300 border border-teal-500/30" :
                               campaign.status === "Ongoing" 
-                                ? "bg-[#3a86ff]/20 text-[#3a86ff] border border-[#3a86ff]/30" :
-                              "bg-[#d4af37]/20 text-teal-200 border border-[#d4af37]/30"
+                                ? "bg-blue-500/20 text-blue-300 border border-blue-500/30" :
+                              "bg-amber-500/20 text-amber-300 border border-amber-500/30"
                             }`}>
                               {campaign.status}
                             </span>
@@ -523,7 +523,7 @@ export default function ClientDashboard() {
                 </div>
                 
                 <div className="mt-6 flex justify-center">
-                  <Button className="bg-[#d4af37]/20 text-teal-200 hover:bg-[#d4af37]/30 border border-[#d4af37]/30 rounded-full px-6 group">
+                  <Button className="bg-teal-500/20 text-teal-200 hover:bg-teal-500/30 border border-teal-500/30 rounded-full px-6 group">
                     View All Campaigns
                     <ChevronRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
                   </Button>
