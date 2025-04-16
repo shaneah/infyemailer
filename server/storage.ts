@@ -1798,6 +1798,28 @@ export class MemStorage implements IStorage {
     
     return result;
   }
+  
+  // Client-specific template methods
+  async getClientTemplates(clientId: number): Promise<Template[]> {
+    return Array.from(this.templates.values())
+      .filter(template => template.clientId === clientId);
+  }
+  
+  async getClientTemplatesByCategory(clientId: number, category: string): Promise<Template[]> {
+    return Array.from(this.templates.values())
+      .filter(template => template.clientId === clientId && template.category === category);
+  }
+  
+  async createClientTemplate(clientId: number, template: InsertTemplate): Promise<Template> {
+    // Add clientId to the template data
+    const templateWithClient = {
+      ...template,
+      clientId
+    };
+    
+    // Use the existing createTemplate method
+    return this.createTemplate(templateWithClient);
+  }
 
   // Analytics methods
   async getAnalytics(): Promise<Analytics[]> {
