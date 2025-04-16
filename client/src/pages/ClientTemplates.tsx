@@ -587,25 +587,61 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
             {viewMode === 'grid' ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
                 {filteredTemplates.map((template: Template) => (
-                  <Card key={template.id} className="overflow-hidden group border-0 hover:shadow-xl transition-all duration-300 bg-white rounded-xl">
-                    <CardHeader className="p-0 h-48 overflow-hidden relative">
-                      <div className="absolute inset-0 flex items-center justify-center p-4 bg-gradient-to-br from-green-50 via-emerald-50 to-green-50 text-center">
-                        <div className="bg-white rounded-lg p-3 shadow-lg border border-green-200 w-full max-w-[240px] mx-auto transform group-hover:scale-105 transition-transform duration-300">
-                          {/* Simplified template preview */}
-                          <div className="h-5 w-3/4 bg-gradient-to-r from-green-300 to-emerald-400 rounded-sm mb-2 mx-auto"></div>
-                          <div className="h-2 w-5/6 bg-gray-100 rounded-sm mb-2 mx-auto"></div>
-                          <div className="h-2 w-4/6 bg-gray-100 rounded-sm mb-2 mx-auto"></div>
-                          <div className="border-t border-gray-100 my-2"></div>
-                          <div className="flex justify-center gap-2 mb-2">
-                            <div className="h-8 w-8 rounded-full bg-gray-100"></div>
-                            <div className="h-8 w-20 bg-gray-100 rounded-sm"></div>
+                  <Card key={template.id} className="overflow-hidden group hover:shadow-xl transition-all duration-300 bg-white rounded-xl border border-green-100">
+                    <CardHeader className="p-0 overflow-hidden relative">
+                      {/* Template Preview Section */}
+                      <div className="h-44 bg-gradient-to-br from-green-50 via-emerald-50 to-green-50 overflow-hidden relative flex items-center justify-center">
+                        {/* Template design preview */}
+                        <div className="template-preview-card bg-white rounded-lg shadow-md w-[85%] h-[85%] mx-auto overflow-hidden flex flex-col transform group-hover:scale-105 transition-transform duration-300">
+                          {/* Template header */}
+                          <div className="template-preview-header h-7 bg-gradient-to-r from-green-500 to-emerald-500 flex items-center px-3">
+                            <div className="flex space-x-1.5">
+                              <div className="w-2 h-2 rounded-full bg-white opacity-80"></div>
+                              <div className="w-2 h-2 rounded-full bg-white opacity-80"></div>
+                              <div className="w-2 h-2 rounded-full bg-white opacity-80"></div>
+                            </div>
                           </div>
-                          <div className="h-3 w-full bg-gray-100 rounded-sm mb-1.5"></div>
-                          <div className="h-3 w-full bg-gray-100 rounded-sm mb-3"></div>
-                          <div className="h-6 w-1/3 bg-gradient-to-r from-green-500 to-emerald-500 rounded-sm mx-auto shadow-sm"></div>
+                          
+                          {/* Template content mockup */}
+                          <div className="flex-1 p-2 flex flex-col">
+                            {/* Template title bar */}
+                            <div className="h-4 w-3/4 bg-gradient-to-r from-green-300 to-emerald-300 rounded mb-2"></div>
+                            
+                            {/* Template content lines */}
+                            <div className="space-y-1.5 mb-auto">
+                              <div className="h-2 w-full bg-gray-100 rounded"></div>
+                              <div className="h-2 w-5/6 bg-gray-100 rounded"></div>
+                              <div className="h-2 w-4/6 bg-gray-100 rounded"></div>
+                            </div>
+                            
+                            {/* Template footer */}
+                            <div className="mt-2 pt-2 border-t border-gray-100">
+                              <div className="h-3 w-2/3 bg-gray-100 rounded mx-auto"></div>
+                            </div>
+                          </div>
                         </div>
                       </div>
-                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-black/30 backdrop-blur-sm transition-all duration-300 flex items-center justify-center">
+                      
+                      {/* Template badges */}
+                      <div className="absolute top-0 left-0 w-full flex justify-between p-2.5">
+                        <Badge 
+                          variant="outline" 
+                          className="capitalize px-2 py-0.5 text-xs bg-white bg-opacity-90 text-green-700 border-green-200 rounded-md shadow-sm"
+                        >
+                          {template.category || "general"}
+                        </Badge>
+                        
+                        {template.metadata?.generatedByAI && (
+                          <Badge 
+                            className="capitalize px-2 py-0.5 text-xs rounded-md bg-gradient-to-r from-indigo-600 to-blue-600 text-white border-0 shadow-sm flex items-center gap-1"
+                          >
+                            <Sparkles className="h-3 w-3" /> AI
+                          </Badge>
+                        )}
+                      </div>
+                      
+                      {/* Hover overlay with actions */}
+                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-black/20 backdrop-blur-[1px] transition-all duration-300 flex items-center justify-center">
                         <div className="flex gap-2">
                           <Button 
                             variant="default" 
@@ -616,84 +652,105 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
                             <Eye className="h-4 w-4 mr-1" />
                             Preview
                           </Button>
+                          <Button 
+                            variant="default" 
+                            size="sm"
+                            className="shadow-lg opacity-90 hover:opacity-100 bg-white text-gray-700 border border-gray-200 hover:bg-gray-50"
+                            onClick={() => handleEditTemplate(template)}
+                          >
+                            <Edit className="h-4 w-4 mr-1" />
+                            Edit
+                          </Button>
                         </div>
                       </div>
-                      {template.metadata?.generatedByAI && (
-                        <div className="absolute top-3 right-3 bg-gradient-to-r from-indigo-600 to-blue-600 text-white text-xs px-2 py-1 rounded-md font-medium flex items-center shadow-md">
-                          <Sparkles className="h-3 w-3 mr-1" /> 
-                          AI Generated
-                        </div>
-                      )}
+                      
+                      {/* NEW badge */}
                       {template.metadata?.new && (
-                        <div className="absolute top-3 left-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white text-xs px-2 py-1 rounded-md font-medium shadow-md">
+                        <div className="absolute top-12 -right-8 bg-gradient-to-r from-green-500 to-emerald-500 text-white text-xs px-10 py-1 font-medium shadow-md transform rotate-45">
                           NEW
                         </div>
                       )}
                     </CardHeader>
-                    <CardContent className="p-5">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <h3 className="font-medium text-base text-gray-900 line-clamp-1 mb-1">{template.name}</h3>
-                          <p className="text-gray-500 text-sm line-clamp-2">{template.description}</p>
-                        </div>
+                    <CardContent className="p-4">
+                      <div className="flex justify-between items-start mb-1">
+                        <h3 className="font-medium text-base text-gray-900 line-clamp-1">{template.name}</h3>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-green-600 hover:text-green-800 hover:bg-green-50">
-                              <MoreVertical className="h-4 w-4" />
+                            <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-500 hover:text-green-600 -mt-1 -mr-2">
+                              <MoreHorizontal className="h-4 w-4" />
                             </Button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="w-[180px]">
-                            <DropdownMenuItem 
-                              onClick={() => handleViewTemplate(template)}
-                              className="cursor-pointer"
-                            >
+                          <DropdownMenuContent align="end" className="w-48">
+                            <DropdownMenuItem onClick={() => handleViewTemplate(template)}>
                               <Eye className="h-4 w-4 mr-2 text-green-600" />
                               Preview
                             </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => {
-                                setSelectedTemplate(template);
-                                setIsTestEmailOpen(true);
-                              }}
-                              className="cursor-pointer"
-                            >
+                            <DropdownMenuItem onClick={() => handleEditTemplate(template)}>
+                              <Edit className="h-4 w-4 mr-2 text-green-600" />
+                              Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onSelect={() => {
+                              setSelectedTemplate(template);
+                              setIsTestEmailOpen(true); 
+                            }}>
                               <Send className="h-4 w-4 mr-2 text-green-600" />
                               Send Test
                             </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => {
-                                handleShareTemplate(template.id);
-                              }}
-                              className="cursor-pointer"
+                            <DropdownMenuItem 
+                              onSelect={() => handleShareTemplate(template.id)}
                             >
                               <Share2 className="h-4 w-4 mr-2 text-green-600" />
                               Share
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem
-                              onClick={() => handleEditTemplate(template)}
-                              className="cursor-pointer"
+                            <DropdownMenuItem 
+                              className="text-red-600" 
+                              onSelect={() => setTemplateToDelete(template.id)}
                             >
-                              <Pencil className="h-4 w-4 mr-2 text-green-600" />
-                              Edit
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Delete
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </div>
-                    </CardContent>
-                    <CardFooter className="px-5 py-3 bg-gradient-to-r from-green-50 to-emerald-50 flex justify-between items-center border-t border-green-100">
-                      <div className="flex items-center gap-2">
-                        <Badge variant="outline" className="text-xs h-5 px-2 border-green-200 text-green-800 bg-white">
-                          {template.category || "General"}
-                        </Badge>
+                      
+                      {/* Template description */}
+                      <p className="text-gray-500 text-sm line-clamp-2 mb-3">{template.description}</p>
+                      
+                      {/* Template actions */}
+                      <div className="flex items-center justify-between mt-2 pt-2 border-t border-gray-100">
+                        <div className="text-xs text-gray-500">
+                          {template.updatedAt ? (
+                            <time dateTime={new Date(template.updatedAt).toISOString()}>
+                              Updated {formatDistanceToNow(new Date(template.updatedAt), { addSuffix: true })}
+                            </time>
+                          ) : "Recently added"}
+                        </div>
+                        <div className="flex gap-1">
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            className="h-7 w-7 p-0 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded-full"
+                            onClick={() => {
+                              setSelectedTemplate(template);
+                              setIsTestEmailOpen(true); 
+                            }}
+                            title="Send Test Email"
+                          >
+                            <Send className="h-3.5 w-3.5" />
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            className="h-7 w-7 p-0 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded-full"
+                            onClick={() => handleShareTemplate(template.id)}
+                            title="Share Template"
+                          >
+                            <Share2 className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
                       </div>
-                      <span className="text-xs text-gray-500">
-                        {template.updatedAt ? 
-                          `Updated ${formatDistanceToNow(new Date(template.updatedAt), { addSuffix: true })}` : 
-                          "Recently added"
-                        }
-                      </span>
-                    </CardFooter>
+                    </CardContent>
                   </Card>
                 ))}
               </div>
