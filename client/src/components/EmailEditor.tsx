@@ -120,6 +120,13 @@ const ElementRenderer: React.FC<ElementRendererProps> = ({
   isDragging, 
   isDraggedOver 
 }) => {
+  // Wrap the onClick handler to ensure event propagation is stopped
+  const handleElementClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    onClick(e);
+    console.log('Element clicked:', element.id, element.type);
+  };
   const { type, content, styles, id } = element;
 
   const baseClass = `group relative transition-all duration-150 ${
@@ -1908,7 +1915,13 @@ const EmailEditor: React.FC<{
   };
   
   // Handle element click to select it
-  const handleElementClick = (elementId: string) => {
+  const handleElementClick = (elementId: string, e?: React.MouseEvent) => {
+    // Stop event propagation to prevent section selection
+    if (e) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
+    
     setSelectedElementId(elementId);
     
     // Find which section contains this element and select it too
@@ -1919,6 +1932,8 @@ const EmailEditor: React.FC<{
     if (sectionWithElement) {
       setSelectedSectionId(sectionWithElement.id);
     }
+    
+    console.log('Element selected:', elementId);
   };
   
   // Handle element drag start
