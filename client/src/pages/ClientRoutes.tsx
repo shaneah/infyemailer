@@ -2034,7 +2034,7 @@ export default function ClientRoutes() {
             <ClientTemplates onCreateTemplate={() => setShowCreateTemplateModal(true)} />
           </Route>
           <Route path="/client-template-builder">
-            <BasicTemplateBuilder />
+            <BasicTemplateBuilder isClientPortal={true} />
           </Route>
           <Route path="/client-reports">
             <ClientReports />
