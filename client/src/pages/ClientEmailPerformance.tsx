@@ -258,6 +258,19 @@ const ClientEmailPerformance: React.FC = () => {
   // Using React Query to fetch metrics data with fallback
   const { data: metricsData, isLoading: isLoadingMetrics } = useQuery<EmailMetrics>({
     queryKey: ['/api/email-performance/metrics', timeframe, campaignFilter],
+    queryFn: async () => {
+      try {
+        const clientId = clientInfo?.clientId;
+        const res = await fetch(`/api/email-performance/metrics?timeframe=${timeframe}&campaignFilter=${campaignFilter}${clientId ? `&clientId=${clientId}` : ''}`);
+        if (!res.ok) {
+          throw new Error('Failed to fetch metrics data');
+        }
+        return await res.json();
+      } catch (error) {
+        console.error('Error fetching metrics:', error);
+        return fallbackMetricsData;
+      }
+    },
     retry: 3,
     refetchOnWindowFocus: false,
     staleTime: 60000, // 1 minute
@@ -267,6 +280,19 @@ const ClientEmailPerformance: React.FC = () => {
   // Using React Query to fetch chart data with fallback
   const { data: chartData, isLoading: isLoadingCharts } = useQuery<ChartData>({
     queryKey: ['/api/email-performance/charts', timeframe, campaignFilter],
+    queryFn: async () => {
+      try {
+        const clientId = clientInfo?.clientId;
+        const res = await fetch(`/api/email-performance/charts?timeframe=${timeframe}&campaignFilter=${campaignFilter}${clientId ? `&clientId=${clientId}` : ''}`);
+        if (!res.ok) {
+          throw new Error('Failed to fetch chart data');
+        }
+        return await res.json();
+      } catch (error) {
+        console.error('Error fetching chart data:', error);
+        return fallbackChartData;
+      }
+    },
     retry: 3,
     refetchOnWindowFocus: false,
     staleTime: 60000, // 1 minute 
@@ -276,6 +302,19 @@ const ClientEmailPerformance: React.FC = () => {
   // Using React Query to fetch real-time activity with fallback
   const { data: realtimeData } = useQuery<RealtimeActivity[]>({
     queryKey: ['/api/email-performance/realtime'],
+    queryFn: async () => {
+      try {
+        const clientId = clientInfo?.clientId;
+        const res = await fetch(`/api/email-performance/realtime${clientId ? `?clientId=${clientId}` : ''}`);
+        if (!res.ok) {
+          throw new Error('Failed to fetch realtime data');
+        }
+        return await res.json();
+      } catch (error) {
+        console.error('Error fetching realtime data:', error);
+        return fallbackRealtimeData;
+      }
+    },
     refetchInterval: 30000, // Refetch every 30 seconds
     retry: 3,
     refetchOnWindowFocus: false,
@@ -1032,6 +1071,22 @@ const DetailedOpens = () => {
   // Fetch campaigns for the filter dropdown
   const { data: campaignsData } = useQuery<Array<{ id: number; name: string }>>({
     queryKey: ['/api/campaigns'],
+    queryFn: async () => {
+      try {
+        const clientId = clientInfo?.clientId;
+        const res = await fetch(`/api/campaigns${clientId ? `?clientId=${clientId}` : ''}`);
+        if (!res.ok) {
+          throw new Error('Failed to fetch campaigns');
+        }
+        console.log("Campaigns data:", await res.json());
+        // Re-fetch to avoid "body already read" error
+        const secondRes = await fetch(`/api/campaigns${clientId ? `?clientId=${clientId}` : ''}`);
+        return await secondRes.json();
+      } catch (error) {
+        console.error('Error fetching campaigns:', error);
+        return [];
+      }
+    },
     retry: 3,
     refetchOnWindowFocus: false,
     staleTime: 300000, // 5 minutes
