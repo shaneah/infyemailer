@@ -140,15 +140,44 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
   const [templateToDelete, setTemplateToDelete] = useState<number | null>(null);
   const [shareExpiration, setShareExpiration] = useState("7"); // Default to 7 days
   
+  // Get client user info and extract the client ID
+  const getClientUser = () => {
+    const sessionUser = sessionStorage.getItem('clientUser');
+    
+    if (sessionUser) {
+      try {
+        return JSON.parse(sessionUser);
+      } catch (error) {
+        console.error('Error parsing client user', error);
+        return null;
+      }
+    }
+    
+    return null;
+  };
+
+  const clientUser = getClientUser();
+  const clientId = clientUser?.clientId;
+
   const { data: savedTemplates = [], isLoading: isLoadingTemplates } = useQuery({
-    queryKey: ['/api/templates'],
+    queryKey: ['/api/client', clientId, 'templates', activeTab],
     queryFn: async () => {
-      const response = await fetch('/api/templates');
+      if (!clientId) {
+        throw new Error('Client ID not found');
+      }
+      
+      let url = `/api/client/${clientId}/templates`;
+      if (activeTab !== 'all') {
+        url += `?category=${activeTab}`;
+      }
+      
+      const response = await fetch(url);
       if (!response.ok) {
         throw new Error('Failed to fetch templates');
       }
       return response.json();
-    }
+    },
+    enabled: !!clientId // Only run the query if clientId exists
   });
   
   const handleViewTemplate = (template: Template) => {
@@ -331,7 +360,9 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
       return response.json();
     },
     onSuccess: (updatedTemplate) => {
-      queryClient.invalidateQueries({ queryKey: ['/api/templates'] });
+      if (clientId) {
+        queryClient.invalidateQueries({ queryKey: ['/api/client', clientId, 'templates'] });
+      }
       toast({
         title: "Template Updated",
         description: "Your template has been updated successfully",
@@ -359,6 +390,11 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
       // Copy the share URL to clipboard
       navigator.clipboard.writeText(data.shareUrl);
       
+      // Invalidate templates query to refresh the list
+      if (clientId) {
+        queryClient.invalidateQueries({ queryKey: ['/api/client', clientId, 'templates'] });
+      }
+      
       const expiryText = data.expiresIn === "never" 
         ? "The link never expires." 
         : `The link expires in ${data.expiresIn} days.`;
@@ -385,7 +421,9 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
       return apiRequest("DELETE", `/api/templates/${templateId}`);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/templates'] });
+      if (clientId) {
+        queryClient.invalidateQueries({ queryKey: ['/api/client', clientId, 'templates'] });
+      }
       toast({
         title: "Template Deleted",
         description: "The template has been deleted successfully",
@@ -431,23 +469,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
     }
   };
 
-  // Get client user info from session storage
-  const getClientUser = () => {
-    const sessionUser = sessionStorage.getItem('clientUser');
-    
-    if (sessionUser) {
-      try {
-        return JSON.parse(sessionUser);
-      } catch (error) {
-        console.error('Error parsing client user', error);
-        return null;
-      }
-    }
-    
-    return null;
-  };
-
-  const clientUser = getClientUser();
+  // We already have clientUser from earlier in the code
   
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
