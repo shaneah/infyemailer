@@ -1231,6 +1231,52 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
           onImportSuccess={handleImportSuccess}
         />
       )}
+      
+      {/* Delete Template Confirmation Dialog */}
+      <Dialog open={templateToDelete !== null} onOpenChange={(open) => !open && setTemplateToDelete(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Delete Template</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this template? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex items-center space-x-2 pt-4">
+            <div className="rounded-full bg-red-50 p-2">
+              <Trash2 className="h-5 w-5 text-red-600" />
+            </div>
+            <div>
+              <p className="text-sm font-medium">Template will be permanently deleted</p>
+              <p className="text-sm text-gray-500">This will remove the template from your library</p>
+            </div>
+          </div>
+          <DialogFooter className="sm:justify-end gap-2 mt-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setTemplateToDelete(null)}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button" 
+              variant="destructive"
+              onClick={handleDeleteTemplate}
+              className="bg-red-600 hover:bg-red-700"
+              disabled={deleteTemplateMutation.isPending}
+            >
+              {deleteTemplateMutation.isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                <>Delete Template</>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
