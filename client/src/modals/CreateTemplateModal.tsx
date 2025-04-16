@@ -73,15 +73,7 @@ export default function CreateTemplateModal({ open, onOpenChange }: CreateTempla
     createTemplateMutation.mutate(data);
   };
   
-  const handleVisualBuilderClick = () => {
-    // Close this modal and navigate
-    onOpenChange(false);
-    // Slight delay to avoid modal transition issues
-    setTimeout(() => {
-      // Navigate to the correct route that's defined in App.tsx
-      window.location.href = '/client-template-builder';
-    }, 100);
-  };
+  // We now use a direct link for navigation
   
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -105,13 +97,14 @@ export default function CreateTemplateModal({ open, onOpenChange }: CreateTempla
             <p className="text-gray-600 mb-6 max-w-md mx-auto">
               Create professional email templates with our intuitive drag-and-drop visual editor - no coding required.
             </p>
-            <Button 
-              className="px-8 py-4 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white font-medium rounded-md shadow-md border border-amber-300 transition-all duration-200 hover:scale-105"
-              onClick={handleVisualBuilderClick}
+            <a 
+              href="/client-template-builder"
+              className="inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white font-medium rounded-md shadow-md border border-amber-300 transition-all duration-200 hover:scale-105"
+              onClick={() => onOpenChange(false)}
             >
               <FileText className="h-5 w-5 mr-2 inline-block" />
               Open Visual Builder
-            </Button>
+            </a>
           </div>
         </div>
       </DialogContent>
