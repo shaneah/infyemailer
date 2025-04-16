@@ -747,13 +747,13 @@ const EmailPerformance: React.FC = () => {
                         <span className="text-sm">Button-style CTAs</span>
                         <span className="text-sm font-medium">24.6% CTR</span>
                       </div>
-                      <Progress value={24.6} className="h-2" indicatorClassName="bg-[#d4af37]" />
+                      <Progress value={24.6} className="h-2" style={{ '--progress-foreground': '#d4af37' } as React.CSSProperties} />
                       
                       <div className="flex items-center justify-between mt-2">
                         <span className="text-sm">Image + Text CTAs</span>
                         <span className="text-sm font-medium">18.3% CTR</span>
                       </div>
-                      <Progress value={18.3} className="h-2" indicatorClassName="bg-[#1a3a5f]" />
+                      <Progress value={18.3} className="h-2" style={{ '--progress-foreground': '#1a3a5f' } as React.CSSProperties} />
                     </div>
                   </div>
                 </div>
