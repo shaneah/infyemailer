@@ -4,6 +4,7 @@ import {
   Mail, Users, ListChecks, FileText, BarChart3, LineChart,
   Globe, CheckSquare, SplitSquareVertical, Settings, LogOut, Menu, X, CreditCard
 } from 'lucide-react';
+import LogoWhite from '../assets/Logo-white.png';
 
 interface SidebarProps {
   open: boolean;
@@ -101,7 +102,7 @@ const ClientSidebar = ({ open, setOpen }: SidebarProps) => {
         <div className="p-4 flex flex-col items-center border-b border-blue-800/50">
           <div className="w-full flex items-center justify-center mt-1 mb-2">
             <img 
-              src="/client/src/assets/Logo-white.png" 
+              src={LogoWhite} 
               alt="InfyMailer Logo" 
               className="h-7" 
             />
