@@ -140,13 +140,13 @@ const ClientEmailPerformance: React.FC = () => {
   const [timeframe, setTimeframe] = useState('7days');
   const [campaignFilter, setCampaignFilter] = useState('all');
   
-  // Get client info from localStorage
+  // Get client info from sessionStorage as that's where ClientSidebar stores it
   const clientInfo = useMemo(() => {
     try {
-      const stored = localStorage.getItem('clientInfo');
+      const stored = sessionStorage.getItem('clientUser');
       return stored ? JSON.parse(stored) : null;
     } catch (e) {
-      console.error('Error parsing client info from localStorage', e);
+      console.error('Error parsing client info from sessionStorage', e);
       return null;
     }
   }, []);
