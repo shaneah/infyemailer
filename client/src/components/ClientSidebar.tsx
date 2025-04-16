@@ -96,7 +96,7 @@ const ClientSidebar = ({ open, setOpen }: SidebarProps) => {
       <aside 
         className={`fixed inset-y-0 left-0 z-40 w-64 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-auto lg:h-screen lg:z-auto ${
           open ? 'translate-x-0' : '-translate-x-full'
-        } h-full bg-gradient-to-b from-blue-950 to-blue-900 text-white flex flex-col flex-shrink-0 shadow-xl overflow-hidden`}
+        } h-full bg-gradient-to-b from-blue-950 to-blue-900 text-white flex flex-col shadow-xl`}
       >
         {/* Logo area */}
         <div className="p-4 flex flex-col items-center border-b border-blue-800/50">
@@ -139,7 +139,7 @@ const ClientSidebar = ({ open, setOpen }: SidebarProps) => {
         </div>
         
         {/* Navigation */}
-        <div className="flex-1 overflow-y-auto py-4 px-1 min-h-0">
+        <div className="flex-1 overflow-y-auto py-4 px-1 min-h-0 h-0">
           <MenuSection title="Overview">
             <MenuItem 
               href="/client-dashboard" 
