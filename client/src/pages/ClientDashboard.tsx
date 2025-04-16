@@ -176,30 +176,30 @@ export default function ClientDashboard() {
   }
 
   return (
-    <div className="flex flex-col overflow-hidden min-h-screen bg-gradient-to-br from-[#0a1929] via-[#112b4a] to-[#1a3a5f]">
+    <div className="flex flex-col overflow-hidden min-h-screen bg-gradient-to-br from-teal-700 via-teal-800 to-teal-900">
       {/* Particles background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {particles.map((particle, index) => (
           <div 
             key={index}
-            className="absolute rounded-full bg-[#d4af37]"
+            className="absolute rounded-full bg-teal-300"
             style={{
               left: `${particle.x}%`,
               top: `${particle.y}%`,
               width: `${particle.size}px`,
               height: `${particle.size}px`,
               opacity: particle.opacity,
-              boxShadow: `0 0 ${particle.size * 2}px ${particle.size}px rgba(212, 175, 55, 0.2)`
+              boxShadow: `0 0 ${particle.size * 2}px ${particle.size}px rgba(94, 234, 212, 0.2)`
             }}
           />
         ))}
         {/* Gradient overlays */}
-        <div className="absolute top-0 left-0 right-0 h-40 bg-gradient-to-b from-[#0a1929] to-transparent"></div>
-        <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-[#0a1929] to-transparent"></div>
+        <div className="absolute top-0 left-0 right-0 h-40 bg-gradient-to-b from-teal-800 to-transparent"></div>
+        <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-teal-800 to-transparent"></div>
         
         {/* Decorative elements */}
-        <div className="absolute top-20 left-20 w-40 h-40 rounded-full bg-[#d4af37]/5 blur-3xl"></div>
-        <div className="absolute bottom-20 right-20 w-60 h-60 rounded-full bg-[#1a3a5f]/30 blur-3xl"></div>
+        <div className="absolute top-20 left-20 w-40 h-40 rounded-full bg-teal-500/10 blur-3xl"></div>
+        <div className="absolute bottom-20 right-20 w-60 h-60 rounded-full bg-teal-300/10 blur-3xl"></div>
       </div>
       
       {/* Main Content */}
@@ -218,22 +218,22 @@ export default function ClientDashboard() {
                   <Menu size={24} />
                 </Button>
                 <div>
-                  <h1 className="text-2xl font-bold tracking-tight bg-gradient-to-r from-white via-[#d4af37] to-white inline-block text-transparent bg-clip-text">
+                  <h1 className="text-2xl font-bold tracking-tight bg-gradient-to-r from-white via-teal-300 to-white inline-block text-transparent bg-clip-text">
                     InfyMailer NextGen Portal
                   </h1>
-                  <div className="w-32 h-0.5 mx-auto bg-gradient-to-r from-transparent via-[#d4af37] to-transparent my-1"></div>
+                  <div className="w-32 h-0.5 mx-auto bg-gradient-to-r from-transparent via-teal-300 to-transparent my-1"></div>
                   <p className="text-sm font-medium text-white/70">{clientData.company || 'Acme Corporation'}</p>
                 </div>
               </div>
               <div className="flex items-center gap-4">
                 <div className="hidden md:flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-full border border-white/10">
-                  <CircleUser className="h-5 w-5 text-[#d4af37]" />
+                  <CircleUser className="h-5 w-5 text-teal-200" />
                   <span className="text-sm font-medium text-white">Welcome, {clientUser?.name || 'User'}</span>
                 </div>
                 <Button 
                   variant="outline" 
                   onClick={handleLogout} 
-                  className="text-white border-white/20 bg-white/5 hover:bg-white/10 hover:text-[#d4af37] font-medium"
+                  className="text-white border-white/20 bg-white/5 hover:bg-white/10 hover:text-teal-200 font-medium"
                 >
                   Logout
                 </Button>
@@ -246,8 +246,8 @@ export default function ClientDashboard() {
         <main className="flex-1 overflow-y-auto p-6 relative z-10">
           <div className="container mx-auto">
             <div className="flex items-center mb-8">
-              <div className="bg-[#d4af37]/10 p-2 rounded-full mr-3">
-                <Sparkles className="h-6 w-6 text-[#d4af37]" />
+              <div className="bg-teal-400/20 p-2 rounded-full mr-3">
+                <Sparkles className="h-6 w-6 text-teal-200" />
               </div>
               <h2 className="text-3xl font-bold text-white">Your Dashboard</h2>
             </div>
@@ -257,19 +257,19 @@ export default function ClientDashboard() {
               <Card className="backdrop-blur-md bg-white/10 border border-white/10 overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 group">
                 <CardHeader className="flex flex-row items-center justify-between pb-2 border-b border-white/10">
                   <CardTitle className="text-base font-bold text-white">Active Campaigns</CardTitle>
-                  <div className="h-10 w-10 rounded-full bg-[#d4af37]/10 flex items-center justify-center">
-                    <Activity className="h-5 w-5 text-[#d4af37]" />
+                  <div className="h-10 w-10 rounded-full bg-teal-400/20 flex items-center justify-center">
+                    <Activity className="h-5 w-5 text-teal-200" />
                   </div>
                 </CardHeader>
                 <CardContent className="pt-4 relative">
-                  <div className="absolute top-0 right-0 w-24 h-24 bg-[#d4af37]/5 rounded-full blur-xl -mt-10 -mr-10 opacity-70"></div>
-                  <div className="text-4xl font-bold bg-gradient-to-r from-white via-[#d4af37] to-white inline-block text-transparent bg-clip-text">
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-teal-400/10 rounded-full blur-xl -mt-10 -mr-10 opacity-70"></div>
+                  <div className="text-4xl font-bold bg-gradient-to-r from-white via-teal-300 to-white inline-block text-transparent bg-clip-text">
                     {clientData.stats.activeCampaigns}
                   </div>
                   <p className="text-sm text-white/70 mt-1 font-medium">Currently running email campaigns</p>
                   
                   <div className="mt-4 flex items-center gap-1 text-xs text-white/50">
-                    <TrendingUp className="h-3 w-3 text-[#d4af37]" />
+                    <TrendingUp className="h-3 w-3 text-teal-200" />
                     <span>2 campaigns active this week</span>
                   </div>
                 </CardContent>
@@ -278,19 +278,19 @@ export default function ClientDashboard() {
               <Card className="backdrop-blur-md bg-white/10 border border-white/10 overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 group">
                 <CardHeader className="flex flex-row items-center justify-between pb-2 border-b border-white/10">
                   <CardTitle className="text-base font-bold text-white">Total Emails</CardTitle>
-                  <div className="h-10 w-10 rounded-full bg-[#d4af37]/10 flex items-center justify-center">
-                    <Mail className="h-5 w-5 text-[#d4af37]" />
+                  <div className="h-10 w-10 rounded-full bg-teal-400/20 flex items-center justify-center">
+                    <Mail className="h-5 w-5 text-teal-200" />
                   </div>
                 </CardHeader>
                 <CardContent className="pt-4 relative">
-                  <div className="absolute top-0 right-0 w-24 h-24 bg-[#d4af37]/5 rounded-full blur-xl -mt-10 -mr-10 opacity-70"></div>
-                  <div className="text-4xl font-bold bg-gradient-to-r from-white via-[#d4af37] to-white inline-block text-transparent bg-clip-text">
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-teal-400/10 rounded-full blur-xl -mt-10 -mr-10 opacity-70"></div>
+                  <div className="text-4xl font-bold bg-gradient-to-r from-white via-teal-300 to-white inline-block text-transparent bg-clip-text">
                     {clientData.stats.totalEmails.toLocaleString()}
                   </div>
                   <p className="text-sm text-white/70 mt-1 font-medium">Sent across all campaigns</p>
                   
                   <div className="mt-4 flex items-center gap-1 text-xs text-white/50">
-                    <TrendingUp className="h-3 w-3 text-[#d4af37]" />
+                    <TrendingUp className="h-3 w-3 text-teal-200" />
                     <span>1,250 emails sent this month</span>
                   </div>
                 </CardContent>
@@ -299,19 +299,19 @@ export default function ClientDashboard() {
               <Card className="backdrop-blur-md bg-white/10 border border-white/10 overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 group">
                 <CardHeader className="flex flex-row items-center justify-between pb-2 border-b border-white/10">
                   <CardTitle className="text-base font-bold text-white">Open Rate</CardTitle>
-                  <div className="h-10 w-10 rounded-full bg-[#d4af37]/10 flex items-center justify-center">
-                    <MailCheck className="h-5 w-5 text-[#d4af37]" />
+                  <div className="h-10 w-10 rounded-full bg-teal-400/20 flex items-center justify-center">
+                    <MailCheck className="h-5 w-5 text-teal-200" />
                   </div>
                 </CardHeader>
                 <CardContent className="pt-4 relative">
-                  <div className="absolute top-0 right-0 w-24 h-24 bg-[#d4af37]/5 rounded-full blur-xl -mt-10 -mr-10 opacity-70"></div>
-                  <div className="text-4xl font-bold bg-gradient-to-r from-white via-[#d4af37] to-white inline-block text-transparent bg-clip-text">
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-teal-400/10 rounded-full blur-xl -mt-10 -mr-10 opacity-70"></div>
+                  <div className="text-4xl font-bold bg-gradient-to-r from-white via-teal-300 to-white inline-block text-transparent bg-clip-text">
                     {clientData.stats.openRate}%
                   </div>
                   <p className="text-sm text-white/70 mt-1 font-medium">Average across all campaigns</p>
                   
                   <div className="mt-4 flex items-center gap-1 text-xs text-white/50">
-                    <TrendingUp className="h-3 w-3 text-[#d4af37]" />
+                    <TrendingUp className="h-3 w-3 text-teal-200" />
                     <span>3.2% higher than industry average</span>
                   </div>
                 </CardContent>
@@ -324,15 +324,15 @@ export default function ClientDashboard() {
                 <CardHeader className="pb-2 border-b border-white/10">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center">
-                      <div className="h-8 w-8 rounded-full bg-[#d4af37]/10 flex items-center justify-center mr-3">
-                        <BarChart3 className="h-4 w-4 text-[#d4af37]" />
+                      <div className="h-8 w-8 rounded-full bg-teal-400/20 flex items-center justify-center mr-3">
+                        <BarChart3 className="h-4 w-4 text-teal-200" />
                       </div>
                       <CardTitle className="text-xl font-bold text-white">Email Performance</CardTitle>
                     </div>
                     <Button 
                       variant="ghost" 
                       size="sm" 
-                      className="text-[#d4af37] hover:bg-[#d4af37]/15 border border-[#d4af37]/30 rounded-full px-4 flex items-center gap-2 transition-all duration-300 hover:shadow-md hover:shadow-[#d4af37]/20 hover:scale-105 group"
+                      className="text-teal-200 hover:bg-teal-500/15 border border-teal-500/30 rounded-full px-4 flex items-center gap-2 transition-all duration-300 hover:shadow-md hover:shadow-teal-500/20 hover:scale-105 group"
                       onClick={() => setLocation('/email-performance-dashboard')}
                     >
                       <div className="relative">
@@ -347,7 +347,7 @@ export default function ClientDashboard() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="h-[320px] pt-4 relative">
-                  <div className="absolute top-0 right-0 w-40 h-40 bg-[#d4af37]/5 rounded-full blur-xl -mt-10 -mr-10 opacity-70"></div>
+                  <div className="absolute top-0 right-0 w-40 h-40 bg-teal-400/10 rounded-full blur-xl -mt-10 -mr-10 opacity-70"></div>
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart
                       data={clientData.performanceData}
@@ -378,7 +378,7 @@ export default function ClientDashboard() {
                         wrapperStyle={{color: 'white', fontSize: '12px'}}
                         formatter={(value) => <span style={{color: 'rgba(255,255,255,0.7)'}}>{value}</span>}
                       />
-                      <Bar dataKey="opens" name="Opens" fill="rgba(212, 175, 55, 0.8)" radius={[4, 4, 0, 0]} />
+                      <Bar dataKey="opens" name="Opens" fill="rgba(45, 212, 191, 0.8)" radius={[4, 4, 0, 0]} />
                       <Bar dataKey="clicks" name="Clicks" fill="rgba(255, 255, 255, 0.4)" radius={[4, 4, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
@@ -389,8 +389,8 @@ export default function ClientDashboard() {
               <Card className="col-span-1 backdrop-blur-md bg-white/10 border border-white/10 overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300">
                 <CardHeader className="pb-2 border-b border-white/10">
                   <div className="flex items-center mb-2">
-                    <div className="h-8 w-8 rounded-full bg-[#d4af37]/10 flex items-center justify-center mr-3">
-                      <PieChart className="h-4 w-4 text-[#d4af37]" />
+                    <div className="h-8 w-8 rounded-full bg-teal-400/20 flex items-center justify-center mr-3">
+                      <PieChart className="h-4 w-4 text-teal-200" />
                     </div>
                     <CardTitle className="text-xl font-bold text-white">Device Breakdown</CardTitle>
                   </div>
@@ -399,7 +399,7 @@ export default function ClientDashboard() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="h-[320px] pt-4 relative">
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-[#d4af37]/5 rounded-full blur-xl -mt-10 -mr-10 opacity-70"></div>
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-teal-400/10 rounded-full blur-xl -mt-10 -mr-10 opacity-70"></div>
                   <ResponsiveContainer width="100%" height="100%">
                     <ReChartsPieChart>
                       {clientData?.deviceData && clientData.deviceData.length > 0 ? (
@@ -423,7 +423,7 @@ export default function ClientDashboard() {
                               <Cell 
                                 key={`cell-${index}`} 
                                 fill={[
-                                  "#d4af37", "rgba(212, 175, 55, 0.8)", "rgba(212, 175, 55, 0.6)", 
+                                  "#2dd4bf", "rgba(45, 212, 191, 0.8)", "rgba(45, 212, 191, 0.6)", 
                                   "rgba(255, 255, 255, 0.8)", "rgba(255, 255, 255, 0.6)"
                                 ][index % 5]} 
                                 stroke="rgba(10, 25, 41, 0.5)"
@@ -465,8 +465,8 @@ export default function ClientDashboard() {
             <Card className="backdrop-blur-md bg-white/10 border border-white/10 overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300">
               <CardHeader className="pb-2 border-b border-white/10">
                 <div className="flex items-center mb-2">
-                  <div className="h-8 w-8 rounded-full bg-[#d4af37]/10 flex items-center justify-center mr-3">
-                    <Mail className="h-4 w-4 text-[#d4af37]" />
+                  <div className="h-8 w-8 rounded-full bg-teal-400/20 flex items-center justify-center mr-3">
+                    <Mail className="h-4 w-4 text-teal-200" />
                   </div>
                   <CardTitle className="text-xl font-bold text-white">Recent Campaigns</CardTitle>
                 </div>
@@ -475,16 +475,16 @@ export default function ClientDashboard() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="relative">
-                <div className="absolute top-0 right-0 w-40 h-40 bg-[#d4af37]/5 rounded-full blur-xl -mt-10 -mr-10 opacity-70"></div>
+                <div className="absolute top-0 right-0 w-40 h-40 bg-teal-400/10 rounded-full blur-xl -mt-10 -mr-10 opacity-70"></div>
                 <div className="overflow-x-auto">
                   <table className="w-full text-white">
                     <thead>
                       <tr className="border-b border-white/10">
-                        <th className="text-left py-3 px-4 font-semibold text-[#d4af37]">Campaign</th>
-                        <th className="text-left py-3 px-4 font-semibold text-[#d4af37]">Date</th>
-                        <th className="text-left py-3 px-4 font-semibold text-[#d4af37]">Status</th>
-                        <th className="text-left py-3 px-4 font-semibold text-[#d4af37]">Opens</th>
-                        <th className="text-left py-3 px-4 font-semibold text-[#d4af37]">Clicks</th>
+                        <th className="text-left py-3 px-4 font-semibold text-teal-200">Campaign</th>
+                        <th className="text-left py-3 px-4 font-semibold text-teal-200">Date</th>
+                        <th className="text-left py-3 px-4 font-semibold text-teal-200">Status</th>
+                        <th className="text-left py-3 px-4 font-semibold text-teal-200">Opens</th>
+                        <th className="text-left py-3 px-4 font-semibold text-teal-200">Clicks</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -505,7 +505,7 @@ export default function ClientDashboard() {
                                 ? "bg-[#2a9d8f]/20 text-[#2a9d8f] border border-[#2a9d8f]/30" :
                               campaign.status === "Ongoing" 
                                 ? "bg-[#3a86ff]/20 text-[#3a86ff] border border-[#3a86ff]/30" :
-                              "bg-[#d4af37]/20 text-[#d4af37] border border-[#d4af37]/30"
+                              "bg-[#d4af37]/20 text-teal-200 border border-[#d4af37]/30"
                             }`}>
                               {campaign.status}
                             </span>
@@ -523,7 +523,7 @@ export default function ClientDashboard() {
                 </div>
                 
                 <div className="mt-6 flex justify-center">
-                  <Button className="bg-[#d4af37]/20 text-[#d4af37] hover:bg-[#d4af37]/30 border border-[#d4af37]/30 rounded-full px-6 group">
+                  <Button className="bg-[#d4af37]/20 text-teal-200 hover:bg-[#d4af37]/30 border border-[#d4af37]/30 rounded-full px-6 group">
                     View All Campaigns
                     <ChevronRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
                   </Button>
