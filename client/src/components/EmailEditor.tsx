@@ -582,7 +582,8 @@ const PropertyEditor: React.FC<PropertyEditorProps> = ({
     
     try {
       setIsGiphySearching(true);
-      const gf = new GiphyFetch(import.meta.env.VITE_GIPHY_API_KEY || '');
+      // Access GIPHY_API_KEY from environment variables
+      const gf = new GiphyFetch(process.env.GIPHY_API_KEY || import.meta.env.VITE_GIPHY_API_KEY || '');
       const { data } = await gf.search(giphySearchTerm, { limit: 20 });
       setGiphySearchResults(data);
     } catch (error) {
@@ -890,7 +891,7 @@ const PropertyEditor: React.FC<PropertyEditorProps> = ({
               <div className="mt-4">
                 <Label className="text-gray-700 mb-3 block text-sm font-medium">Search GIPHY</Label>
                 <div className="border rounded-md p-3 mt-1.5 max-h-[400px] overflow-y-auto">
-                  {import.meta.env.VITE_GIPHY_API_KEY ? (
+                  {process.env.GIPHY_API_KEY || import.meta.env.VITE_GIPHY_API_KEY ? (
                     <>
                       <Input 
                         placeholder="Search for GIFs..."
