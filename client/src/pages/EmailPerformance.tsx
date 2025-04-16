@@ -10,6 +10,7 @@ import {
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
   Area,
@@ -270,6 +271,125 @@ const EmailPerformance: React.FC = () => {
         
         {/* Overview Tab */}
         <TabsContent value="overview" className="space-y-4">
+          {/* Email Heatmap Section */}
+          <Card className="mb-4">
+            <CardHeader>
+              <CardTitle>Email Click Heatmap</CardTitle>
+              <CardDescription>Visual representation of where users click in your emails</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="relative border rounded-md p-2">
+                  <h4 className="text-center text-sm font-medium mb-2">Monthly Newsletter Template</h4>
+                  <div className="relative bg-gray-100 rounded-md overflow-hidden" style={{ height: '400px' }}>
+                    {/* Email Header */}
+                    <div className="p-4 bg-[#1e40af] text-white text-center">
+                      <div className="text-lg font-bold">Company Newsletter</div>
+                      <div className="text-xs">Monthly Updates & Insights</div>
+                    </div>
+                    
+                    {/* Hero Section */}
+                    <div className="p-4 bg-white text-center border-b">
+                      <h3 className="text-lg font-bold mb-2">April Edition: New Product Launch</h3>
+                      <div className="bg-gray-200 mx-auto mb-2" style={{ height: '100px', width: '90%' }}></div>
+                      <div className="inline-block px-3 py-1 bg-[#d4af37] text-white rounded relative">
+                        Read More
+                        {/* High click area overlay */}
+                        <div className="absolute inset-0 bg-red-500 rounded opacity-40"></div>
+                      </div>
+                    </div>
+                    
+                    {/* Content Section */}
+                    <div className="grid grid-cols-2 gap-2 p-3">
+                      <div className="bg-white p-2 rounded">
+                        <div className="bg-gray-200 mb-1" style={{ height: '40px', width: '100%' }}></div>
+                        <div className="bg-gray-200 mb-1" style={{ height: '20px', width: '80%' }}></div>
+                        <div className="bg-gray-200 mb-1" style={{ height: '20px', width: '90%' }}></div>
+                        <div className="inline-block px-2 py-1 text-xs bg-[#1e40af] text-white rounded mt-1 relative">
+                          Learn More
+                          {/* Medium click area overlay */}
+                          <div className="absolute inset-0 bg-orange-500 rounded opacity-40"></div>
+                        </div>
+                      </div>
+                      <div className="bg-white p-2 rounded">
+                        <div className="bg-gray-200 mb-1" style={{ height: '40px', width: '100%' }}></div>
+                        <div className="bg-gray-200 mb-1" style={{ height: '20px', width: '70%' }}></div>
+                        <div className="bg-gray-200 mb-1" style={{ height: '20px', width: '85%' }}></div>
+                        <div className="inline-block px-2 py-1 text-xs bg-[#1e40af] text-white rounded mt-1 relative">
+                          View Details
+                          {/* Low click area overlay */}
+                          <div className="absolute inset-0 bg-yellow-500 rounded opacity-40"></div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Footer */}
+                    <div className="p-3 bg-gray-200 text-center text-xs">
+                      <div className="mb-1">© 2025 Your Company</div>
+                      <div className="flex justify-center gap-2">
+                        <span className="underline relative">Unsubscribe
+                          {/* Medium click area overlay */}
+                          <div className="absolute inset-0 bg-orange-500 opacity-30"></div>
+                        </span>
+                        <span className="underline">Preferences</span>
+                        <span className="underline">View in Browser</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div>
+                  <h4 className="text-sm font-medium mb-4">Click Distribution Analysis</h4>
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center">
+                          <div className="w-3 h-3 bg-red-500 opacity-70 mr-2"></div>
+                          <span className="text-sm">High Click Areas (15%+ CTR)</span>
+                        </div>
+                        <span className="text-sm font-medium">24.8%</span>
+                      </div>
+                      <Progress value={24.8} className="h-2" style={{ '--progress-foreground': 'rgb(239, 68, 68)' } as React.CSSProperties} />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center">
+                          <div className="w-3 h-3 bg-orange-500 opacity-70 mr-2"></div>
+                          <span className="text-sm">Medium Click Areas (5-15% CTR)</span>
+                        </div>
+                        <span className="text-sm font-medium">12.3%</span>
+                      </div>
+                      <Progress value={12.3} className="h-2" indicatorClassName="bg-orange-500" />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center">
+                          <div className="w-3 h-3 bg-yellow-500 opacity-70 mr-2"></div>
+                          <span className="text-sm">Low Click Areas (&lt; 5% CTR)</span>
+                        </div>
+                        <span className="text-sm font-medium">3.7%</span>
+                      </div>
+                      <Progress value={3.7} className="h-2" indicatorClassName="bg-yellow-500" />
+                    </div>
+                    
+                    <div className="pt-4">
+                      <h5 className="text-sm font-medium mb-2">Key Insights:</h5>
+                      <ul className="text-sm space-y-1 list-disc pl-5 text-gray-700">
+                        <li>Primary CTAs in hero sections receive 60% more clicks than secondary CTAs</li>
+                        <li>Button-style links perform 42% better than text links</li>
+                        <li>Links placed above the fold get 78% more clicks</li>
+                        <li>Colored buttons outperform outline or ghost buttons by 35%</li>
+                        <li>Unsubscribe links get 8% of total clicks (industry avg: 5%)</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <Card className="col-span-2">
               <CardHeader>
@@ -557,6 +677,86 @@ const EmailPerformance: React.FC = () => {
                     <Bar dataKey="evening" name="Evening" fill="#1a3a5f" />
                   </BarChart>
                 </ResponsiveContainer>
+              </CardContent>
+            </Card>
+            
+            {/* Email Content Effectiveness Section */}
+            <Card className="col-span-2 mt-4">
+              <CardHeader>
+                <CardTitle>Email Content Effectiveness</CardTitle>
+                <CardDescription>Performance metrics by content type</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="space-y-2">
+                    <h4 className="font-medium text-sm">Image-to-Text Ratio Impact</h4>
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm">Text-heavy (80%+ text)</span>
+                        <span className="text-sm font-medium">21.3% CTR</span>
+                      </div>
+                      <Progress value={21.3} className="h-2" indicatorClassName="bg-[#1e40af]" />
+                      
+                      <div className="flex items-center justify-between mt-2">
+                        <span className="text-sm">Balanced (40-60% text)</span>
+                        <span className="text-sm font-medium">27.8% CTR</span>
+                      </div>
+                      <Progress value={27.8} className="h-2" indicatorClassName="bg-[#d4af37]" />
+                      
+                      <div className="flex items-center justify-between mt-2">
+                        <span className="text-sm">Image-heavy (20%- text)</span>
+                        <span className="text-sm font-medium">18.5% CTR</span>
+                      </div>
+                      <Progress value={18.5} className="h-2" indicatorClassName="bg-[#1a3a5f]" />
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <h4 className="font-medium text-sm">Link Placement Performance</h4>
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm">Top section</span>
+                        <span className="text-sm font-medium">15.1% CTR</span>
+                      </div>
+                      <Progress value={15.1} className="h-2" indicatorClassName="bg-[#1e40af]" />
+                      
+                      <div className="flex items-center justify-between mt-2">
+                        <span className="text-sm">Middle section</span>
+                        <span className="text-sm font-medium">23.4% CTR</span>
+                      </div>
+                      <Progress value={23.4} className="h-2" indicatorClassName="bg-[#d4af37]" />
+                      
+                      <div className="flex items-center justify-between mt-2">
+                        <span className="text-sm">Bottom section</span>
+                        <span className="text-sm font-medium">8.7% CTR</span>
+                      </div>
+                      <Progress value={8.7} className="h-2" indicatorClassName="bg-[#1a3a5f]" />
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <h4 className="font-medium text-sm">Call-to-Action Button Style</h4>
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm">Text-only links</span>
+                        <span className="text-sm font-medium">9.2% CTR</span>
+                      </div>
+                      <Progress value={9.2} className="h-2" indicatorClassName="bg-[#1e40af]" />
+                      
+                      <div className="flex items-center justify-between mt-2">
+                        <span className="text-sm">Button-style CTAs</span>
+                        <span className="text-sm font-medium">24.6% CTR</span>
+                      </div>
+                      <Progress value={24.6} className="h-2" indicatorClassName="bg-[#d4af37]" />
+                      
+                      <div className="flex items-center justify-between mt-2">
+                        <span className="text-sm">Image + Text CTAs</span>
+                        <span className="text-sm font-medium">18.3% CTR</span>
+                      </div>
+                      <Progress value={18.3} className="h-2" indicatorClassName="bg-[#1a3a5f]" />
+                    </div>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           </div>
