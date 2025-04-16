@@ -278,43 +278,43 @@ export default function ClientDashboard() {
                 </CardContent>
               </Card>
               
-              <Card className="backdrop-blur-md bg-white/10 border border-white/10 overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 group">
-                <CardHeader className="flex flex-row items-center justify-between pb-2 border-b border-white/10">
+              <Card className="backdrop-blur-md bg-white/10 border border-blue-900/20 overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 group">
+                <CardHeader className="flex flex-row items-center justify-between pb-2 border-b border-blue-900/30">
                   <CardTitle className="text-base font-bold text-white">Total Emails</CardTitle>
-                  <div className="h-10 w-10 rounded-full bg-teal-400/20 flex items-center justify-center">
-                    <Mail className="h-5 w-5 text-teal-200" />
+                  <div className="h-10 w-10 rounded-full bg-blue-800/30 flex items-center justify-center">
+                    <Mail className="h-5 w-5 text-amber-300" />
                   </div>
                 </CardHeader>
                 <CardContent className="pt-4 relative">
-                  <div className="absolute top-0 right-0 w-24 h-24 bg-teal-400/10 rounded-full blur-xl -mt-10 -mr-10 opacity-70"></div>
-                  <div className="text-4xl font-bold bg-gradient-to-r from-white via-teal-300 to-white inline-block text-transparent bg-clip-text">
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-blue-700/15 rounded-full blur-xl -mt-10 -mr-10 opacity-70"></div>
+                  <div className="text-4xl font-bold bg-gradient-to-r from-white via-amber-300 to-white inline-block text-transparent bg-clip-text">
                     {clientData.stats.totalEmails.toLocaleString()}
                   </div>
                   <p className="text-sm text-white/70 mt-1 font-medium">Sent across all campaigns</p>
                   
-                  <div className="mt-4 flex items-center gap-1 text-xs text-white/50">
-                    <TrendingUp className="h-3 w-3 text-teal-200" />
+                  <div className="mt-4 flex items-center gap-1 text-xs text-white/60">
+                    <TrendingUp className="h-3 w-3 text-amber-300" />
                     <span>1,250 emails sent this month</span>
                   </div>
                 </CardContent>
               </Card>
               
-              <Card className="backdrop-blur-md bg-white/10 border border-white/10 overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 group">
-                <CardHeader className="flex flex-row items-center justify-between pb-2 border-b border-white/10">
+              <Card className="backdrop-blur-md bg-white/10 border border-blue-900/20 overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 group">
+                <CardHeader className="flex flex-row items-center justify-between pb-2 border-b border-blue-900/30">
                   <CardTitle className="text-base font-bold text-white">Open Rate</CardTitle>
-                  <div className="h-10 w-10 rounded-full bg-teal-400/20 flex items-center justify-center">
-                    <MailCheck className="h-5 w-5 text-teal-200" />
+                  <div className="h-10 w-10 rounded-full bg-blue-800/30 flex items-center justify-center">
+                    <MailCheck className="h-5 w-5 text-amber-300" />
                   </div>
                 </CardHeader>
                 <CardContent className="pt-4 relative">
-                  <div className="absolute top-0 right-0 w-24 h-24 bg-teal-400/10 rounded-full blur-xl -mt-10 -mr-10 opacity-70"></div>
-                  <div className="text-4xl font-bold bg-gradient-to-r from-white via-teal-300 to-white inline-block text-transparent bg-clip-text">
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-blue-700/15 rounded-full blur-xl -mt-10 -mr-10 opacity-70"></div>
+                  <div className="text-4xl font-bold bg-gradient-to-r from-white via-amber-300 to-white inline-block text-transparent bg-clip-text">
                     {clientData.stats.openRate}%
                   </div>
                   <p className="text-sm text-white/70 mt-1 font-medium">Average across all campaigns</p>
                   
-                  <div className="mt-4 flex items-center gap-1 text-xs text-white/50">
-                    <TrendingUp className="h-3 w-3 text-teal-200" />
+                  <div className="mt-4 flex items-center gap-1 text-xs text-white/60">
+                    <TrendingUp className="h-3 w-3 text-amber-300" />
                     <span>3.2% higher than industry average</span>
                   </div>
                 </CardContent>
@@ -323,19 +323,19 @@ export default function ClientDashboard() {
 
             {/* Charts */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-              <Card className="col-span-1 backdrop-blur-md bg-white/10 border border-white/10 overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300">
-                <CardHeader className="pb-2 border-b border-white/10 bg-gradient-to-r from-teal-900/50 to-teal-800/30">
+              <Card className="col-span-1 backdrop-blur-md bg-white/10 border border-blue-900/20 overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300">
+                <CardHeader className="pb-2 border-b border-blue-900/30 bg-gradient-to-r from-blue-950/60 to-blue-900/40">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center">
-                      <div className="h-8 w-8 rounded-full bg-teal-400/20 flex items-center justify-center mr-3">
-                        <BarChart3 className="h-4 w-4 text-teal-200" />
+                      <div className="h-8 w-8 rounded-full bg-blue-800/30 flex items-center justify-center mr-3">
+                        <BarChart3 className="h-4 w-4 text-amber-300" />
                       </div>
                       <CardTitle className="text-xl font-bold text-white">Email Performance</CardTitle>
                     </div>
                     <Button 
                       variant="ghost" 
                       size="sm" 
-                      className="text-teal-200 hover:bg-teal-500/15 border border-teal-500/30 rounded-full px-4 flex items-center gap-2 transition-all duration-300 hover:shadow-md hover:shadow-teal-500/20 hover:scale-105 group"
+                      className="text-amber-300 hover:bg-blue-900/40 border border-amber-500/30 rounded-full px-4 flex items-center gap-2 transition-all duration-300 hover:shadow-md hover:shadow-amber-500/10 hover:scale-105 group"
                       onClick={() => setLocation('/email-performance-dashboard')}
                     >
                       <div className="relative">
@@ -350,7 +350,7 @@ export default function ClientDashboard() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="h-[320px] pt-4 relative">
-                  <div className="absolute top-0 right-0 w-40 h-40 bg-teal-400/10 rounded-full blur-xl -mt-10 -mr-10 opacity-70"></div>
+                  <div className="absolute top-0 right-0 w-40 h-40 bg-blue-700/15 rounded-full blur-xl -mt-10 -mr-10 opacity-70"></div>
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart
                       data={clientData.performanceData}
@@ -368,32 +368,32 @@ export default function ClientDashboard() {
                       />
                       <Tooltip 
                         contentStyle={{
-                          backgroundColor: 'rgba(15, 118, 110, 0.9)',
-                          border: '1px solid rgba(45, 212, 191, 0.3)',
+                          backgroundColor: 'rgba(30, 58, 138, 0.9)',
+                          border: '1px solid rgba(96, 165, 250, 0.3)',
                           borderRadius: '6px',
                           boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
                           color: 'white'
                         }}
-                        labelStyle={{color: '#2dd4bf'}}
+                        labelStyle={{color: '#fcd34d'}}
                         itemStyle={{color: 'white'}}
                       />
                       <Legend 
                         wrapperStyle={{color: 'white', fontSize: '12px'}}
                         formatter={(value) => <span style={{color: 'rgba(255,255,255,0.7)'}}>{value}</span>}
                       />
-                      <Bar dataKey="opens" name="Opens" fill="rgba(20, 184, 166, 1)" radius={[4, 4, 0, 0]} />
-                      <Bar dataKey="clicks" name="Clicks" fill="rgba(45, 212, 191, 0.8)" radius={[4, 4, 0, 0]} />
+                      <Bar dataKey="opens" name="Opens" fill="rgba(59, 130, 246, 0.9)" radius={[4, 4, 0, 0]} />
+                      <Bar dataKey="clicks" name="Clicks" fill="rgba(245, 158, 11, 0.8)" radius={[4, 4, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 </CardContent>
               </Card>
 
               {/* Device Breakdown */}
-              <Card className="col-span-1 backdrop-blur-md bg-white/10 border border-white/10 overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300">
-                <CardHeader className="pb-2 border-b border-white/10 bg-gradient-to-r from-teal-900/50 to-teal-800/30">
+              <Card className="col-span-1 backdrop-blur-md bg-white/10 border border-blue-900/20 overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300">
+                <CardHeader className="pb-2 border-b border-blue-900/30 bg-gradient-to-r from-blue-950/60 to-blue-900/40">
                   <div className="flex items-center mb-2">
-                    <div className="h-8 w-8 rounded-full bg-teal-400/20 flex items-center justify-center mr-3">
-                      <PieChart className="h-4 w-4 text-teal-200" />
+                    <div className="h-8 w-8 rounded-full bg-blue-800/30 flex items-center justify-center mr-3">
+                      <PieChart className="h-4 w-4 text-amber-300" />
                     </div>
                     <CardTitle className="text-xl font-bold text-white">Device Breakdown</CardTitle>
                   </div>
@@ -402,7 +402,7 @@ export default function ClientDashboard() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="h-[320px] pt-4 relative">
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-teal-400/10 rounded-full blur-xl -mt-10 -mr-10 opacity-70"></div>
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-blue-700/15 rounded-full blur-xl -mt-10 -mr-10 opacity-70"></div>
                   <ResponsiveContainer width="100%" height="100%">
                     <ReChartsPieChart>
                       {clientData?.deviceData && clientData.deviceData.length > 0 ? (
@@ -426,8 +426,8 @@ export default function ClientDashboard() {
                               <Cell 
                                 key={`cell-${index}`} 
                                 fill={[
-                                  "#14b8a6", "#0d9488", "#0f766e", 
-                                  "#115e59", "#134e4a"
+                                  "#3b82f6", "#2563eb", "#1d4ed8", 
+                                  "#f59e0b", "#d97706"
                                 ][index % 5]} 
                                 stroke="rgba(10, 25, 41, 0.5)"
                                 strokeWidth={2}
@@ -436,13 +436,13 @@ export default function ClientDashboard() {
                           </Pie>
                           <Tooltip 
                             contentStyle={{
-                              backgroundColor: 'rgba(15, 118, 110, 0.9)',
-                              border: '1px solid rgba(45, 212, 191, 0.3)',
+                              backgroundColor: 'rgba(30, 58, 138, 0.9)',
+                              border: '1px solid rgba(96, 165, 250, 0.3)',
                               borderRadius: '6px',
                               boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
                               color: 'white'
                             }}
-                            labelStyle={{color: '#2dd4bf'}}
+                            labelStyle={{color: '#fcd34d'}}
                             itemStyle={{color: 'white'}}
                           />
                         </>
@@ -465,11 +465,11 @@ export default function ClientDashboard() {
             </div>
 
             {/* Recent Campaigns */}
-            <Card className="backdrop-blur-md bg-white/10 border border-white/10 overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300">
-              <CardHeader className="pb-2 border-b border-white/10 bg-gradient-to-r from-teal-900/50 to-teal-800/30">
+            <Card className="backdrop-blur-md bg-white/10 border border-blue-900/20 overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300">
+              <CardHeader className="pb-2 border-b border-blue-900/30 bg-gradient-to-r from-blue-950/60 to-blue-900/40">
                 <div className="flex items-center mb-2">
-                  <div className="h-8 w-8 rounded-full bg-teal-400/20 flex items-center justify-center mr-3">
-                    <Mail className="h-4 w-4 text-teal-200" />
+                  <div className="h-8 w-8 rounded-full bg-blue-800/30 flex items-center justify-center mr-3">
+                    <Mail className="h-4 w-4 text-amber-300" />
                   </div>
                   <CardTitle className="text-xl font-bold text-white">Recent Campaigns</CardTitle>
                 </div>
@@ -478,11 +478,11 @@ export default function ClientDashboard() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="relative">
-                <div className="absolute top-0 right-0 w-40 h-40 bg-teal-400/10 rounded-full blur-xl -mt-10 -mr-10 opacity-70"></div>
+                <div className="absolute top-0 right-0 w-40 h-40 bg-blue-700/15 rounded-full blur-xl -mt-10 -mr-10 opacity-70"></div>
                 <div className="overflow-x-auto">
                   <table className="w-full text-white">
                     <thead>
-                      <tr className="border-b border-white/10 bg-gradient-to-r from-teal-900/40 to-teal-800/20">
+                      <tr className="border-b border-blue-900/30 bg-gradient-to-r from-blue-950/40 to-blue-900/20">
                         <th className="text-left py-3 px-4 font-semibold text-white">Campaign</th>
                         <th className="text-left py-3 px-4 font-semibold text-white">Date</th>
                         <th className="text-left py-3 px-4 font-semibold text-white">Status</th>
@@ -494,7 +494,7 @@ export default function ClientDashboard() {
                       {clientData.recentCampaigns.map((campaign: any) => (
                         <tr 
                           key={campaign.id} 
-                          className="border-b border-white/5 hover:bg-teal-900/30 transition-colors"
+                          className="border-b border-blue-900/10 hover:bg-blue-900/30 transition-colors"
                         >
                           <td className="py-4 px-4 font-medium text-white">
                             {campaign.name}
@@ -505,10 +505,10 @@ export default function ClientDashboard() {
                           <td className="py-4 px-4">
                             <span className={`px-3 py-1.5 rounded-full text-xs font-medium ${
                               campaign.status === "Completed" 
-                                ? "bg-teal-900/70 text-teal-100 border border-teal-600" :
+                                ? "bg-blue-900/70 text-blue-100 border border-blue-600" :
                               campaign.status === "Ongoing" 
-                                ? "bg-teal-800/70 text-teal-100 border border-teal-700" :
-                              "bg-teal-700/70 text-teal-100 border border-teal-600"
+                                ? "bg-amber-700/80 text-amber-50 border border-amber-500" :
+                              "bg-blue-800/70 text-blue-100 border border-blue-600"
                             }`}>
                               {campaign.status}
                             </span>
@@ -526,7 +526,7 @@ export default function ClientDashboard() {
                 </div>
                 
                 <div className="mt-6 flex justify-center">
-                  <Button className="bg-teal-900/60 text-white hover:bg-teal-800/70 border border-teal-700 rounded-full px-6 font-medium group">
+                  <Button className="bg-blue-900/60 text-white hover:bg-blue-800/70 border border-amber-500/30 rounded-full px-6 font-medium group">
                     View All Campaigns
                     <ChevronRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
                   </Button>
