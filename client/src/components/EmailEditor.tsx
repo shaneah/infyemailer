@@ -13,8 +13,11 @@ import {
   AlignLeft, AlignCenter, AlignRight, Bold, Italic, Underline, Image, 
   Link, List, ListOrdered, Type, Grid, Layout, Columns, Rows, Save, 
   ArrowLeft, Loader2, SeparatorHorizontal, X, ArrowDown, Settings, Palette,
-  Plus, Trash2, MoveVertical, Copy, Code, Eye, ArrowUp, GripVertical
+  Plus, Trash2, MoveVertical, Copy, Code, Eye, ArrowUp, GripVertical, Smile, Video
 } from "lucide-react";
+import EmojiPicker, { Theme, EmojiClickData } from "emoji-picker-react";
+import { GiphyFetch } from "@giphy/js-fetch-api";
+import { Grid as GiphyGrid } from "@giphy/react-components";
 
 // Define types for our email elements
 interface EmailElement {
