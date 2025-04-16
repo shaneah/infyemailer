@@ -225,11 +225,26 @@ const ElementRenderer: React.FC<ElementRendererProps> = ({
                   display: 'block',
                   borderRadius: (styles.rounded ? '0.375rem' : '0')
                 }}
+                onError={(e) => {
+                  // Handle image loading errors
+                  console.error('Image failed to load:', content.src);
+                  e.currentTarget.onerror = null; // Prevent infinite error loops
+                  e.currentTarget.style.display = 'none';
+                  // Show a fallback message when the image fails to load
+                  const parent = e.currentTarget.parentElement;
+                  if (parent) {
+                    const fallback = document.createElement('div');
+                    fallback.className = "bg-gray-100 border border-dashed border-gray-300 rounded-md p-4 flex flex-col items-center justify-center";
+                    fallback.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-8 h-8 text-gray-400 mb-2"><path d="M5 17l4-4 4 4 6-6"></path><circle cx="6.5" cy="6.5" r=".5"></circle><path d="M21 19H3a2 2 0 01-2-2V6a2 2 0 012-2h18a2 2 0 012 2v11a2 2 0 01-2 2z"></path></svg>
+                    <p class="text-sm text-amber-500">Image failed to load</p>`;
+                    parent.appendChild(fallback);
+                  }
+                }}
               />
             ) : (
               <div className="bg-gray-100 border border-dashed border-gray-300 rounded-md p-8 flex flex-col items-center justify-center">
                 <Image className="w-8 h-8 text-gray-400 mb-2" />
-                <p className="text-sm text-gray-500">Add an image URL in the properties panel</p>
+                <p className="text-sm text-gray-500">Use the upload button or enter an image URL</p>
               </div>
             )}
             {content.caption && (
