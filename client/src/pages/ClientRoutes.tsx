@@ -2018,7 +2018,7 @@ export default function ClientRoutes() {
     <div className="flex h-screen overflow-hidden bg-background">
       <ClientSidebar open={sidebarOpen} setOpen={setSidebarOpen} />
       
-      <main className="flex-1 overflow-auto relative w-full">
+      <main className="flex-1 overflow-auto relative w-full lg:ml-0">
         <Switch>
           <Route path="/client-dashboard">
             <ClientDashboard />
