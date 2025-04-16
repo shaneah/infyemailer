@@ -417,7 +417,7 @@ const EmailPerformance: React.FC = () => {
                     <XAxis dataKey="hour" />
                     <YAxis />
                     <Tooltip />
-                    <Bar dataKey="opens" fill="#8884d8" />
+                    <Bar dataKey="opens" fill="#1e40af" />
                   </BarChart>
                 </ResponsiveContainer>
               </CardContent>
@@ -490,9 +490,9 @@ const EmailPerformance: React.FC = () => {
                     <YAxis />
                     <Tooltip />
                     <Legend />
-                    <Bar dataKey="open" name="Open Rate %" fill="#8884d8" />
-                    <Bar dataKey="click" name="Click Rate %" fill="#82ca9d" />
-                    <Bar dataKey="conversion" name="Conversion Rate %" fill="#ffc658" />
+                    <Bar dataKey="open" name="Open Rate %" fill="#1e40af" />
+                    <Bar dataKey="click" name="Click Rate %" fill="#d4af37" />
+                    <Bar dataKey="conversion" name="Conversion Rate %" fill="#1a3a5f" />
                   </BarChart>
                 </ResponsiveContainer>
               </CardContent>
@@ -522,7 +522,7 @@ const EmailPerformance: React.FC = () => {
                     <YAxis dataKey="type" type="category" width={100} />
                     <Tooltip />
                     <Legend />
-                    <Bar dataKey="rate" name="Open Rate %" fill="#8884d8" />
+                    <Bar dataKey="rate" name="Open Rate %" fill="#1e40af" />
                   </BarChart>
                 </ResponsiveContainer>
               </CardContent>
@@ -552,9 +552,9 @@ const EmailPerformance: React.FC = () => {
                     <YAxis />
                     <Tooltip />
                     <Legend />
-                    <Bar dataKey="morning" name="Morning" fill="#8884d8" />
-                    <Bar dataKey="afternoon" name="Afternoon" fill="#82ca9d" />
-                    <Bar dataKey="evening" name="Evening" fill="#ffc658" />
+                    <Bar dataKey="morning" name="Morning" fill="#1e40af" />
+                    <Bar dataKey="afternoon" name="Afternoon" fill="#d4af37" />
+                    <Bar dataKey="evening" name="Evening" fill="#1a3a5f" />
                   </BarChart>
                 </ResponsiveContainer>
               </CardContent>
@@ -590,7 +590,7 @@ const EmailPerformance: React.FC = () => {
                     <YAxis dataKey="country" type="category" width={100} />
                     <Tooltip />
                     <Legend />
-                    <Bar dataKey="opens" fill="#8884d8" />
+                    <Bar dataKey="opens" fill="#1e40af" />
                   </BarChart>
                 </ResponsiveContainer>
               </CardContent>
@@ -619,9 +619,9 @@ const EmailPerformance: React.FC = () => {
                     <YAxis />
                     <Tooltip />
                     <Legend />
-                    <Area type="monotone" dataKey="desktop" stackId="1" stroke="#8884d8" fill="#8884d8" />
-                    <Area type="monotone" dataKey="mobile" stackId="1" stroke="#82ca9d" fill="#82ca9d" />
-                    <Area type="monotone" dataKey="tablet" stackId="1" stroke="#ffc658" fill="#ffc658" />
+                    <Area type="monotone" dataKey="desktop" stackId="1" stroke="#1e40af" fill="#1e40af" />
+                    <Area type="monotone" dataKey="mobile" stackId="1" stroke="#d4af37" fill="#d4af37" />
+                    <Area type="monotone" dataKey="tablet" stackId="1" stroke="#1a3a5f" fill="#1a3a5f" />
                   </AreaChart>
                 </ResponsiveContainer>
               </CardContent>
@@ -650,7 +650,7 @@ const EmailPerformance: React.FC = () => {
                     <Tooltip formatter={(value, name, props) => {
                       return name === 'value' ? `${value}% (${props.payload.count} subscribers)` : value;
                     }} />
-                    <Bar dataKey="value" fill="#8884d8" name="Percentage" />
+                    <Bar dataKey="value" fill="#1e40af" name="Percentage" />
                   </BarChart>
                 </ResponsiveContainer>
               </CardContent>
