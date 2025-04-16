@@ -410,44 +410,59 @@ export default function ClientDashboard() {
                   <div className="absolute top-0 right-0 w-32 h-32 bg-[#d4af37]/5 rounded-full blur-xl -mt-10 -mr-10 opacity-70"></div>
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
-                      <Pie
-                        data={clientData.deviceData}
-                        cx="50%"
-                        cy="50%"
-                        labelLine={{stroke: 'rgba(255,255,255,0.3)'}}
-                        label={({ name, percent }) => (
-                          <text x={0} y={0} fill="#ffffff" textAnchor="middle" dominantBaseline="central">
-                            {`${name}: ${(percent * 100).toFixed(0)}%`}
-                          </text>
-                        )}
-                        outerRadius={100}
-                        fill="#8884d8"
-                        dataKey="value"
-                        paddingAngle={2}
-                      >
-                        {clientData.deviceData.map((entry: any, index: number) => (
-                          <Cell 
-                            key={`cell-${index}`} 
-                            fill={[
-                              "#d4af37", "rgba(212, 175, 55, 0.8)", "rgba(212, 175, 55, 0.6)", 
-                              "rgba(255, 255, 255, 0.8)", "rgba(255, 255, 255, 0.6)"
-                            ][index % 5]} 
-                            stroke="rgba(10, 25, 41, 0.5)"
-                            strokeWidth={2}
+                      {clientData?.deviceData && clientData.deviceData.length > 0 ? (
+                        <>
+                          <Pie
+                            data={clientData.deviceData}
+                            cx="50%"
+                            cy="50%"
+                            labelLine={{stroke: 'rgba(255,255,255,0.3)'}}
+                            label={({ name, percent }) => (
+                              <text x={0} y={0} fill="#ffffff" textAnchor="middle" dominantBaseline="central">
+                                {`${name}: ${(percent * 100).toFixed(0)}%`}
+                              </text>
+                            )}
+                            outerRadius={100}
+                            fill="#8884d8"
+                            dataKey="value"
+                            paddingAngle={2}
+                          >
+                            {clientData.deviceData.map((entry: any, index: number) => (
+                              <Cell 
+                                key={`cell-${index}`} 
+                                fill={[
+                                  "#d4af37", "rgba(212, 175, 55, 0.8)", "rgba(212, 175, 55, 0.6)", 
+                                  "rgba(255, 255, 255, 0.8)", "rgba(255, 255, 255, 0.6)"
+                                ][index % 5]} 
+                                stroke="rgba(10, 25, 41, 0.5)"
+                                strokeWidth={2}
+                              />
+                            ))}
+                          </Pie>
+                          <Tooltip 
+                            contentStyle={{
+                              backgroundColor: 'rgba(26, 58, 95, 0.9)',
+                              border: '1px solid rgba(212, 175, 55, 0.3)',
+                              borderRadius: '6px',
+                              boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+                              color: 'white'
+                            }}
+                            labelStyle={{color: '#d4af37'}}
+                            itemStyle={{color: 'white'}}
                           />
-                        ))}
-                      </Pie>
-                      <Tooltip 
-                        contentStyle={{
-                          backgroundColor: 'rgba(26, 58, 95, 0.9)',
-                          border: '1px solid rgba(212, 175, 55, 0.3)',
-                          borderRadius: '6px',
-                          boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
-                          color: 'white'
-                        }}
-                        labelStyle={{color: '#d4af37'}}
-                        itemStyle={{color: 'white'}}
-                      />
+                        </>
+                      ) : (
+                        <text 
+                          x="50%" 
+                          y="50%" 
+                          textAnchor="middle" 
+                          dominantBaseline="middle" 
+                          fill="#ffffff"
+                          className="text-sm"
+                        >
+                          No device data available
+                        </text>
+                      )}
                     </PieChart>
                   </ResponsiveContainer>
                 </CardContent>
