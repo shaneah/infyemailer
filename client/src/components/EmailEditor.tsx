@@ -571,6 +571,25 @@ const PropertyEditor: React.FC<PropertyEditorProps> = ({
   onTemplateStyling
 }) => {
   const [tab, setTab] = useState<'content' | 'style'>('content');
+  const [giphySearchTerm, setGiphySearchTerm] = useState<string>('');
+  const [giphySearchResults, setGiphySearchResults] = useState<any[]>([]);
+  const [isGiphySearching, setIsGiphySearching] = useState<boolean>(false);
+  
+  // Function to search GIPHY
+  const searchGiphy = async () => {
+    if (!giphySearchTerm.trim() || !process.env.GIPHY_API_KEY) return;
+    
+    try {
+      setIsGiphySearching(true);
+      const gf = new GiphyFetch(import.meta.env.VITE_GIPHY_API_KEY || '');
+      const { data } = await gf.search(giphySearchTerm, { limit: 20 });
+      setGiphySearchResults(data);
+    } catch (error) {
+      console.error('Error searching GIPHY:', error);
+    } finally {
+      setIsGiphySearching(false);
+    }
+  };
   
   if (!selectedElement && !selectedSection) {
     return (
@@ -823,6 +842,117 @@ const PropertyEditor: React.FC<PropertyEditorProps> = ({
               </p>
             </div>
           )}
+          
+          {type === 'emoji' && (
+            <div>
+              <Label className="text-gray-700 mb-1 block text-sm font-medium">Select Emoji</Label>
+              <div className="mt-3 border rounded-md p-3">
+                <div className="mb-3 text-center">
+                  <div style={{ fontSize: '48px', lineHeight: 1.2 }}>
+                    {content.emoji || '😀'}
+                  </div>
+                  <div className="text-xs text-gray-500 mt-1">Current Selection</div>
+                </div>
+                <EmojiPicker 
+                  width="100%" 
+                  height={350} 
+                  theme={Theme.AUTO} 
+                  onEmojiClick={(emojiData: EmojiClickData) => {
+                    updateElement(id, { content: { ...content, emoji: emojiData.emoji } });
+                  }} 
+                />
+              </div>
+            </div>
+          )}
+          
+          {type === 'gif' && (
+            <div>
+              <Label htmlFor="gifSrc" className="text-gray-700 mb-1 block text-sm font-medium">GIF URL</Label>
+              <Input 
+                id="gifSrc"
+                value={content.src || ''} 
+                onChange={(e) => updateElement(id, { content: { ...content, src: e.target.value } })}
+                placeholder="https://example.com/image.gif"
+                className="mt-1.5"
+              />
+              <div className="mt-3">
+                <Label htmlFor="gifAlt" className="text-gray-700 mb-1 block text-sm font-medium">Alt Text</Label>
+                <Input 
+                  id="gifAlt"
+                  value={content.alt || ''} 
+                  onChange={(e) => updateElement(id, { content: { ...content, alt: e.target.value } })}
+                  placeholder="GIF description for accessibility"
+                  className="mt-1.5"
+                />
+              </div>
+              
+              <div className="mt-4">
+                <Label className="text-gray-700 mb-3 block text-sm font-medium">Search GIPHY</Label>
+                <div className="border rounded-md p-3 mt-1.5 max-h-[400px] overflow-y-auto">
+                  {process.env.GIPHY_API_KEY && (
+                    <>
+                      <Input 
+                        placeholder="Search for GIFs..."
+                        className="mb-3"
+                        onChange={(e) => {
+                          setGiphySearchTerm(e.target.value);
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            searchGiphy();
+                          }
+                        }}
+                      />
+                      <Button 
+                        className="w-full mb-4" 
+                        onClick={searchGiphy} 
+                        disabled={isGiphySearching}
+                      >
+                        {isGiphySearching ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Searching...
+                          </>
+                        ) : (
+                          <>Search</>
+                        )}
+                      </Button>
+                      {giphySearchResults.length > 0 ? (
+                        <div className="grid grid-cols-2 gap-2">
+                          {giphySearchResults.map((gif: any, index: number) => (
+                            <div 
+                              key={index} 
+                              className="cursor-pointer border hover:border-primary rounded-md overflow-hidden"
+                              onClick={() => {
+                                updateElement(id, { 
+                                  content: { 
+                                    ...content, 
+                                    src: gif.images.fixed_height.url,
+                                    alt: gif.title
+                                  } 
+                                });
+                              }}
+                            >
+                              <img 
+                                src={gif.images.fixed_height_small.url} 
+                                alt={gif.title} 
+                                style={{ width: '100%', height: 'auto' }}
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-center py-6 text-gray-500">
+                          {giphySearchTerm ? "No results found" : "Search for GIFs to display results"}
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
         </TabsContent>
         
         <TabsContent value="style" className="pt-4 space-y-4">
@@ -1017,6 +1147,94 @@ const PropertyEditor: React.FC<PropertyEditorProps> = ({
                   />
                   <span className="text-gray-500 text-sm">px</span>
                 </div>
+              </div>
+            </>
+          )}
+          
+          {(type === 'emoji' || type === 'gif') && (
+            <div>
+              <Label className="text-gray-700 mb-1 block text-sm font-medium">Alignment</Label>
+              <div className="flex items-center space-x-2 mt-1.5">
+                <Button
+                  type="button"
+                  variant={styles.alignment === 'left' ? 'default' : 'outline'}
+                  size="sm"
+                  className="h-9 w-9 p-0"
+                  onClick={() => updateElement(id, { styles: { ...styles, alignment: 'left' } })}
+                >
+                  <AlignLeft className="h-4 w-4" />
+                </Button>
+                <Button
+                  type="button"
+                  variant={styles.alignment === 'center' ? 'default' : 'outline'}
+                  size="sm"
+                  className="h-9 w-9 p-0"
+                  onClick={() => updateElement(id, { styles: { ...styles, alignment: 'center' } })}
+                >
+                  <AlignCenter className="h-4 w-4" />
+                </Button>
+                <Button
+                  type="button"
+                  variant={styles.alignment === 'right' ? 'default' : 'outline'}
+                  size="sm"
+                  className="h-9 w-9 p-0"
+                  onClick={() => updateElement(id, { styles: { ...styles, alignment: 'right' } })}
+                >
+                  <AlignRight className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          )}
+          
+          {type === 'emoji' && (
+            <div className="mt-4">
+              <Label htmlFor="emojiSize" className="text-gray-700 mb-1 block text-sm font-medium">Size</Label>
+              <div className="flex items-center gap-2 mt-1.5">
+                <Input 
+                  type="number" 
+                  id="emojiSize"
+                  value={parseInt(styles.fontSize) || 48} 
+                  onChange={(e) => updateElement(id, { styles: { ...styles, fontSize: `${e.target.value}px` } })}
+                  className="w-20 text-sm"
+                  min={16}
+                  max={128}
+                />
+                <span className="text-gray-500 text-sm">px</span>
+              </div>
+            </div>
+          )}
+          
+          {type === 'gif' && (
+            <>
+              <div className="flex items-center gap-4 mt-4">
+                <div className="flex items-center gap-2">
+                  <input 
+                    type="checkbox" 
+                    id="gifRounded"
+                    checked={styles.rounded || false} 
+                    onChange={(e) => updateElement(id, { styles: { ...styles, rounded: e.target.checked } })}
+                  />
+                  <Label htmlFor="gifRounded" className="text-sm">Rounded corners</Label>
+                </div>
+              </div>
+              
+              <div className="mt-4">
+                <Label htmlFor="gifWidth" className="text-gray-700 mb-1 block text-sm font-medium">Width</Label>
+                <div className="flex items-center gap-2 mt-1.5">
+                  <Input 
+                    type="number" 
+                    id="gifWidth"
+                    value={parseInt(styles.width?.replace('%', '') || '100')} 
+                    onChange={(e) => updateElement(id, { styles: { ...styles, width: `${e.target.value}%` } })}
+                    className="w-20 text-sm"
+                    min={10}
+                    max={100}
+                  />
+                  <span className="text-gray-500 text-sm">%</span>
+                </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  Percentage of container width
+                </p>
               </div>
             </>
           )}
