@@ -14,7 +14,7 @@ import {
   Link, List, ListOrdered, Type, Grid, Layout, Columns, Rows, Save, 
   ArrowLeft, Loader2, SeparatorHorizontal, X, ArrowDown, Settings, Palette,
   Plus, Trash2, MoveVertical, Copy, Code, Eye, ArrowUp, GripVertical, Smile, Video,
-  AlertCircle
+  AlertCircle, Upload
 } from "lucide-react";
 import EmojiPicker, { Theme, EmojiClickData } from "emoji-picker-react";
 import { GiphyFetch } from "@giphy/js-fetch-api";
@@ -775,35 +775,107 @@ const PropertyEditor: React.FC<PropertyEditorProps> = ({
           
           {type === 'image' && (
             <>
-              <div>
-                <Label htmlFor="imageSrc" className="text-gray-700 mb-1 block text-sm font-medium">Image URL</Label>
-                <Input 
-                  id="imageSrc"
-                  value={content.src || ''} 
-                  onChange={(e) => updateElement(id, { content: { ...content, src: e.target.value } })}
-                  placeholder="https://example.com/image.jpg"
-                  className="mt-1.5"
-                />
-              </div>
-              <div>
-                <Label htmlFor="imageAlt" className="text-gray-700 mb-1 block text-sm font-medium">Alt Text</Label>
-                <Input 
-                  id="imageAlt"
-                  value={content.alt || ''} 
-                  onChange={(e) => updateElement(id, { content: { ...content, alt: e.target.value } })}
-                  placeholder="Image description for accessibility"
-                  className="mt-1.5"
-                />
-              </div>
-              <div>
-                <Label htmlFor="imageCaption" className="text-gray-700 mb-1 block text-sm font-medium">Caption (optional)</Label>
-                <Input 
-                  id="imageCaption"
-                  value={content.caption || ''} 
-                  onChange={(e) => updateElement(id, { content: { ...content, caption: e.target.value } })}
-                  placeholder="Image caption"
-                  className="mt-1.5"
-                />
+              <div className="space-y-4">
+                <div>
+                  <Label className="text-gray-700 mb-3 block text-sm font-medium">Upload Image</Label>
+                  <div className="mt-1.5 flex flex-col gap-4">
+                    <input
+                      type="file"
+                      id="imageUpload"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={async (e) => {
+                        const files = e.target.files;
+                        if (!files || files.length === 0) return;
+                        
+                        const file = files[0];
+                        const formData = new FormData();
+                        formData.append('image', file);
+                        
+                        try {
+                          const response = await fetch('/api/upload/image', {
+                            method: 'POST',
+                            body: formData,
+                          });
+                          
+                          if (!response.ok) {
+                            throw new Error('Failed to upload image');
+                          }
+                          
+                          const result = await response.json();
+                          
+                          if (result.success) {
+                            updateElement(id, { 
+                              content: { 
+                                ...content, 
+                                src: result.imageUrl,
+                                alt: file.name.split('.')[0] || 'Image' 
+                              } 
+                            });
+                          } else {
+                            console.error('Image upload failed:', result.error);
+                          }
+                        } catch (error) {
+                          console.error('Error uploading image:', error);
+                        }
+                      }}
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => {
+                        document.getElementById('imageUpload')?.click();
+                      }}
+                    >
+                      <Upload className="h-4 w-4 mr-2" />
+                      Upload Image
+                    </Button>
+                    
+                    {content.src && (
+                      <div className="border rounded p-2">
+                        <img 
+                          src={content.src} 
+                          alt={content.alt || 'Uploaded image'} 
+                          className="max-h-[200px] mx-auto object-contain" 
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
+                
+                <div className="mt-4">
+                  <Label htmlFor="imageSrc" className="text-gray-700 mb-1 block text-sm font-medium">Image URL</Label>
+                  <Input 
+                    id="imageSrc"
+                    value={content.src || ''} 
+                    onChange={(e) => updateElement(id, { content: { ...content, src: e.target.value } })}
+                    placeholder="https://example.com/image.jpg or data:image/..."
+                    className="mt-1.5"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Enter URL or use the upload button above</p>
+                </div>
+                
+                <div>
+                  <Label htmlFor="imageAlt" className="text-gray-700 mb-1 block text-sm font-medium">Alt Text</Label>
+                  <Input 
+                    id="imageAlt"
+                    value={content.alt || ''} 
+                    onChange={(e) => updateElement(id, { content: { ...content, alt: e.target.value } })}
+                    placeholder="Image description for accessibility"
+                    className="mt-1.5"
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="imageCaption" className="text-gray-700 mb-1 block text-sm font-medium">Caption (optional)</Label>
+                  <Input 
+                    id="imageCaption"
+                    value={content.caption || ''} 
+                    onChange={(e) => updateElement(id, { content: { ...content, caption: e.target.value } })}
+                    placeholder="Image caption"
+                    className="mt-1.5"
+                  />
+                </div>
               </div>
             </>
           )}

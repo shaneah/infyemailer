@@ -38,5 +38,16 @@
     "id": 3,
     "createdAt": "2025-04-16T22:58:01.722Z",
     "updatedAt": "2025-04-16T22:58:01.722Z"
+  },
+  {
+    "name": "New Email Template",
+    "content": "\n      <!DOCTYPE html>\n      <html>\n      <head>\n        <meta charset=\"utf-8\">\n        <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n        <title>New Email Template</title>\n        \n        <style>\n          body {\n            margin: 0;\n            padding: 0;\n            font-family: Arial, sans-serif;\n            background-color: #f5f5f5;\n          }\n          .container {\n            width: 100%;\n            max-width: 600px;\n            margin: 0 auto;\n          }\n          table {\n            border-spacing: 0;\n            border-collapse: collapse;\n            mso-table-lspace: 0pt;\n            mso-table-rspace: 0pt;\n          }\n          td {\n            padding: 0;\n          }\n          img {\n            border: 0;\n            height: auto;\n            line-height: 100%;\n            outline: none;\n            text-decoration: none;\n            display: block;\n          }\n        </style>\n      </head>\n      <body>\n        <div class=\"container\">\n    \n        <table width=\"100%\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" role=\"presentation\" style=\"background-color: #ffffff;\">\n          <tr>\n            <td style=\"padding: 12px;\">\n      \n              <h1 style=\"font-size: 24px; color: #333333; font-weight: 600; text-align: left; margin: 0; line-height: 1.2;\">\n                Your Header Text\n              </h1>\n            \n            </td>\n          </tr>\n        </table>\n      \n        <table width=\"100%\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" role=\"presentation\" style=\"background-color: #ffffff;\">\n          <tr>\n            <td style=\"padding: 12px;\">\n      \n              <div align=\"left\" style=\"margin-bottom: 16px;\">\n                <img src=\"https://via.placeholder.com/600x300?text=Add+Your+Image\" \n                  alt=\"Image description\" \n                  width=\"100%\" \n                  style=\"width: 100%; max-width: 100%\">\n                \n              </div>\n            \n              <p style=\"font-size: 16px; color: #666666; text-align: left; margin: 0 0 16px 0; line-height: 1.5;\">\n                Your paragraph text goes here. Edit this to add your own content.\n              </p>\n            \n            </td>\n          </tr>\n        </table>\n      \n        </div>\n      </body>\n      </html>\n    ",
+    "description": "Email template created with the editor on 4/17/2025, 2:58:16 AM",
+    "category": "general",
+    "subject": "Your Email Subject",
+    "metadata": {},
+    "id": 4,
+    "createdAt": "2025-04-16T22:58:19.289Z",
+    "updatedAt": "2025-04-16T22:58:19.289Z"
   }
 ]
