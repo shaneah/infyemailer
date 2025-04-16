@@ -21,12 +21,12 @@ const MenuItem = ({ href, icon: Icon, label, active }: {
       href={href} 
       className={`group flex items-center px-3 py-2.5 text-sm rounded-md transition-colors ${
         active 
-          ? 'bg-teal-600 text-white' 
-          : 'text-teal-100 hover:bg-teal-600/40'
+          ? 'bg-blue-800 text-white' 
+          : 'text-blue-100 hover:bg-blue-800/40'
       }`}
     >
       <div className="flex items-center justify-center">
-        <Icon size={18} className={`mr-3 transition-all ${active ? 'text-white' : 'text-teal-200 group-hover:text-white'}`} />
+        <Icon size={18} className={`mr-3 transition-all ${active ? 'text-amber-300' : 'text-blue-200 group-hover:text-amber-300'}`} />
       </div>
       <span className="font-medium">{label}</span>
     </Link>
@@ -36,7 +36,7 @@ const MenuItem = ({ href, icon: Icon, label, active }: {
 const MenuSection = ({ title, children }: { title: string; children: React.ReactNode }) => {
   return (
     <div className="mb-4">
-      <div className="px-4 py-1 text-xs font-medium uppercase tracking-wider text-teal-300/80">
+      <div className="px-4 py-1 text-xs font-medium uppercase tracking-wider text-amber-300/90">
         {title}
       </div>
       <nav className="mt-1 space-y-0.5 px-2">
@@ -86,7 +86,7 @@ const ClientSidebar = ({ open, setOpen }: SidebarProps) => {
       {/* Mobile menu button */}
       <button
         onClick={() => setOpen(!open)}
-        className="fixed top-4 left-4 z-50 lg:hidden flex items-center justify-center w-10 h-10 rounded-md bg-teal-700 text-white"
+        className="fixed top-4 left-4 z-50 lg:hidden flex items-center justify-center w-10 h-10 rounded-md bg-blue-900 text-white"
       >
         {open ? <X size={20} /> : <Menu size={20} />}
       </button>
@@ -95,10 +95,10 @@ const ClientSidebar = ({ open, setOpen }: SidebarProps) => {
       <aside 
         className={`fixed inset-y-0 left-0 z-40 w-64 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-auto lg:z-auto ${
           open ? 'translate-x-0' : '-translate-x-full'
-        } h-full bg-gradient-to-b from-teal-700 to-teal-800 text-white flex flex-col flex-shrink-0 shadow-xl`}
+        } h-full bg-gradient-to-b from-blue-950 to-blue-900 text-white flex flex-col flex-shrink-0 shadow-xl`}
       >
         {/* Logo area */}
-        <div className="p-4 flex flex-col items-center border-b border-teal-600/50">
+        <div className="p-4 flex flex-col items-center border-b border-blue-800/50">
           <div className="w-full flex items-center justify-center mt-1 mb-2">
             <img 
               src="/client/src/assets/Logo-white.png" 
@@ -110,14 +110,14 @@ const ClientSidebar = ({ open, setOpen }: SidebarProps) => {
         </div>
         
         {/* Client ID */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-teal-600/50 bg-teal-750/50">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-blue-800/50 bg-blue-900/50">
           <div className="flex flex-col">
-            <span className="text-teal-100 font-medium">{clientName}</span>
-            <span className="text-xs text-teal-300/80">ID: {clientId}</span>
+            <span className="text-blue-100 font-medium">{clientName}</span>
+            <span className="text-xs text-amber-300/80">ID: {clientId}</span>
           </div>
-          <div className="flex items-center bg-teal-600/30 px-2 py-1 rounded-md">
-            <CreditCard size={14} className="text-teal-200 mr-1" />
-            <span className="text-xs text-teal-100">Credits: 1,500</span>
+          <div className="flex items-center bg-blue-800/40 px-2 py-1 rounded-md">
+            <CreditCard size={14} className="text-amber-300 mr-1" />
+            <span className="text-xs text-blue-100">Credits: 1,500</span>
           </div>
         </div>
         
@@ -191,24 +191,24 @@ const ClientSidebar = ({ open, setOpen }: SidebarProps) => {
         </div>
         
         {/* Footer actions */}
-        <div className="mt-auto border-t border-teal-600/50">
+        <div className="mt-auto border-t border-blue-800/50">
           <Link
             href="/client-settings"
             className={`flex items-center px-4 py-3 text-sm transition-colors ${
               location === '/client-settings' 
-                ? 'bg-teal-600 text-white' 
-                : 'text-teal-100 hover:bg-teal-600/40'
+                ? 'bg-blue-800 text-white' 
+                : 'text-blue-100 hover:bg-blue-800/40'
             }`}
           >
-            <Settings size={18} className="mr-3" />
+            <Settings size={18} className={`mr-3 ${location === '/client-settings' ? 'text-amber-300' : ''}`} />
             <span>Account Settings</span>
           </Link>
           
           <button
             onClick={handleLogout}
-            className="flex items-center w-full px-4 py-3 text-sm text-teal-100 hover:bg-teal-600/40 transition-colors"
+            className="flex items-center w-full px-4 py-3 text-sm text-blue-100 hover:bg-blue-800/40 transition-colors group"
           >
-            <LogOut size={18} className="mr-3" />
+            <LogOut size={18} className="mr-3 group-hover:text-amber-300" />
             <span>Logout</span>
           </button>
         </div>
