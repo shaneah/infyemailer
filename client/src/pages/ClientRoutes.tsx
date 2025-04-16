@@ -12,6 +12,7 @@ import CreateTemplateModal from '@/modals/CreateTemplateModal';
 import ClientTemplates from '@/pages/ClientTemplates';
 import BasicTemplateBuilder from '@/pages/BasicTemplateBuilder';
 import ClientEmailPerformance from '@/pages/ClientEmailPerformance';
+import ClientABTestingAdvanced from '@/pages/ClientABTestingAdvanced';
 
 // Campaigns component with more complete UI
 const ClientCampaigns = ({ onCreateCampaign }: { onCreateCampaign: () => void }) => {

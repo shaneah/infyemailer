@@ -3,6 +3,7 @@ import { db } from './db';
 import { eq, desc, and, gt, lt, isNull, count } from 'drizzle-orm';
 import * as schema from '../shared/schema';
 import { log } from './vite';
+import { safeDbOperation } from './dbHelper';
 
 /**
  * Implementation of the storage interface using PostgreSQL database
@@ -638,6 +639,155 @@ export class DbStorage implements IStorage {
   async getCampaignAnalytics(campaignId: number) { return undefined; }
   async createCampaignAnalytics(analytics: any) { return undefined; }
   async updateCampaignAnalytics(id: number, update: any) { return undefined; }
+  
+  // A/B Testing Methods
+  async getCampaignVariants(campaignId: number): Promise<schema.CampaignVariant[]> {
+    try {
+      const variants = await safeDbOperation(
+        db.select().from(schema.campaignVariants).where(eq(schema.campaignVariants.campaignId, campaignId)),
+        []
+      );
+      return variants;
+    } catch (error) {
+      console.error("Error fetching campaign variants:", error);
+      return [];
+    }
+  }
+  
+  async getCampaignVariant(id: number): Promise<schema.CampaignVariant | undefined> {
+    try {
+      const [variant] = await safeDbOperation(
+        db.select().from(schema.campaignVariants).where(eq(schema.campaignVariants.id, id)),
+        []
+      );
+      return variant;
+    } catch (error) {
+      console.error("Error fetching campaign variant:", error);
+      return undefined;
+    }
+  }
+  
+  async createCampaignVariant(variant: schema.InsertCampaignVariant): Promise<schema.CampaignVariant> {
+    try {
+      const [newVariant] = await safeDbOperation(
+        db.insert(schema.campaignVariants).values(variant).returning(),
+        []
+      );
+      
+      if (!newVariant) {
+        throw new Error("Failed to create campaign variant");
+      }
+      
+      return newVariant;
+    } catch (error) {
+      console.error("Error creating campaign variant:", error);
+      throw error;
+    }
+  }
+  
+  async updateCampaignVariant(id: number, update: Partial<schema.CampaignVariant>): Promise<schema.CampaignVariant | undefined> {
+    try {
+      const [updatedVariant] = await safeDbOperation(
+        db.update(schema.campaignVariants)
+          .set({
+            ...update,
+            updatedAt: new Date()
+          })
+          .where(eq(schema.campaignVariants.id, id))
+          .returning(),
+        []
+      );
+      
+      return updatedVariant;
+    } catch (error) {
+      console.error("Error updating campaign variant:", error);
+      return undefined;
+    }
+  }
+  
+  async deleteCampaignVariant(id: number): Promise<boolean> {
+    try {
+      await safeDbOperation(
+        db.delete(schema.campaignVariants).where(eq(schema.campaignVariants.id, id)),
+        []
+      );
+      
+      return true;
+    } catch (error) {
+      console.error("Error deleting campaign variant:", error);
+      return false;
+    }
+  }
+  
+  async getVariantAnalyticsByCampaign(campaignId: number): Promise<schema.VariantAnalytics[]> {
+    try {
+      const analytics = await safeDbOperation(
+        db.select()
+          .from(schema.variantAnalytics)
+          .where(eq(schema.variantAnalytics.campaignId, campaignId)),
+        []
+      );
+      
+      return analytics;
+    } catch (error) {
+      console.error("Error fetching variant analytics by campaign:", error);
+      return [];
+    }
+  }
+  
+  async recordVariantAnalytic(analytic: schema.InsertVariantAnalytics): Promise<schema.VariantAnalytics> {
+    try {
+      const [newAnalytic] = await safeDbOperation(
+        db.insert(schema.variantAnalytics).values(analytic).returning(),
+        []
+      );
+      
+      if (!newAnalytic) {
+        throw new Error("Failed to record variant analytic");
+      }
+      
+      return newAnalytic;
+    } catch (error) {
+      console.error("Error recording variant analytic:", error);
+      throw error;
+    }
+  }
+  
+  async setWinningVariant(campaignId: number, variantId: number): Promise<schema.Campaign | undefined> {
+    try {
+      const [updatedCampaign] = await safeDbOperation(
+        db.update(schema.campaigns)
+          .set({
+            winningVariantId: variantId,
+            updatedAt: new Date()
+          })
+          .where(eq(schema.campaigns.id, campaignId))
+          .returning(),
+        []
+      );
+      
+      return updatedCampaign;
+    } catch (error) {
+      console.error("Error setting winning variant:", error);
+      return undefined;
+    }
+  }
+  
+  async getAbTestCampaigns(): Promise<schema.Campaign[]> {
+    try {
+      const campaigns = await safeDbOperation(
+        db.select()
+          .from(schema.campaigns)
+          .where(eq(schema.campaigns.isAbTest, true)),
+        []
+      );
+      
+      return campaigns;
+    } catch (error) {
+      console.error("Error fetching A/B test campaigns:", error);
+      return [];
+    }
+  }
 
   // Counting stubs
   getContactsCount() { return Promise.resolve(0); }
