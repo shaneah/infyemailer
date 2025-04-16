@@ -517,12 +517,17 @@ const Section: React.FC<SectionProps> = ({
       {/* Section header bar for selection */}
       <div 
         className={`h-6 ${isSelected ? 'bg-primary/20' : 'bg-gray-100'} cursor-pointer flex items-center px-2 justify-between`}
-        onClick={() => onSelectSection(section.id)}
+        onClick={(e) => {
+          e.stopPropagation();
+          e.preventDefault();
+          onSelectSection(section.id);
+          console.log('Section header clicked, section ID:', section.id);
+        }}
       >
         <span className="text-xs font-medium text-gray-600">Section {index + 1}</span>
         {isSelected && (
           <div className="flex items-center space-x-1 text-xs text-gray-500">
-            <span>Click to edit section properties</span>
+            <span>Properties active</span>
           </div>
         )}
       </div>
@@ -534,7 +539,14 @@ const Section: React.FC<SectionProps> = ({
           backgroundColor: section.styles.backgroundColor || '#ffffff',
           padding: section.styles.padding || '12px',
         }}
-        onClick={() => onSelectSection(section.id)}
+        onClick={(e) => {
+          // Only select section if clicked directly on section container, not on child elements
+          if (e.currentTarget === e.target) {
+            e.stopPropagation();
+            onSelectSection(section.id);
+            console.log('Section content clicked, section ID:', section.id);
+          }
+        }}
         onDrop={(e) => onDrop(e, section.id)}
         onDragOver={handleDragOver}
       >
@@ -598,6 +610,14 @@ const PropertyEditor: React.FC<PropertyEditorProps> = ({
   const [giphySearchResults, setGiphySearchResults] = useState<any[]>([]);
   const [isGiphySearching, setIsGiphySearching] = useState<boolean>(false);
   const [giphyApiKey, setGiphyApiKey] = useState<string>('');
+  
+  // Debug log to check when properties panel receives section changes
+  useEffect(() => {
+    if (selectedSection) {
+      console.log('PropertyEditor: Section selected:', selectedSection.id);
+      console.log('PropertyEditor: Section styles:', selectedSection.styles);
+    }
+  }, [selectedSection]);
   
   // Fetch the GIPHY API key from our server
   useEffect(() => {
@@ -2050,8 +2070,17 @@ const EmailEditor: React.FC<{
   
   // Handle section selection
   const handleSelectSection = (sectionId: string) => {
+    console.log('Section selected:', sectionId);
     setSelectedSectionId(sectionId);
     setSelectedElementId(null);
+    
+    // Log the current state after selection
+    setTimeout(() => {
+      console.log('Selected section ID:', selectedSectionId);
+      console.log('Selected element ID:', selectedElementId);
+      const selectedSection = sections.find(s => s.id === sectionId);
+      console.log('Selected section object:', selectedSection);
+    }, 50);
   };
   
   // Update element properties
