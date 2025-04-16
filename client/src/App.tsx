@@ -19,6 +19,7 @@ import ABTesting from "@/pages/ABTesting";
 import EmailPerformance from "@/pages/EmailPerformance";
 import BasicTemplateBuilder from "@/pages/BasicTemplateBuilder";
 import DragAndDropTemplateBuilder from "@/pages/DragAndDropTemplateBuilder";
+import TemplateBuilder from "@/pages/TemplateBuilder";
 import Domains from "@/pages/Domains";
 
 import Clients from "@/pages/Clients";
@@ -208,8 +209,8 @@ function App() {
                     <ProtectedRoute path="ab-testing" component={ABTesting} />
                     <ProtectedRoute path="ab-testing/:id" component={ABTesting} />
                     <ProtectedRoute path="email-performance" component={EmailPerformance} />
-                    <ProtectedRoute path="template-builder" component={BasicTemplateBuilder} />
-                    <ProtectedRoute path="template-builder/:id" component={BasicTemplateBuilder} />
+                    <ProtectedRoute path="template-builder" component={TemplateBuilder} />
+                    <ProtectedRoute path="template-builder/:id" component={TemplateBuilder} />
                     <ProtectedRoute path="drag-drop-builder" component={DragAndDropTemplateBuilder} />
                     <ProtectedRoute path="drag-drop-builder/:id" component={DragAndDropTemplateBuilder} />
                     <ProtectedRoute path="domains" component={Domains} />
