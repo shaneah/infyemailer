@@ -49,8 +49,8 @@ const MenuSection = ({ title, children }: { title: string; children: React.React
 
 const ClientSidebar = ({ open, setOpen }: SidebarProps) => {
   const [location] = useLocation();
-  const [clientName, setClientName] = useState("TechSolutions");
-  const [clientId, setClientId] = useState("tech1");
+  const [clientName, setClientName] = useState("");
+  const [clientId, setClientId] = useState("");
   
   useEffect(() => {
     // Get client info from session storage
@@ -58,8 +58,8 @@ const ClientSidebar = ({ open, setOpen }: SidebarProps) => {
     if (clientUser) {
       try {
         const userData = JSON.parse(clientUser);
-        setClientName(userData.company || "TechSolutions");
-        setClientId(userData.id || "tech1");
+        setClientName(userData.company || "");
+        setClientId(userData.id || "");
       } catch (error) {
         console.error("Error parsing client user data", error);
       }
@@ -110,14 +110,8 @@ const ClientSidebar = ({ open, setOpen }: SidebarProps) => {
           <div className="font-semibold text-white">Client Portal</div>
         </div>
         
-        {/* Client info */}
-        <div className="p-4 border-b border-blue-800/50 bg-blue-900/50">
-          <div className="flex items-center justify-between">
-            <div className="flex flex-col">
-              <span className="text-white font-medium text-base">{clientName}</span>
-              <span className="text-xs text-blue-200/80 mt-0.5">ID: {clientId}</span>
-            </div>
-          </div>
+        {/* Spacer */}
+        <div className="p-2 border-b border-blue-800/50 bg-blue-900/50">
         </div>
         
         {/* Navigation */}
