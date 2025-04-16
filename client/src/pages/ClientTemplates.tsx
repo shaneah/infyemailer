@@ -385,39 +385,39 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
   
   return (
     <div className="space-y-8 p-6 max-w-[1600px] mx-auto">
-      {/* Hero section with gradient */}
-      <div className="relative overflow-hidden bg-gradient-to-r from-teal-50 via-blue-50 to-teal-50 rounded-xl p-6 sm:p-8 shadow-sm border border-teal-100">
+      {/* Hero section with gold gradient */}
+      <div className="relative overflow-hidden bg-gradient-to-r from-amber-50 via-yellow-50 to-amber-50 rounded-xl p-6 sm:p-8 shadow-md border border-amber-100">
         <div className="absolute inset-0 bg-grid-primary-500/10 [mask-image:linear-gradient(0deg,#fff2,transparent)] bg-fixed"></div>
         <div className="relative">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight bg-gradient-to-r from-teal-600 to-blue-600 bg-clip-text text-transparent">
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight bg-gradient-to-r from-amber-500 to-yellow-500 bg-clip-text text-transparent drop-shadow-sm">
                 Email Template Library
               </h1>
-              <p className="text-slate-600 mt-2 max-w-2xl text-sm sm:text-base">
-                Create professional email templates that will engage your audience and drive results
+              <p className="text-slate-700 mt-2 max-w-2xl text-sm sm:text-base">
+                Create stunning email templates that captivate your audience and drive exceptional results
               </p>
-              <div className="flex mt-4 gap-2 text-sm text-slate-500 items-center">
+              <div className="flex mt-4 gap-3 text-sm text-slate-600 items-center">
                 <div className="flex items-center gap-1.5">
-                  <span className="inline-flex h-2 w-2 rounded-full bg-green-500"></span>
-                  Ready to use
+                  <span className="inline-flex h-2 w-2 rounded-full bg-gradient-to-r from-amber-400 to-yellow-400"></span>
+                  Premium quality
                 </div>
-                <div className="w-px h-4 bg-slate-300"></div>
+                <div className="w-px h-4 bg-amber-200"></div>
                 <div className="flex items-center gap-1.5">
-                  <Sparkles className="h-3 w-3 text-teal-600" />
-                  AI-powered
+                  <Sparkles className="h-3 w-3 text-amber-600" />
+                  AI-enhanced
                 </div>
-                <div className="w-px h-4 bg-slate-300"></div>
+                <div className="w-px h-4 bg-amber-200"></div>
                 <div className="flex items-center gap-1.5">
-                  <ExternalLink className="h-3 w-3 text-teal-600" />
-                  Customizable
+                  <ExternalLink className="h-3 w-3 text-amber-600" />
+                  Fully customizable
                 </div>
               </div>
             </div>
             <div className="flex gap-2">
               <Button 
                 variant="outline"
-                className="shadow-sm gap-2 px-4 border-teal-200 text-teal-700 hover:bg-teal-50"
+                className="shadow-sm gap-2 px-4 border-amber-200 text-amber-700 hover:bg-amber-50"
                 onClick={() => setShowImportModal(true)}
               >
                 <Import className="h-4 w-4" /> 
@@ -425,7 +425,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
               </Button>
               <Button 
                 variant="outline"
-                className="shadow-sm gap-2 px-4 border-teal-200 text-teal-700 hover:bg-teal-50"
+                className="shadow-sm gap-2 px-4 border-amber-200 text-amber-700 hover:bg-amber-50"
                 onClick={() => setShowAIGenerator(!showAIGenerator)}
               >
                 {showAIGenerator ? (
@@ -454,16 +454,16 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
       
       {/* Search and action tools */}
       <div className="flex flex-col gap-4">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white rounded-xl p-4 border border-gray-200 shadow-sm">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-gradient-to-r from-amber-50/70 to-yellow-50/70 rounded-xl p-4 border border-amber-100 shadow-sm">
           <div className="relative w-full sm:w-64">
             <Input
               type="search"
               placeholder="Search templates..."
-              className="w-full border-teal-200 focus-visible:ring-teal-300 pl-9"
+              className="w-full border-amber-200 focus-visible:ring-amber-300 pl-9 bg-white shadow-sm"
               value={searchQuery}
               onChange={handleSearchChange}
             />
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-gray-400 absolute left-3 top-[50%] transform -translate-y-1/2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-amber-500 absolute left-3 top-[50%] transform -translate-y-1/2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="11" cy="11" r="8"></circle>
               <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
             </svg>
@@ -473,7 +473,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
             <Button 
               variant="outline" 
               size="sm" 
-              className={`text-xs px-3 py-1 h-9 ${activeTab === 'all' ? 'bg-teal-50 border-teal-200 text-teal-700' : 'bg-white text-slate-600'}`}
+              className={`text-xs px-3 py-1 h-9 shadow-sm ${activeTab === 'all' ? 'bg-gradient-to-r from-amber-100 to-yellow-100 border-amber-200 text-amber-800' : 'bg-white text-slate-600 hover:text-amber-700 hover:border-amber-200'}`}
               onClick={() => setActiveTab('all')}
             >
               All Templates
@@ -481,17 +481,17 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
             <Button 
               variant="outline" 
               size="sm" 
-              className={`text-xs px-3 py-1 h-9 ${activeTab === 'ai' ? 'bg-teal-50 border-teal-200 text-teal-700' : 'bg-white text-slate-600'}`}
+              className={`text-xs px-3 py-1 h-9 shadow-sm ${activeTab === 'ai' ? 'bg-gradient-to-r from-amber-100 to-yellow-100 border-amber-200 text-amber-800' : 'bg-white text-slate-600 hover:text-amber-700 hover:border-amber-200'}`}
               onClick={() => setActiveTab('ai')}
             >
-              <Sparkles className="h-3 w-3 mr-1" /> 
+              <Sparkles className="h-3 w-3 mr-1 text-amber-500" /> 
               AI Generated
             </Button>
             <div className="ml-1">
               <Button 
                 variant="ghost" 
                 size="sm" 
-                className={`px-2 h-9 ${viewMode === 'grid' ? 'text-teal-700' : 'text-slate-400'}`}
+                className={`px-2 h-9 ${viewMode === 'grid' ? 'text-amber-700' : 'text-slate-400 hover:text-amber-600'}`}
                 onClick={() => setViewMode('grid')}
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -501,7 +501,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
               <Button 
                 variant="ghost" 
                 size="sm" 
-                className={`px-2 h-9 ${viewMode === 'list' ? 'text-teal-700' : 'text-slate-400'}`}
+                className={`px-2 h-9 ${viewMode === 'list' ? 'text-amber-700' : 'text-slate-400 hover:text-amber-600'}`}
                 onClick={() => setViewMode('list')}
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -515,7 +515,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
       
       {/* AI Template Generator */}
       {showAIGenerator && (
-        <div className="mb-8 bg-white rounded-xl border border-teal-100 shadow-sm overflow-hidden">
+        <div className="mb-8 bg-white rounded-xl border border-amber-100 shadow-sm overflow-hidden">
           <AdvancedTemplateGenerator 
             onTemplateGenerated={handleTemplateGenerated}
           />
@@ -555,24 +555,24 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
         {!isLoadingTemplates && filteredTemplates.length > 0 && (
           <>
             {viewMode === 'grid' ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
                 {filteredTemplates.map((template: Template) => (
-                  <Card key={template.id} className="overflow-hidden group border border-gray-200 hover:border-teal-200 hover:shadow-md transition-all duration-200">
-                    <CardHeader className="p-0 h-44 overflow-hidden bg-gray-50 border-b relative">
-                      <div className="absolute inset-0 flex items-center justify-center p-4 bg-gradient-to-b from-gray-100 to-gray-200 text-center">
-                        <div className="bg-white rounded-md p-3 shadow-sm border border-gray-200 w-full max-w-[240px] mx-auto">
-                          <div className="h-4 w-3/4 bg-teal-100 rounded-sm mb-2 mx-auto"></div>
+                  <Card key={template.id} className="overflow-hidden group border-0 hover:shadow-xl transition-all duration-300 bg-white rounded-xl">
+                    <CardHeader className="p-0 h-48 overflow-hidden relative">
+                      <div className="absolute inset-0 flex items-center justify-center p-4 bg-gradient-to-br from-amber-50 via-amber-100 to-amber-50 text-center">
+                        <div className="bg-white rounded-lg p-4 shadow-lg border border-amber-200 w-full max-w-[240px] mx-auto transform group-hover:scale-105 transition-transform duration-300">
+                          <div className="h-4 w-3/4 bg-gradient-to-r from-amber-300 to-yellow-400 rounded-sm mb-3 mx-auto"></div>
                           <div className="h-2 w-5/6 bg-gray-100 rounded-sm mb-2 mx-auto"></div>
-                          <div className="h-2 w-4/6 bg-gray-100 rounded-sm mb-2 mx-auto"></div>
-                          <div className="h-5 w-1/3 bg-teal-600 rounded-sm mx-auto mt-3"></div>
+                          <div className="h-2 w-4/6 bg-gray-100 rounded-sm mb-3 mx-auto"></div>
+                          <div className="h-6 w-1/3 bg-gradient-to-r from-amber-500 to-yellow-500 rounded-sm mx-auto mt-3 shadow-sm"></div>
                         </div>
                       </div>
-                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-black/40 transition-all duration-200 flex items-center justify-center">
+                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-black/30 backdrop-blur-sm transition-all duration-300 flex items-center justify-center">
                         <div className="flex gap-2">
                           <Button 
-                            variant="secondary" 
+                            variant="default" 
                             size="sm"
-                            className="shadow-md opacity-90 hover:opacity-100"
+                            className="shadow-lg opacity-90 hover:opacity-100 bg-gradient-to-r from-amber-500 to-yellow-500 border border-amber-300 hover:from-amber-600 hover:to-yellow-600"
                             onClick={() => handleViewTemplate(template)}
                           >
                             <Eye className="h-4 w-4 mr-1" />
@@ -581,26 +581,26 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
                         </div>
                       </div>
                       {template.metadata?.generatedByAI && (
-                        <div className="absolute top-2 right-2 bg-gradient-to-r from-indigo-600 to-blue-600 text-white text-xs px-2 py-1 rounded-md font-medium flex items-center">
+                        <div className="absolute top-3 right-3 bg-gradient-to-r from-indigo-600 to-blue-600 text-white text-xs px-2 py-1 rounded-md font-medium flex items-center shadow-md">
                           <Sparkles className="h-3 w-3 mr-1" /> 
                           AI Generated
                         </div>
                       )}
                       {template.metadata?.new && (
-                        <div className="absolute top-2 left-2 bg-green-600 text-white text-xs px-2 py-1 rounded-md font-medium">
+                        <div className="absolute top-3 left-3 bg-gradient-to-r from-amber-500 to-yellow-500 text-white text-xs px-2 py-1 rounded-md font-medium shadow-md">
                           NEW
                         </div>
                       )}
                     </CardHeader>
-                    <CardContent className="p-4">
+                    <CardContent className="p-5">
                       <div className="flex justify-between items-start">
                         <div>
-                          <h3 className="font-medium text-sm text-gray-900 line-clamp-1">{template.name}</h3>
-                          <p className="text-gray-500 text-xs mt-1 line-clamp-2">{template.description}</p>
+                          <h3 className="font-medium text-base text-gray-900 line-clamp-1 mb-1">{template.name}</h3>
+                          <p className="text-gray-500 text-sm line-clamp-2">{template.description}</p>
                         </div>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-amber-600 hover:text-amber-800 hover:bg-amber-50">
                               <MoreVertical className="h-4 w-4" />
                             </Button>
                           </DropdownMenuTrigger>
@@ -609,7 +609,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
                               onClick={() => handleViewTemplate(template)}
                               className="cursor-pointer"
                             >
-                              <Eye className="h-4 w-4 mr-2" />
+                              <Eye className="h-4 w-4 mr-2 text-amber-600" />
                               Preview
                             </DropdownMenuItem>
                             <DropdownMenuItem
@@ -619,7 +619,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
                               }}
                               className="cursor-pointer"
                             >
-                              <Send className="h-4 w-4 mr-2" />
+                              <Send className="h-4 w-4 mr-2 text-amber-600" />
                               Send Test
                             </DropdownMenuItem>
                             <DropdownMenuItem
@@ -628,7 +628,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
                               }}
                               className="cursor-pointer"
                             >
-                              <Share2 className="h-4 w-4 mr-2" />
+                              <Share2 className="h-4 w-4 mr-2 text-amber-600" />
                               Share
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
@@ -636,16 +636,16 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
                               onClick={() => handleEditTemplate(template)}
                               className="cursor-pointer"
                             >
-                              <Pencil className="h-4 w-4 mr-2" />
+                              <Pencil className="h-4 w-4 mr-2 text-amber-600" />
                               Edit
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </div>
                     </CardContent>
-                    <CardFooter className="px-4 py-3 bg-gray-50 flex justify-between items-center border-t border-gray-100">
+                    <CardFooter className="px-5 py-3 bg-gradient-to-r from-amber-50 to-yellow-50 flex justify-between items-center border-t border-amber-100">
                       <div className="flex items-center gap-2">
-                        <Badge variant="outline" className="text-[10px] h-5 px-1.5 border-blue-200 text-blue-800 bg-blue-50">
+                        <Badge variant="outline" className="text-xs h-5 px-2 border-amber-200 text-amber-800 bg-white">
                           {template.category || "General"}
                         </Badge>
                       </div>
