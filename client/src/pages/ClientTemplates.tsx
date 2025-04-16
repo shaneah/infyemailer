@@ -40,7 +40,8 @@ import {
   Share2,
   Link2,
   Info,
-  Check
+  Check,
+  Edit
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -136,6 +137,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
   const [templateToShare, setTemplateToShare] = useState<number | null>(null);
+  const [templateToDelete, setTemplateToDelete] = useState<number | null>(null);
   const [shareExpiration, setShareExpiration] = useState("7"); // Default to 7 days
   
   const { data: savedTemplates = [], isLoading: isLoadingTemplates } = useQuery({
@@ -376,6 +378,29 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
       });
     }
   });
+  
+  // Delete template mutation
+  const deleteTemplateMutation = useMutation({
+    mutationFn: async (templateId: number) => {
+      return apiRequest("DELETE", `/api/templates/${templateId}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/templates'] });
+      toast({
+        title: "Template Deleted",
+        description: "The template has been deleted successfully",
+        variant: "default",
+      });
+      setTemplateToDelete(null);
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: `Failed to delete template: ${error.message}`,
+        variant: "destructive",
+      });
+    }
+  });
 
   // Handler functions
   const handleShareTemplate = (templateId: number) => {
@@ -398,6 +423,12 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
 
   const handleUpdateTemplate = (data: z.infer<typeof updateTemplateSchema>) => {
     updateTemplateMutation.mutate(data);
+  };
+  
+  const handleDeleteTemplate = () => {
+    if (templateToDelete) {
+      deleteTemplateMutation.mutate(templateToDelete);
+    }
   };
 
   // Filter templates based on search query and selected category
