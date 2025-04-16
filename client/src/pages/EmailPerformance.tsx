@@ -360,7 +360,7 @@ const EmailPerformance: React.FC = () => {
                         </div>
                         <span className="text-sm font-medium">12.3%</span>
                       </div>
-                      <Progress value={12.3} className="h-2" indicatorClassName="bg-orange-500" />
+                      <Progress value={12.3} className="h-2" style={{ '--progress-foreground': 'rgb(249, 115, 22)' } as React.CSSProperties} />
                     </div>
                     
                     <div className="space-y-2">
@@ -371,7 +371,7 @@ const EmailPerformance: React.FC = () => {
                         </div>
                         <span className="text-sm font-medium">3.7%</span>
                       </div>
-                      <Progress value={3.7} className="h-2" indicatorClassName="bg-yellow-500" />
+                      <Progress value={3.7} className="h-2" style={{ '--progress-foreground': 'rgb(234, 179, 8)' } as React.CSSProperties} />
                     </div>
                     
                     <div className="pt-4">
@@ -695,19 +695,19 @@ const EmailPerformance: React.FC = () => {
                         <span className="text-sm">Text-heavy (80%+ text)</span>
                         <span className="text-sm font-medium">21.3% CTR</span>
                       </div>
-                      <Progress value={21.3} className="h-2" indicatorClassName="bg-[#1e40af]" />
+                      <Progress value={21.3} className="h-2" style={{ '--progress-foreground': '#1e40af' } as React.CSSProperties} />
                       
                       <div className="flex items-center justify-between mt-2">
                         <span className="text-sm">Balanced (40-60% text)</span>
                         <span className="text-sm font-medium">27.8% CTR</span>
                       </div>
-                      <Progress value={27.8} className="h-2" indicatorClassName="bg-[#d4af37]" />
+                      <Progress value={27.8} className="h-2" style={{ '--progress-foreground': '#d4af37' } as React.CSSProperties} />
                       
                       <div className="flex items-center justify-between mt-2">
                         <span className="text-sm">Image-heavy (20%- text)</span>
                         <span className="text-sm font-medium">18.5% CTR</span>
                       </div>
-                      <Progress value={18.5} className="h-2" indicatorClassName="bg-[#1a3a5f]" />
+                      <Progress value={18.5} className="h-2" style={{ '--progress-foreground': '#1a3a5f' } as React.CSSProperties} />
                     </div>
                   </div>
                   
@@ -718,19 +718,19 @@ const EmailPerformance: React.FC = () => {
                         <span className="text-sm">Top section</span>
                         <span className="text-sm font-medium">15.1% CTR</span>
                       </div>
-                      <Progress value={15.1} className="h-2" indicatorClassName="bg-[#1e40af]" />
+                      <Progress value={15.1} className="h-2" style={{ '--progress-foreground': '#1e40af' } as React.CSSProperties} />
                       
                       <div className="flex items-center justify-between mt-2">
                         <span className="text-sm">Middle section</span>
                         <span className="text-sm font-medium">23.4% CTR</span>
                       </div>
-                      <Progress value={23.4} className="h-2" indicatorClassName="bg-[#d4af37]" />
+                      <Progress value={23.4} className="h-2" style={{ '--progress-foreground': '#d4af37' } as React.CSSProperties} />
                       
                       <div className="flex items-center justify-between mt-2">
                         <span className="text-sm">Bottom section</span>
                         <span className="text-sm font-medium">8.7% CTR</span>
                       </div>
-                      <Progress value={8.7} className="h-2" indicatorClassName="bg-[#1a3a5f]" />
+                      <Progress value={8.7} className="h-2" style={{ '--progress-foreground': '#1a3a5f' } as React.CSSProperties} />
                     </div>
                   </div>
                   
@@ -741,7 +741,7 @@ const EmailPerformance: React.FC = () => {
                         <span className="text-sm">Text-only links</span>
                         <span className="text-sm font-medium">9.2% CTR</span>
                       </div>
-                      <Progress value={9.2} className="h-2" indicatorClassName="bg-[#1e40af]" />
+                      <Progress value={9.2} className="h-2" style={{ '--progress-foreground': '#1e40af' } as React.CSSProperties} />
                       
                       <div className="flex items-center justify-between mt-2">
                         <span className="text-sm">Button-style CTAs</span>
