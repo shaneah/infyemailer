@@ -13,7 +13,8 @@ import {
   AlignLeft, AlignCenter, AlignRight, Bold, Italic, Underline, Image, 
   Link, List, ListOrdered, Type, Grid, Layout, Columns, Rows, Save, 
   ArrowLeft, Loader2, SeparatorHorizontal, X, ArrowDown, Settings, Palette,
-  Plus, Trash2, MoveVertical, Copy, Code, Eye, ArrowUp, GripVertical, Smile, Video
+  Plus, Trash2, MoveVertical, Copy, Code, Eye, ArrowUp, GripVertical, Smile, Video,
+  AlertCircle
 } from "lucide-react";
 import EmojiPicker, { Theme, EmojiClickData } from "emoji-picker-react";
 import { GiphyFetch } from "@giphy/js-fetch-api";
@@ -577,7 +578,7 @@ const PropertyEditor: React.FC<PropertyEditorProps> = ({
   
   // Function to search GIPHY
   const searchGiphy = async () => {
-    if (!giphySearchTerm.trim() || !process.env.GIPHY_API_KEY) return;
+    if (!giphySearchTerm.trim()) return;
     
     try {
       setIsGiphySearching(true);
@@ -889,7 +890,7 @@ const PropertyEditor: React.FC<PropertyEditorProps> = ({
               <div className="mt-4">
                 <Label className="text-gray-700 mb-3 block text-sm font-medium">Search GIPHY</Label>
                 <div className="border rounded-md p-3 mt-1.5 max-h-[400px] overflow-y-auto">
-                  {process.env.GIPHY_API_KEY && (
+                  {import.meta.env.VITE_GIPHY_API_KEY ? (
                     <>
                       <Input 
                         placeholder="Search for GIFs..."
@@ -948,6 +949,16 @@ const PropertyEditor: React.FC<PropertyEditorProps> = ({
                         </div>
                       )}
                     </>
+                  ) : (
+                    <div className="text-center py-6">
+                      <div className="text-amber-500 mb-2">
+                        <AlertCircle className="h-6 w-6 mx-auto" />
+                      </div>
+                      <p className="text-gray-700 font-medium mb-1">GIPHY API Key Required</p>
+                      <p className="text-gray-500 text-sm">
+                        To search and use GIFs, a GIPHY API key needs to be configured.
+                      </p>
+                    </div>
                   )}
                 </div>
               </div>
