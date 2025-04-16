@@ -156,16 +156,16 @@ export default function ClientDashboard() {
 
   if (!clientData) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#0a1929] via-[#112b4a] to-[#1a3a5f] flex items-center justify-center p-6">
-        <Card className="w-full max-w-md backdrop-blur-sm bg-white/10 shadow-2xl border border-white/10 text-white">
-          <CardHeader>
-            <CardTitle className="text-xl text-[#ff6b6b]">Error Loading Dashboard</CardTitle>
+      <div className="min-h-screen bg-white flex items-center justify-center p-6">
+        <Card className="w-full max-w-md shadow-md border border-blue-200">
+          <CardHeader className="bg-blue-50 border-b border-blue-100">
+            <CardTitle className="text-xl text-blue-800">Error Loading Dashboard</CardTitle>
           </CardHeader>
-          <CardContent>
-            <p className="text-white/80">There was an error loading your dashboard data. Please try again later.</p>
+          <CardContent className="pt-4">
+            <p className="text-slate-600">There was an error loading your dashboard data. Please try again later.</p>
             <Button 
               onClick={handleLogout} 
-              className="mt-4 bg-gradient-to-r from-[#d4af37] to-[#d4af37]/70 hover:from-[#d4af37]/70 hover:to-[#d4af37] text-white border-none"
+              className="mt-4 bg-blue-600 hover:bg-blue-700 text-white"
             >
               Return to Login
             </Button>
@@ -176,43 +176,18 @@ export default function ClientDashboard() {
   }
 
   return (
-    <div className="flex flex-col overflow-hidden min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
-      {/* Particles background */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {particles.map((particle, index) => (
-          <div 
-            key={index}
-            className="absolute rounded-full bg-amber-300"
-            style={{
-              left: `${particle.x}%`,
-              top: `${particle.y}%`,
-              width: `${particle.size}px`,
-              height: `${particle.size}px`,
-              opacity: particle.opacity,
-              boxShadow: `0 0 ${particle.size * 2}px ${particle.size}px rgba(245, 158, 11, 0.2)`
-            }}
-          />
-        ))}
-        {/* Gradient overlays */}
-        <div className="absolute top-0 left-0 right-0 h-40 bg-gradient-to-b from-slate-900 to-transparent"></div>
-        <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-slate-900 to-transparent"></div>
-        
-        {/* Decorative elements */}
-        <div className="absolute top-20 left-20 w-40 h-40 rounded-full bg-blue-700/15 blur-3xl"></div>
-        <div className="absolute bottom-20 right-20 w-60 h-60 rounded-full bg-amber-500/10 blur-3xl"></div>
-      </div>
-      
+    <div className="flex flex-col overflow-hidden min-h-screen bg-white">
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden relative z-10">
         {/* Header */}
-        <header className="bg-slate-800/95 backdrop-blur-md border-b border-blue-900/30 text-white relative z-20 shadow-lg">
+        <header className="bg-blue-900 border-b border-blue-800 text-white relative z-20 shadow-md">
           <div className="container mx-auto py-4 px-6">
             <div className="flex justify-between items-center">
               <div className="flex items-center gap-4">
                 <Button 
                   variant="ghost" 
                   size="lg"
-                  className="lg:hidden text-white hover:bg-blue-900/30"
+                  className="lg:hidden text-white hover:bg-blue-800"
                   onClick={() => setSidebarOpen(true)}
                 >
                   <Menu size={24} />
@@ -226,14 +201,14 @@ export default function ClientDashboard() {
                 </div>
               </div>
               <div className="flex items-center gap-4">
-                <div className="hidden md:flex items-center gap-2 bg-blue-900/30 px-3 py-1.5 rounded-full border border-blue-500/20">
+                <div className="hidden md:flex items-center gap-2 bg-blue-800 px-3 py-1.5 rounded-full border border-blue-700">
                   <CircleUser className="h-5 w-5 text-amber-300" />
                   <span className="text-sm font-medium text-white">Welcome, {clientUser?.name || 'User'}</span>
                 </div>
                 <Button 
                   variant="outline" 
                   onClick={handleLogout} 
-                  className="text-white border-amber-500/30 bg-blue-900/20 hover:bg-blue-800/30 hover:text-amber-300 font-medium"
+                  className="text-white border-amber-500/30 bg-blue-800 hover:bg-blue-700 hover:text-amber-300 font-medium"
                 >
                   Logout
                 </Button>
@@ -243,7 +218,7 @@ export default function ClientDashboard() {
         </header>
 
         {/* Dashboard Content */}
-        <main className="flex-1 overflow-y-auto p-6 relative z-10 bg-white rounded-t-2xl">
+        <main className="flex-1 overflow-y-auto p-6 relative z-10 bg-white">
           <div className="container mx-auto">
             {/* Removed "Your Dashboard" heading */}
             

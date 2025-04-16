@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import ClientSidebar from '@/components/ClientSidebar';
 import ClientDashboard from '@/pages/ClientDashboard';
-import ClientAdvancedDashboard from '@/pages/ClientAdvancedDashboard';
 import { useToast } from '@/hooks/use-toast';
 import { Switch, Route, useLocation } from 'wouter';
 import NotFound from '@/pages/not-found';
@@ -2021,9 +2020,6 @@ export default function ClientRoutes() {
         <Switch>
           <Route path="/client-dashboard">
             <ClientDashboard />
-          </Route>
-          <Route path="/client-advanced-dashboard">
-            <ClientAdvancedDashboard />
           </Route>
           <Route path="/client-campaigns">
             <ClientCampaigns onCreateCampaign={() => setShowCreateCampaignModal(true)} />
