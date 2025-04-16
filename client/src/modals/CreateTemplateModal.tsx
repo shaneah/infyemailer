@@ -1,16 +1,15 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useMutation } from '@tanstack/react-query';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2, FileText, Sparkles, Upload } from 'lucide-react';
+import { Loader2, FileText } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useLocation } from 'wouter';
 import { queryClient, apiRequest } from '@/lib/queryClient';
@@ -32,7 +31,6 @@ type CreateTemplateModalProps = {
 export default function CreateTemplateModal({ open, onOpenChange }: CreateTemplateModalProps) {
   const { toast } = useToast();
   const [, navigate] = useLocation();
-  const [activeTab, setActiveTab] = useState('visual');
   
   // Form for manually creating a template
   const form = useForm<z.infer<typeof templateSchema>>({
@@ -75,24 +73,6 @@ export default function CreateTemplateModal({ open, onOpenChange }: CreateTempla
     createTemplateMutation.mutate(data);
   };
   
-  const handleImportClick = () => {
-    // Close this modal and navigate
-    onOpenChange(false);
-    // Slight delay to avoid modal transition issues
-    setTimeout(() => {
-      navigate('/client-template-builder?mode=import');
-    }, 100);
-  };
-
-  const handleAIGeneratorClick = () => {
-    // Close this modal and navigate
-    onOpenChange(false);
-    // Slight delay to avoid modal transition issues
-    setTimeout(() => {
-      navigate('/client-template-builder?mode=ai');
-    }, 100);
-  };
-  
   const handleVisualBuilderClick = () => {
     // Close this modal and navigate
     onOpenChange(false);
@@ -108,83 +88,29 @@ export default function CreateTemplateModal({ open, onOpenChange }: CreateTempla
         <DialogHeader>
           <DialogTitle className="text-xl font-bold">Create New Template</DialogTitle>
           <DialogDescription>
-            Choose a method to create your email template
+            Create a new email template using our visual builder
           </DialogDescription>
         </DialogHeader>
         
-        <Tabs defaultValue="visual" value={activeTab} onValueChange={setActiveTab} className="mt-2">
-          <TabsList className="grid grid-cols-3 mb-6">
-            <TabsTrigger value="visual">Visual Builder</TabsTrigger>
-            <TabsTrigger value="ai">AI Generator</TabsTrigger>
-            <TabsTrigger value="import">Import HTML</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="visual" className="space-y-4">
-            <div className="bg-gradient-to-r from-amber-50 to-yellow-50 rounded-md p-5 border border-amber-100">
-              <div className="flex items-start">
-                <div className="mr-4 bg-gradient-to-r from-amber-500 to-yellow-500 p-2 rounded-md shadow-sm">
-                  <FileText className="h-6 w-6 text-white" />
-                </div>
-                <div>
-                  <h3 className="font-medium text-gray-900">Visual Template Builder</h3>
-                  <p className="text-sm text-gray-500 mt-1">
-                    Create professional email templates with our drag-and-drop visual editor - no coding required.
-                  </p>
-                  <Button 
-                    className="mt-4 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white border border-amber-300"
-                    onClick={handleVisualBuilderClick}
-                  >
-                    Open Visual Builder
-                  </Button>
-                </div>
-              </div>
+        <div className="mt-4 bg-gradient-to-r from-amber-50 to-yellow-50 rounded-md p-5 border border-amber-100">
+          <div className="flex items-start">
+            <div className="mr-4 bg-gradient-to-r from-amber-500 to-yellow-500 p-2 rounded-md shadow-sm">
+              <FileText className="h-6 w-6 text-white" />
             </div>
-          </TabsContent>
-          
-          <TabsContent value="ai" className="space-y-4">
-            <div className="bg-gradient-to-r from-amber-50 to-yellow-50 rounded-md p-5 border border-amber-100">
-              <div className="flex items-start">
-                <div className="mr-4 bg-gradient-to-r from-amber-500 to-yellow-500 p-2 rounded-md shadow-sm">
-                  <Sparkles className="h-6 w-6 text-white" />
-                </div>
-                <div>
-                  <h3 className="font-medium text-gray-900">AI Template Generator</h3>
-                  <p className="text-sm text-gray-500 mt-1">
-                    Generate beautiful email templates with AI by describing what you need in plain English.
-                  </p>
-                  <Button 
-                    className="mt-4 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white border border-amber-300"
-                    onClick={handleAIGeneratorClick}
-                  >
-                    Generate with AI
-                  </Button>
-                </div>
-              </div>
+            <div>
+              <h3 className="font-medium text-gray-900">Visual Template Builder</h3>
+              <p className="text-sm text-gray-500 mt-1">
+                Create professional email templates with our drag-and-drop visual editor - no coding required.
+              </p>
+              <Button 
+                className="mt-4 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white border border-amber-300"
+                onClick={handleVisualBuilderClick}
+              >
+                Open Visual Builder
+              </Button>
             </div>
-          </TabsContent>
-          
-          <TabsContent value="import" className="space-y-4">
-            <div className="bg-gradient-to-r from-amber-50 to-yellow-50 rounded-md p-5 border border-amber-100">
-              <div className="flex items-start">
-                <div className="mr-4 bg-gradient-to-r from-amber-500 to-yellow-500 p-2 rounded-md shadow-sm">
-                  <Upload className="h-6 w-6 text-white" />
-                </div>
-                <div>
-                  <h3 className="font-medium text-gray-900">Import HTML Template</h3>
-                  <p className="text-sm text-gray-500 mt-1">
-                    Import existing HTML templates or paste code from external sources.
-                  </p>
-                  <Button 
-                    className="mt-4 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white border border-amber-300"
-                    onClick={handleImportClick}
-                  >
-                    Import HTML
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </TabsContent>
-        </Tabs>
+          </div>
+        </div>
       </DialogContent>
     </Dialog>
   );
