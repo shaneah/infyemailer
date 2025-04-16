@@ -466,25 +466,23 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
   
   return (
     <div className="flex flex-col min-h-screen bg-white">
-      <header className="bg-blue-900 text-white p-4 flex justify-between items-center">
-        <div className="flex items-center gap-4">
-          <button 
-            className="lg:hidden text-white"
-            onClick={() => setSidebarOpen(true)}
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12h18"></path><path d="M3 6h18"></path><path d="M3 18h18"></path></svg>
-          </button>
-          <div>
-            <h1 className="text-xl font-bold">InfyMailer</h1>
-            <div className="flex items-center text-xs">
-              <div className="w-2 h-2 rounded-full bg-green-400 mr-2"></div>
-              {clientUser?.clientCompany || 'Acme Corporation'}
-            </div>
+      <header className="bg-blue-900 text-white px-6 py-4 flex justify-between items-center">
+        <div className="flex items-center">
+          <h1 className="text-xl font-bold mr-2">InfyMailer</h1>
+          <span className="text-xl font-light">|</span>
+          <span className="text-xl font-light ml-2">Dashboard</span>
+          <div className="flex items-center ml-4">
+            <div className="w-2 h-2 rounded-full bg-green-400 mr-2"></div>
+            <span className="text-sm">{clientUser?.clientCompany || 'Acme Corporation'}</span>
           </div>
         </div>
-        <div className="flex items-center gap-3">
-          <div className="hidden md:flex items-center">
-            <span className="mr-2">Welcome back, {clientUser?.name || 'User'}</span>
+        <div className="flex items-center">
+          <div className="mr-4 flex items-center">
+            <div className="w-7 h-7 rounded-full bg-amber-500 flex items-center justify-center text-blue-900 font-bold text-sm mr-2">D</div>
+            <div className="text-sm">
+              <span className="text-xs text-blue-200">Welcome back</span>
+              <div className="font-medium">Demo Client</div>
+            </div>
           </div>
           <button 
             onClick={() => {
@@ -492,9 +490,9 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
               localStorage.removeItem('clientUser');
               navigate('/client-login');
             }}
-            className="bg-blue-800 hover:bg-blue-700 px-3 py-1.5 rounded text-sm"
+            className="bg-blue-800 hover:bg-blue-700 px-4 py-2 rounded"
           >
-            Logout
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="inline-block mr-1 mb-0.5"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
           </button>
         </div>
       </header>
