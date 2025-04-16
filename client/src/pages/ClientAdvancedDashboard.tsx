@@ -185,7 +185,7 @@ const generateHourlyData = () => {
     data.push({
       hour: hour,
       opens: 10 + Math.floor(Math.random() * 90),
-      label: `${hour}:00`
+      label: hour + ":00"
     });
   }
   return data;
@@ -245,7 +245,7 @@ const ClientAdvancedDashboard = () => {
     },
     {
       title: "Avg Open Rate",
-      value: `${averageOpenRate.toFixed(1)}%`,
+      value: averageOpenRate.toFixed(1) + "%",
       change: 5.1,
       changeText: "from last month",
       icon: Inbox,
@@ -253,7 +253,7 @@ const ClientAdvancedDashboard = () => {
     },
     {
       title: "Avg Click Rate",
-      value: `${averageClickRate.toFixed(1)}%`,
+      value: averageClickRate.toFixed(1) + "%",
       change: -2.4,
       changeText: "from last month",
       icon: MousePointerClick,
