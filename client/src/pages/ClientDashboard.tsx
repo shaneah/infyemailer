@@ -378,8 +378,8 @@ export default function ClientDashboard() {
                         wrapperStyle={{color: 'white', fontSize: '12px'}}
                         formatter={(value) => <span style={{color: 'rgba(255,255,255,0.7)'}}>{value}</span>}
                       />
-                      <Bar dataKey="opens" name="Opens" fill="rgba(45, 212, 191, 0.8)" radius={[4, 4, 0, 0]} />
-                      <Bar dataKey="clicks" name="Clicks" fill="rgba(255, 255, 255, 0.4)" radius={[4, 4, 0, 0]} />
+                      <Bar dataKey="opens" name="Opens" fill="rgba(20, 184, 166, 1)" radius={[4, 4, 0, 0]} />
+                      <Bar dataKey="clicks" name="Clicks" fill="rgba(255, 255, 255, 0.7)" radius={[4, 4, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 </CardContent>
@@ -423,8 +423,8 @@ export default function ClientDashboard() {
                               <Cell 
                                 key={`cell-${index}`} 
                                 fill={[
-                                  "#2dd4bf", "rgba(45, 212, 191, 0.8)", "rgba(45, 212, 191, 0.6)", 
-                                  "rgba(255, 255, 255, 0.8)", "rgba(255, 255, 255, 0.6)"
+                                  "#14b8a6", "#0d9488", "#0f766e", 
+                                  "#f0f9ff", "#e0f2fe"
                                 ][index % 5]} 
                                 stroke="rgba(10, 25, 41, 0.5)"
                                 strokeWidth={2}
@@ -479,19 +479,19 @@ export default function ClientDashboard() {
                 <div className="overflow-x-auto">
                   <table className="w-full text-white">
                     <thead>
-                      <tr className="border-b border-white/10">
-                        <th className="text-left py-3 px-4 font-semibold text-teal-200">Campaign</th>
-                        <th className="text-left py-3 px-4 font-semibold text-teal-200">Date</th>
-                        <th className="text-left py-3 px-4 font-semibold text-teal-200">Status</th>
-                        <th className="text-left py-3 px-4 font-semibold text-teal-200">Opens</th>
-                        <th className="text-left py-3 px-4 font-semibold text-teal-200">Clicks</th>
+                      <tr className="border-b border-white/10 bg-gradient-to-r from-teal-900/40 to-teal-800/20">
+                        <th className="text-left py-3 px-4 font-semibold text-white">Campaign</th>
+                        <th className="text-left py-3 px-4 font-semibold text-white">Date</th>
+                        <th className="text-left py-3 px-4 font-semibold text-white">Status</th>
+                        <th className="text-left py-3 px-4 font-semibold text-white">Opens</th>
+                        <th className="text-left py-3 px-4 font-semibold text-white">Clicks</th>
                       </tr>
                     </thead>
                     <tbody>
                       {clientData.recentCampaigns.map((campaign: any) => (
                         <tr 
                           key={campaign.id} 
-                          className="border-b border-white/5 hover:bg-white/5 transition-colors"
+                          className="border-b border-white/5 hover:bg-teal-900/30 transition-colors"
                         >
                           <td className="py-4 px-4 font-medium text-white">
                             {campaign.name}
@@ -502,10 +502,10 @@ export default function ClientDashboard() {
                           <td className="py-4 px-4">
                             <span className={`px-3 py-1.5 rounded-full text-xs font-medium ${
                               campaign.status === "Completed" 
-                                ? "bg-teal-500/20 text-teal-300 border border-teal-500/30" :
+                                ? "bg-teal-900/60 text-teal-100 border border-teal-700" :
                               campaign.status === "Ongoing" 
-                                ? "bg-blue-500/20 text-blue-300 border border-blue-500/30" :
-                              "bg-amber-500/20 text-amber-300 border border-amber-500/30"
+                                ? "bg-blue-900/60 text-blue-100 border border-blue-700" :
+                              "bg-amber-900/60 text-amber-100 border border-amber-700"
                             }`}>
                               {campaign.status}
                             </span>
@@ -523,7 +523,7 @@ export default function ClientDashboard() {
                 </div>
                 
                 <div className="mt-6 flex justify-center">
-                  <Button className="bg-teal-500/20 text-teal-200 hover:bg-teal-500/30 border border-teal-500/30 rounded-full px-6 group">
+                  <Button className="bg-teal-900/60 text-white hover:bg-teal-800/70 border border-teal-700 rounded-full px-6 font-medium group">
                     View All Campaigns
                     <ChevronRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
                   </Button>
