@@ -30,7 +30,7 @@ const ClientLogin = () => {
   React.useEffect(() => {
     const clientUser = sessionStorage.getItem('clientUser') || localStorage.getItem('clientUser');
     if (clientUser) {
-      setLocation('client-dashboard');
+      setLocation('client-campaigns');
     }
   }, [setLocation]);
 
@@ -111,8 +111,8 @@ const ClientLogin = () => {
           description: 'Welcome to InfyMailer client portal!'
         });
         
-        // Redirect to dashboard - without leading slash to match the route in App.tsx
-        setLocation('client-dashboard');
+        // Redirect to campaigns - without leading slash to match the route in App.tsx
+        setLocation('client-campaigns');
       } catch (err) {
         console.error("Error parsing success response:", err);
         throw new Error('Failed to parse server response');
