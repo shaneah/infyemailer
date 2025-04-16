@@ -112,28 +112,10 @@ const ClientSidebar = ({ open, setOpen }: SidebarProps) => {
         
         {/* Client info */}
         <div className="p-4 border-b border-blue-800/50 bg-blue-900/50">
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between">
             <div className="flex flex-col">
               <span className="text-white font-medium text-base">{clientName}</span>
               <span className="text-xs text-blue-200/80 mt-0.5">ID: {clientId}</span>
-            </div>
-          </div>
-          
-          {/* Credits card */}
-          <div className="bg-gradient-to-r from-blue-800 to-blue-700 rounded-lg shadow-md overflow-hidden relative">
-            {/* Decorative element */}
-            <div className="absolute -right-6 -top-6 w-16 h-16 rounded-full bg-amber-400/10"></div>
-            <div className="absolute right-0 bottom-0 w-20 h-20 rounded-full bg-amber-400/5"></div>
-            
-            <div className="px-4 py-3 flex items-center justify-between relative">
-              <div className="flex items-center">
-                <CreditCard size={18} className="text-amber-300" />
-                <span className="ml-2 text-xs text-blue-100 uppercase tracking-wide font-medium">Available Credits</span>
-              </div>
-            </div>
-            <div className="px-4 pb-3 flex items-baseline relative">
-              <span className="text-xl font-bold text-white">1,500</span>
-              <span className="ml-1 text-xs text-blue-200">credits</span>
             </div>
           </div>
         </div>
