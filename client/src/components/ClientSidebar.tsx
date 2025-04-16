@@ -76,8 +76,10 @@ const ClientSidebar = ({ open, setOpen }: SidebarProps) => {
     const handleResize = () => {
       if (window.innerWidth >= 1024) {
         setIsCollapsed(true); // Start with collapsed sidebar on desktop
+        setIsExpanded(false); // Ensure sidebar starts collapsed
       } else {
         setIsCollapsed(false); // Mobile uses the default behavior
+        setIsExpanded(false); // Reset expanded state
       }
     };
     
@@ -146,9 +148,17 @@ const ClientSidebar = ({ open, setOpen }: SidebarProps) => {
       
       {/* Sidebar trigger area - thin strip that's always visible */}
       <div 
-        className="fixed inset-y-0 left-0 w-3 z-30 bg-transparent cursor-pointer hidden lg:block"
+        className="fixed inset-y-0 left-0 w-5 z-30 bg-gradient-to-r from-teal-700/20 to-transparent cursor-pointer hidden lg:block"
         onMouseEnter={handleMouseEnter}
       />
+      
+      {/* Collapsed state indicator */}
+      {!isExpanded && isCollapsed && (
+        <div className="fixed inset-y-0 left-5 z-30 flex items-center hidden lg:block pointer-events-none">
+          <div className="w-1 h-10 bg-teal-500/50 rounded-r"></div>
+          <ChevronRight size={16} className="text-teal-600/80 absolute -left-[5px]" />
+        </div>
+      )}
       
       {/* Collapse toggle button */}
       {isExpanded && (
