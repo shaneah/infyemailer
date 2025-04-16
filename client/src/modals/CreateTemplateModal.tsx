@@ -85,30 +85,32 @@ export default function CreateTemplateModal({ open, onOpenChange }: CreateTempla
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px]">
-        <DialogHeader>
-          <DialogTitle className="text-xl font-bold">Create New Template</DialogTitle>
-          <DialogDescription>
-            Create a new email template using our visual builder
+        <DialogHeader className="text-center pb-2 border-b border-gray-100">
+          <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-amber-500 to-yellow-500 bg-clip-text text-transparent">
+            Create New Template
+          </DialogTitle>
+          <DialogDescription className="text-gray-600 mt-2">
+            Design beautiful emails with our visual builder
           </DialogDescription>
         </DialogHeader>
         
-        <div className="mt-4 bg-gradient-to-r from-amber-50 to-yellow-50 rounded-md p-5 border border-amber-100">
-          <div className="flex items-start">
-            <div className="mr-4 bg-gradient-to-r from-amber-500 to-yellow-500 p-2 rounded-md shadow-sm">
-              <FileText className="h-6 w-6 text-white" />
+        <div className="mt-4 flex flex-col items-center justify-center">
+          <div className="p-6 text-center relative before:content-[''] before:absolute before:inset-0 before:bg-gradient-to-r before:from-amber-50/30 before:to-yellow-50/30 before:rounded-lg before:animate-pulse">
+            <div className="mx-auto mb-5 bg-gradient-to-r from-amber-500 to-yellow-500 w-16 h-16 flex items-center justify-center rounded-full shadow-lg relative">
+              <div className="absolute inset-0 bg-black/10 rounded-full blur-sm"></div>
+              <FileText className="h-8 w-8 text-white relative z-10 drop-shadow-md" />
             </div>
-            <div>
-              <h3 className="font-medium text-gray-900">Visual Template Builder</h3>
-              <p className="text-sm text-gray-500 mt-1">
-                Create professional email templates with our drag-and-drop visual editor - no coding required.
-              </p>
-              <Button 
-                className="mt-4 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white border border-amber-300"
-                onClick={handleVisualBuilderClick}
-              >
-                Open Visual Builder
-              </Button>
-            </div>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">Visual Template Builder</h3>
+            <p className="text-gray-600 mb-6 max-w-md mx-auto">
+              Create professional email templates with our intuitive drag-and-drop visual editor - no coding required.
+            </p>
+            <Button 
+              className="px-8 py-4 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white font-medium rounded-md shadow-md border border-amber-300 transition-all duration-200 hover:scale-105"
+              onClick={handleVisualBuilderClick}
+            >
+              <FileText className="h-5 w-5 mr-2 inline-block" />
+              Open Visual Builder
+            </Button>
           </div>
         </div>
       </DialogContent>
