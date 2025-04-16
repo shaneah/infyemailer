@@ -176,64 +176,64 @@ export default function ClientDashboard() {
   }
 
   return (
-    <div className="flex flex-col overflow-hidden min-h-screen bg-gradient-to-br from-teal-700 via-teal-800 to-teal-900">
+    <div className="flex flex-col overflow-hidden min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
       {/* Particles background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {particles.map((particle, index) => (
           <div 
             key={index}
-            className="absolute rounded-full bg-teal-300"
+            className="absolute rounded-full bg-amber-300"
             style={{
               left: `${particle.x}%`,
               top: `${particle.y}%`,
               width: `${particle.size}px`,
               height: `${particle.size}px`,
               opacity: particle.opacity,
-              boxShadow: `0 0 ${particle.size * 2}px ${particle.size}px rgba(94, 234, 212, 0.2)`
+              boxShadow: `0 0 ${particle.size * 2}px ${particle.size}px rgba(245, 158, 11, 0.2)`
             }}
           />
         ))}
         {/* Gradient overlays */}
-        <div className="absolute top-0 left-0 right-0 h-40 bg-gradient-to-b from-teal-800 to-transparent"></div>
-        <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-teal-800 to-transparent"></div>
+        <div className="absolute top-0 left-0 right-0 h-40 bg-gradient-to-b from-slate-900 to-transparent"></div>
+        <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-slate-900 to-transparent"></div>
         
         {/* Decorative elements */}
-        <div className="absolute top-20 left-20 w-40 h-40 rounded-full bg-teal-500/10 blur-3xl"></div>
-        <div className="absolute bottom-20 right-20 w-60 h-60 rounded-full bg-teal-300/10 blur-3xl"></div>
+        <div className="absolute top-20 left-20 w-40 h-40 rounded-full bg-blue-700/15 blur-3xl"></div>
+        <div className="absolute bottom-20 right-20 w-60 h-60 rounded-full bg-amber-500/10 blur-3xl"></div>
       </div>
       
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden relative z-10">
         {/* Header */}
-        <header className="bg-white/5 backdrop-blur-md border-b border-white/10 text-white relative z-20 shadow-lg">
+        <header className="bg-slate-800/95 backdrop-blur-md border-b border-blue-900/30 text-white relative z-20 shadow-lg">
           <div className="container mx-auto py-4 px-6">
             <div className="flex justify-between items-center">
               <div className="flex items-center gap-4">
                 <Button 
                   variant="ghost" 
                   size="lg"
-                  className="lg:hidden text-white hover:bg-white/10"
+                  className="lg:hidden text-white hover:bg-blue-900/30"
                   onClick={() => setSidebarOpen(true)}
                 >
                   <Menu size={24} />
                 </Button>
                 <div>
-                  <h1 className="text-2xl font-bold tracking-tight bg-gradient-to-r from-white via-teal-300 to-white inline-block text-transparent bg-clip-text">
+                  <h1 className="text-2xl font-bold tracking-tight bg-gradient-to-r from-blue-400 via-amber-300 to-blue-400 inline-block text-transparent bg-clip-text">
                     InfyMailer NextGen Portal
                   </h1>
-                  <div className="w-32 h-0.5 mx-auto bg-gradient-to-r from-transparent via-teal-300 to-transparent my-1"></div>
+                  <div className="w-32 h-0.5 mx-auto bg-gradient-to-r from-transparent via-amber-400 to-transparent my-1"></div>
                   <p className="text-sm font-medium text-white/70">{clientData.company || 'Acme Corporation'}</p>
                 </div>
               </div>
               <div className="flex items-center gap-4">
-                <div className="hidden md:flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-full border border-white/10">
-                  <CircleUser className="h-5 w-5 text-teal-200" />
+                <div className="hidden md:flex items-center gap-2 bg-blue-900/30 px-3 py-1.5 rounded-full border border-blue-500/20">
+                  <CircleUser className="h-5 w-5 text-amber-300" />
                   <span className="text-sm font-medium text-white">Welcome, {clientUser?.name || 'User'}</span>
                 </div>
                 <Button 
                   variant="outline" 
                   onClick={handleLogout} 
-                  className="text-white border-white/20 bg-white/5 hover:bg-white/10 hover:text-teal-200 font-medium"
+                  className="text-white border-amber-500/30 bg-blue-900/20 hover:bg-blue-800/30 hover:text-amber-300 font-medium"
                 >
                   Logout
                 </Button>
@@ -247,32 +247,32 @@ export default function ClientDashboard() {
           <div className="container mx-auto">
             <div className="flex flex-col mb-8">
               <div className="flex items-center">
-                <div className="bg-teal-400/20 p-2 rounded-full mr-3">
-                  <Sparkles className="h-6 w-6 text-teal-200" />
+                <div className="bg-blue-700/20 p-2 rounded-full mr-3">
+                  <Sparkles className="h-6 w-6 text-amber-300" />
                 </div>
                 <h2 className="text-3xl font-bold text-white">Your Dashboard</h2>
               </div>
-              <div className="w-32 h-0.5 bg-teal-500/50 mt-1.5 ml-11"></div>
+              <div className="w-32 h-0.5 bg-amber-500/50 mt-1.5 ml-11"></div>
             </div>
             
             {/* Stats Overview */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              <Card className="backdrop-blur-md bg-white/10 border border-white/10 overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 group">
-                <CardHeader className="flex flex-row items-center justify-between pb-2 border-b border-white/10">
+              <Card className="backdrop-blur-md bg-white/10 border border-blue-900/20 overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 group">
+                <CardHeader className="flex flex-row items-center justify-between pb-2 border-b border-blue-900/30">
                   <CardTitle className="text-base font-bold text-white">Active Campaigns</CardTitle>
-                  <div className="h-10 w-10 rounded-full bg-teal-400/20 flex items-center justify-center">
-                    <Activity className="h-5 w-5 text-teal-200" />
+                  <div className="h-10 w-10 rounded-full bg-blue-800/30 flex items-center justify-center">
+                    <Activity className="h-5 w-5 text-amber-300" />
                   </div>
                 </CardHeader>
                 <CardContent className="pt-4 relative">
-                  <div className="absolute top-0 right-0 w-24 h-24 bg-teal-400/10 rounded-full blur-xl -mt-10 -mr-10 opacity-70"></div>
-                  <div className="text-4xl font-bold bg-gradient-to-r from-white via-teal-300 to-white inline-block text-transparent bg-clip-text">
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-blue-700/15 rounded-full blur-xl -mt-10 -mr-10 opacity-70"></div>
+                  <div className="text-4xl font-bold bg-gradient-to-r from-white via-amber-300 to-white inline-block text-transparent bg-clip-text">
                     {clientData.stats.activeCampaigns}
                   </div>
                   <p className="text-sm text-white/70 mt-1 font-medium">Currently running email campaigns</p>
                   
-                  <div className="mt-4 flex items-center gap-1 text-xs text-white/50">
-                    <TrendingUp className="h-3 w-3 text-teal-200" />
+                  <div className="mt-4 flex items-center gap-1 text-xs text-white/60">
+                    <TrendingUp className="h-3 w-3 text-amber-300" />
                     <span>2 campaigns active this week</span>
                   </div>
                 </CardContent>
