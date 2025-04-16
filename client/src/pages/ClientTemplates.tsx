@@ -14,7 +14,6 @@ import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Link, useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
-import ClientHeader from "@/components/ClientHeader";
 import { 
   Code,
   Loader2, 
@@ -467,13 +466,38 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
   
   return (
     <div className="flex flex-col min-h-screen bg-white">
-      <ClientHeader 
-        title="Templates"
-        subtitle="Manage your email templates"
-        userName={clientUser?.name || 'User'}
-        companyName={clientUser?.clientCompany || 'Acme Corporation'}
-        onSidebarOpen={() => setSidebarOpen(true)}
-      />
+      <header className="bg-blue-900 text-white p-4 flex justify-between items-center">
+        <div className="flex items-center gap-4">
+          <button 
+            className="lg:hidden text-white"
+            onClick={() => setSidebarOpen(true)}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12h18"></path><path d="M3 6h18"></path><path d="M3 18h18"></path></svg>
+          </button>
+          <div>
+            <h1 className="text-xl font-bold">InfyMailer</h1>
+            <div className="flex items-center text-xs">
+              <div className="w-2 h-2 rounded-full bg-green-400 mr-2"></div>
+              {clientUser?.clientCompany || 'Acme Corporation'}
+            </div>
+          </div>
+        </div>
+        <div className="flex items-center gap-3">
+          <div className="hidden md:flex items-center">
+            <span className="mr-2">Welcome back, {clientUser?.name || 'User'}</span>
+          </div>
+          <button 
+            onClick={() => {
+              sessionStorage.removeItem('clientUser');
+              localStorage.removeItem('clientUser');
+              navigate('/client-login');
+            }}
+            className="bg-blue-800 hover:bg-blue-700 px-3 py-1.5 rounded text-sm"
+          >
+            Logout
+          </button>
+        </div>
+      </header>
       
       <div className="space-y-8 p-6 max-w-[1600px] mx-auto">
         {/* Hero section with blue/gold gradient */}
