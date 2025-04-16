@@ -11,6 +11,7 @@ import CreateListModal from '@/modals/CreateListModal';
 import CreateTemplateModal from '@/modals/CreateTemplateModal';
 import ClientTemplates from '@/pages/ClientTemplates';
 import BasicTemplateBuilder from '@/pages/BasicTemplateBuilder';
+import ClientEmailPerformance from '@/pages/ClientEmailPerformance';
 
 // Campaigns component with more complete UI
 const ClientCampaigns = ({ onCreateCampaign }: { onCreateCampaign: () => void }) => {
@@ -2035,6 +2036,9 @@ export default function ClientRoutes() {
           </Route>
           <Route path="/client-template-builder">
             <BasicTemplateBuilder isClientPortal={true} />
+          </Route>
+          <Route path="/client-email-performance">
+            <ClientEmailPerformance />
           </Route>
           <Route path="/client-reports">
             <ClientReports />

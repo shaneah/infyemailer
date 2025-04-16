@@ -367,7 +367,7 @@ const ClientEmailPerformance: React.FC = () => {
                       <div className="flex items-center justify-between">
                         <div className="flex items-center">
                           <div className="w-3 h-3 bg-yellow-500 opacity-70 mr-2"></div>
-                          <span className="text-sm">Low Click Areas (<5% CTR)</span>
+                          <span className="text-sm">Low Click Areas (&lt;5% CTR)</span>
                         </div>
                         <span className="text-sm font-medium">3.2%</span>
                       </div>
