@@ -1,4 +1,4 @@
-import type { Express, Request, Response } from "express";
+import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { WebSocketServer, WebSocket } from 'ws';
 import { getStorage } from "./storageManager"; // Use dynamic storage selection
@@ -113,6 +113,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Set up authentication
   setupAuth(app);
+  
+  // Configure public routes
+  const publicEndpoints = [
+    { method: 'GET', path: '/api/templates' },
+    { method: 'GET', path: '/api/templates/:id' },
+    { method: 'GET', path: '/api/health' },
+    { method: 'GET', path: '/api/env' },
+    { method: 'GET', path: '/preview-template' },
+    { method: 'GET', path: '/shared-template/:shareCode' }
+  ];
+  
+  // Apply middleware before routes
+  app.use((req, res, next) => {
+    // Check if this path should be public
+    const isPublicEndpoint = publicEndpoints.some(endpoint => {
+      const pathPattern = endpoint.path.replace(/:\w+/g, '[^/]+');
+      const regex = new RegExp(`^${pathPattern}$`);
+      return endpoint.method === req.method && regex.test(req.path);
+    });
+    
+    // Skip auth for public endpoints
+    if (isPublicEndpoint || process.env.NODE_ENV === 'development') {
+      return next();
+    }
+    
+    // Apply auth for protected endpoints
+    if (req.isAuthenticated()) {
+      return next();
+    }
+    
+    // Handle preflight requests
+    if (req.method === 'OPTIONS') {
+      return next();
+    }
+    
+    return res.status(401).json({ message: "Authentication required" });
+  });
   
   // Register email provider routes
   await registerEmailProviderRoutes(app);
