@@ -71,6 +71,40 @@ function validate<T>(schema: any, data: any): T | { error: string } {
 
 import { initRealTimeMetrics } from './services/realTimeMetricsService';
 
+// Authentication middleware
+const requireAuth = (req: Request, res: Response, next: NextFunction) => {
+  if (req.isAuthenticated()) {
+    return next();
+  }
+  return res.status(401).json({ message: "Authentication required" });
+};
+
+// Skip authentication for specific routes or in dev mode
+const skipAuthForTestMode = (req: Request, res: Response, next: NextFunction) => {
+  // Define routes that don't require authentication
+  const publicRoutes = [
+    '/api/templates',
+    '/api/templates/categories',
+    '/api/health',
+    '/api/env',
+    // Add other public routes here
+  ];
+  
+  // Check if route should be public
+  const isPublicRoute = publicRoutes.some(route => 
+    // Exact match or route with ID parameter
+    req.path === route || req.path.match(new RegExp(`^${route}/\\d+$`))
+  );
+  
+  // Development mode exemption or public route
+  if (process.env.NODE_ENV === 'development' || isPublicRoute) {
+    return next();
+  }
+  
+  // Apply standard authentication
+  return requireAuth(req, res, next);
+};
+
 export async function registerRoutes(app: Express): Promise<Server> {
   const httpServer = createServer(app);
   

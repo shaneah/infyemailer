@@ -20,6 +20,7 @@ import EmailPerformance from "@/pages/EmailPerformance";
 import BasicTemplateBuilder from "@/pages/BasicTemplateBuilder";
 import DragAndDropTemplateBuilder from "@/pages/DragAndDropTemplateBuilder";
 import TemplateBuilder from "@/pages/TemplateBuilder";
+import TemplateTest from "@/pages/TemplateTest";
 import Domains from "@/pages/Domains";
 
 import Clients from "@/pages/Clients";
@@ -236,6 +237,9 @@ function App() {
                     <ProtectedRoute path="email-preview" component={EmailPreview} />
                     <ProtectedRoute path="email-preview/:id" component={EmailPreview} />
                     <ProtectedRoute path="email-performance-dashboard" component={EmailPerformanceDashboard} />
+                    
+                    {/* Test route - No authentication required */}
+                    <Route path="template-test" component={TemplateTest} />
 
                     <Route component={NotFound} />
                   </Switch>
