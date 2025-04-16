@@ -154,6 +154,8 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
   };
   
   const parseTemplateContent = (content: string): string => {
+    if (!content) return "";
+    
     try {
       // Try to parse as JSON first
       const templateData = JSON.parse(content);
@@ -176,6 +178,12 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
           }
         });
         return html || content; // Return the constructed HTML or the original content if empty
+      } else if (typeof templateData.html === 'string') {
+        // Some templates might have HTML directly in the JSON
+        return templateData.html;
+      } else if (typeof templateData.content === 'string') {
+        // Some templates might have content field directly in the JSON
+        return templateData.content;
       }
       
       // If we couldn't extract HTML from JSON, return a formatted display of the JSON
@@ -187,6 +195,8 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
   };
   
   // Function to handle edit template action - redirects to client template builder
+  const [, navigate] = useLocation();
+  
   const handleEditTemplate = (template: Template) => {
     navigate(`/client-template-builder/${template.id}`);
   };
@@ -368,8 +378,6 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
     updateTemplateMutation.mutate(data);
   };
 
-  const [, navigate] = useLocation();
-  
   // Filter templates based on search query and selected category
   const filteredTemplates = savedTemplates.filter((template: Template) => {
     const matchesSearch = searchQuery === "" || 
