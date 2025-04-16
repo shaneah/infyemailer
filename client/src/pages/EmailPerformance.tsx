@@ -46,7 +46,7 @@ const engagementByDevice = [
   { name: 'Tablet', value: 15 },
 ];
 
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28'];
+const COLORS = ['#1e40af', '#d4af37', '#1a3a5f'];
 
 // Define interfaces for our API data
 interface MetricRate {
@@ -287,9 +287,9 @@ const EmailPerformance: React.FC = () => {
                     <YAxis />
                     <Tooltip />
                     <Legend />
-                    <Line type="monotone" dataKey="opens" stroke="#8884d8" activeDot={{ r: 8 }} />
-                    <Line type="monotone" dataKey="clicks" stroke="#82ca9d" />
-                    <Line type="monotone" dataKey="conversions" stroke="#ffc658" />
+                    <Line type="monotone" dataKey="opens" stroke="#1e40af" activeDot={{ r: 8 }} />
+                    <Line type="monotone" dataKey="clicks" stroke="#d4af37" />
+                    <Line type="monotone" dataKey="conversions" stroke="#1a3a5f" />
                   </LineChart>
                 </ResponsiveContainer>
               </CardContent>
@@ -346,7 +346,7 @@ const EmailPerformance: React.FC = () => {
                     <XAxis type="number" />
                     <YAxis dataKey="link" type="category" width={100} />
                     <Tooltip />
-                    <Bar dataKey="clicks" fill="#8884d8" />
+                    <Bar dataKey="clicks" fill="#1e40af" />
                   </BarChart>
                 </ResponsiveContainer>
               </CardContent>
@@ -386,9 +386,9 @@ const EmailPerformance: React.FC = () => {
                     <YAxis />
                     <Tooltip />
                     <Legend />
-                    <Area type="monotone" dataKey="open" stackId="1" stroke="#8884d8" fill="#8884d8" />
-                    <Area type="monotone" dataKey="click" stackId="2" stroke="#82ca9d" fill="#82ca9d" />
-                    <Area type="monotone" dataKey="conversion" stackId="3" stroke="#ffc658" fill="#ffc658" />
+                    <Area type="monotone" dataKey="open" stackId="1" stroke="#1e40af" fill="#1e40af" />
+                    <Area type="monotone" dataKey="click" stackId="2" stroke="#d4af37" fill="#d4af37" />
+                    <Area type="monotone" dataKey="conversion" stackId="3" stroke="#1a3a5f" fill="#1a3a5f" />
                   </AreaChart>
                 </ResponsiveContainer>
               </CardContent>
