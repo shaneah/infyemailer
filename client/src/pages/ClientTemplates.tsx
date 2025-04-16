@@ -452,9 +452,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
         <div className="relative">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight bg-gradient-to-r from-blue-600 to-amber-500 bg-clip-text text-transparent drop-shadow-sm">
-                Email Template Library
-              </h1>
+
               <p className="text-slate-700 mt-2 max-w-2xl text-sm sm:text-base">
                 Create professional email templates that engage your audience and drive exceptional results
               </p>
@@ -597,7 +595,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
         {!isLoadingTemplates && filteredTemplates.length === 0 && (
           <div className="text-center py-12">
             <FileText className="h-12 w-12 mx-auto text-gray-300" />
-            <h3 className="mt-4 text-lg font-medium text-gray-900">No templates found</h3>
+
             <p className="mt-1 text-sm text-gray-500">
               {searchQuery ? 'Try adjusting your search or filters' : 'Create your first template to get started'}
             </p>
@@ -704,7 +702,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
                     </CardHeader>
                     <CardContent className="p-4">
                       <div className="flex justify-between items-start mb-1">
-                        <h3 className="font-medium text-base text-gray-900 line-clamp-1">{template.name}</h3>
+                        <div className="font-medium text-base text-gray-900 line-clamp-1">{template.name}</div>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-500 hover:text-blue-600 -mt-1 -mr-2">
