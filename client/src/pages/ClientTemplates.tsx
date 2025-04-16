@@ -542,7 +542,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
             </p>
             <div className="mt-6">
               <Button 
-                className="rounded-lg gap-2 px-5 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white transition-all border border-amber-300"
+                className="rounded-lg gap-2 px-5 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white transition-all border border-green-300"
                 onClick={onCreateTemplate}
               >
                 <PlusCircle className="h-4 w-4" />
@@ -587,7 +587,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
                         </div>
                       )}
                       {template.metadata?.new && (
-                        <div className="absolute top-3 left-3 bg-gradient-to-r from-amber-500 to-yellow-500 text-white text-xs px-2 py-1 rounded-md font-medium shadow-md">
+                        <div className="absolute top-3 left-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white text-xs px-2 py-1 rounded-md font-medium shadow-md">
                           NEW
                         </div>
                       )}
@@ -701,7 +701,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
                             </div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
-                            <Badge variant="outline" className="text-[10px] h-5 px-1.5 border-blue-200 text-blue-800 bg-blue-50">
+                            <Badge variant="outline" className="text-[10px] h-5 px-1.5 border-green-200 text-green-800 bg-green-50">
                               {template.category || "General"}
                             </Badge>
                           </td>
@@ -777,7 +777,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
                 </Button>
               </div>
               <div className="flex flex-wrap gap-2 mt-2">
-                <Badge variant="outline" className="text-xs px-2 py-0.5 border-teal-200 text-teal-700 bg-teal-50">
+                <Badge variant="outline" className="text-xs px-2 py-0.5 border-green-200 text-green-700 bg-green-50">
                   {selectedTemplate.category || "General"}
                 </Badge>
                 {selectedTemplate.metadata?.generatedByAI && (
