@@ -125,6 +125,12 @@ const ClientSidebar = ({ open, setOpen }: SidebarProps) => {
         <div className="flex-1 overflow-y-auto py-4 px-1">
           <MenuSection title="Overview">
             <MenuItem 
+              href="/client-dashboard" 
+              icon={BarChart3} 
+              label="Dashboard" 
+              active={location === '/client-dashboard'} 
+            />
+            <MenuItem 
               href="/client-advanced-dashboard" 
               icon={LineChart} 
               label="Advanced Dashboard" 

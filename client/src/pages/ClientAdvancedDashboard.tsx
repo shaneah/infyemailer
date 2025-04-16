@@ -945,7 +945,7 @@ const ClientAdvancedDashboard = () => {
                         <span className="text-sm text-slate-600">Active subscribers</span>
                         <span className="text-sm font-medium">23,518</span>
                       </div>
-                      <Progress value={92} className="h-2 bg-slate-100" indicatorClassName="bg-blue-600" />
+                      <Progress value={92} className="h-2 bg-slate-100" />
                       <div className="mt-1 text-xs text-slate-500">92% of total</div>
                     </div>
                     
@@ -954,7 +954,7 @@ const ClientAdvancedDashboard = () => {
                         <span className="text-sm text-slate-600">New this month</span>
                         <span className="text-sm font-medium">1,248</span>
                       </div>
-                      <Progress value={12} className="h-2 bg-slate-100" indicatorClassName="bg-emerald-600" />
+                      <Progress value={12} className="h-2 bg-slate-100" />
                       <div className="mt-1 text-xs text-slate-500">+12% growth rate</div>
                     </div>
                     
@@ -963,7 +963,7 @@ const ClientAdvancedDashboard = () => {
                         <span className="text-sm text-slate-600">Unsubscribed</span>
                         <span className="text-sm font-medium">218</span>
                       </div>
-                      <Progress value={2} className="h-2 bg-slate-100" indicatorClassName="bg-red-500" />
+                      <Progress value={2} className="h-2 bg-slate-100" />
                       <div className="mt-1 text-xs text-slate-500">2% churn rate</div>
                     </div>
                     
@@ -972,7 +972,7 @@ const ClientAdvancedDashboard = () => {
                         <span className="text-sm text-slate-600">Engagement rate</span>
                         <span className="text-sm font-medium">68%</span>
                       </div>
-                      <Progress value={68} className="h-2 bg-slate-100" indicatorClassName="bg-amber-500" />
+                      <Progress value={68} className="h-2 bg-slate-100" />
                       <div className="mt-1 text-xs text-slate-500">Based on opens and clicks</div>
                     </div>
                   </div>
@@ -1050,7 +1050,7 @@ const ClientAdvancedDashboard = () => {
                         <div className="text-sm font-medium">Main CTA button</div>
                         <div className="text-sm font-bold">68%</div>
                       </div>
-                      <Progress value={68} className="h-3 bg-slate-100" indicatorClassName="bg-blue-600" />
+                      <Progress value={68} className="h-3 bg-slate-100" />
                     </div>
                     
                     <div className="space-y-2">
@@ -1058,7 +1058,7 @@ const ClientAdvancedDashboard = () => {
                         <div className="text-sm font-medium">Product link</div>
                         <div className="text-sm font-bold">42%</div>
                       </div>
-                      <Progress value={42} className="h-3 bg-slate-100" indicatorClassName="bg-blue-600" />
+                      <Progress value={42} className="h-3 bg-slate-100" />
                     </div>
                     
                     <div className="space-y-2">
@@ -1066,7 +1066,7 @@ const ClientAdvancedDashboard = () => {
                         <div className="text-sm font-medium">Social media icons</div>
                         <div className="text-sm font-bold">29%</div>
                       </div>
-                      <Progress value={29} className="h-3 bg-slate-100" indicatorClassName="bg-blue-600" />
+                      <Progress value={29} className="h-3 bg-slate-100" />
                     </div>
                     
                     <div className="space-y-2">
@@ -1074,7 +1074,7 @@ const ClientAdvancedDashboard = () => {
                         <div className="text-sm font-medium">Header logo</div>
                         <div className="text-sm font-bold">24%</div>
                       </div>
-                      <Progress value={24} className="h-3 bg-slate-100" indicatorClassName="bg-blue-600" />
+                      <Progress value={24} className="h-3 bg-slate-100" />
                     </div>
                     
                     <div className="space-y-2">
@@ -1082,7 +1082,7 @@ const ClientAdvancedDashboard = () => {
                         <div className="text-sm font-medium">Secondary links</div>
                         <div className="text-sm font-bold">18%</div>
                       </div>
-                      <Progress value={18} className="h-3 bg-slate-100" indicatorClassName="bg-blue-600" />
+                      <Progress value={18} className="h-3 bg-slate-100" />
                     </div>
                   </div>
                 </CardContent>
@@ -1100,7 +1100,7 @@ const ClientAdvancedDashboard = () => {
                         <span className="text-sm text-slate-600">Within 1 hour</span>
                         <span className="text-sm font-medium">62%</span>
                       </div>
-                      <Progress value={62} className="h-2 bg-slate-100" indicatorClassName="bg-green-600" />
+                      <Progress value={62} className="h-2 bg-slate-100" />
                     </div>
                     
                     <div>
@@ -1108,7 +1108,7 @@ const ClientAdvancedDashboard = () => {
                         <span className="text-sm text-slate-600">1-4 hours</span>
                         <span className="text-sm font-medium">24%</span>
                       </div>
-                      <Progress value={24} className="h-2 bg-slate-100" indicatorClassName="bg-blue-600" />
+                      <Progress value={24} className="h-2 bg-slate-100" />
                     </div>
                     
                     <div>
@@ -1116,7 +1116,7 @@ const ClientAdvancedDashboard = () => {
                         <span className="text-sm text-slate-600">4-24 hours</span>
                         <span className="text-sm font-medium">11%</span>
                       </div>
-                      <Progress value={11} className="h-2 bg-slate-100" indicatorClassName="bg-amber-500" />
+                      <Progress value={11} className="h-2 bg-slate-100" />
                     </div>
                     
                     <div>
@@ -1124,7 +1124,7 @@ const ClientAdvancedDashboard = () => {
                         <span className="text-sm text-slate-600">After 24 hours</span>
                         <span className="text-sm font-medium">3%</span>
                       </div>
-                      <Progress value={3} className="h-2 bg-slate-100" indicatorClassName="bg-slate-400" />
+                      <Progress value={3} className="h-2 bg-slate-100" />
                     </div>
                     
                     <div className="pt-3 text-xs text-slate-500 border-t border-slate-100">
@@ -1162,19 +1162,19 @@ const ClientAdvancedDashboard = () => {
                         <span>Product images</span>
                         <span className="font-medium">92%</span>
                       </div>
-                      <Progress value={92} className="h-1.5 bg-slate-100" indicatorClassName="bg-blue-600" />
+                      <Progress value={92} className="h-1.5 bg-slate-100" />
                       
                       <div className="flex justify-between text-sm">
                         <span>Header images</span>
                         <span className="font-medium">85%</span>
                       </div>
-                      <Progress value={85} className="h-1.5 bg-slate-100" indicatorClassName="bg-blue-600" />
+                      <Progress value={85} className="h-1.5 bg-slate-100" />
                       
                       <div className="flex justify-between text-sm">
                         <span>Banners</span>
                         <span className="font-medium">78%</span>
                       </div>
-                      <Progress value={78} className="h-1.5 bg-slate-100" indicatorClassName="bg-blue-600" />
+                      <Progress value={78} className="h-1.5 bg-slate-100" />
                     </div>
                   </div>
                   
@@ -1188,19 +1188,19 @@ const ClientAdvancedDashboard = () => {
                         <span>Headlines</span>
                         <span className="font-medium">89%</span>
                       </div>
-                      <Progress value={89} className="h-1.5 bg-slate-100" indicatorClassName="bg-amber-500" />
+                      <Progress value={89} className="h-1.5 bg-slate-100" />
                       
                       <div className="flex justify-between text-sm">
                         <span>Product descriptions</span>
                         <span className="font-medium">76%</span>
                       </div>
-                      <Progress value={76} className="h-1.5 bg-slate-100" indicatorClassName="bg-amber-500" />
+                      <Progress value={76} className="h-1.5 bg-slate-100" />
                       
                       <div className="flex justify-between text-sm">
                         <span>Footer info</span>
                         <span className="font-medium">42%</span>
                       </div>
-                      <Progress value={42} className="h-1.5 bg-slate-100" indicatorClassName="bg-amber-500" />
+                      <Progress value={42} className="h-1.5 bg-slate-100" />
                     </div>
                   </div>
                   
@@ -1214,19 +1214,19 @@ const ClientAdvancedDashboard = () => {
                         <span>CTA buttons</span>
                         <span className="font-medium">93%</span>
                       </div>
-                      <Progress value={93} className="h-1.5 bg-slate-100" indicatorClassName="bg-green-600" />
+                      <Progress value={93} className="h-1.5 bg-slate-100" />
                       
                       <div className="flex justify-between text-sm">
                         <span>Product links</span>
                         <span className="font-medium">81%</span>
                       </div>
-                      <Progress value={81} className="h-1.5 bg-slate-100" indicatorClassName="bg-green-600" />
+                      <Progress value={81} className="h-1.5 bg-slate-100" />
                       
                       <div className="flex justify-between text-sm">
                         <span>Social icons</span>
                         <span className="font-medium">62%</span>
                       </div>
-                      <Progress value={62} className="h-1.5 bg-slate-100" indicatorClassName="bg-green-600" />
+                      <Progress value={62} className="h-1.5 bg-slate-100" />
                     </div>
                   </div>
                 </div>
