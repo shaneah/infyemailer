@@ -12,6 +12,13 @@ interface ServiceHealth {
 }
 
 export async function registerHealthRoutes(app: any) {
+  // Endpoint to fetch environment variables for client use
+  app.get('/api/env', (req: Request, res: Response) => {
+    res.json({
+      GIPHY_API_KEY: process.env.GIPHY_API_KEY || ''
+    });
+  });
+  
   app.get('/api/health', async (req: Request, res: Response) => {
     try {
       const startTime = Date.now();

@@ -575,15 +575,33 @@ const PropertyEditor: React.FC<PropertyEditorProps> = ({
   const [giphySearchTerm, setGiphySearchTerm] = useState<string>('');
   const [giphySearchResults, setGiphySearchResults] = useState<any[]>([]);
   const [isGiphySearching, setIsGiphySearching] = useState<boolean>(false);
+  const [giphyApiKey, setGiphyApiKey] = useState<string>('');
+  
+  // Fetch the GIPHY API key from our server
+  useEffect(() => {
+    const fetchGiphyApiKey = async () => {
+      try {
+        const response = await fetch('/api/env');
+        const data = await response.json();
+        if (data.GIPHY_API_KEY) {
+          setGiphyApiKey(data.GIPHY_API_KEY);
+        }
+      } catch (error) {
+        console.error('Error fetching GIPHY API key:', error);
+      }
+    };
+    
+    fetchGiphyApiKey();
+  }, []);
   
   // Function to search GIPHY
   const searchGiphy = async () => {
-    if (!giphySearchTerm.trim()) return;
+    if (!giphySearchTerm.trim() || !giphyApiKey) return;
     
     try {
       setIsGiphySearching(true);
-      // Access GIPHY_API_KEY from environment variables
-      const gf = new GiphyFetch(process.env.GIPHY_API_KEY || import.meta.env.VITE_GIPHY_API_KEY || '');
+      // Use the API key fetched from our server endpoint
+      const gf = new GiphyFetch(giphyApiKey);
       const { data } = await gf.search(giphySearchTerm, { limit: 20 });
       setGiphySearchResults(data);
     } catch (error) {
@@ -891,7 +909,7 @@ const PropertyEditor: React.FC<PropertyEditorProps> = ({
               <div className="mt-4">
                 <Label className="text-gray-700 mb-3 block text-sm font-medium">Search GIPHY</Label>
                 <div className="border rounded-md p-3 mt-1.5 max-h-[400px] overflow-y-auto">
-                  {process.env.GIPHY_API_KEY || import.meta.env.VITE_GIPHY_API_KEY ? (
+                  {giphyApiKey ? (
                     <>
                       <Input 
                         placeholder="Search for GIFs..."
