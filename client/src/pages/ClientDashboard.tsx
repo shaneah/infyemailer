@@ -321,11 +321,11 @@ export default function ClientDashboard() {
             {/* Charts */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
               <Card className="col-span-1 backdrop-blur-md bg-white/10 border border-white/10 overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300">
-                <CardHeader className="pb-2 border-b border-white/10 bg-gradient-to-r from-blue-900/50 to-indigo-800/30">
+                <CardHeader className="pb-2 border-b border-white/10 bg-gradient-to-r from-teal-900/50 to-teal-800/30">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center">
-                      <div className="h-8 w-8 rounded-full bg-blue-500/30 flex items-center justify-center mr-3">
-                        <BarChart3 className="h-4 w-4 text-blue-200" />
+                      <div className="h-8 w-8 rounded-full bg-teal-400/20 flex items-center justify-center mr-3">
+                        <BarChart3 className="h-4 w-4 text-teal-200" />
                       </div>
                       <CardTitle className="text-xl font-bold text-white">Email Performance</CardTitle>
                     </div>
@@ -365,21 +365,21 @@ export default function ClientDashboard() {
                       />
                       <Tooltip 
                         contentStyle={{
-                          backgroundColor: 'rgba(15, 118, 110, 0.9)',
-                          border: '1px solid rgba(45, 212, 191, 0.3)',
+                          backgroundColor: 'rgba(30, 58, 138, 0.9)',
+                          border: '1px solid rgba(99, 102, 241, 0.3)',
                           borderRadius: '6px',
                           boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
                           color: 'white'
                         }}
-                        labelStyle={{color: '#2dd4bf'}}
+                        labelStyle={{color: '#93c5fd'}}
                         itemStyle={{color: 'white'}}
                       />
                       <Legend 
                         wrapperStyle={{color: 'white', fontSize: '12px'}}
                         formatter={(value) => <span style={{color: 'rgba(255,255,255,0.7)'}}>{value}</span>}
                       />
-                      <Bar dataKey="opens" name="Opens" fill="rgba(20, 184, 166, 1)" radius={[4, 4, 0, 0]} />
-                      <Bar dataKey="clicks" name="Clicks" fill="rgba(255, 255, 255, 0.7)" radius={[4, 4, 0, 0]} />
+                      <Bar dataKey="opens" name="Opens" fill="rgba(79, 70, 229, 1)" radius={[4, 4, 0, 0]} />
+                      <Bar dataKey="clicks" name="Clicks" fill="rgba(139, 92, 246, 0.8)" radius={[4, 4, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 </CardContent>
@@ -387,10 +387,10 @@ export default function ClientDashboard() {
 
               {/* Device Breakdown */}
               <Card className="col-span-1 backdrop-blur-md bg-white/10 border border-white/10 overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300">
-                <CardHeader className="pb-2 border-b border-white/10 bg-gradient-to-r from-purple-900/50 to-fuchsia-800/30">
+                <CardHeader className="pb-2 border-b border-white/10 bg-gradient-to-r from-teal-900/50 to-teal-800/30">
                   <div className="flex items-center mb-2">
-                    <div className="h-8 w-8 rounded-full bg-purple-500/30 flex items-center justify-center mr-3">
-                      <PieChart className="h-4 w-4 text-purple-200" />
+                    <div className="h-8 w-8 rounded-full bg-teal-400/20 flex items-center justify-center mr-3">
+                      <PieChart className="h-4 w-4 text-teal-200" />
                     </div>
                     <CardTitle className="text-xl font-bold text-white">Device Breakdown</CardTitle>
                   </div>
@@ -433,13 +433,13 @@ export default function ClientDashboard() {
                           </Pie>
                           <Tooltip 
                             contentStyle={{
-                              backgroundColor: 'rgba(15, 118, 110, 0.9)',
-                              border: '1px solid rgba(45, 212, 191, 0.3)',
+                              backgroundColor: 'rgba(88, 28, 135, 0.9)',
+                              border: '1px solid rgba(168, 85, 247, 0.3)',
                               borderRadius: '6px',
                               boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
                               color: 'white'
                             }}
-                            labelStyle={{color: '#2dd4bf'}}
+                            labelStyle={{color: '#d8b4fe'}}
                             itemStyle={{color: 'white'}}
                           />
                         </>
@@ -463,10 +463,10 @@ export default function ClientDashboard() {
 
             {/* Recent Campaigns */}
             <Card className="backdrop-blur-md bg-white/10 border border-white/10 overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300">
-              <CardHeader className="pb-2 border-b border-white/10 bg-gradient-to-r from-rose-900/50 to-pink-800/30">
+              <CardHeader className="pb-2 border-b border-white/10 bg-gradient-to-r from-teal-900/50 to-teal-800/30">
                 <div className="flex items-center mb-2">
-                  <div className="h-8 w-8 rounded-full bg-rose-500/30 flex items-center justify-center mr-3">
-                    <Mail className="h-4 w-4 text-rose-200" />
+                  <div className="h-8 w-8 rounded-full bg-teal-400/20 flex items-center justify-center mr-3">
+                    <Mail className="h-4 w-4 text-teal-200" />
                   </div>
                   <CardTitle className="text-xl font-bold text-white">Recent Campaigns</CardTitle>
                 </div>
@@ -479,7 +479,7 @@ export default function ClientDashboard() {
                 <div className="overflow-x-auto">
                   <table className="w-full text-white">
                     <thead>
-                      <tr className="border-b border-white/10 bg-gradient-to-r from-rose-900/40 to-pink-800/20">
+                      <tr className="border-b border-white/10 bg-gradient-to-r from-teal-900/40 to-teal-800/20">
                         <th className="text-left py-3 px-4 font-semibold text-white">Campaign</th>
                         <th className="text-left py-3 px-4 font-semibold text-white">Date</th>
                         <th className="text-left py-3 px-4 font-semibold text-white">Status</th>
@@ -491,7 +491,7 @@ export default function ClientDashboard() {
                       {clientData.recentCampaigns.map((campaign: any) => (
                         <tr 
                           key={campaign.id} 
-                          className="border-b border-white/5 hover:bg-rose-900/30 transition-colors"
+                          className="border-b border-white/5 hover:bg-teal-900/30 transition-colors"
                         >
                           <td className="py-4 px-4 font-medium text-white">
                             {campaign.name}
