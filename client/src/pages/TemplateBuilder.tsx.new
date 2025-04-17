@@ -4,6 +4,11 @@ import { useToast } from "@/hooks/use-toast";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useParams, useLocation } from "wouter";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import EmailEditor from "@/components/EmailEditor";
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
+import { BlocksGrid, StructuresGrid } from "@/components/DraggableBlock";
+import DroppableArea from "@/components/DroppableArea";
 import {
   ArrowLeft, 
   Loader2, 
@@ -13,25 +18,26 @@ import {
   Link as LinkIcon, 
   Save, 
   SeparatorHorizontal, 
+  Video, 
   Share2, 
   Menu, 
+  Clock, 
+  SlidersHorizontal, 
+  ChevronsUpDown, 
+  FileCode, 
+  FormInput,
+  CheckSquare,
+  ArrowRightLeft,
   Eye,
   Settings,
   FileDown,
   Send,
   FileText,
-  X,
-  Plus,
-  MoveVertical,
-  Trash2
+  X
 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent } from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 // Main Template Builder component 
 export default function TemplateBuilder() {
@@ -39,19 +45,10 @@ export default function TemplateBuilder() {
   const params = useParams();
   const [location, navigate] = useLocation();
   const entityId = params.id;
-  
-  // State for template information
-  const [templateName, setTemplateName] = useState("New Email Template");
-  const [templateSubject, setTemplateSubject] = useState("Your Email Subject");
-  const [isEditMode, setIsEditMode] = useState(false);
-  
-  // State for HTML preview and editing
   const [htmlCode, setHtmlCode] = useState<string>("");
-  const [activeTab, setActiveTab] = useState("design");
+  const [isHtmlCodeVisible, setIsHtmlCodeVisible] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  
-  // State for blocks management
-  const [selectedBlockIndex, setSelectedBlockIndex] = useState<number | null>(null);
+  const [isEditMode, setIsEditMode] = useState(false);
   const [activeSidebar, setActiveSidebar] = useState<'blocks' | 'appearance' | 'content'>('blocks');
   const [activeNavTab, setActiveNavTab] = useState<'visual' | 'code'>('visual');
 
@@ -210,19 +207,19 @@ export default function TemplateBuilder() {
   // Handle drag and drop of content blocks
   const [emailSections, setEmailSections] = useState<any[]>([]);
   
-  const handleBlockDrop = (blockType: string) => {
-    console.log('Block dropped:', blockType);
+  const handleBlockDrop = (item: any) => {
+    console.log('Block dropped:', item);
     // Add a new section with the dropped block
     const newSection = {
       id: `section-${Date.now()}`,
-      type: blockType,
-      content: getDefaultContentForType(blockType),
+      type: item.type,
+      content: getDefaultContentForType(item.type),
     };
     
     setEmailSections([...emailSections, newSection]);
     toast({
       title: 'Block added',
-      description: `Added a new ${blockType} block to your template`,
+      description: `Added a new ${item.type} block to your template`,
     });
   };
   
@@ -502,180 +499,80 @@ export default function TemplateBuilder() {
                     </div>
                   </div>
                 ) : (
-                  <div className="mx-auto max-w-[600px] bg-white rounded shadow-sm p-4 min-h-[600px]">
-                    <DroppableArea 
-                      onDrop={handleBlockDrop} 
-                      placeholder="Click on blocks in the sidebar to add content here"
-                    />
-                    
-                    {/* Display added content */}
-                    {emailSections.map((section) => (
-                      <div 
-                        key={section.id}
-                        className="p-3 mb-4 border border-gray-200 rounded relative hover:border-blue-300 group"
-                      >
-                        <div className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            className="h-6 w-6 text-gray-400 hover:text-red-500"
-                            onClick={() => {
-                              setEmailSections(emailSections.filter(s => s.id !== section.id));
-                            }}
-                          >
-                            <X className="h-4 w-4" />
-                          </Button>
-                        </div>
-                        <div className="flex items-center mb-2 text-sm font-medium text-gray-700">
-                          {section.type === 'text' && <Type className="h-4 w-4 mr-2" />}
-                          {section.type === 'image' && <ImageIcon className="h-4 w-4 mr-2" />}
-                          {section.type === 'button' && <div className="w-4 h-4 mr-2 flex items-center justify-center text-gray-600">B</div>}
-                          {section.type.charAt(0).toUpperCase() + section.type.slice(1)}
-                        </div>
-                        
-                        {section.type === 'text' && (
-                          <div className="relative p-2 border border-gray-200 rounded">
-                            <textarea
-                              className="w-full min-h-[100px] p-2 text-sm border border-gray-200 rounded resize-y"
-                              placeholder="Enter your text here"
-                              defaultValue={section.content}
-                              onChange={(e) => {
+                  <DndProvider backend={HTML5Backend}>
+                    <div className="mx-auto max-w-[600px] bg-white rounded shadow-sm p-4 min-h-[600px]">
+                      <DroppableArea 
+                        onDrop={handleBlockDrop} 
+                        placeholder="Drag and drop content blocks here"
+                      />
+                      
+                      {/* Display dropped content */}
+                      {emailSections.map((section) => (
+                        <div 
+                          key={section.id}
+                          className="p-3 mb-4 border border-gray-200 rounded relative hover:border-blue-300 group"
+                        >
+                          <div className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              className="h-6 w-6 text-gray-400 hover:text-red-500"
+                              onClick={() => {
+                                setEmailSections(emailSections.filter(s => s.id !== section.id));
+                              }}
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </div>
+                          <div className="flex items-center mb-2 text-sm font-medium text-gray-700">
+                            {section.type === 'text' && <Type className="h-4 w-4 mr-2" />}
+                            {section.type === 'image' && <ImageIcon className="h-4 w-4 mr-2" />}
+                            {section.type === 'button' && <div className="w-4 h-4 mr-2 flex items-center justify-center text-gray-600">B</div>}
+                            {section.type.charAt(0).toUpperCase() + section.type.slice(1)}
+                          </div>
+                          
+                          {section.type === 'text' && (
+                            <div 
+                              className="p-2 min-h-[50px] bg-gray-50 rounded"
+                              contentEditable
+                              suppressContentEditableWarning
+                              onBlur={(e) => {
                                 const updatedSections = emailSections.map(s => 
-                                  s.id === section.id ? {...s, content: e.target.value} : s
+                                  s.id === section.id ? {...s, content: e.target.textContent} : s
                                 );
                                 setEmailSections(updatedSections);
                               }}
-                            />
-                          </div>
-                        )}
-                        
-                        {section.type === 'image' && (
-                          <div className="bg-gray-50 p-2 rounded border border-gray-200">
-                            <div className="flex flex-col items-center">
-                              {section.content && (
-                                <img 
-                                  src={section.content} 
-                                  alt="Template content" 
-                                  className="max-w-full h-auto mb-2" 
-                                  onError={(e) => {
-                                    e.currentTarget.src = 'https://placehold.co/400x300?text=Image+Not+Found';
-                                  }}
-                                />
-                              )}
-                              <div className="w-full mt-2">
-                                <Label htmlFor={`image-url-${section.id}`} className="text-xs mb-1">Image URL:</Label>
-                                <Input
-                                  id={`image-url-${section.id}`}
-                                  type="text"
-                                  placeholder="https://example.com/image.jpg"
-                                  value={section.content || ''}
-                                  className="text-sm mb-2"
-                                  onChange={(e) => {
-                                    const updatedSections = emailSections.map(s => 
-                                      s.id === section.id ? {...s, content: e.target.value} : s
-                                    );
-                                    setEmailSections(updatedSections);
-                                  }}
-                                />
-                                <p className="text-xs text-muted-foreground mb-2">
-                                  Enter a URL above or use a sample image:
-                                </p>
-                                <div className="grid grid-cols-3 gap-2 mb-2">
-                                  {['https://placehold.co/400x200/D4AF37/ffffff?text=Sample+1', 
-                                    'https://placehold.co/400x200/1A3A5F/ffffff?text=Sample+2',
-                                    'https://placehold.co/400x200/F5F0E1/000000?text=Sample+3'
-                                  ].map((url, idx) => (
-                                    <img 
-                                      key={idx} 
-                                      src={url} 
-                                      alt={`Sample ${idx+1}`} 
-                                      className="w-full border border-gray-200 cursor-pointer hover:border-blue-400"
-                                      onClick={() => {
-                                        const updatedSections = emailSections.map(s => 
-                                          s.id === section.id ? {...s, content: url} : s
-                                        );
-                                        setEmailSections(updatedSections);
-                                      }} 
-                                    />
-                                  ))}
-                                </div>
-                              </div>
+                            >
+                              {section.content}
                             </div>
-                          </div>
-                        )}
-                        
-                        {section.type === 'button' && (
-                          <div className="flex flex-col p-2">
-                            <div className="flex justify-center mb-3">
+                          )}
+                          
+                          {section.type === 'image' && (
+                            <div className="bg-gray-50 p-2 rounded">
+                              <img src={section.content} alt="Template content" className="max-w-full h-auto" />
+                            </div>
+                          )}
+                          
+                          {section.type === 'button' && (
+                            <div className="flex justify-center p-2">
                               <button className="px-4 py-2 bg-blue-600 text-white rounded">
                                 {section.content}
                               </button>
                             </div>
-                            <div className="space-y-2">
-                              <div className="flex items-center">
-                                <Label htmlFor={`button-text-${section.id}`} className="text-xs w-24">Button Text:</Label>
-                                <Input
-                                  id={`button-text-${section.id}`}
-                                  type="text"
-                                  placeholder="Button Text"
-                                  defaultValue={section.content}
-                                  className="text-sm h-8"
-                                  onChange={(e) => {
-                                    const updatedSections = emailSections.map(s => 
-                                      s.id === section.id ? {...s, content: e.target.value} : s
-                                    );
-                                    setEmailSections(updatedSections);
-                                  }}
-                                />
-                              </div>
-                              <div className="flex items-center">
-                                <Label htmlFor={`button-link-${section.id}`} className="text-xs w-24">Button Link:</Label>
-                                <Input
-                                  id={`button-link-${section.id}`}
-                                  type="text"
-                                  placeholder="https://example.com"
-                                  defaultValue="#"
-                                  className="text-sm h-8"
-                                />
-                              </div>
-                            </div>
-                          </div>
-                        )}
-                        
-                        {section.type === 'spacer' && (
-                          <div className="p-2">
-                            <div style={{ height: section.content.height }} className="bg-gray-200 w-full"></div>
-                            <div className="mt-2">
-                              <div className="flex items-center">
-                                <Label htmlFor={`spacer-height-${section.id}`} className="text-xs w-24">Height (px):</Label>
-                                <Input
-                                  id={`spacer-height-${section.id}`}
-                                  type="number"
-                                  min="1"
-                                  max="200"
-                                  placeholder="Height in pixels"
-                                  defaultValue={section.content.height ? parseInt(section.content.height) : 20}
-                                  className="text-sm h-8 w-24"
-                                  onChange={(e) => {
-                                    const height = `${e.target.value}px`;
-                                    const updatedSections = emailSections.map(s => 
-                                      s.id === section.id ? {...s, content: { height }} : s
-                                    );
-                                    setEmailSections(updatedSections);
-                                  }}
-                                />
-                              </div>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                    
-                    <DroppableArea 
-                      onDrop={handleBlockDrop} 
-                      placeholder="Add more content blocks here"
-                    />
-                  </div>
+                          )}
+                          
+                          {section.type === 'spacer' && (
+                            <div style={{ height: section.content.height }} className="bg-gray-50"></div>
+                          )}
+                        </div>
+                      ))}
+                      
+                      <DroppableArea 
+                        onDrop={handleBlockDrop} 
+                        placeholder="Drag more content blocks here"
+                      />
+                    </div>
+                  </DndProvider>
                 )}
               </div>
             </div>

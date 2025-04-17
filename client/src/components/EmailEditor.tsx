@@ -8,20 +8,13 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { ColorPicker } from "@/components/ui/color-picker";
 import { 
   AlignLeft, AlignCenter, AlignRight, Bold, Italic, Underline, Image, 
   Link, List, ListOrdered, Type, Grid, Layout, Columns, Rows, Save, 
   ArrowLeft, Loader2, SeparatorHorizontal, X, ArrowDown, Settings, Palette,
-  Plus, Trash2, MoveVertical, Copy, Code, Eye, ArrowUp, GripVertical, Smile, Video,
-  AlertCircle, Upload, Search, LayoutGrid, Play, Share2, Timer, ShoppingCart,
-  Calendar, Table, Map, Star, Facebook, Instagram, Twitter, Linkedin, Youtube,
-  CheckSquare, Contact, Table2, FileText, SquareStack, Boxes
+  Plus, Trash2, MoveVertical, Copy, Code, Eye, ArrowUp, GripVertical
 } from "lucide-react";
-import EmojiPicker, { Theme, EmojiClickData } from "emoji-picker-react";
-import { GiphyFetch } from "@giphy/js-fetch-api";
-import { Grid as GiphyGrid } from "@giphy/react-components";
 
 // Define types for our email elements
 interface EmailElement {
@@ -123,13 +116,6 @@ const ElementRenderer: React.FC<ElementRendererProps> = ({
   isDragging, 
   isDraggedOver 
 }) => {
-  // Wrap the onClick handler to ensure event propagation is stopped
-  const handleElementClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    e.preventDefault();
-    onClick(e);
-    console.log('Element clicked:', element.id, element.type);
-  };
   const { type, content, styles, id } = element;
 
   const baseClass = `group relative transition-all duration-150 ${
@@ -235,26 +221,11 @@ const ElementRenderer: React.FC<ElementRendererProps> = ({
                   display: 'block',
                   borderRadius: (styles.rounded ? '0.375rem' : '0')
                 }}
-                onError={(e) => {
-                  // Handle image loading errors
-                  console.error('Image failed to load:', content.src);
-                  e.currentTarget.onerror = null; // Prevent infinite error loops
-                  e.currentTarget.style.display = 'none';
-                  // Show a fallback message when the image fails to load
-                  const parent = e.currentTarget.parentElement;
-                  if (parent) {
-                    const fallback = document.createElement('div');
-                    fallback.className = "bg-gray-100 border border-dashed border-gray-300 rounded-md p-4 flex flex-col items-center justify-center";
-                    fallback.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-8 h-8 text-gray-400 mb-2"><path d="M5 17l4-4 4 4 6-6"></path><circle cx="6.5" cy="6.5" r=".5"></circle><path d="M21 19H3a2 2 0 01-2-2V6a2 2 0 012-2h18a2 2 0 012 2v11a2 2 0 01-2 2z"></path></svg>
-                    <p class="text-sm text-amber-500">Image failed to load</p>`;
-                    parent.appendChild(fallback);
-                  }
-                }}
               />
             ) : (
               <div className="bg-gray-100 border border-dashed border-gray-300 rounded-md p-8 flex flex-col items-center justify-center">
                 <Image className="w-8 h-8 text-gray-400 mb-2" />
-                <p className="text-sm text-gray-500">Use the upload button or enter an image URL</p>
+                <p className="text-sm text-gray-500">Add an image URL in the properties panel</p>
               </div>
             )}
             {content.caption && (
@@ -386,422 +357,6 @@ const ElementRenderer: React.FC<ElementRendererProps> = ({
           </div>
         </div>
       );
-      
-    case 'emoji':
-      return (
-        <div 
-          onClick={onClick} 
-          className={`${baseClass} p-3`}
-          draggable
-          onDragStart={(e) => onDragStart(e, id)}
-          onDragEnd={onDragEnd}
-          onDragOver={onDragOver}
-          onDrop={(e) => onDrop(e, id)}
-        >
-          <div className={`absolute top-0 right-0 ${isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} transition-opacity bg-primary text-white text-xs rounded-bl-md px-1.5 py-0.5`}>
-            Emoji
-          </div>
-          <div className="absolute -left-4 top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
-            <GripVertical className="h-4 w-4 text-gray-400" />
-          </div>
-          <div style={{ 
-            fontSize: styles.fontSize || '36px', 
-            textAlign: styles.textAlign as any || 'center',
-            margin: '0 auto'
-          }}>
-            {content.emoji || '😀'}
-          </div>
-        </div>
-      );
-      
-    case 'gif':
-      return (
-        <div 
-          onClick={onClick} 
-          className={`${baseClass} p-3`}
-          draggable
-          onDragStart={(e) => onDragStart(e, id)}
-          onDragEnd={onDragEnd}
-          onDragOver={onDragOver}
-          onDrop={(e) => onDrop(e, id)}
-        >
-          <div className={`absolute top-0 right-0 ${isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} transition-opacity bg-primary text-white text-xs rounded-bl-md px-1.5 py-0.5`}>
-            GIF
-          </div>
-          <div className="absolute -left-4 top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
-            <GripVertical className="h-4 w-4 text-gray-400" />
-          </div>
-          <div className="text-center">
-            {content.src ? (
-              <img 
-                src={content.src} 
-                alt={content.alt || 'GIF image'} 
-                style={{ 
-                  maxWidth: styles.maxWidth || '300px', 
-                  width: styles.width || '100%',
-                  margin: styles.centered ? '0 auto' : undefined,
-                  display: 'block',
-                  borderRadius: (styles.rounded ? '0.375rem' : '0')
-                }} 
-              />
-            ) : (
-              <div className="bg-gray-100 border border-dashed border-gray-300 rounded-md p-8 flex flex-col items-center justify-center">
-                <Video className="w-8 h-8 text-gray-400 mb-2" />
-                <p className="text-sm text-gray-500">Add a GIF URL in the properties panel</p>
-              </div>
-            )}
-          </div>
-        </div>
-      );
-      
-    case 'video':
-      return (
-        <div 
-          onClick={onClick} 
-          className={`${baseClass} p-3`}
-          draggable
-          onDragStart={(e) => onDragStart(e, id)}
-          onDragEnd={onDragEnd}
-          onDragOver={onDragOver}
-          onDrop={(e) => onDrop(e, id)}
-        >
-          <div className={`absolute top-0 right-0 ${isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} transition-opacity bg-primary text-white text-xs rounded-bl-md px-1.5 py-0.5`}>
-            Video
-          </div>
-          <div className="absolute -left-4 top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
-            <GripVertical className="h-4 w-4 text-gray-400" />
-          </div>
-          <div className="text-center">
-            {content.embedUrl ? (
-              <div className="relative" style={{ 
-                width: styles.width || '100%',
-                paddingTop: styles.aspectRatio || '56.25%', // 16:9 default
-                maxWidth: styles.maxWidth || '100%',
-                margin: styles.centered ? '0 auto' : undefined
-              }}>
-                <iframe 
-                  src={content.embedUrl} 
-                  title={content.title || "Video content"}
-                  className="absolute top-0 left-0 w-full h-full rounded-md"
-                  style={{ borderRadius: (styles.rounded ? '0.375rem' : '0') }}
-                  frameBorder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                ></iframe>
-              </div>
-            ) : (
-              <div className="bg-gray-100 border border-dashed border-gray-300 rounded-md p-8 flex flex-col items-center justify-center">
-                <Play className="w-8 h-8 text-gray-400 mb-2" />
-                <p className="text-sm text-gray-500">Enter a YouTube or Vimeo URL</p>
-              </div>
-            )}
-            {content.caption && (
-              <p className="text-sm text-gray-500 mt-2" style={{ textAlign: styles.captionAlign || 'center' }}>
-                {content.caption}
-              </p>
-            )}
-          </div>
-        </div>
-      );
-
-    case 'social':
-      return (
-        <div 
-          onClick={onClick} 
-          className={`${baseClass} p-3`}
-          draggable
-          onDragStart={(e) => onDragStart(e, id)}
-          onDragEnd={onDragEnd}
-          onDragOver={onDragOver}
-          onDrop={(e) => onDrop(e, id)}
-        >
-          <div className={`absolute top-0 right-0 ${isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} transition-opacity bg-primary text-white text-xs rounded-bl-md px-1.5 py-0.5`}>
-            Social
-          </div>
-          <div className="absolute -left-4 top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
-            <GripVertical className="h-4 w-4 text-gray-400" />
-          </div>
-          <div className="flex items-center justify-center space-x-3" style={{ 
-            textAlign: styles.textAlign as any || 'center',
-          }}>
-            {content.networks?.map((network: any, idx: number) => (
-              <a 
-                key={idx}
-                href={network.url || '#'} 
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-block"
-                onClick={(e) => e.preventDefault()}
-              >
-                <div 
-                  className="rounded-full flex items-center justify-center transition-colors"
-                  style={{ 
-                    width: styles.iconSize || '40px', 
-                    height: styles.iconSize || '40px',
-                    backgroundColor: network.backgroundColor || styles.backgroundColor || '#4F46E5',
-                    color: network.iconColor || styles.iconColor || '#FFFFFF'
-                  }}
-                >
-                  {network.type === 'facebook' && <Facebook size={styles.innerIconSize || 20} />}
-                  {network.type === 'twitter' && <Twitter size={styles.innerIconSize || 20} />}
-                  {network.type === 'instagram' && <Instagram size={styles.innerIconSize || 20} />}
-                  {network.type === 'linkedin' && <Linkedin size={styles.innerIconSize || 20} />}
-                  {network.type === 'youtube' && <Youtube size={styles.innerIconSize || 20} />}
-                </div>
-              </a>
-            )) || (
-              <>
-                <a href="#" target="_blank" rel="noopener noreferrer" className="inline-block" onClick={(e) => e.preventDefault()}>
-                  <div className="w-10 h-10 rounded-full bg-[#1877F2] flex items-center justify-center">
-                    <Facebook size={20} className="text-white" />
-                  </div>
-                </a>
-                <a href="#" target="_blank" rel="noopener noreferrer" className="inline-block" onClick={(e) => e.preventDefault()}>
-                  <div className="w-10 h-10 rounded-full bg-[#1DA1F2] flex items-center justify-center">
-                    <Twitter size={20} className="text-white" />
-                  </div>
-                </a>
-                <a href="#" target="_blank" rel="noopener noreferrer" className="inline-block" onClick={(e) => e.preventDefault()}>
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#FEDA75] via-[#FA7E1E] to-[#D62976] flex items-center justify-center">
-                    <Instagram size={20} className="text-white" />
-                  </div>
-                </a>
-                <a href="#" target="_blank" rel="noopener noreferrer" className="inline-block" onClick={(e) => e.preventDefault()}>
-                  <div className="w-10 h-10 rounded-full bg-[#0A66C2] flex items-center justify-center">
-                    <Linkedin size={20} className="text-white" />
-                  </div>
-                </a>
-              </>
-            )}
-          </div>
-        </div>
-      );
-      
-    case 'countdown':
-      return (
-        <div 
-          onClick={onClick} 
-          className={`${baseClass} p-3`}
-          draggable
-          onDragStart={(e) => onDragStart(e, id)}
-          onDragEnd={onDragEnd}
-          onDragOver={onDragOver}
-          onDrop={(e) => onDrop(e, id)}
-        >
-          <div className={`absolute top-0 right-0 ${isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} transition-opacity bg-primary text-white text-xs rounded-bl-md px-1.5 py-0.5`}>
-            Countdown
-          </div>
-          <div className="absolute -left-4 top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
-            <GripVertical className="h-4 w-4 text-gray-400" />
-          </div>
-          <div className="text-center">
-            {content.title && (
-              <h3 className="text-lg font-medium mb-2" style={{ color: styles.titleColor || '#333333' }}>
-                {content.title}
-              </h3>
-            )}
-            <div className="flex justify-center space-x-3">
-              <div className="flex flex-col items-center">
-                <div className="bg-gray-100 rounded-md w-14 h-14 flex items-center justify-center mb-1" 
-                  style={{ 
-                    backgroundColor: styles.blockBackgroundColor || '#f3f4f6',
-                    color: styles.digitColor || '#111827'
-                  }}>
-                  <span className="text-xl font-bold">00</span>
-                </div>
-                <span className="text-xs" style={{ color: styles.labelColor || '#6b7280' }}>Days</span>
-              </div>
-              <div className="flex flex-col items-center">
-                <div className="bg-gray-100 rounded-md w-14 h-14 flex items-center justify-center mb-1"
-                  style={{ 
-                    backgroundColor: styles.blockBackgroundColor || '#f3f4f6',
-                    color: styles.digitColor || '#111827'
-                  }}>
-                  <span className="text-xl font-bold">00</span>
-                </div>
-                <span className="text-xs" style={{ color: styles.labelColor || '#6b7280' }}>Hours</span>
-              </div>
-              <div className="flex flex-col items-center">
-                <div className="bg-gray-100 rounded-md w-14 h-14 flex items-center justify-center mb-1"
-                  style={{ 
-                    backgroundColor: styles.blockBackgroundColor || '#f3f4f6',
-                    color: styles.digitColor || '#111827'
-                  }}>
-                  <span className="text-xl font-bold">00</span>
-                </div>
-                <span className="text-xs" style={{ color: styles.labelColor || '#6b7280' }}>Minutes</span>
-              </div>
-              <div className="flex flex-col items-center">
-                <div className="bg-gray-100 rounded-md w-14 h-14 flex items-center justify-center mb-1"
-                  style={{ 
-                    backgroundColor: styles.blockBackgroundColor || '#f3f4f6',
-                    color: styles.digitColor || '#111827'
-                  }}>
-                  <span className="text-xl font-bold">00</span>
-                </div>
-                <span className="text-xs" style={{ color: styles.labelColor || '#6b7280' }}>Seconds</span>
-              </div>
-            </div>
-            {content.message && (
-              <p className="text-sm mt-2" style={{ color: styles.messageColor || '#4b5563' }}>
-                {content.message}
-              </p>
-            )}
-          </div>
-        </div>
-      );
-
-    case 'product':
-      return (
-        <div 
-          onClick={onClick} 
-          className={`${baseClass} p-3`}
-          draggable
-          onDragStart={(e) => onDragStart(e, id)}
-          onDragEnd={onDragEnd}
-          onDragOver={onDragOver}
-          onDrop={(e) => onDrop(e, id)}
-        >
-          <div className={`absolute top-0 right-0 ${isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} transition-opacity bg-primary text-white text-xs rounded-bl-md px-1.5 py-0.5`}>
-            Product
-          </div>
-          <div className="absolute -left-4 top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
-            <GripVertical className="h-4 w-4 text-gray-400" />
-          </div>
-          <div className={`flex ${styles.layout === 'horizontal' ? 'flex-row' : 'flex-col'} gap-4`}>
-            <div className={`${styles.layout === 'horizontal' ? 'w-1/3' : 'w-full'}`}>
-              {content.image ? (
-                <img 
-                  src={content.image} 
-                  alt={content.name || "Product image"} 
-                  className="w-full h-auto object-cover rounded-md"
-                  style={{ borderRadius: (styles.rounded ? '0.375rem' : '0') }}
-                />
-              ) : (
-                <div className="bg-gray-100 border border-dashed border-gray-300 rounded-md aspect-square flex items-center justify-center">
-                  <Image className="w-8 h-8 text-gray-400" />
-                </div>
-              )}
-            </div>
-            <div className={`${styles.layout === 'horizontal' ? 'w-2/3' : 'w-full'} flex flex-col`}>
-              <h3 className="font-medium text-gray-900" style={{ 
-                fontSize: styles.titleFontSize || '16px',
-                color: styles.titleColor || '#111827'
-              }}>
-                {content.name || "Product Name"}
-              </h3>
-              <p className="text-sm text-gray-500 mt-1 mb-2">
-                {content.description || "Short product description goes here."}
-              </p>
-              <div className="flex items-center mb-3">
-                <span className="font-bold" style={{ color: styles.priceColor || '#111827' }}>
-                  {content.price || "$29.99"}
-                </span>
-                {content.originalPrice && (
-                  <span className="ml-2 text-sm line-through text-gray-400">
-                    {content.originalPrice}
-                  </span>
-                )}
-              </div>
-              <a 
-                href={content.buttonUrl || '#'}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{ 
-                  backgroundColor: styles.buttonBackgroundColor || '#4F46E5',
-                  color: styles.buttonTextColor || '#FFFFFF',
-                  padding: '8px 12px',
-                  borderRadius: `${styles.buttonBorderRadius || 4}px`,
-                  textDecoration: 'none',
-                  display: 'inline-block',
-                  fontWeight: 500,
-                  fontSize: '14px',
-                  textAlign: 'center',
-                  alignSelf: 'flex-start'
-                }}
-                onClick={(e) => e.preventDefault()}
-              >
-                {content.buttonText || "Buy Now"}
-              </a>
-            </div>
-          </div>
-        </div>
-      );
-      
-    case 'columns':
-      return (
-        <div 
-          onClick={onClick} 
-          className={`${baseClass} p-3`}
-          draggable
-          onDragStart={(e) => onDragStart(e, id)}
-          onDragEnd={onDragEnd}
-          onDragOver={onDragOver}
-          onDrop={(e) => onDrop(e, id)}
-        >
-          <div className={`absolute top-0 right-0 ${isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} transition-opacity bg-primary text-white text-xs rounded-bl-md px-1.5 py-0.5`}>
-            Columns
-          </div>
-          <div className="absolute -left-4 top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
-            <GripVertical className="h-4 w-4 text-gray-400" />
-          </div>
-          <div className="flex gap-4" style={{ 
-            justifyContent: styles.columnAlignment || 'space-between'
-          }}>
-            {(content.columns || [1, 2]).map((col: any, idx: number) => (
-              <div 
-                key={idx}
-                className="bg-gray-50 border border-dashed border-gray-200 rounded-md p-4 flex-1 min-h-[100px] flex items-center justify-center"
-                style={{ 
-                  flex: col.width || 1,
-                  padding: styles.columnPadding || '1rem'
-                }}
-              >
-                <p className="text-sm text-gray-400">
-                  {content.emptyMessage || "Drag elements here"}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      );
-      
-    case 'grid':
-      return (
-        <div 
-          onClick={onClick} 
-          className={`${baseClass} p-3`}
-          draggable
-          onDragStart={(e) => onDragStart(e, id)}
-          onDragEnd={onDragEnd}
-          onDragOver={onDragOver}
-          onDrop={(e) => onDrop(e, id)}
-        >
-          <div className={`absolute top-0 right-0 ${isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} transition-opacity bg-primary text-white text-xs rounded-bl-md px-1.5 py-0.5`}>
-            Grid
-          </div>
-          <div className="absolute -left-4 top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
-            <GripVertical className="h-4 w-4 text-gray-400" />
-          </div>
-          <div className="grid gap-4"
-            style={{ 
-              gridTemplateColumns: `repeat(${content.columns || 2}, 1fr)`,
-              gap: styles.gridGap || '1rem'
-            }}
-          >
-            {Array.from({ length: (content.rows || 2) * (content.columns || 2) }).map((_, idx) => (
-              <div 
-                key={idx}
-                className="bg-gray-50 border border-dashed border-gray-200 rounded-md p-4 flex items-center justify-center min-h-[80px]"
-              >
-                <p className="text-sm text-gray-400">
-                  {content.emptyMessage || `Cell ${idx + 1}`}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      );
     
     default:
       return null;
@@ -869,17 +424,12 @@ const Section: React.FC<SectionProps> = ({
       {/* Section header bar for selection */}
       <div 
         className={`h-6 ${isSelected ? 'bg-primary/20' : 'bg-gray-100'} cursor-pointer flex items-center px-2 justify-between`}
-        onClick={(e) => {
-          e.stopPropagation();
-          e.preventDefault();
-          onSelectSection(section.id);
-          console.log('Section header clicked, section ID:', section.id);
-        }}
+        onClick={() => onSelectSection(section.id)}
       >
         <span className="text-xs font-medium text-gray-600">Section {index + 1}</span>
         {isSelected && (
           <div className="flex items-center space-x-1 text-xs text-gray-500">
-            <span>Properties active</span>
+            <span>Click to edit section properties</span>
           </div>
         )}
       </div>
@@ -891,56 +441,17 @@ const Section: React.FC<SectionProps> = ({
           backgroundColor: section.styles.backgroundColor || '#ffffff',
           padding: section.styles.padding || '12px',
         }}
-        data-section-id={section.id}
-        onClick={(e) => {
-          // Enhanced section selection with better handling of child elements
-          const target = e.target as HTMLElement;
-          
-          // Check if we're clicking on an element renderer, which has its own click handler
-          let isElementClick = false;
-          let parent = target;
-          
-          // Walk up the DOM tree to see if we're inside an element renderer
-          while (parent && parent !== e.currentTarget) {
-            // If we find a direct child div of section-content that contains elements, don't select section
-            if (parent.classList && 
-                (parent.classList.contains('space-y-1') || 
-                 parent.getAttribute('role') === 'button')) {
-              isElementClick = true;
-              break;
-            }
-            parent = parent.parentElement as HTMLElement;
-          }
-          
-          // If we're not clicking inside an element renderer or it's an empty section,
-          // then select the section
-          if (!isElementClick && !selectedElementId) {
-            e.stopPropagation();
-            console.log('Section content clicked, section ID:', section.id, 
-                      'Target classList:', target.classList.toString(), 
-                      'Is direct section click:', e.currentTarget === e.target);
-            onSelectSection(section.id);
-          }
-        }}
+        onClick={() => onSelectSection(section.id)}
         onDrop={(e) => onDrop(e, section.id)}
         onDragOver={handleDragOver}
       >
         {section.elements.length === 0 ? (
-          <div 
-            className={`text-center py-8 text-gray-500 border-2 border-dashed ${
-              window.draggedOverElementId === 'new-element' && window.dragSourceSectionId !== section.id 
-                ? 'border-primary/70 bg-primary/5' 
-                : isSelected ? 'border-primary/70 bg-primary/5' : 'border-gray-300'
-            } rounded-md transition-colors duration-200 cursor-pointer`}
-            onDragOver={(e) => {
-              e.preventDefault();
-              e.dataTransfer.dropEffect = "copy";
-              window.setDraggedOverElementId('new-element');
-            }}
-            onClick={(e) => {
-              e.stopPropagation();
-              onSelectSection(section.id);
-            }}
+          <div className={`text-center py-8 text-gray-500 border-2 border-dashed ${window.draggedOverElementId === 'new-element' && window.dragSourceSectionId !== section.id ? 'border-primary/70 bg-primary/5' : 'border-gray-300'} rounded-md transition-colors duration-200`}
+               onDragOver={(e) => {
+                 e.preventDefault();
+                 e.dataTransfer.dropEffect = "copy";
+                 window.setDraggedOverElementId('new-element');
+               }}
           >
             <div className="flex flex-col items-center">
               <ArrowDown className="h-5 w-5 text-primary mb-2" />
@@ -990,55 +501,21 @@ const PropertyEditor: React.FC<PropertyEditorProps> = ({
   onTemplateStyling
 }) => {
   const [tab, setTab] = useState<'content' | 'style'>('content');
-  const [giphySearchTerm, setGiphySearchTerm] = useState<string>('');
-  const [giphySearchResults, setGiphySearchResults] = useState<any[]>([]);
-  const [isGiphySearching, setIsGiphySearching] = useState<boolean>(false);
-  const [giphyApiKey, setGiphyApiKey] = useState<string>('');
-  
-  // Debug log to check when properties panel receives section changes
-  useEffect(() => {
-    if (selectedSection) {
-      console.log('PropertyEditor: Section selected:', selectedSection.id);
-      console.log('PropertyEditor: Section styles:', selectedSection.styles);
-    }
-  }, [selectedSection]);
-  
-  // Fetch the GIPHY API key from our server
-  useEffect(() => {
-    const fetchGiphyApiKey = async () => {
-      try {
-        const response = await fetch('/api/env');
-        const data = await response.json();
-        if (data.GIPHY_API_KEY) {
-          setGiphyApiKey(data.GIPHY_API_KEY);
-        }
-      } catch (error) {
-        console.error('Error fetching GIPHY API key:', error);
-      }
-    };
-    
-    fetchGiphyApiKey();
-  }, []);
-  
-  // Function to search GIPHY
-  const searchGiphy = async () => {
-    if (!giphySearchTerm.trim() || !giphyApiKey) return;
-    
-    try {
-      setIsGiphySearching(true);
-      // Use the API key fetched from our server endpoint
-      const gf = new GiphyFetch(giphyApiKey);
-      const { data } = await gf.search(giphySearchTerm, { limit: 20 });
-      setGiphySearchResults(data);
-    } catch (error) {
-      console.error('Error searching GIPHY:', error);
-    } finally {
-      setIsGiphySearching(false);
-    }
-  };
   
   if (!selectedElement && !selectedSection) {
-    return null;
+    return (
+      <div className="h-full flex flex-col items-center justify-center text-center px-6">
+        <div className="bg-gray-100 rounded-full p-3 mb-3">
+          <Settings className="h-5 w-5 text-gray-500" />
+        </div>
+        <h3 className="text-lg font-medium text-gray-700 mb-1">No element selected</h3>
+        <p className="text-sm text-gray-500 mb-4">Select an element to edit its properties</p>
+        <Button variant="outline" onClick={onTemplateStyling} className="text-xs">
+          <Palette className="h-4 w-4 mr-2" />
+          Edit Template Style
+        </Button>
+      </div>
+    );
   }
   
   if (selectedSection && !selectedElement) {
@@ -1140,8 +617,6 @@ const PropertyEditor: React.FC<PropertyEditorProps> = ({
           {type === 'button' && <Link className="h-5 w-5 mr-2 text-primary" />}
           {type === 'divider' && <SeparatorHorizontal className="h-5 w-5 mr-2 text-primary" />}
           {type === 'spacer' && <Layout className="h-5 w-5 mr-2 text-primary" />}
-          {type === 'emoji' && <Smile className="h-5 w-5 mr-2 text-primary" />}
-          {type === 'gif' && <Video className="h-5 w-5 mr-2 text-primary" />}
           {type.charAt(0).toUpperCase() + type.slice(1)} Properties
         </h3>
         
@@ -1189,107 +664,35 @@ const PropertyEditor: React.FC<PropertyEditorProps> = ({
           
           {type === 'image' && (
             <>
-              <div className="space-y-4">
-                <div>
-                  <Label className="text-gray-700 mb-3 block text-sm font-medium">Upload Image</Label>
-                  <div className="mt-1.5 flex flex-col gap-4">
-                    <input
-                      type="file"
-                      id="imageUpload"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={async (e) => {
-                        const files = e.target.files;
-                        if (!files || files.length === 0) return;
-                        
-                        const file = files[0];
-                        const formData = new FormData();
-                        formData.append('image', file);
-                        
-                        try {
-                          const response = await fetch('/api/upload/image', {
-                            method: 'POST',
-                            body: formData,
-                          });
-                          
-                          if (!response.ok) {
-                            throw new Error('Failed to upload image');
-                          }
-                          
-                          const result = await response.json();
-                          
-                          if (result.success) {
-                            updateElement(id, { 
-                              content: { 
-                                ...content, 
-                                src: result.imageUrl,
-                                alt: file.name.split('.')[0] || 'Image' 
-                              } 
-                            });
-                          } else {
-                            console.error('Image upload failed:', result.error);
-                          }
-                        } catch (error) {
-                          console.error('Error uploading image:', error);
-                        }
-                      }}
-                    />
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => {
-                        document.getElementById('imageUpload')?.click();
-                      }}
-                    >
-                      <Upload className="h-4 w-4 mr-2" />
-                      Upload Image
-                    </Button>
-                    
-                    {content.src && (
-                      <div className="border rounded p-2">
-                        <img 
-                          src={content.src} 
-                          alt={content.alt || 'Uploaded image'} 
-                          className="max-h-[200px] mx-auto object-contain" 
-                        />
-                      </div>
-                    )}
-                  </div>
-                </div>
-                
-                <div className="mt-4">
-                  <Label htmlFor="imageSrc" className="text-gray-700 mb-1 block text-sm font-medium">Image URL</Label>
-                  <Input 
-                    id="imageSrc"
-                    value={content.src || ''} 
-                    onChange={(e) => updateElement(id, { content: { ...content, src: e.target.value } })}
-                    placeholder="https://example.com/image.jpg or data:image/..."
-                    className="mt-1.5"
-                  />
-                  <p className="text-xs text-gray-500 mt-1">Enter URL or use the upload button above</p>
-                </div>
-                
-                <div>
-                  <Label htmlFor="imageAlt" className="text-gray-700 mb-1 block text-sm font-medium">Alt Text</Label>
-                  <Input 
-                    id="imageAlt"
-                    value={content.alt || ''} 
-                    onChange={(e) => updateElement(id, { content: { ...content, alt: e.target.value } })}
-                    placeholder="Image description for accessibility"
-                    className="mt-1.5"
-                  />
-                </div>
-                
-                <div>
-                  <Label htmlFor="imageCaption" className="text-gray-700 mb-1 block text-sm font-medium">Caption (optional)</Label>
-                  <Input 
-                    id="imageCaption"
-                    value={content.caption || ''} 
-                    onChange={(e) => updateElement(id, { content: { ...content, caption: e.target.value } })}
-                    placeholder="Image caption"
-                    className="mt-1.5"
-                  />
-                </div>
+              <div>
+                <Label htmlFor="imageSrc" className="text-gray-700 mb-1 block text-sm font-medium">Image URL</Label>
+                <Input 
+                  id="imageSrc"
+                  value={content.src || ''} 
+                  onChange={(e) => updateElement(id, { content: { ...content, src: e.target.value } })}
+                  placeholder="https://example.com/image.jpg"
+                  className="mt-1.5"
+                />
+              </div>
+              <div>
+                <Label htmlFor="imageAlt" className="text-gray-700 mb-1 block text-sm font-medium">Alt Text</Label>
+                <Input 
+                  id="imageAlt"
+                  value={content.alt || ''} 
+                  onChange={(e) => updateElement(id, { content: { ...content, alt: e.target.value } })}
+                  placeholder="Image description for accessibility"
+                  className="mt-1.5"
+                />
+              </div>
+              <div>
+                <Label htmlFor="imageCaption" className="text-gray-700 mb-1 block text-sm font-medium">Caption (optional)</Label>
+                <Input 
+                  id="imageCaption"
+                  value={content.caption || ''} 
+                  onChange={(e) => updateElement(id, { content: { ...content, caption: e.target.value } })}
+                  placeholder="Image caption"
+                  className="mt-1.5"
+                />
               </div>
             </>
           )}
@@ -1346,127 +749,6 @@ const PropertyEditor: React.FC<PropertyEditorProps> = ({
               <p className="text-xs text-gray-500 mt-1">
                 Use valid HTML with inline CSS for best email client compatibility.
               </p>
-            </div>
-          )}
-          
-          {type === 'emoji' && (
-            <div>
-              <Label className="text-gray-700 mb-1 block text-sm font-medium">Select Emoji</Label>
-              <div className="mt-3 border rounded-md p-3">
-                <div className="mb-3 text-center">
-                  <div style={{ fontSize: '48px', lineHeight: 1.2 }}>
-                    {content.emoji || '😀'}
-                  </div>
-                  <div className="text-xs text-gray-500 mt-1">Current Selection</div>
-                </div>
-                <EmojiPicker 
-                  width="100%" 
-                  height={350} 
-                  theme={Theme.AUTO} 
-                  onEmojiClick={(emojiData: EmojiClickData) => {
-                    updateElement(id, { content: { ...content, emoji: emojiData.emoji } });
-                  }} 
-                />
-              </div>
-            </div>
-          )}
-          
-          {type === 'gif' && (
-            <div>
-              <Label htmlFor="gifSrc" className="text-gray-700 mb-1 block text-sm font-medium">GIF URL</Label>
-              <Input 
-                id="gifSrc"
-                value={content.src || ''} 
-                onChange={(e) => updateElement(id, { content: { ...content, src: e.target.value } })}
-                placeholder="https://example.com/image.gif"
-                className="mt-1.5"
-              />
-              <div className="mt-3">
-                <Label htmlFor="gifAlt" className="text-gray-700 mb-1 block text-sm font-medium">Alt Text</Label>
-                <Input 
-                  id="gifAlt"
-                  value={content.alt || ''} 
-                  onChange={(e) => updateElement(id, { content: { ...content, alt: e.target.value } })}
-                  placeholder="GIF description for accessibility"
-                  className="mt-1.5"
-                />
-              </div>
-              
-              <div className="mt-4">
-                <Label className="text-gray-700 mb-3 block text-sm font-medium">Search GIPHY</Label>
-                <div className="border rounded-md p-3 mt-1.5 max-h-[400px] overflow-y-auto">
-                  {giphyApiKey ? (
-                    <>
-                      <Input 
-                        placeholder="Search for GIFs..."
-                        className="mb-3"
-                        onChange={(e) => {
-                          setGiphySearchTerm(e.target.value);
-                        }}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
-                            e.preventDefault();
-                            searchGiphy();
-                          }
-                        }}
-                      />
-                      <Button 
-                        className="w-full mb-4" 
-                        onClick={searchGiphy} 
-                        disabled={isGiphySearching}
-                      >
-                        {isGiphySearching ? (
-                          <>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            Searching...
-                          </>
-                        ) : (
-                          <>Search</>
-                        )}
-                      </Button>
-                      {giphySearchResults.length > 0 ? (
-                        <div className="grid grid-cols-2 gap-2">
-                          {giphySearchResults.map((gif: any, index: number) => (
-                            <div 
-                              key={index} 
-                              className="cursor-pointer border hover:border-primary rounded-md overflow-hidden"
-                              onClick={() => {
-                                updateElement(id, { 
-                                  content: { 
-                                    ...content, 
-                                    src: gif.images.fixed_height.url,
-                                    alt: gif.title
-                                  } 
-                                });
-                              }}
-                            >
-                              <img 
-                                src={gif.images.fixed_height_small.url} 
-                                alt={gif.title} 
-                                style={{ width: '100%', height: 'auto' }}
-                              />
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <div className="text-center py-6 text-gray-500">
-                          {giphySearchTerm ? "No results found" : "Search for GIFs to display results"}
-                        </div>
-                      )}
-                    </>
-                  ) : (
-                    <div className="text-center py-6">
-                      <div className="text-amber-500 mb-2">
-                        <AlertCircle className="h-6 w-6 mx-auto" />
-                      </div>
-                      <p className="text-gray-700 font-medium mb-1">GIPHY API Key Required</p>
-                      <p className="text-gray-500 text-sm">
-                        To search and use GIFs, a GIPHY API key needs to be configured.
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </div>
             </div>
           )}
         </TabsContent>
@@ -1663,94 +945,6 @@ const PropertyEditor: React.FC<PropertyEditorProps> = ({
                   />
                   <span className="text-gray-500 text-sm">px</span>
                 </div>
-              </div>
-            </>
-          )}
-          
-          {(type === 'emoji' || type === 'gif') && (
-            <div>
-              <Label className="text-gray-700 mb-1 block text-sm font-medium">Alignment</Label>
-              <div className="flex items-center space-x-2 mt-1.5">
-                <Button
-                  type="button"
-                  variant={styles.alignment === 'left' ? 'default' : 'outline'}
-                  size="sm"
-                  className="h-9 w-9 p-0"
-                  onClick={() => updateElement(id, { styles: { ...styles, alignment: 'left' } })}
-                >
-                  <AlignLeft className="h-4 w-4" />
-                </Button>
-                <Button
-                  type="button"
-                  variant={styles.alignment === 'center' ? 'default' : 'outline'}
-                  size="sm"
-                  className="h-9 w-9 p-0"
-                  onClick={() => updateElement(id, { styles: { ...styles, alignment: 'center' } })}
-                >
-                  <AlignCenter className="h-4 w-4" />
-                </Button>
-                <Button
-                  type="button"
-                  variant={styles.alignment === 'right' ? 'default' : 'outline'}
-                  size="sm"
-                  className="h-9 w-9 p-0"
-                  onClick={() => updateElement(id, { styles: { ...styles, alignment: 'right' } })}
-                >
-                  <AlignRight className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-          )}
-          
-          {type === 'emoji' && (
-            <div className="mt-4">
-              <Label htmlFor="emojiSize" className="text-gray-700 mb-1 block text-sm font-medium">Size</Label>
-              <div className="flex items-center gap-2 mt-1.5">
-                <Input 
-                  type="number" 
-                  id="emojiSize"
-                  value={parseInt(styles.fontSize) || 48} 
-                  onChange={(e) => updateElement(id, { styles: { ...styles, fontSize: `${e.target.value}px` } })}
-                  className="w-20 text-sm"
-                  min={16}
-                  max={128}
-                />
-                <span className="text-gray-500 text-sm">px</span>
-              </div>
-            </div>
-          )}
-          
-          {type === 'gif' && (
-            <>
-              <div className="flex items-center gap-4 mt-4">
-                <div className="flex items-center gap-2">
-                  <input 
-                    type="checkbox" 
-                    id="gifRounded"
-                    checked={styles.rounded || false} 
-                    onChange={(e) => updateElement(id, { styles: { ...styles, rounded: e.target.checked } })}
-                  />
-                  <Label htmlFor="gifRounded" className="text-sm">Rounded corners</Label>
-                </div>
-              </div>
-              
-              <div className="mt-4">
-                <Label htmlFor="gifWidth" className="text-gray-700 mb-1 block text-sm font-medium">Width</Label>
-                <div className="flex items-center gap-2 mt-1.5">
-                  <Input 
-                    type="number" 
-                    id="gifWidth"
-                    value={parseInt(styles.width?.replace('%', '') || '100')} 
-                    onChange={(e) => updateElement(id, { styles: { ...styles, width: `${e.target.value}%` } })}
-                    className="w-20 text-sm"
-                    min={10}
-                    max={100}
-                  />
-                  <span className="text-gray-500 text-sm">%</span>
-                </div>
-                <p className="text-xs text-gray-500 mt-1">
-                  Percentage of container width
-                </p>
               </div>
             </>
           )}
@@ -2244,20 +1438,6 @@ const EmailEditor: React.FC<{
           content: { src: '', alt: 'Image description' },
           styles: { width: '100%', maxWidth: '100%', rounded: false, centered: false }
         };
-      case 'emoji':
-        return {
-          id,
-          type,
-          content: { emoji: '😀' },
-          styles: { fontSize: '36px', textAlign: 'center' }
-        };
-      case 'gif':
-        return {
-          id,
-          type,
-          content: { src: '', alt: 'GIF image' },
-          styles: { width: '100%', maxWidth: '300px', rounded: true, centered: true }
-        };
       case 'button':
         return {
           id,
@@ -2296,112 +1476,6 @@ const EmailEditor: React.FC<{
           },
           styles: { height: '200px' }
         };
-      case 'video':
-        return {
-          id,
-          type,
-          content: { 
-            embedUrl: '', 
-            title: 'Video content',
-            caption: 'Video caption (optional)'
-          },
-          styles: { 
-            width: '100%', 
-            maxWidth: '600px', 
-            aspectRatio: '56.25%',
-            centered: true,
-            rounded: true,
-            captionAlign: 'center'
-          }
-        };
-      case 'social':
-        return {
-          id,
-          type,
-          content: {
-            networks: [
-              { type: 'facebook', url: 'https://facebook.com', backgroundColor: '#1877F2', iconColor: '#FFFFFF' },
-              { type: 'twitter', url: 'https://twitter.com', backgroundColor: '#1DA1F2', iconColor: '#FFFFFF' },
-              { type: 'instagram', url: 'https://instagram.com', backgroundColor: '#E1306C', iconColor: '#FFFFFF' },
-              { type: 'linkedin', url: 'https://linkedin.com', backgroundColor: '#0A66C2', iconColor: '#FFFFFF' }
-            ]
-          },
-          styles: { 
-            textAlign: 'center',
-            iconSize: '40px',
-            innerIconSize: 20
-          }
-        };
-      case 'countdown':
-        return {
-          id,
-          type, 
-          content: {
-            title: 'Limited Time Offer',
-            targetDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days from now
-            message: 'Don\'t miss out on this exclusive deal!'
-          },
-          styles: {
-            titleColor: '#333333',
-            blockBackgroundColor: '#f3f4f6',
-            digitColor: '#111827',
-            labelColor: '#6b7280',
-            messageColor: '#4b5563'
-          }
-        };
-      case 'product':
-        return {
-          id,
-          type,
-          content: {
-            name: 'Product Name',
-            description: 'Short product description goes here.',
-            price: '$29.99',
-            originalPrice: '$39.99',
-            image: '',
-            buttonText: 'Buy Now',
-            buttonUrl: '#'
-          },
-          styles: {
-            layout: 'horizontal',
-            titleFontSize: '16px',
-            titleColor: '#111827',
-            priceColor: '#111827',
-            buttonBackgroundColor: '#4F46E5',
-            buttonTextColor: '#FFFFFF',
-            buttonBorderRadius: 4,
-            rounded: true
-          }
-        };
-      case 'columns':
-        return {
-          id,
-          type,
-          content: {
-            columns: [
-              { width: 1 },
-              { width: 1 }
-            ],
-            emptyMessage: 'Drag elements here'
-          },
-          styles: {
-            columnAlignment: 'space-between',
-            columnPadding: '1rem'
-          }
-        };
-      case 'grid':
-        return {
-          id,
-          type,
-          content: {
-            rows: 2,
-            columns: 2,
-            emptyMessage: 'Cell content'
-          },
-          styles: {
-            gridGap: '1rem'
-          }
-        };
       default:
         return {
           id,
@@ -2413,13 +1487,7 @@ const EmailEditor: React.FC<{
   };
   
   // Handle element click to select it
-  const handleElementClick = (elementId: string, e?: React.MouseEvent) => {
-    // Stop event propagation to prevent section selection
-    if (e) {
-      e.stopPropagation();
-      e.preventDefault();
-    }
-    
+  const handleElementClick = (elementId: string) => {
     setSelectedElementId(elementId);
     
     // Find which section contains this element and select it too
@@ -2430,8 +1498,6 @@ const EmailEditor: React.FC<{
     if (sectionWithElement) {
       setSelectedSectionId(sectionWithElement.id);
     }
-    
-    console.log('Element selected:', elementId);
   };
   
   // Handle element drag start
@@ -2548,17 +1614,8 @@ const EmailEditor: React.FC<{
   
   // Handle section selection
   const handleSelectSection = (sectionId: string) => {
-    console.log('Section selected:', sectionId);
     setSelectedSectionId(sectionId);
     setSelectedElementId(null);
-    
-    // Log the current state after selection
-    setTimeout(() => {
-      console.log('Selected section ID:', selectedSectionId);
-      console.log('Selected element ID:', selectedElementId);
-      const selectedSection = sections.find(s => s.id === sectionId);
-      console.log('Selected section object:', selectedSection);
-    }, 50);
   };
   
   // Update element properties
@@ -2939,162 +1996,51 @@ const EmailEditor: React.FC<{
       {/* Editor Layout */}
       <div className="flex flex-1 overflow-hidden">
         {/* Left Sidebar - Elements */}
-        <div className="w-64 bg-gray-50 border-r border-gray-200 flex flex-col">
+        <div className="w-56 bg-gray-50 border-r border-gray-200 flex flex-col">
           <div className="p-4 border-b border-gray-200">
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="text-sm font-medium text-gray-700">Elements</h3>
-              <div className="flex space-x-1">
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-6 w-6 text-gray-500 hover:text-gray-800">
-                        <Search className="h-3.5 w-3.5" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Search Elements</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-6 w-6 text-gray-500 hover:text-gray-800">
-                        <LayoutGrid className="h-3.5 w-3.5" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>View All Elements</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </div>
-            </div>
-            
-            <Tabs defaultValue="basic" className="w-full mb-2">
-              <TabsList className="grid w-full grid-cols-4 h-8">
-                <TabsTrigger value="basic" className="text-xs">Basic</TabsTrigger>
-                <TabsTrigger value="media" className="text-xs">Media</TabsTrigger>
-                <TabsTrigger value="advanced" className="text-xs">Advanced</TabsTrigger>
-                <TabsTrigger value="layout" className="text-xs">Layout</TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="basic" className="mt-2">
-                <div className="grid grid-cols-2 gap-2">
-                  <ToolboxItem 
-                    type="header" 
-                    icon={<Type className="h-4 w-4" />} 
-                    label="Heading" 
-                    onDragStart={handleDragStart} 
-                  />
-                  <ToolboxItem 
-                    type="text" 
-                    icon={<AlignLeft className="h-4 w-4" />} 
-                    label="Text" 
-                    onDragStart={handleDragStart} 
-                  />
-                  <ToolboxItem 
-                    type="button" 
-                    icon={<Link className="h-4 w-4" />} 
-                    label="Button" 
-                    onDragStart={handleDragStart} 
-                  />
-                  <ToolboxItem 
-                    type="divider" 
-                    icon={<SeparatorHorizontal className="h-4 w-4" />} 
-                    label="Divider" 
-                    onDragStart={handleDragStart} 
-                  />
-                  <ToolboxItem 
-                    type="spacer" 
-                    icon={<Layout className="h-4 w-4" />} 
-                    label="Spacer" 
-                    onDragStart={handleDragStart} 
-                  />
-                </div>
-              </TabsContent>
-              
-              <TabsContent value="media" className="mt-2">
-                <div className="grid grid-cols-2 gap-2">
-                  <ToolboxItem 
-                    type="image" 
-                    icon={<Image className="h-4 w-4" />} 
-                    label="Image" 
-                    onDragStart={handleDragStart} 
-                  />
-                  <ToolboxItem 
-                    type="emoji" 
-                    icon={<Smile className="h-4 w-4" />} 
-                    label="Emoji" 
-                    onDragStart={handleDragStart} 
-                  />
-                  <ToolboxItem 
-                    type="gif" 
-                    icon={<Video className="h-4 w-4" />} 
-                    label="GIF" 
-                    onDragStart={handleDragStart} 
-                  />
-                  <ToolboxItem 
-                    type="video" 
-                    icon={<Play className="h-4 w-4" />} 
-                    label="Video" 
-                    onDragStart={handleDragStart} 
-                  />
-                </div>
-              </TabsContent>
-              
-              <TabsContent value="advanced" className="mt-2">
-                <div className="grid grid-cols-2 gap-2">
-                  <ToolboxItem 
-                    type="html" 
-                    icon={<Code className="h-4 w-4" />} 
-                    label="HTML" 
-                    onDragStart={handleDragStart} 
-                  />
-                  <ToolboxItem 
-                    type="social" 
-                    icon={<Share2 className="h-4 w-4" />} 
-                    label="Social" 
-                    onDragStart={handleDragStart} 
-                  />
-                  <ToolboxItem 
-                    type="countdown" 
-                    icon={<Timer className="h-4 w-4" />} 
-                    label="Countdown" 
-                    onDragStart={handleDragStart} 
-                  />
-                  <ToolboxItem 
-                    type="product" 
-                    icon={<ShoppingCart className="h-4 w-4" />} 
-                    label="Product" 
-                    onDragStart={handleDragStart} 
-                  />
-                </div>
-              </TabsContent>
-              
-              <TabsContent value="layout" className="mt-2">
-                <div className="grid grid-cols-2 gap-2">
-                  <ToolboxItem 
-                    type="columns" 
-                    icon={<Columns className="h-4 w-4" />} 
-                    label="Columns" 
-                    onDragStart={handleDragStart} 
-                  />
-                  <ToolboxItem 
-                    type="grid" 
-                    icon={<LayoutGrid className="h-4 w-4" />} 
-                    label="Grid" 
-                    onDragStart={handleDragStart} 
-                  />
-                </div>
-              </TabsContent>
-            </Tabs>
-            
-            <div className="mt-2">
-              <Input 
-                placeholder="Search elements..." 
-                className="h-8 text-xs"
-                prefix={<Search className="h-3.5 w-3.5 text-gray-500" />}
+            <h3 className="text-sm font-medium text-gray-700 mb-3">Elements</h3>
+            <div className="grid grid-cols-2 gap-2">
+              <ToolboxItem 
+                type="header" 
+                icon={<Type className="h-4 w-4" />} 
+                label="Heading" 
+                onDragStart={handleDragStart} 
+              />
+              <ToolboxItem 
+                type="text" 
+                icon={<AlignLeft className="h-4 w-4" />} 
+                label="Text" 
+                onDragStart={handleDragStart} 
+              />
+              <ToolboxItem 
+                type="image" 
+                icon={<Image className="h-4 w-4" />} 
+                label="Image" 
+                onDragStart={handleDragStart} 
+              />
+              <ToolboxItem 
+                type="button" 
+                icon={<Link className="h-4 w-4" />} 
+                label="Button" 
+                onDragStart={handleDragStart} 
+              />
+              <ToolboxItem 
+                type="divider" 
+                icon={<SeparatorHorizontal className="h-4 w-4" />} 
+                label="Divider" 
+                onDragStart={handleDragStart} 
+              />
+              <ToolboxItem 
+                type="spacer" 
+                icon={<Layout className="h-4 w-4" />} 
+                label="Spacer" 
+                onDragStart={handleDragStart} 
+              />
+              <ToolboxItem 
+                type="html" 
+                icon={<Code className="h-4 w-4" />} 
+                label="HTML" 
+                onDragStart={handleDragStart} 
               />
             </div>
           </div>
@@ -3189,14 +2135,16 @@ const EmailEditor: React.FC<{
         </div>
         
         {/* Right Sidebar - Properties */}
-        <PropertyEditor
-          selectedElement={selectedElement}
-          selectedSection={selectedSection}
-          updateElement={updateElement}
-          updateSection={updateSection}
-          deleteElement={deleteElement}
-          onTemplateStyling={() => setIsStylingDialogOpen(true)}
-        />
+        <div className="w-64 bg-white border-l border-gray-200 overflow-y-auto">
+          <PropertyEditor
+            selectedElement={selectedElement}
+            selectedSection={selectedSection}
+            updateElement={updateElement}
+            updateSection={updateSection}
+            deleteElement={deleteElement}
+            onTemplateStyling={() => setIsStylingDialogOpen(true)}
+          />
+        </div>
       </div>
       
       {/* Template Styling Dialog */}

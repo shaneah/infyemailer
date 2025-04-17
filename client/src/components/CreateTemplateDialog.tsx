@@ -122,7 +122,7 @@ export default function CreateTemplateDialog({
                       Select the easiest way to create your email template
                     </p>
                     
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div 
                         className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm hover:shadow-md hover:border-blue-300 transition-all cursor-pointer flex flex-col items-center text-center"
                         onClick={() => {
@@ -135,20 +135,6 @@ export default function CreateTemplateDialog({
                         </div>
                         <span className="font-medium text-gray-800 mb-1">AI Generator</span>
                         <p className="text-xs text-gray-600">Let AI create a professional template for you</p>
-                      </div>
-                      
-                      <div 
-                        className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm hover:shadow-md hover:border-blue-300 transition-all cursor-pointer flex flex-col items-center text-center"
-                        onClick={() => {
-                          onOpenChange(false);
-                          window.location.href = "/templates/advanced-builder";
-                        }}
-                      >
-                        <div className="bg-emerald-50 rounded-full p-3 mb-2">
-                          <Sparkles className="h-5 w-5 text-emerald-600" />
-                        </div>
-                        <span className="font-medium text-gray-800 mb-1">Advanced Builder</span>
-                        <p className="text-xs text-gray-600">Create with our powerful drag & drop editor</p>
                       </div>
                       
                       <div 

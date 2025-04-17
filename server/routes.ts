@@ -1,4 +1,4 @@
-import type { Express, Request, Response, NextFunction } from "express";
+import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { WebSocketServer, WebSocket } from 'ws';
 import { getStorage } from "./storageManager"; // Use dynamic storage selection
@@ -71,40 +71,6 @@ function validate<T>(schema: any, data: any): T | { error: string } {
 
 import { initRealTimeMetrics } from './services/realTimeMetricsService';
 
-// Authentication middleware
-const requireAuth = (req: Request, res: Response, next: NextFunction) => {
-  if (req.isAuthenticated()) {
-    return next();
-  }
-  return res.status(401).json({ message: "Authentication required" });
-};
-
-// Skip authentication for specific routes or in dev mode
-const skipAuthForTestMode = (req: Request, res: Response, next: NextFunction) => {
-  // Define routes that don't require authentication
-  const publicRoutes = [
-    '/api/templates',
-    '/api/templates/categories',
-    '/api/health',
-    '/api/env',
-    // Add other public routes here
-  ];
-  
-  // Check if route should be public
-  const isPublicRoute = publicRoutes.some(route => 
-    // Exact match or route with ID parameter
-    req.path === route || req.path.match(new RegExp(`^${route}/\\d+$`))
-  );
-  
-  // Development mode exemption or public route
-  if (process.env.NODE_ENV === 'development' || isPublicRoute) {
-    return next();
-  }
-  
-  // Apply standard authentication
-  return requireAuth(req, res, next);
-};
-
 export async function registerRoutes(app: Express): Promise<Server> {
   const httpServer = createServer(app);
   
@@ -113,43 +79,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Set up authentication
   setupAuth(app);
-  
-  // Configure public routes
-  const publicEndpoints = [
-    { method: 'GET', path: '/api/templates' },
-    { method: 'GET', path: '/api/templates/:id' },
-    { method: 'GET', path: '/api/health' },
-    { method: 'GET', path: '/api/env' },
-    { method: 'GET', path: '/preview-template' },
-    { method: 'GET', path: '/shared-template/:shareCode' }
-  ];
-  
-  // Apply middleware before routes
-  app.use((req, res, next) => {
-    // Check if this path should be public
-    const isPublicEndpoint = publicEndpoints.some(endpoint => {
-      const pathPattern = endpoint.path.replace(/:\w+/g, '[^/]+');
-      const regex = new RegExp(`^${pathPattern}$`);
-      return endpoint.method === req.method && regex.test(req.path);
-    });
-    
-    // Skip auth for public endpoints
-    if (isPublicEndpoint || process.env.NODE_ENV === 'development') {
-      return next();
-    }
-    
-    // Apply auth for protected endpoints
-    if (req.isAuthenticated()) {
-      return next();
-    }
-    
-    // Handle preflight requests
-    if (req.method === 'OPTIONS') {
-      return next();
-    }
-    
-    return res.status(401).json({ message: "Authentication required" });
-  });
   
   // Register email provider routes
   await registerEmailProviderRoutes(app);

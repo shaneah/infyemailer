@@ -19,9 +19,6 @@ import ABTesting from "@/pages/ABTesting";
 import EmailPerformance from "@/pages/EmailPerformance";
 import BasicTemplateBuilder from "@/pages/BasicTemplateBuilder";
 import DragAndDropTemplateBuilder from "@/pages/DragAndDropTemplateBuilder";
-import TemplateBuilder from "@/pages/TemplateBuilder";
-import AdvancedTemplateBuilder from "@/pages/AdvancedTemplateBuilder";
-import TemplateTest from "@/pages/TemplateTest";
 import Domains from "@/pages/Domains";
 
 import Clients from "@/pages/Clients";
@@ -199,8 +196,8 @@ function App() {
                 setCollapsed={setSidebarCollapsed}
               />
               
-              <div className="flex-1 flex flex-col overflow-hidden bg-slate-50 dark:bg-slate-900">
-                <main className="flex-1 overflow-y-auto p-4 md:p-6">
+              <div className="flex-1 flex flex-col overflow-hidden">
+                <main className="flex-1 overflow-y-auto p-4">
                   <Switch>
                     <ProtectedRoute path="/" component={Dashboard} />
                     <ProtectedRoute path="dashboard" component={Dashboard} />
@@ -211,34 +208,8 @@ function App() {
                     <ProtectedRoute path="ab-testing" component={ABTesting} />
                     <ProtectedRoute path="ab-testing/:id" component={ABTesting} />
                     <ProtectedRoute path="email-performance" component={EmailPerformance} />
-                    {/* Template builder gets full-width layout without default padding */}
-                    <Route path="template-builder">
-                      <div className="mx-auto max-w-[1800px] w-full">
-                        <TemplateBuilder />
-                      </div>
-                    </Route>
-                    <Route path="template-builder/:id">
-                      <div className="mx-auto max-w-[1800px] w-full">
-                        <TemplateBuilder />
-                      </div>
-                    </Route>
-                    {/* Route for creating new templates */}
-                    <Route path="templates/new">
-                      <div className="mx-auto max-w-[1800px] w-full">
-                        <TemplateBuilder />
-                      </div>
-                    </Route>
-                    {/* Advanced Template Builder routes - full screen, no padding, light background */}
-                    <Route path="templates/advanced-builder">
-                      <div className="absolute inset-0 w-full h-full bg-[#f8fafc] overflow-hidden">
-                        <AdvancedTemplateBuilder />
-                      </div>
-                    </Route>
-                    <Route path="templates/advanced-builder/:id">
-                      <div className="absolute inset-0 w-full h-full bg-[#f8fafc] overflow-hidden">
-                        <AdvancedTemplateBuilder />
-                      </div>
-                    </Route>
+                    <ProtectedRoute path="template-builder" component={BasicTemplateBuilder} />
+                    <ProtectedRoute path="template-builder/:id" component={BasicTemplateBuilder} />
                     <ProtectedRoute path="drag-drop-builder" component={DragAndDropTemplateBuilder} />
                     <ProtectedRoute path="drag-drop-builder/:id" component={DragAndDropTemplateBuilder} />
                     <ProtectedRoute path="domains" component={Domains} />
@@ -259,9 +230,6 @@ function App() {
                     <ProtectedRoute path="email-preview" component={EmailPreview} />
                     <ProtectedRoute path="email-preview/:id" component={EmailPreview} />
                     <ProtectedRoute path="email-performance-dashboard" component={EmailPerformanceDashboard} />
-                    
-                    {/* Test route - No authentication required */}
-                    <Route path="template-test" component={TemplateTest} />
 
                     <Route component={NotFound} />
                   </Switch>
