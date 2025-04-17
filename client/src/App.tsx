@@ -127,12 +127,7 @@ function App() {
             <Toaster />
           </div>
         </Route>
-        <Route path="client-reports">
-          <div className="bg-background min-h-screen">
-            <ClientRoutes />
-            <Toaster />
-          </div>
-        </Route>
+
         <Route path="client-domains">
           <div className="bg-background min-h-screen">
             <ClientRoutes />

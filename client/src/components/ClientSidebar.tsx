@@ -120,12 +120,6 @@ const ClientSidebar = ({ open, setOpen }: SidebarProps) => {
               active={location === '/client-dashboard'} 
             />
             <MenuItem 
-              href="/client-reports" 
-              icon={BarChart3} 
-              label="Reporting" 
-              active={location === '/client-reports'} 
-            />
-            <MenuItem 
               href="/client-email-performance" 
               icon={LineChart} 
               label="Email Performance" 
