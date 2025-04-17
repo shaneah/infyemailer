@@ -3071,6 +3071,23 @@ const EmailEditor: React.FC<{
                   />
                 </div>
               </TabsContent>
+              
+              <TabsContent value="layout" className="mt-2">
+                <div className="grid grid-cols-2 gap-2">
+                  <ToolboxItem 
+                    type="columns" 
+                    icon={<Columns className="h-4 w-4" />} 
+                    label="Columns" 
+                    onDragStart={handleDragStart} 
+                  />
+                  <ToolboxItem 
+                    type="grid" 
+                    icon={<LayoutGrid className="h-4 w-4" />} 
+                    label="Grid" 
+                    onDragStart={handleDragStart} 
+                  />
+                </div>
+              </TabsContent>
             </Tabs>
             
             <div className="mt-2">

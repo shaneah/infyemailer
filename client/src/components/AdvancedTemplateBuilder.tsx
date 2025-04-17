@@ -356,7 +356,7 @@ const AdvancedTemplateBuilder: React.FC<AdvancedTemplateBuilderProps> = ({
     if (!showLeftSidebar) return null;
     
     return (
-      <div className="w-64 bg-white border-r border-gray-200 overflow-y-auto flex flex-col h-full shadow-sm">
+      <div className="w-80 bg-white border-r border-gray-200 overflow-y-auto flex flex-col h-full shadow-sm">
         <div className="p-4 border-b border-gray-200">
           <h3 className="text-sm font-medium text-gray-800 mb-2">Template Details</h3>
           
@@ -648,7 +648,7 @@ const AdvancedTemplateBuilder: React.FC<AdvancedTemplateBuilderProps> = ({
     if (!showRightSidebar) return null;
     
     return (
-      <div className="w-64 bg-white border-l border-gray-200 overflow-y-auto shadow-sm">
+      <div className="w-80 bg-white border-l border-gray-200 overflow-y-auto shadow-sm">
         <div className="p-4">
           <h3 className="text-sm font-medium text-gray-800 mb-3">Properties</h3>
           <p className="text-xs text-gray-600 mb-4">
