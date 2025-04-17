@@ -56,91 +56,36 @@ const ClientPortal = () => {
 
   const { data: emailCredits, isLoading: creditsLoading } = useQuery({
     queryKey: ['/api/client/credits'],
-    queryFn: async () => {
-      // This is a mock response since we don't have this API endpoint yet
-      return {
-        total: 10000,
-        used: 4350,
-        remaining: 5650,
-        lastUpdated: new Date().toISOString(),
-      };
-    },
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
 
   const { data: templates, isLoading: templatesLoading } = useQuery({
     queryKey: ['/api/client/templates'],
-    queryFn: async () => {
-      // Mock data for templates
-      return [
-        { 
-          id: 1, 
-          name: 'Welcome Email', 
-          category: 'Onboarding',
-          lastUsed: '2025-03-28T10:30:00Z',
-          status: 'active'
-        },
-        { 
-          id: 2, 
-          name: 'Monthly Newsletter', 
-          category: 'Newsletter',
-          lastUsed: '2025-04-01T14:45:00Z',
-          status: 'active'
-        },
-        { 
-          id: 3, 
-          name: 'Product Announcement', 
-          category: 'Marketing',
-          lastUsed: '2025-03-15T09:20:00Z',
-          status: 'active'
-        },
-        { 
-          id: 4, 
-          name: 'Abandoned Cart', 
-          category: 'Transactional',
-          lastUsed: '2025-04-10T11:15:00Z',
-          status: 'active'
-        },
-      ];
-    },
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
 
   const { data: contacts, isLoading: contactsLoading } = useQuery({
-    queryKey: ['/api/client/contacts'],
-    queryFn: async () => {
-      // Mock data for contacts
-      return [
-        { 
-          id: 1, 
-          name: 'John Doe', 
-          email: 'john.doe@example.com',
-          status: 'active',
-          lastOpened: '2025-04-15T08:30:00Z',
-        },
-        { 
-          id: 2, 
-          name: 'Jane Smith', 
-          email: 'jane.smith@example.com',
-          status: 'active',
-          lastOpened: '2025-04-14T15:45:00Z',
-        },
-        { 
-          id: 3, 
-          name: 'Robert Johnson', 
-          email: 'robert.johnson@example.com',
-          status: 'unsubscribed',
-          lastOpened: '2025-03-28T11:20:00Z',
-        },
-        { 
-          id: 4, 
-          name: 'Emily Brown', 
-          email: 'emily.brown@example.com',
-          status: 'active',
-          lastOpened: '2025-04-16T09:15:00Z',
-        },
-      ];
-    },
+    queryKey: ['/api/contacts'],
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
+  
+  const { data: analyticsData, isLoading: analyticsLoading } = useQuery({
+    queryKey: ['/api/analytics/email'],
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
+
+  const { data: devicesData, isLoading: devicesLoading } = useQuery({
+    queryKey: ['/api/analytics/devices'],
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
+
+  const { data: geographyData, isLoading: geographyLoading } = useQuery({
+    queryKey: ['/api/analytics/geography'],
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
+
+  const { data: topCampaignsData, isLoading: topCampaignsLoading } = useQuery({
+    queryKey: ['/api/analytics/top-campaigns'],
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
 
