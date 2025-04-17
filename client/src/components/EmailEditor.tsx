@@ -2481,63 +2481,130 @@ const EmailEditor: React.FC<{
       {/* Editor Layout */}
       <div className="flex flex-1 overflow-hidden">
         {/* Left Sidebar - Elements */}
-        <div className="w-56 bg-gray-50 border-r border-gray-200 flex flex-col">
+        <div className="w-64 bg-gray-50 border-r border-gray-200 flex flex-col">
           <div className="p-4 border-b border-gray-200">
-            <h3 className="text-sm font-medium text-gray-700 mb-3">Elements</h3>
-            <div className="grid grid-cols-2 gap-2">
-              <ToolboxItem 
-                type="header" 
-                icon={<Type className="h-4 w-4" />} 
-                label="Heading" 
-                onDragStart={handleDragStart} 
-              />
-              <ToolboxItem 
-                type="text" 
-                icon={<AlignLeft className="h-4 w-4" />} 
-                label="Text" 
-                onDragStart={handleDragStart} 
-              />
-              <ToolboxItem 
-                type="image" 
-                icon={<Image className="h-4 w-4" />} 
-                label="Image" 
-                onDragStart={handleDragStart} 
-              />
-              <ToolboxItem 
-                type="button" 
-                icon={<Link className="h-4 w-4" />} 
-                label="Button" 
-                onDragStart={handleDragStart} 
-              />
-              <ToolboxItem 
-                type="divider" 
-                icon={<SeparatorHorizontal className="h-4 w-4" />} 
-                label="Divider" 
-                onDragStart={handleDragStart} 
-              />
-              <ToolboxItem 
-                type="spacer" 
-                icon={<Layout className="h-4 w-4" />} 
-                label="Spacer" 
-                onDragStart={handleDragStart} 
-              />
-              <ToolboxItem 
-                type="html" 
-                icon={<Code className="h-4 w-4" />} 
-                label="HTML" 
-                onDragStart={handleDragStart} 
-              />
-              <ToolboxItem 
-                type="emoji" 
-                icon={<Smile className="h-4 w-4" />} 
-                label="Emoji" 
-                onDragStart={handleDragStart} 
-              />
-              <ToolboxItem 
-                type="gif" 
-                icon={<Video className="h-4 w-4" />} 
-                label="GIF" 
-                onDragStart={handleDragStart} 
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-sm font-medium text-gray-700">Elements</h3>
+              <div className="flex space-x-1">
+                <Tooltip content="Search Elements">
+                  <Button variant="ghost" size="icon" className="h-6 w-6 text-gray-500 hover:text-gray-800">
+                    <Search className="h-3.5 w-3.5" />
+                  </Button>
+                </Tooltip>
+                <Tooltip content="View All Elements">
+                  <Button variant="ghost" size="icon" className="h-6 w-6 text-gray-500 hover:text-gray-800">
+                    <LayoutGrid className="h-3.5 w-3.5" />
+                  </Button>
+                </Tooltip>
+              </div>
+            </div>
+            
+            <Tabs defaultValue="basic" className="w-full mb-2">
+              <TabsList className="grid w-full grid-cols-3 h-8">
+                <TabsTrigger value="basic" className="text-xs">Basic</TabsTrigger>
+                <TabsTrigger value="media" className="text-xs">Media</TabsTrigger>
+                <TabsTrigger value="advanced" className="text-xs">Advanced</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="basic" className="mt-2">
+                <div className="grid grid-cols-2 gap-2">
+                  <ToolboxItem 
+                    type="header" 
+                    icon={<Type className="h-4 w-4" />} 
+                    label="Heading" 
+                    onDragStart={handleDragStart} 
+                  />
+                  <ToolboxItem 
+                    type="text" 
+                    icon={<AlignLeft className="h-4 w-4" />} 
+                    label="Text" 
+                    onDragStart={handleDragStart} 
+                  />
+                  <ToolboxItem 
+                    type="button" 
+                    icon={<Link className="h-4 w-4" />} 
+                    label="Button" 
+                    onDragStart={handleDragStart} 
+                  />
+                  <ToolboxItem 
+                    type="divider" 
+                    icon={<SeparatorHorizontal className="h-4 w-4" />} 
+                    label="Divider" 
+                    onDragStart={handleDragStart} 
+                  />
+                  <ToolboxItem 
+                    type="spacer" 
+                    icon={<Layout className="h-4 w-4" />} 
+                    label="Spacer" 
+                    onDragStart={handleDragStart} 
+                  />
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="media" className="mt-2">
+                <div className="grid grid-cols-2 gap-2">
+                  <ToolboxItem 
+                    type="image" 
+                    icon={<Image className="h-4 w-4" />} 
+                    label="Image" 
+                    onDragStart={handleDragStart} 
+                  />
+                  <ToolboxItem 
+                    type="emoji" 
+                    icon={<Smile className="h-4 w-4" />} 
+                    label="Emoji" 
+                    onDragStart={handleDragStart} 
+                  />
+                  <ToolboxItem 
+                    type="gif" 
+                    icon={<Video className="h-4 w-4" />} 
+                    label="GIF" 
+                    onDragStart={handleDragStart} 
+                  />
+                  <ToolboxItem 
+                    type="video" 
+                    icon={<Play className="h-4 w-4" />} 
+                    label="Video" 
+                    onDragStart={handleDragStart} 
+                  />
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="advanced" className="mt-2">
+                <div className="grid grid-cols-2 gap-2">
+                  <ToolboxItem 
+                    type="html" 
+                    icon={<Code className="h-4 w-4" />} 
+                    label="HTML" 
+                    onDragStart={handleDragStart} 
+                  />
+                  <ToolboxItem 
+                    type="social" 
+                    icon={<Share2 className="h-4 w-4" />} 
+                    label="Social" 
+                    onDragStart={handleDragStart} 
+                  />
+                  <ToolboxItem 
+                    type="countdown" 
+                    icon={<Timer className="h-4 w-4" />} 
+                    label="Countdown" 
+                    onDragStart={handleDragStart} 
+                  />
+                  <ToolboxItem 
+                    type="product" 
+                    icon={<ShoppingCart className="h-4 w-4" />} 
+                    label="Product" 
+                    onDragStart={handleDragStart} 
+                  />
+                </div>
+              </TabsContent>
+            </Tabs>
+            
+            <div className="mt-2">
+              <Input 
+                placeholder="Search elements..." 
+                className="h-8 text-xs"
+                prefix={<Search className="h-3.5 w-3.5 text-gray-500" />}
               />
             </div>
           </div>
