@@ -23,7 +23,8 @@ import {
   X,
   Plus,
   MoveVertical,
-  Trash2
+  Trash2,
+  ArrowRightLeft
 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
@@ -49,6 +50,7 @@ export default function TemplateBuilder() {
   const [htmlCode, setHtmlCode] = useState<string>("");
   const [activeTab, setActiveTab] = useState("design");
   const [isSaving, setIsSaving] = useState(false);
+  const [isHtmlCodeVisible, setIsHtmlCodeVisible] = useState(false);
   
   // State for blocks management
   const [selectedBlockIndex, setSelectedBlockIndex] = useState<number | null>(null);
