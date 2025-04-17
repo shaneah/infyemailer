@@ -323,28 +323,26 @@ const AdvancedTemplateBuilder: React.FC<AdvancedTemplateBuilderProps> = ({
             </TabsList>
           </Tabs>
           
-          <div className="flex items-center">
-            <div className="flex items-center border-l border-gray-200 pl-4">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setIsMobilePreview(!isMobilePreview)}
-                className={`text-gray-600 hover:text-gray-900 mr-1 ${isMobilePreview ? 'bg-gray-100' : ''}`}
-                title="Toggle Mobile Preview"
-              >
-                <Smartphone className="h-4 w-4" />
-              </Button>
-              
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowRightSidebar(!showRightSidebar)}
-                className="text-gray-600 hover:text-gray-900"
-                title="Toggle Properties Panel"
-              >
-                <PanelRightOpen className="h-4 w-4" />
-              </Button>
-            </div>
+          <div className="flex items-center border-l border-gray-200 pl-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsMobilePreview(!isMobilePreview)}
+              className={`text-gray-600 hover:text-gray-900 mr-1 ${isMobilePreview ? 'bg-gray-100' : ''}`}
+              title="Toggle Mobile Preview"
+            >
+              <Smartphone className="h-4 w-4" />
+            </Button>
+            
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowRightSidebar(!showRightSidebar)}
+              className="text-gray-600 hover:text-gray-900"
+              title="Toggle Properties Panel"
+            >
+              <PanelRightOpen className="h-4 w-4" />
+            </Button>
           </div>
         </div>
       </div>
