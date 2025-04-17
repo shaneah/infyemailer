@@ -15,7 +15,9 @@ import {
   Link, List, ListOrdered, Type, Grid, Layout, Columns, Rows, Save, 
   ArrowLeft, Loader2, SeparatorHorizontal, X, ArrowDown, Settings, Palette,
   Plus, Trash2, MoveVertical, Copy, Code, Eye, ArrowUp, GripVertical, Smile, Video,
-  AlertCircle, Upload, Search, LayoutGrid, Play, Share2, Timer, ShoppingCart
+  AlertCircle, Upload, Search, LayoutGrid, Play, Share2, Timer, ShoppingCart,
+  Calendar, Table, Map, Star, Facebook, Instagram, Twitter, Linkedin, Youtube,
+  CheckSquare, Contact, Table2, FileText, SquareStack, Boxes
 } from "lucide-react";
 import EmojiPicker, { Theme, EmojiClickData } from "emoji-picker-react";
 import { GiphyFetch } from "@giphy/js-fetch-api";
