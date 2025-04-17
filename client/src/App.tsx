@@ -42,6 +42,7 @@ import ClientPortal from "@/pages/ClientPortal";
 import SimpleClientLogin from "@/pages/SimpleClientLogin";
 import ClientDashboard from "@/pages/ClientDashboard";
 import CollaborationDemo from "@/pages/CollaborationDemo";
+import WebSocketDebugPage from "@/pages/WebSocketDebugPage";
 
 
 function App() {
@@ -154,6 +155,7 @@ function App() {
                     <ProtectedRoute path="email-performance-dashboard" component={EmailPerformanceDashboard} />
                     <ProtectedRoute path="client-portal" component={ClientPortal} />
                     <Route path="collaboration-demo" component={CollaborationDemo} />
+                    <Route path="websocket-debug" component={WebSocketDebugPage} />
 
                     <Route component={NotFound} />
                   </Switch>

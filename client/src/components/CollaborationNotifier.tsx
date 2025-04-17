@@ -63,7 +63,7 @@ export const CollaborationNotifier: React.FC<CollaborationNotifierProps> = ({
       
       // Initialize WebSocket connection
       const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-      const wsUrl = `${protocol}//${window.location.host}/ws`;
+      const wsUrl = `${protocol}//${window.location.host}/ws?type=collaboration&userId=${userId}&userName=${encodeURIComponent(userName)}&userRole=${encodeURIComponent(userRole || '')}&userAvatar=${encodeURIComponent(userAvatar || '')}`;
       
       const socket = new WebSocket(wsUrl);
       socketRef.current = socket;

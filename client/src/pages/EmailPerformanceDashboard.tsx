@@ -141,7 +141,7 @@ export default function EmailPerformanceDashboard() {
     
     // Create WebSocket connection
     const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-    const wsUrl = `${protocol}//${window.location.host}/metrics-ws`;
+    const wsUrl = `${protocol}//${window.location.host}/ws?type=metrics`;
     
     try {
       socket = new WebSocket(wsUrl);
