@@ -559,8 +559,21 @@ const ClientPortal = () => {
                     </div>
                     <div className="bg-amber-50 rounded-lg p-4 text-center">
                       <p className="text-sm text-gray-600 mb-1">Top Device</p>
-                      <p className="text-xl font-semibold text-amber-700">Mobile</p>
-                      <p className="text-xs text-gray-500 mt-1">68% of opens</p>
+                      {devicesLoading ? (
+                        <>
+                          <Skeleton className="h-6 w-24 mx-auto mb-1" />
+                          <Skeleton className="h-4 w-32 mx-auto" />
+                        </>
+                      ) : (
+                        <>
+                          <p className="text-xl font-semibold text-amber-700">
+                            {devicesData && devicesData.length > 0 ? devicesData[0].name : "Mobile"}
+                          </p>
+                          <p className="text-xs text-gray-500 mt-1">
+                            {devicesData && devicesData.length > 0 ? `${devicesData[0].percentage}% of opens` : "No data"}
+                          </p>
+                        </>
+                      )}
                     </div>
                   </div>
                   
@@ -601,80 +614,61 @@ const ClientPortal = () => {
               <CardDescription>Last 5 campaigns performance metrics</CardDescription>
             </CardHeader>
             <CardContent className="p-0">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Campaign</TableHead>
-                    <TableHead className="hidden sm:table-cell">Date</TableHead>
-                    <TableHead className="text-right">Sent</TableHead>
-                    <TableHead className="hidden sm:table-cell text-right">Opens</TableHead>
-                    <TableHead className="text-right">Clicks</TableHead>
-                    <TableHead className="hidden sm:table-cell text-right">Bounces</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  <TableRow>
-                    <TableCell className="font-medium">Monthly Newsletter</TableCell>
-                    <TableCell className="hidden sm:table-cell">Apr 15, 2025</TableCell>
-                    <TableCell className="text-right">12,483</TableCell>
-                    <TableCell className="hidden sm:table-cell text-right">
-                      <span className="text-green-600">46.2%</span>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <span className="text-green-600">21.8%</span>
-                    </TableCell>
-                    <TableCell className="hidden sm:table-cell text-right">1.2%</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell className="font-medium">Product Launch</TableCell>
-                    <TableCell className="hidden sm:table-cell">Apr 8, 2025</TableCell>
-                    <TableCell className="text-right">24,192</TableCell>
-                    <TableCell className="hidden sm:table-cell text-right">
-                      <span className="text-green-600">58.7%</span>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <span className="text-green-600">32.4%</span>
-                    </TableCell>
-                    <TableCell className="hidden sm:table-cell text-right">0.9%</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell className="font-medium">Spring Sale</TableCell>
-                    <TableCell className="hidden sm:table-cell">Mar 28, 2025</TableCell>
-                    <TableCell className="text-right">18,743</TableCell>
-                    <TableCell className="hidden sm:table-cell text-right">
-                      <span className="text-green-600">42.1%</span>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <span className="text-yellow-600">18.9%</span>
-                    </TableCell>
-                    <TableCell className="hidden sm:table-cell text-right">2.1%</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell className="font-medium">Customer Feedback</TableCell>
-                    <TableCell className="hidden sm:table-cell">Mar 15, 2025</TableCell>
-                    <TableCell className="text-right">10,547</TableCell>
-                    <TableCell className="hidden sm:table-cell text-right">
-                      <span className="text-yellow-600">38.4%</span>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <span className="text-yellow-600">16.2%</span>
-                    </TableCell>
-                    <TableCell className="hidden sm:table-cell text-right">1.7%</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell className="font-medium">Re-engagement</TableCell>
-                    <TableCell className="hidden sm:table-cell">Mar 5, 2025</TableCell>
-                    <TableCell className="text-right">7,825</TableCell>
-                    <TableCell className="hidden sm:table-cell text-right">
-                      <span className="text-yellow-600">31.2%</span>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <span className="text-red-600">12.8%</span>
-                    </TableCell>
-                    <TableCell className="hidden sm:table-cell text-right">2.5%</TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
+              {topCampaignsLoading ? (
+                <div className="p-4 space-y-4">
+                  {[...Array(5)].map((_, i) => (
+                    <div key={i} className="space-y-2">
+                      <Skeleton className="h-5 w-full" />
+                      <Skeleton className="h-4 w-full" />
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Campaign</TableHead>
+                      <TableHead className="hidden sm:table-cell">Date</TableHead>
+                      <TableHead className="text-right">Sent</TableHead>
+                      <TableHead className="hidden sm:table-cell text-right">Opens</TableHead>
+                      <TableHead className="text-right">Clicks</TableHead>
+                      <TableHead className="hidden sm:table-cell text-right">Conversions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {topCampaignsData && topCampaignsData.map((campaign: any) => (
+                      <TableRow key={campaign.id}>
+                        <TableCell className="font-medium">{campaign.name}</TableCell>
+                        <TableCell className="hidden sm:table-cell">{campaign.date || "Recent"}</TableCell>
+                        <TableCell className="text-right">{campaign.sent || "—"}</TableCell>
+                        <TableCell className="hidden sm:table-cell text-right">
+                          <span className={`${campaign.opens > 50 
+                            ? 'text-green-600' 
+                            : campaign.opens > 30 
+                              ? 'text-yellow-600' 
+                              : 'text-red-600'}`}
+                          >
+                            {campaign.opens}%
+                          </span>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <span className={`${campaign.clicks > 30 
+                            ? 'text-green-600' 
+                            : campaign.clicks > 15 
+                              ? 'text-yellow-600' 
+                              : 'text-red-600'}`}
+                          >
+                            {campaign.clicks}%
+                          </span>
+                        </TableCell>
+                        <TableCell className="hidden sm:table-cell text-right">
+                          {campaign.conversions}%
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
