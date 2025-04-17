@@ -213,21 +213,27 @@ const ClientPortal = () => {
                           )}
                         </TableCell>
                         <TableCell>
-                          <Badge
-                            className={`${
-                              campaign.status.color === 'success'
-                                ? 'bg-green-100 text-green-700'
-                                : campaign.status.color === 'warning'
-                                ? 'bg-amber-100 text-amber-700'
-                                : campaign.status.color === 'primary'
-                                ? 'bg-blue-100 text-blue-700'
-                                : campaign.status.color === 'danger'
-                                ? 'bg-red-100 text-red-700'
-                                : 'bg-gray-100 text-gray-700'
-                            }`}
-                          >
-                            {campaign.status.label}
-                          </Badge>
+                          {campaign.status && typeof campaign.status === 'object' ? (
+                            <Badge
+                              className={`${
+                                campaign.status.color === 'success'
+                                  ? 'bg-green-100 text-green-700'
+                                  : campaign.status.color === 'warning'
+                                  ? 'bg-amber-100 text-amber-700'
+                                  : campaign.status.color === 'primary'
+                                  ? 'bg-blue-100 text-blue-700'
+                                  : campaign.status.color === 'danger'
+                                  ? 'bg-red-100 text-red-700'
+                                  : 'bg-gray-100 text-gray-700'
+                              }`}
+                            >
+                              {campaign.status.label}
+                            </Badge>
+                          ) : (
+                            <Badge className="bg-gray-100 text-gray-700">
+                              {typeof campaign.status === 'string' ? campaign.status : 'Unknown'}
+                            </Badge>
+                          )}
                         </TableCell>
                         <TableCell className="hidden md:table-cell">
                           {campaign.recipients.toLocaleString()}
@@ -444,85 +450,96 @@ const ClientPortal = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  <div>
-                    <div className="flex justify-between mb-1 text-sm">
-                      <div className="flex items-center">
-                        <span>Open Rate</span>
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Info className="h-3.5 w-3.5 ml-1 text-gray-400" />
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p className="w-60">Percentage of recipients who opened your emails</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
+                  {analyticsLoading ? (
+                    <>
+                      <Skeleton className="h-12 w-full mb-4" />
+                      <Skeleton className="h-12 w-full mb-4" />
+                      <Skeleton className="h-12 w-full mb-4" />
+                      <Skeleton className="h-12 w-full" />
+                    </>
+                  ) : (
+                    <>
+                      <div>
+                        <div className="flex justify-between mb-1 text-sm">
+                          <div className="flex items-center">
+                            <span>Open Rate</span>
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Info className="h-3.5 w-3.5 ml-1 text-gray-400" />
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p className="w-60">Percentage of recipients who opened your emails</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          </div>
+                          <span className="font-semibold">{analyticsData?.overview?.openRate || 0}%</span>
+                        </div>
+                        <Progress value={analyticsData?.overview?.openRate || 0} className="h-2 bg-gray-200" />
                       </div>
-                      <span className="font-semibold">48.2%</span>
-                    </div>
-                    <Progress value={48.2} className="h-2 bg-gray-200" />
-                  </div>
-                  
-                  <div>
-                    <div className="flex justify-between mb-1 text-sm">
-                      <div className="flex items-center">
-                        <span>Click Rate</span>
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Info className="h-3.5 w-3.5 ml-1 text-gray-400" />
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p className="w-60">Percentage of recipients who clicked at least one link</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
+                      
+                      <div>
+                        <div className="flex justify-between mb-1 text-sm">
+                          <div className="flex items-center">
+                            <span>Click Rate</span>
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Info className="h-3.5 w-3.5 ml-1 text-gray-400" />
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p className="w-60">Percentage of recipients who clicked at least one link</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          </div>
+                          <span className="font-semibold">{analyticsData?.overview?.clickRate || 0}%</span>
+                        </div>
+                        <Progress value={analyticsData?.overview?.clickRate || 0} className="h-2 bg-gray-200" />
                       </div>
-                      <span className="font-semibold">22.7%</span>
-                    </div>
-                    <Progress value={22.7} className="h-2 bg-gray-200" />
-                  </div>
-                  
-                  <div>
-                    <div className="flex justify-between mb-1 text-sm">
-                      <div className="flex items-center">
-                        <span>Bounce Rate</span>
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Info className="h-3.5 w-3.5 ml-1 text-gray-400" />
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p className="w-60">Percentage of emails that couldn't be delivered</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
+                      
+                      <div>
+                        <div className="flex justify-between mb-1 text-sm">
+                          <div className="flex items-center">
+                            <span>Bounce Rate</span>
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Info className="h-3.5 w-3.5 ml-1 text-gray-400" />
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p className="w-60">Percentage of emails that couldn't be delivered</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          </div>
+                          <span className="font-semibold">{analyticsData?.overview?.bounceRate || 0}%</span>
+                        </div>
+                        <Progress value={analyticsData?.overview?.bounceRate || 0} className="h-2 bg-gray-200" />
                       </div>
-                      <span className="font-semibold">1.8%</span>
-                    </div>
-                    <Progress value={1.8} className="h-2 bg-gray-200" />
-                  </div>
-                  
-                  <div>
-                    <div className="flex justify-between mb-1 text-sm">
-                      <div className="flex items-center">
-                        <span>Unsubscribe Rate</span>
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Info className="h-3.5 w-3.5 ml-1 text-gray-400" />
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p className="w-60">Percentage of recipients who unsubscribed</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
+                      
+                      <div>
+                        <div className="flex justify-between mb-1 text-sm">
+                          <div className="flex items-center">
+                            <span>Unsubscribe Rate</span>
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Info className="h-3.5 w-3.5 ml-1 text-gray-400" />
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p className="w-60">Percentage of recipients who unsubscribed</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          </div>
+                          <span className="font-semibold">{analyticsData?.overview?.unsubscribeRate || 0}%</span>
+                        </div>
+                        <Progress value={analyticsData?.overview?.unsubscribeRate || 0} className="h-2 bg-gray-200" />
                       </div>
-                      <span className="font-semibold">0.4%</span>
-                    </div>
-                    <Progress value={0.4} className="h-2 bg-gray-200" />
-                  </div>
+                    </>
+                  )}
                 </div>
               </CardContent>
             </Card>
