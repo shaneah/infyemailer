@@ -578,29 +578,35 @@ const ClientPortal = () => {
                   </div>
                   
                   <div>
-                    <h4 className="text-sm font-medium mb-2">Most Clicked Links</h4>
+                    <h4 className="text-sm font-medium mb-2">Top Audience Locations</h4>
                     <div className="space-y-2.5">
-                      <div className="text-sm">
-                        <div className="flex justify-between mb-1">
-                          <span className="text-blue-600 truncate pr-4">Product Features</span>
-                          <span className="font-medium">24.5%</span>
-                        </div>
-                        <Progress value={24.5} className="h-1.5 bg-gray-200" />
-                      </div>
-                      <div className="text-sm">
-                        <div className="flex justify-between mb-1">
-                          <span className="text-blue-600 truncate pr-4">Special Offer</span>
-                          <span className="font-medium">18.2%</span>
-                        </div>
-                        <Progress value={18.2} className="h-1.5 bg-gray-200" />
-                      </div>
-                      <div className="text-sm">
-                        <div className="flex justify-between mb-1">
-                          <span className="text-blue-600 truncate pr-4">Contact Us</span>
-                          <span className="font-medium">12.7%</span>
-                        </div>
-                        <Progress value={12.7} className="h-1.5 bg-gray-200" />
-                      </div>
+                      {geographyLoading ? (
+                        <>
+                          <Skeleton className="h-4 w-full mb-2" />
+                          <Skeleton className="h-4 w-full mb-2" />
+                          <Skeleton className="h-4 w-full" />
+                        </>
+                      ) : (
+                        <>
+                          {geographyData && geographyData.length > 0 ? (
+                            geographyData.slice(0, 3).map((geo: any, index: number) => (
+                              <div key={index} className="text-sm">
+                                <div className="flex justify-between mb-1">
+                                  <span className="text-blue-600 truncate pr-4">
+                                    {geo.flag} {geo.name}
+                                  </span>
+                                  <span className="font-medium">{geo.percentage}%</span>
+                                </div>
+                                <Progress value={geo.percentage} className="h-1.5 bg-gray-200" />
+                              </div>
+                            ))
+                          ) : (
+                            <div className="text-sm text-gray-500 py-2 text-center">
+                              No location data available
+                            </div>
+                          )}
+                        </>
+                      )}
                     </div>
                   </div>
                 </div>
