@@ -174,7 +174,7 @@ function App() {
         </Route>
         <Route path="client-security">
           <div className="bg-background min-h-screen">
-            <ClientPlaceholderPage title="Security" />
+            <ClientRoutes />
             <Toaster />
           </div>
         </Route>
