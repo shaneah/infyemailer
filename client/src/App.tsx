@@ -199,8 +199,8 @@ function App() {
                 setCollapsed={setSidebarCollapsed}
               />
               
-              <div className="flex-1 flex flex-col overflow-hidden">
-                <main className="flex-1 overflow-y-auto p-4">
+              <div className="flex-1 flex flex-col overflow-hidden bg-slate-50 dark:bg-slate-900">
+                <main className="flex-1 overflow-y-auto p-4 md:p-6">
                   <Switch>
                     <ProtectedRoute path="/" component={Dashboard} />
                     <ProtectedRoute path="dashboard" component={Dashboard} />
@@ -213,21 +213,31 @@ function App() {
                     <ProtectedRoute path="email-performance" component={EmailPerformance} />
                     {/* Template builder gets full-width layout without default padding */}
                     <Route path="template-builder">
-                      <TemplateBuilder />
+                      <div className="mx-auto max-w-[1800px] w-full">
+                        <TemplateBuilder />
+                      </div>
                     </Route>
                     <Route path="template-builder/:id">
-                      <TemplateBuilder />
+                      <div className="mx-auto max-w-[1800px] w-full">
+                        <TemplateBuilder />
+                      </div>
                     </Route>
                     {/* Route for creating new templates */}
                     <Route path="templates/new">
-                      <TemplateBuilder />
+                      <div className="mx-auto max-w-[1800px] w-full">
+                        <TemplateBuilder />
+                      </div>
                     </Route>
                     {/* Advanced Template Builder routes */}
                     <Route path="templates/advanced-builder">
-                      <AdvancedTemplateBuilder />
+                      <div className="p-0 m-0 w-full h-full">
+                        <AdvancedTemplateBuilder />
+                      </div>
                     </Route>
                     <Route path="templates/advanced-builder/:id">
-                      <AdvancedTemplateBuilder />
+                      <div className="p-0 m-0 w-full h-full">
+                        <AdvancedTemplateBuilder />
+                      </div>
                     </Route>
                     <ProtectedRoute path="drag-drop-builder" component={DragAndDropTemplateBuilder} />
                     <ProtectedRoute path="drag-drop-builder/:id" component={DragAndDropTemplateBuilder} />
