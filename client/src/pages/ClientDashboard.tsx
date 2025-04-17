@@ -113,135 +113,160 @@ const ClientDashboard = () => {
   
   return (
     <div className="client-portal-container client-theme min-h-screen">
+      <div className="client-subtle-pattern"></div>
       <div className="container mx-auto px-4 py-6">
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-3xl font-bold">{clientUser.company || 'Client'} Dashboard</h1>
-            <p className="text-gray-500">Welcome back, {clientUser.name}</p>
-          </div>
-          
-          <div className="flex items-center gap-4">
-            <Button 
-              variant="outline" 
-              className="border-[#d4af37]/50 client-btn-outline"
-              onClick={handleLogout}
-            >
-              <LogOut className="mr-2 h-4 w-4" />
-              Logout
-            </Button>
+        <div className="premium-header mb-8">
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-3xl font-bold">{clientUser.company || 'Client'} Dashboard</h1>
+              <p className="text-white/70">Welcome back, {clientUser.name}</p>
+            </div>
+            
+            <div className="flex items-center gap-4">
+              <Button 
+                variant="outline" 
+                className="client-btn-outline border-white/30 text-white hover:bg-white/10"
+                onClick={handleLogout}
+              >
+                <LogOut className="mr-2 h-4 w-4" />
+                Logout
+              </Button>
+            </div>
           </div>
         </div>
       
         {/* Overview Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-8">
-          <Card className="border-[#d4af37]/20 client-card">
+          <Card className="client-card stat-card premium-card-highlight">
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Email Credits</p>
+                  <p className="stat-label">Email Credits</p>
                   {creditsLoading ? (
                     <Skeleton className="h-8 w-24 mt-1" />
                   ) : (
-                    <p className="text-2xl font-bold">{emailCredits?.remaining || 0}</p>
+                    <p className="stat-value">{emailCredits?.remaining || 0}</p>
                   )}
                 </div>
-                <div className="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center">
-                  <Inbox className="h-6 w-6 text-blue-600" />
+                <div className="icon-container">
+                  <Inbox className="h-6 w-6 text-[#3a86ff]" />
                 </div>
               </div>
-              <div className="mt-2">
+              <div className="mt-3">
                 <div className="flex justify-between text-xs mb-1">
-                  <span>Used: {emailCredits?.used || 0}</span>
-                  <span>Total: {emailCredits?.total || 0}</span>
+                  <span className="client-text-secondary">Used: {emailCredits?.used || 0}</span>
+                  <span className="client-text-secondary">Total: {emailCredits?.total || 0}</span>
                 </div>
-                <Progress value={emailCredits ? (emailCredits.used / emailCredits.total) * 100 : 0} className="h-1.5" />
+                <div className="client-progress-container">
+                  <div 
+                    className="client-progress-bar" 
+                    style={{ width: `${emailCredits ? (emailCredits.used / emailCredits.total) * 100 : 0}%` }}
+                  ></div>
+                </div>
               </div>
             </CardContent>
           </Card>
           
-          <Card className="border-[#d4af37]/20 client-card">
+          <Card className="client-card stat-card">
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Campaigns</p>
+                  <p className="stat-label">Campaigns</p>
                   {campaignsLoading ? (
                     <Skeleton className="h-8 w-16 mt-1" />
                   ) : (
-                    <p className="text-2xl font-bold">{campaigns?.length || 0}</p>
+                    <p className="stat-value">{campaigns?.length || 0}</p>
                   )}
                 </div>
-                <div className="h-12 w-12 rounded-full bg-amber-100 flex items-center justify-center">
-                  <BarChart3 className="h-6 w-6 text-amber-600" />
+                <div className="icon-container">
+                  <BarChart3 className="h-6 w-6 text-[#f59e0b]" />
                 </div>
               </div>
-              <div className="mt-2">
+              <div className="mt-3">
                 <div className="flex justify-between text-xs mb-1">
-                  <span>Active: {campaigns?.filter((c: any) => c.status === 'active').length || 0}</span>
-                  <span>Draft: {campaigns?.filter((c: any) => c.status === 'draft').length || 0}</span>
+                  <span className="client-text-secondary">Active: {campaigns?.filter((c: any) => c.status === 'active').length || 0}</span>
+                  <span className="client-text-secondary">Draft: {campaigns?.filter((c: any) => c.status === 'draft').length || 0}</span>
                 </div>
-                <div className="bg-gray-200 h-1.5 rounded-full overflow-hidden">
+                <div className="client-progress-container">
                   <div className="flex h-full">
-                    <div className="bg-green-500 h-full" style={{ width: `${campaigns ? (campaigns.filter((c: any) => c.status === 'active').length / campaigns.length) * 100 : 0}%` }}></div>
-                    <div className="bg-amber-500 h-full" style={{ width: `${campaigns ? (campaigns.filter((c: any) => c.status === 'draft').length / campaigns.length) * 100 : 0}%` }}></div>
+                    <div className="client-progress-success h-full" style={{ width: `${campaigns ? (campaigns.filter((c: any) => c.status === 'active').length / campaigns.length) * 100 : 0}%` }}></div>
+                    <div className="client-progress-warning h-full" style={{ width: `${campaigns ? (campaigns.filter((c: any) => c.status === 'draft').length / campaigns.length) * 100 : 0}%` }}></div>
                   </div>
                 </div>
               </div>
             </CardContent>
           </Card>
           
-          <Card className="border-[#d4af37]/20 client-card">
+          <Card className="client-card stat-card">
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Contacts</p>
+                  <p className="stat-label">Contacts</p>
                   {contactsLoading ? (
                     <Skeleton className="h-8 w-16 mt-1" />
                   ) : (
-                    <p className="text-2xl font-bold">{contacts?.length || 0}</p>
+                    <p className="stat-value">{contacts?.length || 0}</p>
                   )}
                 </div>
-                <div className="h-12 w-12 rounded-full bg-green-100 flex items-center justify-center">
-                  <Users className="h-6 w-6 text-green-600" />
+                <div className="icon-container">
+                  <Users className="h-6 w-6 text-[#10b981]" />
                 </div>
               </div>
-              <div className="mt-2">
+              <div className="mt-3">
                 <div className="flex justify-between text-xs mb-1">
-                  <span>Active: {contacts?.filter((c: any) => c.status === 'active').length || 0}</span>
-                  <span>Growth: +{contacts?.filter((c: any) => {
+                  <span className="client-text-secondary">Active: {contacts?.filter((c: any) => c.status === 'active').length || 0}</span>
+                  <span className="client-text-secondary">Growth: +{contacts?.filter((c: any) => {
                     const createdAt = new Date(c.createdAt);
                     const now = new Date();
                     return (now.getTime() - createdAt.getTime()) / (1000 * 3600 * 24) < 30; // Last 30 days
                   }).length || 0} this month</span>
                 </div>
-                <Progress value={contacts ? (contacts.filter((c: any) => c.status === 'active').length / contacts.length) * 100 : 0} className="h-1.5" />
+                <div className="client-progress-container">
+                  <div 
+                    className="client-progress-success" 
+                    style={{ width: `${contacts ? (contacts.filter((c: any) => c.status === 'active').length / contacts.length) * 100 : 0}%` }}
+                  ></div>
+                </div>
               </div>
             </CardContent>
           </Card>
           
-          <Card className="border-[#d4af37]/20 client-card">
+          <Card className="client-card stat-card">
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Templates</p>
+                  <p className="stat-label">Templates</p>
                   {templatesLoading ? (
                     <Skeleton className="h-8 w-16 mt-1" />
                   ) : (
-                    <p className="text-2xl font-bold">{templates?.length || 0}</p>
+                    <p className="stat-value">{templates?.length || 0}</p>
                   )}
                 </div>
-                <div className="h-12 w-12 rounded-full bg-purple-100 flex items-center justify-center">
-                  <Settings2 className="h-6 w-6 text-purple-600" />
+                <div className="icon-container">
+                  <Settings2 className="h-6 w-6 text-[#8b5cf6]" />
                 </div>
               </div>
-              <div className="mt-2">
+              <div className="mt-3">
                 <div className="flex justify-between text-xs mb-1">
-                  <span>Custom: {templates?.filter((t: any) => t.isCustom).length || 0}</span>
-                  <span>Standard: {templates?.filter((t: any) => !t.isCustom).length || 0}</span>
+                  <span className="client-text-secondary">Custom: {templates?.filter((t: any) => t.isCustom).length || 0}</span>
+                  <span className="client-text-secondary">Standard: {templates?.filter((t: any) => !t.isCustom).length || 0}</span>
                 </div>
-                <div className="bg-gray-200 h-1.5 rounded-full overflow-hidden">
+                <div className="client-progress-container">
                   <div className="flex h-full">
-                    <div className="bg-purple-500 h-full" style={{ width: `${templates ? (templates.filter((t: any) => t.isCustom).length / templates.length) * 100 : 0}%` }}></div>
-                    <div className="bg-blue-500 h-full" style={{ width: `${templates ? (templates.filter((t: any) => !t.isCustom).length / templates.length) * 100 : 0}%` }}></div>
+                    <div 
+                      className="h-full" 
+                      style={{ 
+                        width: `${templates ? (templates.filter((t: any) => t.isCustom).length / templates.length) * 100 : 0}%`,
+                        background: 'linear-gradient(90deg, #8b5cf6 0%, #a78bfa 100%)'
+                      }}
+                    ></div>
+                    <div 
+                      className="h-full" 
+                      style={{ 
+                        width: `${templates ? (templates.filter((t: any) => !t.isCustom).length / templates.length) * 100 : 0}%`,
+                        background: 'linear-gradient(90deg, #3b82f6 0%, #60a5fa 100%)'
+                      }}
+                    ></div>
                   </div>
                 </div>
               </div>
@@ -249,7 +274,7 @@ const ClientDashboard = () => {
           </Card>
         </div>
         
-        <div className="flex justify-center mb-8">
+        <div className="mb-8">
           <Tabs
             defaultValue="overview"
             className="w-full"
@@ -257,13 +282,13 @@ const ClientDashboard = () => {
             onValueChange={setActiveTab}
           >
             <div className="flex justify-center mb-6">
-              <TabsList className="bg-[#f8f9fa] dark:bg-[#1e293b] border border-gray-200 dark:border-gray-700">
-                <TabsTrigger value="overview" className="data-[state=active]:bg-white dark:data-[state=active]:bg-[#0f172a]">Overview</TabsTrigger>
-                <TabsTrigger value="campaigns" className="data-[state=active]:bg-white dark:data-[state=active]:bg-[#0f172a]">Campaigns</TabsTrigger>
-                <TabsTrigger value="contacts" className="data-[state=active]:bg-white dark:data-[state=active]:bg-[#0f172a]">Contacts</TabsTrigger>
-                <TabsTrigger value="templates" className="data-[state=active]:bg-white dark:data-[state=active]:bg-[#0f172a]">Templates</TabsTrigger>
-                <TabsTrigger value="analytics" className="data-[state=active]:bg-white dark:data-[state=active]:bg-[#0f172a]">Analytics</TabsTrigger>
-                <TabsTrigger value="settings" className="data-[state=active]:bg-white dark:data-[state=active]:bg-[#0f172a]">Settings</TabsTrigger>
+              <TabsList className="client-tabs-list shadow-sm">
+                <TabsTrigger value="overview" className="client-tab">Overview</TabsTrigger>
+                <TabsTrigger value="campaigns" className="client-tab">Campaigns</TabsTrigger>
+                <TabsTrigger value="contacts" className="client-tab">Contacts</TabsTrigger>
+                <TabsTrigger value="templates" className="client-tab">Templates</TabsTrigger>
+                <TabsTrigger value="analytics" className="client-tab">Analytics</TabsTrigger>
+                <TabsTrigger value="settings" className="client-tab">Settings</TabsTrigger>
               </TabsList>
             </div>
             
@@ -272,13 +297,13 @@ const ClientDashboard = () => {
               <p className="mb-6 text-gray-600">This is your client portal dashboard where you can manage your email marketing campaigns, contacts, and templates. Use the tabs above to navigate between different sections.</p>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                <Card className="border-[#d4af37]/20 client-card">
+                <Card className="client-card">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-lg">Recent Performance</CardTitle>
                     <CardDescription>Your latest campaign statistics</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="space-y-4">
+                    <div className="space-y-5">
                       {analyticsLoading ? (
                         <>
                           <Skeleton className="h-12 w-full mb-4" />
@@ -289,44 +314,79 @@ const ClientDashboard = () => {
                       ) : (
                         <>
                           <div>
-                            <div className="flex justify-between mb-1 text-sm">
+                            <div className="flex justify-between mb-2 text-sm">
                               <div className="flex items-center">
-                                <span>Open Rate</span>
+                                <span className="font-medium">Open Rate</span>
                                 <Info className="h-3.5 w-3.5 ml-1 text-gray-400" />
                               </div>
-                              <span className="font-semibold">{analyticsData?.overview?.openRate || 0}%</span>
+                              <span className="font-bold text-[#3a86ff]">{analyticsData?.overview?.openRate || 0}%</span>
                             </div>
-                            <Progress value={analyticsData?.overview?.openRate || 0} className="h-2 bg-gray-200" />
+                            <div className="client-progress-container">
+                              <div 
+                                className="h-full" 
+                                style={{ 
+                                  width: `${analyticsData?.overview?.openRate || 0}%`,
+                                  background: 'linear-gradient(90deg, #3a86ff 0%, #60a5fa 100%)'
+                                }}
+                              ></div>
+                            </div>
+                            <p className="text-xs text-gray-500 mt-1">
+                              {(analyticsData?.overview?.openRate || 0) > 25 ? '✓ Good' : '⚠ Needs improvement'} compared to industry average (25%)
+                            </p>
                           </div>
                           <div>
-                            <div className="flex justify-between mb-1 text-sm">
+                            <div className="flex justify-between mb-2 text-sm">
                               <div className="flex items-center">
-                                <span>Click Rate</span>
+                                <span className="font-medium">Click Rate</span>
                                 <Info className="h-3.5 w-3.5 ml-1 text-gray-400" />
                               </div>
-                              <span className="font-semibold">{analyticsData?.overview?.clickRate || 0}%</span>
+                              <span className="font-bold text-[#10b981]">{analyticsData?.overview?.clickRate || 0}%</span>
                             </div>
-                            <Progress value={analyticsData?.overview?.clickRate || 0} className="h-2 bg-gray-200" />
+                            <div className="client-progress-container">
+                              <div 
+                                className="client-progress-success" 
+                                style={{ width: `${analyticsData?.overview?.clickRate || 0}%` }}
+                              ></div>
+                            </div>
+                            <p className="text-xs text-gray-500 mt-1">
+                              {(analyticsData?.overview?.clickRate || 0) > 3 ? '✓ Good' : '⚠ Needs improvement'} compared to industry average (3%)
+                            </p>
                           </div>
                           <div>
-                            <div className="flex justify-between mb-1 text-sm">
+                            <div className="flex justify-between mb-2 text-sm">
                               <div className="flex items-center">
-                                <span>Bounce Rate</span>
+                                <span className="font-medium">Bounce Rate</span>
                                 <Info className="h-3.5 w-3.5 ml-1 text-gray-400" />
                               </div>
-                              <span className="font-semibold">{analyticsData?.overview?.bounceRate || 0}%</span>
+                              <span className="font-bold text-[#ef4444]">{analyticsData?.overview?.bounceRate || 0}%</span>
                             </div>
-                            <Progress value={analyticsData?.overview?.bounceRate || 0} className="h-2 bg-gray-200" />
+                            <div className="client-progress-container">
+                              <div 
+                                className="client-progress-danger" 
+                                style={{ width: `${analyticsData?.overview?.bounceRate || 0}%` }}
+                              ></div>
+                            </div>
+                            <p className="text-xs text-gray-500 mt-1">
+                              {(analyticsData?.overview?.bounceRate || 0) < 2 ? '✓ Good' : '⚠ Needs improvement'} compared to industry average (2%)
+                            </p>
                           </div>
                           <div>
-                            <div className="flex justify-between mb-1 text-sm">
+                            <div className="flex justify-between mb-2 text-sm">
                               <div className="flex items-center">
-                                <span>Unsubscribe Rate</span>
+                                <span className="font-medium">Unsubscribe Rate</span>
                                 <Info className="h-3.5 w-3.5 ml-1 text-gray-400" />
                               </div>
-                              <span className="font-semibold">{analyticsData?.overview?.unsubscribeRate || 0}%</span>
+                              <span className="font-bold text-[#f59e0b]">{analyticsData?.overview?.unsubscribeRate || 0}%</span>
                             </div>
-                            <Progress value={analyticsData?.overview?.unsubscribeRate || 0} className="h-2 bg-gray-200" />
+                            <div className="client-progress-container">
+                              <div 
+                                className="client-progress-warning"
+                                style={{ width: `${analyticsData?.overview?.unsubscribeRate || 0}%` }}
+                              ></div>
+                            </div>
+                            <p className="text-xs text-gray-500 mt-1">
+                              {(analyticsData?.overview?.unsubscribeRate || 0) < 0.5 ? '✓ Good' : '⚠ Needs improvement'} compared to industry average (0.5%)
+                            </p>
                           </div>
                         </>
                       )}
@@ -334,26 +394,38 @@ const ClientDashboard = () => {
                   </CardContent>
                 </Card>
                 
-                <Card className="border-[#d4af37]/20 client-card">
+                <Card className="client-card">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-lg">Quick Actions</CardTitle>
                     <CardDescription>Get started with these common tasks</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
-                      <Button className="w-full justify-start bg-blue-600 hover:bg-blue-700">
+                      <Button className="w-full justify-start client-btn-primary">
                         <BarChart3 className="mr-2 h-4 w-4" />
                         Create New Campaign
                       </Button>
-                      <Button className="w-full justify-start bg-green-600 hover:bg-green-700">
+                      <Button className="w-full justify-start" 
+                        style={{ 
+                          background: 'linear-gradient(to right, #10b981, #059669)',
+                          color: 'white' 
+                        }}>
                         <Users className="mr-2 h-4 w-4" />
                         Add New Contacts
                       </Button>
-                      <Button className="w-full justify-start bg-purple-600 hover:bg-purple-700">
+                      <Button className="w-full justify-start" 
+                        style={{ 
+                          background: 'linear-gradient(to right, #8b5cf6, #7c3aed)',
+                          color: 'white' 
+                        }}>
                         <Settings2 className="mr-2 h-4 w-4" />
                         Design New Template
                       </Button>
-                      <Button className="w-full justify-start bg-amber-600 hover:bg-amber-700">
+                      <Button className="w-full justify-start" 
+                        style={{ 
+                          background: 'linear-gradient(to right, #f59e0b, #d97706)',
+                          color: 'white' 
+                        }}>
                         <Inbox className="mr-2 h-4 w-4" />
                         View Reports
                       </Button>
@@ -362,14 +434,14 @@ const ClientDashboard = () => {
                 </Card>
               </div>
               
-              <Card className="border-[#d4af37]/20 client-card">
+              <Card className="client-card">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-lg">Campaign Activity</CardTitle>
                   <CardDescription>Your recent campaign performance</CardDescription>
                 </CardHeader>
                 <CardContent className="p-0">
                   {topCampaignsLoading ? (
-                    <div className="p-4 space-y-4">
+                    <div className="p-6 space-y-4">
                       {[...Array(5)].map((_, i) => (
                         <div key={i} className="space-y-2">
                           <Skeleton className="h-5 w-full" />
@@ -378,55 +450,66 @@ const ClientDashboard = () => {
                       ))}
                     </div>
                   ) : (
-                    <table className="w-full">
-                      <thead>
-                        <tr className="border-b">
-                          <th className="text-left py-3 px-4 font-medium">Campaign</th>
-                          <th className="text-left py-3 px-4 font-medium hidden sm:table-cell">Date</th>
-                          <th className="text-right py-3 px-4 font-medium">Status</th>
-                          <th className="text-right py-3 px-4 font-medium">Opens</th>
-                          <th className="text-right py-3 px-4 font-medium">Clicks</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {topCampaignsData && topCampaignsData.slice(0, 5).map((campaign: any, index: number) => (
-                          <tr key={index} className="border-b hover:bg-gray-50">
-                            <td className="py-3 px-4 font-medium">{campaign.name}</td>
-                            <td className="py-3 px-4 hidden sm:table-cell">{campaign.date || "Recent"}</td>
-                            <td className="py-3 px-4 text-right">
-                              <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                                campaign.status === 'active' ? 'bg-green-100 text-green-800' : 
-                                campaign.status === 'draft' ? 'bg-yellow-100 text-yellow-800' : 
-                                campaign.status === 'completed' ? 'bg-blue-100 text-blue-800' : 
-                                'bg-gray-100 text-gray-800'
-                              }`}>
-                                {campaign.status && typeof campaign.status === 'object' ? campaign.status.label : campaign.status || 'Unknown'}
-                              </span>
-                            </td>
-                            <td className="py-3 px-4 text-right">
-                              <span className={`${campaign.opens > 50 
-                                ? 'text-green-600' 
-                                : campaign.opens > 30 
-                                  ? 'text-yellow-600' 
-                                  : 'text-red-600'}`}
-                              >
-                                {campaign.opens}%
-                              </span>
-                            </td>
-                            <td className="py-3 px-4 text-right">
-                              <span className={`${campaign.clicks > 30 
-                                ? 'text-green-600' 
-                                : campaign.clicks > 15 
-                                  ? 'text-yellow-600' 
-                                  : 'text-red-600'}`}
-                              >
-                                {campaign.clicks}%
-                              </span>
-                            </td>
+                    <div className="overflow-x-auto">
+                      <table className="w-full">
+                        <thead>
+                          <tr className="border-b border-gray-200">
+                            <th className="text-left py-3 px-6 font-semibold text-gray-600">Campaign</th>
+                            <th className="text-left py-3 px-6 font-semibold text-gray-600 hidden sm:table-cell">Date</th>
+                            <th className="text-center py-3 px-6 font-semibold text-gray-600">Status</th>
+                            <th className="text-right py-3 px-6 font-semibold text-gray-600">Opens</th>
+                            <th className="text-right py-3 px-6 font-semibold text-gray-600">Clicks</th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                        </thead>
+                        <tbody>
+                          {topCampaignsData && topCampaignsData.slice(0, 5).map((campaign: any, index: number) => (
+                            <tr key={index} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                              <td className="py-4 px-6 font-medium">{campaign.name}</td>
+                              <td className="py-4 px-6 text-gray-500 hidden sm:table-cell">{campaign.date || "Recent"}</td>
+                              <td className="py-4 px-6 text-center">
+                                <span className={`client-badge ${
+                                  (campaign.status === 'active' || (campaign.status && campaign.status.label === 'Active') || (campaign.status && campaign.status.label === 'Sent')) ? 'client-badge-success' : 
+                                  (campaign.status === 'draft' || (campaign.status && campaign.status.label === 'Draft') || (campaign.status && campaign.status.label === 'Scheduled')) ? 'client-badge-warning' : 
+                                  (campaign.status === 'completed' || (campaign.status && campaign.status.label === 'Completed')) ? 'client-badge-info' : 
+                                  'bg-gray-100 text-gray-800'
+                                }`}>
+                                  {campaign.status && typeof campaign.status === 'object' ? campaign.status.label : campaign.status || 'Unknown'}
+                                </span>
+                              </td>
+                              <td className="py-4 px-6 text-right font-medium">
+                                <span className={`${campaign.opens > 50 
+                                  ? 'text-[#10b981]' 
+                                  : campaign.opens > 30 
+                                    ? 'text-[#f59e0b]' 
+                                    : 'text-[#ef4444]'}`}
+                                >
+                                  {campaign.opens}%
+                                </span>
+                              </td>
+                              <td className="py-4 px-6 text-right font-medium">
+                                <span className={`${campaign.clicks > 30 
+                                  ? 'text-[#10b981]' 
+                                  : campaign.clicks > 15 
+                                    ? 'text-[#f59e0b]' 
+                                    : 'text-[#ef4444]'}`}
+                                >
+                                  {campaign.clicks}%
+                                </span>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                      
+                      <div className="p-4 flex justify-center">
+                        <Button 
+                          variant="outline"
+                          className="client-btn-outline"
+                        >
+                          View All Campaigns
+                        </Button>
+                      </div>
+                    </div>
                   )}
                 </CardContent>
               </Card>
