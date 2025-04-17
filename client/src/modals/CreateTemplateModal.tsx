@@ -97,16 +97,17 @@ export default function CreateTemplateModal({ open, onOpenChange }: CreateTempla
             <p className="text-gray-600 mb-6 max-w-md mx-auto">
               Create professional email templates with our intuitive drag-and-drop visual editor - no coding required.
             </p>
-            <Link
-              href="client-template-builder"
+            <button
               className="inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white font-medium rounded-md shadow-md border border-amber-300 transition-all duration-200 hover:scale-105"
               onClick={() => {
                 onOpenChange(false);
+                // Use direct window location change as fallback
+                window.location.href = '/client-template-builder';
               }}
             >
               <FileText className="h-5 w-5 mr-2 inline-block" />
               Open Visual Builder
-            </Link>
+            </button>
           </div>
         </div>
       </DialogContent>
