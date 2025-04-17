@@ -1,0 +1,124 @@
+/* Client Portal Custom Theme */
+
+/* Override background colors */
+.client-theme {
+  --primary-color: #1e5fb3;     /* Deeper blue as primary color */
+  --primary-hover: #174a8c;     /* Darker blue for hover states */
+  --accent-color: #d4af37;      /* Gold accent */
+  --accent-light: #f3e9c0;      /* Light gold for subtle highlights */
+  --bg-gradient-start: #f8fbff; /* Light blue gradient start */
+  --bg-gradient-end: #ffffff;   /* White gradient end */
+  --card-border: #e0e9f5;       /* Light blue border */
+  --card-shadow: rgba(30, 95, 179, 0.08); /* Blue-tinted shadow */
+}
+
+/* Apply custom background to main content */
+.client-portal-container {
+  background: linear-gradient(135deg, var(--bg-gradient-start), var(--bg-gradient-end));
+  min-height: 100vh;
+}
+
+/* Custom card styling */
+.client-card {
+  border-color: var(--card-border);
+  box-shadow: 0 4px 12px var(--card-shadow);
+  transition: all 0.2s ease-in-out;
+}
+
+.client-card:hover {
+  box-shadow: 0 8px 24px var(--card-shadow);
+  transform: translateY(-2px);
+}
+
+.client-card-header {
+  background: linear-gradient(to right, rgba(30, 95, 179, 0.05), transparent);
+  border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+}
+
+/* Custom button styling */
+.client-btn-primary {
+  background-color: var(--primary-color);
+}
+
+.client-btn-primary:hover {
+  background-color: var(--primary-hover);
+}
+
+.client-btn-outline {
+  border-color: var(--accent-color);
+  color: var(--primary-color);
+}
+
+.client-btn-outline:hover {
+  background-color: rgba(212, 175, 55, 0.1);
+}
+
+/* Tab styling */
+.client-tabs .tabs-trigger[data-state="active"] {
+  background-color: var(--primary-color);
+  color: white;
+  border-bottom: 2px solid var(--accent-color);
+}
+
+/* Progress bar styling */
+.client-progress-bar {
+  background-color: #e9ecef;
+  height: 0.5rem;
+  border-radius: 1rem;
+  overflow: hidden;
+}
+
+.client-progress-value {
+  background: linear-gradient(to right, var(--primary-color), var(--accent-color));
+}
+
+/* Badge styling */
+.client-badge-success {
+  background-color: #e6f4ea;
+  color: #0f8c3c;
+}
+
+.client-badge-warning {
+  background-color: #fef8e6;
+  color: #b07800;
+}
+
+.client-badge-info {
+  background-color: #e8f0fe;
+  color: var(--primary-color);
+}
+
+/* Dashboard stat cards */
+.client-stat-card {
+  border-left: 4px solid var(--primary-color);
+  background: white;
+}
+
+.client-stat-card-alt {
+  border-left: 4px solid var(--accent-color);
+  background: white;
+}
+
+/* Table styling */
+.client-table thead tr {
+  background-color: rgba(30, 95, 179, 0.05);
+}
+
+.client-table tbody tr:hover {
+  background-color: rgba(212, 175, 55, 0.05);
+}
+
+/* Analytics section styling */
+.client-analytics-container {
+  background-color: white;
+  border-radius: 0.5rem;
+  border: 1px solid var(--card-border);
+  padding: 1.5rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .client-card {
+    margin-bottom: 1rem;
+  }
+}

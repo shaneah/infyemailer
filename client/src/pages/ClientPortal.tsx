@@ -44,6 +44,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Progress } from '@/components/ui/progress';
+import './client-portal.css'; // We'll create this CSS file
 
 const ClientPortal = () => {
   const [activeTab, setActiveTab] = useState('campaigns');
@@ -99,17 +100,18 @@ const ClientPortal = () => {
   };
 
   return (
-    <div className="container mx-auto p-6 max-w-7xl">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-800 mb-2">Client Portal</h1>
-        <p className="text-gray-600">
-          Manage your email campaigns, templates, contacts, and account settings
-        </p>
-      </div>
+    <div className="client-portal-container client-theme">
+      <div className="container mx-auto p-6 max-w-7xl">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-800 mb-2">Client Portal</h1>
+          <p className="text-gray-600">
+            Manage your email campaigns, templates, contacts, and account settings
+          </p>
+        </div>
 
       {/* Email Credits Card */}
-      <Card className="mb-8 border-[#d4af37]/20 shadow-md">
-        <CardHeader className="bg-gradient-to-r from-blue-600/10 to-transparent pb-2">
+      <Card className="mb-8 border-[#d4af37]/20 shadow-md client-card">
+        <CardHeader className="client-card-header pb-2">
           <CardTitle className="text-xl flex items-center">
             <Zap className="mr-2 h-5 w-5 text-[#d4af37]" />
             Email Credits
@@ -908,6 +910,7 @@ www.infinitytech.example.com
           </div>
         </TabsContent>
       </Tabs>
+      </div>
     </div>
   );
 };
