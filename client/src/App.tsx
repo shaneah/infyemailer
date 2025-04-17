@@ -180,7 +180,7 @@ function App() {
         </Route>
         <Route path="client-billing">
           <div className="bg-background min-h-screen">
-            <ClientPlaceholderPage title="Billing & Credits" />
+            <ClientRoutes />
             <Toaster />
           </div>
         </Route>
