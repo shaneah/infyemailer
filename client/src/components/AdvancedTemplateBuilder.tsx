@@ -187,18 +187,6 @@ const AdvancedTemplateBuilder: React.FC<AdvancedTemplateBuilderProps> = ({
 
           <Separator orientation="vertical" className="h-6 bg-gray-200 mr-2" />
           
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            className="text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md"
-            onClick={() => setShowLeftSidebar(!showLeftSidebar)}
-          >
-            <PanelLeftOpen className="h-4 w-4 mr-1" />
-            <span className="text-xs font-medium">Panels</span>
-          </Button>
-          
-          <Separator orientation="vertical" className="h-6 bg-gray-200" />
-          
           <Button
             variant="ghost"
             size="sm"
