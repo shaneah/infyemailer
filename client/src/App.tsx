@@ -38,8 +38,7 @@ import Analytics from "@/pages/Analytics";
 import EmailTest from "@/pages/EmailTest";
 import Login from "@/pages/Login";
 import EmailPerformanceDashboard from "@/pages/EmailPerformanceDashboard";
-
-// Client portal related imports have been removed
+import ClientPortal from "@/pages/ClientPortal";
 
 
 function App() {
@@ -134,6 +133,7 @@ function App() {
                     <ProtectedRoute path="email-preview" component={EmailPreview} />
                     <ProtectedRoute path="email-preview/:id" component={EmailPreview} />
                     <ProtectedRoute path="email-performance-dashboard" component={EmailPerformanceDashboard} />
+                    <ProtectedRoute path="client-portal" component={ClientPortal} />
 
                     <Route component={NotFound} />
                   </Switch>

@@ -339,7 +339,20 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
               </Link>
             </li>
             
-            {/* Client Portal removed */}
+            {/* Client Portal */}
+            <li>
+              <Link
+                to="/client-portal"
+                className={`flex items-center px-3 py-2 rounded-md ${
+                  location === '/client-portal' 
+                  ? 'text-white bg-gradient-to-r from-white/20 to-transparent border-l-4 border-[#d4af37]' 
+                  : 'text-white hover:bg-white/10 hover:text-[#d4af37]'}`}
+                title="Client Portal"
+              >
+                <Users className={`h-5 w-5 mr-3 ${location === '/client-portal' ? 'text-[#d4af37]' : 'text-white/70'}`} />
+                {!collapsed && <span>Client Portal</span>}
+              </Link>
+            </li>
           </ul>
           
           {/* Logout Button */}

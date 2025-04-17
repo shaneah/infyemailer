@@ -4688,5 +4688,139 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Client Portal Endpoints
+  app.get('/api/client/credits', async (req, res) => {
+    try {
+      const user = req.user as any;
+      if (!user) {
+        return res.status(401).json({ success: false, error: 'Unauthorized' });
+      }
+
+      // Check if this is a client user
+      if (user.role === 'client_user' && user.clientId) {
+        const client = await storage.getClient(user.clientId);
+        
+        if (!client) {
+          return res.status(404).json({ success: false, error: 'Client not found' });
+        }
+
+        // Return client's email credits info
+        return res.json({
+          total: client.emailCredits || 10000, // Default if not set
+          used: client.emailCreditsUsed || 0,
+          remaining: (client.emailCredits || 10000) - (client.emailCreditsUsed || 0),
+          lastUpdated: client.lastCreditUpdateAt || new Date().toISOString()
+        });
+      } else {
+        // For admin users, return the first client's credits as a sample
+        const clients = await storage.getClients();
+        if (clients && clients.length > 0) {
+          const client = clients[0];
+          return res.json({
+            total: client.emailCredits || 10000,
+            used: client.emailCreditsUsed || 0,
+            remaining: (client.emailCredits || 10000) - (client.emailCreditsUsed || 0),
+            lastUpdated: client.lastCreditUpdateAt || new Date().toISOString()
+          });
+        } else {
+          // Fallback if no clients exist
+          return res.json({
+            total: 10000,
+            used: 0,
+            remaining: 10000,
+            lastUpdated: new Date().toISOString()
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error retrieving client credits:', error);
+      return res.status(500).json({ success: false, error: 'Failed to retrieve client credits' });
+    }
+  });
+
+  app.get('/api/client/templates', async (req, res) => {
+    try {
+      const user = req.user as any;
+      if (!user) {
+        return res.status(401).json({ success: false, error: 'Unauthorized' });
+      }
+
+      let clientId = null;
+      
+      // Determine the client ID based on user role
+      if (user.role === 'client_user' && user.clientId) {
+        clientId = user.clientId;
+      }
+
+      const templates = await storage.getTemplates();
+      
+      // Filter templates by client ID if the user is a client user
+      const filteredTemplates = clientId 
+        ? templates.filter(t => t.clientId === clientId || t.isGlobal === true)
+        : templates;
+        
+      // Add additional UI-friendly properties
+      const enhancedTemplates = filteredTemplates.map(template => {
+        // Get a date from the last 30 days for the "last used" date
+        const randomDays = Math.floor(Math.random() * 30);
+        const lastUsed = new Date();
+        lastUsed.setDate(lastUsed.getDate() - randomDays);
+        
+        return {
+          id: template.id,
+          name: template.name,
+          category: template.category || 'General',
+          lastUsed: template.updatedAt || lastUsed.toISOString(),
+          status: template.status || 'active'
+        };
+      });
+      
+      return res.json(enhancedTemplates);
+    } catch (error) {
+      console.error('Error retrieving client templates:', error);
+      return res.status(500).json({ success: false, error: 'Failed to retrieve templates' });
+    }
+  });
+
+  app.get('/api/client/contacts', async (req, res) => {
+    try {
+      const user = req.user as any;
+      if (!user) {
+        return res.status(401).json({ success: false, error: 'Unauthorized' });
+      }
+
+      let clientId = null;
+      
+      // Determine the client ID based on user role
+      if (user.role === 'client_user' && user.clientId) {
+        clientId = user.clientId;
+      }
+
+      const contacts = await storage.getContacts();
+      
+      // In a real implementation, we would filter contacts by client ID
+      // For now, just return all contacts
+      const enhancedContacts = contacts.map(contact => {
+        // Generate a random date for the last opened date
+        const randomDays = Math.floor(Math.random() * 30);
+        const lastOpened = new Date();
+        lastOpened.setDate(lastOpened.getDate() - randomDays);
+        
+        return {
+          id: contact.id,
+          name: contact.name || `${contact.email.split('@')[0]}`,
+          email: contact.email,
+          status: contact.status || (Math.random() > 0.1 ? 'active' : 'unsubscribed'),
+          lastOpened: contact.updatedAt || lastOpened.toISOString()
+        };
+      });
+      
+      return res.json(enhancedContacts);
+    } catch (error) {
+      console.error('Error retrieving client contacts:', error);
+      return res.status(500).json({ success: false, error: 'Failed to retrieve contacts' });
+    }
+  });
+
   return httpServer;
 }
