@@ -181,46 +181,23 @@ export default function ClientDashboard() {
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden relative z-10">
         {/* Header */}
-        <header className="relative z-20">
-          <div className="flex justify-end p-4 bg-gradient-to-r from-blue-900 via-blue-800 to-blue-900 border-b border-blue-700">
-            <Button 
-              variant="ghost" 
-              size="lg"
-              className="lg:hidden text-white hover:bg-blue-800/50 mr-auto"
-              onClick={() => setSidebarOpen(true)}
-            >
-              <Menu size={24} />
-            </Button>
-            <Button 
-              variant="outline" 
-              onClick={handleLogout} 
-              className="text-white border-white/20 hover:bg-white/10 font-medium px-4 backdrop-blur-sm"
-            >
-              <LogOut className="h-4 w-4 mr-2 text-amber-300" />
-              Logout
-            </Button>
-          </div>
-          
-          {/* Sub header with breadcrumbs and quick actions */}
-          <div className="bg-gradient-to-r from-blue-100/80 via-white to-blue-50/80 border-b border-blue-200 py-2 px-6 shadow-sm">
-            <div className="container mx-auto flex justify-between items-center">
-              <div className="flex items-center text-sm text-slate-600">
-                <Home className="h-3.5 w-3.5 mr-2 text-blue-600" />
-                <span className="text-blue-600 font-medium">Home</span>
-                <ChevronRight className="h-3.5 w-3.5 mx-1.5 text-slate-400" />
-                <span className="font-medium">Dashboard</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Button variant="ghost" size="sm" className="h-8 text-slate-600 hover:text-blue-700 hover:bg-blue-100/50">
-                  <RefreshCw className="h-3.5 w-3.5 mr-1" /> Refresh
-                </Button>
-                <div className="h-4 border-r border-slate-300 mx-1"></div>
-                <Button variant="ghost" size="sm" className="h-8 text-slate-600 hover:text-blue-700 hover:bg-blue-100/50">
-                  <Download className="h-3.5 w-3.5 mr-1" /> Export
-                </Button>
-              </div>
-            </div>
-          </div>
+        <header className="relative z-20 flex justify-end p-4 bg-white border-b border-gray-200">
+          <Button 
+            variant="ghost" 
+            size="lg"
+            className="lg:hidden text-gray-700 hover:bg-gray-100 mr-auto"
+            onClick={() => setSidebarOpen(true)}
+          >
+            <Menu size={24} />
+          </Button>
+          <Button 
+            variant="outline" 
+            onClick={handleLogout} 
+            className="text-gray-700 border-gray-300 hover:bg-gray-100 font-medium px-4"
+          >
+            <LogOut className="h-4 w-4 mr-2 text-gray-500" />
+            Logout
+          </Button>
         </header>
 
         {/* Dashboard Content */}
