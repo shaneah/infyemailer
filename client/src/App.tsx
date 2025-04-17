@@ -39,6 +39,8 @@ import EmailTest from "@/pages/EmailTest";
 import Login from "@/pages/Login";
 import EmailPerformanceDashboard from "@/pages/EmailPerformanceDashboard";
 
+// Client portal related imports have been removed
+
 
 function App() {
   const [location] = useLocation();
