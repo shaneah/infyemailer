@@ -355,8 +355,20 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
             </li>
           </ul>
           
+          {/* Client Login Button */}
+          <div className="px-2 mt-4 mb-2">
+            <a
+              href="/client-login"
+              className="flex items-center w-full px-3 py-2 rounded-md text-white hover:bg-[#d4af37]/20 hover:text-[#d4af37] bg-[#1e293b]/50 backdrop-blur-sm border border-[#334155]/50"
+              title="Client Login Portal"
+            >
+              <ExternalLink className="h-5 w-5 mr-3 text-[#d4af37]" />
+              {!collapsed && <span>Client Login</span>}
+            </a>
+          </div>
+          
           {/* Logout Button */}
-          <div className="px-2 mt-4 mb-6">
+          <div className="px-2 mt-2 mb-6">
             <button
               onClick={handleLogout}
               className="flex items-center w-full px-3 py-2 rounded-md text-white hover:bg-white/10 hover:text-[#d4af37]"

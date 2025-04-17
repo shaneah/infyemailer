@@ -39,6 +39,7 @@ import EmailTest from "@/pages/EmailTest";
 import Login from "@/pages/Login";
 import EmailPerformanceDashboard from "@/pages/EmailPerformanceDashboard";
 import ClientPortal from "@/pages/ClientPortal";
+import SimpleClientLogin from "@/pages/SimpleClientLogin";
 
 
 function App() {
@@ -66,6 +67,14 @@ function App() {
         <Route path="login">
           <div className="bg-background min-h-screen">
             <Login />
+            <Toaster />
+          </div>
+        </Route>
+        
+        {/* Client Login Route */}
+        <Route path="client-login">
+          <div className="min-h-screen">
+            <SimpleClientLogin />
             <Toaster />
           </div>
         </Route>
