@@ -49,7 +49,7 @@ const MenuSection = ({ title, children }: { title: string; children: React.React
 
 const ClientSidebar = ({ open, setOpen }: SidebarProps) => {
   const [location] = useLocation();
-  const [clientName, setClientName] = useState("TechSolutions");
+  const [clientName, setClientName] = useState("InfyTech Solutions");
   const [clientId, setClientId] = useState("tech1");
   
   useEffect(() => {
@@ -58,7 +58,7 @@ const ClientSidebar = ({ open, setOpen }: SidebarProps) => {
     if (clientUser) {
       try {
         const userData = JSON.parse(clientUser);
-        setClientName(userData.company || "TechSolutions");
+        setClientName(userData.company || "InfyTech Solutions");
         setClientId(userData.id || "tech1");
       } catch (error) {
         console.error("Error parsing client user data", error);
@@ -67,8 +67,9 @@ const ClientSidebar = ({ open, setOpen }: SidebarProps) => {
   }, []);
 
   const handleLogout = () => {
-    // Clear session storage
+    // Clear both session storage and localStorage to ensure complete logout
     sessionStorage.removeItem('clientUser');
+    localStorage.removeItem('clientUser');
     
     // Redirect to login
     window.location.href = '/client-login';

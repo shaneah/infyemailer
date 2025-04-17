@@ -12,6 +12,13 @@ const SimpleClientLogin = () => {
   const [, setLocation] = useLocation();
   const [particles, setParticles] = useState<Array<{x: number, y: number, size: number, speed: number, opacity: number}>>([]);
 
+  // Clear any existing session storage on login page load
+  useEffect(() => {
+    // Clear any existing client user data to ensure a fresh login
+    sessionStorage.removeItem('clientUser');
+    localStorage.removeItem('clientUser');
+  }, []);
+
   // Generate particles effect
   useEffect(() => {
     const particlesCount = 80;
