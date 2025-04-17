@@ -78,7 +78,7 @@ const SimpleClientLogin = () => {
       setIsLoading(true);
       setError('');
       
-      const response = await fetch('/api/client-login', {
+      const response = await fetch('/api/client-portal/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -86,29 +86,35 @@ const SimpleClientLogin = () => {
         body: JSON.stringify({
           username,
           password,
+          rememberMe: true // Optional parameter in our schema
         }),
       });
       
+      // Create a copy of the response so we can read the body twice if needed
+      const responseClone = response.clone();
+      
       if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.message || 'Login failed');
+        const errorData = await response.json();
+        throw new Error(errorData.error || errorData.message || 'Login failed');
       }
       
       // Login successful through API
       console.log('API login successful, storing client data and redirecting to dashboard...');
       
       // Extract user data from response
-      const userData = await response.json();
+      const data = await responseClone.json();
+      console.log('Login response data:', data);
       
       // Create a client user object with necessary data
       const clientUser = {
-        id: userData.id || 1,
-        username: userData.username || username,
-        name: userData.name || `${userData.firstName || ''} ${userData.lastName || ''}`.trim() || 'API Client',
-        company: userData.company || 'API Client Company',
-        email: userData.email || `${username}@example.com`,
-        role: userData.role || 'client',
-        permissions: userData.permissions || ['view_campaigns', 'edit_campaigns', 'view_contacts', 'edit_contacts']
+        id: data.user?.id || 1,
+        username: data.user?.username || username,
+        name: data.client?.name || 'Client User',
+        company: data.client?.company || 'Client Company',
+        email: data.user?.email || `${username}@example.com`,
+        clientId: data.user?.clientId,
+        role: data.user?.role || 'client',
+        permissions: data.user?.permissions || ['view_campaigns', 'edit_campaigns', 'view_contacts', 'edit_contacts']
       };
       
       // Save the client user data to session storage
