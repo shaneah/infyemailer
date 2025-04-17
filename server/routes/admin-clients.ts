@@ -7,9 +7,10 @@ const router = express.Router();
 
 // Admin authentication middleware
 const checkAdminAuth = (req: express.Request, res: express.Response, next: express.NextFunction) => {
-  // In a real implementation, check if the user is authenticated and has admin permissions
-  if (req.session && req.session.userId) {
-    // You would check admin role here in a real implementation
+  // For now, we'll allow all authenticated users to access admin routes
+  // In a production environment, we would check for admin role here
+  if (req.session && req.session.user) {
+    // We're authenticated, proceed
     return next();
   }
   return res.status(401).json({ message: 'Authentication required' });
