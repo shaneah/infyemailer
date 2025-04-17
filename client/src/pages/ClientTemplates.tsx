@@ -490,8 +490,8 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
     <div className="flex flex-col min-h-screen bg-white">
       
       <div className="space-y-8 p-6 max-w-[1600px] mx-auto">
-        {/* Hero section with teal/green gradient */}
-        <div className="relative overflow-hidden bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50 rounded-xl p-6 sm:p-8 shadow-md border border-emerald-100">
+        {/* Hero section with purple/indigo gradient */}
+        <div className="relative overflow-hidden bg-gradient-to-r from-purple-50 via-indigo-50 to-violet-50 rounded-xl p-6 sm:p-8 shadow-md border border-purple-100">
           <div className="absolute inset-0 bg-grid-primary-500/10 [mask-image:linear-gradient(0deg,#fff2,transparent)] bg-fixed"></div>
           <div className="relative">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -543,7 +543,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
                   )}
                 </Button>
                 <Button 
-                  className="rounded-lg shadow-md gap-2 px-5 bg-emerald-600 hover:bg-emerald-700 text-white transition-all border-none font-medium"
+                  className="rounded-lg shadow-md gap-2 px-5 bg-purple-600 hover:bg-purple-700 text-white transition-all border-none font-medium"
                   onClick={onCreateTemplate}
                 >
                   <PlusCircle className="h-4 w-4 mr-1" /> 
@@ -556,16 +556,16 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
         
         {/* Search and action tools */}
         <div className="flex flex-col gap-4">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-gradient-to-r from-emerald-50/70 to-teal-50/70 rounded-xl p-4 border border-emerald-100 shadow-sm">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-gradient-to-r from-purple-50/70 to-indigo-50/70 rounded-xl p-4 border border-purple-100 shadow-sm">
             <div className="relative w-full sm:w-64">
               <Input
                 type="search"
                 placeholder="Search templates..."
-                className="w-full border-emerald-200 focus-visible:ring-emerald-300 pl-9 bg-white shadow-sm"
+                className="w-full border-purple-200 focus-visible:ring-purple-300 pl-9 bg-white shadow-sm"
                 value={searchQuery}
                 onChange={handleSearchChange}
               />
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-emerald-500 absolute left-3 top-[50%] transform -translate-y-1/2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-purple-500 absolute left-3 top-[50%] transform -translate-y-1/2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="11" cy="11" r="8"></circle>
                 <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
               </svg>
@@ -575,7 +575,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
               <Button 
                 variant="outline" 
                 size="sm" 
-                className={`text-xs px-3 py-1 h-9 shadow-sm ${activeTab === 'all' ? 'bg-gradient-to-r from-emerald-100 to-teal-100 border-emerald-200 text-emerald-800' : 'bg-white text-slate-600 hover:text-emerald-700 hover:border-emerald-200'}`}
+                className={`text-xs px-3 py-1 h-9 shadow-sm ${activeTab === 'all' ? 'bg-gradient-to-r from-purple-100 to-indigo-100 border-purple-200 text-purple-800' : 'bg-white text-slate-600 hover:text-purple-700 hover:border-purple-200'}`}
                 onClick={() => setActiveTab('all')}
               >
                 All Templates
@@ -583,7 +583,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
               <Button 
                 variant="outline" 
                 size="sm" 
-                className={`text-xs px-3 py-1 h-9 shadow-sm ${activeTab === 'ai' ? 'bg-gradient-to-r from-emerald-100 to-teal-100 border-emerald-200 text-emerald-800' : 'bg-white text-slate-600 hover:text-emerald-700 hover:border-emerald-200'}`}
+                className={`text-xs px-3 py-1 h-9 shadow-sm ${activeTab === 'ai' ? 'bg-gradient-to-r from-purple-100 to-indigo-100 border-purple-200 text-purple-800' : 'bg-white text-slate-600 hover:text-purple-700 hover:border-purple-200'}`}
                 onClick={() => setActiveTab('ai')}
               >
                 <Sparkles className="h-3 w-3 mr-1 text-amber-500" /> 
@@ -593,7 +593,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  className={`px-2 h-9 ${viewMode === 'grid' ? 'text-emerald-700' : 'text-slate-400 hover:text-emerald-600'}`}
+                  className={`px-2 h-9 ${viewMode === 'grid' ? 'text-purple-700' : 'text-slate-400 hover:text-purple-600'}`}
                   onClick={() => setViewMode('grid')}
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -603,7 +603,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  className={`px-2 h-9 ${viewMode === 'list' ? 'text-emerald-700' : 'text-slate-400 hover:text-emerald-600'}`}
+                  className={`px-2 h-9 ${viewMode === 'list' ? 'text-purple-700' : 'text-slate-400 hover:text-purple-600'}`}
                   onClick={() => setViewMode('list')}
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -644,7 +644,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
               </p>
               <div className="mt-6">
                 <Button 
-                  className="rounded-lg shadow-md gap-2 px-5 bg-emerald-600 hover:bg-emerald-700 text-white transition-all border-none font-medium"
+                  className="rounded-lg shadow-md gap-2 px-5 bg-purple-600 hover:bg-purple-700 text-white transition-all border-none font-medium"
                   onClick={onCreateTemplate}
                 >
                   <PlusCircle className="h-4 w-4" />
@@ -659,14 +659,14 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
               {viewMode === 'grid' ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
                   {filteredTemplates.map((template: Template) => (
-                    <Card key={template.id} className="overflow-hidden group hover:shadow-xl transition-all duration-300 bg-white rounded-xl border border-emerald-100">
+                    <Card key={template.id} className="overflow-hidden group hover:shadow-xl transition-all duration-300 bg-white rounded-xl border border-purple-100">
                       <CardHeader className="p-0 overflow-hidden relative">
                         {/* Template Preview Section */}
-                        <div className="h-44 bg-gradient-to-br from-emerald-50 via-teal-50 to-emerald-50 overflow-hidden relative flex items-center justify-center">
+                        <div className="h-44 bg-gradient-to-br from-purple-50 via-indigo-50 to-violet-50 overflow-hidden relative flex items-center justify-center">
                           {/* Template design preview */}
                           <div className="template-preview-card bg-white rounded-lg shadow-md w-[85%] h-[85%] mx-auto overflow-hidden flex flex-col transform group-hover:scale-105 transition-transform duration-300">
                             {/* Template header */}
-                            <div className="template-preview-header h-7 bg-gradient-to-r from-emerald-600 to-teal-600 flex items-center px-3">
+                            <div className="template-preview-header h-7 bg-gradient-to-r from-purple-600 to-indigo-600 flex items-center px-3">
                               <div className="flex space-x-1.5">
                                 <div className="w-2 h-2 rounded-full bg-white opacity-80"></div>
                                 <div className="w-2 h-2 rounded-full bg-white opacity-80"></div>
@@ -677,7 +677,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
                             {/* Template content mockup */}
                             <div className="flex-1 p-2 flex flex-col">
                               {/* Template title bar */}
-                              <div className="h-4 w-3/4 bg-gradient-to-r from-emerald-300 to-teal-300 rounded mb-2"></div>
+                              <div className="h-4 w-3/4 bg-gradient-to-r from-purple-300 to-indigo-300 rounded mb-2"></div>
                               
                               {/* Template content lines */}
                               <div className="space-y-1.5 mb-auto">
