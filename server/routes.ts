@@ -1,6 +1,6 @@
 import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
-import { WebSocketServer, WebSocket } from 'ws';
+import { WebSocket } from 'ws';
 import { getStorage } from "./storageManager"; // Use dynamic storage selection
 const storage = getStorage();
 import { isDatabaseAvailable, db } from "./db"; // Import db and check if database is available
@@ -72,48 +72,13 @@ function validate<T>(schema: any, data: any): T | { error: string } {
   }
 }
 
-import { initRealTimeMetrics } from './services/realTimeMetricsService';
-import { registerClient } from './services/collaborationService';
+import { initWebSocketServer } from './services/webSocketService';
 
 export async function registerRoutes(app: Express): Promise<Server> {
   const httpServer = createServer(app);
   
-  // Initialize real-time metrics service with WebSocket support
-  initRealTimeMetrics(httpServer);
-  
-  // Initialize the collaboration WebSocketServer
-  const wss = new WebSocketServer({ server: httpServer, path: '/ws' });
-  
-  // Collaboration WebSocket connection handler
-  wss.on('connection', (ws, request) => {
-    console.log('WebSocket client connected for collaboration');
-    
-    // Extract userId from query parameters
-    const urlParams = new URLSearchParams(request.url?.split('?')[1] || '');
-    const userId = urlParams.get('userId');
-    const userName = urlParams.get('userName');
-    const userRole = urlParams.get('userRole');
-    const userAvatar = urlParams.get('userAvatar');
-    
-    if (!userId || !userName) {
-      console.error('User connection without proper identification');
-      ws.close(1008, 'User identification required');
-      return;
-    }
-    
-    // Register the client with user information
-    registerClient(ws, userId, {
-      id: userId,
-      name: userName,
-      role: userRole || undefined,
-      avatar: userAvatar || undefined
-    });
-    
-    // Handle client errors
-    ws.on('error', (error) => {
-      console.error('WebSocket client error:', error);
-    });
-  });
+  // Initialize a single WebSocket server for all real-time services
+  initWebSocketServer(httpServer);
   
   // Set up authentication
   setupAuth(app);
