@@ -45,20 +45,6 @@ import EmailPerformanceDashboard from "@/pages/EmailPerformanceDashboard";
 function App() {
   const [location] = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  
-  // Load sidebar collapsed state from localStorage
-  useEffect(() => {
-    const savedCollapsedState = localStorage.getItem('sidebarCollapsed');
-    if (savedCollapsedState !== null) {
-      setSidebarCollapsed(savedCollapsedState === 'true');
-    }
-  }, []);
-
-  // Save sidebar collapsed state to localStorage when it changes
-  useEffect(() => {
-    localStorage.setItem('sidebarCollapsed', sidebarCollapsed.toString());
-  }, [sidebarCollapsed]);
   
   return (
     <QueryClientProvider client={queryClient}>

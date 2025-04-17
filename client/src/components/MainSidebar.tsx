@@ -25,18 +25,10 @@ import {
 interface SidebarProps {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  collapsed?: boolean;
-  setCollapsed?: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: SidebarProps) => {
+const MainSidebar = ({ open, setOpen }: SidebarProps) => {
   const [location] = useLocation();
-
-  const handleToggleCollapsed = () => {
-    if (setCollapsed) {
-      setCollapsed(!collapsed);
-    }
-  };
 
   const handleLogout = () => {
     // Clear session storage
