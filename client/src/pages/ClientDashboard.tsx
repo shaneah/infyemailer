@@ -13,7 +13,7 @@ import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from '@tanstack/react-query';
 import { Skeleton } from '@/components/ui/skeleton';
-import { LogOut, ChevronDown, Info, Inbox, Users, BarChart3, Settings2 } from 'lucide-react';
+import { LogOut, ChevronDown, Info, Inbox, Users, BarChart3, Settings2, LayoutDashboard, LayoutTemplate, LineChart, Settings } from 'lucide-react';
 import './client-portal.css';
 
 const ClientDashboard = () => {
@@ -113,53 +113,66 @@ const ClientDashboard = () => {
   
   return (
     <div className="client-portal-container client-theme min-h-screen">
-      <div className="client-subtle-pattern"></div>
+      <div className="client-top-nav">
+        <div className="container mx-auto px-4 flex justify-between items-center">
+          <div className="flex items-center">
+            <h1 className="text-xl font-bold text-white">InfyMailer</h1>
+          </div>
+          <div className="flex items-center">
+            <Button 
+              variant="ghost" 
+              className="text-white hover:bg-white/10"
+              onClick={handleLogout}
+            >
+              <LogOut className="mr-2 h-4 w-4" />
+              Logout
+            </Button>
+          </div>
+        </div>
+      </div>
+      
       <div className="container mx-auto px-4 py-6">
-        <div className="premium-header mb-8">
-          <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-3xl font-bold">{clientUser.company || 'Client'} Dashboard</h1>
-              <p className="text-white/70">Welcome back, {clientUser.name}</p>
-            </div>
-            
-            <div className="flex items-center gap-4">
-              <Button 
-                variant="outline" 
-                className="client-btn-outline border-white/30 text-white hover:bg-white/10"
-                onClick={handleLogout}
-              >
-                <LogOut className="mr-2 h-4 w-4" />
-                Logout
-              </Button>
-            </div>
+        <div className="dashboard-header">
+          <div>
+            <h1 className="dashboard-greeting">{clientUser.company || 'Client'} Dashboard</h1>
+            <p className="dashboard-subtitle">Welcome back, {clientUser.name}</p>
+          </div>
+          
+          <div className="flex items-center gap-4">
+            <Button 
+              className="client-btn client-btn-primary"
+            >
+              <BarChart3 className="mr-2 h-4 w-4" />
+              Create Campaign
+            </Button>
           </div>
         </div>
       
         {/* Overview Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-8">
-          <Card className="client-card stat-card premium-card-highlight">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <Card className="client-card">
+            <CardContent className="p-6">
+              <div className="flex items-center mb-3">
+                <div className="icon-container mr-4">
+                  <Inbox className="h-5 w-5 stat-icon" />
+                </div>
                 <div>
                   <p className="stat-label">Email Credits</p>
                   {creditsLoading ? (
-                    <Skeleton className="h-8 w-24 mt-1" />
+                    <Skeleton className="h-8 w-24 mt-1 skeleton-loading" />
                   ) : (
                     <p className="stat-value">{emailCredits?.remaining || 0}</p>
                   )}
                 </div>
-                <div className="icon-container">
-                  <Inbox className="h-6 w-6 text-[#3a86ff]" />
-                </div>
               </div>
-              <div className="mt-3">
-                <div className="flex justify-between text-xs mb-1">
-                  <span className="client-text-secondary">Used: {emailCredits?.used || 0}</span>
-                  <span className="client-text-secondary">Total: {emailCredits?.total || 0}</span>
+              <div className="mt-4">
+                <div className="flex justify-between text-xs mb-2">
+                  <span className="text-xs text-gray-500">Used: {emailCredits?.used || 0}</span>
+                  <span className="text-xs text-gray-500">Total: {emailCredits?.total || 0}</span>
                 </div>
-                <div className="client-progress-container">
+                <div className="metric-progress">
                   <div 
-                    className="client-progress-bar" 
+                    className="metric-progress-bar metric-progress-primary" 
                     style={{ width: `${emailCredits ? (emailCredits.used / emailCredits.total) * 100 : 0}%` }}
                   ></div>
                 </div>
@@ -167,63 +180,63 @@ const ClientDashboard = () => {
             </CardContent>
           </Card>
           
-          <Card className="client-card stat-card">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
+          <Card className="client-card">
+            <CardContent className="p-6">
+              <div className="flex items-center mb-3">
+                <div className="icon-container mr-4" style={{ backgroundColor: 'rgba(245, 158, 11, 0.1)' }}>
+                  <BarChart3 className="h-5 w-5" style={{ color: 'var(--brand-warning)' }} />
+                </div>
                 <div>
                   <p className="stat-label">Campaigns</p>
                   {campaignsLoading ? (
-                    <Skeleton className="h-8 w-16 mt-1" />
+                    <Skeleton className="h-8 w-16 mt-1 skeleton-loading" />
                   ) : (
                     <p className="stat-value">{campaigns?.length || 0}</p>
                   )}
                 </div>
-                <div className="icon-container">
-                  <BarChart3 className="h-6 w-6 text-[#f59e0b]" />
-                </div>
               </div>
-              <div className="mt-3">
-                <div className="flex justify-between text-xs mb-1">
-                  <span className="client-text-secondary">Active: {campaigns?.filter((c: any) => c.status === 'active').length || 0}</span>
-                  <span className="client-text-secondary">Draft: {campaigns?.filter((c: any) => c.status === 'draft').length || 0}</span>
+              <div className="mt-4">
+                <div className="flex justify-between text-xs mb-2">
+                  <span className="text-xs text-gray-500">Active: {campaigns?.filter((c: any) => c.status === 'active').length || 0}</span>
+                  <span className="text-xs text-gray-500">Draft: {campaigns?.filter((c: any) => c.status === 'draft').length || 0}</span>
                 </div>
-                <div className="client-progress-container">
+                <div className="metric-progress">
                   <div className="flex h-full">
-                    <div className="client-progress-success h-full" style={{ width: `${campaigns ? (campaigns.filter((c: any) => c.status === 'active').length / campaigns.length) * 100 : 0}%` }}></div>
-                    <div className="client-progress-warning h-full" style={{ width: `${campaigns ? (campaigns.filter((c: any) => c.status === 'draft').length / campaigns.length) * 100 : 0}%` }}></div>
+                    <div className="metric-progress-success" style={{ width: `${campaigns ? (campaigns.filter((c: any) => c.status === 'active').length / campaigns.length) * 100 : 0}%` }}></div>
+                    <div className="metric-progress-warning" style={{ width: `${campaigns ? (campaigns.filter((c: any) => c.status === 'draft').length / campaigns.length) * 100 : 0}%` }}></div>
                   </div>
                 </div>
               </div>
             </CardContent>
           </Card>
           
-          <Card className="client-card stat-card">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
+          <Card className="client-card">
+            <CardContent className="p-6">
+              <div className="flex items-center mb-3">
+                <div className="icon-container mr-4" style={{ backgroundColor: 'rgba(16, 185, 129, 0.1)' }}>
+                  <Users className="h-5 w-5" style={{ color: 'var(--brand-success)' }} />
+                </div>
                 <div>
                   <p className="stat-label">Contacts</p>
                   {contactsLoading ? (
-                    <Skeleton className="h-8 w-16 mt-1" />
+                    <Skeleton className="h-8 w-16 mt-1 skeleton-loading" />
                   ) : (
                     <p className="stat-value">{contacts?.length || 0}</p>
                   )}
                 </div>
-                <div className="icon-container">
-                  <Users className="h-6 w-6 text-[#10b981]" />
-                </div>
               </div>
-              <div className="mt-3">
-                <div className="flex justify-between text-xs mb-1">
-                  <span className="client-text-secondary">Active: {contacts?.filter((c: any) => c.status === 'active').length || 0}</span>
-                  <span className="client-text-secondary">Growth: +{contacts?.filter((c: any) => {
+              <div className="mt-4">
+                <div className="flex justify-between text-xs mb-2">
+                  <span className="text-xs text-gray-500">Active: {contacts?.filter((c: any) => c.status === 'active').length || 0}</span>
+                  <span className="text-xs text-gray-500">Growth: +{contacts?.filter((c: any) => {
                     const createdAt = new Date(c.createdAt);
                     const now = new Date();
                     return (now.getTime() - createdAt.getTime()) / (1000 * 3600 * 24) < 30; // Last 30 days
                   }).length || 0} this month</span>
                 </div>
-                <div className="client-progress-container">
+                <div className="metric-progress">
                   <div 
-                    className="client-progress-success" 
+                    className="metric-progress-success" 
                     style={{ width: `${contacts ? (contacts.filter((c: any) => c.status === 'active').length / contacts.length) * 100 : 0}%` }}
                   ></div>
                 </div>
@@ -231,42 +244,30 @@ const ClientDashboard = () => {
             </CardContent>
           </Card>
           
-          <Card className="client-card stat-card">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
+          <Card className="client-card">
+            <CardContent className="p-6">
+              <div className="flex items-center mb-3">
+                <div className="icon-container mr-4" style={{ backgroundColor: 'rgba(99, 102, 241, 0.1)' }}>
+                  <Settings2 className="h-5 w-5" style={{ color: 'var(--brand-accent)' }} />
+                </div>
                 <div>
                   <p className="stat-label">Templates</p>
                   {templatesLoading ? (
-                    <Skeleton className="h-8 w-16 mt-1" />
+                    <Skeleton className="h-8 w-16 mt-1 skeleton-loading" />
                   ) : (
                     <p className="stat-value">{templates?.length || 0}</p>
                   )}
                 </div>
-                <div className="icon-container">
-                  <Settings2 className="h-6 w-6 text-[#8b5cf6]" />
-                </div>
               </div>
-              <div className="mt-3">
-                <div className="flex justify-between text-xs mb-1">
-                  <span className="client-text-secondary">Custom: {templates?.filter((t: any) => t.isCustom).length || 0}</span>
-                  <span className="client-text-secondary">Standard: {templates?.filter((t: any) => !t.isCustom).length || 0}</span>
+              <div className="mt-4">
+                <div className="flex justify-between text-xs mb-2">
+                  <span className="text-xs text-gray-500">Custom: {templates?.filter((t: any) => t.isCustom).length || 0}</span>
+                  <span className="text-xs text-gray-500">Standard: {templates?.filter((t: any) => !t.isCustom).length || 0}</span>
                 </div>
-                <div className="client-progress-container">
+                <div className="metric-progress">
                   <div className="flex h-full">
-                    <div 
-                      className="h-full" 
-                      style={{ 
-                        width: `${templates ? (templates.filter((t: any) => t.isCustom).length / templates.length) * 100 : 0}%`,
-                        background: 'linear-gradient(90deg, #8b5cf6 0%, #a78bfa 100%)'
-                      }}
-                    ></div>
-                    <div 
-                      className="h-full" 
-                      style={{ 
-                        width: `${templates ? (templates.filter((t: any) => !t.isCustom).length / templates.length) * 100 : 0}%`,
-                        background: 'linear-gradient(90deg, #3b82f6 0%, #60a5fa 100%)'
-                      }}
-                    ></div>
+                    <div className="h-full" style={{ width: `${templates ? (templates.filter((t: any) => t.isCustom).length / templates.length) * 100 : 0}%`, backgroundColor: 'var(--brand-accent)' }}></div>
+                    <div className="h-full" style={{ width: `${templates ? (templates.filter((t: any) => !t.isCustom).length / templates.length) * 100 : 0}%`, backgroundColor: 'var(--brand-primary)' }}></div>
                   </div>
                 </div>
               </div>
@@ -274,21 +275,39 @@ const ClientDashboard = () => {
           </Card>
         </div>
         
-        <div className="mb-8">
+        <div className="client-tabs mb-8">
           <Tabs
             defaultValue="overview"
             className="w-full"
             value={activeTab}
             onValueChange={setActiveTab}
           >
-            <div className="flex justify-center mb-6">
-              <TabsList className="client-tabs-list shadow-sm">
-                <TabsTrigger value="overview" className="client-tab">Overview</TabsTrigger>
-                <TabsTrigger value="campaigns" className="client-tab">Campaigns</TabsTrigger>
-                <TabsTrigger value="contacts" className="client-tab">Contacts</TabsTrigger>
-                <TabsTrigger value="templates" className="client-tab">Templates</TabsTrigger>
-                <TabsTrigger value="analytics" className="client-tab">Analytics</TabsTrigger>
-                <TabsTrigger value="settings" className="client-tab">Settings</TabsTrigger>
+            <div className="mb-6">
+              <TabsList className="client-tabs-list">
+                <TabsTrigger value="overview" className="client-tab">
+                  <LayoutDashboard className="h-4 w-4 mr-2" />
+                  Overview
+                </TabsTrigger>
+                <TabsTrigger value="campaigns" className="client-tab">
+                  <BarChart3 className="h-4 w-4 mr-2" />
+                  Campaigns
+                </TabsTrigger>
+                <TabsTrigger value="contacts" className="client-tab">
+                  <Users className="h-4 w-4 mr-2" />
+                  Contacts
+                </TabsTrigger>
+                <TabsTrigger value="templates" className="client-tab">
+                  <LayoutTemplate className="h-4 w-4 mr-2" />
+                  Templates
+                </TabsTrigger>
+                <TabsTrigger value="analytics" className="client-tab">
+                  <LineChart className="h-4 w-4 mr-2" />
+                  Analytics
+                </TabsTrigger>
+                <TabsTrigger value="settings" className="client-tab">
+                  <Settings className="h-4 w-4 mr-2" />
+                  Settings
+                </TabsTrigger>
               </TabsList>
             </div>
             
@@ -401,33 +420,25 @@ const ClientDashboard = () => {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
-                      <Button className="w-full justify-start client-btn-primary">
+                      <Button className="w-full justify-start client-btn client-btn-primary">
                         <BarChart3 className="mr-2 h-4 w-4" />
                         Create New Campaign
                       </Button>
-                      <Button className="w-full justify-start" 
-                        style={{ 
-                          background: 'linear-gradient(to right, #10b981, #059669)',
-                          color: 'white' 
-                        }}>
+                      <Button className="w-full justify-start client-btn client-btn-secondary">
                         <Users className="mr-2 h-4 w-4" />
                         Add New Contacts
                       </Button>
-                      <Button className="w-full justify-start" 
+                      <Button className="w-full justify-start client-btn" 
                         style={{ 
-                          background: 'linear-gradient(to right, #8b5cf6, #7c3aed)',
+                          backgroundColor: 'var(--brand-accent)',
                           color: 'white' 
                         }}>
                         <Settings2 className="mr-2 h-4 w-4" />
                         Design New Template
                       </Button>
-                      <Button className="w-full justify-start" 
-                        style={{ 
-                          background: 'linear-gradient(to right, #f59e0b, #d97706)',
-                          color: 'white' 
-                        }}>
-                        <Inbox className="mr-2 h-4 w-4" />
-                        View Reports
+                      <Button className="w-full justify-start client-btn client-btn-outline">
+                        <LineChart className="mr-2 h-4 w-4" />
+                        View Analytics
                       </Button>
                     </div>
                   </CardContent>
@@ -467,10 +478,10 @@ const ClientDashboard = () => {
                               <td className="py-4 px-6 font-medium">{campaign.name}</td>
                               <td className="py-4 px-6 text-gray-500 hidden sm:table-cell">{campaign.date || "Recent"}</td>
                               <td className="py-4 px-6 text-center">
-                                <span className={`client-badge ${
-                                  (campaign.status === 'active' || (campaign.status && campaign.status.label === 'Active') || (campaign.status && campaign.status.label === 'Sent')) ? 'client-badge-success' : 
-                                  (campaign.status === 'draft' || (campaign.status && campaign.status.label === 'Draft') || (campaign.status && campaign.status.label === 'Scheduled')) ? 'client-badge-warning' : 
-                                  (campaign.status === 'completed' || (campaign.status && campaign.status.label === 'Completed')) ? 'client-badge-info' : 
+                                <span className={`status-badge ${
+                                  (campaign.status === 'active' || (campaign.status && campaign.status.label === 'Active') || (campaign.status && campaign.status.label === 'Sent')) ? 'status-badge-success' : 
+                                  (campaign.status === 'draft' || (campaign.status && campaign.status.label === 'Draft') || (campaign.status && campaign.status.label === 'Scheduled')) ? 'status-badge-warning' : 
+                                  (campaign.status === 'completed' || (campaign.status && campaign.status.label === 'Completed')) ? 'status-badge-info' : 
                                   'bg-gray-100 text-gray-800'
                                 }`}>
                                   {campaign.status && typeof campaign.status === 'object' ? campaign.status.label : campaign.status || 'Unknown'}
