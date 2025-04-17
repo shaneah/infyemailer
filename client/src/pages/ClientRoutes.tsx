@@ -2038,6 +2038,9 @@ export default function ClientRoutes() {
           <Route path="/client-template-builder">
             <BasicTemplateBuilder isClientPortal={true} />
           </Route>
+          <Route path="/client-template-builder/:id">
+            <BasicTemplateBuilder isClientPortal={true} />
+          </Route>
           <Route path="/client-email-performance">
             <ClientEmailPerformance />
           </Route>
