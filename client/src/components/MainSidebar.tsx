@@ -52,7 +52,7 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
     <div 
       className={`${open ? 'translate-x-0' : '-translate-x-full'} fixed inset-y-0 left-0 z-50 transform transition-transform duration-300 ease-in-out md:translate-x-0 md:relative md:z-0`}
     >
-      <div className="flex flex-col h-full w-64 bg-[#0f172a] text-white border-r border-[#1e293b] shadow-lg">
+      <div className="flex flex-col h-full w-64 bg-gradient-to-b from-[#3a86ff] to-[#38b2ac] text-white border-r border-[#4299e1] shadow-lg">
         <div className="flex flex-col flex-1 h-full overflow-y-auto">
           {/* Logo */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-[#1e293b]">
@@ -108,8 +108,8 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
               <Link 
                 href="/" 
                 className={`flex items-center px-3 py-2 rounded-md ${location === '/' || location === '/dashboard' 
-                  ? 'text-white bg-gradient-to-r from-[#1e293b] to-transparent border-l-4 border-[#d4af37]' 
-                  : 'text-gray-300 hover:bg-[#1e293b]/50 hover:text-white'}`}
+                  ? 'text-white bg-gradient-to-r from-white/20 to-transparent border-l-4 border-white' 
+                  : 'text-white hover:bg-white/10 hover:text-white'}`}
                 title="Dashboard"
               >
                 <LayoutDashboard className={`h-5 w-5 mr-3 ${location === '/' || location === '/dashboard' ? 'text-[#d4af37]' : ''}`} />
@@ -122,8 +122,8 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
               <Link 
                 href="/campaigns" 
                 className={`flex items-center px-3 py-2 rounded-md ${location === '/campaigns' 
-                  ? 'text-white bg-gradient-to-r from-[#1e293b] to-transparent border-l-4 border-[#d4af37]' 
-                  : 'text-gray-300 hover:bg-[#1e293b]/50 hover:text-white'}`}
+                  ? 'text-white bg-gradient-to-r from-white/20 to-transparent border-l-4 border-white' 
+                  : 'text-white hover:bg-white/10 hover:text-white'}`}
                 title="Campaigns"
               >
                 <Megaphone className={`h-5 w-5 mr-3 ${location === '/campaigns' ? 'text-[#d4af37]' : ''}`} />
@@ -136,8 +136,8 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
               <Link 
                 href="/templates" 
                 className={`flex items-center px-3 py-2 rounded-md ${location === '/templates' || location.includes('/template-builder')
-                  ? 'text-white bg-gradient-to-r from-[#1e293b] to-transparent border-l-4 border-[#d4af37]' 
-                  : 'text-gray-300 hover:bg-[#1e293b]/50 hover:text-white'}`}
+                  ? 'text-white bg-gradient-to-r from-white/20 to-transparent border-l-4 border-white' 
+                  : 'text-white hover:bg-white/10 hover:text-white'}`}
                 title="Templates"
               >
                 <FileText className={`h-5 w-5 mr-3 ${location === '/templates' || location.includes('/template-builder') ? 'text-[#d4af37]' : ''}`} />
@@ -150,8 +150,8 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
               <Link 
                 href="/contacts" 
                 className={`flex items-center px-3 py-2 rounded-md ${location === '/contacts' 
-                  ? 'text-white bg-gradient-to-r from-[#1e293b] to-transparent border-l-4 border-[#d4af37]' 
-                  : 'text-gray-300 hover:bg-[#1e293b]/50 hover:text-white'}`}
+                  ? 'text-white bg-gradient-to-r from-white/20 to-transparent border-l-4 border-white' 
+                  : 'text-white hover:bg-white/10 hover:text-white'}`}
                 title="Contacts"
               >
                 <Users className={`h-5 w-5 mr-3 ${location === '/contacts' ? 'text-[#d4af37]' : ''}`} />
@@ -164,8 +164,8 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
               <Link 
                 href="/client-management" 
                 className={`flex items-center px-3 py-2 rounded-md ${location === '/client-management' 
-                  ? 'text-white bg-gradient-to-r from-[#1e293b] to-transparent border-l-4 border-[#d4af37]' 
-                  : 'text-gray-300 hover:bg-[#1e293b]/50 hover:text-white'}`}
+                  ? 'text-white bg-gradient-to-r from-white/20 to-transparent border-l-4 border-white' 
+                  : 'text-white hover:bg-white/10 hover:text-white'}`}
                 title="Client Management"
               >
                 <Building2 className={`h-5 w-5 mr-3 ${location === '/client-management' ? 'text-[#d4af37]' : ''}`} />
@@ -178,8 +178,8 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
               <Link 
                 href="/email-performance" 
                 className={`flex items-center px-3 py-2 rounded-md ${location === '/email-performance' 
-                  ? 'text-white bg-gradient-to-r from-[#1e293b] to-transparent border-l-4 border-[#d4af37]' 
-                  : 'text-gray-300 hover:bg-[#1e293b]/50 hover:text-white'}`}
+                  ? 'text-white bg-gradient-to-r from-white/20 to-transparent border-l-4 border-white' 
+                  : 'text-white hover:bg-white/10 hover:text-white'}`}
                 title="Email Performance"
               >
                 <Activity className={`h-5 w-5 mr-3 ${location === '/email-performance' ? 'text-[#d4af37]' : ''}`} />
@@ -192,8 +192,8 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
               <Link 
                 href="/ab-testing" 
                 className={`flex items-center px-3 py-2 rounded-md ${location.startsWith('/ab-testing') 
-                  ? 'text-white bg-gradient-to-r from-[#1e293b] to-transparent border-l-4 border-[#d4af37]' 
-                  : 'text-gray-300 hover:bg-[#1e293b]/50 hover:text-white'}`}
+                  ? 'text-white bg-gradient-to-r from-white/20 to-transparent border-l-4 border-white' 
+                  : 'text-white hover:bg-white/10 hover:text-white'}`}
                 title="A/B Testing"
               >
                 <Split className={`h-5 w-5 mr-3 ${location.startsWith('/ab-testing') ? 'text-[#d4af37]' : ''}`} />
@@ -206,8 +206,8 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
               <Link 
                 href="/domains" 
                 className={`flex items-center px-3 py-2 rounded-md ${location === '/domains' 
-                  ? 'text-white bg-gradient-to-r from-[#1e293b] to-transparent border-l-4 border-[#d4af37]' 
-                  : 'text-gray-300 hover:bg-[#1e293b]/50 hover:text-white'}`}
+                  ? 'text-white bg-gradient-to-r from-white/20 to-transparent border-l-4 border-white' 
+                  : 'text-white hover:bg-white/10 hover:text-white'}`}
                 title="Domains"
               >
                 <Globe className={`h-5 w-5 mr-3 ${location === '/domains' ? 'text-[#d4af37]' : ''}`} />
@@ -232,8 +232,8 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
               <Link 
                 href="/audience-personas" 
                 className={`flex items-center px-3 py-2 rounded-md ${location === '/audience-personas' 
-                  ? 'text-white bg-gradient-to-r from-[#1e293b] to-transparent border-l-4 border-[#d4af37]' 
-                  : 'text-gray-300 hover:bg-[#1e293b]/50 hover:text-white'}`}
+                  ? 'text-white bg-gradient-to-r from-white/20 to-transparent border-l-4 border-white' 
+                  : 'text-white hover:bg-white/10 hover:text-white'}`}
                 title="Audience Personas"
               >
                 <UserCircle2 className={`h-5 w-5 mr-3 ${location === '/audience-personas' ? 'text-[#d4af37]' : ''}`} />
