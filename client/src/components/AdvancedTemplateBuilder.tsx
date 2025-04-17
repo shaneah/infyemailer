@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import EmailEditor from "@/components/EmailEditor";
+import { Link, useLocation } from "wouter";
 import {
   PanelLeftOpen,
   PanelRightOpen,
@@ -28,7 +29,9 @@ import {
   HelpCircle,
   Sparkles,
   MessageSquareText,
-  FileText
+  FileText,
+  ArrowLeft,
+  ChevronLeft
 } from "lucide-react";
 import {
   Select,
@@ -157,9 +160,24 @@ const AdvancedTemplateBuilder: React.FC<AdvancedTemplateBuilderProps> = ({
 
   // Render the header toolbar
   const renderHeader = () => {
+    const [, navigate] = useLocation();
+    
     return (
       <div className="flex items-center justify-between px-4 py-2 bg-white border-b border-gray-200 shadow-sm">
         <div className="flex items-center gap-3">
+          <Link to="/templates">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md mr-2"
+            >
+              <ChevronLeft className="h-4 w-4 mr-1" />
+              <span className="text-xs font-medium">Back</span>
+            </Button>
+          </Link>
+
+          <Separator orientation="vertical" className="h-6 bg-gray-200 mr-2" />
+          
           <Button 
             variant="ghost" 
             size="sm" 
