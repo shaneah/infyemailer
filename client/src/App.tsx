@@ -20,6 +20,7 @@ import EmailPerformance from "@/pages/EmailPerformance";
 import BasicTemplateBuilder from "@/pages/BasicTemplateBuilder";
 import DragAndDropTemplateBuilder from "@/pages/DragAndDropTemplateBuilder";
 import TemplateBuilder from "@/pages/TemplateBuilder";
+import AdvancedTemplateBuilder from "@/pages/AdvancedTemplateBuilder";
 import TemplateTest from "@/pages/TemplateTest";
 import Domains from "@/pages/Domains";
 
@@ -220,6 +221,13 @@ function App() {
                     {/* Route for creating new templates */}
                     <Route path="templates/new">
                       <TemplateBuilder />
+                    </Route>
+                    {/* Advanced Template Builder routes */}
+                    <Route path="templates/advanced-builder">
+                      <AdvancedTemplateBuilder />
+                    </Route>
+                    <Route path="templates/advanced-builder/:id">
+                      <AdvancedTemplateBuilder />
                     </Route>
                     <ProtectedRoute path="drag-drop-builder" component={DragAndDropTemplateBuilder} />
                     <ProtectedRoute path="drag-drop-builder/:id" component={DragAndDropTemplateBuilder} />
