@@ -4,7 +4,7 @@ import ClientDashboard from '@/pages/ClientDashboard';
 import { useToast } from '@/hooks/use-toast';
 import { Switch, Route, useLocation } from 'wouter';
 import NotFound from '@/pages/not-found';
-import { Mail, BarChart3, Activity } from 'lucide-react';
+import { Mail, BarChart3, Activity, Globe } from 'lucide-react';
 import CreateCampaignModal from '@/modals/CreateCampaignModal';
 import AddContactModal from '@/modals/AddContactModal';
 import CreateListModal from '@/modals/CreateListModal';
