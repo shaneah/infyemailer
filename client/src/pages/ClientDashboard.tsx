@@ -190,14 +190,6 @@ export default function ClientDashboard() {
           >
             <Menu size={24} />
           </Button>
-          <Button 
-            variant="outline" 
-            onClick={handleLogout} 
-            className="text-gray-700 border-gray-300 hover:bg-gray-100 font-medium px-4"
-          >
-            <LogOut className="h-4 w-4 mr-2 text-gray-500" />
-            Logout
-          </Button>
         </header>
 
         {/* Dashboard Content */}
