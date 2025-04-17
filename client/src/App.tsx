@@ -228,14 +228,14 @@ function App() {
                         <TemplateBuilder />
                       </div>
                     </Route>
-                    {/* Advanced Template Builder routes - full screen, no padding */}
+                    {/* Advanced Template Builder routes - full screen, no padding, light background */}
                     <Route path="templates/advanced-builder">
-                      <div className="absolute inset-0 w-full h-full bg-[#121212] overflow-hidden">
+                      <div className="absolute inset-0 w-full h-full bg-[#f8fafc] overflow-hidden">
                         <AdvancedTemplateBuilder />
                       </div>
                     </Route>
                     <Route path="templates/advanced-builder/:id">
-                      <div className="absolute inset-0 w-full h-full bg-[#121212] overflow-hidden">
+                      <div className="absolute inset-0 w-full h-full bg-[#f8fafc] overflow-hidden">
                         <AdvancedTemplateBuilder />
                       </div>
                     </Route>
