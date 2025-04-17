@@ -426,7 +426,7 @@ export default function AdminPanel() {
                   </TableHeader>
                   <TableBody>
                     <TableRow>
-                      <TableCell className="font-medium">Acme Corporation</TableCell>
+                      <TableCell className="font-medium">InfyTech Solutions</TableCell>
                       <TableCell>Enterprise</TableCell>
                       <TableCell><Badge className="bg-green-100 text-green-800">Active</Badge></TableCell>
                       <TableCell>24</TableCell>
@@ -691,7 +691,7 @@ export default function AdminPanel() {
                     </TableHeader>
                     <TableBody>
                       <TableRow>
-                        <TableCell className="font-medium">Acme Corporation</TableCell>
+                        <TableCell className="font-medium">InfyTech Solutions</TableCell>
                         <TableCell>AED 2,198.33</TableCell>
                         <TableCell>Enterprise</TableCell>
                         <TableCell>Apr 1, 2025</TableCell>

@@ -208,7 +208,7 @@ export default function ClientDashboard() {
                     </div>
                     <div className="flex items-center gap-2 mt-0.5">
                       <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
-                      <p className="text-sm font-medium text-blue-200">{clientData.company || 'Acme Corporation'}</p>
+                      <p className="text-sm font-medium text-blue-200">{clientData.company || 'InfyTech Solutions'}</p>
                     </div>
                   </div>
                 </div>
