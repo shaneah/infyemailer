@@ -27,7 +27,7 @@ for (let i = 0; i < 24; i++) {
 // Initialize WebSocket server and set up real-time metrics updates
 export function initRealTimeMetrics(httpServer: Server): void {
   // Create WebSocket server
-  const wss = new WebSocketServer({ server: httpServer, path: '/metrics-ws' });
+  const wss = new WebSocketServer({ server: httpServer, path: '/ws' });
   
   // WebSocket connection handler
   wss.on('connection', (ws) => {

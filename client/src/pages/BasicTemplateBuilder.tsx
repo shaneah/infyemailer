@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useParams, useLocation } from "wouter";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,10 +17,8 @@ type BasicTemplateBuilderProps = {
 
 export default function BasicTemplateBuilder({ isClientPortal = false }: BasicTemplateBuilderProps) {
   const { toast } = useToast();
-  const params = useParams<{ id: string }>();
+  const params = useParams();
   const [location, navigate] = useLocation();
-  const templateId = params.id;
-  const isEditMode = !!templateId;
   
   // Get the mode from URL if it exists
   const searchParams = new URLSearchParams(window.location.search);
@@ -30,61 +28,6 @@ export default function BasicTemplateBuilder({ isClientPortal = false }: BasicTe
   const [templateName, setTemplateName] = useState("New Template");
   const [templateSubject, setTemplateSubject] = useState("Your Email Subject");
   const [templateDescription, setTemplateDescription] = useState("A beautiful email template for your marketing campaigns");
-  
-  // Fetch template if in edit mode
-  const { data: template, isLoading: isTemplateLoading } = useQuery({
-    queryKey: [`/api/templates/${templateId}`],
-    queryFn: async () => {
-      if (!templateId) return null;
-      try {
-        const response = await fetch(`/api/templates/${templateId}`);
-        if (!response.ok) {
-          throw new Error('Failed to fetch template');
-        }
-        return response.json();
-      } catch (error) {
-        console.error("Error fetching template:", error);
-        toast({
-          title: "Error",
-          description: "Failed to load template",
-          variant: "destructive"
-        });
-        return null;
-      }
-    },
-    enabled: !!templateId,
-  });
-
-  // Update state when template data is loaded
-  useEffect(() => {
-    if (template) {
-      setTemplateName(template.name || "Unnamed Template");
-      setTemplateSubject(template.subject || "");
-      setTemplateDescription(template.description || "");
-      
-      // If we have content, update the HTML content
-      if (template.content) {
-        setHtmlContent(template.content);
-      }
-      
-      // If we have sections in metadata, load them
-      if (template.metadata && template.metadata.sections) {
-        try {
-          // The metadata might be a string that needs parsing, or it might already be an object
-          const sectionsData = typeof template.metadata === 'string' 
-            ? JSON.parse(template.metadata).sections 
-            : template.metadata.sections;
-            
-          if (Array.isArray(sectionsData)) {
-            console.log("Loading sections from template metadata:", sectionsData);
-            setSections(sectionsData);
-          }
-        } catch (error) {
-          console.error("Error parsing template sections from metadata:", error);
-        }
-      }
-    }
-  }, [template]);
   const [sections, setSections] = useState<Array<{
     id: string;
     type: string;
@@ -496,17 +439,7 @@ export default function BasicTemplateBuilder({ isClientPortal = false }: BasicTe
           }
         };
         
-        let response;
-        
-        // If we have a template ID, update the existing template
-        // Otherwise create a new one
-        if (templateId) {
-          console.log("Updating existing template with ID:", templateId);
-          response = await apiRequest('PATCH', `/api/templates/${templateId}`, templateData);
-        } else {
-          console.log("Creating new template");
-          response = await apiRequest('POST', '/api/templates', templateData);
-        }
+        const response = await apiRequest('POST', '/api/templates', templateData);
         
         if (!response.ok) {
           throw new Error("Failed to save template");
@@ -523,7 +456,7 @@ export default function BasicTemplateBuilder({ isClientPortal = false }: BasicTe
     onSuccess: () => {
       toast({
         title: "Success",
-        description: isEditMode ? "Template updated successfully" : "Template saved successfully",
+        description: "Template saved successfully",
       });
       
       // Invalidate templates cache

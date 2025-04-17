@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import ClientSidebar from '@/components/ClientSidebar';
 import ClientDashboard from '@/pages/ClientDashboard';
-import EnhancedClientDashboard from '@/pages/EnhancedClientDashboard';
 import { useToast } from '@/hooks/use-toast';
 import { Switch, Route, useLocation } from 'wouter';
 import NotFound from '@/pages/not-found';
@@ -2016,13 +2015,13 @@ export default function ClientRoutes() {
   }
   
   return (
-    <div className="flex h-screen overflow-hidden bg-background">
+    <div className="flex h-screen bg-background">
       <ClientSidebar open={sidebarOpen} setOpen={setSidebarOpen} />
       
-      <main className="flex-1 overflow-auto relative w-full lg:ml-0">
+      <main className="flex-1 overflow-auto">
         <Switch>
           <Route path="/client-dashboard">
-            <EnhancedClientDashboard />
+            <ClientDashboard />
           </Route>
           <Route path="/client-campaigns">
             <ClientCampaigns onCreateCampaign={() => setShowCreateCampaignModal(true)} />
@@ -2037,9 +2036,6 @@ export default function ClientRoutes() {
             <ClientTemplates onCreateTemplate={() => setShowCreateTemplateModal(true)} />
           </Route>
           <Route path="/client-template-builder">
-            <BasicTemplateBuilder isClientPortal={true} />
-          </Route>
-          <Route path="/client-template-builder/:id">
             <BasicTemplateBuilder isClientPortal={true} />
           </Route>
           <Route path="/client-email-performance">

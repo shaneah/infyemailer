@@ -20,29 +20,27 @@ const MenuItem = ({ href, icon: Icon, label, active }: {
   return (
     <Link 
       href={href} 
-      className={`group flex items-center px-4 py-2.5 text-sm rounded-lg transition-all duration-200 ${
+      className={`group flex items-center px-3 py-2.5 text-sm rounded-md transition-colors ${
         active 
-          ? 'bg-blue-800/70 text-white shadow-sm' 
-          : 'text-blue-50 hover:bg-blue-800/30'
+          ? 'bg-blue-800 text-white' 
+          : 'text-blue-100 hover:bg-blue-800/40'
       }`}
     >
-      <div className="flex items-center justify-center relative">
-        <Icon size={19} className={`mr-3 transition-all ${active ? 'text-amber-300' : 'text-blue-200 group-hover:text-amber-300/80'}`} />
-        {active && <span className="absolute -left-1 -top-1 w-1.5 h-1.5 bg-amber-300 rounded-full animate-pulse"></span>}
+      <div className="flex items-center justify-center">
+        <Icon size={18} className={`mr-3 transition-all ${active ? 'text-amber-300' : 'text-blue-200 group-hover:text-amber-300'}`} />
       </div>
-      <span className={`font-medium ${active ? 'translate-x-0.5 transition-transform duration-200' : ''}`}>{label}</span>
-      {active && <div className="absolute left-0 w-1 h-7 bg-amber-300 rounded-r-full ml-0.5"></div>}
+      <span className="font-medium">{label}</span>
     </Link>
   );
 };
 
 const MenuSection = ({ title, children }: { title: string; children: React.ReactNode }) => {
   return (
-    <div className="mb-6">
-      <div className="px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-white/80">
+    <div className="mb-4">
+      <div className="px-4 py-1 text-xs font-medium uppercase tracking-wider text-amber-300/90">
         {title}
       </div>
-      <nav className="mt-2 space-y-1.5 px-2">
+      <nav className="mt-1 space-y-0.5 px-2">
         {children}
       </nav>
     </div>
@@ -51,8 +49,8 @@ const MenuSection = ({ title, children }: { title: string; children: React.React
 
 const ClientSidebar = ({ open, setOpen }: SidebarProps) => {
   const [location] = useLocation();
-  const [clientName, setClientName] = useState("");
-  const [clientId, setClientId] = useState("");
+  const [clientName, setClientName] = useState("TechSolutions");
+  const [clientId, setClientId] = useState("tech1");
   
   useEffect(() => {
     // Get client info from session storage
@@ -60,8 +58,8 @@ const ClientSidebar = ({ open, setOpen }: SidebarProps) => {
     if (clientUser) {
       try {
         const userData = JSON.parse(clientUser);
-        setClientName(userData.company || "");
-        setClientId(userData.id || "");
+        setClientName(userData.company || "TechSolutions");
+        setClientId(userData.id || "tech1");
       } catch (error) {
         console.error("Error parsing client user data", error);
       }
@@ -81,7 +79,7 @@ const ClientSidebar = ({ open, setOpen }: SidebarProps) => {
       {/* Mobile overlay */}
       {open && (
         <div 
-          className="fixed inset-0 z-30 bg-black/50 lg:hidden"
+          className="fixed inset-0 z-40 bg-black/50 lg:hidden"
           onClick={() => setOpen(false)}
         ></div>
       )}
@@ -89,35 +87,59 @@ const ClientSidebar = ({ open, setOpen }: SidebarProps) => {
       {/* Mobile menu button */}
       <button
         onClick={() => setOpen(!open)}
-        className="absolute top-4 left-4 z-50 lg:hidden flex items-center justify-center w-10 h-10 rounded-md bg-blue-900 text-white"
+        className="fixed top-4 left-4 z-50 lg:hidden flex items-center justify-center w-10 h-10 rounded-md bg-blue-900 text-white"
       >
         {open ? <X size={20} /> : <Menu size={20} />}
       </button>
       
       {/* Sidebar */}
       <aside 
-        className={`fixed inset-y-0 left-0 z-40 w-64 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-auto lg:h-screen lg:z-auto ${
+        className={`fixed inset-y-0 left-0 z-40 w-64 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-auto lg:z-auto ${
           open ? 'translate-x-0' : '-translate-x-full'
-        } h-full bg-gradient-to-b from-blue-950 to-blue-900 text-white flex flex-col shadow-xl`}
+        } h-full bg-gradient-to-b from-blue-950 to-blue-900 text-white flex flex-col flex-shrink-0 shadow-xl`}
       >
         {/* Logo area */}
-        <div className="p-6 flex flex-col items-center border-b border-blue-800/30">
-          <div className="w-full flex items-center justify-center">
+        <div className="p-4 flex flex-col items-center border-b border-blue-800/50">
+          <div className="w-full flex items-center justify-center mt-1 mb-2">
             <img 
               src={LogoWhite} 
               alt="InfyMailer Logo" 
-              className="h-9" 
+              className="h-7" 
             />
           </div>
-          <div className="mt-2 px-3 py-1 rounded-full bg-blue-800/30 text-xs font-medium text-white/90 tracking-wide">Client Portal</div>
+          <div className="font-semibold text-white">Client Portal</div>
         </div>
         
-        {/* Spacer */}
-        <div className="p-0.5 border-b border-blue-800/40 bg-gradient-to-r from-blue-800/5 via-blue-700/20 to-blue-800/5">
+        {/* Client info */}
+        <div className="p-4 border-b border-blue-800/50 bg-blue-900/50">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex flex-col">
+              <span className="text-white font-medium text-base">{clientName}</span>
+              <span className="text-xs text-blue-200/80 mt-0.5">ID: {clientId}</span>
+            </div>
+          </div>
+          
+          {/* Credits card */}
+          <div className="bg-gradient-to-r from-blue-800 to-blue-700 rounded-lg shadow-md overflow-hidden relative">
+            {/* Decorative element */}
+            <div className="absolute -right-6 -top-6 w-16 h-16 rounded-full bg-amber-400/10"></div>
+            <div className="absolute right-0 bottom-0 w-20 h-20 rounded-full bg-amber-400/5"></div>
+            
+            <div className="px-4 py-3 flex items-center justify-between relative">
+              <div className="flex items-center">
+                <CreditCard size={18} className="text-amber-300" />
+                <span className="ml-2 text-xs text-blue-100 uppercase tracking-wide font-medium">Available Credits</span>
+              </div>
+            </div>
+            <div className="px-4 pb-3 flex items-baseline relative">
+              <span className="text-xl font-bold text-white">1,500</span>
+              <span className="ml-1 text-xs text-blue-200">credits</span>
+            </div>
+          </div>
         </div>
         
         {/* Navigation */}
-        <div className="flex-1 overflow-y-auto py-4 px-1 min-h-0 h-0">
+        <div className="flex-1 overflow-y-auto py-4 px-1">
           <MenuSection title="Overview">
             <MenuItem 
               href="/client-dashboard" 
@@ -192,34 +214,26 @@ const ClientSidebar = ({ open, setOpen }: SidebarProps) => {
         </div>
         
         {/* Footer actions */}
-        <div className="mt-auto px-3 pt-2 pb-3 border-t border-blue-800/40">
-          <div className="flex flex-col gap-2">
-            <Link
-              href="/client-settings"
-              className={`group flex items-center px-4 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 ${
-                location === '/client-settings' 
-                  ? 'bg-blue-800/70 text-white shadow-sm' 
-                  : 'text-blue-50 hover:bg-blue-800/30'
-              }`}
-            >
-              <div className="flex items-center justify-center relative">
-                <Settings size={18} className={`mr-3 transition-all ${location === '/client-settings' ? 'text-amber-300' : 'text-blue-200 group-hover:text-amber-300/80'}`} />
-                {location === '/client-settings' && <span className="absolute -left-1 -top-1 w-1.5 h-1.5 bg-amber-300 rounded-full animate-pulse"></span>}
-              </div>
-              <span className={`font-medium ${location === '/client-settings' ? 'translate-x-0.5 transition-transform duration-200' : ''}`}>Account Settings</span>
-              {location === '/client-settings' && <div className="absolute left-0 w-1 h-7 bg-amber-300 rounded-r-full ml-0.5"></div>}
-            </Link>
-            
-            <button
-              onClick={handleLogout}
-              className="group flex items-center w-full px-4 py-2.5 text-sm font-medium text-blue-50 hover:bg-blue-800/30 transition-all duration-200 rounded-lg"
-            >
-              <div className="flex items-center justify-center">
-                <LogOut size={18} className="mr-3 text-blue-200 transition-all group-hover:text-amber-300/80" />
-              </div>
-              <span className="font-medium">Logout</span>
-            </button>
-          </div>
+        <div className="mt-auto border-t border-blue-800/50">
+          <Link
+            href="/client-settings"
+            className={`flex items-center px-4 py-3 text-sm transition-colors ${
+              location === '/client-settings' 
+                ? 'bg-blue-800 text-white' 
+                : 'text-blue-100 hover:bg-blue-800/40'
+            }`}
+          >
+            <Settings size={18} className={`mr-3 ${location === '/client-settings' ? 'text-amber-300' : ''}`} />
+            <span>Account Settings</span>
+          </Link>
+          
+          <button
+            onClick={handleLogout}
+            className="flex items-center w-full px-4 py-3 text-sm text-blue-100 hover:bg-blue-800/40 transition-colors group"
+          >
+            <LogOut size={18} className="mr-3 group-hover:text-amber-300" />
+            <span>Logout</span>
+          </button>
         </div>
       </aside>
     </>

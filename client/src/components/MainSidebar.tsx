@@ -52,7 +52,7 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
     <div 
       className={`${open ? 'translate-x-0' : '-translate-x-full'} fixed inset-y-0 left-0 z-50 transform transition-transform duration-300 ease-in-out md:translate-x-0 md:relative md:z-0`}
     >
-      <div className="flex flex-col h-full w-64 bg-gradient-to-b from-[#1a365d] to-[#0f2942] text-white border-r border-[#2a4365] shadow-lg">
+      <div className="flex flex-col h-full w-64 bg-[#0f172a] text-white border-r border-[#1e293b] shadow-lg">
         <div className="flex flex-col flex-1 h-full overflow-y-auto">
           {/* Logo */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-[#1e293b]">
@@ -108,8 +108,8 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
               <Link 
                 href="/" 
                 className={`flex items-center px-3 py-2 rounded-md ${location === '/' || location === '/dashboard' 
-                  ? 'text-white bg-gradient-to-r from-white/20 to-transparent border-l-4 border-white' 
-                  : 'text-white hover:bg-white/10 hover:text-white'}`}
+                  ? 'text-white bg-gradient-to-r from-[#1e293b] to-transparent border-l-4 border-[#d4af37]' 
+                  : 'text-gray-300 hover:bg-[#1e293b]/50 hover:text-white'}`}
                 title="Dashboard"
               >
                 <LayoutDashboard className={`h-5 w-5 mr-3 ${location === '/' || location === '/dashboard' ? 'text-[#d4af37]' : ''}`} />
@@ -122,8 +122,8 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
               <Link 
                 href="/campaigns" 
                 className={`flex items-center px-3 py-2 rounded-md ${location === '/campaigns' 
-                  ? 'text-white bg-gradient-to-r from-white/20 to-transparent border-l-4 border-white' 
-                  : 'text-white hover:bg-white/10 hover:text-white'}`}
+                  ? 'text-white bg-gradient-to-r from-[#1e293b] to-transparent border-l-4 border-[#d4af37]' 
+                  : 'text-gray-300 hover:bg-[#1e293b]/50 hover:text-white'}`}
                 title="Campaigns"
               >
                 <Megaphone className={`h-5 w-5 mr-3 ${location === '/campaigns' ? 'text-[#d4af37]' : ''}`} />
@@ -136,8 +136,8 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
               <Link 
                 href="/templates" 
                 className={`flex items-center px-3 py-2 rounded-md ${location === '/templates' || location.includes('/template-builder')
-                  ? 'text-white bg-gradient-to-r from-white/20 to-transparent border-l-4 border-white' 
-                  : 'text-white hover:bg-white/10 hover:text-white'}`}
+                  ? 'text-white bg-gradient-to-r from-[#1e293b] to-transparent border-l-4 border-[#d4af37]' 
+                  : 'text-gray-300 hover:bg-[#1e293b]/50 hover:text-white'}`}
                 title="Templates"
               >
                 <FileText className={`h-5 w-5 mr-3 ${location === '/templates' || location.includes('/template-builder') ? 'text-[#d4af37]' : ''}`} />
@@ -150,8 +150,8 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
               <Link 
                 href="/contacts" 
                 className={`flex items-center px-3 py-2 rounded-md ${location === '/contacts' 
-                  ? 'text-white bg-gradient-to-r from-white/20 to-transparent border-l-4 border-white' 
-                  : 'text-white hover:bg-white/10 hover:text-white'}`}
+                  ? 'text-white bg-gradient-to-r from-[#1e293b] to-transparent border-l-4 border-[#d4af37]' 
+                  : 'text-gray-300 hover:bg-[#1e293b]/50 hover:text-white'}`}
                 title="Contacts"
               >
                 <Users className={`h-5 w-5 mr-3 ${location === '/contacts' ? 'text-[#d4af37]' : ''}`} />
@@ -164,8 +164,8 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
               <Link 
                 href="/client-management" 
                 className={`flex items-center px-3 py-2 rounded-md ${location === '/client-management' 
-                  ? 'text-white bg-gradient-to-r from-white/20 to-transparent border-l-4 border-white' 
-                  : 'text-white hover:bg-white/10 hover:text-white'}`}
+                  ? 'text-white bg-gradient-to-r from-[#1e293b] to-transparent border-l-4 border-[#d4af37]' 
+                  : 'text-gray-300 hover:bg-[#1e293b]/50 hover:text-white'}`}
                 title="Client Management"
               >
                 <Building2 className={`h-5 w-5 mr-3 ${location === '/client-management' ? 'text-[#d4af37]' : ''}`} />
@@ -178,8 +178,8 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
               <Link 
                 href="/email-performance" 
                 className={`flex items-center px-3 py-2 rounded-md ${location === '/email-performance' 
-                  ? 'text-white bg-gradient-to-r from-white/20 to-transparent border-l-4 border-white' 
-                  : 'text-white hover:bg-white/10 hover:text-white'}`}
+                  ? 'text-white bg-gradient-to-r from-[#1e293b] to-transparent border-l-4 border-[#d4af37]' 
+                  : 'text-gray-300 hover:bg-[#1e293b]/50 hover:text-white'}`}
                 title="Email Performance"
               >
                 <Activity className={`h-5 w-5 mr-3 ${location === '/email-performance' ? 'text-[#d4af37]' : ''}`} />
@@ -192,8 +192,8 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
               <Link 
                 href="/ab-testing" 
                 className={`flex items-center px-3 py-2 rounded-md ${location.startsWith('/ab-testing') 
-                  ? 'text-white bg-gradient-to-r from-white/20 to-transparent border-l-4 border-white' 
-                  : 'text-white hover:bg-white/10 hover:text-white'}`}
+                  ? 'text-white bg-gradient-to-r from-[#1e293b] to-transparent border-l-4 border-[#d4af37]' 
+                  : 'text-gray-300 hover:bg-[#1e293b]/50 hover:text-white'}`}
                 title="A/B Testing"
               >
                 <Split className={`h-5 w-5 mr-3 ${location.startsWith('/ab-testing') ? 'text-[#d4af37]' : ''}`} />
@@ -206,8 +206,8 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
               <Link 
                 href="/domains" 
                 className={`flex items-center px-3 py-2 rounded-md ${location === '/domains' 
-                  ? 'text-white bg-gradient-to-r from-white/20 to-transparent border-l-4 border-white' 
-                  : 'text-white hover:bg-white/10 hover:text-white'}`}
+                  ? 'text-white bg-gradient-to-r from-[#1e293b] to-transparent border-l-4 border-[#d4af37]' 
+                  : 'text-gray-300 hover:bg-[#1e293b]/50 hover:text-white'}`}
                 title="Domains"
               >
                 <Globe className={`h-5 w-5 mr-3 ${location === '/domains' ? 'text-[#d4af37]' : ''}`} />
@@ -232,8 +232,8 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
               <Link 
                 href="/audience-personas" 
                 className={`flex items-center px-3 py-2 rounded-md ${location === '/audience-personas' 
-                  ? 'text-white bg-gradient-to-r from-white/20 to-transparent border-l-4 border-white' 
-                  : 'text-white hover:bg-white/10 hover:text-white'}`}
+                  ? 'text-white bg-gradient-to-r from-[#1e293b] to-transparent border-l-4 border-[#d4af37]' 
+                  : 'text-gray-300 hover:bg-[#1e293b]/50 hover:text-white'}`}
                 title="Audience Personas"
               >
                 <UserCircle2 className={`h-5 w-5 mr-3 ${location === '/audience-personas' ? 'text-[#d4af37]' : ''}`} />
@@ -246,8 +246,8 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
               <Link 
                 href="/email-validation" 
                 className={`flex items-center px-3 py-2 rounded-md ${location === '/email-validation' 
-                  ? 'text-white bg-gradient-to-r from-white/20 to-transparent border-l-4 border-white' 
-                  : 'text-white hover:bg-white/10 hover:text-white'}`}
+                  ? 'text-white bg-gradient-to-r from-[#1e293b] to-transparent border-l-4 border-[#d4af37]' 
+                  : 'text-gray-300 hover:bg-[#1e293b]/50 hover:text-white'}`}
                 title="Email Validation"
               >
                 <CheckCircle2 className={`h-5 w-5 mr-3 ${location === '/email-validation' ? 'text-[#d4af37]' : ''}`} />
@@ -260,8 +260,8 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
               <Link 
                 href="/email-providers" 
                 className={`flex items-center px-3 py-2 rounded-md ${location === '/email-providers' 
-                  ? 'text-white bg-gradient-to-r from-white/20 to-transparent border-l-4 border-white' 
-                  : 'text-white hover:bg-white/10 hover:text-white'}`}
+                  ? 'text-white bg-gradient-to-r from-[#1e293b] to-transparent border-l-4 border-[#d4af37]' 
+                  : 'text-gray-300 hover:bg-[#1e293b]/50 hover:text-white'}`}
                 title="Email Providers"
               >
                 <ServerCog className={`h-5 w-5 mr-3 ${location === '/email-providers' ? 'text-[#d4af37]' : ''}`} />
@@ -274,8 +274,8 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
               <Link 
                 href="/email-test" 
                 className={`flex items-center px-3 py-2 rounded-md ${location === '/email-test' 
-                  ? 'text-white bg-gradient-to-r from-white/20 to-transparent border-l-4 border-white' 
-                  : 'text-white hover:bg-white/10 hover:text-white'}`}
+                  ? 'text-white bg-gradient-to-r from-[#1e293b] to-transparent border-l-4 border-[#d4af37]' 
+                  : 'text-gray-300 hover:bg-[#1e293b]/50 hover:text-white'}`}
                 title="Email Test"
               >
                 <SendHorizonal className={`h-5 w-5 mr-3 ${location === '/email-test' ? 'text-[#d4af37]' : ''}`} />
@@ -300,8 +300,8 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
               <Link 
                 href="/user-management" 
                 className={`flex items-center px-3 py-2 rounded-md ${location === '/user-management' 
-                  ? 'text-white bg-gradient-to-r from-white/20 to-transparent border-l-4 border-white' 
-                  : 'text-white hover:bg-white/10 hover:text-white'}`}
+                  ? 'text-white bg-gradient-to-r from-[#1e293b] to-transparent border-l-4 border-[#d4af37]' 
+                  : 'text-gray-300 hover:bg-[#1e293b]/50 hover:text-white'}`}
                 title="User Management"
               >
                 <UserRound className={`h-5 w-5 mr-3 ${location === '/user-management' ? 'text-[#d4af37]' : ''}`} />
@@ -309,15 +309,13 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
               </Link>
             </li>
             
-            {/* Admin Clients link removed - using Client Management instead */}
-            
             {/* Admin Panel */}
             <li>
               <Link 
                 href="/admin" 
                 className={`flex items-center px-3 py-2 rounded-md ${location === '/admin' 
-                  ? 'text-white bg-gradient-to-r from-white/20 to-transparent border-l-4 border-white' 
-                  : 'text-white hover:bg-white/10 hover:text-white'}`}
+                  ? 'text-white bg-gradient-to-r from-[#1e293b] to-transparent border-l-4 border-[#d4af37]' 
+                  : 'text-gray-300 hover:bg-[#1e293b]/50 hover:text-white'}`}
                 title="Admin Panel"
               >
                 <ShieldCheck className={`h-5 w-5 mr-3 ${location === '/admin' ? 'text-[#d4af37]' : ''}`} />
@@ -330,51 +328,46 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
               <Link 
                 href="/settings" 
                 className={`flex items-center px-3 py-2 rounded-md ${location === '/settings' 
-                  ? 'text-white bg-gradient-to-r from-white/20 to-transparent border-l-4 border-white' 
-                  : 'text-white hover:bg-white/10 hover:text-white'}`}
+                  ? 'text-white bg-gradient-to-r from-[#1e293b] to-transparent border-l-4 border-[#d4af37]' 
+                  : 'text-gray-300 hover:bg-[#1e293b]/50 hover:text-white'}`}
                 title="Settings"
               >
-                <Settings className={`h-5 w-5 mr-3 ${location === '/settings' ? 'text-[#d4af37]' : 'text-white/70'}`} />
+                <Settings className={`h-5 w-5 mr-3 ${location === '/settings' ? 'text-[#d4af37]' : ''}`} />
                 {!collapsed && <span>Settings</span>}
               </Link>
             </li>
             
             {/* Client Portal */}
-            <li>
-              <Link
-                to="/client-portal"
-                className={`flex items-center px-3 py-2 rounded-md ${
-                  location === '/client-portal' 
-                  ? 'text-white bg-gradient-to-r from-white/20 to-transparent border-l-4 border-[#d4af37]' 
-                  : 'text-white hover:bg-white/10 hover:text-[#d4af37]'}`}
+            <li className="mt-6">
+              <Link 
+                href="/client-dashboard" 
+                className={`flex items-center px-3 py-2 rounded-md border border-[#1e293b] ${location === '/client-dashboard' 
+                  ? 'bg-gradient-to-r from-[#d4af37]/20 to-transparent text-white' 
+                  : 'bg-gradient-to-r from-[#1e293b] to-transparent text-[#d4af37] hover:from-[#d4af37]/20'}`}
                 title="Client Portal"
               >
-                <Users className={`h-5 w-5 mr-3 ${location === '/client-portal' ? 'text-[#d4af37]' : 'text-white/70'}`} />
-                {!collapsed && <span>Client Portal</span>}
+                <ExternalLink className="h-5 w-5 mr-3 text-[#d4af37]" />
+                {!collapsed && (
+                  <div className="flex items-center">
+                    <span>Client Portal</span>
+                    <div className="relative ml-2">
+                      <span className="absolute -inset-1 rounded-full bg-[#d4af37]/30 animate-pulse opacity-75"></span>
+                      <span className="relative h-1.5 w-1.5 rounded-full bg-[#d4af37] inline-block"></span>
+                    </div>
+                  </div>
+                )}
               </Link>
             </li>
           </ul>
           
-          {/* Client Login Button */}
-          <div className="px-2 mt-4 mb-2">
-            <a
-              href="/client-login"
-              className="flex items-center w-full px-3 py-2 rounded-md text-white hover:bg-[#d4af37]/20 hover:text-[#d4af37] bg-[#1e293b]/50 backdrop-blur-sm border border-[#334155]/50"
-              title="Client Login Portal"
-            >
-              <ExternalLink className="h-5 w-5 mr-3 text-[#d4af37]" />
-              {!collapsed && <span>Client Login</span>}
-            </a>
-          </div>
-          
           {/* Logout Button */}
-          <div className="px-2 mt-2 mb-6">
+          <div className="px-2 mt-4 mb-6">
             <button
               onClick={handleLogout}
-              className="flex items-center w-full px-3 py-2 rounded-md text-white hover:bg-white/10 hover:text-[#d4af37]"
+              className="flex items-center w-full px-3 py-2 rounded-md text-gray-300 hover:bg-[#1e293b]/50 hover:text-white"
               title="Logout"
             >
-              <LogOut className="h-5 w-5 mr-3 text-white/70" />
+              <LogOut className="h-5 w-5 mr-3 text-gray-500" />
               {!collapsed && <span>Logout</span>}
             </button>
           </div>

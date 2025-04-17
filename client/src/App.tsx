@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import AuthPage from "@/pages/auth-page";
 import Dashboard from "@/pages/Dashboard";
 import MainSidebar from "@/components/MainSidebar";
+import ClientSidebar from "@/components/ClientSidebar";
 import Navbar from "@/components/Navbar";
 import { useState, useEffect } from "react";
 import { AuthProvider } from "@/hooks/use-auth";
@@ -32,17 +33,16 @@ import UserManagement from "@/pages/UserManagement";
 import ClientManagement from "@/pages/ClientManagement";
 import AudiencePersonas from "@/pages/AudiencePersonas";
 import EmailPreview from "@/pages/EmailPreview";
-import AdminClientManagement from "@/pages/AdminClientManagement";
 
+// Client portal pages
+import ClientLogin from "@/pages/ClientLogin";
+import SimpleClientLogin from "@/pages/SimpleClientLogin";
+import ClientDashboard from "@/pages/ClientDashboard";
+import ClientRoutes from "@/pages/ClientRoutes";
 import Analytics from "@/pages/Analytics";
 import EmailTest from "@/pages/EmailTest";
 import Login from "@/pages/Login";
 import EmailPerformanceDashboard from "@/pages/EmailPerformanceDashboard";
-import ClientPortal from "@/pages/ClientPortal";
-import SimpleClientLogin from "@/pages/SimpleClientLogin";
-import ClientDashboard from "@/pages/ClientDashboard";
-import CollaborationDemo from "@/pages/CollaborationDemo";
-import WebSocketDebugPage from "@/pages/WebSocketDebugPage";
 
 
 function App() {
@@ -74,22 +74,100 @@ function App() {
           </div>
         </Route>
         
-        {/* Client Login Route */}
+        {/* Client Portal Routes */}
         <Route path="client-login">
-          <div className="min-h-screen">
+          <div className="bg-background min-h-screen">
             <SimpleClientLogin />
             <Toaster />
           </div>
         </Route>
         
-        {/* Client Dashboard Route */}
         <Route path="client-dashboard">
-          <div className="min-h-screen">
-            <ClientDashboard />
+          <div className="bg-background min-h-screen">
+            <ClientRoutes />
             <Toaster />
           </div>
         </Route>
         
+        {/* Client Portal Sub-routes */}
+        <Route path="client-campaigns">
+          <div className="bg-background min-h-screen">
+            <ClientRoutes />
+            <Toaster />
+          </div>
+        </Route>
+        <Route path="client-contacts">
+          <div className="bg-background min-h-screen">
+            <ClientRoutes />
+            <Toaster />
+          </div>
+        </Route>
+        <Route path="client-lists">
+          <div className="bg-background min-h-screen">
+            <ClientRoutes />
+            <Toaster />
+          </div>
+        </Route>
+        <Route path="client-templates">
+          <div className="bg-background min-h-screen">
+            <ClientRoutes />
+            <Toaster />
+          </div>
+        </Route>
+        <Route path="client-template-builder">
+          <div className="bg-background min-h-screen">
+            <BasicTemplateBuilder isClientPortal={true} />
+            <Toaster />
+          </div>
+        </Route>
+        <Route path="client-template-builder/:id">
+          <div className="bg-background min-h-screen">
+            <BasicTemplateBuilder isClientPortal={true} />
+            <Toaster />
+          </div>
+        </Route>
+        <Route path="client-reports">
+          <div className="bg-background min-h-screen">
+            <ClientRoutes />
+            <Toaster />
+          </div>
+        </Route>
+        <Route path="client-domains">
+          <div className="bg-background min-h-screen">
+            <ClientRoutes />
+            <Toaster />
+          </div>
+        </Route>
+        <Route path="client-email-validation">
+          <div className="bg-background min-h-screen">
+            <ClientRoutes />
+            <Toaster />
+          </div>
+        </Route>
+        <Route path="client-ab-testing">
+          <div className="bg-background min-h-screen">
+            <ClientRoutes />
+            <Toaster />
+          </div>
+        </Route>
+        <Route path="client-ab-testing/:id">
+          <div className="bg-background min-h-screen">
+            <ClientRoutes />
+            <Toaster />
+          </div>
+        </Route>
+        <Route path="client-email-performance">
+          <div className="bg-background min-h-screen">
+            <ClientRoutes />
+            <Toaster />
+          </div>
+        </Route>
+        <Route path="client-settings">
+          <div className="bg-background min-h-screen">
+            <ClientRoutes />
+            <Toaster />
+          </div>
+        </Route>
         <Route path="email-performance-dashboard">
           <div className="bg-background min-h-screen">
             <EmailPerformanceDashboard />
@@ -146,16 +224,12 @@ function App() {
                     <ProtectedRoute path="reporting" component={Reporting} />
                     <ProtectedRoute path="email-providers" component={EmailProviders} />
                     <ProtectedRoute path="client-management" component={ClientManagement} />
-                    <ProtectedRoute path="admin-clients" component={AdminClientManagement} />
                     <ProtectedRoute path="audience-personas" component={AudiencePersonas} />
                     <ProtectedRoute path="analytics" component={Analytics} />
                     <ProtectedRoute path="email-test" component={EmailTest} />
                     <ProtectedRoute path="email-preview" component={EmailPreview} />
                     <ProtectedRoute path="email-preview/:id" component={EmailPreview} />
                     <ProtectedRoute path="email-performance-dashboard" component={EmailPerformanceDashboard} />
-                    <ProtectedRoute path="client-portal" component={ClientPortal} />
-                    <Route path="collaboration-demo" component={CollaborationDemo} />
-                    <Route path="websocket-debug" component={WebSocketDebugPage} />
 
                     <Route component={NotFound} />
                   </Switch>
