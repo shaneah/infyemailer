@@ -327,16 +327,6 @@ const AdvancedTemplateBuilder: React.FC<AdvancedTemplateBuilderProps> = ({
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => setIsMobilePreview(!isMobilePreview)}
-              className={`text-gray-600 hover:text-gray-900 mr-1 ${isMobilePreview ? 'bg-gray-100' : ''}`}
-              title="Toggle Mobile Preview"
-            >
-              <Smartphone className="h-4 w-4" />
-            </Button>
-            
-            <Button
-              variant="ghost"
-              size="sm"
               onClick={() => setShowRightSidebar(!showRightSidebar)}
               className="text-gray-600 hover:text-gray-900"
               title="Toggle Properties Panel"
