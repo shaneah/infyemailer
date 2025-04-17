@@ -40,6 +40,7 @@ import Login from "@/pages/Login";
 import EmailPerformanceDashboard from "@/pages/EmailPerformanceDashboard";
 import ClientPortal from "@/pages/ClientPortal";
 import SimpleClientLogin from "@/pages/SimpleClientLogin";
+import ClientDashboard from "@/pages/ClientDashboard";
 
 
 function App() {
@@ -75,6 +76,14 @@ function App() {
         <Route path="client-login">
           <div className="min-h-screen">
             <SimpleClientLogin />
+            <Toaster />
+          </div>
+        </Route>
+        
+        {/* Client Dashboard Route */}
+        <Route path="client-dashboard">
+          <div className="min-h-screen">
+            <ClientDashboard />
             <Toaster />
           </div>
         </Route>
