@@ -2972,10 +2972,11 @@ const EmailEditor: React.FC<{
             </div>
             
             <Tabs defaultValue="basic" className="w-full mb-2">
-              <TabsList className="grid w-full grid-cols-3 h-8">
+              <TabsList className="grid w-full grid-cols-4 h-8">
                 <TabsTrigger value="basic" className="text-xs">Basic</TabsTrigger>
                 <TabsTrigger value="media" className="text-xs">Media</TabsTrigger>
                 <TabsTrigger value="advanced" className="text-xs">Advanced</TabsTrigger>
+                <TabsTrigger value="layout" className="text-xs">Layout</TabsTrigger>
               </TabsList>
               
               <TabsContent value="basic" className="mt-2">
