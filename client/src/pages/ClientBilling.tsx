@@ -20,6 +20,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
+import AnimatedCreditProgressBar from '@/components/AnimatedCreditProgressBar';
+import PlanCreditsBubbles from '@/components/PlanCreditsBubbles';
 
 const ClientBilling = () => {
   const { toast } = useToast();
@@ -224,9 +226,15 @@ const ClientBilling = () => {
                           {currentPlan.emailsSent.toLocaleString()} / {currentPlan.includedCredits.toLocaleString()}
                         </span>
                       </div>
-                      <Progress value={(currentPlan.emailsSent / currentPlan.includedCredits) * 100} className="h-2" />
-                      <div className="mt-1 text-xs text-muted-foreground">
-                        {currentPlan.creditsRemaining.toLocaleString()} credits remaining
+                      <AnimatedCreditProgressBar 
+                        used={currentPlan.emailsSent}
+                        total={currentPlan.includedCredits}
+                        animate={true}
+                        showEmojis={true}
+                        className="mb-2"
+                      />
+                      <div className="text-xs text-purple-600 font-medium">
+                        {currentPlan.creditsRemaining.toLocaleString()} credits remaining this billing cycle
                       </div>
                     </div>
                   </div>
@@ -530,6 +538,11 @@ const ClientBilling = () => {
                     </div>
                   </CardDescription>
                 </CardHeader>
+                <PlanCreditsBubbles 
+                  credits={plan.includedCredits} 
+                  isActive={plan.current} 
+                  className="mx-4 mt-2"
+                />
                 <CardContent className="space-y-4">
                   <div>
                     <p className="text-sm font-medium mb-2">Includes:</p>
