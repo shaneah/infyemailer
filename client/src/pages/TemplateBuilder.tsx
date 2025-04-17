@@ -4,7 +4,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useParams, useLocation } from "wouter";
 import { apiRequest } from "@/lib/queryClient";
 import EmailEditor from "@/components/EmailEditor";
-import { ArrowLeft, Loader2, Save } from "lucide-react";
+import { ArrowLeft, Loader2, Save, Zap, Eye, Undo, Settings, Code } from "lucide-react";
 
 interface Template {
   id?: number;
@@ -29,6 +29,7 @@ export default function TemplateBuilder() {
   const [isTemplateLoading, setIsTemplateLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [htmlCode, setHtmlCode] = useState('');
+  const [currentTab, setCurrentTab] = useState('editor');
   
   // Fetch the template data if editing an existing template
   useEffect(() => {
@@ -99,84 +100,163 @@ export default function TemplateBuilder() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50">
+    <div className="min-h-screen flex flex-col bg-gray-900 text-gray-100">
       {/* Top navigation */}
-      <div className="flex items-center justify-between px-4 py-3 bg-slate-800 text-white">
+      <div className="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-blue-900 to-indigo-900 border-b border-blue-800">
         <div className="flex items-center">
           <Button 
             variant="ghost" 
             size="icon" 
             onClick={handleBack}
-            className="mr-3 text-white hover:bg-slate-700"
+            className="mr-4 text-blue-100 hover:bg-blue-800 rounded-full"
           >
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <h1 className="text-xl font-medium">
-            {initialTemplate?.name || "New Email Template"}
-          </h1>
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight">
+              {initialTemplate?.name || "New Email Template"}
+            </h1>
+            <p className="text-blue-300 text-sm">
+              {initialTemplate?.id ? "Editing existing template" : "Creating new template"}
+            </p>
+          </div>
         </div>
         
-        <Button
-          size="sm"
-          className="bg-orange-500 hover:bg-orange-600 text-white rounded-md"
-          disabled={isSaving}
-          onClick={() => {
-            if (htmlCode) {
-              handleSaveTemplate(
-                initialTemplate || { name: "New Email Template", subject: "Important: Your Email Subject Line" },
-                htmlCode
-              );
-            } else {
+        <div className="flex space-x-3">
+          <Button
+            variant="outline"
+            className="border-blue-500 text-blue-300 hover:bg-blue-800 hover:text-blue-100"
+            onClick={() => {
               toast({
-                title: "Error",
-                description: "No template content to save. Please design your template first.",
-                variant: "destructive"
+                title: "Preview Mode",
+                description: "Preview functionality will be available soon!"
               });
-            }
-          }}
-        >
-          {isSaving ? (
-            <>
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              Saving...
-            </>
-          ) : (
-            <>
-              <Save className="h-4 w-4 mr-2" />
-              Save
-            </>
-          )}
-        </Button>
+            }}
+          >
+            <Eye className="h-4 w-4 mr-2" />
+            Preview
+          </Button>
+          
+          <Button
+            variant="default"
+            className="bg-emerald-600 hover:bg-emerald-700 text-white font-medium"
+            disabled={isSaving}
+            onClick={() => {
+              if (htmlCode) {
+                handleSaveTemplate(
+                  initialTemplate || { name: "New Email Template", subject: "Important: Your Email Subject Line" },
+                  htmlCode
+                );
+              } else {
+                toast({
+                  title: "Error",
+                  description: "No template content to save. Please design your template first.",
+                  variant: "destructive"
+                });
+              }
+            }}
+          >
+            {isSaving ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Saving...
+              </>
+            ) : (
+              <>
+                <Save className="h-4 w-4 mr-2" />
+                Save Template
+              </>
+            )}
+          </Button>
+        </div>
+      </div>
+
+      {/* Tabs Navigation */}
+      <div className="bg-gray-800 border-b border-gray-700">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="flex space-x-1">
+            <button
+              onClick={() => setCurrentTab('editor')}
+              className={`px-4 py-3 text-sm font-medium flex items-center ${
+                currentTab === 'editor' 
+                  ? 'border-b-2 border-emerald-500 text-white' 
+                  : 'text-gray-300 hover:text-white hover:border-b-2 hover:border-gray-500'
+              }`}
+            >
+              <Zap className={`h-4 w-4 mr-2 ${currentTab === 'editor' ? 'text-emerald-500' : 'text-gray-400'}`} />
+              Design Editor
+            </button>
+            <button
+              onClick={() => {
+                toast({
+                  title: "Code View",
+                  description: "HTML code view will be available soon!"
+                });
+              }}
+              className="px-4 py-3 text-sm font-medium flex items-center text-gray-300 hover:text-white hover:border-b-2 hover:border-gray-500"
+            >
+              <Code className="h-4 w-4 mr-2 text-gray-400" />
+              Code View
+            </button>
+            <button
+              onClick={() => {
+                toast({
+                  title: "Settings",
+                  description: "Template settings will be available soon!"
+                });
+              }}
+              className="px-4 py-3 text-sm font-medium flex items-center text-gray-300 hover:text-white hover:border-b-2 hover:border-gray-500"
+            >
+              <Settings className="h-4 w-4 mr-2 text-gray-400" />
+              Settings
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* Main content area */}
-      <div className="flex-1 p-6 bg-slate-100 overflow-auto">
+      <div className="flex-1 bg-gray-800 overflow-auto">
         {isTemplateLoading ? (
           <div className="flex items-center justify-center h-full">
-            <div className="text-center bg-white p-8 rounded-xl shadow-lg">
-              <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-primary" />
-              <p className="text-gray-700 font-medium">Loading template...</p>
+            <div className="text-center bg-gray-900 p-8 rounded-xl shadow-lg border border-gray-700">
+              <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-emerald-500" />
+              <p className="text-gray-300 font-medium">Loading template...</p>
             </div>
           </div>
         ) : (
-          <div className="bg-white rounded-md shadow-md min-h-[600px] mx-auto max-w-[800px]">
-            <EmailEditor 
-              initialTemplate={initialTemplate || {
-                name: "New Email Template",
-                subject: "Important: Your Email Subject Line",
-                previewText: "A preview of your email content goes here...",
-                sections: [],
-                styles: {
-                  fontFamily: "Arial, sans-serif",
-                  backgroundColor: "#f5f5f5",
-                  width: "100%",
-                  maxWidth: "600px"
-                }
-              }}
-              onSave={handleSaveTemplate}
-              isSaving={isSaving}
-              className="w-full"
-            />
+          <div className="max-w-6xl mx-auto p-6">
+            <div className="bg-gray-900 rounded-lg shadow-xl border border-gray-700 overflow-hidden">
+              {/* Additional toolbar */}
+              <div className="bg-gray-900 border-b border-gray-700 p-3 flex justify-between items-center">
+                <div className="flex space-x-1">
+                  <Button variant="ghost" size="sm" className="text-gray-400 hover:text-white hover:bg-gray-800">
+                    <Undo className="h-4 w-4 mr-2" />
+                    Undo
+                  </Button>
+                </div>
+                <div className="text-sm text-gray-400">
+                  Last edited: {new Date().toLocaleDateString()}
+                </div>
+              </div>
+              
+              <EmailEditor 
+                initialTemplate={initialTemplate || {
+                  name: "New Email Template",
+                  subject: "Important: Your Email Subject Line",
+                  previewText: "A preview of your email content goes here...",
+                  sections: [],
+                  styles: {
+                    fontFamily: "Arial, sans-serif",
+                    backgroundColor: "#f5f5f5",
+                    width: "100%",
+                    maxWidth: "600px"
+                  }
+                }}
+                onSave={handleSaveTemplate}
+                isSaving={isSaving}
+                className="w-full"
+              />
+            </div>
           </div>
         )}
       </div>
