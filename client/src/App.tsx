@@ -33,6 +33,7 @@ import UserManagement from "@/pages/UserManagement";
 import ClientManagement from "@/pages/ClientManagement";
 import AudiencePersonas from "@/pages/AudiencePersonas";
 import EmailPreview from "@/pages/EmailPreview";
+import AdminClientManagement from "@/pages/AdminClientManagement";
 
 // Client portal pages
 import ClientLogin from "@/pages/ClientLogin";
@@ -224,6 +225,7 @@ function App() {
                     <ProtectedRoute path="reporting" component={Reporting} />
                     <ProtectedRoute path="email-providers" component={EmailProviders} />
                     <ProtectedRoute path="client-management" component={ClientManagement} />
+                    <ProtectedRoute path="admin-clients" component={AdminClientManagement} />
                     <ProtectedRoute path="audience-personas" component={AudiencePersonas} />
                     <ProtectedRoute path="analytics" component={Analytics} />
                     <ProtectedRoute path="email-test" component={EmailTest} />
