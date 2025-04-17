@@ -20,28 +20,28 @@ const MenuItem = ({ href, icon: Icon, label, active }: {
   return (
     <Link 
       href={href} 
-      className={`group flex items-center px-4 py-3 text-sm rounded-lg transition-all duration-200 ${
+      className={`group flex items-center px-4 py-2.5 text-sm rounded-lg transition-all duration-200 ${
         active 
           ? 'bg-primary/20 text-white shadow-sm' 
-          : 'text-blue-50 hover:bg-primary/10'
+          : 'text-blue-50 hover:bg-primary/15'
       }`}
     >
       <div className="flex items-center justify-center">
-        <Icon size={19} className={`mr-3 transition-all ${active ? 'text-white' : 'text-blue-200 group-hover:text-white'}`} />
+        <Icon size={19} className={`mr-3 transition-all ${active ? 'text-amber-300' : 'text-blue-200 group-hover:text-amber-300/80'}`} />
       </div>
       <span className={`font-medium ${active ? 'translate-x-0.5 transition-transform duration-200' : ''}`}>{label}</span>
-      {active && <div className="absolute left-0 w-1 h-8 bg-white rounded-r-full ml-0.5"></div>}
+      {active && <div className="absolute left-0 w-1 h-7 bg-amber-300 rounded-r-full ml-0.5"></div>}
     </Link>
   );
 };
 
 const MenuSection = ({ title, children }: { title: string; children: React.ReactNode }) => {
   return (
-    <div className="mb-5">
-      <div className="px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-white/75">
+    <div className="mb-6">
+      <div className="px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-white/80">
         {title}
       </div>
-      <nav className="mt-1.5 space-y-1 px-2">
+      <nav className="mt-2 space-y-1.5 px-2">
         {children}
       </nav>
     </div>
@@ -100,19 +100,19 @@ const ClientSidebar = ({ open, setOpen }: SidebarProps) => {
         } h-full bg-gradient-to-b from-blue-950 to-blue-900 text-white flex flex-col shadow-xl`}
       >
         {/* Logo area */}
-        <div className="p-5 flex flex-col items-center border-b border-blue-800/30">
+        <div className="p-6 flex flex-col items-center border-b border-blue-800/30">
           <div className="w-full flex items-center justify-center">
             <img 
               src={LogoWhite} 
               alt="InfyMailer Logo" 
-              className="h-8" 
+              className="h-9" 
             />
           </div>
-          <div className="mt-1.5 text-sm font-medium text-white/80 tracking-wide">Client Portal</div>
+          <div className="mt-2 px-3 py-1 rounded-full bg-blue-800/30 text-xs font-medium text-white/90 tracking-wide">Client Portal</div>
         </div>
         
         {/* Spacer */}
-        <div className="p-1 border-b border-blue-800/30 bg-gradient-to-r from-blue-800/5 via-blue-700/10 to-blue-800/5">
+        <div className="p-0.5 border-b border-blue-800/40 bg-gradient-to-r from-blue-800/5 via-blue-700/20 to-blue-800/5">
         </div>
         
         {/* Navigation */}
@@ -191,26 +191,28 @@ const ClientSidebar = ({ open, setOpen }: SidebarProps) => {
         </div>
         
         {/* Footer actions */}
-        <div className="mt-auto border-t border-blue-800/50">
-          <Link
-            href="/client-settings"
-            className={`flex items-center px-4 py-3 text-sm transition-colors ${
-              location === '/client-settings' 
-                ? 'bg-blue-800 text-white' 
-                : 'text-blue-100 hover:bg-blue-800/40'
-            }`}
-          >
-            <Settings size={18} className={`mr-3 ${location === '/client-settings' ? 'text-amber-300' : ''}`} />
-            <span>Account Settings</span>
-          </Link>
-          
-          <button
-            onClick={handleLogout}
-            className="flex items-center w-full px-4 py-3 text-sm text-blue-100 hover:bg-blue-800/40 transition-colors group"
-          >
-            <LogOut size={18} className="mr-3 group-hover:text-amber-300" />
-            <span>Logout</span>
-          </button>
+        <div className="mt-auto px-3 pt-2 pb-3 border-t border-blue-800/40">
+          <div className="flex flex-col gap-2">
+            <Link
+              href="/client-settings"
+              className={`flex items-center px-4 py-2.5 text-sm font-medium rounded-lg transition-all ${
+                location === '/client-settings' 
+                  ? 'bg-blue-800/80 text-white' 
+                  : 'text-blue-100 hover:bg-blue-800/30'
+              }`}
+            >
+              <Settings size={18} className={`mr-3 transition-colors ${location === '/client-settings' ? 'text-amber-300' : 'text-blue-200 group-hover:text-amber-300/80'}`} />
+              <span>Account Settings</span>
+            </Link>
+            
+            <button
+              onClick={handleLogout}
+              className="flex items-center w-full px-4 py-2.5 text-sm font-medium text-blue-100 hover:bg-blue-800/30 transition-all rounded-lg group"
+            >
+              <LogOut size={18} className="mr-3 text-blue-200 transition-colors group-hover:text-amber-300" />
+              <span>Logout</span>
+            </button>
+          </div>
         </div>
       </aside>
     </>
