@@ -14,6 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useQuery } from '@tanstack/react-query';
 import { Skeleton } from '@/components/ui/skeleton';
 import { LogOut, ChevronDown, Info, Inbox, Users, BarChart3, Settings2, LayoutDashboard, LayoutTemplate, LineChart, Settings } from 'lucide-react';
+import { CollaborationNotifier } from '@/components/CollaborationNotifier';
 import './client-portal.css';
 
 const ClientDashboard = () => {

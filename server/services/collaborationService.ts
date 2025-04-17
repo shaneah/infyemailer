@@ -1,22 +1,8 @@
 import { WebSocket } from 'ws';
 
-// Store connected WebSocket clients with userId mapping for targeted notifications
-const collaborationClients = new Map<string, Set<WebSocket>>();
-
-// Track which users are currently editing which resources
-const activeEdits = new Map<string, Set<string>>();
-
-// Store user info for display in notifications
-interface UserInfo {
-  id: string;
-  name: string;
-  avatar?: string;
-  role?: string;
-}
-
-const connectedUsers = new Map<string, UserInfo>();
-
-// Types of collaboration notifications
+/**
+ * Enum for different notification types
+ */
 export enum NotificationType {
   USER_JOINED = 'user_joined',
   USER_LEFT = 'user_left',
@@ -25,314 +11,448 @@ export enum NotificationType {
   RESOURCE_UPDATED = 'resource_updated',
   COMMENT_ADDED = 'comment_added',
   MENTION = 'mention',
-  TASK_ASSIGNED = 'task_assigned'
+  TASK_ASSIGNED = 'task_assigned',
+  GENERAL_NOTIFICATION = 'general_notification'
 }
 
-// Register a client connection with user information
+/**
+ * User information
+ */
+export interface UserInfo {
+  id: string;
+  name: string;
+  role?: string;
+  avatar?: string;
+}
+
+/**
+ * Notification object structure
+ */
+export interface Notification {
+  type: NotificationType;
+  title?: string;
+  message?: string;
+  user?: UserInfo;
+  resourceId?: string;
+  resourceType?: string;
+  context?: string;
+  timestamp: number;
+}
+
+// Store all connected WebSocket clients
+const clientConnections = new Map<string, WebSocket>();
+
+// Store user info for each client
+const clientUsers = new Map<string, UserInfo>();
+
+// Store resource locks - who is currently editing what resource
+const resourceLocks = new Map<string, Set<string>>();
+
+// Reverse mapping: user to resources they're editing
+const userResourceLocks = new Map<string, Set<string>>();
+
+/**
+ * Register a WebSocket client connection
+ */
 export function registerClient(ws: WebSocket, userId: string, userInfo: UserInfo): void {
-  if (!collaborationClients.has(userId)) {
-    collaborationClients.set(userId, new Set());
-  }
+  // Store the connection
+  clientConnections.set(userId, ws);
   
-  collaborationClients.get(userId)?.add(ws);
-  connectedUsers.set(userId, userInfo);
+  // Store user info
+  clientUsers.set(userId, userInfo);
   
-  // Notify others that this user has joined
-  broadcastUserPresence(userId, true);
+  console.log(`Client registered: ${userId} (${userInfo.name})`);
   
-  // Handle disconnection
+  // Set up cleanup on disconnect
   ws.on('close', () => {
-    unregisterClient(ws, userId);
+    // Remove from connections map
+    clientConnections.delete(userId);
+    
+    // Release all resource locks for this user
+    releaseAllResourceLocks(userId);
+    
+    // Notify other users that this user has left
+    notifyUserLeft(userId);
+    
+    console.log(`Client disconnected: ${userId} (${userInfo.name})`);
   });
   
-  // Handle messages from this client
-  ws.on('message', (message) => {
+  // Set up message handling
+  ws.on('message', (message: string) => {
     try {
-      const data = JSON.parse(message.toString());
+      const data = JSON.parse(message);
       handleClientMessage(userId, data);
     } catch (error) {
-      console.error('Error processing collaboration message:', error);
+      console.error(`Error processing message from ${userId}:`, error);
     }
   });
   
-  // Send the current state of active users and edits
-  sendInitialState(ws);
+  // Send initial state to this client
+  sendInitialState(userId);
+  
+  // Notify other users that this user has joined
+  notifyUserJoined(userId);
 }
 
-// Remove a client connection
-export function unregisterClient(ws: WebSocket, userId: string): void {
-  const userClients = collaborationClients.get(userId);
+/**
+ * Send initial state to a client
+ */
+function sendInitialState(userId: string): void {
+  const ws = clientConnections.get(userId);
+  if (!ws || ws.readyState !== WebSocket.OPEN) return;
   
-  if (userClients) {
-    userClients.delete(ws);
-    
-    // If this was the last connection for this user, clean up
-    if (userClients.size === 0) {
-      collaborationClients.delete(userId);
-      connectedUsers.delete(userId);
-      
-      // Remove user from all active edits
-      for (const [resourceId, editors] of activeEdits.entries()) {
-        if (editors.has(userId)) {
-          editors.delete(userId);
-          
-          // If no one is editing this resource anymore, clean up
-          if (editors.size === 0) {
-            activeEdits.delete(resourceId);
-          } else {
-            // Notify others that this user has stopped editing
-            notifyResourceEditEnded(resourceId, userId);
-          }
-        }
-      }
-      
-      // Notify others that this user has left
-      broadcastUserPresence(userId, false);
-    }
+  // Get all resource locks
+  const resources: { [resourceId: string]: UserInfo[] } = {};
+  
+  // Convert to array before iterating to avoid TypeScript downlevelIteration issues
+  for (const [resourceId, userIds] of Array.from(resourceLocks.entries())) {
+    resources[resourceId] = Array.from(userIds)
+      .map(id => clientUsers.get(id))
+      .filter(Boolean) as UserInfo[];
   }
-}
-
-// Handle incoming messages from clients
-function handleClientMessage(userId: string, data: any): void {
-  switch (data.type) {
-    case 'start_edit':
-      startResourceEdit(data.resourceId, data.resourceType, userId);
-      break;
-    case 'end_edit':
-      endResourceEdit(data.resourceId, userId);
-      break;
-    case 'resource_update':
-      notifyResourceUpdated(data.resourceId, data.resourceType, userId, data.changes);
-      break;
-    case 'add_comment':
-      notifyCommentAdded(data.resourceId, data.resourceType, userId, data.comment);
-      break;
-    case 'assign_task':
-      notifyTaskAssigned(data.taskId, userId, data.assigneeId, data.taskDetails);
-      break;
-    case 'mention':
-      notifyUserMentioned(data.resourceId, data.resourceType, userId, data.mentionedUserId, data.context);
-      break;
-    default:
-      console.log(`Unknown message type: ${data.type}`);
-  }
-}
-
-// Send initial state to a newly connected client
-function sendInitialState(ws: WebSocket): void {
-  // Send list of connected users
-  const users = Array.from(connectedUsers.values());
   
-  // Send list of resources being edited
-  const edits = Array.from(activeEdits.entries()).map(([resourceId, editors]) => ({
-    resourceId,
-    editors: Array.from(editors).map(userId => connectedUsers.get(userId))
-  }));
+  // Get all connected users
+  const users = Array.from(clientUsers.values());
   
-  const initialState = {
+  // Send the initial state
+  ws.send(JSON.stringify({
     type: 'initial_state',
+    resources,
     users,
-    edits,
     timestamp: Date.now()
-  };
-  
-  if (ws.readyState === WebSocket.OPEN) {
-    ws.send(JSON.stringify(initialState));
+  }));
+}
+
+/**
+ * Handle incoming client messages
+ */
+function handleClientMessage(userId: string, data: any): void {
+  switch (data.action) {
+    case 'start_editing':
+      acquireResourceLock(userId, data.resourceId, data.resourceType);
+      break;
+      
+    case 'stop_editing':
+      releaseResourceLock(userId, data.resourceId);
+      break;
+      
+    case 'resource_updated':
+      notifyResourceUpdated(userId, data.resourceId, data.resourceType);
+      break;
+      
+    case 'add_comment':
+      notifyCommentAdded(userId, data.resourceId, data.resourceType, data.comment);
+      break;
+      
+    case 'mention_user':
+      notifyUserMentioned(userId, data.mentionedUserId, data.resourceId, data.resourceType);
+      break;
+      
+    case 'assign_task':
+      notifyTaskAssigned(userId, data.assigneeId, data.taskId, data.taskDetails);
+      break;
+      
+    default:
+      console.log(`Unhandled client message action: ${data.action}`);
   }
 }
 
-// Notify when a user starts editing a resource
-export function startResourceEdit(resourceId: string, resourceType: string, userId: string): void {
-  if (!activeEdits.has(resourceId)) {
-    activeEdits.set(resourceId, new Set());
+/**
+ * Acquire a resource lock for editing
+ */
+export function acquireResourceLock(userId: string, resourceId: string, resourceType?: string): boolean {
+  // Get or create the set of users editing this resource
+  if (!resourceLocks.has(resourceId)) {
+    resourceLocks.set(resourceId, new Set());
   }
   
-  activeEdits.get(resourceId)?.add(userId);
+  const usersEditingResource = resourceLocks.get(resourceId)!;
+  usersEditingResource.add(userId);
   
-  // Notify all users about this edit
-  const user = connectedUsers.get(userId);
-  const notification = {
-    type: NotificationType.RESOURCE_EDIT_STARTED,
-    resourceId,
-    resourceType,
-    user,
-    timestamp: Date.now()
-  };
+  // Update the reverse mapping
+  if (!userResourceLocks.has(userId)) {
+    userResourceLocks.set(userId, new Set());
+  }
   
-  broadcastToAll(notification);
+  const resourcesEditedByUser = userResourceLocks.get(userId)!;
+  resourcesEditedByUser.add(resourceId);
+  
+  // Notify other users
+  notifyResourceEditStarted(userId, resourceId, resourceType);
+  
+  return true;
 }
 
-// Notify when a user stops editing a resource
-export function endResourceEdit(resourceId: string, userId: string): void {
-  const editors = activeEdits.get(resourceId);
-  
-  if (editors && editors.has(userId)) {
-    editors.delete(userId);
+/**
+ * Release a resource lock
+ */
+export function releaseResourceLock(userId: string, resourceId: string): boolean {
+  // Remove user from the resource's editors
+  const usersEditingResource = resourceLocks.get(resourceId);
+  if (usersEditingResource) {
+    usersEditingResource.delete(userId);
     
-    // If no one is editing this resource anymore, clean up
-    if (editors.size === 0) {
-      activeEdits.delete(resourceId);
+    // Clean up empty sets
+    if (usersEditingResource.size === 0) {
+      resourceLocks.delete(resourceId);
     }
+  }
+  
+  // Remove resource from user's editing list
+  const resourcesEditedByUser = userResourceLocks.get(userId);
+  if (resourcesEditedByUser) {
+    resourcesEditedByUser.delete(resourceId);
     
-    notifyResourceEditEnded(resourceId, userId);
+    // Clean up empty sets
+    if (resourcesEditedByUser.size === 0) {
+      userResourceLocks.delete(userId);
+    }
+  }
+  
+  // Notify other users
+  notifyResourceEditEnded(userId, resourceId);
+  
+  return true;
+}
+
+/**
+ * Release all resource locks for a user
+ */
+function releaseAllResourceLocks(userId: string): void {
+  const resourcesEditedByUser = userResourceLocks.get(userId);
+  if (!resourcesEditedByUser) return;
+  
+  // Make a copy to avoid iteration issues during deletion
+  const resources = Array.from(resourcesEditedByUser);
+  
+  // Release each resource lock
+  for (const resourceId of resources) {
+    releaseResourceLock(userId, resourceId);
+  }
+  
+  // Clean up
+  userResourceLocks.delete(userId);
+}
+
+/**
+ * Send notification to all clients except the sender
+ */
+function broadcastNotification(notification: Notification, excludeUserId?: string): void {
+  const message = JSON.stringify(notification);
+  
+  for (const [userId, ws] of Array.from(clientConnections.entries())) {
+    if (excludeUserId === userId) continue;
+    
+    if (ws.readyState === WebSocket.OPEN) {
+      ws.send(message);
+    }
   }
 }
 
-// Notify when a resource has been updated
-export function notifyResourceUpdated(
-  resourceId: string, 
-  resourceType: string, 
-  userId: string, 
-  changes: any
-): void {
-  const user = connectedUsers.get(userId);
+/**
+ * Send notification to specific users
+ */
+function sendNotificationToUsers(notification: Notification, userIds: string[]): void {
+  const message = JSON.stringify(notification);
   
-  const notification = {
-    type: NotificationType.RESOURCE_UPDATED,
-    resourceId,
-    resourceType,
-    user,
-    changes,
-    timestamp: Date.now()
-  };
-  
-  broadcastToAll(notification);
+  for (const userId of userIds) {
+    const ws = clientConnections.get(userId);
+    if (ws && ws.readyState === WebSocket.OPEN) {
+      ws.send(message);
+    }
+  }
 }
 
-// Notify when a comment is added
-export function notifyCommentAdded(
-  resourceId: string, 
-  resourceType: string, 
-  userId: string, 
-  comment: string
-): void {
-  const user = connectedUsers.get(userId);
-  
-  const notification = {
-    type: NotificationType.COMMENT_ADDED,
-    resourceId,
-    resourceType,
-    user,
-    comment,
-    timestamp: Date.now()
-  };
-  
-  broadcastToAll(notification);
-}
-
-// Notify when a user is mentioned
-export function notifyUserMentioned(
-  resourceId: string, 
-  resourceType: string, 
-  mentioningUserId: string, 
-  mentionedUserId: string, 
-  context: string
-): void {
-  const mentioningUser = connectedUsers.get(mentioningUserId);
-  
-  const notification = {
-    type: NotificationType.MENTION,
-    resourceId,
-    resourceType,
-    mentioningUser,
-    context,
-    timestamp: Date.now()
-  };
-  
-  // Send specifically to the mentioned user
-  sendToUser(mentionedUserId, notification);
-}
-
-// Notify when a task is assigned
-export function notifyTaskAssigned(
-  taskId: string, 
-  assignerId: string, 
-  assigneeId: string, 
-  taskDetails: any
-): void {
-  const assigner = connectedUsers.get(assignerId);
-  
-  const notification = {
-    type: NotificationType.TASK_ASSIGNED,
-    taskId,
-    assigner,
-    taskDetails,
-    timestamp: Date.now()
-  };
-  
-  // Send specifically to the assignee
-  sendToUser(assigneeId, notification);
-}
-
-// Helper to notify when a user stops editing
-function notifyResourceEditEnded(resourceId: string, userId: string): void {
-  const user = connectedUsers.get(userId);
-  
-  const notification = {
-    type: NotificationType.RESOURCE_EDIT_ENDED,
-    resourceId,
-    user,
-    timestamp: Date.now()
-  };
-  
-  broadcastToAll(notification);
-}
-
-// Notify about user presence (joining/leaving)
-function broadcastUserPresence(userId: string, isJoining: boolean): void {
-  const user = connectedUsers.get(userId);
-  
+/**
+ * Notify all users that a user has joined
+ */
+export function notifyUserJoined(userId: string): void {
+  const user = clientUsers.get(userId);
   if (!user) return;
   
-  const notification = {
-    type: isJoining ? NotificationType.USER_JOINED : NotificationType.USER_LEFT,
+  broadcastNotification({
+    type: NotificationType.USER_JOINED,
     user,
+    timestamp: Date.now()
+  }, userId); // Exclude the user who joined
+}
+
+/**
+ * Notify all users that a user has left
+ */
+export function notifyUserLeft(userId: string): void {
+  const user = clientUsers.get(userId);
+  if (!user) return;
+  
+  broadcastNotification({
+    type: NotificationType.USER_LEFT,
+    user,
+    timestamp: Date.now()
+  });
+}
+
+/**
+ * Notify that a user started editing a resource
+ */
+export function notifyResourceEditStarted(userId: string, resourceId: string, resourceType?: string): void {
+  const user = clientUsers.get(userId);
+  if (!user) return;
+  
+  broadcastNotification({
+    type: NotificationType.RESOURCE_EDIT_STARTED,
+    user,
+    resourceId,
+    resourceType,
+    timestamp: Date.now()
+  }, userId);
+}
+
+/**
+ * Notify that a user stopped editing a resource
+ */
+export function notifyResourceEditEnded(userId: string, resourceId: string): void {
+  const user = clientUsers.get(userId);
+  if (!user) return;
+  
+  broadcastNotification({
+    type: NotificationType.RESOURCE_EDIT_ENDED,
+    user,
+    resourceId,
+    timestamp: Date.now()
+  }, userId);
+}
+
+/**
+ * Notify that a resource was updated
+ */
+export function notifyResourceUpdated(userId: string, resourceId: string, resourceType?: string): void {
+  const user = clientUsers.get(userId);
+  if (!user) return;
+  
+  broadcastNotification({
+    type: NotificationType.RESOURCE_UPDATED,
+    user,
+    resourceId,
+    resourceType,
+    timestamp: Date.now()
+  });
+}
+
+/**
+ * Notify that a comment was added
+ */
+export function notifyCommentAdded(userId: string, resourceId: string, resourceType: string, comment: string): void {
+  const user = clientUsers.get(userId);
+  if (!user) return;
+  
+  broadcastNotification({
+    type: NotificationType.COMMENT_ADDED,
+    user,
+    resourceId,
+    resourceType,
+    context: comment,
+    timestamp: Date.now()
+  });
+}
+
+/**
+ * Notify a user that they were mentioned
+ */
+export function notifyUserMentioned(
+  mentioningUserId: string, 
+  mentionedUserId: string, 
+  resourceId: string, 
+  resourceType: string
+): void {
+  const mentioningUser = clientUsers.get(mentioningUserId);
+  if (!mentioningUser) return;
+  
+  sendNotificationToUsers({
+    type: NotificationType.MENTION,
+    user: mentioningUser,
+    resourceId,
+    resourceType,
+    timestamp: Date.now()
+  }, [mentionedUserId]);
+}
+
+/**
+ * Notify a user that a task was assigned to them
+ */
+export function notifyTaskAssigned(
+  assignerId: string, 
+  assigneeId: string, 
+  taskId: string, 
+  taskDetails?: any
+): void {
+  const assigner = clientUsers.get(assignerId);
+  if (!assigner) return;
+  
+  sendNotificationToUsers({
+    type: NotificationType.TASK_ASSIGNED,
+    user: assigner,
+    resourceId: taskId,
+    resourceType: 'task',
+    context: JSON.stringify(taskDetails),
+    timestamp: Date.now()
+  }, [assigneeId]);
+}
+
+/**
+ * Send a general notification to all users or specific users
+ */
+export function sendGeneralNotification(
+  title: string, 
+  message: string, 
+  targetUserIds?: string[]
+): void {
+  const notification: Notification = {
+    type: NotificationType.GENERAL_NOTIFICATION,
+    title,
+    message,
     timestamp: Date.now()
   };
   
-  broadcastToAll(notification);
-}
-
-// Send a message to a specific user across all their connections
-function sendToUser(userId: string, data: any): void {
-  const userClients = collaborationClients.get(userId);
-  
-  if (userClients) {
-    const message = JSON.stringify(data);
-    
-    userClients.forEach(client => {
-      if (client.readyState === WebSocket.OPEN) {
-        client.send(message);
-      }
-    });
+  if (targetUserIds && targetUserIds.length > 0) {
+    sendNotificationToUsers(notification, targetUserIds);
+  } else {
+    broadcastNotification(notification);
   }
 }
 
-// Broadcast a message to all connected clients
-function broadcastToAll(data: any): void {
-  const message = JSON.stringify(data);
+/**
+ * Get information about who is editing what
+ */
+export function getResourceEditors(): { [resourceId: string]: UserInfo[] } {
+  const result: { [resourceId: string]: UserInfo[] } = {};
   
-  for (const clients of collaborationClients.values()) {
-    for (const client of clients) {
-      if (client.readyState === WebSocket.OPEN) {
-        client.send(message);
-      }
-    }
+  for (const [resourceId, userIds] of Array.from(resourceLocks.entries())) {
+    result[resourceId] = Array.from(userIds)
+      .map(id => clientUsers.get(id as string))
+      .filter(Boolean) as UserInfo[];
   }
+  
+  return result;
 }
 
-// Get currently active users
-export function getActiveUsers(): UserInfo[] {
-  return Array.from(connectedUsers.values());
+/**
+ * Get all connected users
+ */
+export function getConnectedUsers(): UserInfo[] {
+  return Array.from(clientUsers.values());
 }
 
-// Get users currently editing a specific resource
-export function getUsersEditingResource(resourceId: string): UserInfo[] {
-  const editors = activeEdits.get(resourceId);
-  
-  if (!editors) return [];
-  
-  return Array.from(editors)
-    .map(userId => connectedUsers.get(userId))
-    .filter((user): user is UserInfo => user !== undefined);
+/**
+ * Get all resources being edited by a user
+ */
+export function getResourcesEditedByUser(userId: string): string[] {
+  const resources = userResourceLocks.get(userId);
+  return resources ? Array.from(resources) : [];
+}
+
+/**
+ * Count of connected users
+ */
+export function getConnectedUserCount(): number {
+  return clientConnections.size;
 }

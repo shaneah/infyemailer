@@ -1,122 +1,130 @@
 import { Router } from 'express';
-import * as collaborationService from '../services/collaborationService';
+import { 
+  getConnectedUsers, 
+  getConnectedUserCount, 
+  getResourceEditors, 
+  getResourcesEditedByUser,
+  sendGeneralNotification,
+  NotificationType
+} from '../services/collaborationService';
 
 const router = Router();
 
-// Get active users
+/**
+ * Get currently connected users
+ */
 router.get('/users', (req, res) => {
-  const activeUsers = collaborationService.getActiveUsers();
-  res.json({ activeUsers });
-});
-
-// Get users editing a resource
-router.get('/resource/:resourceId/editors', (req, res) => {
-  const { resourceId } = req.params;
-  const editors = collaborationService.getUsersEditingResource(resourceId);
-  res.json({ resourceId, editors });
-});
-
-// Start editing a resource
-router.post('/resource/:resourceId/start-edit', (req, res) => {
-  const { resourceId } = req.params;
-  const { userId, resourceType } = req.body;
-  
-  if (!userId) {
-    return res.status(400).json({ error: 'User ID is required' });
+  try {
+    const users = getConnectedUsers();
+    const count = getConnectedUserCount();
+    
+    res.json({
+      count,
+      users
+    });
+  } catch (error) {
+    console.error('Error getting connected users:', error);
+    res.status(500).json({ error: 'Failed to get connected users' });
   }
-  
-  collaborationService.startResourceEdit(resourceId, resourceType || 'unknown', userId);
-  res.status(200).json({ success: true });
 });
 
-// End editing a resource
-router.post('/resource/:resourceId/end-edit', (req, res) => {
-  const { resourceId } = req.params;
-  const { userId } = req.body;
-  
-  if (!userId) {
-    return res.status(400).json({ error: 'User ID is required' });
+/**
+ * Get resources being edited and by whom
+ */
+router.get('/resources', (req, res) => {
+  try {
+    const resources = getResourceEditors();
+    res.json(resources);
+  } catch (error) {
+    console.error('Error getting resource editors:', error);
+    res.status(500).json({ error: 'Failed to get resource editors' });
   }
-  
-  collaborationService.endResourceEdit(resourceId, userId);
-  res.status(200).json({ success: true });
 });
 
-// Record resource update
-router.post('/resource/:resourceId/update', (req, res) => {
-  const { resourceId } = req.params;
-  const { userId, resourceType, changes } = req.body;
-  
-  if (!userId) {
-    return res.status(400).json({ error: 'User ID is required' });
+/**
+ * Get resources being edited by a specific user
+ */
+router.get('/users/:userId/resources', (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const resources = getResourcesEditedByUser(userId);
+    res.json(resources);
+  } catch (error) {
+    console.error(`Error getting resources for user ${req.params.userId}:`, error);
+    res.status(500).json({ error: 'Failed to get user resources' });
   }
-  
-  collaborationService.notifyResourceUpdated(
-    resourceId, 
-    resourceType || 'unknown', 
-    userId, 
-    changes || {}
-  );
-  
-  res.status(200).json({ success: true });
 });
 
-// Add a comment to a resource
-router.post('/resource/:resourceId/comment', (req, res) => {
-  const { resourceId } = req.params;
-  const { userId, resourceType, comment } = req.body;
-  
-  if (!userId || !comment) {
-    return res.status(400).json({ error: 'User ID and comment are required' });
+/**
+ * Send a notification to all users or specific users
+ */
+router.post('/notify', (req, res) => {
+  try {
+    const { title, message, targetUserIds } = req.body;
+    
+    if (!title || !message) {
+      return res.status(400).json({ error: 'Title and message are required' });
+    }
+    
+    sendGeneralNotification(title, message, targetUserIds);
+    
+    res.json({ success: true, message: 'Notification sent' });
+  } catch (error) {
+    console.error('Error sending notification:', error);
+    res.status(500).json({ error: 'Failed to send notification' });
   }
-  
-  collaborationService.notifyCommentAdded(
-    resourceId, 
-    resourceType || 'unknown', 
-    userId, 
-    comment
-  );
-  
-  res.status(200).json({ success: true });
 });
 
-// Mention a user in a resource
-router.post('/resource/:resourceId/mention', (req, res) => {
-  const { resourceId } = req.params;
-  const { userId, resourceType, mentionedUserId, context } = req.body;
-  
-  if (!userId || !mentionedUserId) {
-    return res.status(400).json({ error: 'User IDs are required' });
+/**
+ * Simulate a user joining notification for testing
+ */
+router.post('/simulate/join', (req, res) => {
+  try {
+    const { userId, userName, userRole, userAvatar } = req.body;
+    
+    if (!userId || !userName) {
+      return res.status(400).json({ error: 'User ID and name are required' });
+    }
+    
+    // This is just a simulation - in a real app, users connect via WebSocket
+    sendGeneralNotification(
+      'User Joined',
+      `${userName} joined the collaboration`,
+      null
+    );
+    
+    res.json({ success: true, message: 'Join notification simulated' });
+  } catch (error) {
+    console.error('Error simulating join notification:', error);
+    res.status(500).json({ error: 'Failed to simulate notification' });
   }
-  
-  collaborationService.notifyUserMentioned(
-    resourceId, 
-    resourceType || 'unknown', 
-    userId, 
-    mentionedUserId, 
-    context || ''
-  );
-  
-  res.status(200).json({ success: true });
 });
 
-// Assign a task
-router.post('/task/:taskId/assign', (req, res) => {
-  const { taskId } = req.params;
-  const { assignerId, assigneeId, taskDetails } = req.body;
-  
-  if (!assignerId || !assigneeId) {
-    return res.status(400).json({ error: 'Assigner ID and assignee ID are required' });
+/**
+ * Simulate resource editing notification for testing
+ */
+router.post('/simulate/edit', (req, res) => {
+  try {
+    const { userId, userName, resourceId, resourceType } = req.body;
+    
+    if (!userId || !userName || !resourceId) {
+      return res.status(400).json({ 
+        error: 'User ID, name, and resource ID are required' 
+      });
+    }
+    
+    // This is just a simulation - in a real app, actions come via WebSocket
+    sendGeneralNotification(
+      'Resource Edit Started',
+      `${userName} started editing ${resourceType || 'resource'} ${resourceId}`,
+      null
+    );
+    
+    res.json({ success: true, message: 'Edit notification simulated' });
+  } catch (error) {
+    console.error('Error simulating edit notification:', error);
+    res.status(500).json({ error: 'Failed to simulate notification' });
   }
-  
-  collaborationService.notifyTaskAssigned(
-    taskId, 
-    assignerId, 
-    assigneeId, 
-    taskDetails || {}
-  );
-  
-  res.status(200).json({ success: true });
 });
 
 export default router;
