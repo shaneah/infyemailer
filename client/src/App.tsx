@@ -189,18 +189,7 @@ function App() {
             <Toaster />
           </div>
         </Route>
-        <Route path="client-servers">
-          <div className="bg-background min-h-screen">
-            <ClientPlaceholderPage title="Servers" />
-            <Toaster />
-          </div>
-        </Route>
-        <Route path="client-maintenance">
-          <div className="bg-background min-h-screen">
-            <ClientPlaceholderPage title="Maintenance" />
-            <Toaster />
-          </div>
-        </Route>
+
         <Route path="email-performance-dashboard">
           <div className="bg-background min-h-screen">
             <EmailPerformanceDashboard />

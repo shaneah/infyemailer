@@ -3,7 +3,7 @@ import { useLocation, Link } from 'wouter';
 import { 
   Mail, Users, ListChecks, FileText, BarChart3, LineChart,
   Globe, CheckSquare, SplitSquareVertical, Settings, LogOut, Menu, X, CreditCard,
-  ShieldAlert, Server, Database, Activity, AlertCircle, Wrench, Clock
+  ShieldAlert, Activity
 } from 'lucide-react';
 import LogoWhite from '../assets/Logo-white.png';
 
@@ -202,18 +202,6 @@ const ClientSidebar = ({ open, setOpen }: SidebarProps) => {
               icon={CreditCard} 
               label="Billing & Credits" 
               active={location === '/client-billing'} 
-            />
-            <MenuItem 
-              href="/client-servers" 
-              icon={Server} 
-              label="Servers" 
-              active={location === '/client-servers'} 
-            />
-            <MenuItem 
-              href="/client-maintenance" 
-              icon={Wrench} 
-              label="Maintenance" 
-              active={location === '/client-maintenance'} 
             />
           </MenuSection>
         </div>
