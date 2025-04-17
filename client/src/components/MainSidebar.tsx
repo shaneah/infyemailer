@@ -52,7 +52,7 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
     <div 
       className={`${open ? 'translate-x-0' : '-translate-x-full'} fixed inset-y-0 left-0 z-50 transform transition-transform duration-300 ease-in-out md:translate-x-0 md:relative md:z-0`}
     >
-      <div className="flex flex-col h-full w-64 bg-gradient-to-b from-[#3a86ff] to-[#38b2ac] text-white border-r border-[#4299e1] shadow-lg">
+      <div className="flex flex-col h-full w-64 bg-gradient-to-b from-[#1a365d] to-[#0f2942] text-white border-r border-[#2a4365] shadow-lg">
         <div className="flex flex-col flex-1 h-full overflow-y-auto">
           {/* Logo */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-[#1e293b]">
@@ -334,7 +334,7 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
                   : 'text-white hover:bg-white/10 hover:text-white'}`}
                 title="Settings"
               >
-                <Settings className={`h-5 w-5 mr-3 ${location === '/settings' ? 'text-white' : 'text-white/70'}`} />
+                <Settings className={`h-5 w-5 mr-3 ${location === '/settings' ? 'text-[#d4af37]' : 'text-white/70'}`} />
                 {!collapsed && <span>Settings</span>}
               </Link>
             </li>
@@ -346,7 +346,7 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
           <div className="px-2 mt-4 mb-6">
             <button
               onClick={handleLogout}
-              className="flex items-center w-full px-3 py-2 rounded-md text-white hover:bg-white/10 hover:text-white"
+              className="flex items-center w-full px-3 py-2 rounded-md text-white hover:bg-white/10 hover:text-[#d4af37]"
               title="Logout"
             >
               <LogOut className="h-5 w-5 mr-3 text-white/70" />
