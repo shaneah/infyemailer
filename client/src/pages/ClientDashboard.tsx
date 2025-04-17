@@ -182,44 +182,23 @@ export default function ClientDashboard() {
       <div className="flex-1 flex flex-col overflow-hidden relative z-10">
         {/* Header */}
         <header className="relative z-20">
-          <div className="bg-gradient-to-r from-blue-900 via-blue-800 to-blue-900 border-b border-blue-700">
-            <div className="container mx-auto py-4 px-6 relative overflow-hidden">
-              {/* Decorative elements */}
-              <div className="absolute top-0 right-0 w-96 h-96 bg-blue-600 rounded-full opacity-10 blur-3xl -mt-48 -mr-48"></div>
-              <div className="absolute bottom-0 left-0 w-64 h-64 bg-amber-400 rounded-full opacity-10 blur-3xl -mb-32 -ml-32"></div>
-              
-              <div className="flex justify-between items-center relative z-10">
-                <div className="flex items-center gap-4">
-                  <Button 
-                    variant="ghost" 
-                    size="lg"
-                    className="lg:hidden text-white hover:bg-blue-800/50"
-                    onClick={() => setSidebarOpen(true)}
-                  >
-                    <Menu size={24} />
-                  </Button>
-                  <div>
-                    <div className="flex items-end gap-2">
-                      <h1 className="text-2xl font-bold tracking-tight bg-gradient-to-r from-white via-blue-100 to-amber-200 inline-block text-transparent bg-clip-text">
-                        InfyMailer
-                      </h1>
-                      <div className="bg-amber-500 h-6 w-1.5 rounded-full mb-1 blur-[0.5px]"></div>
-                      <span className="text-lg font-medium text-blue-100 tracking-wide">Dashboard</span>
-                    </div>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <Button 
-                    variant="outline" 
-                    onClick={handleLogout} 
-                    className="text-white border-white/20 hover:bg-white/10 font-medium px-4 backdrop-blur-sm"
-                  >
-                    <LogOut className="h-4 w-4 mr-2 text-amber-300" />
-                    Logout
-                  </Button>
-                </div>
-              </div>
-            </div>
+          <div className="flex justify-end p-4 bg-gradient-to-r from-blue-900 via-blue-800 to-blue-900 border-b border-blue-700">
+            <Button 
+              variant="ghost" 
+              size="lg"
+              className="lg:hidden text-white hover:bg-blue-800/50 mr-auto"
+              onClick={() => setSidebarOpen(true)}
+            >
+              <Menu size={24} />
+            </Button>
+            <Button 
+              variant="outline" 
+              onClick={handleLogout} 
+              className="text-white border-white/20 hover:bg-white/10 font-medium px-4 backdrop-blur-sm"
+            >
+              <LogOut className="h-4 w-4 mr-2 text-amber-300" />
+              Logout
+            </Button>
           </div>
           
           {/* Sub header with breadcrumbs and quick actions */}
