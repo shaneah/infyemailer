@@ -14,6 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useQuery } from '@tanstack/react-query';
 import { Skeleton } from '@/components/ui/skeleton';
 import { LogOut, ChevronDown, Info, Inbox, Users, BarChart3, Settings2 } from 'lucide-react';
+import '../pages/client-portal.css';
 
 const ClientDashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -111,28 +112,29 @@ const ClientDashboard = () => {
   }
   
   return (
-    <div className="container mx-auto px-4 py-6">
-      <div className="flex justify-between items-center mb-8">
-        <div>
-          <h1 className="text-3xl font-bold">{clientUser.company || 'Client'} Dashboard</h1>
-          <p className="text-gray-500">Welcome back, {clientUser.name}</p>
+    <div className="client-portal-container client-theme min-h-screen">
+      <div className="container mx-auto px-4 py-6">
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h1 className="text-3xl font-bold">{clientUser.company || 'Client'} Dashboard</h1>
+            <p className="text-gray-500">Welcome back, {clientUser.name}</p>
+          </div>
+          
+          <div className="flex items-center gap-4">
+            <Button 
+              variant="outline" 
+              className="border-[#d4af37]/50 client-btn-outline"
+              onClick={handleLogout}
+            >
+              <LogOut className="mr-2 h-4 w-4" />
+              Logout
+            </Button>
+          </div>
         </div>
-        
-        <div className="flex items-center gap-4">
-          <Button 
-            variant="outline" 
-            className="border-[#d4af37]/50"
-            onClick={handleLogout}
-          >
-            <LogOut className="mr-2 h-4 w-4" />
-            Logout
-          </Button>
-        </div>
-      </div>
       
       {/* Overview Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-8">
-        <Card className="border-[#d4af37]/20">
+        <Card className="border-[#d4af37]/20 client-card">
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
@@ -483,6 +485,7 @@ const ClientDashboard = () => {
             <p className="mb-6 text-gray-500">This tab will allow you to manage your account settings.</p>
           </TabsContent>
         </Tabs>
+      </div>
       </div>
     </div>
   );
