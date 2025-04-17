@@ -54,11 +54,11 @@ const MenuItem = ({ href, icon: Icon, label, active }: {
 const MenuSection = ({ title, children }: { title: string; children: React.ReactNode }) => {
   return (
     <div className="mb-4">
-      <div className="px-4 py-1 text-xs font-medium uppercase tracking-wider text-amber-300/90 relative group">
-        <span className="transition-all duration-300 group-hover:text-amber-300 group-hover:translate-x-0.5 inline-block">
+      <div className="px-4 py-1 text-xs font-medium uppercase tracking-wider text-purple-300/90 relative group">
+        <span className="transition-all duration-300 group-hover:text-purple-300 group-hover:translate-x-0.5 inline-block">
           {title}
         </span>
-        <div className="h-px w-0 bg-amber-300/50 absolute -bottom-0.5 left-4 transition-all duration-300 group-hover:w-12"></div>
+        <div className="h-px w-0 bg-purple-300/50 absolute -bottom-0.5 left-4 transition-all duration-300 group-hover:w-12"></div>
       </div>
       <nav className="mt-1 space-y-0.5 px-2">
         {children}
@@ -210,12 +210,6 @@ const ClientSidebar = ({ open, setOpen }: SidebarProps) => {
           
           <MenuSection title="System">
             <MenuItem 
-              href="/client-overview" 
-              icon={Activity} 
-              label="System Overview" 
-              active={location === '/client-overview'} 
-            />
-            <MenuItem 
               href="/client-security" 
               icon={ShieldAlert} 
               label="Security" 
@@ -236,16 +230,16 @@ const ClientSidebar = ({ open, setOpen }: SidebarProps) => {
             href="/client-settings"
             className={`group flex items-center px-4 py-3 text-sm transition-all duration-150 ${
               location === '/client-settings' 
-                ? 'bg-blue-800 text-white shadow-inner' 
-                : 'text-blue-100 hover:bg-blue-800/40 hover:shadow-inner'
+                ? 'bg-purple-800 text-white shadow-inner' 
+                : 'text-blue-100 hover:bg-purple-800/40 hover:shadow-inner'
             }`}
           >
             <Settings 
               size={18} 
               className={`mr-3 transition-all duration-200 ${
                 location === '/client-settings' 
-                  ? 'text-amber-300 rotate-90' 
-                  : 'text-blue-200 group-hover:text-amber-300 group-hover:rotate-90'
+                  ? 'text-purple-300 rotate-90' 
+                  : 'text-blue-200 group-hover:text-purple-300 group-hover:rotate-90'
               }`} 
             />
             <span className="font-medium group-hover:font-semibold transition-all duration-150">
