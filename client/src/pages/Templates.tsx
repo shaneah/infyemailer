@@ -886,6 +886,15 @@ export default function Templates() {
                               <Copy className="h-4 w-4 mr-2" />
                               Copy HTML Code
                             </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                window.location.href = `/templates/advanced-builder/${template.id}`;
+                              }}
+                            >
+                              <Sparkles className="h-4 w-4 mr-2" />
+                              Edit in Advanced Builder
+                            </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem
                               className="text-red-600"
@@ -996,6 +1005,13 @@ export default function Templates() {
                       <Button className="w-full justify-start gap-2">
                         <Pencil className="h-4 w-4" />
                         Edit Template
+                      </Button>
+                    </Link>
+                    
+                    <Link href={`/templates/advanced-builder/${selectedTemplate.id}`} className="w-full">
+                      <Button className="w-full justify-start gap-2 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-700 hover:to-emerald-600">
+                        <Sparkles className="h-4 w-4" />
+                        Edit in Advanced Builder
                       </Button>
                     </Link>
                     
@@ -1316,14 +1332,30 @@ export default function Templates() {
                 )}
               />
 
-              <DialogFooter>
-                <Button 
-                  variant="outline" 
-                  onClick={() => setIsUpdateTemplateOpen(false)} 
-                  type="button"
-                >
-                  Cancel
-                </Button>
+              <DialogFooter className="flex justify-between flex-wrap gap-2">
+                <div>
+                  <Button 
+                    type="button"
+                    variant="outline" 
+                    className="mr-2 gap-1"
+                    onClick={() => {
+                      setIsUpdateTemplateOpen(false);
+                      if (selectedTemplate) {
+                        window.location.href = `/templates/advanced-builder/${selectedTemplate.id}`;
+                      }
+                    }}
+                  >
+                    <Sparkles className="h-4 w-4" />
+                    Edit in Advanced Builder
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    onClick={() => setIsUpdateTemplateOpen(false)} 
+                    type="button"
+                  >
+                    Cancel
+                  </Button>
+                </div>
                 <Button 
                   type="submit" 
                   disabled={updateTemplateMutation.isPending}
