@@ -66,6 +66,23 @@ export default function BasicTemplateBuilder({ isClientPortal = false }: BasicTe
       if (template.content) {
         setHtmlContent(template.content);
       }
+      
+      // If we have sections in metadata, load them
+      if (template.metadata && template.metadata.sections) {
+        try {
+          // The metadata might be a string that needs parsing, or it might already be an object
+          const sectionsData = typeof template.metadata === 'string' 
+            ? JSON.parse(template.metadata).sections 
+            : template.metadata.sections;
+            
+          if (Array.isArray(sectionsData)) {
+            console.log("Loading sections from template metadata:", sectionsData);
+            setSections(sectionsData);
+          }
+        } catch (error) {
+          console.error("Error parsing template sections from metadata:", error);
+        }
+      }
     }
   }, [template]);
   const [sections, setSections] = useState<Array<{
