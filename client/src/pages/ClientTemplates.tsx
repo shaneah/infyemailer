@@ -543,7 +543,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
                   )}
                 </Button>
                 <Button 
-                  className="rounded-lg shadow-md gap-2 px-5 bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white transition-all border border-blue-300"
+                  className="rounded-lg shadow-md gap-2 px-5 bg-gradient-to-r from-blue-600 via-blue-700 to-blue-900 hover:from-blue-700 hover:via-blue-800 hover:to-blue-950 text-white transition-all border border-blue-300 font-semibold"
                   onClick={onCreateTemplate}
                 >
                   <PlusCircle className="h-4 w-4 mr-1" /> 
@@ -644,7 +644,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
               </p>
               <div className="mt-6">
                 <Button 
-                  className="rounded-lg gap-2 px-5 bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white transition-all border border-blue-300"
+                  className="rounded-lg shadow-md gap-2 px-5 bg-gradient-to-r from-blue-600 via-blue-700 to-blue-900 hover:from-blue-700 hover:via-blue-800 hover:to-blue-950 text-white transition-all border border-blue-300 font-semibold"
                   onClick={onCreateTemplate}
                 >
                   <PlusCircle className="h-4 w-4" />
@@ -718,7 +718,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
                             <Button 
                               variant="default" 
                               size="sm"
-                              className="shadow-lg opacity-90 hover:opacity-100 bg-gradient-to-r from-blue-600 to-blue-800 border border-blue-300 hover:from-blue-700 hover:to-blue-900"
+                              className="shadow-lg opacity-90 hover:opacity-100 bg-gradient-to-r from-blue-600 via-blue-700 to-blue-900 hover:from-blue-700 hover:via-blue-800 hover:to-blue-950 border border-blue-300 font-medium"
                               onClick={() => handleViewTemplate(template)}
                             >
                               <Eye className="h-4 w-4 mr-1" />
@@ -727,7 +727,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
                             <Button 
                               variant="default" 
                               size="sm"
-                              className="shadow-lg opacity-90 hover:opacity-100 bg-white text-gray-700 border border-gray-200 hover:bg-gray-50"
+                              className="shadow-lg opacity-90 hover:opacity-100 bg-white text-blue-700 border border-blue-200 hover:bg-blue-50"
                               onClick={() => handleEditTemplate(template)}
                             >
                               <Edit className="h-4 w-4 mr-1" />
