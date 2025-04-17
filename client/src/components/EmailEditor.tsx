@@ -2632,16 +2632,14 @@ const EmailEditor: React.FC<{
         </div>
         
         {/* Right Sidebar - Properties */}
-        <div className="w-64 bg-white border-l border-gray-200 overflow-y-auto">
-          <PropertyEditor
-            selectedElement={selectedElement}
-            selectedSection={selectedSection}
-            updateElement={updateElement}
-            updateSection={updateSection}
-            deleteElement={deleteElement}
-            onTemplateStyling={() => setIsStylingDialogOpen(true)}
-          />
-        </div>
+        <PropertyEditor
+          selectedElement={selectedElement}
+          selectedSection={selectedSection}
+          updateElement={updateElement}
+          updateSection={updateSection}
+          deleteElement={deleteElement}
+          onTemplateStyling={() => setIsStylingDialogOpen(true)}
+        />
       </div>
       
       {/* Template Styling Dialog */}
