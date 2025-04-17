@@ -8,13 +8,14 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { ColorPicker } from "@/components/ui/color-picker";
 import { 
   AlignLeft, AlignCenter, AlignRight, Bold, Italic, Underline, Image, 
   Link, List, ListOrdered, Type, Grid, Layout, Columns, Rows, Save, 
   ArrowLeft, Loader2, SeparatorHorizontal, X, ArrowDown, Settings, Palette,
   Plus, Trash2, MoveVertical, Copy, Code, Eye, ArrowUp, GripVertical, Smile, Video,
-  AlertCircle, Upload
+  AlertCircle, Upload, Search, LayoutGrid, Play, Share2, Timer, ShoppingCart
 } from "lucide-react";
 import EmojiPicker, { Theme, EmojiClickData } from "emoji-picker-react";
 import { GiphyFetch } from "@giphy/js-fetch-api";
@@ -2486,16 +2487,30 @@ const EmailEditor: React.FC<{
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-sm font-medium text-gray-700">Elements</h3>
               <div className="flex space-x-1">
-                <Tooltip content="Search Elements">
-                  <Button variant="ghost" size="icon" className="h-6 w-6 text-gray-500 hover:text-gray-800">
-                    <Search className="h-3.5 w-3.5" />
-                  </Button>
-                </Tooltip>
-                <Tooltip content="View All Elements">
-                  <Button variant="ghost" size="icon" className="h-6 w-6 text-gray-500 hover:text-gray-800">
-                    <LayoutGrid className="h-3.5 w-3.5" />
-                  </Button>
-                </Tooltip>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-6 w-6 text-gray-500 hover:text-gray-800">
+                        <Search className="h-3.5 w-3.5" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Search Elements</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-6 w-6 text-gray-500 hover:text-gray-800">
+                        <LayoutGrid className="h-3.5 w-3.5" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>View All Elements</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </div>
             </div>
             
