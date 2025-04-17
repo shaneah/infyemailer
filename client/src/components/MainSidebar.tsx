@@ -309,19 +309,7 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
               </Link>
             </li>
             
-            {/* Admin Clients */}
-            <li>
-              <Link 
-                href="/admin-clients" 
-                className={`flex items-center px-3 py-2 rounded-md ${location === '/admin-clients' 
-                  ? 'text-white bg-gradient-to-r from-[#1e293b] to-transparent border-l-4 border-[#d4af37]' 
-                  : 'text-gray-300 hover:bg-[#1e293b]/50 hover:text-white'}`}
-                title="Admin Clients"
-              >
-                <Building2 className={`h-5 w-5 mr-3 ${location === '/admin-clients' ? 'text-[#d4af37]' : ''}`} />
-                {!collapsed && <span>Admin Clients</span>}
-              </Link>
-            </li>
+            {/* Admin Clients link removed - using Client Management instead */}
             
             {/* Admin Panel */}
             <li>
