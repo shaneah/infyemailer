@@ -698,14 +698,14 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
                         <div className="absolute top-0 left-0 w-full flex justify-between p-2.5">
                           <Badge 
                             variant="outline" 
-                            className="capitalize px-2 py-0.5 text-xs bg-white bg-opacity-90 text-emerald-700 border-emerald-200 rounded-md shadow-sm"
+                            className="capitalize px-2 py-0.5 text-xs bg-white bg-opacity-90 text-purple-700 border-purple-200 rounded-md shadow-sm"
                           >
                             {template.category || "general"}
                           </Badge>
                           
                           {template.metadata?.generatedByAI && (
                             <Badge 
-                              className="capitalize px-2 py-0.5 text-xs rounded-md bg-gradient-to-r from-emerald-600 to-teal-600 text-white border-0 shadow-sm flex items-center gap-1"
+                              className="capitalize px-2 py-0.5 text-xs rounded-md bg-gradient-to-r from-purple-600 to-indigo-600 text-white border-0 shadow-sm flex items-center gap-1"
                             >
                               <Sparkles className="h-3 w-3" /> AI
                             </Badge>
@@ -718,7 +718,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
                             <Button 
                               variant="default" 
                               size="sm"
-                              className="shadow-lg opacity-90 hover:opacity-100 bg-emerald-600 hover:bg-emerald-700 border-none font-medium"
+                              className="shadow-lg opacity-90 hover:opacity-100 bg-purple-600 hover:bg-purple-700 border-none font-medium"
                               onClick={() => handleViewTemplate(template)}
                             >
                               <Eye className="h-4 w-4 mr-1" />
@@ -727,7 +727,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
                             <Button 
                               variant="default" 
                               size="sm"
-                              className="shadow-lg opacity-90 hover:opacity-100 bg-white text-emerald-700 border border-emerald-200 hover:bg-emerald-50"
+                              className="shadow-lg opacity-90 hover:opacity-100 bg-white text-purple-700 border border-purple-200 hover:bg-purple-50"
                               onClick={() => handleEditTemplate(template)}
                             >
                               <Edit className="h-4 w-4 mr-1" />
@@ -738,7 +738,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
                         
                         {/* NEW badge */}
                         {template.metadata?.new && (
-                          <div className="absolute top-12 -right-8 bg-gradient-to-r from-emerald-600 to-teal-600 text-white text-xs px-10 py-1 font-medium shadow-md transform rotate-45">
+                          <div className="absolute top-12 -right-8 bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-xs px-10 py-1 font-medium shadow-md transform rotate-45">
                             NEW
                           </div>
                         )}
@@ -805,7 +805,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
                           <Button 
                             variant="link" 
                             size="sm" 
-                            className="p-0 h-auto text-emerald-600 hover:text-emerald-800"
+                            className="p-0 h-auto text-purple-600 hover:text-purple-800"
                             onClick={() => handleViewTemplate(template)}
                           >
                             Preview <MoveRight className="h-3 w-3 ml-1" />
@@ -973,7 +973,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
                   <div className="flex flex-col gap-2">
                     <Button 
                       variant="outline" 
-                      className="justify-start text-blue-700 border-blue-200 hover:bg-blue-50"
+                      className="justify-start text-purple-700 border-purple-200 hover:bg-purple-50"
                       onClick={() => handleEditTemplate(selectedTemplate!)}
                     >
                       <Edit className="h-4 w-4 mr-2" />
@@ -981,7 +981,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
                     </Button>
                     <Button 
                       variant="outline" 
-                      className="justify-start text-blue-700 border-blue-200 hover:bg-blue-50"
+                      className="justify-start text-purple-700 border-purple-200 hover:bg-purple-50"
                       onClick={() => {
                         setIsTestEmailOpen(true);
                       }}
@@ -991,7 +991,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
                     </Button>
                     <Button 
                       variant="outline" 
-                      className="justify-start text-blue-700 border-blue-200 hover:bg-blue-50"
+                      className="justify-start text-purple-700 border-purple-200 hover:bg-purple-50"
                       onClick={handleCopyHtmlCode}
                     >
                       <Copy className="h-4 w-4 mr-2" />
@@ -999,7 +999,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
                     </Button>
                     <Button 
                       variant="outline" 
-                      className="justify-start text-blue-700 border-blue-200 hover:bg-blue-50"
+                      className="justify-start text-purple-700 border-purple-200 hover:bg-purple-50"
                       onClick={() => handleShareTemplate(selectedTemplate!.id)}
                     >
                       <Share2 className="h-4 w-4 mr-2" />
@@ -1007,7 +1007,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
                     </Button>
                     <Button 
                       variant="outline" 
-                      className="justify-start text-blue-700 border-blue-200 hover:bg-blue-50"
+                      className="justify-start text-purple-700 border-purple-200 hover:bg-purple-50"
                       onClick={() => {
                         setIsUpdateTemplateOpen(true);
                       }}
@@ -1114,7 +1114,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
                   </Button>
                   <Button 
                     type="submit"
-                    className="bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900"
+                    className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
                     disabled={sendTestEmailMutation.isPending}
                   >
                     {sendTestEmailMutation.isPending ? (
