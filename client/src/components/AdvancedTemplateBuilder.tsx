@@ -28,11 +28,19 @@ import {
   RefreshCw,
   HelpCircle,
   Sparkles,
-  Smartphone,
   MessageSquareText,
   FileText,
   ArrowLeft,
-  ChevronLeft
+  ChevronLeft,
+  Video,
+  SmilePlus,
+  ImagePlus,
+  Columns,
+  LayoutGrid,
+  Divide,
+  Box,
+  Clock,
+  ShoppingBag
 } from "lucide-react";
 import {
   Select,
@@ -393,36 +401,100 @@ const AdvancedTemplateBuilder: React.FC<AdvancedTemplateBuilderProps> = ({
             Drag and drop elements into your template.
           </p>
           
-          <div className="grid grid-cols-2 gap-2">
-            {currentTab === 'design' && (
-              <>
-                <Button variant="outline" size="sm" className="justify-start text-xs border-gray-200 bg-white text-gray-700 hover:bg-gray-50 hover:text-indigo-700 rounded-md">
-                  <LayoutPanelLeft className="h-3.5 w-3.5 mr-2 text-gray-500" />
-                  Header
-                </Button>
-                <Button variant="outline" size="sm" className="justify-start text-xs border-gray-200 bg-white text-gray-700 hover:bg-gray-50 hover:text-indigo-700 rounded-md">
-                  <AlignLeft className="h-3.5 w-3.5 mr-2 text-gray-500" />
-                  Text
-                </Button>
-                <Button variant="outline" size="sm" className="justify-start text-xs border-gray-200 bg-white text-gray-700 hover:bg-gray-50 hover:text-indigo-700 rounded-md">
-                  <Upload className="h-3.5 w-3.5 mr-2 text-gray-500" />
-                  Image
-                </Button>
-                <Button variant="outline" size="sm" className="justify-start text-xs border-gray-200 bg-white text-gray-700 hover:bg-gray-50 hover:text-indigo-700 rounded-md">
-                  <Play className="h-3.5 w-3.5 mr-2 text-gray-500" />
-                  Button
-                </Button>
-                <Button variant="outline" size="sm" className="justify-start text-xs border-gray-200 bg-white text-gray-700 hover:bg-gray-50 hover:text-indigo-700 rounded-md">
-                  <Sparkles className="h-3.5 w-3.5 mr-2 text-gray-500" />
-                  Social
-                </Button>
-                <Button variant="outline" size="sm" className="justify-start text-xs border-gray-200 bg-white text-gray-700 hover:bg-gray-50 hover:text-indigo-700 rounded-md">
-                  <Copy className="h-3.5 w-3.5 mr-2 text-gray-500" />
-                  Spacer
-                </Button>
-              </>
-            )}
-          </div>
+          {currentTab === 'design' && (
+            <Tabs defaultValue="basic" className="w-full mb-2">
+              <TabsList className="grid w-full grid-cols-4 mb-4">
+                <TabsTrigger value="basic" className="text-xs">Basic</TabsTrigger>
+                <TabsTrigger value="media" className="text-xs">Media</TabsTrigger>
+                <TabsTrigger value="layout" className="text-xs">Layout</TabsTrigger>
+                <TabsTrigger value="advanced" className="text-xs">Advanced</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="basic" className="mt-0">
+                <div className="grid grid-cols-2 gap-2">
+                  <Button variant="outline" size="sm" className="justify-start text-xs border-gray-200 bg-white text-gray-700 hover:bg-gray-50 hover:text-indigo-700 rounded-md">
+                    <LayoutPanelLeft className="h-3.5 w-3.5 mr-2 text-gray-500" />
+                    Header
+                  </Button>
+                  <Button variant="outline" size="sm" className="justify-start text-xs border-gray-200 bg-white text-gray-700 hover:bg-gray-50 hover:text-indigo-700 rounded-md">
+                    <AlignLeft className="h-3.5 w-3.5 mr-2 text-gray-500" />
+                    Text
+                  </Button>
+                  <Button variant="outline" size="sm" className="justify-start text-xs border-gray-200 bg-white text-gray-700 hover:bg-gray-50 hover:text-indigo-700 rounded-md">
+                    <Play className="h-3.5 w-3.5 mr-2 text-gray-500" />
+                    Button
+                  </Button>
+                  <Button variant="outline" size="sm" className="justify-start text-xs border-gray-200 bg-white text-gray-700 hover:bg-gray-50 hover:text-indigo-700 rounded-md">
+                    <Copy className="h-3.5 w-3.5 mr-2 text-gray-500" />
+                    Spacer
+                  </Button>
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="media" className="mt-0">
+                <div className="grid grid-cols-2 gap-2">
+                  <Button variant="outline" size="sm" className="justify-start text-xs border-gray-200 bg-white text-gray-700 hover:bg-gray-50 hover:text-indigo-700 rounded-md">
+                    <Upload className="h-3.5 w-3.5 mr-2 text-gray-500" />
+                    Image
+                  </Button>
+                  <Button variant="outline" size="sm" className="justify-start text-xs border-gray-200 bg-white text-gray-700 hover:bg-gray-50 hover:text-indigo-700 rounded-md">
+                    <Video className="h-3.5 w-3.5 mr-2 text-gray-500" />
+                    Video
+                  </Button>
+                  <Button variant="outline" size="sm" className="justify-start text-xs border-gray-200 bg-white text-gray-700 hover:bg-gray-50 hover:text-indigo-700 rounded-md">
+                    <SmilePlus className="h-3.5 w-3.5 mr-2 text-gray-500" />
+                    Emoji
+                  </Button>
+                  <Button variant="outline" size="sm" className="justify-start text-xs border-gray-200 bg-white text-gray-700 hover:bg-gray-50 hover:text-indigo-700 rounded-md">
+                    <ImagePlus className="h-3.5 w-3.5 mr-2 text-gray-500" />
+                    GIF
+                  </Button>
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="layout" className="mt-0">
+                <div className="grid grid-cols-2 gap-2">
+                  <Button variant="outline" size="sm" className="justify-start text-xs border-gray-200 bg-white text-gray-700 hover:bg-gray-50 hover:text-indigo-700 rounded-md">
+                    <Columns className="h-3.5 w-3.5 mr-2 text-gray-500" />
+                    Columns
+                  </Button>
+                  <Button variant="outline" size="sm" className="justify-start text-xs border-gray-200 bg-white text-gray-700 hover:bg-gray-50 hover:text-indigo-700 rounded-md">
+                    <LayoutGrid className="h-3.5 w-3.5 mr-2 text-gray-500" />
+                    Grid
+                  </Button>
+                  <Button variant="outline" size="sm" className="justify-start text-xs border-gray-200 bg-white text-gray-700 hover:bg-gray-50 hover:text-indigo-700 rounded-md">
+                    <Divide className="h-3.5 w-3.5 mr-2 text-gray-500" />
+                    Divider
+                  </Button>
+                  <Button variant="outline" size="sm" className="justify-start text-xs border-gray-200 bg-white text-gray-700 hover:bg-gray-50 hover:text-indigo-700 rounded-md">
+                    <Box className="h-3.5 w-3.5 mr-2 text-gray-500" />
+                    Container
+                  </Button>
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="advanced" className="mt-0">
+                <div className="grid grid-cols-2 gap-2">
+                  <Button variant="outline" size="sm" className="justify-start text-xs border-gray-200 bg-white text-gray-700 hover:bg-gray-50 hover:text-indigo-700 rounded-md">
+                    <Sparkles className="h-3.5 w-3.5 mr-2 text-gray-500" />
+                    Social
+                  </Button>
+                  <Button variant="outline" size="sm" className="justify-start text-xs border-gray-200 bg-white text-gray-700 hover:bg-gray-50 hover:text-indigo-700 rounded-md">
+                    <Clock className="h-3.5 w-3.5 mr-2 text-gray-500" />
+                    Countdown
+                  </Button>
+                  <Button variant="outline" size="sm" className="justify-start text-xs border-gray-200 bg-white text-gray-700 hover:bg-gray-50 hover:text-indigo-700 rounded-md">
+                    <ShoppingBag className="h-3.5 w-3.5 mr-2 text-gray-500" />
+                    Product
+                  </Button>
+                  <Button variant="outline" size="sm" className="justify-start text-xs border-gray-200 bg-white text-gray-700 hover:bg-gray-50 hover:text-indigo-700 rounded-md">
+                    <Code className="h-3.5 w-3.5 mr-2 text-gray-500" />
+                    HTML
+                  </Button>
+                </div>
+              </TabsContent>
+            </Tabs>
+          )}
         </div>
         
         <div className="p-4 border-b border-gray-200">
