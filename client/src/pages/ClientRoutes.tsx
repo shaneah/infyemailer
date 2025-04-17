@@ -1305,19 +1305,247 @@ const ClientReports = () => {
     </div>
   );
 };
-const ClientDomains = () => (
-  <div className="p-8">
-    <div className="flex items-center gap-3 mb-6">
-      <div className="bg-primary/10 p-2 rounded-full">
-        <Activity className="h-6 w-6 text-primary" />
+const ClientDomains = () => {
+  const [domains, setDomains] = useState([
+    {
+      id: 1,
+      name: "marketing.yourdomain.com",
+      status: "Verified",
+      dateAdded: "2025-02-15",
+      usedIn: 5,
+      isDefault: true
+    },
+    {
+      id: 2,
+      name: "newsletter.yourdomain.com",
+      status: "Pending",
+      dateAdded: "2025-03-22",
+      usedIn: 2,
+      isDefault: false
+    },
+    {
+      id: 3,
+      name: "promo.yourdomain.com",
+      status: "Failed",
+      dateAdded: "2025-03-28",
+      usedIn: 0,
+      isDefault: false
+    }
+  ]);
+
+  const [showAddDomainModal, setShowAddDomainModal] = useState(false);
+  const [newDomain, setNewDomain] = useState('');
+
+  const statusColors = {
+    Verified: "bg-green-100 text-green-800",
+    Pending: "bg-yellow-100 text-yellow-800",
+    Failed: "bg-red-100 text-red-800"
+  };
+
+  return (
+    <div className="p-8">
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-3">
+          <div className="bg-purple-100 p-2 rounded-full">
+            <Globe className="h-6 w-6 text-purple-600" />
+          </div>
+          <h1 className="text-2xl font-bold">Domains</h1>
+        </div>
+        <button 
+          onClick={() => setShowAddDomainModal(true)}
+          className="bg-purple-600 text-white px-4 py-2 rounded-md flex items-center gap-2 hover:bg-purple-700 transition-colors"
+        >
+          <span>Add Domain</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
+        </button>
       </div>
-      <h1 className="text-2xl font-bold">Client Domains</h1>
+      
+      {/* Domain Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div className="bg-white rounded-lg shadow p-4 border border-gray-100">
+          <h3 className="text-sm font-medium text-gray-500 mb-1">Total Domains</h3>
+          <p className="text-2xl font-bold">{domains.length}</p>
+        </div>
+        <div className="bg-white rounded-lg shadow p-4 border border-gray-100">
+          <h3 className="text-sm font-medium text-gray-500 mb-1">Verified Domains</h3>
+          <p className="text-2xl font-bold">{domains.filter(d => d.status === 'Verified').length}</p>
+        </div>
+        <div className="bg-white rounded-lg shadow p-4 border border-gray-100">
+          <h3 className="text-sm font-medium text-gray-500 mb-1">Default Domain</h3>
+          <p className="text-lg font-medium text-gray-800 truncate">
+            {domains.find(d => d.isDefault)?.name || '—'}
+          </p>
+        </div>
+      </div>
+      
+      {/* Domains Table */}
+      <div className="bg-white rounded-lg shadow border border-gray-100 overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="bg-gray-50 border-b border-gray-100">
+                <th className="text-left py-3 px-4 font-medium text-gray-700">Domain Name</th>
+                <th className="text-left py-3 px-4 font-medium text-gray-700">Status</th>
+                <th className="text-left py-3 px-4 font-medium text-gray-700">Date Added</th>
+                <th className="text-left py-3 px-4 font-medium text-gray-700">Used In</th>
+                <th className="text-left py-3 px-4 font-medium text-gray-700">Default</th>
+                <th className="text-left py-3 px-4 font-medium text-gray-700">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {domains.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="text-center py-4 text-gray-500">No domains found.</td>
+                </tr>
+              ) : (
+                domains.map(domain => (
+                  <tr key={domain.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                    <td className="py-3 px-4">
+                      <div className="font-medium text-gray-900">{domain.name}</div>
+                    </td>
+                    <td className="py-3 px-4">
+                      <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${statusColors[domain.status as keyof typeof statusColors]}`}>
+                        {domain.status}
+                      </span>
+                    </td>
+                    <td className="py-3 px-4 text-gray-700">
+                      {new Date(domain.dateAdded).toLocaleDateString()}
+                    </td>
+                    <td className="py-3 px-4 text-gray-700">
+                      {domain.usedIn} {domain.usedIn === 1 ? 'campaign' : 'campaigns'}
+                    </td>
+                    <td className="py-3 px-4 text-gray-700">
+                      {domain.isDefault ? 
+                        <span className="text-green-600 font-medium">Yes</span> : 
+                        <span className="text-gray-400">No</span>
+                      }
+                    </td>
+                    <td className="py-3 px-4">
+                      <div className="flex items-center gap-2">
+                        {!domain.isDefault && domain.status === 'Verified' && (
+                          <button 
+                            className="text-blue-600 hover:text-blue-800" 
+                            title="Set as Default"
+                            onClick={() => {
+                              const updatedDomains = domains.map(d => ({
+                                ...d,
+                                isDefault: d.id === domain.id
+                              }));
+                              setDomains(updatedDomains);
+                            }}
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 12 2 2 4-4"></path><path d="M5 7c0-1.1.9-2 2-2h10a2 2 0 0 1 2 2v12H5V7Z"></path><path d="M22 19H2"></path></svg>
+                          </button>
+                        )}
+                        {domain.status === 'Pending' && (
+                          <button 
+                            className="text-yellow-600 hover:text-yellow-800" 
+                            title="Verify Domain"
+                            onClick={() => {
+                              const updatedDomains = domains.map(d => 
+                                d.id === domain.id ? {...d, status: 'Verified'} : d
+                              );
+                              setDomains(updatedDomains);
+                            }}
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg>
+                          </button>
+                        )}
+                        <button 
+                          className="text-red-600 hover:text-red-800" 
+                          title="Delete"
+                          onClick={() => {
+                            if (domain.isDefault) {
+                              alert("Cannot delete the default domain. Please set another domain as default first.");
+                              return;
+                            }
+                            if (domain.usedIn > 0) {
+                              alert(`This domain is used in ${domain.usedIn} campaigns. Please remove it from all campaigns first.`);
+                              return;
+                            }
+                            setDomains(domains.filter(d => d.id !== domain.id));
+                          }}
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      
+      {/* Add Domain Modal */}
+      {showAddDomainModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg shadow-lg w-full max-w-md overflow-hidden">
+            <div className="p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Add New Domain</h3>
+              <div className="mb-4">
+                <label htmlFor="domain-name" className="block text-sm font-medium text-gray-700 mb-1">
+                  Domain Name
+                </label>
+                <input
+                  id="domain-name"
+                  type="text"
+                  placeholder="e.g., emails.yourdomain.com"
+                  className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                  value={newDomain}
+                  onChange={(e) => setNewDomain(e.target.value)}
+                />
+                <p className="mt-1 text-sm text-gray-500">
+                  Add a subdomain that will be used for your email campaigns.
+                </p>
+              </div>
+              <div className="flex items-center justify-end space-x-3 mt-6">
+                <button
+                  className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                  onClick={() => {
+                    setShowAddDomainModal(false);
+                    setNewDomain('');
+                  }}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 disabled:opacity-70 disabled:cursor-not-allowed"
+                  disabled={!newDomain.includes('.')}
+                  onClick={() => {
+                    if (newDomain) {
+                      const newId = Math.max(...domains.map(d => d.id), 0) + 1;
+                      const today = new Date().toISOString().split('T')[0];
+                      const isFirstDomain = domains.length === 0;
+                      
+                      setDomains([
+                        ...domains,
+                        {
+                          id: newId,
+                          name: newDomain,
+                          status: 'Pending',
+                          dateAdded: today,
+                          usedIn: 0,
+                          isDefault: isFirstDomain
+                        }
+                      ]);
+                      
+                      setShowAddDomainModal(false);
+                      setNewDomain('');
+                    }
+                  }}
+                >
+                  Add Domain
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
-    <div className="bg-white rounded-lg shadow p-6 border border-gray-100">
-      <p className="text-gray-600">This page is under development.</p>
-    </div>
-  </div>
-);
+  );
+};
 const ClientEmailValidation = () => {
   // States for validation forms
   const [singleEmail, setSingleEmail] = useState('');
