@@ -22,47 +22,60 @@ export function initWebSocketServer(httpServer: Server): WebSocketServer {
   
   // WebSocket connection handler
   wss.on('connection', (ws, request) => {
-    const urlObj = new URL(request.url || '', `http://${request.headers.host}`);
-    const pathname = urlObj.pathname;
-    const searchParams = urlObj.searchParams;
+    console.log("WebSocket connection request received with URL:", request.url);
     
-    // Determine the type of connection based on query parameters
-    const type = searchParams.get('type');
+    // Create URL object from request URL
+    try {
+      const urlObj = new URL(request.url || '', `http://${request.headers.host}`);
+      const pathname = urlObj.pathname;
+      const searchParams = urlObj.searchParams;
+      
+      console.log("Parsed URL pathname:", pathname);
+      console.log("Parsed URL search params:", Object.fromEntries(searchParams.entries()));
+      
+      // Determine the type of connection based on query parameters
+      const type = searchParams.get('type');
+      console.log("Connection type:", type);
     
-    if (type === 'metrics') {
-      // Handle metrics connection
-      console.log('WebSocket client connected for real-time metrics');
-      handleMetricsConnection(ws);
-    } 
-    else if (type === 'collaboration') {
-      // Handle collaboration connection
-      console.log('WebSocket client connected for collaboration');
-      
-      // Extract user information from query parameters
-      const userId = searchParams.get('userId');
-      const userName = searchParams.get('userName');
-      const userRole = searchParams.get('userRole');
-      const userAvatar = searchParams.get('userAvatar');
-      
-      if (!userId || !userName) {
-        console.error('User connection without proper identification');
-        ws.close(1008, 'User identification required');
-        return;
+      if (type === 'metrics') {
+        // Handle metrics connection
+        console.log('WebSocket client connected for real-time metrics');
+        handleMetricsConnection(ws);
+      } 
+      else if (type === 'collaboration') {
+        // Handle collaboration connection
+        console.log('WebSocket client connected for collaboration');
+        
+        // Extract user information from query parameters
+        const userId = searchParams.get('userId');
+        const userName = searchParams.get('userName');
+        const userRole = searchParams.get('userRole');
+        const userAvatar = searchParams.get('userAvatar');
+        
+        if (!userId || !userName) {
+          console.error('User connection without proper identification');
+          ws.close(1008, 'User identification required');
+          return;
+        }
+        
+        // Register the client with user information for collaboration
+        registerClient(ws, userId, {
+          id: userId,
+          name: userName,
+          role: userRole || undefined,
+          avatar: userAvatar || undefined
+        });
       }
-      
-      // Register the client with user information for collaboration
-      registerClient(ws, userId, {
-        id: userId,
-        name: userName,
-        role: userRole || undefined,
-        avatar: userAvatar || undefined
-      });
+      else {
+        console.log('WebSocket connection with unknown type');
+        ws.close(1008, 'Connection type not specified');
+      }
+    } catch (error) {
+      console.error('Error parsing WebSocket URL:', error);
+      ws.close(1008, 'Invalid connection URL');
+      return;
     }
-    else {
-      console.log('WebSocket connection with unknown type');
-      ws.close(1008, 'Connection type not specified');
-    }
-    
+
     // Handle client errors
     ws.on('error', (error) => {
       console.error('WebSocket client error:', error);
