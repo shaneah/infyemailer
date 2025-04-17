@@ -158,72 +158,72 @@ const AdvancedTemplateBuilder: React.FC<AdvancedTemplateBuilderProps> = ({
   // Render the header toolbar
   const renderHeader = () => {
     return (
-      <div className="flex items-center justify-between px-4 py-2 bg-gray-900 border-b border-gray-700">
+      <div className="flex items-center justify-between px-4 py-2 bg-white border-b border-gray-200 shadow-sm">
         <div className="flex items-center gap-3">
           <Button 
             variant="ghost" 
             size="sm" 
-            className="text-gray-300 hover:text-white hover:bg-gray-800"
+            className="text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md"
             onClick={() => setShowLeftSidebar(!showLeftSidebar)}
           >
             <PanelLeftOpen className="h-4 w-4 mr-1" />
-            <span className="text-xs">Panels</span>
+            <span className="text-xs font-medium">Panels</span>
           </Button>
           
-          <Separator orientation="vertical" className="h-6 bg-gray-700" />
+          <Separator orientation="vertical" className="h-6 bg-gray-200" />
           
           <Button
             variant="ghost"
             size="sm"
-            className="text-gray-300 hover:text-white hover:bg-gray-800"
+            className="text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md"
             onClick={() => setShowTemplateLibrary(true)}
           >
             <Layers className="h-4 w-4 mr-1" />
-            <span className="text-xs">Templates</span>
+            <span className="text-xs font-medium">Templates</span>
           </Button>
           
           <Button
             variant="ghost"
             size="sm"
-            className="text-gray-300 hover:text-white hover:bg-gray-800"
+            className="text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 rounded-md"
             onClick={() => setShowAiAssistant(true)}
           >
             <Sparkles className="h-4 w-4 mr-1" />
-            <span className="text-xs">AI Assist</span>
+            <span className="text-xs font-medium">AI Assist</span>
           </Button>
         </div>
         
         <div className="flex items-center gap-2">
           <Button
-            variant="ghost"
+            variant="outline"
             size="sm"
-            className="text-gray-300 hover:text-white hover:bg-gray-800"
+            className="text-gray-600 hover:text-gray-900 border-gray-200 hover:bg-gray-50 rounded-md"
             onClick={() => toast({
               title: "Preview",
               description: "Preview functionality will be available soon!"
             })}
           >
             <Eye className="h-4 w-4 mr-1" />
-            <span className="text-xs">Preview</span>
+            <span className="text-xs font-medium">Preview</span>
           </Button>
           
           <Button
-            variant="ghost"
+            variant="outline"
             size="sm"
-            className="text-gray-300 hover:text-white hover:bg-gray-800"
+            className="text-gray-600 hover:text-gray-900 border-gray-200 hover:bg-gray-50 rounded-md"
             onClick={() => toast({
               title: "Export HTML",
               description: "Export functionality will be available soon!"
             })}
           >
             <Download className="h-4 w-4 mr-1" />
-            <span className="text-xs">Export</span>
+            <span className="text-xs font-medium">Export</span>
           </Button>
           
           <Button
             variant="default"
             size="sm"
-            className="bg-emerald-600 hover:bg-emerald-700 text-white"
+            className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-md"
             onClick={() => {
               if (generatedHtml) {
                 onSave(activeTemplate, generatedHtml);
@@ -240,12 +240,12 @@ const AdvancedTemplateBuilder: React.FC<AdvancedTemplateBuilderProps> = ({
             {isSaving ? (
               <>
                 <RefreshCw className="h-4 w-4 mr-1 animate-spin" />
-                <span className="text-xs">Saving...</span>
+                <span className="text-xs font-medium">Saving...</span>
               </>
             ) : (
               <>
                 <Save className="h-4 w-4 mr-1" />
-                <span className="text-xs">Save Template</span>
+                <span className="text-xs font-medium">Save Template</span>
               </>
             )}
           </Button>
@@ -257,7 +257,7 @@ const AdvancedTemplateBuilder: React.FC<AdvancedTemplateBuilderProps> = ({
   // Render the main tabs
   const renderTabs = () => {
     return (
-      <div className="bg-gray-800 border-b border-gray-700">
+      <div className="bg-white border-b border-gray-200">
         <div className="flex px-4">
           <Tabs 
             defaultValue="design" 
@@ -270,11 +270,11 @@ const AdvancedTemplateBuilder: React.FC<AdvancedTemplateBuilderProps> = ({
                 value="design" 
                 className={`px-4 py-3 rounded-none data-[state=active]:bg-transparent data-[state=active]:shadow-none ${
                   currentTab === 'design' 
-                    ? 'border-b-2 border-emerald-500 text-white' 
-                    : 'text-gray-400 hover:text-white'
+                    ? 'border-b-2 border-indigo-600 text-indigo-700 font-medium' 
+                    : 'text-gray-600 hover:text-gray-900'
                 }`}
               >
-                <Zap className={`h-4 w-4 mr-2 ${currentTab === 'design' ? 'text-emerald-500' : ''}`} />
+                <Zap className={`h-4 w-4 mr-2 ${currentTab === 'design' ? 'text-indigo-600' : 'text-gray-500'}`} />
                 Design Editor
               </TabsTrigger>
               
@@ -282,11 +282,11 @@ const AdvancedTemplateBuilder: React.FC<AdvancedTemplateBuilderProps> = ({
                 value="code" 
                 className={`px-4 py-3 rounded-none data-[state=active]:bg-transparent data-[state=active]:shadow-none ${
                   currentTab === 'code' 
-                    ? 'border-b-2 border-emerald-500 text-white' 
-                    : 'text-gray-400 hover:text-white'
+                    ? 'border-b-2 border-indigo-600 text-indigo-700 font-medium' 
+                    : 'text-gray-600 hover:text-gray-900'
                 }`}
               >
-                <Code className={`h-4 w-4 mr-2 ${currentTab === 'code' ? 'text-emerald-500' : ''}`} />
+                <Code className={`h-4 w-4 mr-2 ${currentTab === 'code' ? 'text-indigo-600' : 'text-gray-500'}`} />
                 HTML Code
               </TabsTrigger>
               
@@ -294,18 +294,18 @@ const AdvancedTemplateBuilder: React.FC<AdvancedTemplateBuilderProps> = ({
                 value="settings" 
                 className={`px-4 py-3 rounded-none data-[state=active]:bg-transparent data-[state=active]:shadow-none ${
                   currentTab === 'settings' 
-                    ? 'border-b-2 border-emerald-500 text-white' 
-                    : 'text-gray-400 hover:text-white'
+                    ? 'border-b-2 border-indigo-600 text-indigo-700 font-medium' 
+                    : 'text-gray-600 hover:text-gray-900'
                 }`}
               >
-                <Settings className={`h-4 w-4 mr-2 ${currentTab === 'settings' ? 'text-emerald-500' : ''}`} />
+                <Settings className={`h-4 w-4 mr-2 ${currentTab === 'settings' ? 'text-indigo-600' : 'text-gray-500'}`} />
                 Settings
               </TabsTrigger>
             </TabsList>
           </Tabs>
           
           <div className="flex items-center">
-            <div className="flex items-center border-l border-gray-700 pl-4">
+            <div className="flex items-center border-l border-gray-200 pl-4">
               <div className="flex items-center mr-4">
                 <Switch
                   id="mobile-preview"
@@ -313,7 +313,7 @@ const AdvancedTemplateBuilder: React.FC<AdvancedTemplateBuilderProps> = ({
                   onCheckedChange={setIsMobilePreview}
                   className="mr-2"
                 />
-                <Label htmlFor="mobile-preview" className="text-sm text-gray-300">
+                <Label htmlFor="mobile-preview" className="text-sm text-gray-600">
                   Mobile Preview
                 </Label>
               </div>
@@ -322,7 +322,7 @@ const AdvancedTemplateBuilder: React.FC<AdvancedTemplateBuilderProps> = ({
                 variant="ghost"
                 size="sm"
                 onClick={() => setShowRightSidebar(!showRightSidebar)}
-                className="text-gray-300 hover:text-white"
+                className="text-gray-600 hover:text-gray-900"
               >
                 <PanelRightOpen className="h-4 w-4" />
               </Button>
@@ -338,80 +338,80 @@ const AdvancedTemplateBuilder: React.FC<AdvancedTemplateBuilderProps> = ({
     if (!showLeftSidebar) return null;
     
     return (
-      <div className="w-64 bg-gray-900 border-r border-gray-700 overflow-y-auto flex flex-col h-full">
-        <div className="p-4 border-b border-gray-700">
-          <h3 className="text-sm font-medium text-gray-200 mb-2">Template Details</h3>
+      <div className="w-64 bg-white border-r border-gray-200 overflow-y-auto flex flex-col h-full shadow-sm">
+        <div className="p-4 border-b border-gray-200">
+          <h3 className="text-sm font-medium text-gray-800 mb-2">Template Details</h3>
           
           <div className="space-y-3">
             <div className="space-y-1">
-              <Label htmlFor="template-name" className="text-xs text-gray-400">
+              <Label htmlFor="template-name" className="text-xs text-gray-600">
                 Template Name
               </Label>
               <Input
                 id="template-name"
                 value={activeTemplate.name}
                 onChange={(e) => setActiveTemplate({...activeTemplate, name: e.target.value})}
-                className="h-8 text-sm bg-gray-800 border-gray-700 text-gray-100"
+                className="h-8 text-sm bg-white border-gray-200 text-gray-900"
               />
             </div>
             
             <div className="space-y-1">
-              <Label htmlFor="template-subject" className="text-xs text-gray-400">
+              <Label htmlFor="template-subject" className="text-xs text-gray-600">
                 Email Subject
               </Label>
               <Input
                 id="template-subject"
                 value={activeTemplate.subject}
                 onChange={(e) => setActiveTemplate({...activeTemplate, subject: e.target.value})}
-                className="h-8 text-sm bg-gray-800 border-gray-700 text-gray-100"
+                className="h-8 text-sm bg-white border-gray-200 text-gray-900"
               />
             </div>
             
             <div className="space-y-1">
-              <Label htmlFor="template-preview" className="text-xs text-gray-400">
+              <Label htmlFor="template-preview" className="text-xs text-gray-600">
                 Preview Text
               </Label>
               <Textarea
                 id="template-preview"
                 value={activeTemplate.previewText || ''}
                 onChange={(e) => setActiveTemplate({...activeTemplate, previewText: e.target.value})}
-                className="h-16 text-sm resize-none bg-gray-800 border-gray-700 text-gray-100"
+                className="h-16 text-sm resize-none bg-white border-gray-200 text-gray-900"
               />
             </div>
           </div>
         </div>
         
-        <div className="p-4 border-b border-gray-700">
-          <h3 className="text-sm font-medium text-gray-200 mb-2">Design Elements</h3>
-          <p className="text-xs text-gray-400 mb-3">
+        <div className="p-4 border-b border-gray-200">
+          <h3 className="text-sm font-medium text-gray-800 mb-2">Design Elements</h3>
+          <p className="text-xs text-gray-600 mb-3">
             Drag and drop elements into your template.
           </p>
           
           <div className="grid grid-cols-2 gap-2">
             {currentTab === 'design' && (
               <>
-                <Button variant="outline" size="sm" className="justify-start text-xs border-gray-700 bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white">
-                  <LayoutPanelLeft className="h-3.5 w-3.5 mr-2" />
+                <Button variant="outline" size="sm" className="justify-start text-xs border-gray-200 bg-white text-gray-700 hover:bg-gray-50 hover:text-indigo-700 rounded-md">
+                  <LayoutPanelLeft className="h-3.5 w-3.5 mr-2 text-gray-500" />
                   Header
                 </Button>
-                <Button variant="outline" size="sm" className="justify-start text-xs border-gray-700 bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white">
-                  <AlignLeft className="h-3.5 w-3.5 mr-2" />
+                <Button variant="outline" size="sm" className="justify-start text-xs border-gray-200 bg-white text-gray-700 hover:bg-gray-50 hover:text-indigo-700 rounded-md">
+                  <AlignLeft className="h-3.5 w-3.5 mr-2 text-gray-500" />
                   Text
                 </Button>
-                <Button variant="outline" size="sm" className="justify-start text-xs border-gray-700 bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white">
-                  <Upload className="h-3.5 w-3.5 mr-2" />
+                <Button variant="outline" size="sm" className="justify-start text-xs border-gray-200 bg-white text-gray-700 hover:bg-gray-50 hover:text-indigo-700 rounded-md">
+                  <Upload className="h-3.5 w-3.5 mr-2 text-gray-500" />
                   Image
                 </Button>
-                <Button variant="outline" size="sm" className="justify-start text-xs border-gray-700 bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white">
-                  <Play className="h-3.5 w-3.5 mr-2" />
+                <Button variant="outline" size="sm" className="justify-start text-xs border-gray-200 bg-white text-gray-700 hover:bg-gray-50 hover:text-indigo-700 rounded-md">
+                  <Play className="h-3.5 w-3.5 mr-2 text-gray-500" />
                   Button
                 </Button>
-                <Button variant="outline" size="sm" className="justify-start text-xs border-gray-700 bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white">
-                  <Sparkles className="h-3.5 w-3.5 mr-2" />
+                <Button variant="outline" size="sm" className="justify-start text-xs border-gray-200 bg-white text-gray-700 hover:bg-gray-50 hover:text-indigo-700 rounded-md">
+                  <Sparkles className="h-3.5 w-3.5 mr-2 text-gray-500" />
                   Social
                 </Button>
-                <Button variant="outline" size="sm" className="justify-start text-xs border-gray-700 bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white">
-                  <Copy className="h-3.5 w-3.5 mr-2" />
+                <Button variant="outline" size="sm" className="justify-start text-xs border-gray-200 bg-white text-gray-700 hover:bg-gray-50 hover:text-indigo-700 rounded-md">
+                  <Copy className="h-3.5 w-3.5 mr-2 text-gray-500" />
                   Spacer
                 </Button>
               </>
@@ -419,29 +419,29 @@ const AdvancedTemplateBuilder: React.FC<AdvancedTemplateBuilderProps> = ({
           </div>
         </div>
         
-        <div className="p-4 border-b border-gray-700">
-          <h3 className="text-sm font-medium text-gray-200 mb-2">Smart Components</h3>
+        <div className="p-4 border-b border-gray-200">
+          <h3 className="text-sm font-medium text-gray-800 mb-2">Smart Components</h3>
           
           <div className="space-y-2">
-            <Button variant="outline" className="w-full justify-start text-xs bg-gray-800 border-gray-700 text-gray-300 hover:bg-gray-700 hover:text-white">
-              <MessageSquareText className="h-3.5 w-3.5 mr-2" />
+            <Button variant="outline" className="w-full justify-start text-xs bg-white border-gray-200 text-gray-700 hover:bg-gray-50 hover:text-indigo-700 rounded-md">
+              <MessageSquareText className="h-3.5 w-3.5 mr-2 text-gray-500" />
               Testimonial Block
             </Button>
-            <Button variant="outline" className="w-full justify-start text-xs bg-gray-800 border-gray-700 text-gray-300 hover:bg-gray-700 hover:text-white">
-              <FileText className="h-3.5 w-3.5 mr-2" />
+            <Button variant="outline" className="w-full justify-start text-xs bg-white border-gray-200 text-gray-700 hover:bg-gray-50 hover:text-indigo-700 rounded-md">
+              <FileText className="h-3.5 w-3.5 mr-2 text-gray-500" />
               Feature Grid
             </Button>
-            <Button variant="outline" className="w-full justify-start text-xs bg-gray-800 border-gray-700 text-gray-300 hover:bg-gray-700 hover:text-white">
-              <HelpCircle className="h-3.5 w-3.5 mr-2" />
+            <Button variant="outline" className="w-full justify-start text-xs bg-white border-gray-200 text-gray-700 hover:bg-gray-50 hover:text-indigo-700 rounded-md">
+              <HelpCircle className="h-3.5 w-3.5 mr-2 text-gray-500" />
               FAQ Section
             </Button>
           </div>
         </div>
         
-        <div className="mt-auto p-4 border-t border-gray-700">
+        <div className="mt-auto p-4 border-t border-gray-200">
           <Button
             variant="ghost"
-            className="w-full justify-start text-xs text-gray-300 hover:text-white hover:bg-gray-800"
+            className="w-full justify-start text-xs text-gray-600 hover:text-indigo-700 hover:bg-gray-50 rounded-md"
             onClick={() => toast({
               title: "Help",
               description: "Help documentation will be available soon!"
@@ -459,25 +459,25 @@ const AdvancedTemplateBuilder: React.FC<AdvancedTemplateBuilderProps> = ({
   const renderContent = () => {
     if (currentTab === 'code') {
       return (
-        <div className="flex-1 bg-gray-900 text-gray-200 overflow-auto p-4">
-          <div className="bg-gray-800 p-4 rounded-md border border-gray-700">
+        <div className="flex-1 bg-gray-50 text-gray-800 overflow-auto p-4">
+          <div className="bg-white p-4 rounded-md border border-gray-200 shadow-sm">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-sm font-medium text-gray-200">HTML Code View</h3>
+              <h3 className="text-sm font-medium text-gray-800">HTML Code View</h3>
               <Button
                 variant="outline"
                 size="sm"
-                className="text-xs border-gray-700 bg-gray-800 text-gray-300 hover:bg-gray-700"
+                className="text-xs border-gray-200 bg-white text-gray-700 hover:bg-gray-50 hover:text-indigo-700 rounded-md"
                 onClick={() => toast({
                   title: "Copy HTML",
                   description: "HTML code copied to clipboard!"
                 })}
               >
-                <Copy className="h-3.5 w-3.5 mr-1" />
+                <Copy className="h-3.5 w-3.5 mr-1 text-gray-500" />
                 Copy HTML
               </Button>
             </div>
             <Textarea
-              className="h-[calc(100vh-300px)] bg-gray-900 border-gray-700 text-gray-100 font-mono text-sm"
+              className="h-[calc(100vh-300px)] bg-gray-50 border-gray-200 text-gray-800 font-mono text-sm"
               placeholder="HTML code will appear here after designing your template."
               value={generatedHtml || '<div><!-- Design your template to generate HTML --></div>'}
               readOnly
@@ -487,24 +487,24 @@ const AdvancedTemplateBuilder: React.FC<AdvancedTemplateBuilderProps> = ({
       );
     } else if (currentTab === 'settings') {
       return (
-        <div className="flex-1 bg-gray-900 text-gray-200 overflow-auto p-4">
-          <div className="max-w-2xl mx-auto bg-gray-800 p-6 rounded-md border border-gray-700">
-            <h2 className="text-lg font-medium text-gray-100 mb-4">Template Settings</h2>
+        <div className="flex-1 bg-gray-50 text-gray-800 overflow-auto p-4">
+          <div className="max-w-2xl mx-auto bg-white p-6 rounded-md border border-gray-200 shadow-sm">
+            <h2 className="text-lg font-medium text-gray-800 mb-4">Template Settings</h2>
             
             <div className="space-y-6">
               <div className="space-y-3">
-                <h3 className="text-sm font-medium text-gray-300">General Settings</h3>
+                <h3 className="text-sm font-medium text-gray-700">General Settings</h3>
                 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1">
-                    <Label htmlFor="font-family" className="text-xs text-gray-400">
+                    <Label htmlFor="font-family" className="text-xs text-gray-600">
                       Font Family
                     </Label>
                     <Select defaultValue={activeTemplate.styles?.fontFamily || "Arial, sans-serif"}>
-                      <SelectTrigger className="h-8 text-sm bg-gray-800 border-gray-700 text-gray-100">
+                      <SelectTrigger className="h-8 text-sm bg-white border-gray-200 text-gray-800">
                         <SelectValue placeholder="Select font" />
                       </SelectTrigger>
-                      <SelectContent className="bg-gray-800 border-gray-700 text-gray-100">
+                      <SelectContent className="bg-white border-gray-200 text-gray-800">
                         <SelectItem value="Arial, sans-serif">Arial</SelectItem>
                         <SelectItem value="Helvetica, sans-serif">Helvetica</SelectItem>
                         <SelectItem value="Georgia, serif">Georgia</SelectItem>
@@ -515,7 +515,7 @@ const AdvancedTemplateBuilder: React.FC<AdvancedTemplateBuilderProps> = ({
                   </div>
                   
                   <div className="space-y-1">
-                    <Label htmlFor="bg-color" className="text-xs text-gray-400">
+                    <Label htmlFor="bg-color" className="text-xs text-gray-600">
                       Background Color
                     </Label>
                     <Input
@@ -526,18 +526,18 @@ const AdvancedTemplateBuilder: React.FC<AdvancedTemplateBuilderProps> = ({
                         ...activeTemplate,
                         styles: {...activeTemplate.styles, backgroundColor: e.target.value}
                       })}
-                      className="h-8 w-full text-sm bg-gray-800 border-gray-700"
+                      className="h-8 w-full text-sm bg-white border-gray-200"
                     />
                   </div>
                 </div>
               </div>
               
               <div className="space-y-3">
-                <h3 className="text-sm font-medium text-gray-300">Responsive Settings</h3>
+                <h3 className="text-sm font-medium text-gray-700">Responsive Settings</h3>
                 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1">
-                    <Label htmlFor="max-width" className="text-xs text-gray-400">
+                    <Label htmlFor="max-width" className="text-xs text-gray-600">
                       Max Width
                     </Label>
                     <Input
@@ -547,14 +547,14 @@ const AdvancedTemplateBuilder: React.FC<AdvancedTemplateBuilderProps> = ({
                         ...activeTemplate,
                         styles: {...activeTemplate.styles, maxWidth: e.target.value}
                       })}
-                      className="h-8 text-sm bg-gray-800 border-gray-700 text-gray-100"
+                      className="h-8 text-sm bg-white border-gray-200 text-gray-800"
                     />
                   </div>
                   
                   <div className="space-y-1 flex items-center">
                     <div className="space-x-2 flex items-center mt-5">
                       <Switch id="responsive" defaultChecked={true} />
-                      <Label htmlFor="responsive" className="text-sm text-gray-300">
+                      <Label htmlFor="responsive" className="text-sm text-gray-700">
                         Responsive Design
                       </Label>
                     </div>
@@ -563,36 +563,36 @@ const AdvancedTemplateBuilder: React.FC<AdvancedTemplateBuilderProps> = ({
               </div>
               
               <div className="space-y-3">
-                <h3 className="text-sm font-medium text-gray-300">Advanced Options</h3>
+                <h3 className="text-sm font-medium text-gray-700">Advanced Options</h3>
                 
                 <div className="space-y-2">
                   <div className="flex items-center space-x-2">
                     <Switch id="inline-css" defaultChecked={true} />
-                    <Label htmlFor="inline-css" className="text-sm text-gray-300">
+                    <Label htmlFor="inline-css" className="text-sm text-gray-700">
                       Use Inline CSS (Recommended)
                     </Label>
                   </div>
                   
                   <div className="flex items-center space-x-2">
                     <Switch id="tracking-pixels" defaultChecked={true} />
-                    <Label htmlFor="tracking-pixels" className="text-sm text-gray-300">
+                    <Label htmlFor="tracking-pixels" className="text-sm text-gray-700">
                       Add Tracking Pixels
                     </Label>
                   </div>
                   
                   <div className="flex items-center space-x-2">
                     <Switch id="dark-mode" defaultChecked={false} />
-                    <Label htmlFor="dark-mode" className="text-sm text-gray-300">
+                    <Label htmlFor="dark-mode" className="text-sm text-gray-700">
                       Support Dark Mode
                     </Label>
                   </div>
                 </div>
               </div>
               
-              <div className="pt-4 border-t border-gray-700">
+              <div className="pt-4 border-t border-gray-200">
                 <Button 
                   variant="default" 
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white"
                   onClick={() => {
                     toast({
                       title: "Settings Saved",
@@ -612,8 +612,8 @@ const AdvancedTemplateBuilder: React.FC<AdvancedTemplateBuilderProps> = ({
     
     // Design tab (default)
     return (
-      <div className={`flex-1 bg-gray-800 overflow-auto ${isMobilePreview ? 'flex justify-center' : ''}`}>
-        <div className={isMobilePreview ? 'w-[375px] mt-6 shadow-xl rounded-md overflow-hidden' : 'w-full'}>
+      <div className={`flex-1 bg-gray-50 overflow-auto ${isMobilePreview ? 'flex justify-center' : ''}`}>
+        <div className={isMobilePreview ? 'w-[375px] mt-6 shadow-md rounded-md overflow-hidden' : 'w-full'}>
           <EmailEditor
             initialTemplate={activeTemplate}
             onSave={handleSaveTemplate}
@@ -630,40 +630,40 @@ const AdvancedTemplateBuilder: React.FC<AdvancedTemplateBuilderProps> = ({
     if (!showRightSidebar) return null;
     
     return (
-      <div className="w-64 bg-gray-900 border-l border-gray-700 overflow-y-auto">
+      <div className="w-64 bg-white border-l border-gray-200 overflow-y-auto shadow-sm">
         <div className="p-4">
-          <h3 className="text-sm font-medium text-gray-200 mb-3">Properties</h3>
-          <p className="text-xs text-gray-400 mb-4">
+          <h3 className="text-sm font-medium text-gray-800 mb-3">Properties</h3>
+          <p className="text-xs text-gray-600 mb-4">
             Select an element to edit its properties.
           </p>
           
-          <div className="border border-gray-700 rounded-md p-3 bg-gray-800">
-            <p className="text-sm text-gray-400 text-center">
+          <div className="border border-gray-200 rounded-md p-3 bg-gray-50">
+            <p className="text-sm text-gray-600 text-center">
               Select an element in the template to edit its properties
             </p>
           </div>
         </div>
         
-        <div className="p-4 border-t border-gray-700">
-          <h3 className="text-sm font-medium text-gray-200 mb-3">Template Library</h3>
+        <div className="p-4 border-t border-gray-200">
+          <h3 className="text-sm font-medium text-gray-800 mb-3">Template Library</h3>
           
           <Button 
             variant="outline" 
             size="sm" 
-            className="w-full justify-start text-xs bg-gray-800 border-gray-700 text-gray-300 hover:bg-gray-700 hover:text-white mb-2"
+            className="w-full justify-start text-xs bg-white border-gray-200 text-gray-700 hover:bg-gray-50 hover:text-indigo-700 rounded-md mb-2"
             onClick={() => setShowTemplateLibrary(true)}
           >
-            <Layers className="h-3.5 w-3.5 mr-2" />
+            <Layers className="h-3.5 w-3.5 mr-2 text-gray-500" />
             Browse Templates
           </Button>
           
           <Button 
             variant="outline" 
             size="sm" 
-            className="w-full justify-start text-xs bg-gray-800 border-gray-700 text-gray-300 hover:bg-gray-700 hover:text-white"
+            className="w-full justify-start text-xs bg-white border-gray-200 text-gray-700 hover:bg-gray-50 hover:text-indigo-700 rounded-md"
             onClick={() => setShowAiAssistant(true)}
           >
-            <Sparkles className="h-3.5 w-3.5 mr-2" />
+            <Sparkles className="h-3.5 w-3.5 mr-2 text-indigo-500" />
             AI Template Assistant
           </Button>
         </div>
@@ -675,20 +675,20 @@ const AdvancedTemplateBuilder: React.FC<AdvancedTemplateBuilderProps> = ({
   const renderTemplateLibraryDialog = () => {
     return (
       <Dialog open={showTemplateLibrary} onOpenChange={setShowTemplateLibrary}>
-        <DialogContent className="max-w-2xl bg-gray-900 text-gray-100 border border-gray-700">
+        <DialogContent className="max-w-2xl bg-white text-gray-800 border border-gray-200 shadow-sm">
           <DialogHeader>
-            <DialogTitle className="text-gray-100">Template Library</DialogTitle>
+            <DialogTitle className="text-gray-800">Template Library</DialogTitle>
           </DialogHeader>
           
           <div className="grid grid-cols-2 gap-4 py-4">
             {TEMPLATE_PRESETS.map((preset) => (
               <div
                 key={preset.id}
-                className="bg-gray-800 border border-gray-700 rounded-md p-4 hover:border-emerald-500 cursor-pointer transition-all"
+                className="bg-gray-50 border border-gray-200 rounded-md p-4 hover:border-indigo-500 cursor-pointer transition-all shadow-sm"
                 onClick={() => loadTemplatePreset(preset.id)}
               >
-                <h3 className="text-gray-200 font-medium mb-1">{preset.name}</h3>
-                <p className="text-gray-400 text-sm">{preset.description}</p>
+                <h3 className="text-gray-800 font-medium mb-1">{preset.name}</h3>
+                <p className="text-gray-600 text-sm">{preset.description}</p>
               </div>
             ))}
           </div>
@@ -696,7 +696,7 @@ const AdvancedTemplateBuilder: React.FC<AdvancedTemplateBuilderProps> = ({
           <DialogFooter>
             <Button 
               variant="outline" 
-              className="border-gray-700 text-gray-300 hover:bg-gray-800"
+              className="border-gray-200 text-gray-700 hover:bg-gray-50 rounded-md"
               onClick={() => setShowTemplateLibrary(false)}
             >
               Cancel
@@ -714,25 +714,25 @@ const AdvancedTemplateBuilder: React.FC<AdvancedTemplateBuilderProps> = ({
     
     return (
       <Dialog open={showAiAssistant} onOpenChange={setShowAiAssistant}>
-        <DialogContent className="max-w-2xl bg-gray-900 text-gray-100 border border-gray-700">
+        <DialogContent className="max-w-2xl bg-white text-gray-800 border border-gray-200 shadow-sm">
           <DialogHeader>
-            <DialogTitle className="text-gray-100">AI Template Assistant</DialogTitle>
+            <DialogTitle className="text-gray-800">AI Template Assistant</DialogTitle>
           </DialogHeader>
           
           <div className="py-4">
-            <Label htmlFor="ai-prompt" className="text-gray-300 mb-2 block">
+            <Label htmlFor="ai-prompt" className="text-gray-700 mb-2 block">
               Describe the email template you want to create
             </Label>
             <Textarea
               id="ai-prompt"
               placeholder="E.g., Create a monthly newsletter template with a header, featured article section, and product showcase..."
-              className="bg-gray-800 border-gray-700 text-gray-100 mb-4"
+              className="bg-white border-gray-200 text-gray-800 mb-4"
               value={aiPrompt}
               onChange={(e) => setAiPrompt(e.target.value)}
             />
             
             <div className="mb-4">
-              <Label className="text-gray-300 mb-2 block">
+              <Label className="text-gray-700 mb-2 block">
                 Or choose from template ideas:
               </Label>
               <div className="grid grid-cols-2 gap-2">
@@ -740,7 +740,7 @@ const AdvancedTemplateBuilder: React.FC<AdvancedTemplateBuilderProps> = ({
                   <Button
                     key={idea}
                     variant="outline"
-                    className={`justify-start text-xs border-gray-700 ${selectedIdea === idea ? 'bg-emerald-900 border-emerald-700 text-white' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'}`}
+                    className={`justify-start text-xs border-gray-200 rounded-md ${selectedIdea === idea ? 'bg-indigo-100 border-indigo-300 text-indigo-700' : 'bg-white text-gray-700 hover:bg-gray-50'}`}
                     onClick={() => {
                       setSelectedIdea(idea);
                       setAiPrompt(idea);
@@ -756,14 +756,14 @@ const AdvancedTemplateBuilder: React.FC<AdvancedTemplateBuilderProps> = ({
           <DialogFooter>
             <Button 
               variant="outline" 
-              className="border-gray-700 text-gray-300 hover:bg-gray-800"
+              className="border-gray-200 text-gray-700 hover:bg-gray-50 rounded-md"
               onClick={() => setShowAiAssistant(false)}
             >
               Cancel
             </Button>
             <Button 
               variant="default" 
-              className="bg-emerald-600 hover:bg-emerald-700 text-white"
+              className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-md"
               onClick={() => generateTemplateWithAI(aiPrompt)}
               disabled={!aiPrompt.trim()}
             >
