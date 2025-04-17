@@ -1,57 +1,29 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { 
-  Bell, 
-  UserPlus, 
-  UserMinus, 
-  Edit2, 
-  FileText, 
-  MessageSquare, 
-  AtSign, 
-  Clipboard, 
-  AlertCircle 
-} from 'lucide-react';
-import { 
-  Popover, 
-  PopoverTrigger, 
-  PopoverContent 
-} from '@/components/ui/popover';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { Bell, X, User, FileEdit, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { useToast } from '@/hooks/use-toast';
-
-// Define notification types 
-enum NotificationType {
-  USER_JOINED = 'user_joined',
-  USER_LEFT = 'user_left',
-  RESOURCE_EDIT_STARTED = 'resource_edit_started',
-  RESOURCE_EDIT_ENDED = 'resource_edit_ended',
-  RESOURCE_UPDATED = 'resource_updated',
-  COMMENT_ADDED = 'comment_added',
-  MENTION = 'mention',
-  TASK_ASSIGNED = 'task_assigned'
-}
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import './collaboration.css';
 
 interface UserInfo {
   id: string;
   name: string;
-  avatar?: string;
   role?: string;
+  avatar?: string;
 }
 
 interface Notification {
   id: string;
-  type: NotificationType;
-  title: string;
+  type: string;
+  title?: string;
   message: string;
-  timestamp: number;
-  read: boolean;
   user?: UserInfo;
   resourceId?: string;
   resourceType?: string;
-  context?: string;
+  timestamp: number;
+  read: boolean;
 }
 
 interface CollaborationNotifierProps {
@@ -64,351 +36,379 @@ interface CollaborationNotifierProps {
 export const CollaborationNotifier: React.FC<CollaborationNotifierProps> = ({
   userId,
   userName,
-  userRole,
-  userAvatar
+  userRole = 'user',
+  userAvatar = ''
 }) => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [unreadCount, setUnreadCount] = useState<number>(0);
-  const [isOpen, setIsOpen] = useState<boolean>(false);
-  const wsRef = useRef<WebSocket | null>(null);
-  const { toast } = useToast();
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [isOpen, setIsOpen] = useState(false);
+  const [isConnected, setIsConnected] = useState(false);
+  const [lastActivityTime, setLastActivityTime] = useState<number>(0);
+  const socketRef = useRef<WebSocket | null>(null);
+  const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // Generate a unique ID for notifications
+  const generateId = () => {
+    return Math.random().toString(36).substring(2, 15) + 
+           Math.random().toString(36).substring(2, 15);
+  };
 
-  // Connect to WebSocket server when component mounts
-  useEffect(() => {
-    const connectWebSocket = () => {
-      // Determine protocol (ws or wss) based on current URL
+  // Connect to WebSocket server
+  const connectWebSocket = () => {
+    try {
+      // Clean up any existing connection
+      if (socketRef.current) {
+        socketRef.current.close();
+      }
+      
+      // Initialize WebSocket connection
       const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-      const host = window.location.host;
+      const wsUrl = `${protocol}//${window.location.host}/ws`;
       
-      // Create URL with query parameters for identification
-      const wsUrl = `${protocol}//${host}/collaboration?userId=${encodeURIComponent(userId)}&userName=${encodeURIComponent(userName)}${userRole ? `&userRole=${encodeURIComponent(userRole)}` : ''}${userAvatar ? `&userAvatar=${encodeURIComponent(userAvatar)}` : ''}`;
+      const socket = new WebSocket(wsUrl);
+      socketRef.current = socket;
       
-      console.log('Connecting to collaboration WebSocket:', wsUrl);
-      const ws = new WebSocket(wsUrl);
-      wsRef.current = ws;
-      
-      // Connection opened
-      ws.addEventListener('open', (event) => {
-        console.log('Connected to collaboration server');
-        toast({
-          title: "Collaboration Connected",
-          description: "You are now connected to the real-time collaboration service.",
-          duration: 3000
+      socket.onopen = () => {
+        console.log('WebSocket connected');
+        setIsConnected(true);
+        
+        // Register the user with the WebSocket server
+        const registerMessage = JSON.stringify({
+          type: 'register',
+          userId,
+          userInfo: {
+            id: userId,
+            name: userName,
+            role: userRole,
+            avatar: userAvatar
+          }
         });
-      });
+        
+        socket.send(registerMessage);
+        
+        // Restart any pending reconnect timeout
+        if (reconnectTimeoutRef.current) {
+          clearTimeout(reconnectTimeoutRef.current);
+          reconnectTimeoutRef.current = null;
+        }
+      };
       
-      // Listen for messages
-      ws.addEventListener('message', (event) => {
+      socket.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data);
-          handleWebSocketMessage(data);
+          console.log('WebSocket message received:', data);
+          
+          // Handle initial state message
+          if (data.type === 'initialState') {
+            // Could process any initial state data here
+            return;
+          }
+          
+          // Handle notification messages
+          if (data.type && data.message) {
+            const newNotification: Notification = {
+              id: generateId(),
+              type: data.type,
+              title: data.title || getDefaultTitle(data.type),
+              message: data.message,
+              user: data.user,
+              resourceId: data.resourceId,
+              resourceType: data.resourceType,
+              timestamp: data.timestamp || Date.now(),
+              read: false
+            };
+            
+            setNotifications(prev => [newNotification, ...prev].slice(0, 20));
+            setUnreadCount(count => count + 1);
+            
+            // Auto-open the notification panel if it's been less than 5 minutes since last activity
+            const timeSinceLastActivity = Date.now() - lastActivityTime;
+            if (timeSinceLastActivity < 5 * 60 * 1000) {
+              setIsOpen(true);
+            }
+          }
         } catch (error) {
           console.error('Error parsing WebSocket message:', error);
         }
-      });
+      };
       
-      // Connection closed
-      ws.addEventListener('close', (event) => {
-        console.log('Disconnected from collaboration server:', event.code, event.reason);
-        // Attempt to reconnect after delay
-        setTimeout(() => {
-          if (document.visibilityState !== 'hidden') {
+      socket.onclose = (event) => {
+        console.log('WebSocket disconnected:', event.code, event.reason);
+        setIsConnected(false);
+        
+        // Try to reconnect after a delay
+        if (!reconnectTimeoutRef.current) {
+          reconnectTimeoutRef.current = setTimeout(() => {
+            console.log('Attempting to reconnect WebSocket...');
             connectWebSocket();
-          }
-        }, 3000);
-      });
+            reconnectTimeoutRef.current = null;
+          }, 5000);
+        }
+      };
       
-      // Connection error
-      ws.addEventListener('error', (error) => {
+      socket.onerror = (error) => {
         console.error('WebSocket error:', error);
-      });
-    };
-    
-    // Initial connection
-    connectWebSocket();
-    
-    // Reconnect when tab becomes visible
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible' && 
-          (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN)) {
-        connectWebSocket();
-      }
-    };
-    
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    
-    // Clean up the connection when component unmounts
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-      if (wsRef.current) {
-        wsRef.current.close();
-        wsRef.current = null;
-      }
-    };
-  }, [userId, userName, userRole, userAvatar, toast]);
+      };
+      
+      return socket;
+    } catch (error) {
+      console.error('Error setting up WebSocket:', error);
+      return null;
+    }
+  };
   
-  // Handle incoming WebSocket messages
-  const handleWebSocketMessage = (data: any) => {
-    console.log('Received collaboration message:', data);
-    
-    if (data.type === 'initial_state') {
-      // This is just the initial state, no notification needed
-      return;
-    }
-    
-    // Generate a unique ID for the notification
-    const notificationId = `${data.type}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    
-    let title = '';
-    let message = '';
-    let shouldNotify = true;
-    
-    switch (data.type) {
-      case NotificationType.USER_JOINED:
-        title = 'User Joined';
-        message = `${data.user?.name} joined the collaboration`;
-        break;
-        
-      case NotificationType.USER_LEFT:
-        title = 'User Left';
-        message = `${data.user?.name} left the collaboration`;
-        break;
-        
-      case NotificationType.RESOURCE_EDIT_STARTED:
-        title = 'Editing Started';
-        message = `${data.user?.name} started editing ${data.resourceType || 'resource'} ${data.resourceId}`;
-        break;
-        
-      case NotificationType.RESOURCE_EDIT_ENDED:
-        title = 'Editing Ended';
-        message = `${data.user?.name} finished editing ${data.resourceId}`;
-        shouldNotify = false; // Don't need a toast for this
-        break;
-        
-      case NotificationType.RESOURCE_UPDATED:
-        title = 'Resource Updated';
-        message = `${data.user?.name} updated ${data.resourceType || 'resource'} ${data.resourceId}`;
-        break;
-        
-      case NotificationType.COMMENT_ADDED:
-        title = 'New Comment';
-        message = `${data.user?.name} commented on ${data.resourceType || 'resource'} ${data.resourceId}: ${data.comment}`;
-        break;
-        
-      case NotificationType.MENTION:
-        title = 'You were mentioned';
-        message = `${data.mentioningUser?.name} mentioned you in ${data.resourceType || 'resource'} ${data.resourceId}`;
-        break;
-        
-      case NotificationType.TASK_ASSIGNED:
-        title = 'Task Assigned';
-        message = `${data.assigner?.name} assigned you task: ${data.taskDetails?.title || data.taskId}`;
-        break;
-        
+  // Get default notification title based on type
+  const getDefaultTitle = (type: string): string => {
+    switch (type) {
+      case 'user_joined':
+        return 'User Joined';
+      case 'user_left':
+        return 'User Left';
+      case 'resource_edit_started':
+        return 'Edit Started';
+      case 'resource_edit_ended':
+        return 'Edit Ended';
+      case 'resource_updated':
+        return 'Resource Updated';
+      case 'comment_added':
+        return 'New Comment';
+      case 'mention':
+        return 'You Were Mentioned';
+      case 'task_assigned':
+        return 'Task Assigned';
       default:
-        title = 'Collaboration Update';
-        message = 'Something happened in the collaboration';
-        shouldNotify = false;
+        return 'Notification';
     }
+  };
+  
+  // Get icon for notification based on type
+  const getNotificationIcon = (type: string) => {
+    switch (type) {
+      case 'user_joined':
+      case 'user_left':
+        return <User className="h-4 w-4" />;
+      case 'resource_edit_started':
+      case 'resource_edit_ended':
+      case 'resource_updated':
+        return <FileEdit className="h-4 w-4" />;
+      case 'comment_added':
+      case 'mention':
+        return <MessageSquare className="h-4 w-4" />;
+      default:
+        return <Bell className="h-4 w-4" />;
+    }
+  };
+  
+  // Format timestamp to readable format
+  const formatTimestamp = (timestamp: number): string => {
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMin = Math.round(diffMs / 60000);
     
-    // Create the notification
-    const notification: Notification = {
-      id: notificationId,
-      type: data.type,
-      title,
-      message,
-      timestamp: data.timestamp || Date.now(),
-      read: false,
-      user: data.user || data.mentioningUser || data.assigner,
-      resourceId: data.resourceId,
-      resourceType: data.resourceType,
-      context: data.context
-    };
-    
-    // Update notifications state
-    setNotifications(prev => [notification, ...prev].slice(0, 50)); // Keep only the latest 50 notifications
-    setUnreadCount(prev => prev + 1);
-    
-    // Show toast notification if needed
-    if (shouldNotify) {
-      toast({
-        title,
-        description: message,
-        duration: 5000
-      });
+    if (diffMin < 1) {
+      return 'just now';
+    } else if (diffMin < 60) {
+      return `${diffMin} min ago`;
+    } else if (diffMin < 1440) {
+      const hours = Math.floor(diffMin / 60);
+      return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+    } else {
+      const days = Math.floor(diffMin / 1440);
+      return `${days} day${days > 1 ? 's' : ''} ago`;
     }
   };
   
   // Mark all notifications as read
   const markAllAsRead = () => {
-    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+    setNotifications(prevNotifications => 
+      prevNotifications.map(notification => ({
+        ...notification,
+        read: true
+      }))
+    );
     setUnreadCount(0);
   };
   
-  // Handle notification click
-  const handleNotificationClick = (notification: Notification) => {
-    // Mark this notification as read
-    setNotifications(prev => 
-      prev.map(n => n.id === notification.id ? { ...n, read: true } : n)
+  // Toggle notification panel
+  const toggleNotificationPanel = () => {
+    setIsOpen(!isOpen);
+    if (!isOpen) {
+      // When opening, update last activity time
+      setLastActivityTime(Date.now());
+    }
+    if (isOpen && unreadCount > 0) {
+      // When closing, mark all as read
+      markAllAsRead();
+    }
+  };
+  
+  // Mark individual notification as read
+  const markAsRead = (id: string) => {
+    setNotifications(prevNotifications => 
+      prevNotifications.map(notification => 
+        notification.id === id 
+          ? { ...notification, read: true } 
+          : notification
+      )
     );
-    setUnreadCount(prev => Math.max(0, prev - 1));
     
-    // Handle navigation or action based on notification type
-    switch (notification.type) {
-      case NotificationType.RESOURCE_UPDATED:
-      case NotificationType.RESOURCE_EDIT_STARTED:
-        // Navigate to the resource
-        if (notification.resourceId) {
-          console.log(`Navigate to ${notification.resourceType} ${notification.resourceId}`);
-          // Implement navigation logic here, e.g.:
-          // navigate(`/${notification.resourceType}/${notification.resourceId}`);
-        }
-        break;
-        
-      case NotificationType.MENTION:
-      case NotificationType.COMMENT_ADDED:
-        // Navigate to the comment or mention context
-        if (notification.resourceId) {
-          console.log(`Navigate to comment in ${notification.resourceType} ${notification.resourceId}`);
-          // Implement navigation logic here
-        }
-        break;
-        
-      case NotificationType.TASK_ASSIGNED:
-        // Navigate to the task
-        console.log(`Navigate to task ${notification.resourceId}`);
-        // Implement navigation logic here
-        break;
-    }
+    // Update unread count
+    setUnreadCount(prevCount => {
+      const notification = notifications.find(n => n.id === id);
+      return notification && !notification.read ? prevCount - 1 : prevCount;
+    });
   };
   
-  // Get icon for notification type
-  const getNotificationIcon = (type: NotificationType) => {
-    switch (type) {
-      case NotificationType.USER_JOINED:
-        return <UserPlus className="w-4 h-4 text-emerald-500" />;
-      case NotificationType.USER_LEFT:
-        return <UserMinus className="w-4 h-4 text-amber-500" />;
-      case NotificationType.RESOURCE_EDIT_STARTED:
-      case NotificationType.RESOURCE_EDIT_ENDED:
-        return <Edit2 className="w-4 h-4 text-blue-500" />;
-      case NotificationType.RESOURCE_UPDATED:
-        return <FileText className="w-4 h-4 text-indigo-500" />;
-      case NotificationType.COMMENT_ADDED:
-        return <MessageSquare className="w-4 h-4 text-purple-500" />;
-      case NotificationType.MENTION:
-        return <AtSign className="w-4 h-4 text-pink-500" />;
-      case NotificationType.TASK_ASSIGNED:
-        return <Clipboard className="w-4 h-4 text-amber-500" />;
-      default:
-        return <AlertCircle className="w-4 h-4 text-gray-500" />;
-    }
+  // Remove individual notification
+  const removeNotification = (id: string) => {
+    setNotifications(prevNotifications => {
+      const notificationToRemove = prevNotifications.find(n => n.id === id);
+      
+      // If removing an unread notification, decrement the unread count
+      if (notificationToRemove && !notificationToRemove.read) {
+        setUnreadCount(prevCount => Math.max(0, prevCount - 1));
+      }
+      
+      return prevNotifications.filter(notification => notification.id !== id);
+    });
   };
   
-  // Format timestamp
-  const formatTimestamp = (timestamp: number) => {
-    const date = new Date(timestamp);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffSec = Math.floor(diffMs / 1000);
-    const diffMin = Math.floor(diffSec / 60);
-    const diffHour = Math.floor(diffMin / 60);
-    const diffDay = Math.floor(diffHour / 24);
+  // Initialize WebSocket when component mounts
+  useEffect(() => {
+    const socket = connectWebSocket();
     
-    if (diffSec < 60) {
-      return 'just now';
-    } else if (diffMin < 60) {
-      return `${diffMin} min${diffMin > 1 ? 's' : ''} ago`;
-    } else if (diffHour < 24) {
-      return `${diffHour} hour${diffHour > 1 ? 's' : ''} ago`;
-    } else if (diffDay < 7) {
-      return `${diffDay} day${diffDay > 1 ? 's' : ''} ago`;
-    } else {
-      return date.toLocaleDateString();
-    }
-  };
+    // Set up activity tracking
+    const handleActivity = () => {
+      setLastActivityTime(Date.now());
+    };
+    
+    // Track user activity
+    window.addEventListener('click', handleActivity);
+    window.addEventListener('keydown', handleActivity);
+    
+    // Cleanup on unmount
+    return () => {
+      if (socket) {
+        socket.close();
+      }
+      if (reconnectTimeoutRef.current) {
+        clearTimeout(reconnectTimeoutRef.current);
+      }
+      window.removeEventListener('click', handleActivity);
+      window.removeEventListener('keydown', handleActivity);
+    };
+  }, [userId, userName, userRole]); // Reconnect if these props change
   
   return (
-    <Popover open={isOpen} onOpenChange={setIsOpen}>
-      <PopoverTrigger asChild>
-        <Button 
-          variant="ghost" 
-          className="relative p-2"
-          aria-label="Notifications"
-        >
-          <Bell className="h-5 w-5" />
-          {unreadCount > 0 && (
-            <span className="absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-              {unreadCount}
-            </span>
-          )}
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-96 p-0" align="end">
-        <div className="flex items-center justify-between px-4 py-3 border-b">
-          <h3 className="font-semibold">Notifications</h3>
-          {unreadCount > 0 && (
+    <div className="relative">
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button 
+              variant="ghost" 
+              className="relative p-2 text-white hover:bg-white/10"
+              onClick={toggleNotificationPanel}
+            >
+              <Bell className="h-5 w-5" />
+              {unreadCount > 0 && (
+                <Badge 
+                  className="absolute -top-1 -right-1 px-1.5 py-0.5 min-w-[18px] h-[18px] flex items-center justify-center text-[10px] bg-red-500 border-none"
+                >
+                  {unreadCount > 99 ? '99+' : unreadCount}
+                </Badge>
+              )}
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>{unreadCount > 0 ? `${unreadCount} unread notifications` : 'Notifications'}</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+      
+      {isOpen && (
+        <Card className="absolute right-0 mt-2 w-80 z-50 max-h-[80vh] overflow-hidden flex flex-col shadow-lg">
+          <div className="p-3 border-b flex justify-between items-center">
+            <div className="flex items-center">
+              <h4 className="text-sm font-semibold">Notifications</h4>
+              <Badge 
+                variant={isConnected ? "success" : "destructive"} 
+                className="ml-2 px-1.5 py-0.5 text-[10px]"
+              >
+                {isConnected ? 'Connected' : 'Disconnected'}
+              </Badge>
+            </div>
             <Button 
               variant="ghost" 
               size="sm" 
+              className="px-1.5 h-6 text-xs"
               onClick={markAllAsRead}
-              className="text-xs h-8"
+              disabled={unreadCount === 0}
             >
-              Mark all as read
+              Mark all read
             </Button>
-          )}
-        </div>
-        <ScrollArea className="h-[400px]">
-          {notifications.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-32 text-center text-muted-foreground p-4">
-              <Bell className="h-8 w-8 mb-2 opacity-50" />
-              <p>No notifications yet</p>
-              <p className="text-sm">You'll see collaboration updates here</p>
-            </div>
-          ) : (
-            <div>
-              {notifications.map((notification) => (
+          </div>
+          
+          <div className="overflow-y-auto">
+            {notifications.length === 0 ? (
+              <div className="p-6 text-center text-muted-foreground text-sm">
+                No notifications yet
+              </div>
+            ) : (
+              notifications.map((notification) => (
                 <div 
                   key={notification.id} 
-                  className={`p-4 border-b hover:bg-muted/30 cursor-pointer transition-colors ${!notification.read ? 'bg-muted/20' : ''}`}
-                  onClick={() => handleNotificationClick(notification)}
+                  className={`p-3 border-b hover:bg-accent/50 relative transition-colors ${notification.read ? '' : 'bg-accent/20'}`}
+                  onClick={() => markAsRead(notification.id)}
                 >
                   <div className="flex items-start gap-3">
-                    <div className="flex-shrink-0">
-                      {notification.user?.avatar ? (
-                        <Avatar className="h-8 w-8 border">
-                          <AvatarImage src={notification.user.avatar} alt={notification.user.name} />
-                          <AvatarFallback>{notification.user.name.charAt(0)}</AvatarFallback>
-                        </Avatar>
-                      ) : (
-                        <div className="h-8 w-8 bg-primary/10 rounded-full flex items-center justify-center">
-                          {getNotificationIcon(notification.type)}
-                        </div>
-                      )}
-                    </div>
+                    {notification.user?.avatar ? (
+                      <Avatar className="h-8 w-8">
+                        <AvatarImage src={notification.user.avatar} alt={notification.user.name} />
+                        <AvatarFallback>
+                          {notification.user.name?.substring(0, 2).toUpperCase() || 'U'}
+                        </AvatarFallback>
+                      </Avatar>
+                    ) : (
+                      <div className="h-8 w-8 flex items-center justify-center rounded-full bg-primary/10 text-primary">
+                        {getNotificationIcon(notification.type)}
+                      </div>
+                    )}
+                    
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between">
-                        <p className="font-medium text-sm">{notification.title}</p>
-                        <span className="text-xs text-muted-foreground">
+                      <div className="flex justify-between items-start">
+                        <p className="text-sm font-medium truncate">{notification.title}</p>
+                        <span className="text-xs text-muted-foreground ml-2">
                           {formatTimestamp(notification.timestamp)}
                         </span>
                       </div>
-                      <p className="text-sm text-muted-foreground truncate">{notification.message}</p>
-                      {!notification.read && (
-                        <Badge variant="default" className="mt-1 px-1.5 py-0 text-[10px]">
-                          New
+                      <p className="text-sm text-muted-foreground line-clamp-2">{notification.message}</p>
+                      
+                      {notification.resourceType && notification.resourceId && (
+                        <Badge variant="outline" className="mt-1 px-1.5 py-0.5 text-[10px]">
+                          {notification.resourceType}: {notification.resourceId}
                         </Badge>
                       )}
                     </div>
                   </div>
+                  
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="absolute top-1 right-1 h-6 w-6 opacity-50 hover:opacity-100"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      removeNotification(notification.id);
+                    }}
+                  >
+                    <X className="h-3 w-3" />
+                  </Button>
                 </div>
-              ))}
-            </div>
-          )}
-        </ScrollArea>
-      </PopoverContent>
-    </Popover>
+              ))
+            )}
+          </div>
+        </Card>
+      )}
+    </div>
   );
 };
-
-export default CollaborationNotifier;

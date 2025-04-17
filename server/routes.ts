@@ -73,7 +73,6 @@ function validate<T>(schema: any, data: any): T | { error: string } {
 }
 
 import { initRealTimeMetrics } from './services/realTimeMetricsService';
-import { WebSocketServer, WebSocket } from 'ws';
 import { registerClient } from './services/collaborationService';
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -83,7 +82,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   initRealTimeMetrics(httpServer);
   
   // Initialize the collaboration WebSocketServer
-  const wss = new WebSocketServer({ server: httpServer, path: '/collaboration' });
+  const wss = new WebSocketServer({ server: httpServer, path: '/ws' });
   
   // Collaboration WebSocket connection handler
   wss.on('connection', (ws, request) => {
