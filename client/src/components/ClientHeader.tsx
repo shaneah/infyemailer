@@ -18,7 +18,7 @@ const ClientHeader: React.FC<ClientHeaderProps> = ({
   title,
   subtitle,
   userName = "User",
-  companyName = "Acme Corporation",
+  companyName = "InfyTech Solutions",
   onSidebarOpen
 }) => {
   const [location, setLocation] = useLocation();
