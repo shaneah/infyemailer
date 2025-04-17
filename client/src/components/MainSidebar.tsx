@@ -339,27 +339,7 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
               </Link>
             </li>
             
-            {/* Client Portal */}
-            <li className="mt-6">
-              <Link 
-                href="/client-dashboard" 
-                className={`flex items-center px-3 py-2 rounded-md border border-[#1e293b] ${location === '/client-dashboard' 
-                  ? 'bg-gradient-to-r from-[#d4af37]/20 to-transparent text-white' 
-                  : 'bg-gradient-to-r from-[#1e293b] to-transparent text-[#d4af37] hover:from-[#d4af37]/20'}`}
-                title="Client Portal"
-              >
-                <ExternalLink className="h-5 w-5 mr-3 text-[#d4af37]" />
-                {!collapsed && (
-                  <div className="flex items-center">
-                    <span>Client Portal</span>
-                    <div className="relative ml-2">
-                      <span className="absolute -inset-1 rounded-full bg-[#d4af37]/30 animate-pulse opacity-75"></span>
-                      <span className="relative h-1.5 w-1.5 rounded-full bg-[#d4af37] inline-block"></span>
-                    </div>
-                  </div>
-                )}
-              </Link>
-            </li>
+            {/* Client Portal removed */}
           </ul>
           
           {/* Logout Button */}
