@@ -686,19 +686,7 @@ const PropertyEditor: React.FC<PropertyEditorProps> = ({
   };
   
   if (!selectedElement && !selectedSection) {
-    return (
-      <div className="h-full flex flex-col items-center justify-center text-center px-6">
-        <div className="bg-gray-100 rounded-full p-3 mb-3">
-          <Settings className="h-5 w-5 text-gray-500" />
-        </div>
-        <h3 className="text-lg font-medium text-gray-700 mb-1">No element selected</h3>
-        <p className="text-sm text-gray-500 mb-4">Select an element to edit its properties</p>
-        <Button variant="outline" onClick={onTemplateStyling} className="text-xs">
-          <Palette className="h-4 w-4 mr-2" />
-          Edit Template Style
-        </Button>
-      </div>
-    );
+    return null;
   }
   
   if (selectedSection && !selectedElement) {
