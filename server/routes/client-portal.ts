@@ -25,7 +25,117 @@ const checkClientAuth = (req: express.Request, res: express.Response, next: expr
   return res.status(401).json({ message: 'Authentication required' });
 };
 
-// Apply client auth middleware to all routes
+// Client login endpoint (exclude from auth check)
+router.post('/login', async (req, res) => {
+  try {
+    // Validate request body
+    const validationResult = clientUserLoginSchema.safeParse(req.body);
+    if (!validationResult.success) {
+      return res.status(400).json({ 
+        error: 'Invalid login data', 
+        details: validationResult.error.errors 
+      });
+    }
+    
+    const { username, password } = validationResult.data;
+    
+    // Find client user by username
+    const clientUsers = await storage.getClientUsers();
+    const clientUser = clientUsers.find(user => 
+      user.username.toLowerCase() === username.toLowerCase()
+    );
+    
+    if (!clientUser) {
+      return res.status(401).json({ error: 'Invalid username or password' });
+    }
+    
+    // Check password
+    const passwordValid = await comparePasswords(password, clientUser.password);
+    if (!passwordValid) {
+      return res.status(401).json({ error: 'Invalid username or password' });
+    }
+    
+    // Update last login time
+    await storage.updateClientUser(clientUser.id, {
+      lastLoginAt: new Date()
+    });
+    
+    // Log in the user via Passport.js
+    req.login(clientUser, (err) => {
+      if (err) {
+        console.error('Error during login:', err);
+        return res.status(500).json({ error: 'Login failed' });
+      }
+      
+      // Get client details if available
+      if (clientUser.clientId) {
+        storage.getClient(clientUser.clientId)
+          .then(client => {
+            if (client) {
+              return res.json({
+                user: {
+                  id: clientUser.id,
+                  username: clientUser.username,
+                  clientId: clientUser.clientId,
+                  role: 'client'
+                },
+                client: {
+                  id: client.id,
+                  name: client.name,
+                  company: client.company,
+                  emailCredits: client.emailCredits
+                }
+              });
+            } else {
+              return res.json({
+                user: {
+                  id: clientUser.id,
+                  username: clientUser.username,
+                  clientId: clientUser.clientId,
+                  role: 'client'
+                }
+              });
+            }
+          })
+          .catch(error => {
+            console.error('Error fetching client details:', error);
+            return res.json({
+              user: {
+                id: clientUser.id,
+                username: clientUser.username,
+                clientId: clientUser.clientId,
+                role: 'client'
+              }
+            });
+          });
+      } else {
+        return res.json({
+          user: {
+            id: clientUser.id,
+            username: clientUser.username,
+            role: 'client'
+          }
+        });
+      }
+    });
+  } catch (error) {
+    console.error('Client login error:', error);
+    return res.status(500).json({ error: 'Login failed' });
+  }
+});
+
+// Logout endpoint (exclude from auth check)
+router.post('/logout', (req, res) => {
+  req.logout((err) => {
+    if (err) {
+      console.error('Logout error:', err);
+      return res.status(500).json({ error: 'Logout failed' });
+    }
+    res.json({ message: 'Logout successful' });
+  });
+});
+
+// Apply client auth middleware to all routes except login/logout
 router.use(checkClientAuth);
 
 // Get client profile information
