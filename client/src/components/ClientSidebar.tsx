@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { useLocation, Link } from 'wouter';
 import { 
   Mail, Users, ListChecks, FileText, BarChart3, LineChart,
-  Globe, CheckSquare, SplitSquareVertical, Settings, LogOut, Menu, X, CreditCard
+  Globe, CheckSquare, SplitSquareVertical, Settings, LogOut, Menu, X, CreditCard,
+  ShieldAlert, Server, Database, Activity, AlertCircle, Wrench, Clock
 } from 'lucide-react';
 import LogoWhite from '../assets/Logo-white.png';
 
@@ -86,11 +87,9 @@ const ClientSidebar = ({ open, setOpen }: SidebarProps) => {
         {/* Logo area */}
         <div className="p-4 flex flex-col items-center border-b border-blue-800/50 bg-black/10">
           <div className="w-full flex items-center justify-center mt-1 mb-2">
-            <img 
-              src={LogoWhite} 
-              alt="InfyMailer Logo" 
-              className="h-7 drop-shadow-md" 
-            />
+            <div className="text-lg font-bold text-white">
+              My Company
+            </div>
           </div>
           <div className="font-semibold text-white">Client Portal</div>
         </div>
@@ -169,6 +168,39 @@ const ClientSidebar = ({ open, setOpen }: SidebarProps) => {
               icon={CheckSquare} 
               label="Email Validation" 
               active={location === '/client-email-validation'} 
+            />
+          </MenuSection>
+          
+          <MenuSection title="System">
+            <MenuItem 
+              href="/client-overview" 
+              icon={Activity} 
+              label="System Overview" 
+              active={location === '/client-overview'} 
+            />
+            <MenuItem 
+              href="/client-security" 
+              icon={ShieldAlert} 
+              label="Security" 
+              active={location === '/client-security'} 
+            />
+            <MenuItem 
+              href="/client-billing" 
+              icon={CreditCard} 
+              label="Billing & Credits" 
+              active={location === '/client-billing'} 
+            />
+            <MenuItem 
+              href="/client-servers" 
+              icon={Server} 
+              label="Servers" 
+              active={location === '/client-servers'} 
+            />
+            <MenuItem 
+              href="/client-maintenance" 
+              icon={Wrench} 
+              label="Maintenance" 
+              active={location === '/client-maintenance'} 
             />
           </MenuSection>
         </div>

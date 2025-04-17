@@ -43,6 +43,7 @@ import Analytics from "@/pages/Analytics";
 import EmailTest from "@/pages/EmailTest";
 import Login from "@/pages/Login";
 import EmailPerformanceDashboard from "@/pages/EmailPerformanceDashboard";
+import ClientPlaceholderPage from "@/pages/ClientPlaceholderPage";
 
 
 function App() {
@@ -165,6 +166,38 @@ function App() {
         <Route path="client-settings">
           <div className="bg-background min-h-screen">
             <ClientRoutes />
+            <Toaster />
+          </div>
+        </Route>
+        
+        {/* New Admin Panel Tab Routes */}
+        <Route path="client-overview">
+          <div className="bg-background min-h-screen">
+            <ClientPlaceholderPage title="System Overview" />
+            <Toaster />
+          </div>
+        </Route>
+        <Route path="client-security">
+          <div className="bg-background min-h-screen">
+            <ClientPlaceholderPage title="Security" />
+            <Toaster />
+          </div>
+        </Route>
+        <Route path="client-billing">
+          <div className="bg-background min-h-screen">
+            <ClientPlaceholderPage title="Billing & Credits" />
+            <Toaster />
+          </div>
+        </Route>
+        <Route path="client-servers">
+          <div className="bg-background min-h-screen">
+            <ClientPlaceholderPage title="Servers" />
+            <Toaster />
+          </div>
+        </Route>
+        <Route path="client-maintenance">
+          <div className="bg-background min-h-screen">
+            <ClientPlaceholderPage title="Maintenance" />
             <Toaster />
           </div>
         </Route>
