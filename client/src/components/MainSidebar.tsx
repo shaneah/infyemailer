@@ -246,8 +246,8 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
               <Link 
                 href="/email-validation" 
                 className={`flex items-center px-3 py-2 rounded-md ${location === '/email-validation' 
-                  ? 'text-white bg-gradient-to-r from-[#1e293b] to-transparent border-l-4 border-[#d4af37]' 
-                  : 'text-gray-300 hover:bg-[#1e293b]/50 hover:text-white'}`}
+                  ? 'text-white bg-gradient-to-r from-white/20 to-transparent border-l-4 border-white' 
+                  : 'text-white hover:bg-white/10 hover:text-white'}`}
                 title="Email Validation"
               >
                 <CheckCircle2 className={`h-5 w-5 mr-3 ${location === '/email-validation' ? 'text-[#d4af37]' : ''}`} />
@@ -260,8 +260,8 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
               <Link 
                 href="/email-providers" 
                 className={`flex items-center px-3 py-2 rounded-md ${location === '/email-providers' 
-                  ? 'text-white bg-gradient-to-r from-[#1e293b] to-transparent border-l-4 border-[#d4af37]' 
-                  : 'text-gray-300 hover:bg-[#1e293b]/50 hover:text-white'}`}
+                  ? 'text-white bg-gradient-to-r from-white/20 to-transparent border-l-4 border-white' 
+                  : 'text-white hover:bg-white/10 hover:text-white'}`}
                 title="Email Providers"
               >
                 <ServerCog className={`h-5 w-5 mr-3 ${location === '/email-providers' ? 'text-[#d4af37]' : ''}`} />
@@ -274,8 +274,8 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
               <Link 
                 href="/email-test" 
                 className={`flex items-center px-3 py-2 rounded-md ${location === '/email-test' 
-                  ? 'text-white bg-gradient-to-r from-[#1e293b] to-transparent border-l-4 border-[#d4af37]' 
-                  : 'text-gray-300 hover:bg-[#1e293b]/50 hover:text-white'}`}
+                  ? 'text-white bg-gradient-to-r from-white/20 to-transparent border-l-4 border-white' 
+                  : 'text-white hover:bg-white/10 hover:text-white'}`}
                 title="Email Test"
               >
                 <SendHorizonal className={`h-5 w-5 mr-3 ${location === '/email-test' ? 'text-[#d4af37]' : ''}`} />
@@ -300,8 +300,8 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
               <Link 
                 href="/user-management" 
                 className={`flex items-center px-3 py-2 rounded-md ${location === '/user-management' 
-                  ? 'text-white bg-gradient-to-r from-[#1e293b] to-transparent border-l-4 border-[#d4af37]' 
-                  : 'text-gray-300 hover:bg-[#1e293b]/50 hover:text-white'}`}
+                  ? 'text-white bg-gradient-to-r from-white/20 to-transparent border-l-4 border-white' 
+                  : 'text-white hover:bg-white/10 hover:text-white'}`}
                 title="User Management"
               >
                 <UserRound className={`h-5 w-5 mr-3 ${location === '/user-management' ? 'text-[#d4af37]' : ''}`} />
@@ -316,8 +316,8 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
               <Link 
                 href="/admin" 
                 className={`flex items-center px-3 py-2 rounded-md ${location === '/admin' 
-                  ? 'text-white bg-gradient-to-r from-[#1e293b] to-transparent border-l-4 border-[#d4af37]' 
-                  : 'text-gray-300 hover:bg-[#1e293b]/50 hover:text-white'}`}
+                  ? 'text-white bg-gradient-to-r from-white/20 to-transparent border-l-4 border-white' 
+                  : 'text-white hover:bg-white/10 hover:text-white'}`}
                 title="Admin Panel"
               >
                 <ShieldCheck className={`h-5 w-5 mr-3 ${location === '/admin' ? 'text-[#d4af37]' : ''}`} />
@@ -330,11 +330,11 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
               <Link 
                 href="/settings" 
                 className={`flex items-center px-3 py-2 rounded-md ${location === '/settings' 
-                  ? 'text-white bg-gradient-to-r from-[#1e293b] to-transparent border-l-4 border-[#d4af37]' 
-                  : 'text-gray-300 hover:bg-[#1e293b]/50 hover:text-white'}`}
+                  ? 'text-white bg-gradient-to-r from-white/20 to-transparent border-l-4 border-white' 
+                  : 'text-white hover:bg-white/10 hover:text-white'}`}
                 title="Settings"
               >
-                <Settings className={`h-5 w-5 mr-3 ${location === '/settings' ? 'text-[#d4af37]' : ''}`} />
+                <Settings className={`h-5 w-5 mr-3 ${location === '/settings' ? 'text-white' : 'text-white/70'}`} />
                 {!collapsed && <span>Settings</span>}
               </Link>
             </li>
@@ -346,10 +346,10 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
           <div className="px-2 mt-4 mb-6">
             <button
               onClick={handleLogout}
-              className="flex items-center w-full px-3 py-2 rounded-md text-gray-300 hover:bg-[#1e293b]/50 hover:text-white"
+              className="flex items-center w-full px-3 py-2 rounded-md text-white hover:bg-white/10 hover:text-white"
               title="Logout"
             >
-              <LogOut className="h-5 w-5 mr-3 text-gray-500" />
+              <LogOut className="h-5 w-5 mr-3 text-white/70" />
               {!collapsed && <span>Logout</span>}
             </button>
           </div>
