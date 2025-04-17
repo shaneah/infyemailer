@@ -1055,7 +1055,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
                         <Input 
                           placeholder="your@email.com" 
                           {...field} 
-                          className="border-blue-200 focus-visible:ring-blue-300"
+                          className="border-purple-200 focus-visible:ring-purple-300"
                         />
                       </FormControl>
                       <FormMessage />
@@ -1073,7 +1073,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
                         <Input 
                           placeholder="Test Email Subject" 
                           {...field} 
-                          className="border-blue-200 focus-visible:ring-blue-300"
+                          className="border-purple-200 focus-visible:ring-purple-300"
                         />
                       </FormControl>
                       <FormMessage />
@@ -1085,13 +1085,13 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
                   control={testEmailForm.control}
                   name="personalizeContent"
                   render={({ field }) => (
-                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border border-blue-200 p-4">
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border border-purple-200 p-4">
                       <FormControl>
                         <input
                           type="checkbox"
                           checked={field.value}
                           onChange={field.onChange}
-                          className="accent-blue-600 h-4 w-4 mt-1"
+                          className="accent-purple-600 h-4 w-4 mt-1"
                         />
                       </FormControl>
                       <div className="space-y-1 leading-none">
@@ -1238,7 +1238,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
                   </Button>
                   <Button 
                     type="submit"
-                    className="bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900"
+                    className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
                     disabled={updateTemplateMutation.isPending}
                   >
                     {updateTemplateMutation.isPending ? (
@@ -1273,7 +1273,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
               <div className="space-y-2">
                 <Label htmlFor="expiration">Link Expiration</Label>
                 <Select value={shareExpiration} onValueChange={setShareExpiration}>
-                  <SelectTrigger className="w-full border-blue-200 focus-visible:ring-blue-300">
+                  <SelectTrigger className="w-full border-purple-200 focus-visible:ring-purple-300">
                     <SelectValue placeholder="Select expiration" />
                   </SelectTrigger>
                   <SelectContent>
@@ -1285,7 +1285,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
                 </Select>
               </div>
               
-              <div className="bg-blue-50 border border-blue-200 rounded-md p-3 text-sm text-blue-800">
+              <div className="bg-purple-50 border border-purple-200 rounded-md p-3 text-sm text-purple-800">
                 <Info className="h-4 w-4 inline-block mr-2" />
                 The recipient will be able to import this template into their own account.
               </div>
@@ -1301,7 +1301,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
               </Button>
               <Button 
                 type="button"
-                className="bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900"
+                className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
                 onClick={handleConfirmShare}
                 disabled={shareTemplateMutation.isPending}
               >
