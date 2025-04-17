@@ -9,7 +9,7 @@ const router = express.Router();
 const checkAdminAuth = (req: express.Request, res: express.Response, next: express.NextFunction) => {
   // For now, we'll allow all authenticated users to access admin routes
   // In a production environment, we would check for admin role here
-  if (req.session && req.session.user) {
+  if (req.isAuthenticated && req.isAuthenticated()) {
     // We're authenticated, proceed
     return next();
   }
