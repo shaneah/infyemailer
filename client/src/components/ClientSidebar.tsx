@@ -22,12 +22,13 @@ const MenuItem = ({ href, icon: Icon, label, active }: {
       href={href} 
       className={`group flex items-center px-4 py-2.5 text-sm rounded-lg transition-all duration-200 ${
         active 
-          ? 'bg-primary/20 text-white shadow-sm' 
-          : 'text-blue-50 hover:bg-primary/15'
+          ? 'bg-blue-800/70 text-white shadow-sm' 
+          : 'text-blue-50 hover:bg-blue-800/30'
       }`}
     >
-      <div className="flex items-center justify-center">
+      <div className="flex items-center justify-center relative">
         <Icon size={19} className={`mr-3 transition-all ${active ? 'text-amber-300' : 'text-blue-200 group-hover:text-amber-300/80'}`} />
+        {active && <span className="absolute -left-1 -top-1 w-1.5 h-1.5 bg-amber-300 rounded-full animate-pulse"></span>}
       </div>
       <span className={`font-medium ${active ? 'translate-x-0.5 transition-transform duration-200' : ''}`}>{label}</span>
       {active && <div className="absolute left-0 w-1 h-7 bg-amber-300 rounded-r-full ml-0.5"></div>}
@@ -195,22 +196,28 @@ const ClientSidebar = ({ open, setOpen }: SidebarProps) => {
           <div className="flex flex-col gap-2">
             <Link
               href="/client-settings"
-              className={`flex items-center px-4 py-2.5 text-sm font-medium rounded-lg transition-all ${
+              className={`group flex items-center px-4 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 ${
                 location === '/client-settings' 
-                  ? 'bg-blue-800/80 text-white' 
-                  : 'text-blue-100 hover:bg-blue-800/30'
+                  ? 'bg-blue-800/70 text-white shadow-sm' 
+                  : 'text-blue-50 hover:bg-blue-800/30'
               }`}
             >
-              <Settings size={18} className={`mr-3 transition-colors ${location === '/client-settings' ? 'text-amber-300' : 'text-blue-200 group-hover:text-amber-300/80'}`} />
-              <span>Account Settings</span>
+              <div className="flex items-center justify-center relative">
+                <Settings size={18} className={`mr-3 transition-all ${location === '/client-settings' ? 'text-amber-300' : 'text-blue-200 group-hover:text-amber-300/80'}`} />
+                {location === '/client-settings' && <span className="absolute -left-1 -top-1 w-1.5 h-1.5 bg-amber-300 rounded-full animate-pulse"></span>}
+              </div>
+              <span className={`font-medium ${location === '/client-settings' ? 'translate-x-0.5 transition-transform duration-200' : ''}`}>Account Settings</span>
+              {location === '/client-settings' && <div className="absolute left-0 w-1 h-7 bg-amber-300 rounded-r-full ml-0.5"></div>}
             </Link>
             
             <button
               onClick={handleLogout}
-              className="flex items-center w-full px-4 py-2.5 text-sm font-medium text-blue-100 hover:bg-blue-800/30 transition-all rounded-lg group"
+              className="group flex items-center w-full px-4 py-2.5 text-sm font-medium text-blue-50 hover:bg-blue-800/30 transition-all duration-200 rounded-lg"
             >
-              <LogOut size={18} className="mr-3 text-blue-200 transition-colors group-hover:text-amber-300" />
-              <span>Logout</span>
+              <div className="flex items-center justify-center">
+                <LogOut size={18} className="mr-3 text-blue-200 transition-all group-hover:text-amber-300/80" />
+              </div>
+              <span className="font-medium">Logout</span>
             </button>
           </div>
         </div>
