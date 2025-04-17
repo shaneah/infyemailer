@@ -79,7 +79,7 @@ export default function CreateTemplateModal({ open, onOpenChange }: CreateTempla
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader className="text-center pb-2 border-b border-gray-100">
-          <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-amber-500 to-yellow-500 bg-clip-text text-transparent">
+          <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
             Create New Template
           </DialogTitle>
           <DialogDescription className="text-gray-600 mt-2">
@@ -88,8 +88,8 @@ export default function CreateTemplateModal({ open, onOpenChange }: CreateTempla
         </DialogHeader>
         
         <div className="mt-4 flex flex-col items-center justify-center">
-          <div className="p-6 text-center relative before:content-[''] before:absolute before:inset-0 before:bg-gradient-to-r before:from-amber-50/30 before:to-yellow-50/30 before:rounded-lg before:animate-pulse">
-            <div className="mx-auto mb-5 bg-gradient-to-r from-amber-500 to-yellow-500 w-16 h-16 flex items-center justify-center rounded-full shadow-lg relative">
+          <div className="p-6 text-center relative before:content-[''] before:absolute before:inset-0 before:bg-gradient-to-r before:from-purple-50/30 before:to-indigo-50/30 before:rounded-lg before:animate-pulse">
+            <div className="mx-auto mb-5 bg-gradient-to-r from-purple-600 to-indigo-600 w-16 h-16 flex items-center justify-center rounded-full shadow-lg relative">
               <div className="absolute inset-0 bg-black/10 rounded-full blur-sm"></div>
               <FileText className="h-8 w-8 text-white relative z-10 drop-shadow-md" />
             </div>
@@ -98,7 +98,7 @@ export default function CreateTemplateModal({ open, onOpenChange }: CreateTempla
               Create professional email templates with our intuitive drag-and-drop visual editor - no coding required.
             </p>
             <button
-              className="inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white font-medium rounded-md shadow-md border border-amber-300 transition-all duration-200 hover:scale-105"
+              className="inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-medium rounded-md shadow-md border border-purple-400 transition-all duration-200 hover:scale-105"
               onClick={() => {
                 onOpenChange(false);
                 // Use direct window location change as fallback
