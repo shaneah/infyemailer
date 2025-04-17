@@ -173,15 +173,26 @@ export default function ClientDashboard() {
         {/* Main Content */}
         <div className="flex-1 flex flex-col overflow-hidden relative z-10">
           {/* Header */}
-          <header className="relative z-20 flex justify-end p-4 bg-white border-b border-gray-200">
-            <Button 
-              variant="ghost" 
-              size="lg"
-              className="lg:hidden text-gray-700 hover:bg-gray-100 mr-auto"
-              onClick={() => setSidebarOpen(true)}
-            >
-              <Menu size={24} />
-            </Button>
+          <header className="relative z-20 flex items-center justify-between p-4 bg-white border-b border-gray-200">
+            <div className="flex items-center">
+              <Button 
+                variant="ghost" 
+                size="lg"
+                className="lg:hidden text-gray-700 hover:bg-gray-100 mr-2"
+                onClick={() => setSidebarOpen(true)}
+              >
+                <Menu size={24} />
+              </Button>
+              <h1 className="text-xl font-semibold text-purple-800">Dashboard</h1>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              {clientData && (
+                <span className="text-sm text-gray-600 hidden md:inline-block">
+                  Welcome, <span className="font-medium">{clientData.clientName}</span>
+                </span>
+              )}
+            </div>
           </header>
 
           {/* Dashboard Content */}
