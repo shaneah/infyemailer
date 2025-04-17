@@ -90,7 +90,7 @@ router.post('/simulate/join', (req, res) => {
     sendGeneralNotification(
       'User Joined',
       `${userName} joined the collaboration`,
-      null
+      undefined
     );
     
     res.json({ success: true, message: 'Join notification simulated' });
@@ -117,7 +117,7 @@ router.post('/simulate/edit', (req, res) => {
     sendGeneralNotification(
       'Resource Edit Started',
       `${userName} started editing ${resourceType || 'resource'} ${resourceId}`,
-      null
+      undefined
     );
     
     res.json({ success: true, message: 'Edit notification simulated' });

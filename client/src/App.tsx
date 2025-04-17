@@ -41,6 +41,7 @@ import EmailPerformanceDashboard from "@/pages/EmailPerformanceDashboard";
 import ClientPortal from "@/pages/ClientPortal";
 import SimpleClientLogin from "@/pages/SimpleClientLogin";
 import ClientDashboard from "@/pages/ClientDashboard";
+import CollaborationDemo from "@/pages/CollaborationDemo";
 
 
 function App() {
@@ -152,6 +153,7 @@ function App() {
                     <ProtectedRoute path="email-preview/:id" component={EmailPreview} />
                     <ProtectedRoute path="email-performance-dashboard" component={EmailPerformanceDashboard} />
                     <ProtectedRoute path="client-portal" component={ClientPortal} />
+                    <Route path="collaboration-demo" component={CollaborationDemo} />
 
                     <Route component={NotFound} />
                   </Switch>
