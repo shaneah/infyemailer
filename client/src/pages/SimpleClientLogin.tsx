@@ -64,7 +64,7 @@ const SimpleClientLogin = () => {
         id: 1,
         username: 'client1',
         name: 'Demo Client',
-        company: 'InfyTech Solutions',
+        company: 'My Company',
         email: 'client1@example.com',
         role: 'client',
         permissions: ['view_campaigns', 'edit_campaigns', 'view_contacts', 'edit_contacts']

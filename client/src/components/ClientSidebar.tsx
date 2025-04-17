@@ -49,8 +49,8 @@ const MenuSection = ({ title, children }: { title: string; children: React.React
 
 const ClientSidebar = ({ open, setOpen }: SidebarProps) => {
   const [location] = useLocation();
-  const [clientName, setClientName] = useState("InfyTech Solutions");
-  const [clientId, setClientId] = useState("tech1");
+  const [clientName, setClientName] = useState("My Company");
+  const [clientId, setClientId] = useState("client1");
   
   useEffect(() => {
     // Get client info from session storage
@@ -58,8 +58,8 @@ const ClientSidebar = ({ open, setOpen }: SidebarProps) => {
     if (clientUser) {
       try {
         const userData = JSON.parse(clientUser);
-        setClientName(userData.company || "InfyTech Solutions");
-        setClientId(userData.id || "tech1");
+        setClientName(userData.company || "My Company");
+        setClientId(userData.id || "client1");
       } catch (error) {
         console.error("Error parsing client user data", error);
       }
