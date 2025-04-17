@@ -206,27 +206,9 @@ export default function ClientDashboard() {
                       <div className="bg-amber-500 h-6 w-1.5 rounded-full mb-1 blur-[0.5px]"></div>
                       <span className="text-lg font-medium text-blue-100 tracking-wide">Dashboard</span>
                     </div>
-                    <div className="flex items-center gap-2 mt-0.5">
-                      <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
-                      <p className="text-sm font-medium text-blue-200">{clientData.company || 'InfyTech Solutions'}</p>
-                    </div>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="hidden md:flex px-4 py-1.5 rounded-lg backdrop-blur-sm bg-white/10 border border-white/20 text-white shadow-lg">
-                    <div className="relative">
-                      <div className="absolute -left-8 top-1/2 transform -translate-y-1/2 w-6 h-6 rounded-full bg-amber-400 flex items-center justify-center">
-                        <CircleUser className="h-3.5 w-3.5 text-blue-900" />
-                      </div>
-                      <div className="flex items-center pl-0.5">
-                        <div className="flex flex-col">
-                          <span className="text-xs font-semibold opacity-70">Welcome back</span>
-                          <span className="text-sm font-bold">{clientUser?.name || 'User'}</span>
-                        </div>
-                        <Bell className="h-4 w-4 ml-5 text-amber-300" />
-                      </div>
-                    </div>
-                  </div>
                   <Button 
                     variant="outline" 
                     onClick={handleLogout} 
