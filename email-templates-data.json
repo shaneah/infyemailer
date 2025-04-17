@@ -9,8 +9,8 @@
       "iconColor": "primary"
     },
     "id": 1,
-    "createdAt": "2025-04-17T23:13:55.851Z",
-    "updatedAt": "2025-04-17T23:13:55.851Z"
+    "createdAt": "2025-04-17T23:18:30.167Z",
+    "updatedAt": "2025-04-17T23:18:30.167Z"
   },
   {
     "name": "Promotional",
@@ -23,8 +23,8 @@
       "selected": true
     },
     "id": 2,
-    "createdAt": "2025-04-17T23:13:55.851Z",
-    "updatedAt": "2025-04-17T23:13:55.851Z"
+    "createdAt": "2025-04-17T23:18:30.168Z",
+    "updatedAt": "2025-04-17T23:18:30.168Z"
   },
   {
     "name": "Welcome",
@@ -36,7 +36,7 @@
       "iconColor": "success"
     },
     "id": 3,
-    "createdAt": "2025-04-17T23:13:55.851Z",
-    "updatedAt": "2025-04-17T23:13:55.851Z"
+    "createdAt": "2025-04-17T23:18:30.168Z",
+    "updatedAt": "2025-04-17T23:18:30.168Z"
   }
 ]
