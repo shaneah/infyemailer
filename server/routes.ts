@@ -15,6 +15,7 @@ import fileUpload, { UploadedFile } from "express-fileupload";
 import heatMapsRoutes from "./routes/heat-maps";
 import userManagementRoutes from "./routes/user-management";
 import adminClientsRoutes from "./routes/admin-clients";
+import clientPortalRoutes from "./routes/client-portal";
 import { emailService } from "./services/EmailService";
 import { defaultEmailSettings } from "./routes/emailSettings";
 
@@ -107,6 +108,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Register admin client management routes
   app.use('/api/admin', adminClientsRoutes);
+  
+  // Register client portal routes
+  app.use('/api/client-portal', clientPortalRoutes);
   
   // A/B Testing endpoints
   app.get('/api/ab-testing/campaigns', async (req: Request, res: Response) => {

@@ -1,6 +1,9 @@
 import express from 'express';
 import { storage } from '../storage';
 import { z } from 'zod';
+import passport from 'passport';
+import { comparePasswords } from '../auth';
+import { clientUserLoginSchema } from '@shared/schema';
 
 const router = express.Router();
 
