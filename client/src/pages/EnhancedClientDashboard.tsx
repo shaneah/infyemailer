@@ -397,13 +397,13 @@ export default function EnhancedClientDashboard({ clientId }: EnhancedClientDash
                   <span className="font-medium text-slate-600">Open Rate</span>
                   <span className="font-semibold text-blue-600">{clientData.stats.openRate}%</span>
                 </div>
-                <Progress value={clientData.stats.openRate} className="h-1.5 bg-blue-100" indicatorClassName="bg-blue-600" />
+                <Progress value={clientData.stats.openRate} className="h-1.5 bg-blue-100" />
                 
                 <div className="flex items-center justify-between text-xs mt-2">
                   <span className="font-medium text-slate-600">Click Rate</span>
                   <span className="font-semibold text-blue-600">{clientData.stats.clickRate}%</span>
                 </div>
-                <Progress value={clientData.stats.clickRate * 5} className="h-1.5 bg-blue-100" indicatorClassName="bg-blue-600" />
+                <Progress value={clientData.stats.clickRate * 5} className="h-1.5 bg-blue-100" />
               </div>
             </CardContent>
           </Card>
