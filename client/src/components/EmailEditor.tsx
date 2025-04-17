@@ -453,6 +453,355 @@ const ElementRenderer: React.FC<ElementRendererProps> = ({
           </div>
         </div>
       );
+      
+    case 'video':
+      return (
+        <div 
+          onClick={onClick} 
+          className={`${baseClass} p-3`}
+          draggable
+          onDragStart={(e) => onDragStart(e, id)}
+          onDragEnd={onDragEnd}
+          onDragOver={onDragOver}
+          onDrop={(e) => onDrop(e, id)}
+        >
+          <div className={`absolute top-0 right-0 ${isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} transition-opacity bg-primary text-white text-xs rounded-bl-md px-1.5 py-0.5`}>
+            Video
+          </div>
+          <div className="absolute -left-4 top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <GripVertical className="h-4 w-4 text-gray-400" />
+          </div>
+          <div className="text-center">
+            {content.embedUrl ? (
+              <div className="relative" style={{ 
+                width: styles.width || '100%',
+                paddingTop: styles.aspectRatio || '56.25%', // 16:9 default
+                maxWidth: styles.maxWidth || '100%',
+                margin: styles.centered ? '0 auto' : undefined
+              }}>
+                <iframe 
+                  src={content.embedUrl} 
+                  title={content.title || "Video content"}
+                  className="absolute top-0 left-0 w-full h-full rounded-md"
+                  style={{ borderRadius: (styles.rounded ? '0.375rem' : '0') }}
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                ></iframe>
+              </div>
+            ) : (
+              <div className="bg-gray-100 border border-dashed border-gray-300 rounded-md p-8 flex flex-col items-center justify-center">
+                <Play className="w-8 h-8 text-gray-400 mb-2" />
+                <p className="text-sm text-gray-500">Enter a YouTube or Vimeo URL</p>
+              </div>
+            )}
+            {content.caption && (
+              <p className="text-sm text-gray-500 mt-2" style={{ textAlign: styles.captionAlign || 'center' }}>
+                {content.caption}
+              </p>
+            )}
+          </div>
+        </div>
+      );
+
+    case 'social':
+      return (
+        <div 
+          onClick={onClick} 
+          className={`${baseClass} p-3`}
+          draggable
+          onDragStart={(e) => onDragStart(e, id)}
+          onDragEnd={onDragEnd}
+          onDragOver={onDragOver}
+          onDrop={(e) => onDrop(e, id)}
+        >
+          <div className={`absolute top-0 right-0 ${isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} transition-opacity bg-primary text-white text-xs rounded-bl-md px-1.5 py-0.5`}>
+            Social
+          </div>
+          <div className="absolute -left-4 top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <GripVertical className="h-4 w-4 text-gray-400" />
+          </div>
+          <div className="flex items-center justify-center space-x-3" style={{ 
+            textAlign: styles.textAlign as any || 'center',
+          }}>
+            {content.networks?.map((network: any, idx: number) => (
+              <a 
+                key={idx}
+                href={network.url || '#'} 
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block"
+                onClick={(e) => e.preventDefault()}
+              >
+                <div 
+                  className="rounded-full flex items-center justify-center transition-colors"
+                  style={{ 
+                    width: styles.iconSize || '40px', 
+                    height: styles.iconSize || '40px',
+                    backgroundColor: network.backgroundColor || styles.backgroundColor || '#4F46E5',
+                    color: network.iconColor || styles.iconColor || '#FFFFFF'
+                  }}
+                >
+                  {network.type === 'facebook' && <Facebook size={styles.innerIconSize || 20} />}
+                  {network.type === 'twitter' && <Twitter size={styles.innerIconSize || 20} />}
+                  {network.type === 'instagram' && <Instagram size={styles.innerIconSize || 20} />}
+                  {network.type === 'linkedin' && <Linkedin size={styles.innerIconSize || 20} />}
+                  {network.type === 'youtube' && <Youtube size={styles.innerIconSize || 20} />}
+                </div>
+              </a>
+            )) || (
+              <>
+                <a href="#" target="_blank" rel="noopener noreferrer" className="inline-block" onClick={(e) => e.preventDefault()}>
+                  <div className="w-10 h-10 rounded-full bg-[#1877F2] flex items-center justify-center">
+                    <Facebook size={20} className="text-white" />
+                  </div>
+                </a>
+                <a href="#" target="_blank" rel="noopener noreferrer" className="inline-block" onClick={(e) => e.preventDefault()}>
+                  <div className="w-10 h-10 rounded-full bg-[#1DA1F2] flex items-center justify-center">
+                    <Twitter size={20} className="text-white" />
+                  </div>
+                </a>
+                <a href="#" target="_blank" rel="noopener noreferrer" className="inline-block" onClick={(e) => e.preventDefault()}>
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#FEDA75] via-[#FA7E1E] to-[#D62976] flex items-center justify-center">
+                    <Instagram size={20} className="text-white" />
+                  </div>
+                </a>
+                <a href="#" target="_blank" rel="noopener noreferrer" className="inline-block" onClick={(e) => e.preventDefault()}>
+                  <div className="w-10 h-10 rounded-full bg-[#0A66C2] flex items-center justify-center">
+                    <Linkedin size={20} className="text-white" />
+                  </div>
+                </a>
+              </>
+            )}
+          </div>
+        </div>
+      );
+      
+    case 'countdown':
+      return (
+        <div 
+          onClick={onClick} 
+          className={`${baseClass} p-3`}
+          draggable
+          onDragStart={(e) => onDragStart(e, id)}
+          onDragEnd={onDragEnd}
+          onDragOver={onDragOver}
+          onDrop={(e) => onDrop(e, id)}
+        >
+          <div className={`absolute top-0 right-0 ${isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} transition-opacity bg-primary text-white text-xs rounded-bl-md px-1.5 py-0.5`}>
+            Countdown
+          </div>
+          <div className="absolute -left-4 top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <GripVertical className="h-4 w-4 text-gray-400" />
+          </div>
+          <div className="text-center">
+            {content.title && (
+              <h3 className="text-lg font-medium mb-2" style={{ color: styles.titleColor || '#333333' }}>
+                {content.title}
+              </h3>
+            )}
+            <div className="flex justify-center space-x-3">
+              <div className="flex flex-col items-center">
+                <div className="bg-gray-100 rounded-md w-14 h-14 flex items-center justify-center mb-1" 
+                  style={{ 
+                    backgroundColor: styles.blockBackgroundColor || '#f3f4f6',
+                    color: styles.digitColor || '#111827'
+                  }}>
+                  <span className="text-xl font-bold">00</span>
+                </div>
+                <span className="text-xs" style={{ color: styles.labelColor || '#6b7280' }}>Days</span>
+              </div>
+              <div className="flex flex-col items-center">
+                <div className="bg-gray-100 rounded-md w-14 h-14 flex items-center justify-center mb-1"
+                  style={{ 
+                    backgroundColor: styles.blockBackgroundColor || '#f3f4f6',
+                    color: styles.digitColor || '#111827'
+                  }}>
+                  <span className="text-xl font-bold">00</span>
+                </div>
+                <span className="text-xs" style={{ color: styles.labelColor || '#6b7280' }}>Hours</span>
+              </div>
+              <div className="flex flex-col items-center">
+                <div className="bg-gray-100 rounded-md w-14 h-14 flex items-center justify-center mb-1"
+                  style={{ 
+                    backgroundColor: styles.blockBackgroundColor || '#f3f4f6',
+                    color: styles.digitColor || '#111827'
+                  }}>
+                  <span className="text-xl font-bold">00</span>
+                </div>
+                <span className="text-xs" style={{ color: styles.labelColor || '#6b7280' }}>Minutes</span>
+              </div>
+              <div className="flex flex-col items-center">
+                <div className="bg-gray-100 rounded-md w-14 h-14 flex items-center justify-center mb-1"
+                  style={{ 
+                    backgroundColor: styles.blockBackgroundColor || '#f3f4f6',
+                    color: styles.digitColor || '#111827'
+                  }}>
+                  <span className="text-xl font-bold">00</span>
+                </div>
+                <span className="text-xs" style={{ color: styles.labelColor || '#6b7280' }}>Seconds</span>
+              </div>
+            </div>
+            {content.message && (
+              <p className="text-sm mt-2" style={{ color: styles.messageColor || '#4b5563' }}>
+                {content.message}
+              </p>
+            )}
+          </div>
+        </div>
+      );
+
+    case 'product':
+      return (
+        <div 
+          onClick={onClick} 
+          className={`${baseClass} p-3`}
+          draggable
+          onDragStart={(e) => onDragStart(e, id)}
+          onDragEnd={onDragEnd}
+          onDragOver={onDragOver}
+          onDrop={(e) => onDrop(e, id)}
+        >
+          <div className={`absolute top-0 right-0 ${isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} transition-opacity bg-primary text-white text-xs rounded-bl-md px-1.5 py-0.5`}>
+            Product
+          </div>
+          <div className="absolute -left-4 top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <GripVertical className="h-4 w-4 text-gray-400" />
+          </div>
+          <div className={`flex ${styles.layout === 'horizontal' ? 'flex-row' : 'flex-col'} gap-4`}>
+            <div className={`${styles.layout === 'horizontal' ? 'w-1/3' : 'w-full'}`}>
+              {content.image ? (
+                <img 
+                  src={content.image} 
+                  alt={content.name || "Product image"} 
+                  className="w-full h-auto object-cover rounded-md"
+                  style={{ borderRadius: (styles.rounded ? '0.375rem' : '0') }}
+                />
+              ) : (
+                <div className="bg-gray-100 border border-dashed border-gray-300 rounded-md aspect-square flex items-center justify-center">
+                  <Image className="w-8 h-8 text-gray-400" />
+                </div>
+              )}
+            </div>
+            <div className={`${styles.layout === 'horizontal' ? 'w-2/3' : 'w-full'} flex flex-col`}>
+              <h3 className="font-medium text-gray-900" style={{ 
+                fontSize: styles.titleFontSize || '16px',
+                color: styles.titleColor || '#111827'
+              }}>
+                {content.name || "Product Name"}
+              </h3>
+              <p className="text-sm text-gray-500 mt-1 mb-2">
+                {content.description || "Short product description goes here."}
+              </p>
+              <div className="flex items-center mb-3">
+                <span className="font-bold" style={{ color: styles.priceColor || '#111827' }}>
+                  {content.price || "$29.99"}
+                </span>
+                {content.originalPrice && (
+                  <span className="ml-2 text-sm line-through text-gray-400">
+                    {content.originalPrice}
+                  </span>
+                )}
+              </div>
+              <a 
+                href={content.buttonUrl || '#'}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ 
+                  backgroundColor: styles.buttonBackgroundColor || '#4F46E5',
+                  color: styles.buttonTextColor || '#FFFFFF',
+                  padding: '8px 12px',
+                  borderRadius: `${styles.buttonBorderRadius || 4}px`,
+                  textDecoration: 'none',
+                  display: 'inline-block',
+                  fontWeight: 500,
+                  fontSize: '14px',
+                  textAlign: 'center',
+                  alignSelf: 'flex-start'
+                }}
+                onClick={(e) => e.preventDefault()}
+              >
+                {content.buttonText || "Buy Now"}
+              </a>
+            </div>
+          </div>
+        </div>
+      );
+      
+    case 'columns':
+      return (
+        <div 
+          onClick={onClick} 
+          className={`${baseClass} p-3`}
+          draggable
+          onDragStart={(e) => onDragStart(e, id)}
+          onDragEnd={onDragEnd}
+          onDragOver={onDragOver}
+          onDrop={(e) => onDrop(e, id)}
+        >
+          <div className={`absolute top-0 right-0 ${isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} transition-opacity bg-primary text-white text-xs rounded-bl-md px-1.5 py-0.5`}>
+            Columns
+          </div>
+          <div className="absolute -left-4 top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <GripVertical className="h-4 w-4 text-gray-400" />
+          </div>
+          <div className="flex gap-4" style={{ 
+            justifyContent: styles.columnAlignment || 'space-between'
+          }}>
+            {(content.columns || [1, 2]).map((col: any, idx: number) => (
+              <div 
+                key={idx}
+                className="bg-gray-50 border border-dashed border-gray-200 rounded-md p-4 flex-1 min-h-[100px] flex items-center justify-center"
+                style={{ 
+                  flex: col.width || 1,
+                  padding: styles.columnPadding || '1rem'
+                }}
+              >
+                <p className="text-sm text-gray-400">
+                  {content.emptyMessage || "Drag elements here"}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+      
+    case 'grid':
+      return (
+        <div 
+          onClick={onClick} 
+          className={`${baseClass} p-3`}
+          draggable
+          onDragStart={(e) => onDragStart(e, id)}
+          onDragEnd={onDragEnd}
+          onDragOver={onDragOver}
+          onDrop={(e) => onDrop(e, id)}
+        >
+          <div className={`absolute top-0 right-0 ${isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} transition-opacity bg-primary text-white text-xs rounded-bl-md px-1.5 py-0.5`}>
+            Grid
+          </div>
+          <div className="absolute -left-4 top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <GripVertical className="h-4 w-4 text-gray-400" />
+          </div>
+          <div className="grid gap-4"
+            style={{ 
+              gridTemplateColumns: `repeat(${content.columns || 2}, 1fr)`,
+              gap: styles.gridGap || '1rem'
+            }}
+          >
+            {Array.from({ length: (content.rows || 2) * (content.columns || 2) }).map((_, idx) => (
+              <div 
+                key={idx}
+                className="bg-gray-50 border border-dashed border-gray-200 rounded-md p-4 flex items-center justify-center min-h-[80px]"
+              >
+                <p className="text-sm text-gray-400">
+                  {content.emptyMessage || `Cell ${idx + 1}`}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
     
     default:
       return null;
@@ -1946,6 +2295,112 @@ const EmailEditor: React.FC<{
             html: '<div style="padding: 20px; text-align: center; font-family: Arial, sans-serif; color: #666;">This is a custom HTML component.<br>Edit the HTML in the properties panel.</div>' 
           },
           styles: { height: '200px' }
+        };
+      case 'video':
+        return {
+          id,
+          type,
+          content: { 
+            embedUrl: '', 
+            title: 'Video content',
+            caption: 'Video caption (optional)'
+          },
+          styles: { 
+            width: '100%', 
+            maxWidth: '600px', 
+            aspectRatio: '56.25%',
+            centered: true,
+            rounded: true,
+            captionAlign: 'center'
+          }
+        };
+      case 'social':
+        return {
+          id,
+          type,
+          content: {
+            networks: [
+              { type: 'facebook', url: 'https://facebook.com', backgroundColor: '#1877F2', iconColor: '#FFFFFF' },
+              { type: 'twitter', url: 'https://twitter.com', backgroundColor: '#1DA1F2', iconColor: '#FFFFFF' },
+              { type: 'instagram', url: 'https://instagram.com', backgroundColor: '#E1306C', iconColor: '#FFFFFF' },
+              { type: 'linkedin', url: 'https://linkedin.com', backgroundColor: '#0A66C2', iconColor: '#FFFFFF' }
+            ]
+          },
+          styles: { 
+            textAlign: 'center',
+            iconSize: '40px',
+            innerIconSize: 20
+          }
+        };
+      case 'countdown':
+        return {
+          id,
+          type, 
+          content: {
+            title: 'Limited Time Offer',
+            targetDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days from now
+            message: 'Don\'t miss out on this exclusive deal!'
+          },
+          styles: {
+            titleColor: '#333333',
+            blockBackgroundColor: '#f3f4f6',
+            digitColor: '#111827',
+            labelColor: '#6b7280',
+            messageColor: '#4b5563'
+          }
+        };
+      case 'product':
+        return {
+          id,
+          type,
+          content: {
+            name: 'Product Name',
+            description: 'Short product description goes here.',
+            price: '$29.99',
+            originalPrice: '$39.99',
+            image: '',
+            buttonText: 'Buy Now',
+            buttonUrl: '#'
+          },
+          styles: {
+            layout: 'horizontal',
+            titleFontSize: '16px',
+            titleColor: '#111827',
+            priceColor: '#111827',
+            buttonBackgroundColor: '#4F46E5',
+            buttonTextColor: '#FFFFFF',
+            buttonBorderRadius: 4,
+            rounded: true
+          }
+        };
+      case 'columns':
+        return {
+          id,
+          type,
+          content: {
+            columns: [
+              { width: 1 },
+              { width: 1 }
+            ],
+            emptyMessage: 'Drag elements here'
+          },
+          styles: {
+            columnAlignment: 'space-between',
+            columnPadding: '1rem'
+          }
+        };
+      case 'grid':
+        return {
+          id,
+          type,
+          content: {
+            rows: 2,
+            columns: 2,
+            emptyMessage: 'Cell content'
+          },
+          styles: {
+            gridGap: '1rem'
+          }
         };
       default:
         return {
