@@ -118,4 +118,6 @@ export const StructuresGrid: React.FC = () => {
   );
 };
 
+export { ITEM_TYPES as ItemTypes, BlockItem };
+export type { BlocksGridProps };
 export default SimpleBlock;
