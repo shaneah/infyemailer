@@ -22,12 +22,12 @@ const MenuItem = ({ href, icon: Icon, label, active }: {
       href={href} 
       className={`group flex items-center px-3 py-2.5 text-sm rounded-md transition-colors ${
         active 
-          ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md' 
-          : 'text-indigo-100 hover:bg-indigo-900/40'
+          ? 'bg-blue-800 text-white shadow-sm' 
+          : 'text-blue-100 hover:bg-blue-800/40'
       }`}
     >
       <div className="flex items-center justify-center">
-        <Icon size={18} className={`mr-3 transition-all ${active ? 'text-amber-300' : 'text-indigo-200 group-hover:text-amber-300'}`} />
+        <Icon size={18} className={`mr-3 transition-all ${active ? 'text-amber-300' : 'text-blue-200 group-hover:text-amber-300'}`} />
       </div>
       <span className="font-medium">{label}</span>
     </Link>
@@ -37,7 +37,7 @@ const MenuItem = ({ href, icon: Icon, label, active }: {
 const MenuSection = ({ title, children }: { title: string; children: React.ReactNode }) => {
   return (
     <div className="mb-4">
-      <div className="px-4 py-1 text-xs font-medium uppercase tracking-wider text-purple-300/90">
+      <div className="px-4 py-1 text-xs font-medium uppercase tracking-wider text-amber-300/90">
         {title}
       </div>
       <nav className="mt-1 space-y-0.5 px-2">
@@ -88,7 +88,7 @@ const ClientSidebar = ({ open, setOpen }: SidebarProps) => {
       {/* Mobile menu button */}
       <button
         onClick={() => setOpen(!open)}
-        className="fixed top-4 left-4 z-50 lg:hidden flex items-center justify-center w-10 h-10 rounded-md bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md"
+        className="fixed top-4 left-4 z-50 lg:hidden flex items-center justify-center w-10 h-10 rounded-md bg-blue-900 text-white shadow-md"
       >
         {open ? <X size={20} /> : <Menu size={20} />}
       </button>
@@ -97,10 +97,10 @@ const ClientSidebar = ({ open, setOpen }: SidebarProps) => {
       <aside 
         className={`fixed inset-y-0 left-0 z-40 w-64 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-auto lg:z-auto ${
           open ? 'translate-x-0' : '-translate-x-full'
-        } h-full bg-gradient-to-b from-slate-900 to-indigo-950 text-white flex flex-col flex-shrink-0 shadow-xl`}
+        } h-full bg-gradient-to-b from-blue-950 to-blue-900 text-white flex flex-col flex-shrink-0 shadow-xl`}
       >
         {/* Logo area */}
-        <div className="p-4 flex flex-col items-center border-b border-indigo-900/40 bg-black/20">
+        <div className="p-4 flex flex-col items-center border-b border-blue-800/50 bg-black/10">
           <div className="w-full flex items-center justify-center mt-1 mb-2">
             <img 
               src={LogoWhite} 
@@ -112,29 +112,29 @@ const ClientSidebar = ({ open, setOpen }: SidebarProps) => {
         </div>
         
         {/* Client info */}
-        <div className="p-4 border-b border-indigo-900/40 bg-indigo-900/20 backdrop-blur-sm">
+        <div className="p-4 border-b border-blue-800/50 bg-blue-900/50">
           <div className="flex items-center justify-between mb-4">
             <div className="flex flex-col">
               <span className="text-white font-medium text-base">{clientName}</span>
-              <span className="text-xs text-indigo-200/70 mt-0.5">ID: {clientId}</span>
+              <span className="text-xs text-blue-200/80 mt-0.5">ID: {clientId}</span>
             </div>
           </div>
           
           {/* Credits card */}
-          <div className="bg-gradient-to-r from-purple-700 to-indigo-600 rounded-lg shadow-md overflow-hidden relative">
+          <div className="bg-gradient-to-r from-blue-800 to-blue-700 rounded-lg shadow-md overflow-hidden relative">
             {/* Decorative element */}
             <div className="absolute -right-6 -top-6 w-16 h-16 rounded-full bg-amber-400/10"></div>
-            <div className="absolute right-0 bottom-0 w-20 h-20 rounded-full bg-white/5"></div>
+            <div className="absolute right-0 bottom-0 w-20 h-20 rounded-full bg-amber-400/5"></div>
             
             <div className="px-4 py-3 flex items-center justify-between relative">
               <div className="flex items-center">
                 <CreditCard size={18} className="text-amber-300" />
-                <span className="ml-2 text-xs text-indigo-100 uppercase tracking-wide font-medium">Available Credits</span>
+                <span className="ml-2 text-xs text-blue-100 uppercase tracking-wide font-medium">Available Credits</span>
               </div>
             </div>
             <div className="px-4 pb-3 flex items-baseline relative">
               <span className="text-xl font-bold text-white">1,500</span>
-              <span className="ml-1 text-xs text-indigo-200/80">credits</span>
+              <span className="ml-1 text-xs text-blue-200">credits</span>
             </div>
           </div>
         </div>
@@ -215,13 +215,13 @@ const ClientSidebar = ({ open, setOpen }: SidebarProps) => {
         </div>
         
         {/* Footer actions */}
-        <div className="mt-auto border-t border-indigo-900/40 bg-black/10">
+        <div className="mt-auto border-t border-blue-800/50 bg-black/10">
           <Link
             href="/client-settings"
             className={`flex items-center px-4 py-3 text-sm transition-colors ${
               location === '/client-settings' 
-                ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white' 
-                : 'text-indigo-100 hover:bg-indigo-900/40'
+                ? 'bg-blue-800 text-white' 
+                : 'text-blue-100 hover:bg-blue-800/40'
             }`}
           >
             <Settings size={18} className={`mr-3 ${location === '/client-settings' ? 'text-amber-300' : 'group-hover:text-amber-300'}`} />
@@ -230,7 +230,7 @@ const ClientSidebar = ({ open, setOpen }: SidebarProps) => {
           
           <button
             onClick={handleLogout}
-            className="flex items-center w-full px-4 py-3 text-sm text-indigo-100 hover:bg-indigo-900/40 transition-colors group"
+            className="flex items-center w-full px-4 py-3 text-sm text-blue-100 hover:bg-blue-800/40 transition-colors group"
           >
             <LogOut size={18} className="mr-3 group-hover:text-amber-300" />
             <span>Logout</span>
