@@ -20,16 +20,23 @@ const MenuItem = ({ href, icon: Icon, label, active }: {
   return (
     <Link 
       href={href} 
-      className={`group flex items-center px-3 py-2.5 text-sm rounded-md transition-colors ${
+      className={`group flex items-center px-3 py-2.5 text-sm rounded-md transition-all duration-300 ${
         active 
-          ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md' 
-          : 'text-indigo-100 hover:bg-indigo-900/40'
+          ? 'bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 text-white shadow-md border border-indigo-500/30' 
+          : 'text-indigo-100 hover:bg-gradient-to-r hover:from-indigo-900/40 hover:to-purple-900/40 border border-transparent'
       }`}
     >
       <div className="flex items-center justify-center">
-        <Icon size={18} className={`mr-3 transition-all ${active ? 'text-amber-300' : 'text-indigo-200 group-hover:text-amber-300'}`} />
+        <Icon 
+          size={18} 
+          className={`mr-3 transition-all duration-300 ${
+            active 
+              ? 'text-amber-300 drop-shadow-glow animate-amber-glow' 
+              : 'text-indigo-200 group-hover:text-amber-300'
+          }`} 
+        />
       </div>
-      <span className="font-medium">{label}</span>
+      <span className={`font-medium transition-all duration-300 ${active ? 'text-white' : 'group-hover:text-white'}`}>{label}</span>
     </Link>
   );
 };
@@ -128,7 +135,7 @@ const ClientSidebar = ({ open, setOpen }: SidebarProps) => {
             
             <div className="px-4 py-3 flex items-center justify-between relative">
               <div className="flex items-center">
-                <CreditCard size={18} className="text-amber-300" />
+                <CreditCard size={18} className="text-amber-300 drop-shadow-glow animate-amber-glow" />
                 <span className="ml-2 text-xs text-indigo-100 uppercase tracking-wide font-medium">Available Credits</span>
               </div>
             </div>
@@ -218,22 +225,22 @@ const ClientSidebar = ({ open, setOpen }: SidebarProps) => {
         <div className="mt-auto border-t border-indigo-900/40 bg-black/10">
           <Link
             href="/client-settings"
-            className={`flex items-center px-4 py-3 text-sm transition-colors ${
+            className={`flex items-center px-4 py-3 text-sm rounded-md transition-all duration-300 mx-2 ${
               location === '/client-settings' 
-                ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white' 
-                : 'text-indigo-100 hover:bg-indigo-900/40'
+                ? 'bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 text-white shadow-md border border-indigo-500/30' 
+                : 'text-indigo-100 hover:bg-gradient-to-r hover:from-indigo-900/40 hover:to-purple-900/40 border border-transparent'
             }`}
           >
-            <Settings size={18} className={`mr-3 ${location === '/client-settings' ? 'text-amber-300' : 'group-hover:text-amber-300'}`} />
-            <span>Account Settings</span>
+            <Settings size={18} className={`mr-3 transition-all duration-300 ${location === '/client-settings' ? 'text-amber-300 drop-shadow-glow animate-amber-glow' : 'group-hover:text-amber-300'}`} />
+            <span className={`font-medium transition-all duration-300 ${location === '/client-settings' ? 'text-white' : 'group-hover:text-white'}`}>Account Settings</span>
           </Link>
           
           <button
             onClick={handleLogout}
-            className="flex items-center w-full px-4 py-3 text-sm text-indigo-100 hover:bg-indigo-900/40 transition-colors group"
+            className="flex items-center w-full px-4 py-3 text-sm rounded-md transition-all duration-300 mx-2 mt-1 text-indigo-100 hover:bg-gradient-to-r hover:from-indigo-900/40 hover:to-purple-900/40 border border-transparent group"
           >
-            <LogOut size={18} className="mr-3 group-hover:text-amber-300" />
-            <span>Logout</span>
+            <LogOut size={18} className="mr-3 transition-all duration-300 group-hover:text-amber-300" />
+            <span className="font-medium transition-all duration-300 group-hover:text-white">Logout</span>
           </button>
         </div>
       </aside>
