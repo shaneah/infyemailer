@@ -217,6 +217,10 @@ function App() {
                     <Route path="template-builder/:id">
                       <TemplateBuilder />
                     </Route>
+                    {/* Route for creating new templates */}
+                    <Route path="templates/new">
+                      <TemplateBuilder />
+                    </Route>
                     <ProtectedRoute path="drag-drop-builder" component={DragAndDropTemplateBuilder} />
                     <ProtectedRoute path="drag-drop-builder/:id" component={DragAndDropTemplateBuilder} />
                     <ProtectedRoute path="domains" component={Domains} />
