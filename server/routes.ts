@@ -15,6 +15,7 @@ import fileUpload, { UploadedFile } from "express-fileupload";
 import heatMapsRoutes from "./routes/heat-maps";
 import userManagementRoutes from "./routes/user-management";
 import adminClientsRoutes from "./routes/admin-clients";
+import collaborationRoutes from "./routes/collaboration";
 // Client portal routes removed
 import { emailService } from "./services/EmailService";
 import { defaultEmailSettings } from "./routes/emailSettings";
@@ -72,12 +73,48 @@ function validate<T>(schema: any, data: any): T | { error: string } {
 }
 
 import { initRealTimeMetrics } from './services/realTimeMetricsService';
+import { WebSocketServer, WebSocket } from 'ws';
+import { registerClient } from './services/collaborationService';
 
 export async function registerRoutes(app: Express): Promise<Server> {
   const httpServer = createServer(app);
   
   // Initialize real-time metrics service with WebSocket support
   initRealTimeMetrics(httpServer);
+  
+  // Initialize the collaboration WebSocketServer
+  const wss = new WebSocketServer({ server: httpServer, path: '/collaboration' });
+  
+  // Collaboration WebSocket connection handler
+  wss.on('connection', (ws, request) => {
+    console.log('WebSocket client connected for collaboration');
+    
+    // Extract userId from query parameters
+    const urlParams = new URLSearchParams(request.url?.split('?')[1] || '');
+    const userId = urlParams.get('userId');
+    const userName = urlParams.get('userName');
+    const userRole = urlParams.get('userRole');
+    const userAvatar = urlParams.get('userAvatar');
+    
+    if (!userId || !userName) {
+      console.error('User connection without proper identification');
+      ws.close(1008, 'User identification required');
+      return;
+    }
+    
+    // Register the client with user information
+    registerClient(ws, userId, {
+      id: userId,
+      name: userName,
+      role: userRole || undefined,
+      avatar: userAvatar || undefined
+    });
+    
+    // Handle client errors
+    ws.on('error', (error) => {
+      console.error('WebSocket client error:', error);
+    });
+  });
   
   // Set up authentication
   setupAuth(app);
@@ -108,6 +145,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Register admin client management routes
   app.use('/api/admin', adminClientsRoutes);
+  
+  // Register collaboration routes
+  app.use('/api/collaboration', collaborationRoutes);
   
   // Client portal routes removed
   

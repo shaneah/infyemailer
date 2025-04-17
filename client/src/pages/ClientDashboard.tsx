@@ -118,7 +118,13 @@ const ClientDashboard = () => {
           <div className="flex items-center">
             <h1 className="text-xl font-bold text-white">InfyMailer</h1>
           </div>
-          <div className="flex items-center">
+          <div className="flex items-center space-x-2">
+            <CollaborationNotifier 
+              userId={clientUser?.id?.toString() || '1'}
+              userName={clientUser?.name || 'Anonymous User'}
+              userRole={clientUser?.role || 'client'}
+              userAvatar={clientUser?.avatarUrl}
+            />
             <Button 
               variant="ghost" 
               className="text-white hover:bg-white/10"
