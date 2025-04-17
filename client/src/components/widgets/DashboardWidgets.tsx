@@ -6,6 +6,10 @@ import OpenRateWidget from './OpenRateWidget';
 import EmailPerformanceWidget from './EmailPerformanceWidget';
 import DeviceBreakdownWidget from './DeviceBreakdownWidget';
 import RecentCampaignsWidget from './RecentCampaignsWidget';
+import AIInsightsWidget from './AIInsightsWidget';
+import OptimalSendTimeWidget from './OptimalSendTimeWidget';
+import UpcomingCampaignsWidget from './UpcomingCampaignsWidget';
+import AudienceGrowthWidget from './AudienceGrowthWidget';
 import WidgetManager from './WidgetManager';
 
 interface DashboardWidgetsProps {
@@ -13,7 +17,7 @@ interface DashboardWidgetsProps {
 }
 
 const DashboardWidgets: React.FC<DashboardWidgetsProps> = ({ clientData }) => {
-  const { widgets, removeWidget } = useWidgets();
+  const { widgets, removeWidget, updateWidgetConfig } = useWidgets();
 
   // Filter visible widgets and sort by row/col for display
   const visibleWidgets = widgets
@@ -24,6 +28,56 @@ const DashboardWidgets: React.FC<DashboardWidgetsProps> = ({ clientData }) => {
       }
       return a.row - b.row;
     });
+
+  // Type definitions for mock data
+  type Campaign = {
+    id: number;
+    name: string;
+    scheduledDate: string;
+    status: string;
+  };
+
+  type Task = {
+    id: number;
+    title: string;
+    dueDate: string;
+    status: 'completed' | 'pending' | 'overdue';
+    campaignId?: number;
+  };
+
+  // Mock data for our new advanced widgets
+  const mockData = {
+    // For upcoming campaigns widget
+    upcomingCampaignsData: {
+      campaigns: [
+        { id: 101, name: "Holiday Newsletter", scheduledDate: "2025-12-20T10:00:00", status: "Scheduled" },
+        { id: 102, name: "New Year Promotion", scheduledDate: "2025-12-28T09:00:00", status: "Scheduled" },
+        { id: 103, name: "February Flash Sale", scheduledDate: "2026-02-01T10:30:00", status: "Scheduled" }
+      ] as Campaign[],
+      tasks: [
+        { id: 1, title: "Prepare holiday graphics", dueDate: "2025-12-10T17:00:00", status: "completed" as const },
+        { id: 2, title: "Draft newsletter content", dueDate: "2025-12-15T17:00:00", status: "pending" as const, campaignId: 101 },
+        { id: 3, title: "Review February campaign plan", dueDate: "2026-01-15T17:00:00", status: "pending" as const, campaignId: 103 },
+        { id: 4, title: "Segment audience for New Year promo", dueDate: "2025-12-20T17:00:00", status: "pending" as const, campaignId: 102 },
+        { id: 5, title: "A/B test subject lines", dueDate: "2025-12-18T17:00:00", status: "pending" as const, campaignId: 101 }
+      ] as Task[]
+    },
+    
+    // For audience growth widget
+    audienceGrowthData: {
+      subscriberGrowth: [
+        { date: "Apr 1", subscribers: 120, unsubscribes: 15 },
+        { date: "Apr 5", subscribers: 85, unsubscribes: 10 },
+        { date: "Apr 10", subscribers: 142, unsubscribes: 12 },
+        { date: "Apr 15", subscribers: 95, unsubscribes: 8 },
+        { date: "Apr 20", subscribers: 110, unsubscribes: 18 },
+        { date: "Apr 25", subscribers: 135, unsubscribes: 14 },
+        { date: "Apr 30", subscribers: 168, unsubscribes: 11 },
+      ],
+      totalContacts: clientData.stats.contactsCount || 4560,
+      growthRate: 4.8
+    }
+  };
 
   // Render the appropriate widget based on its type
   const renderWidget = (widget: Widget) => {
@@ -112,6 +166,51 @@ const DashboardWidgets: React.FC<DashboardWidgetsProps> = ({ clientData }) => {
             data={{
               recentCampaigns: clientData.recentCampaigns
             }}
+            onRemove={removeWidget}
+          />
+        );
+        
+      // New advanced widgets
+      case 'aiInsights':
+        return (
+          <AIInsightsWidget 
+            key={widget.id}
+            widget={widget}
+            data={{
+              performanceData: clientData.performanceData,
+              recentCampaigns: clientData.recentCampaigns,
+              stats: clientData.stats
+            }}
+            onRemove={removeWidget}
+          />
+        );
+        
+      case 'optimalSendTime':
+        return (
+          <OptimalSendTimeWidget 
+            key={widget.id}
+            widget={widget}
+            onConfig={(config) => updateWidgetConfig(widget.id, config)}
+            onRemove={removeWidget}
+          />
+        );
+        
+      case 'upcomingCampaigns':
+        return (
+          <UpcomingCampaignsWidget 
+            key={widget.id}
+            widget={widget}
+            data={mockData.upcomingCampaignsData}
+            onRemove={removeWidget}
+          />
+        );
+        
+      case 'audienceGrowth':
+        return (
+          <AudienceGrowthWidget 
+            key={widget.id}
+            widget={widget}
+            data={mockData.audienceGrowthData}
             onRemove={removeWidget}
           />
         );
