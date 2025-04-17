@@ -88,9 +88,9 @@ export default function CreateTemplateModal({ open, onOpenChange }: CreateTempla
         </DialogHeader>
         
         <div className="mt-4 flex flex-col items-center justify-center">
-          <div className="p-6 text-center relative before:content-[''] before:absolute before:inset-0 before:bg-gradient-to-r before:from-purple-50/30 before:to-indigo-50/30 before:rounded-lg before:animate-pulse">
+          <div className="p-6 text-center relative bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg">
             <div className="mx-auto mb-5 bg-gradient-to-r from-purple-600 to-indigo-600 w-16 h-16 flex items-center justify-center rounded-full shadow-lg relative">
-              <div className="absolute inset-0 bg-black/10 rounded-full blur-sm"></div>
+              {/* Removed blur effect for better compatibility */}
               <FileText className="h-8 w-8 text-white relative z-10 drop-shadow-md" />
             </div>
             <h3 className="text-xl font-semibold text-gray-900 mb-2">Visual Template Builder</h3>
