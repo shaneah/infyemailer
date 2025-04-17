@@ -28,6 +28,7 @@ import {
   RefreshCw,
   HelpCircle,
   Sparkles,
+  Smartphone,
   MessageSquareText,
   FileText,
   ArrowLeft,
@@ -324,23 +325,22 @@ const AdvancedTemplateBuilder: React.FC<AdvancedTemplateBuilderProps> = ({
           
           <div className="flex items-center">
             <div className="flex items-center border-l border-gray-200 pl-4">
-              <div className="flex items-center mr-4">
-                <Switch
-                  id="mobile-preview"
-                  checked={isMobilePreview}
-                  onCheckedChange={setIsMobilePreview}
-                  className="mr-2"
-                />
-                <Label htmlFor="mobile-preview" className="text-sm text-gray-600">
-                  Mobile Preview
-                </Label>
-              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsMobilePreview(!isMobilePreview)}
+                className={`text-gray-600 hover:text-gray-900 mr-1 ${isMobilePreview ? 'bg-gray-100' : ''}`}
+                title="Toggle Mobile Preview"
+              >
+                <Smartphone className="h-4 w-4" />
+              </Button>
               
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setShowRightSidebar(!showRightSidebar)}
                 className="text-gray-600 hover:text-gray-900"
+                title="Toggle Properties Panel"
               >
                 <PanelRightOpen className="h-4 w-4" />
               </Button>
