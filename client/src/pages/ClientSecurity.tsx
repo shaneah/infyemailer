@@ -71,7 +71,7 @@ const ClientSecurity: React.FC = () => {
       toast({
         title: "Password updated",
         description: "Your password has been successfully changed",
-        variant: "success",
+        variant: "default",
       });
       setCurrentPassword('');
       setNewPassword('');
@@ -90,7 +90,7 @@ const ClientSecurity: React.FC = () => {
       description: newState 
         ? "Two-factor authentication has been enabled for your account" 
         : "Two-factor authentication has been disabled for your account",
-      variant: newState ? "success" : "default",
+      variant: "default",
     });
   };
 
@@ -99,7 +99,7 @@ const ClientSecurity: React.FC = () => {
     toast({
       title: "Backup Codes Generated",
       description: "New backup codes have been generated and sent to your email",
-      variant: "success",
+      variant: "default",
     });
   };
 

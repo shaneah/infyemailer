@@ -13,6 +13,7 @@ import ClientTemplates from '@/pages/ClientTemplates';
 import BasicTemplateBuilder from '@/pages/BasicTemplateBuilder';
 import ClientEmailPerformance from '@/pages/ClientEmailPerformance';
 import ClientABTestingAdvanced from '@/pages/ClientABTestingAdvanced';
+import ClientSecurity from '@/pages/ClientSecurity';
 
 // Campaigns component with more complete UI
 const ClientCampaigns = ({ onCreateCampaign }: { onCreateCampaign: () => void }) => {
@@ -2286,6 +2287,9 @@ export default function ClientRoutes() {
           </Route>
           <Route path="/client-settings">
             <ClientSettings />
+          </Route>
+          <Route path="/client-security">
+            <ClientSecurity />
           </Route>
           <Route>
             <NotFound />
