@@ -5,7 +5,6 @@ import { Toaster } from "@/components/ui/toaster";
 import AuthPage from "@/pages/auth-page";
 import Dashboard from "@/pages/Dashboard";
 import MainSidebar from "@/components/MainSidebar";
-import ClientSidebar from "@/components/ClientSidebar";
 import Navbar from "@/components/Navbar";
 import { useState, useEffect } from "react";
 import { AuthProvider } from "@/hooks/use-auth";
@@ -35,11 +34,6 @@ import AudiencePersonas from "@/pages/AudiencePersonas";
 import EmailPreview from "@/pages/EmailPreview";
 import AdminClientManagement from "@/pages/AdminClientManagement";
 
-// Client portal pages
-import ClientLogin from "@/pages/ClientLogin";
-import SimpleClientLogin from "@/pages/SimpleClientLogin";
-import ClientDashboard from "@/pages/ClientDashboard";
-import ClientRoutes from "@/pages/ClientRoutes";
 import Analytics from "@/pages/Analytics";
 import EmailTest from "@/pages/EmailTest";
 import Login from "@/pages/Login";
@@ -75,100 +69,6 @@ function App() {
           </div>
         </Route>
         
-        {/* Client Portal Routes */}
-        <Route path="client-login">
-          <div className="bg-background min-h-screen">
-            <SimpleClientLogin />
-            <Toaster />
-          </div>
-        </Route>
-        
-        <Route path="client-dashboard">
-          <div className="bg-background min-h-screen">
-            <ClientRoutes />
-            <Toaster />
-          </div>
-        </Route>
-        
-        {/* Client Portal Sub-routes */}
-        <Route path="client-campaigns">
-          <div className="bg-background min-h-screen">
-            <ClientRoutes />
-            <Toaster />
-          </div>
-        </Route>
-        <Route path="client-contacts">
-          <div className="bg-background min-h-screen">
-            <ClientRoutes />
-            <Toaster />
-          </div>
-        </Route>
-        <Route path="client-lists">
-          <div className="bg-background min-h-screen">
-            <ClientRoutes />
-            <Toaster />
-          </div>
-        </Route>
-        <Route path="client-templates">
-          <div className="bg-background min-h-screen">
-            <ClientRoutes />
-            <Toaster />
-          </div>
-        </Route>
-        <Route path="client-template-builder">
-          <div className="bg-background min-h-screen">
-            <BasicTemplateBuilder isClientPortal={true} />
-            <Toaster />
-          </div>
-        </Route>
-        <Route path="client-template-builder/:id">
-          <div className="bg-background min-h-screen">
-            <BasicTemplateBuilder isClientPortal={true} />
-            <Toaster />
-          </div>
-        </Route>
-        <Route path="client-reports">
-          <div className="bg-background min-h-screen">
-            <ClientRoutes />
-            <Toaster />
-          </div>
-        </Route>
-        <Route path="client-domains">
-          <div className="bg-background min-h-screen">
-            <ClientRoutes />
-            <Toaster />
-          </div>
-        </Route>
-        <Route path="client-email-validation">
-          <div className="bg-background min-h-screen">
-            <ClientRoutes />
-            <Toaster />
-          </div>
-        </Route>
-        <Route path="client-ab-testing">
-          <div className="bg-background min-h-screen">
-            <ClientRoutes />
-            <Toaster />
-          </div>
-        </Route>
-        <Route path="client-ab-testing/:id">
-          <div className="bg-background min-h-screen">
-            <ClientRoutes />
-            <Toaster />
-          </div>
-        </Route>
-        <Route path="client-email-performance">
-          <div className="bg-background min-h-screen">
-            <ClientRoutes />
-            <Toaster />
-          </div>
-        </Route>
-        <Route path="client-settings">
-          <div className="bg-background min-h-screen">
-            <ClientRoutes />
-            <Toaster />
-          </div>
-        </Route>
         <Route path="email-performance-dashboard">
           <div className="bg-background min-h-screen">
             <EmailPerformanceDashboard />
