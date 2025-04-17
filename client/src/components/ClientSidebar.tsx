@@ -3,7 +3,7 @@ import { useLocation, Link } from 'wouter';
 import { 
   Mail, Users, ListChecks, FileText, BarChart3, LineChart,
   Globe, CheckSquare, SplitSquareVertical, Settings, LogOut, Menu, X, CreditCard,
-  ShieldAlert, Activity
+  ShieldAlert, Activity, Building2
 } from 'lucide-react';
 import LogoWhite from '../assets/Logo-white.png';
 
@@ -23,8 +23,8 @@ const MenuItem = ({ href, icon: Icon, label, active }: {
       href={href} 
       className={`group flex items-center px-3 py-2.5 text-sm rounded-md transition-all duration-150 ${
         active 
-          ? 'bg-blue-800 text-white shadow-sm' 
-          : 'text-blue-100 hover:bg-blue-800/50 hover:translate-x-1'
+          ? 'bg-purple-800 text-white shadow-sm' 
+          : 'text-blue-100 hover:bg-purple-800/50 hover:translate-x-1'
       }`}
     >
       <div className="flex items-center justify-center">
@@ -32,8 +32,8 @@ const MenuItem = ({ href, icon: Icon, label, active }: {
           size={18} 
           className={`mr-3 transition-all duration-200 ${
             active 
-              ? 'text-amber-300 scale-110' 
-              : 'text-blue-200 group-hover:text-amber-300 group-hover:scale-110 transform'
+              ? 'text-purple-300 scale-110' 
+              : 'text-blue-200 group-hover:text-purple-300 group-hover:scale-110 transform'
           }`} 
         />
       </div>
@@ -44,7 +44,7 @@ const MenuItem = ({ href, icon: Icon, label, active }: {
       }`}>{label}</span>
       {active && (
         <div className="ml-auto">
-          <div className="w-1.5 h-1.5 rounded-full bg-amber-300 opacity-90 animate-pulse"></div>
+          <div className="w-1.5 h-1.5 rounded-full bg-purple-300 opacity-90 animate-pulse"></div>
         </div>
       )}
     </Link>
@@ -69,6 +69,22 @@ const MenuSection = ({ title, children }: { title: string; children: React.React
 
 const ClientSidebar = ({ open, setOpen }: SidebarProps) => {
   const [location] = useLocation();
+  const [clientName, setClientName] = useState<string>("My Company");
+  
+  // Fetch the client name from session storage on component mount
+  useEffect(() => {
+    try {
+      const clientUserStr = sessionStorage.getItem('clientUser') || localStorage.getItem('clientUser');
+      if (clientUserStr) {
+        const clientUser = JSON.parse(clientUserStr);
+        if (clientUser && clientUser.clientName) {
+          setClientName(clientUser.clientName);
+        }
+      }
+    } catch (error) {
+      console.error("Error retrieving client name:", error);
+    }
+  }, []);
 
   const handleLogout = () => {
     // Clear both session storage and localStorage to ensure complete logout
@@ -107,8 +123,22 @@ const ClientSidebar = ({ open, setOpen }: SidebarProps) => {
           open ? 'translate-x-0 opacity-100 shadow-xl' : '-translate-x-full opacity-95 shadow-md'
         } h-full bg-gradient-to-b from-blue-950 to-blue-900 text-white flex flex-col flex-shrink-0`}
       >
+        {/* App name and client name header */}
+        <div className="flex flex-col items-center justify-center p-4 pt-6 pb-2 bg-gradient-to-r from-purple-900 to-indigo-900">
+          <div className="w-12 h-12 mb-2 flex items-center justify-center bg-white/10 rounded-full">
+            <img src={LogoWhite} alt="Logo" className="w-8 h-8 object-contain" />
+          </div>
+          <div className="text-center">
+            <h2 className="font-bold text-xl text-white mb-1">Infinity Tech</h2>
+            <div className="flex items-center justify-center space-x-2 mb-1">
+              <Building2 size={14} className="text-purple-300" />
+              <p className="text-sm font-medium text-purple-100">{clientName}</p>
+            </div>
+          </div>
+        </div>
+        
         {/* Navbar divider */}
-        <div className="border-b border-blue-800/50 mt-2 mb-2"></div>
+        <div className="border-b border-blue-800/50 mb-2"></div>
         
         {/* Navigation */}
         <div className="flex-1 overflow-y-auto py-4 px-1">
@@ -223,7 +253,7 @@ const ClientSidebar = ({ open, setOpen }: SidebarProps) => {
             </span>
             {location === '/client-settings' && (
               <div className="ml-auto">
-                <div className="w-1.5 h-1.5 rounded-full bg-amber-300 opacity-90 animate-pulse"></div>
+                <div className="w-1.5 h-1.5 rounded-full bg-purple-300 opacity-90 animate-pulse"></div>
               </div>
             )}
           </Link>
