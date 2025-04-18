@@ -7,8 +7,10 @@ import { WidgetsProvider } from "@/hooks/useWidgets";
 import DashboardWidgets from "@/components/widgets/DashboardWidgets";
 import WidgetManager from "@/components/widgets/WidgetManager";
 import { useQuery } from "@tanstack/react-query";
+import { useAuth } from "@/hooks/use-auth";
 
 const Dashboard = () => {
+  const { user } = useAuth();
   const [showNewCampaignModal, setShowNewCampaignModal] = useState(false);
   const [showComposeEmailModal, setShowComposeEmailModal] = useState(false);
   const [clientData, setClientData] = useState<any>(null);
@@ -79,7 +81,7 @@ const Dashboard = () => {
   }
 
   return (
-    <WidgetsProvider>
+    <WidgetsProvider isAdmin={true} userId={user?.id}>
       <div className="container mx-auto px-4">
         {/* Dashboard Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center py-6 mb-6 border-b">
