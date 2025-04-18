@@ -17,7 +17,6 @@ import {
 } from "@/components/ui/select";
 import { Switch } from '@/components/ui/switch';
 import WidgetRecommendations from './WidgetRecommendations';
-import { useToast } from '@/hooks/use-toast';
 
 interface WidgetManagerProps {
   clientData?: any;
@@ -25,7 +24,6 @@ interface WidgetManagerProps {
 
 const WidgetManager: React.FC<WidgetManagerProps> = ({ clientData = null }) => {
   const { widgets, addWidget, resetToDefault } = useWidgets();
-  const { toast } = useToast();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [recommendationsOpen, setRecommendationsOpen] = useState(false);
   const [selectedWidget, setSelectedWidget] = useState<WidgetType | ''>('');
@@ -44,49 +42,28 @@ const WidgetManager: React.FC<WidgetManagerProps> = ({ clientData = null }) => {
 
   const handleResetLayout = () => {
     try {
-      // Use the context API to reset widgets to default which also syncs with server
-      resetToDefault();
-      
-      // Show success message
-      toast({
-        title: "Dashboard reset complete",
-        description: "Your dashboard layout has been reset to default configuration.",
-        duration: 3000
-      });
+      // Let's do a more aggressive approach
+      localStorage.removeItem('dashboard-widgets');
+      // Force a page reload after clearing localStorage
+      window.location.reload();
     } catch (error) {
       console.error('Error resetting layout:', error);
-      toast({
-        title: "Reset failed",
-        description: "Failed to reset dashboard layout. Please try again.",
-        variant: "destructive"
-      });
+      alert('Failed to reset layout. Please try refreshing the page.');
     }
   };
 
   const addAIWidgets = () => {
-    let addedCount = 0;
-    
     if (!visibleWidgetTypes.includes('aiRecommendations')) {
       addWidget('aiRecommendations');
-      addedCount++;
     }
     if (!visibleWidgetTypes.includes('campaignPerformanceAnalyzer')) {
       addWidget('campaignPerformanceAnalyzer');
-      addedCount++;
     }
     if (!visibleWidgetTypes.includes('userJourney')) {
       addWidget('userJourney');
-      addedCount++;
     }
-    
-    // Show success message with toast instead of alert
-    toast({
-      title: "AI Widgets Added",
-      description: addedCount > 0 
-        ? `${addedCount} advanced AI widget${addedCount === 1 ? '' : 's'} added to your dashboard.` 
-        : "All AI widgets are already on your dashboard.",
-      duration: 3000
-    });
+    // Show success message
+    alert('Advanced AI widgets have been added to your dashboard!');
   };
 
   return (
@@ -95,7 +72,7 @@ const WidgetManager: React.FC<WidgetManagerProps> = ({ clientData = null }) => {
         <Button
           variant="outline"
           size="sm"
-          className="gap-1 text-[#d4af37] border-[#d4af37]/30 hover:border-[#d4af37]/50 hover:bg-[#d4af37]/10 bg-[#0a1929]/50"
+          className="gap-1 text-amber-600 border-amber-200 hover:border-amber-300 hover:bg-amber-50"
           onClick={() => setRecommendationsOpen(true)}
         >
           <Lightbulb className="h-4 w-4" />
@@ -105,7 +82,7 @@ const WidgetManager: React.FC<WidgetManagerProps> = ({ clientData = null }) => {
         <Button
           variant="default"
           size="sm"
-          className="gap-1 bg-[#d4af37] hover:bg-[#d4af37]/80 text-[#0a1929]"
+          className="gap-1 bg-indigo-600 hover:bg-indigo-700 text-white"
           onClick={addAIWidgets}
         >
           <Brain className="h-4 w-4" />
@@ -117,7 +94,7 @@ const WidgetManager: React.FC<WidgetManagerProps> = ({ clientData = null }) => {
             <Button
               variant="outline"
               size="sm"
-              className="gap-1 text-[#d4af37] border-[#d4af37]/30 hover:border-[#d4af37]/50 hover:bg-[#d4af37]/10 bg-[#0a1929]/50"
+              className="gap-1 text-purple-600 border-purple-200 hover:border-purple-300 hover:bg-purple-50"
             >
               <Plus className="h-4 w-4" />
               <span>Add Widget</span>
@@ -155,14 +132,13 @@ const WidgetManager: React.FC<WidgetManagerProps> = ({ clientData = null }) => {
               <Button 
                 variant="ghost" 
                 onClick={() => setDialogOpen(false)}
-                className="text-gray-600 hover:text-gray-800 hover:bg-gray-100"
               >
                 Cancel
               </Button>
               <Button 
                 onClick={handleAddWidget} 
                 disabled={!selectedWidget}
-                className="bg-[#d4af37] hover:bg-[#d4af37]/80 text-[#0a1929]"
+                className="bg-purple-600 hover:bg-purple-700"
               >
                 Add Widget
               </Button>
@@ -173,7 +149,7 @@ const WidgetManager: React.FC<WidgetManagerProps> = ({ clientData = null }) => {
         <Button
           variant="outline"
           size="sm"
-          className="gap-1 text-[#d4af37] border-[#d4af37]/30 hover:border-[#d4af37]/50 hover:bg-[#d4af37]/10 bg-[#0a1929]/50"
+          className="gap-1 text-purple-600 border-purple-200 hover:border-purple-300 hover:bg-purple-50"
           onClick={handleResetLayout}
         >
           <Undo2 className="h-4 w-4" />
@@ -183,7 +159,7 @@ const WidgetManager: React.FC<WidgetManagerProps> = ({ clientData = null }) => {
         <Button
           variant="outline"
           size="sm"
-          className="gap-1 text-[#d4af37] border-[#d4af37]/30 hover:border-[#d4af37]/50 hover:bg-[#d4af37]/10 bg-[#0a1929]/50"
+          className="gap-1 text-purple-600 border-purple-200 hover:border-purple-300 hover:bg-purple-50"
           onClick={() => {/* Open layout editor */}}
         >
           <LayoutGrid className="h-4 w-4" />

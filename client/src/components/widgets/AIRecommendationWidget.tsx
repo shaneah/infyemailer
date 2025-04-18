@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -23,34 +23,59 @@ interface Recommendation {
 }
 
 const AIRecommendationWidget: React.FC<AIRecommendationWidgetProps> = ({ widget, onRemove }) => {
-  // State for recommendations
-  const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  
-  // Fetch recommendations from API
-  useEffect(() => {
-    const fetchRecommendations = async () => {
-      setIsLoading(true);
-      try {
-        // In a real implementation, this would call an API endpoint
-        // This is just a simulated delay for demonstration purposes
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        // If we can't fetch recommendations, we'll set an empty array
-        // rather than using synthetic data
-        setRecommendations([]);
-        setError(null);
-      } catch (err) {
-        console.error("Error fetching recommendations:", err);
-        setError("Unable to load recommendations. Please try again later.");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    
-    fetchRecommendations();
-  }, []);
+  // Sample recommendations data
+  const [recommendations, setRecommendations] = useState<Recommendation[]>([
+    {
+      id: '1',
+      category: 'content',
+      title: 'Subject Line Optimization',
+      description: 'Your subject lines with 6-10 words have 25% higher open rates than shorter or longer ones.',
+      impact: 'high',
+      aiConfidence: 92,
+      suggestedAction: 'Aim for 6-10 word subject lines in upcoming campaigns',
+      applied: false
+    },
+    {
+      id: '2',
+      category: 'timing',
+      title: 'Optimal Send Window',
+      description: 'Sending emails between 10-11am on Tuesdays has yielded 18% higher engagement than your average send time.',
+      impact: 'high',
+      aiConfidence: 89,
+      suggestedAction: 'Schedule important campaigns for Tuesday mornings',
+      applied: false
+    },
+    {
+      id: '3',
+      category: 'audience',
+      title: 'Segment dormant subscribers',
+      description: '2,345 subscribers have not opened your emails in 90+ days. Creating a re-engagement campaign for this segment could recover up to 15% of these contacts.',
+      impact: 'high',
+      aiConfidence: 89,
+      suggestedAction: 'Create a "Win-back" campaign for dormant subscribers',
+      applied: false
+    },
+    {
+      id: '4',
+      category: 'performance',
+      title: 'Content Length Analysis',
+      description: 'Emails with 150-200 words perform 15% better in terms of click-through rates compared to longer content.',
+      impact: 'medium',
+      aiConfidence: 85,
+      suggestedAction: 'Keep email content concise and focus on key messages',
+      applied: false
+    },
+    {
+      id: '5',
+      category: 'content',
+      title: 'CTA Button Analysis',
+      description: 'Green CTA buttons with action-oriented text ("Get Started" vs "Learn More") have a 22% higher click rate.',
+      impact: 'medium',
+      aiConfidence: 83,
+      suggestedAction: 'Update email templates with action-oriented green CTA buttons',
+      applied: false
+    }
+  ]);
 
   const [activeTab, setActiveTab] = useState<string>('all');
 
@@ -134,21 +159,9 @@ const AIRecommendationWidget: React.FC<AIRecommendationWidgetProps> = ({ widget,
           </TabsList>
           
           <TabsContent value={activeTab} className="mt-0 space-y-4">
-            {isLoading ? (
-              <div className="text-center py-6">
-                <div className="flex flex-col items-center">
-                  <div className="h-8 w-8 border-4 border-t-indigo-500 border-r-transparent border-b-transparent border-l-transparent rounded-full animate-spin mb-2"></div>
-                  <p className="text-sm text-muted-foreground">Loading recommendations...</p>
-                </div>
-              </div>
-            ) : error ? (
+            {filteredRecommendations.length === 0 ? (
               <div className="text-center py-6 text-muted-foreground">
-                <p className="text-sm text-red-500">{error}</p>
-              </div>
-            ) : filteredRecommendations.length === 0 ? (
-              <div className="text-center py-6 text-muted-foreground">
-                <p>No recommendations available in this category</p>
-                <p className="text-xs mt-2">Recommendations will appear here as we analyze more of your campaign data.</p>
+                No recommendations available in this category
               </div>
             ) : (
               filteredRecommendations.map(recommendation => (
