@@ -33,6 +33,7 @@ import UserManagement from "@/pages/UserManagement";
 import ClientManagement from "@/pages/ClientManagement";
 import AudiencePersonas from "@/pages/AudiencePersonas";
 import EmailPreview from "@/pages/EmailPreview";
+import ClientCollaboration from "@/pages/ClientCollaboration";
 
 // Client portal pages
 import ClientLogin from "@/pages/ClientLogin";
@@ -247,6 +248,7 @@ function App() {
                     <ProtectedRoute path="email-preview" component={EmailPreview} />
                     <ProtectedRoute path="email-preview/:id" component={EmailPreview} />
                     <ProtectedRoute path="email-performance-dashboard" component={EmailPerformanceDashboard} />
+                    <ProtectedRoute path="client-collaboration" component={ClientCollaboration} />
 
                     <Route component={NotFound} />
                   </Switch>

@@ -19,7 +19,9 @@ import {
   UserRound,
   ExternalLink,
   LogOut,
-  Settings
+  Settings,
+  MessagesSquare,
+  HandshakeIcon
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -284,6 +286,20 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
               >
                 <ServerCog className={`h-5 w-5 mr-3 ${location === '/email-providers' ? 'text-[#d4af37]' : ''}`} />
                 {!collapsed && <span>Email Providers</span>}
+              </Link>
+            </li>
+            
+            {/* Client Collaboration Portal */}
+            <li>
+              <Link 
+                href="/client-collaboration" 
+                className={`flex items-center px-3 py-2 rounded-md ${location === '/client-collaboration' || location.includes('/client-collaboration/')
+                  ? 'text-white bg-gradient-to-r from-[#1e293b] to-transparent border-l-4 border-[#d4af37]' 
+                  : 'text-gray-300 hover:bg-[#1e293b]/50 hover:text-white'}`}
+                title="Client Collaboration Portal"
+              >
+                <HandshakeIcon className={`h-5 w-5 mr-3 ${location === '/client-collaboration' || location.includes('/client-collaboration/') ? 'text-[#d4af37]' : ''}`} />
+                {!collapsed && <span>Client Collaboration</span>}
               </Link>
             </li>
             
