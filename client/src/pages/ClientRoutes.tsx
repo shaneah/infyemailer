@@ -10,6 +10,7 @@ import AddContactModal from '@/modals/AddContactModal';
 import CreateListModal from '@/modals/CreateListModal';
 import CreateTemplateModal from '@/modals/CreateTemplateModal';
 import ClientTemplates from '@/pages/ClientTemplates';
+import ClientContacts from '@/pages/ClientContacts';
 import BasicTemplateBuilder from '@/pages/BasicTemplateBuilder';
 import ClientEmailPerformance from '@/pages/ClientEmailPerformance';
 import ClientABTestingAdvanced from '@/pages/ClientABTestingAdvanced';
