@@ -18,7 +18,10 @@ export type WidgetType =
   | 'upcomingCampaigns'
   | 'audienceGrowth'
   | 'realtimeMetrics'
-  | 'emailHealthScore';
+  | 'emailHealthScore'
+  | 'campaignROI'
+  | 'engagementHeatmap'
+  | 'smartNotifications';
 
 export interface Widget {
   id: string;
@@ -49,7 +52,10 @@ export const widgetSizes: Record<WidgetType, 'small' | 'medium' | 'large'> = {
   upcomingCampaigns: 'medium',
   audienceGrowth: 'medium',
   realtimeMetrics: 'large',
-  emailHealthScore: 'large'
+  emailHealthScore: 'large',
+  campaignROI: 'large',
+  engagementHeatmap: 'large',
+  smartNotifications: 'medium'
 };
 
 // Widget titles
@@ -70,7 +76,10 @@ export const widgetTitles: Record<WidgetType, string> = {
   upcomingCampaigns: 'Upcoming Campaigns & Tasks',
   audienceGrowth: 'Audience Growth',
   realtimeMetrics: 'Real-Time Engagement Metrics',
-  emailHealthScore: 'Email Health Score'
+  emailHealthScore: 'Email Health Score',
+  campaignROI: 'Campaign ROI Tracker',
+  engagementHeatmap: 'Engagement Heatmap',
+  smartNotifications: 'Smart Notifications'
 };
 
 // Default widgets configuration
