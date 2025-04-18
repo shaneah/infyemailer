@@ -901,8 +901,10 @@ const EmailValidation = () => {
                       </Label>
                       <TooltipProvider>
                         <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Badge className="bg-indigo-100 text-indigo-800 hover:bg-indigo-200 cursor-help">AI-Powered</Badge>
+                          <TooltipTrigger>
+                            <div>
+                              <Badge className="bg-indigo-100 text-indigo-800 hover:bg-indigo-200 cursor-help">AI-Powered</Badge>
+                            </div>
                           </TooltipTrigger>
                           <TooltipContent className="max-w-sm">
                             <p>Our advanced AI algorithms detect typos, syntax errors, and domain issues for maximum deliverability</p>
