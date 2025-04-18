@@ -5,6 +5,7 @@ import { getStorage } from "./storageManager"; // Use dynamic storage selection
 const storage = getStorage();
 import { isDatabaseAvailable, db } from "./db"; // Import db and check if database is available
 import { eq, desc } from "drizzle-orm"; // Import Drizzle operators
+import * as schema from '@shared/schema'; // Import schema definitions
 import { generateSubjectLines, generateEmailTemplate, generateColorPalette } from "./services/openai";
 import { setupAuth, hashPassword, comparePasswords } from "./auth";
 import { EmailValidationService } from "./services/emailValidation";
@@ -138,8 +139,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: 'This is not an A/B test campaign' });
       }
       
-      const variants = await storage.getCampaignVariants(campaignId);
-      console.log(`Retrieved ${variants.length} variants for campaign`);
+      // Get variants directly from the database instead of using the storage API
+      // which seems to have an issue
+      let variants = [];
+      try {
+        variants = await db.select()
+          .from(schema.campaignVariants)
+          .where(eq(schema.campaignVariants.campaignId, campaignId));
+        console.log(`Direct DB query found ${variants.length} variants:`, variants);
+      } catch (dbError) {
+        console.error(`Error in direct DB query:`, dbError);
+      }
       
       res.json({ campaign, variants });
     } catch (error) {
@@ -169,18 +179,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: 'This is not an A/B test campaign' });
       }
       
-      const variants = await storage.getCampaignVariants(campaignId);
-      console.log(`Retrieved ${variants.length} variants for analytics`);
+      // Get variants directly from database like we did in the other endpoint
+      let variants = [];
+      try {
+        variants = await db.select()
+          .from(schema.campaignVariants)
+          .where(eq(schema.campaignVariants.campaignId, campaignId));
+        console.log(`Direct DB query found ${variants.length} variants for analytics`);
+      } catch (dbError) {
+        console.error(`Error in direct DB query for analytics:`, dbError);
+      }
       
+      // Get variant analytics
       const variantAnalytics = await Promise.all(
         variants.map(async (variant) => {
-          const analytics = await storage.getVariantAnalyticsByCampaign(campaignId);
-          console.log(`Retrieved ${analytics.length} analytics records for campaign ID ${campaignId}`);
-          const filteredAnalytics = analytics.filter(analytic => analytic.variantId === variant.id);
-          console.log(`Filtered ${filteredAnalytics.length} analytics records for variant ID ${variant.id}`);
+          let analytics = [];
+          try {
+            analytics = await db.select()
+              .from(schema.variantAnalytics)
+              .where(eq(schema.variantAnalytics.variantId, variant.id));
+            console.log(`Retrieved ${analytics.length} analytics records for variant ID ${variant.id}`);
+          } catch (analyticsError) {
+            console.error(`Error getting analytics for variant ${variant.id}:`, analyticsError);
+          }
+          
           return {
             variant,
-            analytics: filteredAnalytics
+            analytics
           };
         })
       );
@@ -211,13 +236,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: 'This is not an A/B test campaign' });
       }
       
-      const variant = await storage.getCampaignVariant(variantId);
+      // Get the variant directly from the database
+      const variants = await db.select()
+        .from(schema.campaignVariants)
+        .where(eq(schema.campaignVariants.id, variantId));
       
-      if (!variant || variant.campaignId !== campaignId) {
+      if (variants.length === 0 || variants[0].campaignId !== campaignId) {
         return res.status(404).json({ error: 'Variant not found for this campaign' });
       }
       
-      const updatedCampaign = await storage.setWinningVariant(campaignId, variantId);
+      // Update the campaign with the winning variant ID directly
+      const [updatedCampaign] = await db.update(schema.campaigns)
+        .set({
+          winningVariantId: variantId,
+          updatedAt: new Date()
+        })
+        .where(eq(schema.campaigns.id, campaignId))
+        .returning();
+      
       res.json(updatedCampaign);
     } catch (error) {
       console.error(`Error setting winning variant:`, error);
