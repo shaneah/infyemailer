@@ -120,17 +120,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/ab-testing/campaigns/:id', async (req: Request, res: Response) => {
     try {
       const campaignId = parseInt(req.params.id);
+      console.log(`Fetching A/B test campaign with ID: ${campaignId}`);
+      
       const campaign = await storage.getCampaign(campaignId);
+      console.log(`Campaign retrieved:`, campaign);
       
       if (!campaign) {
+        console.log(`Campaign not found with ID: ${campaignId}`);
         return res.status(404).json({ error: 'Campaign not found' });
       }
       
+      // Add explicit debug logging to see the isAbTest value
+      console.log(`Campaign isAbTest value: ${campaign.isAbTest}, type: ${typeof campaign.isAbTest}`);
+      
       if (!campaign.isAbTest) {
+        console.log(`Campaign is not an A/B test: ${campaign.name} (ID: ${campaignId})`);
         return res.status(400).json({ error: 'This is not an A/B test campaign' });
       }
       
       const variants = await storage.getCampaignVariants(campaignId);
+      console.log(`Retrieved ${variants.length} variants for campaign`);
+      
       res.json({ campaign, variants });
     } catch (error) {
       console.error(`Error fetching A/B test campaign details:`, error);
@@ -141,23 +151,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/ab-testing/campaigns/:id/analytics', async (req: Request, res: Response) => {
     try {
       const campaignId = parseInt(req.params.id);
+      console.log(`Fetching analytics for A/B test campaign with ID: ${campaignId}`);
+      
       const campaign = await storage.getCampaign(campaignId);
+      console.log(`Campaign for analytics:`, campaign);
       
       if (!campaign) {
+        console.log(`Campaign not found for analytics with ID: ${campaignId}`);
         return res.status(404).json({ error: 'Campaign not found' });
       }
       
+      // Add explicit debug logging to see the isAbTest value
+      console.log(`Campaign isAbTest value for analytics: ${campaign.isAbTest}, type: ${typeof campaign.isAbTest}`);
+      
       if (!campaign.isAbTest) {
+        console.log(`Campaign is not an A/B test for analytics: ${campaign.name} (ID: ${campaignId})`);
         return res.status(400).json({ error: 'This is not an A/B test campaign' });
       }
       
       const variants = await storage.getCampaignVariants(campaignId);
+      console.log(`Retrieved ${variants.length} variants for analytics`);
+      
       const variantAnalytics = await Promise.all(
         variants.map(async (variant) => {
           const analytics = await storage.getVariantAnalyticsByCampaign(campaignId);
+          console.log(`Retrieved ${analytics.length} analytics records for campaign ID ${campaignId}`);
+          const filteredAnalytics = analytics.filter(analytic => analytic.variantId === variant.id);
+          console.log(`Filtered ${filteredAnalytics.length} analytics records for variant ID ${variant.id}`);
           return {
             variant,
-            analytics: analytics.filter(analytic => analytic.variantId === variant.id)
+            analytics: filteredAnalytics
           };
         })
       );
