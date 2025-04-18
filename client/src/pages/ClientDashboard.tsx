@@ -201,7 +201,7 @@ export default function ClientDashboard() {
             <div className="container mx-auto">
               {/* Widget Management Controls */}
               <div className="mb-4 flex justify-end">
-                <WidgetManager />
+                <WidgetManager clientData={clientData} />
               </div>
               
               {/* Customizable Dashboard Widgets */}

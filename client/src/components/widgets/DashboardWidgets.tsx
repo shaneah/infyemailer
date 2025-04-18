@@ -28,6 +28,7 @@ interface DashboardWidgetsProps {
 
 const DashboardWidgets: React.FC<DashboardWidgetsProps> = ({ clientData }) => {
   const { widgets, removeWidget, updateWidgetConfig, moveWidget } = useWidgets();
+  const { recordWidgetView, recordWidgetInteraction } = useWidgetRecommendations(widgets, clientData);
 
   // Filter visible widgets and sort by row/col for display
   const visibleWidgets = widgets
