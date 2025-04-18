@@ -170,34 +170,34 @@ export default function ClientDashboard() {
 
   return (
     <WidgetsProvider>
-      <div className="flex flex-col overflow-hidden min-h-screen bg-white">
+      <div className="flex flex-col overflow-hidden min-h-screen bg-gradient-to-br from-[#0a1929] via-[#112b4a] to-[#1a3a5f]">
         {/* Main Content */}
         <div className="flex-1 flex flex-col overflow-hidden relative z-10">
           {/* Header */}
-          <header className="relative z-20 flex items-center justify-between p-4 bg-white border-b border-gray-200">
+          <header className="relative z-20 flex items-center justify-between p-4 bg-[#0a1929] border-b border-[#1a3a5f]/50">
             <div className="flex items-center">
               <Button 
                 variant="ghost" 
                 size="lg"
-                className="lg:hidden text-gray-700 hover:bg-gray-100 mr-2"
+                className="lg:hidden text-white hover:bg-[#1a3a5f]/30 mr-2"
                 onClick={() => setSidebarOpen(true)}
               >
                 <Menu size={24} />
               </Button>
-              <h1 className="text-xl font-semibold text-purple-800">Dashboard</h1>
+              <h1 className="text-xl font-semibold text-[#d4af37]">Dashboard</h1>
             </div>
             
             <div className="flex items-center gap-2">
               {clientData && (
-                <span className="text-sm text-gray-600 hidden md:inline-block">
-                  Welcome, <span className="font-medium">{clientData.clientName}</span>
+                <span className="text-sm text-blue-100 hidden md:inline-block">
+                  Welcome, <span className="font-medium text-white">{clientData.clientName}</span>
                 </span>
               )}
             </div>
           </header>
 
           {/* Dashboard Content */}
-          <main className="flex-1 overflow-y-auto p-6 relative z-10 bg-white">
+          <main className="flex-1 overflow-y-auto p-6 relative z-10 bg-[#112b4a]">
             <div className="container mx-auto">
               {/* Widget Management Controls */}
               <div className="mb-4 flex justify-end">

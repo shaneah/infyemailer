@@ -72,7 +72,7 @@ const WidgetManager: React.FC<WidgetManagerProps> = ({ clientData = null }) => {
         <Button
           variant="outline"
           size="sm"
-          className="gap-1 text-amber-600 border-amber-200 hover:border-amber-300 hover:bg-amber-50"
+          className="gap-1 text-[#d4af37] border-[#d4af37]/30 hover:border-[#d4af37]/50 hover:bg-[#d4af37]/10 bg-[#0a1929]/50"
           onClick={() => setRecommendationsOpen(true)}
         >
           <Lightbulb className="h-4 w-4" />
@@ -82,7 +82,7 @@ const WidgetManager: React.FC<WidgetManagerProps> = ({ clientData = null }) => {
         <Button
           variant="default"
           size="sm"
-          className="gap-1 bg-indigo-600 hover:bg-indigo-700 text-white"
+          className="gap-1 bg-[#d4af37] hover:bg-[#d4af37]/80 text-[#0a1929]"
           onClick={addAIWidgets}
         >
           <Brain className="h-4 w-4" />
@@ -94,7 +94,7 @@ const WidgetManager: React.FC<WidgetManagerProps> = ({ clientData = null }) => {
             <Button
               variant="outline"
               size="sm"
-              className="gap-1 text-purple-600 border-purple-200 hover:border-purple-300 hover:bg-purple-50"
+              className="gap-1 text-[#d4af37] border-[#d4af37]/30 hover:border-[#d4af37]/50 hover:bg-[#d4af37]/10 bg-[#0a1929]/50"
             >
               <Plus className="h-4 w-4" />
               <span>Add Widget</span>
@@ -132,13 +132,14 @@ const WidgetManager: React.FC<WidgetManagerProps> = ({ clientData = null }) => {
               <Button 
                 variant="ghost" 
                 onClick={() => setDialogOpen(false)}
+                className="text-gray-600 hover:text-gray-800 hover:bg-gray-100"
               >
                 Cancel
               </Button>
               <Button 
                 onClick={handleAddWidget} 
                 disabled={!selectedWidget}
-                className="bg-purple-600 hover:bg-purple-700"
+                className="bg-[#d4af37] hover:bg-[#d4af37]/80 text-[#0a1929]"
               >
                 Add Widget
               </Button>
@@ -149,7 +150,7 @@ const WidgetManager: React.FC<WidgetManagerProps> = ({ clientData = null }) => {
         <Button
           variant="outline"
           size="sm"
-          className="gap-1 text-purple-600 border-purple-200 hover:border-purple-300 hover:bg-purple-50"
+          className="gap-1 text-[#d4af37] border-[#d4af37]/30 hover:border-[#d4af37]/50 hover:bg-[#d4af37]/10 bg-[#0a1929]/50"
           onClick={handleResetLayout}
         >
           <Undo2 className="h-4 w-4" />
@@ -159,7 +160,7 @@ const WidgetManager: React.FC<WidgetManagerProps> = ({ clientData = null }) => {
         <Button
           variant="outline"
           size="sm"
-          className="gap-1 text-purple-600 border-purple-200 hover:border-purple-300 hover:bg-purple-50"
+          className="gap-1 text-[#d4af37] border-[#d4af37]/30 hover:border-[#d4af37]/50 hover:bg-[#d4af37]/10 bg-[#0a1929]/50"
           onClick={() => {/* Open layout editor */}}
         >
           <LayoutGrid className="h-4 w-4" />
