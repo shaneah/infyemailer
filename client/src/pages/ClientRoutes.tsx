@@ -16,115 +16,433 @@ import ClientABTestingAdvanced from '@/pages/ClientABTestingAdvanced';
 import ClientSecurity from '@/pages/ClientSecurity';
 import ClientBilling from '@/pages/ClientBilling';
 
-// Campaigns component with more complete UI
+// Advanced Campaigns component with modern UI
 const ClientCampaigns = ({ onCreateCampaign }: { onCreateCampaign: () => void }) => {
-  // State to manage campaign data
+  // State to manage campaign data and UI
   const [isLoading, setIsLoading] = useState(false);
+  const [activeView, setActiveView] = useState<'grid' | 'list'>('grid');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
+  const [dateFilter, setDateFilter] = useState('');
+  const [selectedCampaign, setSelectedCampaign] = useState<number | null>(null);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showAnalytics, setShowAnalytics] = useState(false);
+  const { toast } = useToast();
+  
+  // Enhanced campaign data with additional fields
   const [campaigns, setCampaigns] = useState([
     {
       id: 1,
       name: "Monthly Newsletter",
+      description: "Regular monthly update with company news and updates",
       status: "Active",
       sentDate: "2025-03-15",
       recipients: 2430,
       openRate: 24.8,
-      clickRate: 3.6
+      clickRate: 3.6,
+      bounceRate: 1.2,
+      unsubscribeRate: 0.3,
+      engagementScore: 82,
+      lastModified: "2025-03-10",
+      scheduledFor: null,
+      type: "newsletter",
+      subject: "March Newsletter: Latest Updates and News",
+      category: "engagement",
+      labelColor: "#6366f1" // purple-500
     },
     {
       id: 2,
       name: "Product Launch",
+      description: "Announcement for the new premium product line release",
       status: "Draft",
       sentDate: null,
       recipients: 0,
       openRate: 0,
-      clickRate: 0
+      clickRate: 0,
+      bounceRate: 0,
+      unsubscribeRate: 0,
+      engagementScore: 0,
+      lastModified: "2025-03-25",
+      scheduledFor: null,
+      type: "promotional",
+      subject: "Introducing Our New Premium Product Line",
+      category: "product",
+      labelColor: "#f43f5e" // rose-500
     },
     {
       id: 3,
       name: "Spring Promotion",
+      description: "Special discounts for the spring season",
       status: "Scheduled",
-      sentDate: "2025-04-15",
-      recipients: 0,
+      sentDate: null,
+      recipients: 3500,
       openRate: 0,
-      clickRate: 0
+      clickRate: 0,
+      bounceRate: 0,
+      unsubscribeRate: 0,
+      engagementScore: 0,
+      lastModified: "2025-03-28",
+      scheduledFor: "2025-04-15T09:00:00",
+      type: "promotional",
+      subject: "Spring Is Here: Enjoy 25% Off Selected Items",
+      category: "sales",
+      labelColor: "#10b981" // emerald-500
     },
     {
       id: 4,
       name: "Customer Feedback Survey",
+      description: "Annual survey to gather customer feedback and improve services",
       status: "Completed",
       sentDate: "2025-02-10",
       recipients: 1850,
       openRate: 22.5,
-      clickRate: 4.2
+      clickRate: 4.2,
+      bounceRate: 1.8,
+      unsubscribeRate: 0.4,
+      engagementScore: 68,
+      lastModified: "2025-02-05",
+      scheduledFor: null,
+      type: "survey",
+      subject: "We Value Your Feedback: Annual Customer Survey",
+      category: "feedback",
+      labelColor: "#8b5cf6" // violet-500
     }
   ]);
   
-  const statusColors = {
-    Active: "bg-green-100 text-green-800",
-    Draft: "bg-gray-100 text-gray-800",
-    Scheduled: "bg-blue-100 text-blue-800",
-    Completed: "bg-purple-100 text-purple-800",
-    Failed: "bg-red-100 text-red-800"
+  // Enhanced status indicators with modern design
+  const statusConfig = {
+    Active: {
+      bgColor: "bg-green-100 text-green-800 border border-green-200",
+      icon: <Activity className="h-3 w-3 mr-1" />,
+      pulseClass: "before:absolute before:inset-0 before:rounded-full before:bg-green-400 before:animate-ping before:opacity-30"
+    },
+    Draft: {
+      bgColor: "bg-gray-100 text-gray-800 border border-gray-200",
+      icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3Z"/></svg>,
+      pulseClass: ""
+    },
+    Scheduled: {
+      bgColor: "bg-blue-100 text-blue-800 border border-blue-200",
+      icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>,
+      pulseClass: "before:absolute before:inset-0 before:rounded-full before:bg-blue-400 before:animate-pulse before:opacity-30"
+    },
+    Completed: {
+      bgColor: "bg-purple-100 text-purple-800 border border-purple-200",
+      icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>,
+      pulseClass: ""
+    },
+    Failed: {
+      bgColor: "bg-red-100 text-red-800 border border-red-200",
+      icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>,
+      pulseClass: ""
+    }
+  };
+  
+  // Calculate performance metrics
+  const totalSent = campaigns.reduce((sum, campaign) => sum + campaign.recipients, 0);
+  const activeCampaignsCount = campaigns.filter(c => c.status === 'Active').length;
+  const avgOpenRate = campaigns.filter(c => c.openRate > 0).reduce((sum, c) => sum + c.openRate, 0) / 
+                     (campaigns.filter(c => c.openRate > 0).length || 1);
+  const avgClickRate = campaigns.filter(c => c.clickRate > 0).reduce((sum, c) => sum + c.clickRate, 0) / 
+                      (campaigns.filter(c => c.clickRate > 0).length || 1);
+  
+  // Filter campaigns based on search and filters
+  const filteredCampaigns = campaigns.filter(campaign => {
+    let matchesSearch = true;
+    let matchesStatus = true;
+    let matchesDate = true;
+    
+    if (searchTerm) {
+      matchesSearch = campaign.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                    (campaign.subject?.toLowerCase().includes(searchTerm.toLowerCase()) || false);
+    }
+    
+    if (statusFilter) {
+      matchesStatus = campaign.status === statusFilter;
+    }
+    
+    if (dateFilter) {
+      const campaignDate = campaign.sentDate ? new Date(campaign.sentDate) : null;
+      const now = new Date();
+      const sevenDaysAgo = new Date(now.setDate(now.getDate() - 7));
+      const thirtyDaysAgo = new Date(new Date().setDate(new Date().getDate() - 30));
+      const ninetyDaysAgo = new Date(new Date().setDate(new Date().getDate() - 90));
+      
+      if (dateFilter === 'last7' && campaignDate) {
+        matchesDate = campaignDate >= sevenDaysAgo;
+      } else if (dateFilter === 'last30' && campaignDate) {
+        matchesDate = campaignDate >= thirtyDaysAgo;
+      } else if (dateFilter === 'last90' && campaignDate) {
+        matchesDate = campaignDate >= ninetyDaysAgo;
+      }
+    }
+    
+    return matchesSearch && matchesStatus && matchesDate;
+  });
+  
+  // Function to handle campaign duplication
+  const handleDuplicateCampaign = (id: number) => {
+    const campaignToDuplicate = campaigns.find(c => c.id === id);
+    if (!campaignToDuplicate) return;
+    
+    const newCampaign = {
+      ...campaignToDuplicate,
+      id: Math.max(...campaigns.map(c => c.id)) + 1,
+      name: `${campaignToDuplicate.name} (Copy)`,
+      status: 'Draft',
+      sentDate: null,
+      recipients: 0,
+      openRate: 0,
+      clickRate: 0,
+      bounceRate: 0,
+      unsubscribeRate: 0,
+      engagementScore: 0,
+      lastModified: new Date().toISOString().split('T')[0],
+      scheduledFor: null
+    };
+    
+    setCampaigns([...campaigns, newCampaign]);
+    toast({
+      title: "Campaign duplicated",
+      description: `"${campaignToDuplicate.name}" has been duplicated.`,
+      variant: "default",
+    });
+  };
+  
+  // Function to get engagement score color
+  const getEngagementColor = (score: number) => {
+    if (score >= 80) return "text-green-600";
+    if (score >= 60) return "text-yellow-600";
+    if (score >= 40) return "text-orange-600";
+    return "text-red-600";
+  };
+  
+  // Function to format dates nicely
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return '—';
+    const date = new Date(dateString);
+    return date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
   };
   
   return (
     <div className="p-8">
-      <div className="flex items-center justify-between mb-6">
+      {/* Header with enhanced styling */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
         <div className="flex items-center gap-3">
-          <div className="bg-primary/10 p-2 rounded-full">
-            <Mail className="h-6 w-6 text-primary" />
+          <div className="bg-gradient-to-br from-purple-500 to-indigo-600 p-3 rounded-xl shadow-lg shadow-indigo-200">
+            <Mail className="h-6 w-6 text-white" />
           </div>
-          <h1 className="text-2xl font-bold">Email Campaigns</h1>
+          <div>
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-indigo-700 to-purple-700 bg-clip-text text-transparent">
+              Email Campaigns
+            </h1>
+            <p className="text-gray-500 text-sm">Manage and monitor your email marketing campaigns</p>
+          </div>
         </div>
-        <button 
-          onClick={onCreateCampaign}
-          className="bg-primary text-white px-4 py-2 rounded-md flex items-center gap-2 hover:bg-primary/90 transition-colors"
-        >
-          <span>Create Campaign</span>
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
-        </button>
+        
+        <div className="flex items-center gap-3">
+          <div className="bg-gray-100 p-1 rounded-lg flex">
+            <button
+              onClick={() => setActiveView('grid')}
+              className={`px-3 py-1.5 rounded-md flex items-center gap-1.5 text-sm font-medium transition-all ${
+                activeView === 'grid' 
+                  ? 'bg-white text-indigo-600 shadow-sm' 
+                  : 'text-gray-500 hover:text-gray-800'
+              }`}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="3" width="7" height="7"></rect>
+                <rect x="14" y="3" width="7" height="7"></rect>
+                <rect x="14" y="14" width="7" height="7"></rect>
+                <rect x="3" y="14" width="7" height="7"></rect>
+              </svg>
+              <span className="hidden sm:inline">Grid</span>
+            </button>
+            <button
+              onClick={() => setActiveView('list')}
+              className={`px-3 py-1.5 rounded-md flex items-center gap-1.5 text-sm font-medium transition-all ${
+                activeView === 'list' 
+                  ? 'bg-white text-indigo-600 shadow-sm' 
+                  : 'text-gray-500 hover:text-gray-800'
+              }`}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="8" y1="6" x2="21" y2="6"></line>
+                <line x1="8" y1="12" x2="21" y2="12"></line>
+                <line x1="8" y1="18" x2="21" y2="18"></line>
+                <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                <line x1="3" y1="18" x2="3.01" y2="18"></line>
+              </svg>
+              <span className="hidden sm:inline">List</span>
+            </button>
+          </div>
+          
+          <button 
+            onClick={onCreateCampaign}
+            className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:from-purple-700 hover:to-indigo-700 transition-all shadow-md hover:shadow-lg"
+          >
+            <span>Create Campaign</span>
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
+          </button>
+        </div>
       </div>
       
-      {/* Campaign Stats */}
+      {/* Campaign Stats with enhanced modern design */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <div className="bg-white rounded-lg shadow p-4 border border-gray-100">
-          <h3 className="text-sm font-medium text-gray-500 mb-1">Total Campaigns</h3>
-          <p className="text-2xl font-bold">{campaigns.length}</p>
+        <div className="bg-white rounded-xl shadow-md p-4 border border-gray-100 group hover:shadow-lg transition-all duration-300 hover:border-indigo-100">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-sm font-medium text-gray-500">Total Campaigns</h3>
+            <div className="bg-indigo-100 rounded-full p-2 group-hover:bg-indigo-200 transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-indigo-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+              </svg>
+            </div>
+          </div>
+          <div className="flex items-end gap-2">
+            <p className="text-3xl font-bold text-gray-800">{campaigns.length}</p>
+            <p className="text-xs text-gray-500 mb-1.5">campaigns</p>
+          </div>
+          <div className="mt-2 flex items-center text-xs">
+            <span className="text-green-500 font-medium flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline><polyline points="16 7 22 7 22 13"></polyline></svg>
+              8% growth
+            </span>
+            <span className="ml-2 text-gray-400">vs. last month</span>
+          </div>
         </div>
-        <div className="bg-white rounded-lg shadow p-4 border border-gray-100">
-          <h3 className="text-sm font-medium text-gray-500 mb-1">Active Campaigns</h3>
-          <p className="text-2xl font-bold">{campaigns.filter(c => c.status === 'Active').length}</p>
+        
+        <div className="bg-white rounded-xl shadow-md p-4 border border-gray-100 group hover:shadow-lg transition-all duration-300 hover:border-purple-100">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-sm font-medium text-gray-500">Active Campaigns</h3>
+            <div className="bg-purple-100 rounded-full p-2 group-hover:bg-purple-200 transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-purple-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+              </svg>
+            </div>
+          </div>
+          <div className="flex items-end gap-2">
+            <p className="text-3xl font-bold text-gray-800">{activeCampaignsCount}</p>
+            <p className="text-xs text-gray-500 mb-1.5">running now</p>
+          </div>
+          <div className="mt-2 flex items-center text-xs">
+            <div className="flex items-center gap-1">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-purple-500"></span>
+              </span>
+              <span className="text-purple-600 font-medium">Active monitoring</span>
+            </div>
+          </div>
         </div>
-        <div className="bg-white rounded-lg shadow p-4 border border-gray-100">
-          <h3 className="text-sm font-medium text-gray-500 mb-1">Avg. Open Rate</h3>
-          <p className="text-2xl font-bold">23.6%</p>
+        
+        <div className="bg-white rounded-xl shadow-md p-4 border border-gray-100 group hover:shadow-lg transition-all duration-300 hover:border-green-100">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-sm font-medium text-gray-500">Avg. Open Rate</h3>
+            <div className="bg-green-100 rounded-full p-2 group-hover:bg-green-200 transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-green-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+            </div>
+          </div>
+          <div className="flex items-end gap-2">
+            <p className="text-3xl font-bold text-gray-800">{avgOpenRate.toFixed(1)}%</p>
+            <div className="flex flex-col mb-1">
+              <div className="relative h-5 w-16 bg-gray-100 rounded-full overflow-hidden">
+                <div 
+                  className="absolute inset-y-0 left-0 bg-gradient-to-r from-green-400 to-green-600" 
+                  style={{ width: `${Math.min(avgOpenRate, 100)}%` }}
+                ></div>
+              </div>
+              <p className="text-xs text-gray-500 mt-0.5">{Math.round(totalSent * avgOpenRate / 100).toLocaleString()} opens</p>
+            </div>
+          </div>
+          <div className="mt-2 flex items-center text-xs">
+            {avgOpenRate > 22 ? (
+              <span className="text-green-500 font-medium flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline><polyline points="16 7 22 7 22 13"></polyline></svg>
+                Above industry avg.
+              </span>
+            ) : (
+              <span className="text-orange-500 font-medium flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 17 13.5 8.5 8.5 13.5 2 7"></polyline><polyline points="16 17 22 17 22 11"></polyline></svg>
+                Below industry avg.
+              </span>
+            )}
+          </div>
         </div>
-        <div className="bg-white rounded-lg shadow p-4 border border-gray-100">
-          <h3 className="text-sm font-medium text-gray-500 mb-1">Avg. Click Rate</h3>
-          <p className="text-2xl font-bold">3.9%</p>
+        
+        <div className="bg-white rounded-xl shadow-md p-4 border border-gray-100 group hover:shadow-lg transition-all duration-300 hover:border-blue-100">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-sm font-medium text-gray-500">Avg. Click Rate</h3>
+            <div className="bg-blue-100 rounded-full p-2 group-hover:bg-blue-200 transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="m8 6 4-4 4 4"></path>
+                <path d="M12 2v10.3"></path>
+                <path d="M18 8.4C19.1 9.3 20 10.6 20 12c0 3.3-3.1 6-7 6s-7-2.7-7-6c0-1.4.9-2.7 2-3.6"></path>
+              </svg>
+            </div>
+          </div>
+          <div className="flex items-end gap-2">
+            <p className="text-3xl font-bold text-gray-800">{avgClickRate.toFixed(1)}%</p>
+            <div className="flex flex-col mb-1">
+              <div className="relative h-5 w-16 bg-gray-100 rounded-full overflow-hidden">
+                <div 
+                  className="absolute inset-y-0 left-0 bg-gradient-to-r from-blue-400 to-blue-600" 
+                  style={{ width: `${Math.min(avgClickRate * 3, 100)}%` }}
+                ></div>
+              </div>
+              <p className="text-xs text-gray-500 mt-0.5">{Math.round(totalSent * avgClickRate / 100).toLocaleString()} clicks</p>
+            </div>
+          </div>
+          <div className="mt-2 flex items-center text-xs">
+            {avgClickRate > 3.5 ? (
+              <span className="text-green-500 font-medium flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline><polyline points="16 7 22 7 22 13"></polyline></svg>
+                Above industry avg.
+              </span>
+            ) : (
+              <span className="text-orange-500 font-medium flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 17 13.5 8.5 8.5 13.5 2 7"></polyline><polyline points="16 17 22 17 22 11"></polyline></svg>
+                Below industry avg.
+              </span>
+            )}
+          </div>
         </div>
       </div>
       
-      {/* Filters and Search */}
-      <div className="bg-white rounded-lg shadow p-4 border border-gray-100 mb-6">
+      {/* Enhanced Filters and Search */}
+      <div className="bg-white rounded-xl shadow-md p-5 border border-gray-100 mb-6 hover:shadow-lg transition-all duration-300">
         <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
           <div className="relative flex-1">
             <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
             <input 
               type="text" 
-              placeholder="Search campaigns..." 
-              className="pl-10 pr-4 py-2 border border-gray-200 rounded-md w-full focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search campaigns by name or subject..." 
+              className="pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
             />
           </div>
-          <div className="flex gap-2">
-            <select className="border border-gray-200 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary">
+          <div className="flex gap-2 w-full md:w-auto">
+            <select 
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="border border-gray-200 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-700 w-full md:w-auto"
+            >
               <option value="">All Statuses</option>
               <option value="Active">Active</option>
               <option value="Draft">Draft</option>
               <option value="Scheduled">Scheduled</option>
               <option value="Completed">Completed</option>
             </select>
-            <select className="border border-gray-200 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary">
+            <select 
+              value={dateFilter}
+              onChange={(e) => setDateFilter(e.target.value)}
+              className="border border-gray-200 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-700 w-full md:w-auto"
+            >
               <option value="">All Dates</option>
               <option value="last7">Last 7 Days</option>
               <option value="last30">Last 30 Days</option>
@@ -134,108 +452,461 @@ const ClientCampaigns = ({ onCreateCampaign }: { onCreateCampaign: () => void })
         </div>
       </div>
       
-      {/* Campaigns Table */}
-      <div className="bg-white rounded-lg shadow border border-gray-100 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="bg-gray-50 border-b border-gray-100">
-                <th className="text-left py-3 px-4 font-medium text-gray-700">Name</th>
-                <th className="text-left py-3 px-4 font-medium text-gray-700">Status</th>
-                <th className="text-left py-3 px-4 font-medium text-gray-700">Date</th>
-                <th className="text-left py-3 px-4 font-medium text-gray-700">Recipients</th>
-                <th className="text-left py-3 px-4 font-medium text-gray-700">Open Rate</th>
-                <th className="text-left py-3 px-4 font-medium text-gray-700">Click Rate</th>
-                <th className="text-left py-3 px-4 font-medium text-gray-700">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {isLoading ? (
-                <tr>
-                  <td colSpan={7} className="text-center py-4">
-                    <div className="flex justify-center">
-                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+      {/* Campaigns Display - Grid or List View */}
+      {activeView === 'grid' ? (
+        /* Grid View */
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {isLoading ? (
+            Array(3).fill(0).map((_, index) => (
+              <div key={index} className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden animate-pulse">
+                <div className="h-3 w-1/3 bg-gray-200 rounded m-5"></div>
+                <div className="h-6 w-3/4 bg-gray-200 rounded mx-5 mb-3"></div>
+                <div className="h-4 w-1/2 bg-gray-200 rounded mx-5 mb-5"></div>
+                <div className="h-20 bg-gray-100 p-5">
+                  <div className="h-4 w-1/4 bg-gray-200 rounded"></div>
+                  <div className="h-4 w-3/4 bg-gray-200 rounded mt-3"></div>
+                </div>
+              </div>
+            ))
+          ) : filteredCampaigns.length === 0 ? (
+            <div className="col-span-full bg-white rounded-xl shadow-md p-8 text-center border border-gray-100">
+              <div className="bg-gray-100 rounded-full p-3 w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="8" y1="6" x2="21" y2="6"></line>
+                  <line x1="8" y1="12" x2="21" y2="12"></line>
+                  <line x1="8" y1="18" x2="21" y2="18"></line>
+                  <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                  <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                  <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                </svg>
+              </div>
+              <h3 className="text-lg font-medium text-gray-700 mb-2">No campaigns found</h3>
+              <p className="text-gray-500 mb-6">Try adjusting your search or filter to find what you're looking for.</p>
+              <button 
+                onClick={() => {
+                  setSearchTerm('');
+                  setStatusFilter('');
+                  setDateFilter('');
+                }}
+                className="text-indigo-600 font-medium hover:text-indigo-800 transition-colors"
+              >
+                Clear all filters
+              </button>
+            </div>
+          ) : (
+            filteredCampaigns.map(campaign => (
+              <div 
+                key={campaign.id} 
+                className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden hover:shadow-lg transition-all duration-300 hover:border-indigo-100 group"
+              >
+                {/* Card Header with Campaign Type Tag */}
+                <div className="p-5">
+                  <div className="flex justify-between items-start mb-3">
+                    <div className="flex items-center">
+                      <div 
+                        className="h-3 w-3 rounded-full mr-2" 
+                        style={{ backgroundColor: campaign.labelColor }}
+                      ></div>
+                      <span className="text-xs text-gray-500 uppercase tracking-wider">{campaign.type}</span>
                     </div>
-                  </td>
-                </tr>
-              ) : campaigns.length === 0 ? (
-                <tr>
-                  <td colSpan={7} className="text-center py-4 text-gray-500">No campaigns found.</td>
-                </tr>
-              ) : (
-                campaigns.map(campaign => (
-                  <tr key={campaign.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                    <td className="py-3 px-4">
-                      <div className="font-medium text-gray-900">{campaign.name}</div>
-                    </td>
-                    <td className="py-3 px-4">
-                      <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${statusColors[campaign.status as keyof typeof statusColors]}`}>
+                    
+                    {/* Status Badge */}
+                    <div className={`relative inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${statusConfig[campaign.status as keyof typeof statusConfig].bgColor}`}>
+                      <span className={`relative z-10 flex items-center ${statusConfig[campaign.status as keyof typeof statusConfig].pulseClass}`}>
+                        {statusConfig[campaign.status as keyof typeof statusConfig].icon}
                         {campaign.status}
                       </span>
-                    </td>
-                    <td className="py-3 px-4 text-gray-700">
-                      {campaign.sentDate ? new Date(campaign.sentDate).toLocaleDateString() : '—'}
-                    </td>
-                    <td className="py-3 px-4 text-gray-700">
-                      {campaign.recipients.toLocaleString()}
-                    </td>
-                    <td className="py-3 px-4 text-gray-700">
-                      {campaign.openRate > 0 ? `${campaign.openRate}%` : '—'}
-                    </td>
-                    <td className="py-3 px-4 text-gray-700">
-                      {campaign.clickRate > 0 ? `${campaign.clickRate}%` : '—'}
-                    </td>
-                    <td className="py-3 px-4">
-                      <div className="flex items-center gap-2">
-                        <button className="text-gray-500 hover:text-primary" title="View Details">
-                          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-                        </button>
-                        <button className="text-gray-500 hover:text-blue-600" title="Edit">
-                          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"></path></svg>
-                        </button>
-                        <button className="text-gray-500 hover:text-red-600" title="Delete">
-                          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>
-                        </button>
+                    </div>
+                  </div>
+                  
+                  {/* Campaign Title */}
+                  <h3 className="text-lg font-semibold text-gray-800 mb-1 group-hover:text-indigo-700 transition-colors">
+                    {campaign.name}
+                  </h3>
+                  
+                  {/* Campaign Description */}
+                  <p className="text-sm text-gray-500 mb-2 line-clamp-2">
+                    {campaign.description}
+                  </p>
+                  
+                  {/* Campaign Subject */}
+                  <div className="bg-gray-50 rounded-md p-2 mb-3 text-xs text-gray-600 line-clamp-1">
+                    <span className="font-medium">Subject:</span> {campaign.subject}
+                  </div>
+                  
+                  {/* Campaign Metrics */}
+                  <div className="grid grid-cols-3 gap-2 mb-4">
+                    {campaign.openRate > 0 ? (
+                      <div className="text-center">
+                        <div className="text-lg font-bold text-gray-800">{campaign.openRate}%</div>
+                        <div className="text-xs text-gray-500">Opens</div>
                       </div>
+                    ) : campaign.status === 'Scheduled' ? (
+                      <div className="text-center">
+                        <div className="text-xs font-medium text-blue-600">
+                          {formatDate(campaign.scheduledFor || null)}
+                        </div>
+                        <div className="text-xs text-gray-500">Scheduled</div>
+                      </div>
+                    ) : campaign.status === 'Draft' ? (
+                      <div className="text-center">
+                        <div className="text-xs font-medium text-gray-600">
+                          {formatDate(campaign.lastModified || null)}
+                        </div>
+                        <div className="text-xs text-gray-500">Modified</div>
+                      </div>
+                    ) : (
+                      <div className="text-center">
+                        <div className="text-lg font-bold text-gray-300">—</div>
+                        <div className="text-xs text-gray-500">Opens</div>
+                      </div>
+                    )}
+                    
+                    {campaign.clickRate > 0 ? (
+                      <div className="text-center">
+                        <div className="text-lg font-bold text-gray-800">{campaign.clickRate}%</div>
+                        <div className="text-xs text-gray-500">Clicks</div>
+                      </div>
+                    ) : (
+                      <div className="text-center">
+                        <div className="text-lg font-bold text-gray-300">—</div>
+                        <div className="text-xs text-gray-500">Clicks</div>
+                      </div>
+                    )}
+                    
+                    {campaign.engagementScore > 0 ? (
+                      <div className="text-center">
+                        <div className={`text-lg font-bold ${getEngagementColor(campaign.engagementScore)}`}>
+                          {campaign.engagementScore}
+                        </div>
+                        <div className="text-xs text-gray-500">Score</div>
+                      </div>
+                    ) : (
+                      <div className="text-center">
+                        <div className="text-lg font-bold text-gray-300">—</div>
+                        <div className="text-xs text-gray-500">Score</div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                
+                {/* Card Footer with Actions */}
+                <div className="bg-gray-50 p-3 border-t border-gray-100 flex justify-between items-center">
+                  <span className="text-xs text-gray-500">
+                    {campaign.recipients > 0 
+                      ? `${campaign.recipients.toLocaleString()} recipients` 
+                      : 'No recipients'
+                    }
+                  </span>
+                  
+                  <div className="flex items-center gap-2">
+                    <button 
+                      className="text-indigo-600 hover:text-indigo-800 transition-colors"
+                      title="View Details"
+                      onClick={() => setSelectedCampaign(campaign.id)}
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                      </svg>
+                    </button>
+                    
+                    <button 
+                      className="text-indigo-600 hover:text-indigo-800 transition-colors"
+                      title="Edit Campaign"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                      </svg>
+                    </button>
+                    
+                    <button 
+                      className="text-indigo-600 hover:text-indigo-800 transition-colors"
+                      title="Duplicate Campaign"
+                      onClick={() => handleDuplicateCampaign(campaign.id)}
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                      </svg>
+                    </button>
+                    
+                    {campaign.status !== 'Active' && campaign.status !== 'Completed' && (
+                      <button 
+                        className="text-red-500 hover:text-red-700 transition-colors"
+                        title="Delete Campaign"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M3 6h18"></path>
+                          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                        </svg>
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      ) : (
+        /* List View with enhanced styling */
+        <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="bg-gray-50">
+                  <th className="text-left py-3 px-4 font-medium text-gray-700 border-b border-gray-200">Campaign</th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-700 border-b border-gray-200">Status</th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-700 border-b border-gray-200">Date</th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-700 border-b border-gray-200">Recipients</th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-700 border-b border-gray-200">Performance</th>
+                  <th className="text-center py-3 px-4 font-medium text-gray-700 border-b border-gray-200">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {isLoading ? (
+                  <tr>
+                    <td colSpan={6} className="text-center py-10">
+                      <div className="flex justify-center">
+                        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-600"></div>
+                      </div>
+                      <p className="text-gray-500 mt-3">Loading campaigns...</p>
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-        
-        {/* Pagination */}
-        <div className="flex items-center justify-between border-t border-gray-100 px-4 py-3">
-          <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
-            <div>
-              <p className="text-sm text-gray-700">
-                Showing <span className="font-medium">1</span> to <span className="font-medium">{campaigns.length}</span> of{" "}
-                <span className="font-medium">{campaigns.length}</span> results
-              </p>
-            </div>
-            <div>
-              <nav className="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
-                <button className="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
-                  <span className="sr-only">Previous</span>
-                  <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                    <path fillRule="evenodd" d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z" clipRule="evenodd" />
-                  </svg>
-                </button>
-                <button className="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-white bg-primary ring-1 ring-inset ring-gray-300">
-                  1
-                </button>
-                <button className="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
-                  <span className="sr-only">Next</span>
-                  <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                    <path fillRule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clipRule="evenodd" />
-                  </svg>
-                </button>
-              </nav>
-            </div>
+                ) : filteredCampaigns.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="text-center py-10">
+                      <div className="bg-gray-100 rounded-full p-3 w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <line x1="8" y1="6" x2="21" y2="6"></line>
+                          <line x1="8" y1="12" x2="21" y2="12"></line>
+                          <line x1="8" y1="18" x2="21" y2="18"></line>
+                          <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                          <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                          <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                        </svg>
+                      </div>
+                      <h3 className="text-lg font-medium text-gray-700 mb-2">No campaigns found</h3>
+                      <p className="text-gray-500 mb-6">Try adjusting your search or filter to find what you're looking for.</p>
+                      <button 
+                        onClick={() => {
+                          setSearchTerm('');
+                          setStatusFilter('');
+                          setDateFilter('');
+                        }}
+                        className="text-indigo-600 font-medium hover:text-indigo-800 transition-colors"
+                      >
+                        Clear all filters
+                      </button>
+                    </td>
+                  </tr>
+                ) : (
+                  filteredCampaigns.map(campaign => (
+                    <tr key={campaign.id} className="border-b border-gray-100 hover:bg-indigo-50/30 transition-colors">
+                      <td className="py-4 px-4">
+                        <div className="flex items-center">
+                          <div 
+                            className="h-10 w-10 rounded-lg bg-gradient-to-br from-indigo-100 to-indigo-50 border border-indigo-200 flex items-center justify-center mr-3 flex-shrink-0"
+                            style={{ color: campaign.labelColor }}
+                          >
+                            {campaign.type === 'newsletter' ? (
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"></path><path d="M18 14h-8"></path><path d="M15 18h-5"></path><path d="M10 6h8v4h-8V6Z"></path></svg>
+                            ) : campaign.type === 'promotional' ? (
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><path d="M12 9v4"></path><path d="M12 17h.01"></path></svg>
+                            ) : campaign.type === 'survey' ? (
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"></rect><path d="M7 7h10"></path><path d="M7 12h10"></path><path d="M7 17h4"></path></svg>
+                            ) : (
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="14" x="2" y="7" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+                            )}
+                          </div>
+                          <div>
+                            <div className="font-medium text-gray-900 mb-0.5">{campaign.name}</div>
+                            <div className="text-xs text-gray-500 line-clamp-1">{campaign.description}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="py-4 px-4">
+                        <div className={`relative inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${statusConfig[campaign.status as keyof typeof statusConfig].bgColor}`}>
+                          <span className={`relative z-10 flex items-center ${statusConfig[campaign.status as keyof typeof statusConfig].pulseClass}`}>
+                            {statusConfig[campaign.status as keyof typeof statusConfig].icon}
+                            {campaign.status}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="py-4 px-4 text-gray-700">
+                        {campaign.status === 'Scheduled' ? (
+                          <div>
+                            <div className="font-medium text-blue-600">{formatDate(campaign.scheduledFor || null)}</div>
+                            <div className="text-xs text-gray-500">Scheduled</div>
+                          </div>
+                        ) : campaign.sentDate ? (
+                          <div>
+                            <div>{formatDate(campaign.sentDate)}</div>
+                            <div className="text-xs text-gray-500">Sent</div>
+                          </div>
+                        ) : (
+                          <div>
+                            <div>{formatDate(campaign.lastModified)}</div>
+                            <div className="text-xs text-gray-500">Modified</div>
+                          </div>
+                        )}
+                      </td>
+                      <td className="py-4 px-4 text-gray-700">
+                        {campaign.recipients > 0 ? (
+                          <div className="font-medium">{campaign.recipients.toLocaleString()}</div>
+                        ) : (
+                          <div className="text-gray-400">—</div>
+                        )}
+                      </td>
+                      <td className="py-4 px-4">
+                        {campaign.status === 'Active' || campaign.status === 'Completed' ? (
+                          <div className="flex items-center gap-4">
+                            <div>
+                              <div className="flex items-center gap-1.5 mb-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-green-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                  <path d="M2 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                  <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                                <div className="font-medium">{campaign.openRate}%</div>
+                              </div>
+                              <div className="h-1.5 w-24 bg-gray-100 rounded-full overflow-hidden">
+                                <div className="h-full bg-green-500" style={{width: `${campaign.openRate}%`}}></div>
+                              </div>
+                            </div>
+                            <div>
+                              <div className="flex items-center gap-1.5 mb-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                  <path d="m8 6 4-4 4 4"></path>
+                                  <path d="M12 2v10.3"></path>
+                                  <path d="M18 8.4C19.1 9.3 20 10.6 20 12c0 3.3-3.1 6-7 6s-7-2.7-7-6c0-1.4.9-2.7 2-3.6"></path>
+                                </svg>
+                                <div className="font-medium">{campaign.clickRate}%</div>
+                              </div>
+                              <div className="h-1.5 w-24 bg-gray-100 rounded-full overflow-hidden">
+                                <div className="h-full bg-blue-500" style={{width: `${campaign.clickRate * 3}%`}}></div>
+                              </div>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="text-gray-400">Not sent yet</div>
+                        )}
+                      </td>
+                      <td className="py-4 px-4">
+                        <div className="flex items-center justify-center gap-2">
+                          <button 
+                            className="text-gray-500 hover:text-indigo-600 p-1.5 rounded-full hover:bg-indigo-50 transition-colors"
+                            title="View Details"
+                            onClick={() => setSelectedCampaign(campaign.id)}
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                              <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                          </button>
+                          
+                          <button 
+                            className="text-gray-500 hover:text-indigo-600 p-1.5 rounded-full hover:bg-indigo-50 transition-colors"
+                            title="Edit Campaign"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                            </svg>
+                          </button>
+                          
+                          <button 
+                            className="text-gray-500 hover:text-indigo-600 p-1.5 rounded-full hover:bg-indigo-50 transition-colors"
+                            title="Duplicate Campaign"
+                            onClick={() => handleDuplicateCampaign(campaign.id)}
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                            </svg>
+                          </button>
+                          
+                          {campaign.status !== 'Active' && campaign.status !== 'Completed' && (
+                            <button 
+                              className="text-gray-500 hover:text-red-600 p-1.5 rounded-full hover:bg-red-50 transition-colors"
+                              title="Delete Campaign"
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M3 6h18"></path>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                              </svg>
+                            </button>
+                          )}
+                          
+                          {campaign.status === 'Active' || campaign.status === 'Completed' ? (
+                            <button 
+                              className="text-gray-500 hover:text-indigo-600 p-1.5 rounded-full hover:bg-indigo-50 transition-colors"
+                              title="View Analytics"
+                              onClick={() => setShowAnalytics(true)}
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M3 3v18h18"></path>
+                                <path d="m19 9-5 5-4-4-3 3"></path>
+                              </svg>
+                            </button>
+                          ) : campaign.status === 'Scheduled' ? (
+                            <button 
+                              className="text-gray-500 hover:text-indigo-600 p-1.5 rounded-full hover:bg-indigo-50 transition-colors"
+                              title="Reschedule"
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M21 7.5V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3.5"></path>
+                                <path d="M16 2v4"></path>
+                                <path d="M8 2v4"></path>
+                                <path d="M3 10h18"></path>
+                                <path d="M18 21a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"></path>
+                                <path d="M18 18v-6"></path>
+                                <path d="M18 18h-6"></path>
+                              </svg>
+                            </button>
+                          ) : null}
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
           </div>
+          
+          {!isLoading && filteredCampaigns.length > 0 && (
+            <div className="flex items-center justify-between border-t border-gray-100 px-4 py-3">
+              <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+                <div>
+                  <p className="text-sm text-gray-700">
+                    Showing <span className="font-medium">1</span> to <span className="font-medium">{filteredCampaigns.length}</span> of{" "}
+                    <span className="font-medium">{filteredCampaigns.length}</span> results
+                  </p>
+                </div>
+                <div>
+                  <nav className="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+                    <button className="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+                      <span className="sr-only">Previous</span>
+                      <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                        <path fillRule="evenodd" d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z" clipRule="evenodd" />
+                      </svg>
+                    </button>
+                    <button className="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-white bg-indigo-600 ring-1 ring-inset ring-gray-300">
+                      1
+                    </button>
+                    <button className="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+                      <span className="sr-only">Next</span>
+                      <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                        <path fillRule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clipRule="evenodd" />
+                      </svg>
+                    </button>
+                  </nav>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
-      </div>
+      )}
     </div>
   );
 };

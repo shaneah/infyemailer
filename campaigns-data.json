@@ -21,8 +21,8 @@
     },
     "id": 1,
     "sentAt": null,
-    "createdAt": "2025-04-18T00:05:23.340Z",
-    "updatedAt": "2025-04-18T00:05:23.340Z"
+    "createdAt": "2025-04-18T00:22:08.716Z",
+    "updatedAt": "2025-04-18T00:22:08.716Z"
   },
   {
     "name": "Product Launch",
@@ -46,8 +46,8 @@
     },
     "id": 2,
     "sentAt": null,
-    "createdAt": "2025-04-18T00:05:23.340Z",
-    "updatedAt": "2025-04-18T00:05:23.340Z"
+    "createdAt": "2025-04-18T00:22:08.716Z",
+    "updatedAt": "2025-04-18T00:22:08.716Z"
   },
   {
     "name": "Spring Sale",
@@ -71,8 +71,8 @@
     },
     "id": 3,
     "sentAt": null,
-    "createdAt": "2025-04-18T00:05:23.340Z",
-    "updatedAt": "2025-04-18T00:05:23.340Z"
+    "createdAt": "2025-04-18T00:22:08.716Z",
+    "updatedAt": "2025-04-18T00:22:08.716Z"
   },
   {
     "name": "Welcome Series",
@@ -96,7 +96,7 @@
     },
     "id": 4,
     "sentAt": null,
-    "createdAt": "2025-04-18T00:05:23.341Z",
-    "updatedAt": "2025-04-18T00:05:23.341Z"
+    "createdAt": "2025-04-18T00:22:08.717Z",
+    "updatedAt": "2025-04-18T00:22:08.717Z"
   }
 ]
