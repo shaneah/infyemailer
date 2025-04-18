@@ -875,7 +875,10 @@ export default function ClientCollaboration() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => setLocation(`/client-management/clients/${selectedClient.id}`)}>
+                        <DropdownMenuItem onClick={() => {
+                          sessionStorage.setItem('selectedClientId', selectedClient.id.toString());
+                          setLocation('/client-management');
+                        }}>
                           <FileEdit className="h-4 w-4 mr-2" />
                           View Client Profile
                         </DropdownMenuItem>

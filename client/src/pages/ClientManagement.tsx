@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Pencil, Trash2, Plus, CreditCard, BarChart4, User, Mail, Building2, Check, X, Loader2, Info as InfoIcon, PlusCircle, Shield } from 'lucide-react';
 import { queryClient, apiRequest } from '@/lib/queryClient';
@@ -158,6 +158,31 @@ const ClientManagement = () => {
   const [selectedClientId, setSelectedClientId] = useState<number | null>(null);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [selectedUser, setSelectedUser] = useState<any>(null);
+
+  // Effect to check for selected client ID in session storage (for navigation from Client Collaboration)
+  useEffect(() => {
+    const clientIdFromSession = sessionStorage.getItem('selectedClientId');
+    if (clientIdFromSession) {
+      const numericId = parseInt(clientIdFromSession, 10);
+      setSelectedClientId(numericId);
+      setActiveTab('client-details');
+      // Remove from session storage after use to avoid persisting between page visits
+      sessionStorage.removeItem('selectedClientId');
+    }
+  }, []);
+
+  // Effect to find the selected client object when ID changes
+  useEffect(() => {
+    if (selectedClientId && clients.length > 0) {
+      const client = clients.find(c => c.id === selectedClientId);
+      if (client) {
+        setSelectedClient(client);
+        if (activeTab === 'all-clients') {
+          setActiveTab('client-details');
+        }
+      }
+    }
+  }, [selectedClientId, clients, activeTab]);
 
   // Fetch clients
   const { data: clients = [] } = useQuery<Client[]>({
