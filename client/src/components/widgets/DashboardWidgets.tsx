@@ -18,7 +18,7 @@ import SmartNotificationsWidget from './SmartNotificationsWidget';
 import AIRecommendationWidget from './AIRecommendationWidget';
 import CampaignPerformanceAnalyzerWidget from './CampaignPerformanceAnalyzerWidget';
 import UserJourneyWidget from './UserJourneyWidget';
-import WidgetManager from './WidgetManager';
+// WidgetManager is now used only in Dashboard components
 
 interface DashboardWidgetsProps {
   clientData: any; // The dashboard data
@@ -626,10 +626,6 @@ const DashboardWidgets: React.FC<DashboardWidgetsProps> = ({ clientData }) => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-end mb-4">
-        <WidgetManager />
-      </div>
-
       {Object.entries(widgetsByRow).map(([row, rowWidgets]) => (
         <div 
           key={`row-${row}`} 
