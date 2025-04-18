@@ -1431,6 +1431,15 @@ const ClientContacts = ({ onAddContact }: { onAddContact: () => void }) => {
 const ClientLists = ({ onCreateList }: { onCreateList: () => void }) => {
   // State to manage lists data
   const [isLoading, setIsLoading] = useState(false);
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedTag, setSelectedTag] = useState('');
+  const [sortBy, setSortBy] = useState('name');
+  const [showTagMenu, setShowTagMenu] = useState(false);
+  const [showAnalytics, setShowAnalytics] = useState(false);
+  const [selectedList, setSelectedList] = useState<number | null>(null);
+  
+  // Enhanced list data with more metrics
   const [lists, setLists] = useState([
     {
       id: 1,
@@ -1438,7 +1447,14 @@ const ClientLists = ({ onCreateList }: { onCreateList: () => void }) => {
       contactCount: 1240,
       description: "All active newsletter subscribers",
       lastUpdated: "2025-03-15",
-      tags: ["Active", "Newsletter"]
+      tags: ["Active", "Newsletter"],
+      growthRate: 12.4,
+      openRate: 24.8,
+      clickRate: 3.2,
+      unsubscribeRate: 0.7,
+      color: "indigo",
+      engagementScore: 83,
+      lastCampaign: "Monthly Update - March 2025"
     },
     {
       id: 2,
@@ -1446,7 +1462,14 @@ const ClientLists = ({ onCreateList }: { onCreateList: () => void }) => {
       contactCount: 156,
       description: "High-value customers with premium status",
       lastUpdated: "2025-02-20",
-      tags: ["VIP", "Customer"]
+      tags: ["VIP", "Customer"],
+      growthRate: 3.6,
+      openRate: 42.5,
+      clickRate: 8.3,
+      unsubscribeRate: 0.2,
+      color: "rose",
+      engagementScore: 94,
+      lastCampaign: "Exclusive Offer - February 2025"
     },
     {
       id: 3,
@@ -1454,7 +1477,14 @@ const ClientLists = ({ onCreateList }: { onCreateList: () => void }) => {
       contactCount: 435,
       description: "People who registered for our March webinar",
       lastUpdated: "2025-03-10",
-      tags: ["Event", "Webinar"]
+      tags: ["Event", "Webinar"],
+      growthRate: 0,
+      openRate: 31.2,
+      clickRate: 5.7,
+      unsubscribeRate: 1.2,
+      color: "emerald",
+      engagementScore: 76,
+      lastCampaign: "Webinar Follow-up - March 2025"
     },
     {
       id: 4,
@@ -1462,16 +1492,140 @@ const ClientLists = ({ onCreateList }: { onCreateList: () => void }) => {
       contactCount: 890,
       description: "Contacts interested in our new product launch",
       lastUpdated: "2025-02-05",
-      tags: ["Product Launch", "Marketing"]
+      tags: ["Product Launch", "Marketing"],
+      growthRate: 8.7,
+      openRate: 29.4,
+      clickRate: 4.8,
+      unsubscribeRate: 0.9,
+      color: "amber",
+      engagementScore: 81,
+      lastCampaign: "Product Teaser - February 2025"
     }
   ]);
   
+  // All unique tags from lists
+  const allTags = Array.from(new Set(lists.flatMap(list => list.tags)));
+  
+  // Filter lists based on search and filters
+  const filteredLists = lists.filter(list => {
+    let matchesSearch = true;
+    let matchesTag = true;
+    
+    if (searchTerm) {
+      matchesSearch = list.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                      list.description.toLowerCase().includes(searchTerm.toLowerCase());
+    }
+    
+    if (selectedTag) {
+      matchesTag = list.tags.includes(selectedTag);
+    }
+    
+    return matchesSearch && matchesTag;
+  });
+  
+  // Sort lists
+  const sortedLists = [...filteredLists].sort((a, b) => {
+    if (sortBy === 'name') {
+      return a.name.localeCompare(b.name);
+    } else if (sortBy === 'date') {
+      return new Date(b.lastUpdated).getTime() - new Date(a.lastUpdated).getTime();
+    } else if (sortBy === 'contacts') {
+      return b.contactCount - a.contactCount;
+    } else if (sortBy === 'engagement') {
+      return b.engagementScore - a.engagementScore;
+    }
+    return 0;
+  });
+  
+  // Calculate growth indicators
+  const totalContacts = lists.reduce((sum, list) => sum + list.contactCount, 0);
+  const contactsLastMonth = 2480; // Simulated historical data
+  const monthlyGrowth = ((totalContacts - contactsLastMonth) / contactsLastMonth) * 100;
+  
+  // Function to get color classes based on list color
+  const getColorClasses = (color: string) => {
+    switch(color) {
+      case 'indigo':
+        return {
+          bg: 'bg-indigo-100',
+          text: 'text-indigo-600',
+          border: 'border-indigo-200',
+          hover: 'hover:bg-indigo-600 hover:text-white',
+          gradient: 'from-indigo-500 to-indigo-700'
+        };
+      case 'rose':
+        return {
+          bg: 'bg-rose-100',
+          text: 'text-rose-600',
+          border: 'border-rose-200',
+          hover: 'hover:bg-rose-600 hover:text-white',
+          gradient: 'from-rose-500 to-rose-700'
+        };
+      case 'emerald':
+        return {
+          bg: 'bg-emerald-100',
+          text: 'text-emerald-600',
+          border: 'border-emerald-200',
+          hover: 'hover:bg-emerald-600 hover:text-white',
+          gradient: 'from-emerald-500 to-emerald-700'
+        };
+      case 'amber':
+        return {
+          bg: 'bg-amber-100',
+          text: 'text-amber-600',
+          border: 'border-amber-200',
+          hover: 'hover:bg-amber-600 hover:text-white',
+          gradient: 'from-amber-500 to-amber-700'
+        };
+      default:
+        return {
+          bg: 'bg-gray-100',
+          text: 'text-gray-600',
+          border: 'border-gray-200',
+          hover: 'hover:bg-gray-600 hover:text-white',
+          gradient: 'from-gray-500 to-gray-700'
+        };
+    }
+  };
+  
+  // Function to render tag badges with consistent styling
+  const renderTag = (tag: string, className?: string) => (
+    <span 
+      className={`px-2.5 py-1 rounded-full text-xs font-medium flex items-center gap-1.5 ${className || 'bg-purple-100 text-purple-800'}`}
+    >
+      {tag}
+    </span>
+  );
+  
+  // Function to handle list duplication
+  const handleDuplicateList = (id: number) => {
+    const listToDuplicate = lists.find(l => l.id === id);
+    if (!listToDuplicate) return;
+    
+    const newList = {
+      ...listToDuplicate,
+      id: Math.max(...lists.map(l => l.id)) + 1,
+      name: `${listToDuplicate.name} (Copy)`,
+      lastUpdated: new Date().toISOString().split('T')[0],
+      contactCount: 0,
+      growthRate: 0,
+      openRate: 0,
+      clickRate: 0,
+      unsubscribeRate: 0,
+      engagementScore: 0,
+      lastCampaign: ""
+    };
+    
+    setLists([...lists, newList]);
+  };
+  
   return (
     <div className="p-8">
-      <div className="flex items-center justify-between mb-6">
+      {/* Header with enhanced styling and gradient */}
+      <div className="flex flex-col md:flex-row md:items-center gap-4 justify-between mb-8">
         <div className="flex items-center gap-3">
-          <div className="bg-primary/10 p-2 rounded-full">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary">
+          <div className="bg-gradient-to-br from-purple-500 to-indigo-600 p-3 rounded-xl shadow-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <line x1="8" x2="21" y1="6" y2="6"></line>
               <line x1="8" x2="21" y1="12" y2="12"></line>
               <line x1="8" x2="21" y1="18" y2="18"></line>
@@ -1480,43 +1634,170 @@ const ClientLists = ({ onCreateList }: { onCreateList: () => void }) => {
               <line x1="3" x2="3.01" y1="18" y2="18"></line>
             </svg>
           </div>
-          <h1 className="text-2xl font-bold">Contact Lists</h1>
+          <div>
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-indigo-700 to-purple-700 bg-clip-text text-transparent">
+              Contact Lists
+            </h1>
+            <p className="text-gray-500 text-sm">Organize and manage your audience segments</p>
+          </div>
         </div>
-        <button 
-          onClick={onCreateList}
-          className="bg-primary text-white px-4 py-2 rounded-md flex items-center gap-2 hover:bg-primary/90 transition-colors"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M12 5v14"></path>
-            <path d="M5 12h14"></path>
-          </svg>
-          <span>Create List</span>
-        </button>
+        
+        <div className="flex items-center gap-3">
+          <div className="bg-gray-100 p-1 rounded-lg flex">
+            <button
+              onClick={() => setViewMode('grid')}
+              className={`px-3 py-1.5 rounded-md flex items-center gap-1.5 text-sm font-medium transition-all ${
+                viewMode === 'grid' 
+                ? 'bg-white text-indigo-600 shadow-sm' 
+                : 'text-gray-500 hover:text-gray-800'
+              }`}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="3" width="7" height="7"></rect>
+                <rect x="14" y="3" width="7" height="7"></rect>
+                <rect x="14" y="14" width="7" height="7"></rect>
+                <rect x="3" y="14" width="7" height="7"></rect>
+              </svg>
+              <span className="hidden sm:inline">Grid</span>
+            </button>
+            <button
+              onClick={() => setViewMode('list')}
+              className={`px-3 py-1.5 rounded-md flex items-center gap-1.5 text-sm font-medium transition-all ${
+                viewMode === 'list' 
+                ? 'bg-white text-indigo-600 shadow-sm' 
+                : 'text-gray-500 hover:text-gray-800'
+              }`}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="8" y1="6" x2="21" y2="6"></line>
+                <line x1="8" y1="12" x2="21" y2="12"></line>
+                <line x1="8" y1="18" x2="21" y2="18"></line>
+                <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                <line x1="3" y1="18" x2="3.01" y2="18"></line>
+              </svg>
+              <span className="hidden sm:inline">List</span>
+            </button>
+          </div>
+          
+          <button 
+            onClick={onCreateList}
+            className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:from-purple-700 hover:to-indigo-700 transition-all shadow-md hover:shadow-lg"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 5v14"></path>
+              <path d="M5 12h14"></path>
+            </svg>
+            <span>Create List</span>
+          </button>
+        </div>
       </div>
       
-      {/* List Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div className="bg-white rounded-lg shadow p-4 border border-gray-100">
-          <h3 className="text-sm font-medium text-gray-500 mb-1">Total Lists</h3>
-          <p className="text-2xl font-bold">{lists.length}</p>
-        </div>
-        <div className="bg-white rounded-lg shadow p-4 border border-gray-100">
-          <h3 className="text-sm font-medium text-gray-500 mb-1">Total Contacts in Lists</h3>
-          <p className="text-2xl font-bold">{lists.reduce((sum, list) => sum + list.contactCount, 0).toLocaleString()}</p>
-        </div>
-        <div className="bg-white rounded-lg shadow p-4 border border-gray-100">
-          <h3 className="text-sm font-medium text-gray-500 mb-1">Average List Size</h3>
-          <p className="text-2xl font-bold">{
-            lists.length > 0 
-              ? Math.round(lists.reduce((sum, list) => sum + list.contactCount, 0) / lists.length).toLocaleString()
-              : 0
-          }</p>
+      {/* Enhanced Analytics Dashboard */}
+      <div className="bg-white rounded-lg shadow-md border border-gray-100 p-5 mb-6 overflow-hidden">
+        <div className="flex flex-col md:flex-row gap-6">
+          {/* Left column - metrics */}
+          <div className="flex-1">
+            <h3 className="text-lg font-semibold mb-4 text-gray-800">List Analytics</h3>
+            
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              <div className="bg-indigo-50 rounded-lg p-3">
+                <div className="flex justify-between">
+                  <p className="text-xs font-medium text-indigo-600 uppercase">Total Lists</p>
+                  <span className="bg-indigo-100 text-indigo-600 text-xs px-2 rounded-full">Active</span>
+                </div>
+                <div className="mt-2">
+                  <p className="text-2xl font-bold text-gray-800">{lists.length}</p>
+                </div>
+              </div>
+              
+              <div className="bg-purple-50 rounded-lg p-3">
+                <div className="flex justify-between">
+                  <p className="text-xs font-medium text-purple-600 uppercase">Total Contacts</p>
+                  {monthlyGrowth > 0 ? (
+                    <span className="bg-green-100 text-green-600 text-xs px-2 rounded-full flex items-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clipRule="evenodd" />
+                      </svg>
+                      {monthlyGrowth.toFixed(1)}%
+                    </span>
+                  ) : (
+                    <span className="bg-red-100 text-red-600 text-xs px-2 rounded-full">Flat</span>
+                  )}
+                </div>
+                <div className="mt-2">
+                  <p className="text-2xl font-bold text-gray-800">{totalContacts.toLocaleString()}</p>
+                </div>
+              </div>
+              
+              <div className="bg-rose-50 rounded-lg p-3">
+                <div className="flex justify-between">
+                  <p className="text-xs font-medium text-rose-600 uppercase">Avg. Open Rate</p>
+                </div>
+                <div className="mt-2">
+                  <p className="text-2xl font-bold text-gray-800">
+                    {(lists.reduce((sum, list) => sum + list.openRate, 0) / lists.length).toFixed(1)}%
+                  </p>
+                </div>
+              </div>
+              
+              <div className="bg-emerald-50 rounded-lg p-3">
+                <div className="flex justify-between">
+                  <p className="text-xs font-medium text-emerald-600 uppercase">Avg. Click Rate</p>
+                </div>
+                <div className="mt-2">
+                  <p className="text-2xl font-bold text-gray-800">
+                    {(lists.reduce((sum, list) => sum + list.clickRate, 0) / lists.length).toFixed(1)}%
+                  </p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="text-xs text-gray-500 italic">
+              Data updated: {new Date().toLocaleDateString()} {new Date().toLocaleTimeString()}
+            </div>
+          </div>
+          
+          {/* Right column - tag cloud */}
+          <div className="md:w-1/3 border-l border-gray-100 pl-6">
+            <h3 className="text-sm font-semibold mb-3 text-gray-700">Tags Overview</h3>
+            <div className="flex flex-wrap gap-2 mb-4">
+              {allTags.map((tag, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setSelectedTag(selectedTag === tag ? '' : tag)}
+                  className={`px-3 py-1.5 text-xs font-medium rounded-full transition-all 
+                    ${selectedTag === tag 
+                      ? 'bg-indigo-600 text-white' 
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                >
+                  {tag}
+                  <span className="ml-1 text-xs opacity-70">
+                    ({lists.filter(l => l.tags.includes(tag)).length})
+                  </span>
+                </button>
+              ))}
+            </div>
+            
+            <div className="mt-4">
+              <h3 className="text-sm font-semibold mb-2 text-gray-700">Top Performing Lists</h3>
+              <div className="space-y-2">
+                {[...lists].sort((a, b) => b.engagementScore - a.engagementScore).slice(0, 2).map(list => (
+                  <div key={`top-${list.id}`} className="flex items-center gap-2">
+                    <div className={`h-2 w-2 rounded-full ${getColorClasses(list.color).bg}`}></div>
+                    <span className="text-sm font-medium truncate">{list.name}</span>
+                    <span className="text-xs text-gray-500 ml-auto">{list.engagementScore}% engagement</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
       
-      {/* Filters and Search */}
-      <div className="bg-white rounded-lg shadow p-4 border border-gray-100 mb-6">
-        <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
+      {/* Advanced Search and Filters */}
+      <div className="bg-white rounded-lg shadow-md border border-gray-100 p-4 mb-6">
+        <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
           <div className="relative flex-1">
             <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="11" cy="11" r="8"></circle>
@@ -1524,115 +1805,309 @@ const ClientLists = ({ onCreateList }: { onCreateList: () => void }) => {
             </svg>
             <input 
               type="text" 
-              placeholder="Search lists..." 
-              className="pl-10 pr-4 py-2 border border-gray-200 rounded-md w-full focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search lists by name or description..." 
+              className="pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
             />
           </div>
-          <div className="flex gap-2">
-            <select className="border border-gray-200 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary">
-              <option value="">All Tags</option>
-              <option value="Newsletter">Newsletter</option>
-              <option value="VIP">VIP</option>
-              <option value="Event">Event</option>
-              <option value="Marketing">Marketing</option>
+          
+          <div className="flex flex-wrap gap-2 lg:gap-3">
+            <div className="relative">
+              <button
+                onClick={() => setShowTagMenu(!showTagMenu)}
+                className="px-4 py-2.5 border border-gray-200 rounded-lg flex items-center gap-2 hover:border-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M17.707 9.293a1 1 0 010 1.414l-7 7a1 1 0 01-1.414 0l-7-7A.997.997 0 012 10V5a3 3 0 013-3h5c.256 0 .512.098.707.293l7 7zM5 6a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
+                </svg>
+                <span className="text-sm text-gray-700">
+                  {selectedTag ? selectedTag : 'All Tags'}
+                </span>
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              </button>
+              
+              {showTagMenu && (
+                <div className="absolute top-full left-0 mt-1 w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-10">
+                  <button
+                    onClick={() => {
+                      setSelectedTag('');
+                      setShowTagMenu(false);
+                    }}
+                    className={`w-full px-4 py-2 text-left text-sm hover:bg-gray-50 ${!selectedTag ? 'text-indigo-600 font-medium' : 'text-gray-700'}`}
+                  >
+                    All Tags
+                  </button>
+                  {allTags.map((tag, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => {
+                        setSelectedTag(tag);
+                        setShowTagMenu(false);
+                      }}
+                      className={`w-full px-4 py-2 text-left text-sm hover:bg-gray-50 ${selectedTag === tag ? 'text-indigo-600 font-medium' : 'text-gray-700'}`}
+                    >
+                      {tag}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+            
+            <select 
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm text-gray-700 appearance-none bg-white pr-8"
+              style={{ backgroundImage: "url(\"data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e\")", backgroundRepeat: "no-repeat", backgroundPosition: "right 0.5rem center", backgroundSize: "1.5em 1.5em" }}
+            >
+              <option value="name">Sort by Name</option>
+              <option value="date">Sort by Date Updated</option>
+              <option value="contacts">Sort by Size</option>
+              <option value="engagement">Sort by Engagement</option>
             </select>
-            <select className="border border-gray-200 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary">
-              <option value="">Sort By</option>
-              <option value="name">Name</option>
-              <option value="date">Date Updated</option>
-              <option value="contacts">Number of Contacts</option>
-            </select>
+            
+            <button className="px-4 py-2.5 bg-gray-100 rounded-lg flex items-center gap-2 hover:bg-gray-200 transition-colors text-sm text-gray-700">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z" clipRule="evenodd" />
+              </svg>
+              Advanced Filters
+            </button>
           </div>
         </div>
       </div>
       
-      {/* Lists Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-        {isLoading ? (
-          <div className="col-span-full flex justify-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-          </div>
-        ) : lists.length === 0 ? (
-          <div className="col-span-full bg-white rounded-lg shadow p-8 text-center">
-            <div className="mb-4">
-              <svg xmlns="http://www.w3.org/2000/svg" className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-              </svg>
-            </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-1">No Lists Found</h3>
-            <p className="text-gray-500 mb-4">You haven't created any contact lists yet.</p>
-            <button className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary/90">
-              Create Your First List
-            </button>
-          </div>
-        ) : (
-          lists.map(list => (
-            <div key={list.id} className="bg-white rounded-lg shadow border border-gray-100 hover:shadow-md transition-shadow">
-              <div className="p-5">
-                <div className="flex justify-between items-start mb-3">
-                  <h3 className="text-lg font-semibold text-gray-900 truncate">{list.name}</h3>
-                  <div className="dropdown">
-                    <button className="text-gray-400 hover:text-gray-600">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <circle cx="12" cy="12" r="1"></circle>
-                        <circle cx="12" cy="5" r="1"></circle>
-                        <circle cx="12" cy="19" r="1"></circle>
-                      </svg>
-                    </button>
-                  </div>
-                </div>
-                <p className="text-sm text-gray-600 mb-4 line-clamp-2">{list.description}</p>
-                <div className="flex flex-wrap gap-1 mb-4">
-                  {list.tags.map((tag, idx) => (
-                    <span key={idx} className="px-2 py-1 bg-primary/10 text-primary text-xs rounded-full">
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-                <div className="border-t border-gray-100 pt-4">
-                  <div className="flex justify-between items-center text-sm">
-                    <div className="text-gray-500">
-                      <span className="font-medium text-gray-900">{list.contactCount.toLocaleString()}</span> contacts
-                    </div>
-                    <div className="text-gray-500">
-                      Updated {new Date(list.lastUpdated).toLocaleDateString()}
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="bg-gray-50 px-5 py-3 rounded-b-lg border-t border-gray-100 flex justify-between">
-                <button className="text-sm text-gray-700 hover:text-primary">
-                  View Contacts
-                </button>
-                <button className="text-sm text-primary hover:text-primary/80">
-                  Edit List
-                </button>
-              </div>
-            </div>
-          ))
-        )}
-      </div>
-      
-      {/* Pagination */}
-      <div className="flex justify-center">
-        <nav className="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
-          <button className="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
-            <span className="sr-only">Previous</span>
-            <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-              <path fillRule="evenodd" d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z" clipRule="evenodd" />
+      {/* Empty State or Loading */}
+      {isLoading ? (
+        <div className="flex justify-center py-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+        </div>
+      ) : sortedLists.length === 0 ? (
+        <div className="bg-white rounded-lg shadow-md border border-gray-100 p-8 text-center">
+          <div className="mx-auto bg-indigo-50 rounded-full w-16 h-16 flex items-center justify-center mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
             </svg>
-          </button>
-          <button className="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-white bg-primary ring-1 ring-inset ring-gray-300">
-            1
-          </button>
-          <button className="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
-            <span className="sr-only">Next</span>
-            <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-              <path fillRule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clipRule="evenodd" />
+          </div>
+          <h3 className="text-xl font-semibold text-gray-900 mb-2">No Lists Found</h3>
+          <p className="text-gray-500 max-w-md mx-auto mb-6">
+            {searchTerm || selectedTag ? 
+              "No lists match your current search criteria. Try adjusting your filters or search terms." : 
+              "You haven't created any contact lists yet. Lists help you organize your contacts and target specific audiences."}
+          </p>
+          <button 
+            onClick={onCreateList}
+            className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg shadow-md hover:from-purple-700 hover:to-indigo-700 transition-all"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
             </svg>
+            Create Your First List
           </button>
-        </nav>
-      </div>
+        </div>
+      ) : (
+        <>
+          {/* Grid View */}
+          {viewMode === 'grid' && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+              {sortedLists.map(list => {
+                const colorClasses = getColorClasses(list.color);
+                
+                return (
+                  <div key={list.id} className="group bg-white rounded-lg shadow-md border border-gray-100 hover:shadow-lg transition-all duration-200 overflow-hidden">
+                    <div className={`h-2 w-full bg-gradient-to-r ${colorClasses.gradient}`}></div>
+                    <div className="p-5">
+                      <div className="flex justify-between items-start mb-3">
+                        <h3 className="text-lg font-semibold text-gray-900 group-hover:text-indigo-700 transition-colors duration-200">{list.name}</h3>
+                        <div className="relative">
+                          <button className="p-1 rounded-full hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                              <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+                            </svg>
+                          </button>
+                          
+                          {/* Dropdown menu would go here */}
+                        </div>
+                      </div>
+                      
+                      <p className="text-sm text-gray-600 mb-4 line-clamp-2">{list.description}</p>
+                      
+                      <div className="flex flex-wrap gap-1.5 mb-5">
+                        {list.tags.map((tag, idx) => 
+                          renderTag(tag, `${colorClasses.bg} ${colorClasses.text}`)
+                        )}
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-2 mb-4">
+                        <div className="bg-gray-50 rounded p-2">
+                          <div className="flex justify-between items-center mb-1">
+                            <span className="text-xs text-gray-500">Contacts</span>
+                            {list.growthRate > 0 && (
+                              <span className="text-xs text-green-600 font-medium flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mr-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                  <path fillRule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clipRule="evenodd" />
+                                </svg>
+                                {list.growthRate}%
+                              </span>
+                            )}
+                          </div>
+                          <div className="text-lg font-bold">{list.contactCount.toLocaleString()}</div>
+                        </div>
+                        
+                        <div className="bg-gray-50 rounded p-2">
+                          <span className="text-xs text-gray-500 block mb-1">Engagement</span>
+                          <div className="text-lg font-bold">{list.engagementScore}%</div>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center text-xs text-gray-500 mb-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 mr-1 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        Last updated: {new Date(list.lastUpdated).toLocaleDateString()}
+                      </div>
+                      
+                      <div className="flex items-center text-xs text-gray-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 mr-1 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        </svg>
+                        Last campaign: {list.lastCampaign || 'None'}
+                      </div>
+                    </div>
+                    
+                    <div className="border-t border-gray-100 px-5 py-3 bg-gray-50 flex justify-between">
+                      <button className={`text-sm font-medium ${colorClasses.text} hover:underline`}>
+                        Manage Contacts
+                      </button>
+                      <button className="text-indigo-600 text-sm font-medium hover:underline" onClick={() => handleDuplicateList(list.id)}>
+                        Duplicate
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+          
+          {/* List View */}
+          {viewMode === 'list' && (
+            <div className="bg-white rounded-lg shadow-md border border-gray-100 mb-8 overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">List Name</th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tags</th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contacts</th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Engagement</th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Updated</th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Open Rate</th>
+                      <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {sortedLists.map((list) => {
+                      const colorClasses = getColorClasses(list.color);
+                      
+                      return (
+                        <tr key={list.id} className="hover:bg-gray-50 transition-colors">
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="flex items-center">
+                              <div className={`h-10 w-1 rounded-full ${colorClasses.bg} mr-3`}></div>
+                              <div>
+                                <div className="text-sm font-medium text-gray-900">{list.name}</div>
+                                <div className="text-xs text-gray-500 line-clamp-1 max-w-xs">{list.description}</div>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="flex flex-wrap gap-1 max-w-xs">
+                              {list.tags.map((tag, idx) => 
+                                renderTag(tag, `${colorClasses.bg} ${colorClasses.text}`)
+                              )}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="flex items-center">
+                              <span className="text-sm font-medium text-gray-900">{list.contactCount.toLocaleString()}</span>
+                              {list.growthRate > 0 && (
+                                <span className="text-xs text-green-600 ml-2 flex items-center">
+                                  <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mr-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fillRule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clipRule="evenodd" />
+                                  </svg>
+                                  {list.growthRate}%
+                                </span>
+                              )}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="w-full bg-gray-200 rounded-full h-2.5 mb-1 max-w-[100px]">
+                              <div className={`h-2.5 rounded-full bg-gradient-to-r ${colorClasses.gradient}`} style={{ width: `${list.engagementScore}%` }}></div>
+                            </div>
+                            <span className="text-xs text-gray-500">{list.engagementScore}% score</span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {new Date(list.lastUpdated).toLocaleDateString()}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            {list.openRate}%
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <div className="flex items-center justify-end gap-2">
+                              <button className="text-indigo-600 hover:text-indigo-900 p-1 rounded hover:bg-indigo-50">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                </svg>
+                              </button>
+                              <button className="text-purple-600 hover:text-purple-900 p-1 rounded hover:bg-purple-50">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                </svg>
+                              </button>
+                              <button className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+          
+          {/* Modern Pagination */}
+          <div className="flex justify-between items-center">
+            <div className="text-sm text-gray-500">
+              Showing <span className="font-medium text-gray-900">{sortedLists.length}</span> of <span className="font-medium text-gray-900">{lists.length}</span> lists
+            </div>
+            
+            <nav className="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+              <button className="relative inline-flex items-center rounded-l-md px-3 py-2 text-gray-500 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:outline-offset-0 focus:ring-2 focus:ring-indigo-600 disabled:opacity-50" disabled>
+                <span className="sr-only">Previous</span>
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
+                </svg>
+              </button>
+              <button className="relative z-10 inline-flex items-center bg-indigo-600 px-4 py-2 text-sm font-semibold text-white focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+                1
+              </button>
+              <button className="relative inline-flex items-center rounded-r-md px-3 py-2 text-gray-500 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:outline-offset-0 focus:ring-2 focus:ring-indigo-600 disabled:opacity-50" disabled>
+                <span className="sr-only">Next</span>
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                </svg>
+              </button>
+            </nav>
+          </div>
+        </>
+      )}
     </div>
   );
 };
