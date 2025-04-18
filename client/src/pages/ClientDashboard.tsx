@@ -169,7 +169,7 @@ export default function ClientDashboard() {
   }
 
   return (
-    <WidgetsProvider>
+    <WidgetsProvider isAdmin={false} userId={clientUser?.id}>
       <div className="flex flex-col overflow-hidden min-h-screen bg-gradient-to-br from-[#0a1929] via-[#112b4a] to-[#1a3a5f]">
         {/* Main Content */}
         <div className="flex-1 flex flex-col overflow-hidden relative z-10">
