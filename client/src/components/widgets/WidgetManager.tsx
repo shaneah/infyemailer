@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/select";
 import { Switch } from '@/components/ui/switch';
 import WidgetRecommendations from './WidgetRecommendations';
+import { useToast } from '@/hooks/use-toast';
 
 interface WidgetManagerProps {
   clientData?: any;
@@ -24,6 +25,7 @@ interface WidgetManagerProps {
 
 const WidgetManager: React.FC<WidgetManagerProps> = ({ clientData = null }) => {
   const { widgets, addWidget, resetToDefault } = useWidgets();
+  const { toast } = useToast();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [recommendationsOpen, setRecommendationsOpen] = useState(false);
   const [selectedWidget, setSelectedWidget] = useState<WidgetType | ''>('');
@@ -42,28 +44,49 @@ const WidgetManager: React.FC<WidgetManagerProps> = ({ clientData = null }) => {
 
   const handleResetLayout = () => {
     try {
-      // Let's do a more aggressive approach
-      localStorage.removeItem('dashboard-widgets');
-      // Force a page reload after clearing localStorage
-      window.location.reload();
+      // Use the context API to reset widgets to default which also syncs with server
+      resetToDefault();
+      
+      // Show success message
+      toast({
+        title: "Dashboard reset complete",
+        description: "Your dashboard layout has been reset to default configuration.",
+        duration: 3000
+      });
     } catch (error) {
       console.error('Error resetting layout:', error);
-      alert('Failed to reset layout. Please try refreshing the page.');
+      toast({
+        title: "Reset failed",
+        description: "Failed to reset dashboard layout. Please try again.",
+        variant: "destructive"
+      });
     }
   };
 
   const addAIWidgets = () => {
+    let addedCount = 0;
+    
     if (!visibleWidgetTypes.includes('aiRecommendations')) {
       addWidget('aiRecommendations');
+      addedCount++;
     }
     if (!visibleWidgetTypes.includes('campaignPerformanceAnalyzer')) {
       addWidget('campaignPerformanceAnalyzer');
+      addedCount++;
     }
     if (!visibleWidgetTypes.includes('userJourney')) {
       addWidget('userJourney');
+      addedCount++;
     }
-    // Show success message
-    alert('Advanced AI widgets have been added to your dashboard!');
+    
+    // Show success message with toast instead of alert
+    toast({
+      title: "AI Widgets Added",
+      description: addedCount > 0 
+        ? `${addedCount} advanced AI widget${addedCount === 1 ? '' : 's'} added to your dashboard.` 
+        : "All AI widgets are already on your dashboard.",
+      duration: 3000
+    });
   };
 
   return (
