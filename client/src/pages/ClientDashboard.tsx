@@ -6,7 +6,8 @@ import { Menu } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import ClientSidebar from "@/components/ClientSidebar";
 import DashboardWidgets from "@/components/widgets/DashboardWidgets";
-import { WidgetsProvider } from "@/hooks/useWidgets";
+import WidgetManager from "@/components/widgets/WidgetManager";
+import { Widget, WidgetsProvider, defaultWidgets } from "@/hooks/useWidgets";
 
 type ClientDashboardProps = {
   clientId?: string;
@@ -198,6 +199,11 @@ export default function ClientDashboard() {
           {/* Dashboard Content */}
           <main className="flex-1 overflow-y-auto p-6 relative z-10 bg-white">
             <div className="container mx-auto">
+              {/* Widget Management Controls */}
+              <div className="mb-4 flex justify-end">
+                <WidgetManager />
+              </div>
+              
               {/* Customizable Dashboard Widgets */}
               <DashboardWidgets clientData={clientData} />
             </div>
