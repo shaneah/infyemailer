@@ -23,8 +23,8 @@ const MenuItem = ({ href, icon: Icon, label, active }: {
       href={href} 
       className={`group flex items-center px-3 py-2.5 text-sm rounded-md transition-all duration-150 ${
         active 
-          ? 'bg-[#14b8a6]/20 text-white shadow-sm' 
-          : 'text-teal-100 hover:bg-[#14b8a6]/10 hover:translate-x-1'
+          ? 'bg-[#d4af37]/10 text-white shadow-sm' 
+          : 'text-blue-100 hover:bg-[#d4af37]/5 hover:translate-x-1'
       }`}
     >
       <div className="flex items-center justify-center">
@@ -32,8 +32,8 @@ const MenuItem = ({ href, icon: Icon, label, active }: {
           size={18} 
           className={`mr-3 transition-all duration-200 ${
             active 
-              ? 'text-[#14b8a6] scale-110' 
-              : 'text-teal-200 group-hover:text-[#14b8a6] group-hover:scale-110 transform'
+              ? 'text-[#d4af37] scale-110' 
+              : 'text-blue-200 group-hover:text-[#d4af37] group-hover:scale-110 transform'
           }`} 
         />
       </div>
@@ -44,7 +44,7 @@ const MenuItem = ({ href, icon: Icon, label, active }: {
       }`}>{label}</span>
       {active && (
         <div className="ml-auto">
-          <div className="w-1.5 h-1.5 rounded-full bg-[#14b8a6] opacity-90 animate-pulse"></div>
+          <div className="w-1.5 h-1.5 rounded-full bg-[#d4af37] opacity-90 animate-pulse"></div>
         </div>
       )}
     </Link>
@@ -54,11 +54,11 @@ const MenuItem = ({ href, icon: Icon, label, active }: {
 const MenuSection = ({ title, children }: { title: string; children: React.ReactNode }) => {
   return (
     <div className="mb-4">
-      <div className="px-4 py-1 text-xs font-medium uppercase tracking-wider text-[#14b8a6]/90 relative group">
-        <span className="transition-all duration-300 group-hover:text-[#14b8a6] group-hover:translate-x-0.5 inline-block">
+      <div className="px-4 py-1 text-xs font-medium uppercase tracking-wider text-[#d4af37]/90 relative group">
+        <span className="transition-all duration-300 group-hover:text-[#d4af37] group-hover:translate-x-0.5 inline-block">
           {title}
         </span>
-        <div className="h-px w-0 bg-[#14b8a6]/50 absolute -bottom-0.5 left-4 transition-all duration-300 group-hover:w-12"></div>
+        <div className="h-px w-0 bg-[#d4af37]/50 absolute -bottom-0.5 left-4 transition-all duration-300 group-hover:w-12"></div>
       </div>
       <nav className="mt-1 space-y-0.5 px-2">
         {children}
@@ -148,24 +148,24 @@ const ClientSidebar = ({ open, setOpen }: SidebarProps) => {
       <aside 
         className={`fixed inset-y-0 left-0 z-40 w-64 transform transition-all duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-auto lg:z-auto ${
           open ? 'translate-x-0 opacity-100 shadow-xl' : '-translate-x-full opacity-95 shadow-md'
-        } h-full bg-gradient-to-b from-[#052e2e] to-[#0a4b4b] text-white flex flex-col flex-shrink-0`}
+        } h-full bg-gradient-to-b from-[#0a1929] to-[#1a3a5f] text-white flex flex-col flex-shrink-0`}
       >
         {/* App name and client name header */}
-        <div className="flex flex-col items-center justify-center p-4 pt-6 pb-2 bg-gradient-to-r from-[#106b6b] to-[#0a4b4b]">
+        <div className="flex flex-col items-center justify-center p-4 pt-6 pb-2 bg-gradient-to-r from-[#112b4a] to-[#0a1929]">
           <div className="w-12 h-12 mb-2 flex items-center justify-center bg-white/10 rounded-full">
             <img src={LogoWhite} alt="Logo" className="w-8 h-8 object-contain" />
           </div>
           <div className="text-center">
             <h2 className="font-bold text-xl text-white mb-1">Infinity Tech</h2>
             <div className="flex items-center justify-center space-x-2 mb-1">
-              <Building2 size={14} className="text-[#14b8a6]" />
-              <p className="text-sm font-medium text-teal-100">{clientName}</p>
+              <Building2 size={14} className="text-[#d4af37]" />
+              <p className="text-sm font-medium text-blue-100">{clientName}</p>
             </div>
           </div>
         </div>
         
         {/* Navbar divider */}
-        <div className="border-b border-teal-800/50 mb-2"></div>
+        <div className="border-b border-blue-800/50 mb-2"></div>
         
         {/* Navigation */}
         <div className="flex-1 overflow-y-auto py-4 px-1">
@@ -257,16 +257,16 @@ const ClientSidebar = ({ open, setOpen }: SidebarProps) => {
             href="/client-settings"
             className={`group flex items-center px-4 py-3 text-sm transition-all duration-150 ${
               location === '/client-settings' 
-                ? 'bg-purple-800 text-white shadow-inner' 
-                : 'text-blue-100 hover:bg-purple-800/40 hover:shadow-inner'
+                ? 'bg-[#d4af37]/20 text-white shadow-inner' 
+                : 'text-blue-100 hover:bg-[#d4af37]/10 hover:shadow-inner'
             }`}
           >
             <Settings 
               size={18} 
               className={`mr-3 transition-all duration-200 ${
                 location === '/client-settings' 
-                  ? 'text-purple-300 rotate-90' 
-                  : 'text-blue-200 group-hover:text-purple-300 group-hover:rotate-90'
+                  ? 'text-[#d4af37] rotate-90' 
+                  : 'text-blue-200 group-hover:text-[#d4af37] group-hover:rotate-90'
               }`} 
             />
             <span className="font-medium group-hover:font-semibold transition-all duration-150">
@@ -274,7 +274,7 @@ const ClientSidebar = ({ open, setOpen }: SidebarProps) => {
             </span>
             {location === '/client-settings' && (
               <div className="ml-auto">
-                <div className="w-1.5 h-1.5 rounded-full bg-purple-300 opacity-90 animate-pulse"></div>
+                <div className="w-1.5 h-1.5 rounded-full bg-[#d4af37] opacity-90 animate-pulse"></div>
               </div>
             )}
           </Link>

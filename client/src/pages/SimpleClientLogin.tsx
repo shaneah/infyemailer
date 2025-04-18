@@ -131,36 +131,36 @@ const SimpleClientLogin = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#052e2e] via-[#0a4b4b] to-[#106b6b] text-white flex flex-col justify-center overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-[#0a1929] via-[#112b4a] to-[#1a3a5f] text-white flex flex-col justify-center overflow-hidden">
       {/* Particles background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {particles.map((particle, index) => (
           <div 
             key={index}
-            className="absolute rounded-full bg-[#14b8a6]"
+            className="absolute rounded-full bg-[#d4af37]"
             style={{
               left: `${particle.x}%`,
               top: `${particle.y}%`,
               width: `${particle.size}px`,
               height: `${particle.size}px`,
               opacity: particle.opacity,
-              boxShadow: `0 0 ${particle.size * 2}px ${particle.size}px rgba(20, 184, 166, 0.3)`
+              boxShadow: `0 0 ${particle.size * 2}px ${particle.size}px rgba(212, 175, 55, 0.3)`
             }}
           />
         ))}
         <div className="absolute inset-0 bg-[url('/assets/infy.png')] bg-center bg-no-repeat opacity-5 mix-blend-overlay"></div>
         
         {/* Gradient overlays */}
-        <div className="absolute top-0 left-0 right-0 h-40 bg-gradient-to-b from-[#052e2e] to-transparent"></div>
-        <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-[#052e2e] to-transparent"></div>
+        <div className="absolute top-0 left-0 right-0 h-40 bg-gradient-to-b from-[#0a1929] to-transparent"></div>
+        <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-[#0a1929] to-transparent"></div>
         
         {/* Decorative elements */}
-        <div className="absolute top-20 left-20 w-40 h-40 rounded-full bg-[#14b8a6]/10 blur-3xl"></div>
-        <div className="absolute bottom-20 right-20 w-60 h-60 rounded-full bg-[#106b6b]/30 blur-3xl"></div>
+        <div className="absolute top-20 left-20 w-40 h-40 rounded-full bg-[#d4af37]/5 blur-3xl"></div>
+        <div className="absolute bottom-20 right-20 w-60 h-60 rounded-full bg-[#1a3a5f]/30 blur-3xl"></div>
         
         {/* Animated borders */}
-        <div className="absolute top-[10%] left-[10%] w-[80%] h-[80%] border border-[#14b8a6]/10 rounded-3xl"></div>
-        <div className="absolute top-[15%] left-[15%] w-[70%] h-[70%] border border-[#14b8a6]/5 rounded-3xl"></div>
+        <div className="absolute top-[10%] left-[10%] w-[80%] h-[80%] border border-[#d4af37]/10 rounded-3xl"></div>
+        <div className="absolute top-[15%] left-[15%] w-[70%] h-[70%] border border-[#d4af37]/5 rounded-3xl"></div>
       </div>
       
       {error && (
@@ -173,16 +173,16 @@ const SimpleClientLogin = () => {
         <div className="max-w-md w-full">
           <div className="backdrop-blur-sm bg-white/10 p-8 rounded-3xl shadow-2xl overflow-hidden border border-white/10 relative">
             {/* Glow effect */}
-            <div className="absolute -top-20 -left-20 w-40 h-40 bg-[#14b8a6]/20 rounded-full blur-3xl"></div>
-            <div className="absolute -bottom-20 -right-20 w-40 h-40 bg-[#106b6b]/30 rounded-full blur-3xl"></div>
+            <div className="absolute -top-20 -left-20 w-40 h-40 bg-[#d4af37]/20 rounded-full blur-3xl"></div>
+            <div className="absolute -bottom-20 -right-20 w-40 h-40 bg-[#1a3a5f]/30 rounded-full blur-3xl"></div>
             
             <div className="relative">
               <div className="text-center">
                 <img src={LogoColor} alt="InfyMailer Logo" className="h-32 mx-auto mb-6 drop-shadow-xl" />
-                <h2 className="text-4xl font-extrabold mb-2 bg-gradient-to-r from-white via-[#14b8a6] to-white inline-block text-transparent bg-clip-text">
+                <h2 className="text-4xl font-extrabold mb-2 bg-gradient-to-r from-white via-[#d4af37] to-white inline-block text-transparent bg-clip-text">
                   NextGen Portal
                 </h2>
-                <div className="w-32 h-1 mx-auto bg-gradient-to-r from-transparent via-[#14b8a6] to-transparent my-3"></div>
+                <div className="w-32 h-1 mx-auto bg-gradient-to-r from-transparent via-[#d4af37] to-transparent my-3"></div>
                 <p className="text-sm text-white/70">
                   Access your premium AI-powered marketing suite
                 </p>
@@ -191,12 +191,12 @@ const SimpleClientLogin = () => {
               <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
                 <div>
                   <label htmlFor="username" className="text-white/80 font-medium text-sm block mb-2 flex items-center">
-                    <Mail className="h-3.5 w-3.5 mr-2 text-[#14b8a6]" />
+                    <Mail className="h-3.5 w-3.5 mr-2 text-[#d4af37]" />
                     Username
                   </label>
-                  <div className="flex items-center relative bg-white/5 border border-white/20 rounded-lg focus-within:ring-1 focus-within:ring-[#14b8a6]/50 focus-within:border-[#14b8a6]/30 transition-all duration-300 backdrop-blur-sm">
-                    <div className="h-full aspect-square flex items-center justify-center bg-[#14b8a6]/10 rounded-l-lg border-r border-white/10">
-                      <Mail className="h-4 w-4 text-[#14b8a6]" />
+                  <div className="flex items-center relative bg-white/5 border border-white/20 rounded-lg focus-within:ring-1 focus-within:ring-[#d4af37]/50 focus-within:border-[#d4af37]/30 transition-all duration-300 backdrop-blur-sm">
+                    <div className="h-full aspect-square flex items-center justify-center bg-[#d4af37]/10 rounded-l-lg border-r border-white/10">
+                      <Mail className="h-4 w-4 text-[#d4af37]" />
                     </div>
                     <input
                       id="username"
@@ -213,12 +213,12 @@ const SimpleClientLogin = () => {
                 
                 <div>
                   <label htmlFor="password" className="text-white/80 font-medium text-sm block mb-2 flex items-center">
-                    <Shield className="h-3.5 w-3.5 mr-2 text-[#14b8a6]" />
+                    <Shield className="h-3.5 w-3.5 mr-2 text-[#d4af37]" />
                     Password
                   </label>
-                  <div className="flex items-center relative bg-white/5 border border-white/20 rounded-lg focus-within:ring-1 focus-within:ring-[#14b8a6]/50 focus-within:border-[#14b8a6]/30 transition-all duration-300 backdrop-blur-sm">
-                    <div className="h-full aspect-square flex items-center justify-center bg-[#14b8a6]/10 rounded-l-lg border-r border-white/10">
-                      <Lock className="h-4 w-4 text-[#14b8a6]" />
+                  <div className="flex items-center relative bg-white/5 border border-white/20 rounded-lg focus-within:ring-1 focus-within:ring-[#d4af37]/50 focus-within:border-[#d4af37]/30 transition-all duration-300 backdrop-blur-sm">
+                    <div className="h-full aspect-square flex items-center justify-center bg-[#d4af37]/10 rounded-l-lg border-r border-white/10">
+                      <Lock className="h-4 w-4 text-[#d4af37]" />
                     </div>
                     <input
                       id="password"
@@ -232,7 +232,7 @@ const SimpleClientLogin = () => {
                     />
                     <button 
                       type="button"
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white/60 hover:text-[#14b8a6] transition-colors"
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white/60 hover:text-[#d4af37] transition-colors"
                       onClick={() => setShowPassword(!showPassword)}
                     >
                       {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -244,7 +244,7 @@ const SimpleClientLogin = () => {
                   <button
                     type="submit"
                     disabled={isLoading}
-                    className="w-full py-3 bg-gradient-to-r from-[#14b8a6] to-[#14b8a6]/70 hover:from-[#14b8a6]/70 hover:to-[#14b8a6] text-white font-medium rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center overflow-hidden relative group"
+                    className="w-full py-3 bg-gradient-to-r from-[#d4af37] to-[#d4af37]/70 hover:from-[#d4af37]/70 hover:to-[#d4af37] text-white font-medium rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center overflow-hidden relative group"
                   >
                     <span className="absolute inset-0 w-0 bg-white/10 transition-all duration-500 ease-out group-hover:w-full"></span>
                     {isLoading ? (
@@ -264,7 +264,7 @@ const SimpleClientLogin = () => {
                 </div>
                 
                 <div className="bg-white/5 backdrop-blur-sm rounded-lg p-4 text-xs text-white/80 text-center border border-white/10">
-                  <p className="mb-1 font-medium text-[#14b8a6]">For demonstration purposes:</p>
+                  <p className="mb-1 font-medium text-[#d4af37]">For demonstration purposes:</p>
                   <p>Username: <strong>client1</strong> | Password: <strong>clientdemo</strong></p>
                 </div>
               </form>
@@ -280,7 +280,7 @@ const SimpleClientLogin = () => {
                     e.preventDefault();
                     setLocation('auth');
                   }}
-                  className="font-medium text-[#14b8a6] hover:text-white transition-colors duration-200 inline-flex items-center"
+                  className="font-medium text-[#d4af37] hover:text-white transition-colors duration-200 inline-flex items-center"
                 >
                   Switch to Admin Login <ChevronRight className="ml-1 h-3 w-3" />
                 </a>
@@ -290,7 +290,7 @@ const SimpleClientLogin = () => {
           
           <div className="mt-6 text-center">
             <div className="text-white/40 text-sm">
-              &copy; {new Date().getFullYear()} InfyMailer. <span className="px-1 text-[#14b8a6]/70">Enterprise Platform</span> All rights reserved.
+              &copy; {new Date().getFullYear()} InfyMailer. <span className="px-1 text-[#d4af37]/70">Enterprise Platform</span> All rights reserved.
             </div>
           </div>
         </div>
