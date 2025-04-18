@@ -66,7 +66,7 @@ const DraggableWidget: React.FC<DraggableWidgetProps> = ({
   return (
     <div 
       ref={ref} 
-      className="widget-wrapper"
+      className="widget-wrapper h-full"
       style={{
         opacity: isDragging ? 0.5 : 1,
         cursor: 'move',
@@ -77,7 +77,11 @@ const DraggableWidget: React.FC<DraggableWidgetProps> = ({
         zIndex: isDragging ? 1000 : 1
       }}
     >
-      <div className={`widget-container transition-all duration-200 ${isOver ? 'ring-2 ring-purple-400 ring-opacity-50' : ''}`}>
+      <div 
+        className={`widget-container h-full rounded-xl transition-all duration-200 bg-white shadow-sm border border-gray-100 hover:shadow-md
+          ${isOver ? 'ring-2 ring-purple-400 ring-opacity-50' : ''}
+        `}
+      >
         {children}
       </div>
     </div>

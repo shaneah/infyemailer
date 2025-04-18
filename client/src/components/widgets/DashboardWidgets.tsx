@@ -672,13 +672,26 @@ const DashboardWidgets: React.FC<DashboardWidgetsProps> = ({ clientData }) => {
 
   return (
     <DndProvider backend={HTML5Backend}>
-      <div className="space-y-6">
-        {Object.entries(widgetsByRow).map(([row, rowWidgets]) => (
-          <div 
-            key={`row-${row}`} 
-            className="grid grid-cols-1 md:grid-cols-3 gap-6"
-          >
-            {rowWidgets.map((widget, index) => (
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {visibleWidgets.map((widget, index) => {
+          // Calculate column span based on widget size
+          let colSpan;
+          switch (widget.size) {
+            case 'small':
+              colSpan = 'lg:col-span-4'; // 1/3 of the grid
+              break;
+            case 'medium':
+              colSpan = 'lg:col-span-6'; // 1/2 of the grid
+              break;
+            case 'large':
+              colSpan = 'lg:col-span-12'; // Full width
+              break;
+            default:
+              colSpan = 'lg:col-span-4';
+          }
+          
+          return (
+            <div key={widget.id} className={`${colSpan}`}>
               <DraggableWidget 
                 key={widget.id} 
                 widget={widget} 
@@ -687,9 +700,9 @@ const DashboardWidgets: React.FC<DashboardWidgetsProps> = ({ clientData }) => {
               >
                 {renderWidget(widget)}
               </DraggableWidget>
-            ))}
-          </div>
-        ))}
+            </div>
+          );
+        })}
       </div>
     </DndProvider>
   );
