@@ -1,7 +1,8 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { Widget, useWidgets, WidgetType } from '@/hooks/useWidgets';
+import { useWidgetRecommendations } from '@/hooks/useWidgetRecommendations';
 import DraggableWidget, { WIDGET_TYPE } from './DraggableWidget';
 import ActiveCampaignsWidget from './ActiveCampaignsWidget';
 import TotalEmailsWidget from './TotalEmailsWidget';
@@ -39,6 +40,32 @@ const DashboardWidgets: React.FC<DashboardWidgetsProps> = ({ clientData }) => {
       }
       return a.row - b.row;
     });
+    
+  // Track widget views when visible widgets change
+  useEffect(() => {
+    // Record views for all visible widgets
+    visibleWidgets.forEach(widget => {
+      recordWidgetView(widget);
+    });
+  }, [visibleWidgets, recordWidgetView]);
+  
+  // Enhanced remove widget function to track interaction
+  const handleRemoveWidget = useCallback((widgetId: string) => {
+    const widget = widgets.find(w => w.id === widgetId);
+    if (widget) {
+      recordWidgetInteraction(widget);
+    }
+    removeWidget(widgetId);
+  }, [widgets, removeWidget, recordWidgetInteraction]);
+  
+  // Enhanced update widget config function to track interaction
+  const handleUpdateWidgetConfig = useCallback((widgetId: string, config: any) => {
+    const widget = widgets.find(w => w.id === widgetId);
+    if (widget) {
+      recordWidgetInteraction(widget);
+    }
+    updateWidgetConfig(widgetId, config);
+  }, [widgets, updateWidgetConfig, recordWidgetInteraction]);
 
   // Type definitions for mock data
   type Campaign = {
@@ -398,7 +425,13 @@ const DashboardWidgets: React.FC<DashboardWidgetsProps> = ({ clientData }) => {
   };
 
   // Render the appropriate widget based on its type
+  // This function also captures interactions for the recommendation engine
   const renderWidget = (widget: Widget) => {
+    // Create a tracking function for this specific widget
+    const trackInteraction = () => {
+      recordWidgetInteraction(widget);
+    };
+
     switch (widget.type) {
       case 'activeCampaigns':
         return (
@@ -409,7 +442,7 @@ const DashboardWidgets: React.FC<DashboardWidgetsProps> = ({ clientData }) => {
               activeCampaigns: clientData.stats.activeCampaigns,
               weeklyActive: 2 // Placeholder, would come from API
             }}
-            onRemove={removeWidget}
+            onRemove={handleRemoveWidget}
           />
         );
       
@@ -422,7 +455,7 @@ const DashboardWidgets: React.FC<DashboardWidgetsProps> = ({ clientData }) => {
               totalEmails: clientData.stats.totalEmails,
               monthlyEmails: 1250 // Placeholder, would come from API
             }}
-            onRemove={removeWidget}
+            onRemove={handleRemoveWidget}
           />
         );
       
@@ -435,7 +468,7 @@ const DashboardWidgets: React.FC<DashboardWidgetsProps> = ({ clientData }) => {
               openRate: clientData.stats.openRate,
               comparison: 3.2 // Placeholder, would come from API
             }}
-            onRemove={removeWidget}
+            onRemove={handleRemoveWidget}
           />
         );
       
@@ -448,7 +481,7 @@ const DashboardWidgets: React.FC<DashboardWidgetsProps> = ({ clientData }) => {
               openRate: clientData.stats.clickRate,
               comparison: 1.8 // Placeholder, would come from API
             }}
-            onRemove={removeWidget}
+            onRemove={handleRemoveWidget}
           />
         );
       
@@ -460,7 +493,7 @@ const DashboardWidgets: React.FC<DashboardWidgetsProps> = ({ clientData }) => {
             data={{
               performanceData: clientData.performanceData
             }}
-            onRemove={removeWidget}
+            onRemove={handleRemoveWidget}
           />
         );
       
