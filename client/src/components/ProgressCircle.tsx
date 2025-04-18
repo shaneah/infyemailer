@@ -11,7 +11,7 @@ interface ProgressCircleProps {
   textColor?: string;
 }
 
-export const ProgressCircle: React.FC<ProgressCircleProps> = ({
+const ProgressCircle: React.FC<ProgressCircleProps> = ({
   value,
   size = 64,
   strokeWidth = 8,

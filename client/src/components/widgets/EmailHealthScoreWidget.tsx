@@ -14,7 +14,7 @@ import {
   Sparkles
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ProgressCircle } from '@/components/ProgressCircle';
+import ProgressCircle from '@/components/ProgressCircle';
 import { Widget } from '@/hooks/useWidgets';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
@@ -32,53 +32,7 @@ interface HealthScore {
   suggestions: string[];
 }
 
-// Create a progress circle component for reuse
-export const ProgressCircle = ({ value, size = 64, strokeWidth = 8, color = '#6366f1' }) => {
-  const radius = (size - strokeWidth) / 2;
-  const circumference = radius * 2 * Math.PI;
-  const offset = circumference - (value / 100) * circumference;
-
-  return (
-    <svg width={size} height={size} className="transform -rotate-90">
-      {/* Background circle */}
-      <circle
-        cx={size / 2}
-        cy={size / 2}
-        r={radius}
-        fill="none"
-        stroke="#e9ecef"
-        strokeWidth={strokeWidth}
-      />
-      {/* Foreground circle */}
-      <motion.circle
-        cx={size / 2}
-        cy={size / 2}
-        r={radius}
-        fill="none"
-        stroke={color}
-        strokeWidth={strokeWidth}
-        strokeLinecap="round"
-        strokeDasharray={circumference}
-        initial={{ strokeDashoffset: circumference }}
-        animate={{ strokeDashoffset: offset }}
-        transition={{ duration: 1.5, ease: "easeOut" }}
-      />
-      {/* Display text in the center */}
-      <text
-        x="50%"
-        y="50%"
-        textAnchor="middle"
-        dominantBaseline="middle"
-        fontSize="16"
-        fontWeight="bold"
-        fill="#1f2937"
-        className="transform rotate-90"
-      >
-        {value}
-      </text>
-    </svg>
-  );
-};
+// Using the shared ProgressCircle component
 
 const EmailHealthScoreWidget: React.FC<EmailHealthScoreWidgetProps> = ({ widget, data, onRemove }) => {
   const [activeTab, setActiveTab] = useState<string>('overall');

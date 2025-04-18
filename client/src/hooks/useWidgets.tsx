@@ -16,7 +16,9 @@ export type WidgetType =
   | 'aiInsights'
   | 'optimalSendTime'
   | 'upcomingCampaigns'
-  | 'audienceGrowth';
+  | 'audienceGrowth'
+  | 'realtimeMetrics'
+  | 'emailHealthScore';
 
 export interface Widget {
   id: string;
@@ -45,7 +47,9 @@ export const widgetSizes: Record<WidgetType, 'small' | 'medium' | 'large'> = {
   aiInsights: 'large',
   optimalSendTime: 'medium',
   upcomingCampaigns: 'medium',
-  audienceGrowth: 'medium'
+  audienceGrowth: 'medium',
+  realtimeMetrics: 'large',
+  emailHealthScore: 'large'
 };
 
 // Widget titles
@@ -64,7 +68,9 @@ export const widgetTitles: Record<WidgetType, string> = {
   aiInsights: 'AI-Powered Insights',
   optimalSendTime: 'Optimal Send Times',
   upcomingCampaigns: 'Upcoming Campaigns & Tasks',
-  audienceGrowth: 'Audience Growth'
+  audienceGrowth: 'Audience Growth',
+  realtimeMetrics: 'Real-Time Engagement Metrics',
+  emailHealthScore: 'Email Health Score'
 };
 
 // Default widgets configuration
@@ -72,12 +78,14 @@ export const defaultWidgets: Widget[] = [
   { id: '1', type: 'activeCampaigns', title: 'Active Campaigns', col: 0, row: 0, size: 'small', visible: true },
   { id: '2', type: 'totalEmails', title: 'Total Emails', col: 1, row: 0, size: 'small', visible: true },
   { id: '3', type: 'openRate', title: 'Open Rate', col: 2, row: 0, size: 'small', visible: true },
-  { id: '4', type: 'aiInsights', title: 'AI-Powered Insights', col: 0, row: 1, size: 'large', visible: true },
+  { id: '4', type: 'realtimeMetrics', title: 'Real-Time Engagement Metrics', col: 0, row: 1, size: 'large', visible: true },
   { id: '5', type: 'audienceGrowth', title: 'Audience Growth', col: 2, row: 1, size: 'medium', visible: true },
-  { id: '6', type: 'upcomingCampaigns', title: 'Upcoming Campaigns & Tasks', col: 0, row: 2, size: 'medium', visible: true },
-  { id: '7', type: 'optimalSendTime', title: 'Optimal Send Times', col: 1, row: 2, size: 'medium', visible: true },
-  { id: '8', type: 'emailPerformance', title: 'Email Performance', col: 0, row: 3, size: 'large', visible: true },
-  { id: '9', type: 'deviceBreakdown', title: 'Device Breakdown', col: 2, row: 3, size: 'medium', visible: true }
+  { id: '6', type: 'emailHealthScore', title: 'Email Health Score', col: 0, row: 2, size: 'large', visible: true },
+  { id: '7', type: 'optimalSendTime', title: 'Optimal Send Times', col: 2, row: 2, size: 'medium', visible: true },
+  { id: '8', type: 'upcomingCampaigns', title: 'Upcoming Campaigns & Tasks', col: 0, row: 3, size: 'medium', visible: true },
+  { id: '9', type: 'aiInsights', title: 'AI-Powered Insights', col: 1, row: 3, size: 'large', visible: true },
+  { id: '10', type: 'emailPerformance', title: 'Email Performance', col: 0, row: 4, size: 'large', visible: true },
+  { id: '11', type: 'deviceBreakdown', title: 'Device Breakdown', col: 2, row: 4, size: 'medium', visible: true }
 ];
 
 // Available widgets for the add widget modal
@@ -96,7 +104,9 @@ export const availableWidgets: WidgetType[] = [
   'aiInsights',
   'optimalSendTime',
   'upcomingCampaigns',
-  'audienceGrowth'
+  'audienceGrowth',
+  'realtimeMetrics',
+  'emailHealthScore'
 ];
 
 // Context type

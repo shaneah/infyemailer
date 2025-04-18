@@ -10,6 +10,8 @@ import AIInsightsWidget from './AIInsightsWidget';
 import OptimalSendTimeWidget from './OptimalSendTimeWidget';
 import UpcomingCampaignsWidget from './UpcomingCampaignsWidget';
 import AudienceGrowthWidget from './AudienceGrowthWidget';
+import RealTimeMetricsWidget from './RealTimeMetricsWidget';
+import EmailHealthScoreWidget from './EmailHealthScoreWidget';
 import WidgetManager from './WidgetManager';
 
 interface DashboardWidgetsProps {
@@ -211,6 +213,28 @@ const DashboardWidgets: React.FC<DashboardWidgetsProps> = ({ clientData }) => {
             key={widget.id}
             widget={widget}
             data={mockData.audienceGrowthData}
+            onRemove={removeWidget}
+          />
+        );
+      
+      case 'realtimeMetrics':
+        return (
+          <RealTimeMetricsWidget
+            key={widget.id}
+            widget={widget}
+            onRemove={removeWidget}
+          />
+        );
+        
+      case 'emailHealthScore':
+        return (
+          <EmailHealthScoreWidget
+            key={widget.id}
+            widget={widget}
+            data={{
+              performanceData: clientData.performanceData,
+              stats: clientData.stats
+            }}
             onRemove={removeWidget}
           />
         );
