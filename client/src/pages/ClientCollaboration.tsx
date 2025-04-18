@@ -925,55 +925,55 @@ export default function ClientCollaboration() {
                   value="messages" 
                   className="p-0 m-0 flex flex-col h-[calc(100vh-305px)]"
                 >
-                <ScrollArea className="flex-1 p-4">
-                  <div className="space-y-4">
-                    {messages.map((message) => (
-                      <MessageBubble 
-                        key={message.id} 
-                        message={message}
-                        isAdmin={message.senderType === 'admin'}
-                      />
-                    ))}
-                  </div>
-                </ScrollArea>
+                  <ScrollArea className="flex-1 p-4">
+                    <div className="space-y-4">
+                      {messages.map((message) => (
+                        <MessageBubble 
+                          key={message.id} 
+                          message={message}
+                          isAdmin={message.senderType === 'admin'}
+                        />
+                      ))}
+                    </div>
+                  </ScrollArea>
                 
-                <div className="p-3 border-t">
-                  <div className="flex space-x-2">
-                    <Textarea
-                      placeholder="Type your message..."
-                      className="min-h-[60px] text-sm"
-                      value={newMessage}
-                      onChange={(e) => setNewMessage(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' && !e.shiftKey) {
-                          e.preventDefault();
-                          handleSendMessage();
-                        }
-                      }}
-                    />
-                    <div className="flex flex-col space-y-2">
-                      <Button 
-                        size="sm" 
-                        className="h-9 w-9 p-0"
-                        onClick={() => toast({
-                          title: "Feature coming soon",
-                          description: "This functionality will be available in a future update.",
-                          variant: "default",
-                        })}
-                      >
-                        <Paperclip className="h-4 w-4" />
-                      </Button>
-                      <Button 
-                        size="sm"
-                        className="h-9 w-9 p-0"
-                        onClick={handleSendMessage}
-                        disabled={!newMessage.trim()}
-                      >
-                        <Send className="h-4 w-4" />
-                      </Button>
+                  <div className="p-3 border-t">
+                    <div className="flex space-x-2">
+                      <Textarea
+                        placeholder="Type your message..."
+                        className="min-h-[60px] text-sm"
+                        value={newMessage}
+                        onChange={(e) => setNewMessage(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault();
+                            handleSendMessage();
+                          }
+                        }}
+                      />
+                      <div className="flex flex-col space-y-2">
+                        <Button 
+                          size="sm" 
+                          className="h-9 w-9 p-0"
+                          onClick={() => toast({
+                            title: "Feature coming soon",
+                            description: "This functionality will be available in a future update.",
+                            variant: "default",
+                          })}
+                        >
+                          <Paperclip className="h-4 w-4" />
+                        </Button>
+                        <Button 
+                          size="sm"
+                          className="h-9 w-9 p-0"
+                          onClick={handleSendMessage}
+                          disabled={!newMessage.trim()}
+                        >
+                          <Send className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </div>
                   </div>
-                </div>
               </TabsContent>
               
               <TabsContent 
