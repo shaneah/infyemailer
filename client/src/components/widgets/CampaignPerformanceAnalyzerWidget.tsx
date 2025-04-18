@@ -1,16 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Progress } from "@/components/ui/progress";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { 
-  X, RefreshCw, AreaChart, BarChart3, PieChart, TrendingUp, TrendingDown,
-  Calendar, Eye, MousePointer, Users, Clock, ChevronRight, AlertCircle
-} from 'lucide-react';
-import { motion } from 'framer-motion';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import React, { useState } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { LineChart, BarChart, PieChart, BarChart2, Clock, Users, Mail, LineChartIcon } from 'lucide-react';
 import { Widget } from '@/hooks/useWidgets';
 import {
   Chart as ChartJS,
@@ -19,15 +12,14 @@ import {
   PointElement,
   LineElement,
   BarElement,
-  ArcElement,
   Title,
-  Tooltip as ChartTooltip,
+  Tooltip,
   Legend,
-  Filler
+  ArcElement,
 } from 'chart.js';
-import { Line, Bar, Pie } from 'react-chartjs-2';
+import { Bar, Line, Pie } from 'react-chartjs-2';
 
-// Register Chart.js components
+// Register ChartJS components
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -36,9 +28,8 @@ ChartJS.register(
   BarElement,
   ArcElement,
   Title,
-  ChartTooltip,
-  Legend,
-  Filler
+  Tooltip,
+  Legend
 );
 
 interface CampaignPerformanceAnalyzerWidgetProps {
@@ -88,769 +79,464 @@ interface CampaignMetrics {
   };
 }
 
-// Mock data
-const mockCampaigns: CampaignMetrics[] = [
-  {
+const CampaignPerformanceAnalyzerWidget: React.FC<CampaignPerformanceAnalyzerWidgetProps> = ({ widget, onRemove }) => {
+  // Sample campaign data
+  const [campaign, setCampaign] = useState<CampaignMetrics>({
     id: 1,
-    name: "Monthly Newsletter - May 2023",
+    name: "Monthly Newsletter",
     sent: 12483,
-    delivered: 12104,
-    opens: 5592,
-    clicks: 2637,
-    unsubscribes: 47,
-    bounces: 379,
-    complaints: 3,
+    delivered: 12051,
+    opens: 5567,
+    clicks: 2632,
+    unsubscribes: 48,
+    bounces: 432,
+    complaints: 5,
     openRate: 46.2,
     clickRate: 21.8,
-    clickToOpenRate: 47.2,
-    unsubscribeRate: 0.39,
-    bounceRate: 3.04,
-    complaintRate: 0.02,
-    sendDate: "2023-05-15",
+    clickToOpenRate: 47.3,
+    unsubscribeRate: 0.4,
+    bounceRate: 3.5,
+    complaintRate: 0.04,
+    sendDate: "2025-03-15",
     industry: "Technology",
-    subjectLine: "May News: Latest Tech Updates & Exclusive Offers",
-    fromName: "Infy Tech Newsletter",
+    subjectLine: "March Tech Updates and Tips",
+    fromName: "Tech Insider Team",
     dailyStats: [
-      { date: "2023-05-15", opens: 3412, clicks: 1843 },
-      { date: "2023-05-16", opens: 1285, clicks: 532 },
-      { date: "2023-05-17", opens: 421, clicks: 147 },
-      { date: "2023-05-18", opens: 212, clicks: 65 },
-      { date: "2023-05-19", opens: 156, clicks: 36 },
-      { date: "2023-05-20", opens: 62, clicks: 11 },
-      { date: "2023-05-21", opens: 44, clicks: 3 }
+      { date: "2025-03-15", opens: 2850, clicks: 1342 },
+      { date: "2025-03-16", opens: 1520, clicks: 755 },
+      { date: "2025-03-17", opens: 782, clicks: 342 },
+      { date: "2025-03-18", opens: 415, clicks: 193 }
     ],
     deviceBreakdown: [
-      { device: "Mobile", percentage: 63 },
-      { device: "Desktop", percentage: 32 },
-      { device: "Tablet", percentage: 5 }
+      { device: "Mobile", percentage: 62 },
+      { device: "Desktop", percentage: 29 },
+      { device: "Tablet", percentage: 9 }
     ],
     timeOfDayStats: [
-      { hour: 6, opens: 62 },
-      { hour: 7, opens: 148 },
-      { hour: 8, opens: 412 },
-      { hour: 9, opens: 753 },
-      { hour: 10, opens: 821 },
-      { hour: 11, opens: 624 },
-      { hour: 12, opens: 543 },
-      { hour: 13, opens: 412 },
-      { hour: 14, opens: 376 },
-      { hour: 15, opens: 312 },
-      { hour: 16, opens: 289 },
-      { hour: 17, opens: 256 },
-      { hour: 18, opens: 217 },
-      { hour: 19, opens: 183 },
-      { hour: 20, opens: 105 },
-      { hour: 21, opens: 79 }
+      { hour: 6, opens: 120 },
+      { hour: 8, opens: 386 },
+      { hour: 10, opens: 872 },
+      { hour: 12, opens: 965 },
+      { hour: 14, opens: 782 },
+      { hour: 16, opens: 643 },
+      { hour: 18, opens: 890 },
+      { hour: 20, opens: 560 },
+      { hour: 22, opens: 349 }
     ],
     benchmarks: {
       industry: {
-        openRate: 39.5,
-        clickRate: 18.2,
-        unsubscribeRate: 0.45
+        openRate: 21.5,
+        clickRate: 2.3,
+        unsubscribeRate: 0.26
       }
     }
-  },
-  {
-    id: 4,
-    name: "Product Launch - ProMax X1",
-    sent: 24192,
-    delivered: 23986,
-    opens: 14078,
-    clicks: 7767,
-    unsubscribes: 83,
-    bounces: 206,
-    complaints: 7,
-    openRate: 58.7,
-    clickRate: 32.4,
-    clickToOpenRate: 55.2,
-    unsubscribeRate: 0.35,
-    bounceRate: 0.85,
-    complaintRate: 0.03,
-    sendDate: "2023-05-08",
-    industry: "Technology",
-    subjectLine: "Introducing ProMax X1: The Next Generation Is Here",
-    fromName: "Infy Tech Product Team",
-    dailyStats: [
-      { date: "2023-05-08", opens: 8932, clicks: 5243 },
-      { date: "2023-05-09", opens: 3211, clicks: 1685 },
-      { date: "2023-05-10", opens: 876, clicks: 432 },
-      { date: "2023-05-11", opens: 542, clicks: 245 },
-      { date: "2023-05-12", opens: 321, clicks: 124 },
-      { date: "2023-05-13", opens: 112, clicks: 29 },
-      { date: "2023-05-14", opens: 84, clicks: 9 }
-    ],
-    deviceBreakdown: [
-      { device: "Mobile", percentage: 58 },
-      { device: "Desktop", percentage: 36 },
-      { device: "Tablet", percentage: 6 }
-    ],
-    timeOfDayStats: [
-      { hour: 6, opens: 103 },
-      { hour: 7, opens: 324 },
-      { hour: 8, opens: 765 },
-      { hour: 9, opens: 1324 },
-      { hour: 10, opens: 1627 },
-      { hour: 11, opens: 1458 },
-      { hour: 12, opens: 1267 },
-      { hour: 13, opens: 1129 },
-      { hour: 14, opens: 987 },
-      { hour: 15, opens: 854 },
-      { hour: 16, opens: 732 },
-      { hour: 17, opens: 654 },
-      { hour: 18, opens: 567 },
-      { hour: 19, opens: 457 },
-      { hour: 20, opens: 342 },
-      { hour: 21, opens: 238 }
-    ],
-    benchmarks: {
-      industry: {
-        openRate: 42.1,
-        clickRate: 19.7,
-        unsubscribeRate: 0.41
-      }
-    }
-  }
-];
+  });
 
-const CampaignPerformanceAnalyzerWidget: React.FC<CampaignPerformanceAnalyzerWidgetProps> = ({ widget, onRemove }) => {
-  const [loading, setLoading] = useState(false);
-  const [selectedCampaignId, setSelectedCampaignId] = useState<number>(mockCampaigns[0].id);
-  const [selectedTab, setSelectedTab] = useState('overview');
-  const [selectedTimeframe, setSelectedTimeframe] = useState('7days');
-  
-  // Get the selected campaign data
-  const selectedCampaign = mockCampaigns.find(c => c.id === selectedCampaignId) || mockCampaigns[0];
-  
-  const refreshData = () => {
-    setLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-      setLoading(false);
-    }, 1200);
-  };
-  
-  // Line chart data for engagement over time
-  const engagementData = {
-    labels: selectedCampaign.dailyStats.map(stat => {
-      const date = new Date(stat.date);
-      return `${date.getMonth() + 1}/${date.getDate()}`;
-    }),
+  const [activeTab, setActiveTab] = useState<string>('overview');
+
+  // Chart data for engagement over time
+  const dailyEngagementData = {
+    labels: campaign.dailyStats.map(stat => stat.date),
     datasets: [
       {
         label: 'Opens',
-        data: selectedCampaign.dailyStats.map(stat => stat.opens),
-        borderColor: 'rgba(99, 102, 241, 1)',
+        data: campaign.dailyStats.map(stat => stat.opens),
+        borderColor: 'rgb(99, 102, 241)',
         backgroundColor: 'rgba(99, 102, 241, 0.1)',
+        tension: 0.3,
         fill: true,
-        tension: 0.4,
       },
       {
         label: 'Clicks',
-        data: selectedCampaign.dailyStats.map(stat => stat.clicks),
-        borderColor: 'rgba(139, 92, 246, 1)',
-        backgroundColor: 'rgba(139, 92, 246, 0.1)',
+        data: campaign.dailyStats.map(stat => stat.clicks),
+        borderColor: 'rgb(34, 197, 94)',
+        backgroundColor: 'rgba(34, 197, 94, 0.1)',
+        tension: 0.3,
         fill: true,
-        tension: 0.4,
       }
     ],
   };
-  
-  // Device breakdown pie chart
-  const deviceData = {
-    labels: selectedCampaign.deviceBreakdown.map(item => item.device),
+
+  // Chart data for device breakdown
+  const deviceBreakdownData = {
+    labels: campaign.deviceBreakdown.map(item => item.device),
     datasets: [
       {
-        data: selectedCampaign.deviceBreakdown.map(item => item.percentage),
+        data: campaign.deviceBreakdown.map(item => item.percentage),
         backgroundColor: [
           'rgba(99, 102, 241, 0.8)',
-          'rgba(139, 92, 246, 0.8)',
-          'rgba(168, 85, 247, 0.8)',
+          'rgba(34, 197, 94, 0.8)',
+          'rgba(245, 158, 11, 0.8)',
         ],
         borderColor: [
           'rgba(99, 102, 241, 1)',
-          'rgba(139, 92, 246, 1)',
-          'rgba(168, 85, 247, 1)',
+          'rgba(34, 197, 94, 1)',
+          'rgba(245, 158, 11, 1)',
         ],
         borderWidth: 1,
       },
     ],
   };
-  
-  // Opens by hour chart
-  const opensByHourData = {
-    labels: selectedCampaign.timeOfDayStats.map(stat => `${stat.hour}:00`),
+
+  // Chart data for hourly engagement
+  const hourlyEngagementData = {
+    labels: campaign.timeOfDayStats.map(stat => `${stat.hour}:00`),
     datasets: [
       {
-        label: 'Opens',
-        data: selectedCampaign.timeOfDayStats.map(stat => stat.opens),
+        label: 'Opens by Hour',
+        data: campaign.timeOfDayStats.map(stat => stat.opens),
         backgroundColor: 'rgba(99, 102, 241, 0.8)',
-        borderRadius: 4,
+        borderColor: 'rgba(99, 102, 241, 1)',
+        borderWidth: 1,
       },
     ],
   };
 
-  // Benchmark comparison chart
-  const benchmarkData = {
+  // Chart data for performance vs benchmarks
+  const benchmarkComparisonData = {
     labels: ['Open Rate', 'Click Rate', 'Unsubscribe Rate'],
     datasets: [
       {
         label: 'Your Campaign',
-        data: [
-          selectedCampaign.openRate,
-          selectedCampaign.clickRate,
-          selectedCampaign.unsubscribeRate * 100
-        ],
+        data: [campaign.openRate, campaign.clickRate, campaign.unsubscribeRate],
         backgroundColor: 'rgba(99, 102, 241, 0.8)',
-        borderRadius: 4,
+        borderColor: 'rgba(99, 102, 241, 1)',
+        borderWidth: 1,
       },
       {
-        label: 'Industry Average',
+        label: 'Industry Benchmark',
         data: [
-          selectedCampaign.benchmarks.industry.openRate,
-          selectedCampaign.benchmarks.industry.clickRate,
-          selectedCampaign.benchmarks.industry.unsubscribeRate * 100
+          campaign.benchmarks.industry.openRate,
+          campaign.benchmarks.industry.clickRate,
+          campaign.benchmarks.industry.unsubscribeRate
         ],
-        backgroundColor: 'rgba(203, 213, 225, 0.8)',
-        borderRadius: 4,
-      }
+        backgroundColor: 'rgba(148, 163, 184, 0.8)',
+        borderColor: 'rgba(148, 163, 184, 1)',
+        borderWidth: 1,
+      },
     ],
   };
-  
-  // Common chart options
+
+  // Options for line chart
   const lineChartOptions = {
     responsive: true,
-    maintainAspectRatio: false,
     plugins: {
       legend: {
-        position: 'top' as const,
+        position: 'bottom' as const,
       },
       tooltip: {
-        backgroundColor: 'rgba(255, 255, 255, 0.9)',
-        titleColor: '#1e293b',
-        bodyColor: '#475569',
-        borderColor: '#e2e8f0',
-        borderWidth: 1,
-        padding: 10,
-        boxPadding: 5,
-        usePointStyle: true,
-        callbacks: {
-          label: function(context: any) {
-            return `${context.dataset.label}: ${context.raw.toLocaleString()}`;
-          }
-        }
-      }
+        mode: 'index' as const,
+        intersect: false,
+      },
     },
     scales: {
-      x: {
-        grid: {
-          display: false,
-        },
-      },
       y: {
         beginAtZero: true,
-        grid: {
-          color: 'rgba(226, 232, 240, 0.5)',
-        },
       },
     },
+    interaction: {
+      mode: 'nearest' as const,
+      axis: 'x' as const,
+      intersect: false
+    },
   };
-  
+
+  // Options for bar chart
   const barChartOptions = {
     responsive: true,
-    maintainAspectRatio: false,
     plugins: {
       legend: {
-        display: false,
+        position: 'bottom' as const,
       },
       tooltip: {
-        backgroundColor: 'rgba(255, 255, 255, 0.9)',
-        titleColor: '#1e293b',
-        bodyColor: '#475569',
-        borderColor: '#e2e8f0',
-        borderWidth: 1,
-        padding: 10,
-        boxPadding: 5,
-        usePointStyle: true,
-      }
+        mode: 'index' as const,
+        intersect: false,
+      },
     },
     scales: {
-      x: {
-        grid: {
-          display: false,
-        },
-      },
       y: {
         beginAtZero: true,
-        grid: {
-          color: 'rgba(226, 232, 240, 0.5)',
-        },
       },
     },
   };
-  
+
+  // Options for pie chart
   const pieChartOptions = {
     responsive: true,
-    maintainAspectRatio: false,
     plugins: {
       legend: {
-        position: 'right' as const,
-      },
-      tooltip: {
-        backgroundColor: 'rgba(255, 255, 255, 0.9)',
-        titleColor: '#1e293b',
-        bodyColor: '#475569',
-        borderColor: '#e2e8f0',
-        borderWidth: 1,
-        padding: 10,
-        boxPadding: 5,
-        usePointStyle: true,
-        callbacks: {
-          label: function(context: any) {
-            return `${context.label}: ${context.raw}%`;
-          }
-        }
-      }
-    },
-  };
-  
-  const benchmarkChartOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    indexAxis: 'y' as const,
-    plugins: {
-      legend: {
-        position: 'top' as const,
-      },
-      tooltip: {
-        backgroundColor: 'rgba(255, 255, 255, 0.9)',
-        titleColor: '#1e293b',
-        bodyColor: '#475569',
-        borderColor: '#e2e8f0',
-        borderWidth: 1,
-        padding: 10,
-        boxPadding: 5,
-        usePointStyle: true,
-        callbacks: {
-          label: function(context: any) {
-            if (context.datasetIndex === 2) {
-              return `${context.dataset.label}: ${context.raw.toFixed(2)}%`;
-            }
-            return `${context.dataset.label}: ${context.raw.toFixed(1)}%`;
-          }
-        }
-      }
-    },
-    scales: {
-      x: {
-        beginAtZero: true,
-        grid: {
-          color: 'rgba(226, 232, 240, 0.5)',
-        },
-      },
-      y: {
-        grid: {
-          display: false,
-        },
+        position: 'bottom' as const,
       },
     },
   };
 
-  const getStatusColor = (metric: number, benchmark: number) => {
-    const difference = ((metric - benchmark) / benchmark) * 100;
-    if (difference >= 10) return "text-green-600";
-    if (difference <= -10) return "text-red-600";
-    return "text-amber-600";
-  };
-
-  const getTrendIcon = (metric: number, benchmark: number) => {
-    const difference = ((metric - benchmark) / benchmark) * 100;
-    if (difference >= 5) return <TrendingUp className="h-4 w-4 text-green-600" />;
-    if (difference <= -5) return <TrendingDown className="h-4 w-4 text-red-600" />;
-    return null;
-  };
-
-  const formatPercent = (value: number) => {
-    return value.toFixed(1) + '%';
-  };
+  // Calculate performance against benchmarks
+  const openRateDifference = ((campaign.openRate - campaign.benchmarks.industry.openRate) / campaign.benchmarks.industry.openRate * 100).toFixed(1);
+  const clickRateDifference = ((campaign.clickRate - campaign.benchmarks.industry.clickRate) / campaign.benchmarks.industry.clickRate * 100).toFixed(1);
 
   return (
-    <Card className="rounded-lg shadow-lg overflow-hidden border-0 bg-white">
-      <CardHeader className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-4 px-6 flex justify-between items-center">
-        <div className="flex items-center gap-2">
-          <BarChart3 className="h-5 w-5 text-white" />
-          <CardTitle className="text-lg font-semibold">{widget.title}</CardTitle>
+    <Card className="shadow-md">
+      <CardHeader className="pb-3">
+        <div className="flex justify-between items-center">
+          <div className="flex items-center space-x-2">
+            <BarChart2 className="h-5 w-5 text-indigo-500" />
+            <CardTitle>{widget.title}</CardTitle>
+          </div>
+          <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => onRemove(widget.id)}>
+            <span className="sr-only">Close</span>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-4 w-4"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </Button>
         </div>
-        <div className="flex items-center gap-2">
-          <Select value={selectedCampaignId.toString()} onValueChange={(value) => setSelectedCampaignId(parseInt(value))}>
-            <SelectTrigger className="h-8 bg-white/10 border-0 text-white text-sm w-[210px]">
-              <SelectValue placeholder="Select campaign" />
-            </SelectTrigger>
-            <SelectContent>
-              {mockCampaigns.map(campaign => (
-                <SelectItem key={campaign.id} value={campaign.id.toString()}>
-                  {campaign.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8 text-white hover:bg-white/20 rounded-full"
-                  onClick={refreshData}
-                >
-                  {loading ? (
-                    <RefreshCw className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <RefreshCw className="h-4 w-4" />
-                  )}
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Refresh data</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-          
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8 text-white hover:bg-white/20 rounded-full"
-                  onClick={() => onRemove(widget.id)}
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Remove widget</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        </div>
+        <CardDescription>
+          In-depth analysis of campaign "{campaign.name}" performance and engagement
+        </CardDescription>
       </CardHeader>
-      
-      <CardContent className="p-0">
-        <div className="bg-gray-50 border-b border-gray-200 px-6 py-3">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
-            <div>
-              <h3 className="text-sm font-semibold text-gray-900">{selectedCampaign.name}</h3>
-              <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
-                <div className="flex items-center gap-1">
-                  <Calendar className="h-3.5 w-3.5" />
-                  <span>Sent {new Date(selectedCampaign.sendDate).toLocaleDateString()}</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <Users className="h-3.5 w-3.5" />
-                  <span>{selectedCampaign.sent.toLocaleString()} recipients</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <AlertCircle className="h-3.5 w-3.5" />
-                  <span>{selectedCampaign.industry}</span>
-                </div>
+      <CardContent>
+        <Tabs defaultValue="overview" className="w-full" onValueChange={setActiveTab}>
+          <TabsList className="grid grid-cols-5 mb-4">
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="engagement">Engagement</TabsTrigger>
+            <TabsTrigger value="devices">Devices</TabsTrigger>
+            <TabsTrigger value="timing">Timing</TabsTrigger>
+            <TabsTrigger value="benchmarks">Benchmarks</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="overview" className="mt-0 space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="col-span-2 bg-indigo-50 p-4 rounded-lg">
+                <h3 className="font-semibold text-indigo-800">{campaign.name}</h3>
+                <div className="text-sm text-muted-foreground">Sent on {campaign.sendDate}</div>
+                <div className="text-sm text-muted-foreground">Subject: "{campaign.subjectLine}"</div>
+              </div>
+              
+              <div className="p-4 border rounded-lg">
+                <div className="text-sm text-muted-foreground">Sent</div>
+                <div className="text-2xl font-semibold">{campaign.sent.toLocaleString()}</div>
+              </div>
+              
+              <div className="p-4 border rounded-lg">
+                <div className="text-sm text-muted-foreground">Delivered</div>
+                <div className="text-2xl font-semibold">{campaign.delivered.toLocaleString()}</div>
+                <div className="text-xs text-muted-foreground mt-1">Bounce Rate: {campaign.bounceRate}%</div>
+              </div>
+              
+              <div className="p-4 border rounded-lg">
+                <div className="text-sm text-muted-foreground">Opens</div>
+                <div className="text-2xl font-semibold">{campaign.opens.toLocaleString()}</div>
+                <div className="text-xs text-muted-foreground mt-1">Open Rate: {campaign.openRate}%</div>
+              </div>
+              
+              <div className="p-4 border rounded-lg">
+                <div className="text-sm text-muted-foreground">Clicks</div>
+                <div className="text-2xl font-semibold">{campaign.clicks.toLocaleString()}</div>
+                <div className="text-xs text-muted-foreground mt-1">Click Rate: {campaign.clickRate}%</div>
+              </div>
+              
+              <div className="p-4 border rounded-lg">
+                <div className="text-sm text-muted-foreground">Unsubscribes</div>
+                <div className="text-2xl font-semibold">{campaign.unsubscribes}</div>
+                <div className="text-xs text-muted-foreground mt-1">Unsubscribe Rate: {campaign.unsubscribeRate}%</div>
+              </div>
+              
+              <div className="p-4 border rounded-lg">
+                <div className="text-sm text-muted-foreground">Complaints</div>
+                <div className="text-2xl font-semibold">{campaign.complaints}</div>
+                <div className="text-xs text-muted-foreground mt-1">Complaint Rate: {campaign.complaintRate}%</div>
               </div>
             </div>
             
-            <div className="flex gap-2">
-              <Select value={selectedTimeframe} onValueChange={setSelectedTimeframe}>
-                <SelectTrigger className="h-8 bg-white border-gray-200 text-sm w-[160px]">
-                  <SelectValue placeholder="Timeframe" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="7days">Last 7 days</SelectItem>
-                  <SelectItem value="14days">Last 14 days</SelectItem>
-                  <SelectItem value="30days">Last 30 days</SelectItem>
-                  <SelectItem value="90days">Last 90 days</SelectItem>
-                </SelectContent>
-              </Select>
-              
-              <Button variant="outline" size="sm" className="h-8 text-xs">
-                Full Analysis
-                <ChevronRight className="h-3 w-3 ml-1" />
-              </Button>
-            </div>
-          </div>
-        </div>
-        
-        <Tabs value={selectedTab} onValueChange={setSelectedTab} className="w-full">
-          <div className="border-b border-gray-200">
-            <TabsList className="bg-transparent h-10 px-6">
-              <TabsTrigger value="overview" className="data-[state=active]:border-b-2 data-[state=active]:border-indigo-600 data-[state=active]:text-indigo-600 rounded-none px-3 h-10">
-                Overview
-              </TabsTrigger>
-              <TabsTrigger value="engagement" className="data-[state=active]:border-b-2 data-[state=active]:border-indigo-600 data-[state=active]:text-indigo-600 rounded-none px-3 h-10">
-                Engagement
-              </TabsTrigger>
-              <TabsTrigger value="devices" className="data-[state=active]:border-b-2 data-[state=active]:border-indigo-600 data-[state=active]:text-indigo-600 rounded-none px-3 h-10">
-                Devices
-              </TabsTrigger>
-              <TabsTrigger value="timing" className="data-[state=active]:border-b-2 data-[state=active]:border-indigo-600 data-[state=active]:text-indigo-600 rounded-none px-3 h-10">
-                Timing
-              </TabsTrigger>
-              <TabsTrigger value="benchmarks" className="data-[state=active]:border-b-2 data-[state=active]:border-indigo-600 data-[state=active]:text-indigo-600 rounded-none px-3 h-10">
-                Benchmarks
-              </TabsTrigger>
-            </TabsList>
-          </div>
-          
-          {/* Overview Tab */}
-          <TabsContent value="overview" className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-              <Card className="border-0 shadow-sm">
-                <CardContent className="p-4 flex flex-col justify-between h-full">
-                  <div className="flex items-center justify-between mb-2">
-                    <h4 className="text-sm font-medium text-gray-500">Open Rate</h4>
-                    <div className="flex items-center">
-                      {getTrendIcon(selectedCampaign.openRate, selectedCampaign.benchmarks.industry.openRate)}
-                    </div>
-                  </div>
-                  <div className="flex items-baseline">
-                    <span className="text-2xl font-bold text-gray-900">{formatPercent(selectedCampaign.openRate)}</span>
-                    <span className={`ml-2 text-xs ${getStatusColor(selectedCampaign.openRate, selectedCampaign.benchmarks.industry.openRate)}`}>
-                      {((selectedCampaign.openRate - selectedCampaign.benchmarks.industry.openRate) / selectedCampaign.benchmarks.industry.openRate * 100).toFixed(1)}% vs. industry
-                    </span>
-                  </div>
-                  <div className="mt-2">
-                    <Progress value={selectedCampaign.openRate} className="h-1.5 bg-gray-100" />
-                  </div>
-                  <div className="mt-2 flex items-center text-xs text-gray-500">
-                    <Eye className="h-3.5 w-3.5 mr-1" />
-                    {selectedCampaign.opens.toLocaleString()} of {selectedCampaign.delivered.toLocaleString()} delivered
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card className="border-0 shadow-sm">
-                <CardContent className="p-4 flex flex-col justify-between h-full">
-                  <div className="flex items-center justify-between mb-2">
-                    <h4 className="text-sm font-medium text-gray-500">Click Rate</h4>
-                    <div className="flex items-center">
-                      {getTrendIcon(selectedCampaign.clickRate, selectedCampaign.benchmarks.industry.clickRate)}
-                    </div>
-                  </div>
-                  <div className="flex items-baseline">
-                    <span className="text-2xl font-bold text-gray-900">{formatPercent(selectedCampaign.clickRate)}</span>
-                    <span className={`ml-2 text-xs ${getStatusColor(selectedCampaign.clickRate, selectedCampaign.benchmarks.industry.clickRate)}`}>
-                      {((selectedCampaign.clickRate - selectedCampaign.benchmarks.industry.clickRate) / selectedCampaign.benchmarks.industry.clickRate * 100).toFixed(1)}% vs. industry
-                    </span>
-                  </div>
-                  <div className="mt-2">
-                    <Progress value={selectedCampaign.clickRate} className="h-1.5 bg-gray-100" />
-                  </div>
-                  <div className="mt-2 flex items-center text-xs text-gray-500">
-                    <MousePointer className="h-3.5 w-3.5 mr-1" />
-                    {selectedCampaign.clicks.toLocaleString()} of {selectedCampaign.delivered.toLocaleString()} delivered
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card className="border-0 shadow-sm">
-                <CardContent className="p-4 flex flex-col justify-between h-full">
-                  <div className="flex items-center justify-between mb-2">
-                    <h4 className="text-sm font-medium text-gray-500">Click-to-Open</h4>
-                  </div>
-                  <div className="flex items-baseline">
-                    <span className="text-2xl font-bold text-gray-900">{formatPercent(selectedCampaign.clickToOpenRate)}</span>
-                  </div>
-                  <div className="mt-2">
-                    <Progress value={selectedCampaign.clickToOpenRate} className="h-1.5 bg-gray-100" />
-                  </div>
-                  <div className="mt-2 flex items-center text-xs text-gray-500">
-                    <MousePointer className="h-3.5 w-3.5 mr-1" />
-                    {selectedCampaign.clicks.toLocaleString()} of {selectedCampaign.opens.toLocaleString()} opened
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card className="border-0 shadow-sm">
-                <CardContent className="p-4 flex flex-col justify-between h-full">
-                  <div className="flex items-center justify-between mb-2">
-                    <h4 className="text-sm font-medium text-gray-500">Unsubscribe Rate</h4>
-                  </div>
-                  <div className="flex items-baseline">
-                    <span className="text-2xl font-bold text-gray-900">{(selectedCampaign.unsubscribeRate).toFixed(2)}%</span>
-                    <span className={`ml-2 text-xs ${getStatusColor(selectedCampaign.benchmarks.industry.unsubscribeRate, selectedCampaign.unsubscribeRate)}`}>
-                      {((selectedCampaign.benchmarks.industry.unsubscribeRate - selectedCampaign.unsubscribeRate) / selectedCampaign.unsubscribeRate * 100).toFixed(1)}% vs. industry
-                    </span>
-                  </div>
-                  <div className="mt-2">
-                    <Progress value={selectedCampaign.unsubscribeRate * 20} className="h-1.5 bg-gray-100" />
-                  </div>
-                  <div className="mt-2 flex items-center text-xs text-gray-500">
-                    <Users className="h-3.5 w-3.5 mr-1" />
-                    {selectedCampaign.unsubscribes.toLocaleString()} of {selectedCampaign.delivered.toLocaleString()} delivered
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-            
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <Card className="lg:col-span-2 border-0 shadow-sm">
-                <CardHeader className="p-4 border-b">
-                  <CardTitle className="text-base">Engagement Over Time</CardTitle>
-                </CardHeader>
-                <CardContent className="p-4">
-                  <div className="h-64">
-                    <Line options={lineChartOptions} data={engagementData} />
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card className="border-0 shadow-sm">
-                <CardHeader className="p-4 border-b">
-                  <CardTitle className="text-base">Device Breakdown</CardTitle>
-                </CardHeader>
-                <CardContent className="p-4">
-                  <div className="h-64 flex items-center justify-center">
-                    <Pie options={pieChartOptions} data={deviceData} />
-                  </div>
-                </CardContent>
-              </Card>
+            <div className="bg-blue-50 p-4 rounded-lg mt-4">
+              <h4 className="font-medium text-blue-800 mb-1">Performance Highlights</h4>
+              <ul className="space-y-2">
+                <li className="flex items-center text-sm">
+                  <Badge className="mr-2 bg-green-100 text-green-800 hover:bg-green-200">
+                    {openRateDifference}% above benchmark
+                  </Badge>
+                  Your open rate is significantly higher than the industry average
+                </li>
+                <li className="flex items-center text-sm">
+                  <Badge className="mr-2 bg-green-100 text-green-800 hover:bg-green-200">
+                    {clickRateDifference}% above benchmark
+                  </Badge>
+                  Your click rate outperforms similar campaigns in your industry
+                </li>
+                <li className="flex items-center text-sm">
+                  <Badge className="mr-2 bg-yellow-100 text-yellow-800 hover:bg-yellow-200">
+                    Note
+                  </Badge>
+                  Mobile devices represent {campaign.deviceBreakdown[0].percentage}% of all opens
+                </li>
+              </ul>
             </div>
           </TabsContent>
           
-          {/* Engagement Tab */}
-          <TabsContent value="engagement" className="p-6">
-            <div className="grid grid-cols-1 gap-6">
-              <Card className="border-0 shadow-sm">
-                <CardHeader className="p-4 border-b">
-                  <CardTitle className="text-base">Daily Engagement Trend</CardTitle>
-                </CardHeader>
-                <CardContent className="p-4">
-                  <div className="h-72">
-                    <Line options={lineChartOptions} data={engagementData} />
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-          
-          {/* Devices Tab */}
-          <TabsContent value="devices" className="p-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card className="border-0 shadow-sm">
-                <CardHeader className="p-4 border-b">
-                  <CardTitle className="text-base">Device Distribution</CardTitle>
-                </CardHeader>
-                <CardContent className="p-4">
-                  <div className="h-64 flex items-center justify-center">
-                    <Pie options={pieChartOptions} data={deviceData} />
-                  </div>
-                </CardContent>
-              </Card>
+          <TabsContent value="engagement" className="mt-0">
+            <div className="space-y-6">
+              <div>
+                <h3 className="text-sm font-medium mb-3">Daily Engagement Trends</h3>
+                <div className="h-64">
+                  <Line options={lineChartOptions} data={dailyEngagementData} />
+                </div>
+              </div>
               
-              <Card className="border-0 shadow-sm">
-                <CardHeader className="p-4 border-b">
-                  <CardTitle className="text-base">Device Performance</CardTitle>
-                </CardHeader>
-                <CardContent className="p-4">
-                  <div className="space-y-4">
-                    <div>
-                      <div className="flex items-center justify-between mb-1">
-                        <div className="flex items-center">
-                          <div className="h-3 w-3 rounded-full bg-indigo-600 mr-2"></div>
-                          <span className="text-sm font-medium">Mobile</span>
-                        </div>
-                        <span className="text-sm text-gray-600">63%</span>
-                      </div>
-                      <div className="flex items-center justify-between mb-1">
-                        <div>
-                          <span className="text-xs text-gray-500 ml-5">Open Rate</span>
-                        </div>
-                        <span className="text-xs text-gray-500">47.8%</span>
-                      </div>
-                      <div className="flex items-center justify-between mb-3">
-                        <div>
-                          <span className="text-xs text-gray-500 ml-5">Click Rate</span>
-                        </div>
-                        <span className="text-xs text-gray-500">23.2%</span>
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <div className="flex items-center justify-between mb-1">
-                        <div className="flex items-center">
-                          <div className="h-3 w-3 rounded-full bg-purple-600 mr-2"></div>
-                          <span className="text-sm font-medium">Desktop</span>
-                        </div>
-                        <span className="text-sm text-gray-600">32%</span>
-                      </div>
-                      <div className="flex items-center justify-between mb-1">
-                        <div>
-                          <span className="text-xs text-gray-500 ml-5">Open Rate</span>
-                        </div>
-                        <span className="text-xs text-gray-500">43.4%</span>
-                      </div>
-                      <div className="flex items-center justify-between mb-3">
-                        <div>
-                          <span className="text-xs text-gray-500 ml-5">Click Rate</span>
-                        </div>
-                        <span className="text-xs text-gray-500">19.1%</span>
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <div className="flex items-center justify-between mb-1">
-                        <div className="flex items-center">
-                          <div className="h-3 w-3 rounded-full bg-pink-600 mr-2"></div>
-                          <span className="text-sm font-medium">Tablet</span>
-                        </div>
-                        <span className="text-sm text-gray-600">5%</span>
-                      </div>
-                      <div className="flex items-center justify-between mb-1">
-                        <div>
-                          <span className="text-xs text-gray-500 ml-5">Open Rate</span>
-                        </div>
-                        <span className="text-xs text-gray-500">42.6%</span>
-                      </div>
-                      <div className="flex items-center justify-between mb-3">
-                        <div>
-                          <span className="text-xs text-gray-500 ml-5">Click Rate</span>
-                        </div>
-                        <span className="text-xs text-gray-500">17.8%</span>
-                      </div>
-                    </div>
+              <div className="grid grid-cols-2 gap-4 mt-4">
+                <div className="p-4 border rounded-lg">
+                  <div className="text-sm font-medium mb-1">Click-to-Open Rate</div>
+                  <div className="text-2xl font-semibold">{campaign.clickToOpenRate}%</div>
+                  <div className="text-xs text-muted-foreground mt-1">
+                    Percentage of readers who clicked after opening
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+                
+                <div className="p-4 border rounded-lg">
+                  <div className="text-sm font-medium mb-1">Peak Engagement</div>
+                  <div className="text-2xl font-semibold">{campaign.dailyStats[0].date}</div>
+                  <div className="text-xs text-muted-foreground mt-1">
+                    {campaign.dailyStats[0].opens} opens, {campaign.dailyStats[0].clicks} clicks
+                  </div>
+                </div>
+              </div>
             </div>
           </TabsContent>
           
-          {/* Timing Tab */}
-          <TabsContent value="timing" className="p-6">
-            <div className="grid grid-cols-1 gap-6">
-              <Card className="border-0 shadow-sm">
-                <CardHeader className="p-4 border-b">
-                  <CardTitle className="text-base">Opens by Hour of Day</CardTitle>
-                </CardHeader>
-                <CardContent className="p-4">
-                  <div className="h-64">
-                    <Bar options={barChartOptions} data={opensByHourData} />
+          <TabsContent value="devices" className="mt-0">
+            <div className="grid grid-cols-2 gap-6">
+              <div>
+                <h3 className="text-sm font-medium mb-3">Device Distribution</h3>
+                <div className="h-64">
+                  <Pie options={pieChartOptions} data={deviceBreakdownData} />
+                </div>
+              </div>
+              
+              <div className="space-y-4">
+                <h3 className="text-sm font-medium mb-3">Device Breakdown</h3>
+                
+                {campaign.deviceBreakdown.map((device) => (
+                  <div key={device.device} className="p-4 border rounded-lg">
+                    <div className="flex justify-between items-center">
+                      <div className="font-medium">{device.device}</div>
+                      <Badge variant="outline">{device.percentage}%</Badge>
+                    </div>
+                    <div className="w-full h-2 bg-gray-200 rounded-full mt-2 overflow-hidden">
+                      <div
+                        className={`h-full ${
+                          device.device === 'Mobile' 
+                            ? 'bg-indigo-500' 
+                            : device.device === 'Desktop' 
+                              ? 'bg-green-500' 
+                              : 'bg-amber-500'
+                        } rounded-full`}
+                        style={{ width: `${device.percentage}%` }}
+                      ></div>
+                    </div>
                   </div>
-                </CardContent>
-              </Card>
+                ))}
+                
+                <div className="bg-amber-50 p-4 rounded-lg mt-4">
+                  <h4 className="font-medium text-amber-800 mb-1">Device Insight</h4>
+                  <p className="text-sm text-amber-700">
+                    Mobile-optimized content is critical, with {campaign.deviceBreakdown[0].percentage}% of your audience 
+                    viewing on mobile devices. Ensure your templates are responsive.
+                  </p>
+                </div>
+              </div>
             </div>
           </TabsContent>
           
-          {/* Benchmarks Tab */}
-          <TabsContent value="benchmarks" className="p-6">
-            <div className="grid grid-cols-1 gap-6">
-              <Card className="border-0 shadow-sm">
-                <CardHeader className="p-4 border-b">
-                  <CardTitle className="text-base">Industry Benchmark Comparison</CardTitle>
-                </CardHeader>
-                <CardContent className="p-4">
-                  <div className="h-64">
-                    <Bar options={benchmarkChartOptions} data={benchmarkData} />
+          <TabsContent value="timing" className="mt-0">
+            <div className="space-y-6">
+              <div>
+                <h3 className="text-sm font-medium mb-3">Opens by Hour of Day</h3>
+                <div className="h-64">
+                  <Bar options={barChartOptions} data={hourlyEngagementData} />
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4 mt-4">
+                <div className="bg-green-50 p-4 rounded-lg">
+                  <h4 className="font-medium text-green-800 mb-1">Peak Engagement Time</h4>
+                  <div className="text-2xl font-semibold text-green-700">12:00 PM</div>
+                  <p className="text-sm text-green-700 mt-1">
+                    Highest engagement occurs around noon, with a secondary peak at 6 PM. Consider 
+                    scheduling important emails during these times.
+                  </p>
+                </div>
+                
+                <div className="bg-blue-50 p-4 rounded-lg">
+                  <h4 className="font-medium text-blue-800 mb-1">Timing Recommendation</h4>
+                  <p className="text-sm text-blue-700">
+                    Based on this campaign's performance, scheduling your next campaign for 
+                    Tuesday or Wednesday around noon may result in higher engagement rates.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="benchmarks" className="mt-0">
+            <div className="space-y-6">
+              <div>
+                <h3 className="text-sm font-medium mb-3">Performance vs. Industry Benchmarks ({campaign.industry})</h3>
+                <div className="h-64">
+                  <Bar options={barChartOptions} data={benchmarkComparisonData} />
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-3 gap-4 mt-4">
+                <div className="p-4 border rounded-lg">
+                  <div className="text-sm font-medium mb-1">Open Rate</div>
+                  <div className="text-2xl font-semibold">{campaign.openRate}%</div>
+                  <div className="text-xs text-muted-foreground mt-1">
+                    Industry: {campaign.benchmarks.industry.openRate}%
                   </div>
-                </CardContent>
-              </Card>
+                  <Badge className="mt-2 bg-green-100 text-green-800 hover:bg-green-200">
+                    +{openRateDifference}%
+                  </Badge>
+                </div>
+                
+                <div className="p-4 border rounded-lg">
+                  <div className="text-sm font-medium mb-1">Click Rate</div>
+                  <div className="text-2xl font-semibold">{campaign.clickRate}%</div>
+                  <div className="text-xs text-muted-foreground mt-1">
+                    Industry: {campaign.benchmarks.industry.clickRate}%
+                  </div>
+                  <Badge className="mt-2 bg-green-100 text-green-800 hover:bg-green-200">
+                    +{clickRateDifference}%
+                  </Badge>
+                </div>
+                
+                <div className="p-4 border rounded-lg">
+                  <div className="text-sm font-medium mb-1">Unsubscribe Rate</div>
+                  <div className="text-2xl font-semibold">{campaign.unsubscribeRate}%</div>
+                  <div className="text-xs text-muted-foreground mt-1">
+                    Industry: {campaign.benchmarks.industry.unsubscribeRate}%
+                  </div>
+                  <Badge className="mt-2 bg-amber-100 text-amber-800 hover:bg-amber-200">
+                    +{((campaign.unsubscribeRate - campaign.benchmarks.industry.unsubscribeRate) / campaign.benchmarks.industry.unsubscribeRate * 100).toFixed(1)}%
+                  </Badge>
+                </div>
+              </div>
+              
+              <div className="bg-indigo-50 p-4 rounded-lg mt-4">
+                <h4 className="font-medium text-indigo-800 mb-1">Benchmark Analysis</h4>
+                <p className="text-sm text-indigo-700">
+                  Your campaign significantly outperforms industry benchmarks for opens and clicks, 
+                  indicating effective subject lines and content. The slightly higher unsubscribe rate 
+                  suggests potential list quality issues that should be monitored.
+                </p>
+              </div>
             </div>
           </TabsContent>
         </Tabs>

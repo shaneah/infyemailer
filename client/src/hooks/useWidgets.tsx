@@ -85,7 +85,10 @@ export const widgetTitles: Record<WidgetType, string> = {
   emailHealthScore: 'Email Health Score',
   campaignROI: 'Campaign ROI Tracker',
   engagementHeatmap: 'Engagement Heatmap',
-  smartNotifications: 'Smart Notifications'
+  smartNotifications: 'Smart Notifications',
+  aiRecommendations: 'AI Marketing Recommendations',
+  campaignPerformanceAnalyzer: 'Campaign Performance Analyzer',
+  userJourney: 'User Journey Tracking'
 };
 
 // Default widgets configuration
@@ -103,7 +106,10 @@ export const defaultWidgets: Widget[] = [
   { id: '11', type: 'deviceBreakdown', title: 'Device Breakdown', col: 2, row: 4, size: 'medium', visible: true },
   { id: '12', type: 'campaignROI', title: 'Campaign ROI Tracker', col: 0, row: 5, size: 'large', visible: true },
   { id: '13', type: 'engagementHeatmap', title: 'Engagement Heatmap', col: 0, row: 6, size: 'large', visible: true },
-  { id: '14', type: 'smartNotifications', title: 'Smart Notifications', col: 2, row: 5, size: 'medium', visible: true }
+  { id: '14', type: 'smartNotifications', title: 'Smart Notifications', col: 2, row: 5, size: 'medium', visible: true },
+  { id: '15', type: 'aiRecommendations', title: 'AI Marketing Recommendations', col: 0, row: 7, size: 'large', visible: true },
+  { id: '16', type: 'campaignPerformanceAnalyzer', title: 'Campaign Performance Analyzer', col: 0, row: 8, size: 'large', visible: true },
+  { id: '17', type: 'userJourney', title: 'User Journey Tracking', col: 0, row: 9, size: 'large', visible: true }
 ];
 
 // Available widgets for the add widget modal
@@ -127,7 +133,10 @@ export const availableWidgets: WidgetType[] = [
   'emailHealthScore',
   'campaignROI',
   'engagementHeatmap',
-  'smartNotifications'
+  'smartNotifications',
+  'aiRecommendations',
+  'campaignPerformanceAnalyzer',
+  'userJourney'
 ];
 
 // Context type

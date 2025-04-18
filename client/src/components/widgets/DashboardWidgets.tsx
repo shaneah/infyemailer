@@ -15,6 +15,9 @@ import EmailHealthScoreWidget from './EmailHealthScoreWidget';
 import CampaignROIWidget from './CampaignROIWidget';
 import EngagementHeatmapWidget from './EngagementHeatmapWidget';
 import SmartNotificationsWidget from './SmartNotificationsWidget';
+import AIRecommendationWidget from './AIRecommendationWidget';
+import CampaignPerformanceAnalyzerWidget from './CampaignPerformanceAnalyzerWidget';
+import UserJourneyWidget from './UserJourneyWidget';
 import WidgetManager from './WidgetManager';
 
 interface DashboardWidgetsProps {
@@ -200,6 +203,192 @@ const DashboardWidgets: React.FC<DashboardWidgetsProps> = ({ clientData }) => {
               trend: 'up'
             }
           }
+        }
+      ]
+    },
+    
+    // AI Recommendations widget data
+    aiRecommendationsData: {
+      recommendations: [
+        {
+          id: '1',
+          category: 'content',
+          title: 'Subject Line Optimization',
+          description: 'Your subject lines with 6-10 words have 25% higher open rates than shorter or longer ones.',
+          impact: 'high',
+          aiConfidence: 92,
+          suggestedAction: 'Aim for 6-10 word subject lines in upcoming campaigns',
+          applied: false
+        },
+        {
+          id: '2',
+          category: 'timing',
+          title: 'Optimal Send Window',
+          description: 'Sending emails between 10-11am on Tuesdays has yielded 18% higher engagement than your average send time.',
+          impact: 'high',
+          aiConfidence: 89,
+          suggestedAction: 'Schedule important campaigns for Tuesday mornings',
+          applied: false
+        },
+        {
+          id: '3',
+          category: 'audience',
+          title: 'Segment Performance Insight',
+          description: 'Your "High-value Customer" segment is 3x more responsive to product announcements than your general list.',
+          impact: 'medium',
+          aiConfidence: 87,
+          suggestedAction: 'Target new product announcements to this segment first',
+          applied: false
+        },
+        {
+          id: '4',
+          category: 'performance',
+          title: 'Content Length Analysis',
+          description: 'Emails with 150-200 words perform 15% better in terms of click-through rates compared to longer content.',
+          impact: 'medium',
+          aiConfidence: 85,
+          suggestedAction: 'Keep email content concise and focus on key messages',
+          applied: false
+        },
+        {
+          id: '5',
+          category: 'content',
+          title: 'CTA Button Analysis',
+          description: 'Green CTA buttons with action-oriented text ("Get Started" vs "Learn More") have a 22% higher click rate.',
+          impact: 'medium',
+          aiConfidence: 83,
+          suggestedAction: 'Update email templates with action-oriented green CTA buttons',
+          applied: false
+        }
+      ]
+    },
+    
+    // Campaign Performance Analyzer widget data
+    campaignPerformanceAnalyzerData: {
+      campaigns: [
+        {
+          id: 1,
+          name: "Monthly Newsletter",
+          sent: 12483,
+          delivered: 12051,
+          opens: 5567,
+          clicks: 2632,
+          unsubscribes: 48,
+          bounces: 432,
+          complaints: 5,
+          openRate: 46.2,
+          clickRate: 21.8,
+          clickToOpenRate: 47.3,
+          unsubscribeRate: 0.4,
+          bounceRate: 3.5,
+          complaintRate: 0.04,
+          sendDate: "2025-03-15",
+          industry: "Technology",
+          subjectLine: "March Tech Updates and Tips",
+          fromName: "Tech Insider Team",
+          dailyStats: [
+            { date: "2025-03-15", opens: 2850, clicks: 1342 },
+            { date: "2025-03-16", opens: 1520, clicks: 755 },
+            { date: "2025-03-17", opens: 782, clicks: 342 },
+            { date: "2025-03-18", opens: 415, clicks: 193 }
+          ],
+          deviceBreakdown: [
+            { device: "Mobile", percentage: 62 },
+            { device: "Desktop", percentage: 29 },
+            { device: "Tablet", percentage: 9 }
+          ],
+          timeOfDayStats: [
+            { hour: 6, opens: 120 },
+            { hour: 8, opens: 386 },
+            { hour: 10, opens: 872 },
+            { hour: 12, opens: 965 },
+            { hour: 14, opens: 782 },
+            { hour: 16, opens: 643 },
+            { hour: 18, opens: 890 },
+            { hour: 20, opens: 560 },
+            { hour: 22, opens: 349 }
+          ],
+          benchmarks: {
+            industry: {
+              openRate: 21.5,
+              clickRate: 2.3,
+              unsubscribeRate: 0.26
+            }
+          }
+        }
+      ]
+    },
+    
+    // User Journey widget data
+    userJourneyData: {
+      journeyPaths: [
+        {
+          id: "welcome-series",
+          name: "Welcome Series",
+          description: "3-part onboarding email sequence for new subscribers",
+          totalUsers: 1250,
+          conversionRate: 32.4,
+          avgCompletionTime: "8 days",
+          steps: [
+            {
+              id: "welcome-email",
+              name: "Welcome Email",
+              usersEntered: 1250,
+              usersCompleted: 1142,
+              timeToComplete: "1 hour",
+              dropoffRate: 8.6
+            },
+            {
+              id: "product-intro",
+              name: "Product Introduction",
+              usersEntered: 1142,
+              usersCompleted: 986,
+              timeToComplete: "2 days",
+              dropoffRate: 13.7
+            },
+            {
+              id: "special-offer",
+              name: "Special Offer",
+              usersEntered: 986,
+              usersCompleted: 405,
+              timeToComplete: "5 days",
+              dropoffRate: 58.9
+            }
+          ]
+        },
+        {
+          id: "abandoned-cart",
+          name: "Abandoned Cart Recovery",
+          description: "Series to recover abandoned shopping carts",
+          totalUsers: 782,
+          conversionRate: 18.5,
+          avgCompletionTime: "36 hours",
+          steps: [
+            {
+              id: "cart-reminder",
+              name: "Cart Reminder",
+              usersEntered: 782,
+              usersCompleted: 712,
+              timeToComplete: "4 hours",
+              dropoffRate: 8.9
+            },
+            {
+              id: "discount-offer",
+              name: "10% Discount Offer",
+              usersEntered: 712,
+              usersCompleted: 523,
+              timeToComplete: "12 hours",
+              dropoffRate: 26.5
+            },
+            {
+              id: "final-reminder",
+              name: "Final Reminder",
+              usersEntered: 523,
+              usersCompleted: 145,
+              timeToComplete: "20 hours",
+              dropoffRate: 72.3
+            }
+          ]
         }
       ]
     }
@@ -390,6 +579,33 @@ const DashboardWidgets: React.FC<DashboardWidgetsProps> = ({ clientData }) => {
             key={widget.id}
             widget={widget}
             data={mockData.smartNotificationsData}
+            onRemove={removeWidget}
+          />
+        );
+        
+      case 'aiRecommendations':
+        return (
+          <AIRecommendationWidget
+            key={widget.id}
+            widget={widget}
+            onRemove={removeWidget}
+          />
+        );
+        
+      case 'campaignPerformanceAnalyzer':
+        return (
+          <CampaignPerformanceAnalyzerWidget
+            key={widget.id}
+            widget={widget}
+            onRemove={removeWidget}
+          />
+        );
+        
+      case 'userJourney':
+        return (
+          <UserJourneyWidget
+            key={widget.id}
+            widget={widget}
             onRemove={removeWidget}
           />
         );
