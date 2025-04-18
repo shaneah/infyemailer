@@ -560,38 +560,32 @@ const EmailValidation = () => {
         transition={{ duration: 0.5, delay: 0.3 }}
       >
         <Tabs defaultValue="single" className="mb-8">
-          <TabsList className="grid w-full grid-cols-2 p-1 bg-gradient-to-r from-indigo-900/90 to-purple-900/90 rounded-xl shadow-inner">
-            <TabsTrigger 
-              value="single" 
-              className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-indigo-600 data-[state=active]:to-purple-700 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg transition-all duration-200 ease-in-out p-0.5"
-            >
-              <motion.div 
-                className="flex items-center py-2 px-2"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
+          <div className="bg-gradient-to-r from-indigo-900/90 to-purple-900/90 rounded-xl shadow-inner p-1">
+            <TabsList className="grid w-full grid-cols-2 bg-transparent border-0 shadow-none">
+              <TabsTrigger 
+                value="single" 
+                className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-indigo-600 data-[state=active]:to-purple-700 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg transition-all duration-200 ease-in-out p-0.5"
               >
-                <div className="mr-2 flex items-center justify-center h-6 w-6 rounded-full bg-gradient-to-br from-indigo-400/80 to-purple-500/80">
-                  <MailIcon className="h-3 w-3 text-white" />
+                <div className="flex items-center py-2 px-2">
+                  <div className="mr-2 flex items-center justify-center h-6 w-6 rounded-full bg-gradient-to-br from-indigo-400/80 to-purple-500/80">
+                    <MailIcon className="h-3 w-3 text-white" />
+                  </div>
+                  <span className="font-medium">Single Email Validation</span>
                 </div>
-                <span className="font-medium">Single Email Validation</span>
-              </motion.div>
-            </TabsTrigger>
-            <TabsTrigger 
-              value="bulk" 
-              className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-indigo-600 data-[state=active]:to-purple-700 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg transition-all duration-200 ease-in-out p-0.5"
-            >
-              <motion.div 
-                className="flex items-center py-2 px-2"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
+              </TabsTrigger>
+              <TabsTrigger 
+                value="bulk" 
+                className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-indigo-600 data-[state=active]:to-purple-700 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg transition-all duration-200 ease-in-out p-0.5"
               >
-                <div className="mr-2 flex items-center justify-center h-6 w-6 rounded-full bg-gradient-to-br from-indigo-400/80 to-purple-500/80">
-                  <Layers className="h-3 w-3 text-white" />
+                <div className="flex items-center py-2 px-2">
+                  <div className="mr-2 flex items-center justify-center h-6 w-6 rounded-full bg-gradient-to-br from-indigo-400/80 to-purple-500/80">
+                    <Layers className="h-3 w-3 text-white" />
+                  </div>
+                  <span className="font-medium">Bulk Email Validation</span>
                 </div>
-                <span className="font-medium">Bulk Email Validation</span>
-              </motion.div>
-            </TabsTrigger>
-          </TabsList>
+              </TabsTrigger>
+            </TabsList>
+          </div>
         
         <TabsContent value="single">
           <motion.div
