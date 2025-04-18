@@ -207,11 +207,32 @@ export const WidgetsProvider: React.FC<{ children: ReactNode }> = ({ children })
     setWidgets(widgets.filter(widget => widget.id !== id));
   };
 
-  // Move a widget
-  const moveWidget = (id: string, col: number, row: number) => {
-    setWidgets(widgets.map(widget => 
-      widget.id === id ? { ...widget, col, row } : widget
-    ));
+  // Move a widget with swapping functionality
+  const moveWidget = (id: string, targetCol: number, targetRow: number) => {
+    // Find the widget we want to move
+    const movingWidget = widgets.find(w => w.id === id);
+    if (!movingWidget) return;
+    
+    // Find any widget that's already in the target position
+    const targetWidget = widgets.find(w => 
+      w.visible && w.row === targetRow && w.col === targetCol && w.id !== id
+    );
+    
+    // Update widget positions
+    setWidgets(widgets.map(widget => {
+      // Update the moving widget to its new position
+      if (widget.id === id) {
+        return { ...widget, col: targetCol, row: targetRow };
+      }
+      
+      // If there's a widget in the target position, swap it to the moving widget's old position
+      if (targetWidget && widget.id === targetWidget.id) {
+        return { ...widget, col: movingWidget.col, row: movingWidget.row };
+      }
+      
+      // Leave other widgets unchanged
+      return widget;
+    }));
   };
 
   // Reset to default widgets
