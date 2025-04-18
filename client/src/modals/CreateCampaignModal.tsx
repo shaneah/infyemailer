@@ -148,31 +148,93 @@ const CreateCampaignModal: React.FC<CreateCampaignModalProps> = ({ isOpen, onClo
                   </div>
                 </div>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label htmlFor="sender-name" className="block text-sm font-medium text-gray-700 mb-1">
-                      From Name <span className="text-indigo-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      id="sender-name"
-                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                      placeholder="e.g., Company Name or Your Name"
-                      required
-                    />
-                  </div>
-                  
-                  <div>
-                    <label htmlFor="reply-to" className="block text-sm font-medium text-gray-700 mb-1">
-                      Reply-to Email <span className="text-indigo-500">*</span>
-                    </label>
-                    <input
-                      type="email"
-                      id="reply-to"
-                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                      placeholder="email@example.com"
-                      required
-                    />
+                <div className="grid grid-cols-1 gap-5">
+                  {/* Sender Configuration */}
+                  <div className="bg-indigo-50/50 p-4 rounded-lg border border-indigo-100">
+                    <h4 className="text-sm font-medium text-indigo-700 mb-3 flex items-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1.5" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                        <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                      </svg>
+                      Sender Configuration
+                    </h4>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label htmlFor="sender-name" className="block text-sm font-medium text-gray-700 mb-1">
+                          From Name <span className="text-indigo-500">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          id="sender-name"
+                          className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                          placeholder="e.g., Company Name or Your Name"
+                          required
+                        />
+                      </div>
+                      
+                      <div>
+                        <label htmlFor="sender-email" className="block text-sm font-medium text-gray-700 mb-1">
+                          From Email Address <span className="text-indigo-500">*</span>
+                        </label>
+                        <select
+                          id="sender-email"
+                          className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 appearance-none bg-white"
+                          required
+                        >
+                          <option value="">Select a sender email</option>
+                          <option value="info@yourdomain.com">info@yourdomain.com</option>
+                          <option value="marketing@yourdomain.com">marketing@yourdomain.com</option>
+                          <option value="newsletter@yourdomain.com">newsletter@yourdomain.com</option>
+                          <option value="support@yourdomain.com">support@yourdomain.com</option>
+                        </select>
+                      </div>
+                      
+                      <div>
+                        <label htmlFor="reply-to" className="block text-sm font-medium text-gray-700 mb-1">
+                          Reply-to Email <span className="text-indigo-500">*</span>
+                        </label>
+                        <input
+                          type="email"
+                          id="reply-to"
+                          className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                          placeholder="email@example.com"
+                          required
+                        />
+                      </div>
+                      
+                      <div>
+                        <label htmlFor="domain" className="block text-sm font-medium text-gray-700 mb-1">
+                          Sending Domain <span className="text-indigo-500">*</span>
+                        </label>
+                        <div className="relative">
+                          <select
+                            id="domain"
+                            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 appearance-none bg-white"
+                            required
+                          >
+                            <option value="">Select a domain</option>
+                            <option value="1">yourdomain.com (Primary)</option>
+                            <option value="2">marketing.yourdomain.com</option>
+                            <option value="3">mail.yourbrand.com</option>
+                          </select>
+                          <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                            <svg className="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                          </div>
+                        </div>
+                        <p className="text-xs text-gray-500 mt-1">Select a verified domain to send from</p>
+                      </div>
+                    </div>
+                    
+                    <div className="bg-white rounded mt-3 px-3 py-2 border border-indigo-100 flex items-center text-xs text-gray-600">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-indigo-500 mr-1.5 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                      </svg>
+                      Using a verified domain improves deliverability and sender reputation.
+                      <a href="#" className="text-indigo-600 font-medium ml-1">Manage domains</a>
+                    </div>
                   </div>
                 </div>
                 
@@ -268,35 +330,71 @@ const CreateCampaignModal: React.FC<CreateCampaignModalProps> = ({ isOpen, onClo
               <p className="text-gray-500 mb-6">Review your campaign details before proceeding</p>
               
               <div className="bg-gray-50 rounded-lg p-4 mb-6">
-                <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-5">
+                  {/* Basic details */}
                   <div>
-                    <p className="text-xs text-gray-500">Campaign Type</p>
-                    <p className="text-sm font-medium text-gray-800">
-                      {campaignType === 'newsletter' && 'Newsletter'}
-                      {campaignType === 'promotional' && 'Promotional'}
-                      {campaignType === 'announcement' && 'Announcement'}
-                      {campaignType === 'automated' && 'Automated Series'}
-                    </p>
+                    <h5 className="text-xs uppercase tracking-wider text-gray-500 font-medium mb-2">Campaign Details</h5>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-xs text-gray-500">Campaign Type</p>
+                        <p className="text-sm font-medium text-gray-800">
+                          {campaignType === 'newsletter' && 'Newsletter'}
+                          {campaignType === 'promotional' && 'Promotional'}
+                          {campaignType === 'announcement' && 'Announcement'}
+                          {campaignType === 'automated' && 'Automated Series'}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-500">Campaign Name</p>
+                        <p className="text-sm font-medium text-gray-800">Monthly Newsletter - April 2025</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-500">Subject Line</p>
+                        <p className="text-sm font-medium text-gray-800">Latest Updates and Exclusive Offers</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-500">Template</p>
+                        <p className="text-sm font-medium text-gray-800">Monthly Newsletter</p>
+                      </div>
+                    </div>
                   </div>
+                  
+                  {/* Sender Configuration */}
                   <div>
-                    <p className="text-xs text-gray-500">Campaign Name</p>
-                    <p className="text-sm font-medium text-gray-800">Monthly Newsletter - April 2025</p>
+                    <h5 className="text-xs uppercase tracking-wider text-gray-500 font-medium mb-2">Sender Configuration</h5>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-xs text-gray-500">From Name</p>
+                        <p className="text-sm font-medium text-gray-800">Infinity Tech</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-500">From Email</p>
+                        <p className="text-sm font-medium text-gray-800">newsletter@yourdomain.com</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-500">Reply-to Email</p>
+                        <p className="text-sm font-medium text-gray-800">support@yourdomain.com</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-500">Sending Domain</p>
+                        <p className="text-sm font-medium text-gray-800">yourdomain.com (Primary)</p>
+                      </div>
+                    </div>
                   </div>
+                  
+                  {/* Delivery Details */}
                   <div>
-                    <p className="text-xs text-gray-500">Subject Line</p>
-                    <p className="text-sm font-medium text-gray-800">Latest Updates and Exclusive Offers</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-500">From</p>
-                    <p className="text-sm font-medium text-gray-800">Infinity Tech</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-500">Recipients</p>
-                    <p className="text-sm font-medium text-gray-800">Newsletter Subscribers (1240 contacts)</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-500">Send Time</p>
-                    <p className="text-sm font-medium text-gray-800">Immediately after creation</p>
+                    <h5 className="text-xs uppercase tracking-wider text-gray-500 font-medium mb-2">Delivery Details</h5>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-xs text-gray-500">Recipients</p>
+                        <p className="text-sm font-medium text-gray-800">Newsletter Subscribers (1240 contacts)</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-500">Send Time</p>
+                        <p className="text-sm font-medium text-gray-800">Immediately after creation</p>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
