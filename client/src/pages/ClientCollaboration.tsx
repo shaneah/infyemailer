@@ -920,10 +920,11 @@ export default function ClientCollaboration() {
                 </Tabs>
               </CardHeader>
               
-              <TabsContent 
-                value="messages" 
-                className="p-0 m-0 flex flex-col h-[calc(100vh-305px)]"
-              >
+              <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1">
+                <TabsContent 
+                  value="messages" 
+                  className="p-0 m-0 flex flex-col h-[calc(100vh-305px)]"
+                >
                 <ScrollArea className="flex-1 p-4">
                   <div className="space-y-4">
                     {messages.map((message) => (
@@ -1086,6 +1087,7 @@ export default function ClientCollaboration() {
                   </div>
                 </ScrollArea>
               </TabsContent>
+              </Tabs>
             </Card>
           ) : (
             <Card className="h-[calc(100vh-180px)] flex items-center justify-center">
