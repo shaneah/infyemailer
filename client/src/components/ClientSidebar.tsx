@@ -151,15 +151,15 @@ const ClientSidebar = ({ open, setOpen }: SidebarProps) => {
         } h-full bg-gradient-to-b from-blue-950 to-blue-900 text-white flex flex-col flex-shrink-0`}
       >
         {/* App name and client name header */}
-        <div className="flex flex-col items-center justify-center p-4 pt-6 pb-2 bg-gradient-to-r from-purple-900 to-indigo-900">
+        <div className="flex flex-col items-center justify-center p-4 pt-6 pb-2 bg-gradient-to-r from-blue-900 to-blue-800">
           <div className="w-12 h-12 mb-2 flex items-center justify-center bg-white/10 rounded-full">
             <img src={LogoWhite} alt="Logo" className="w-8 h-8 object-contain" />
           </div>
           <div className="text-center">
             <h2 className="font-bold text-xl text-white mb-1">Infinity Tech</h2>
             <div className="flex items-center justify-center space-x-2 mb-1">
-              <Building2 size={14} className="text-purple-300" />
-              <p className="text-sm font-medium text-purple-100">{clientName}</p>
+              <Building2 size={14} className="text-blue-300" />
+              <p className="text-sm font-medium text-blue-100">{clientName}</p>
             </div>
           </div>
         </div>
@@ -257,16 +257,16 @@ const ClientSidebar = ({ open, setOpen }: SidebarProps) => {
             href="/client-settings"
             className={`group flex items-center px-4 py-3 text-sm transition-all duration-150 ${
               location === '/client-settings' 
-                ? 'bg-purple-800 text-white shadow-inner' 
-                : 'text-blue-100 hover:bg-purple-800/40 hover:shadow-inner'
+                ? 'bg-blue-800 text-white shadow-inner' 
+                : 'text-blue-100 hover:bg-blue-800/40 hover:shadow-inner'
             }`}
           >
             <Settings 
               size={18} 
               className={`mr-3 transition-all duration-200 ${
                 location === '/client-settings' 
-                  ? 'text-purple-300 rotate-90' 
-                  : 'text-blue-200 group-hover:text-purple-300 group-hover:rotate-90'
+                  ? 'text-blue-300 rotate-90' 
+                  : 'text-blue-200 group-hover:text-blue-300 group-hover:rotate-90'
               }`} 
             />
             <span className="font-medium group-hover:font-semibold transition-all duration-150">
@@ -274,7 +274,7 @@ const ClientSidebar = ({ open, setOpen }: SidebarProps) => {
             </span>
             {location === '/client-settings' && (
               <div className="ml-auto">
-                <div className="w-1.5 h-1.5 rounded-full bg-purple-300 opacity-90 animate-pulse"></div>
+                <div className="w-1.5 h-1.5 rounded-full bg-blue-300 opacity-90 animate-pulse"></div>
               </div>
             )}
           </Link>
