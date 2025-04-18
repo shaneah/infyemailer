@@ -35,8 +35,10 @@ const WidgetManager: React.FC = () => {
   };
 
   const handleResetLayout = () => {
-    localStorage.removeItem('dashboard-widgets');
+    // We don't need to remove localStorage here since resetToDefault() now handles that
     resetToDefault();
+    // Show success message
+    alert('Dashboard layout has been reset to default with all AI widgets!');
   };
 
   const addAIWidgets = () => {

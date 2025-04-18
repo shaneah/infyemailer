@@ -216,6 +216,7 @@ export const WidgetsProvider: React.FC<{ children: ReactNode }> = ({ children })
 
   // Reset to default widgets
   const resetToDefault = () => {
+    localStorage.removeItem('dashboard-widgets');
     setWidgets(defaultWidgets);
   };
 
