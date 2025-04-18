@@ -174,34 +174,53 @@ export default function ClientDashboard() {
         {/* Main Content */}
         <div className="flex-1 flex flex-col overflow-hidden relative z-10">
           {/* Header */}
-          <header className="relative z-20 flex items-center justify-between p-4 bg-white border-b border-gray-200">
+          <header className="relative z-20 flex items-center justify-between p-4 bg-gradient-to-r from-blue-900 to-blue-800 text-white shadow-md">
             <div className="flex items-center">
               <Button 
                 variant="ghost" 
                 size="lg"
-                className="lg:hidden text-gray-700 hover:bg-gray-100 mr-2"
+                className="lg:hidden text-white hover:bg-blue-700/50 mr-2"
                 onClick={() => setSidebarOpen(true)}
               >
                 <Menu size={24} />
               </Button>
-              <h1 className="text-xl font-semibold text-purple-800">Dashboard</h1>
+              <div className="flex flex-col">
+                <h1 className="text-2xl font-bold tracking-tight text-white">Dashboard</h1>
+                <p className="text-sm text-blue-100 mt-0.5">Overview & Analytics</p>
+              </div>
             </div>
             
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               {clientData && (
-                <span className="text-sm text-gray-600 hidden md:inline-block">
-                  Welcome, <span className="font-medium">{clientData.clientName}</span>
-                </span>
+                <div className="flex items-center bg-blue-800/50 rounded-full px-4 py-2 border border-blue-700/50">
+                  <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse mr-2"></div>
+                  <span className="text-sm text-blue-50">
+                    Welcome, <span className="font-medium">{clientData.clientName}</span>
+                  </span>
+                </div>
               )}
             </div>
           </header>
 
           {/* Dashboard Content */}
-          <main className="flex-1 overflow-y-auto p-6 relative z-10 bg-white">
-            <div className="container mx-auto">
-              {/* Widget Management Controls */}
-              <div className="mb-4 flex justify-end">
-                <WidgetManager clientData={clientData} />
+          <main className="flex-1 overflow-y-auto relative z-10 bg-gray-50 dark:bg-gray-900">
+            <div className="container mx-auto py-6 px-4">
+              {/* Page introduction */}
+              <div className="mb-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h2 className="text-xl font-semibold text-blue-900 dark:text-blue-300">Your Email Marketing at a Glance</h2>
+                    <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">
+                      Track performance metrics and visualize campaign results
+                    </p>
+                  </div>
+                  {/* Widget Management Controls */}
+                  <div className="flex items-center">
+                    <WidgetManager clientData={clientData} />
+                  </div>
+                </div>
+                
+                <div className="h-0.5 w-full bg-gradient-to-r from-blue-800 to-blue-400 rounded-full opacity-70"></div>
               </div>
               
               {/* Customizable Dashboard Widgets */}
