@@ -2265,6 +2265,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(500).json({ error: 'Failed to retrieve preferences' });
     }
   });
+  
+  // Client User Preferences API - dashboard layout
+  app.post('/api/client-user-preferences/dashboard', async (req: Request, res: Response) => {
+    try {
+      // Authenticated route - check if client user is logged in
+      if (!req.isAuthenticated() || !req.user.clientId) {
+        return res.status(401).json({ message: 'Not authenticated as client user' });
+      }
+      
+      // Update preferences using the storage method
+      const success = await storage.updateClientUserPreferences(req.user.id, req.body);
+      
+      if (!success) {
+        return res.status(404).json({ error: 'Failed to save preferences' });
+      }
+      
+      return res.json({ success: true, preferences: req.body });
+    } catch (error) {
+      console.error('Error saving client user preferences:', error);
+      return res.status(500).json({ error: 'Failed to save preferences' });
+    }
+  });
+  
+  app.get('/api/client-user-preferences/dashboard', async (req: Request, res: Response) => {
+    try {
+      // Authenticated route - check if client user is logged in
+      if (!req.isAuthenticated() || !req.user.clientId) {
+        return res.status(401).json({ message: 'Not authenticated as client user' });
+      }
+      
+      // Get preferences from storage
+      const preferences = await storage.getClientUserPreferences(req.user.id);
+      return res.json(preferences || { dashboardLayout: null });
+    } catch (error) {
+      console.error('Error fetching client user preferences:', error);
+      return res.status(500).json({ error: 'Failed to fetch preferences' });
+    }
+  });
 
   // Client User routes
   app.post('/api/client-login', async (req: Request, res: Response) => {
