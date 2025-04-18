@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { Widget, useWidgets, WidgetType } from '@/hooks/useWidgets';
-import DraggableWidget from './DraggableWidget';
+import DraggableWidget, { WIDGET_TYPE } from './DraggableWidget';
 import ActiveCampaignsWidget from './ActiveCampaignsWidget';
 import TotalEmailsWidget from './TotalEmailsWidget';
 import OpenRateWidget from './OpenRateWidget';
@@ -617,6 +617,11 @@ const DashboardWidgets: React.FC<DashboardWidgetsProps> = ({ clientData }) => {
     }
   };
 
+  // The moveWidget implementation is delegated to useWidgets context
+  const handleMoveWidget = useCallback((id: string, col: number, row: number) => {
+    moveWidget(id, col, row);
+  }, [moveWidget]);
+
   // Group widgets by row
   const widgetsByRow = visibleWidgets.reduce<Record<number, Widget[]>>((acc, widget) => {
     if (!acc[widget.row]) {
@@ -639,7 +644,7 @@ const DashboardWidgets: React.FC<DashboardWidgetsProps> = ({ clientData }) => {
                 key={widget.id} 
                 widget={widget} 
                 index={index}
-                moveWidget={moveWidget}
+                moveWidget={handleMoveWidget}
               >
                 {renderWidget(widget)}
               </DraggableWidget>
