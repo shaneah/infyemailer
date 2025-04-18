@@ -1419,9 +1419,11 @@ const ClientLists = ({ onCreateList }: { onCreateList: () => void }) => {
                       <p className="text-sm text-gray-600 mb-4 line-clamp-2">{list.description}</p>
                       
                       <div className="flex flex-wrap gap-1.5 mb-5">
-                        {list.tags.map((tag, idx) => 
-                          renderTag(tag, `${colorClasses.bg} ${colorClasses.text}`)
-                        )}
+                        {list.tags.map((tag, idx) => (
+                          <span key={`${list.id}-tag-${idx}`}>
+                            {renderTag(tag, `${colorClasses.bg} ${colorClasses.text}`)}
+                          </span>
+                        ))}
                       </div>
                       
                       <div className="grid grid-cols-2 gap-2 mb-4">
@@ -1508,9 +1510,11 @@ const ClientLists = ({ onCreateList }: { onCreateList: () => void }) => {
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="flex flex-wrap gap-1 max-w-xs">
-                              {list.tags.map((tag, idx) => 
-                                renderTag(tag, `${colorClasses.bg} ${colorClasses.text}`)
-                              )}
+                              {list.tags.map((tag, idx) => (
+                                <span key={`${list.id}-tag-table-${idx}`}>
+                                  {renderTag(tag, `${colorClasses.bg} ${colorClasses.text}`)}
+                                </span>
+                              ))}
                             </div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
