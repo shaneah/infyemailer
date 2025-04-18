@@ -309,7 +309,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       try {
         // Use direct DB query for more accurate metrics if storage methods are insufficient
-        const { db, sql } = await import("./db");
+        const { db } = await import("./db");
+        const { sql } = await import("drizzle-orm");
         
         // Get total emails count
         const emailsCountResult = await db.execute(

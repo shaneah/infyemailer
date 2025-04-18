@@ -46,6 +46,10 @@ import { EmailPersistenceService } from './services/EmailPersistenceService';
 
 // Interface for storage operations
 export interface IStorage {
+  // Dashboard statistics
+  getContactsCount(): Promise<number>;
+  getCampaignsCount(): Promise<number>;
+  
   // User methods (admin)
   getUsers(): Promise<User[]>;
   getUser(id: number): Promise<User | undefined>;
