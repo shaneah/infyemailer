@@ -21,7 +21,10 @@ export type WidgetType =
   | 'emailHealthScore'
   | 'campaignROI'
   | 'engagementHeatmap'
-  | 'smartNotifications';
+  | 'smartNotifications'
+  | 'aiRecommendations'
+  | 'campaignPerformanceAnalyzer'
+  | 'userJourney';
 
 export interface Widget {
   id: string;
@@ -55,7 +58,10 @@ export const widgetSizes: Record<WidgetType, 'small' | 'medium' | 'large'> = {
   emailHealthScore: 'large',
   campaignROI: 'large',
   engagementHeatmap: 'large',
-  smartNotifications: 'medium'
+  smartNotifications: 'medium',
+  aiRecommendations: 'large',
+  campaignPerformanceAnalyzer: 'large',
+  userJourney: 'large'
 };
 
 // Widget titles
