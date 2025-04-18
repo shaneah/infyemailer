@@ -1,4 +1,6 @@
-import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
+import React, { createContext, useState, useContext, useEffect, ReactNode, useCallback } from 'react';
+import { apiRequest } from '@/lib/queryClient';
+import { useToast } from '@/hooks/use-toast';
 
 // Widget types
 export type WidgetType = 
@@ -154,30 +156,101 @@ interface WidgetsContextType {
 const WidgetsContext = createContext<WidgetsContextType | undefined>(undefined);
 
 // Context provider
-export const WidgetsProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export const WidgetsProvider: React.FC<{ 
+  children: ReactNode, 
+  isAdmin?: boolean, 
+  userId?: number 
+}> = ({ children, isAdmin = true, userId }) => {
   const [widgets, setWidgets] = useState<Widget[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
 
-  // Load widgets from localStorage on mount
-  useEffect(() => {
-    const savedWidgets = localStorage.getItem('dashboard-widgets');
-    if (savedWidgets) {
-      try {
-        setWidgets(JSON.parse(savedWidgets));
-      } catch (error) {
-        console.error('Error loading widgets from localStorage:', error);
-        setWidgets(defaultWidgets);
+  // Fetch widgets from server API
+  const fetchWidgetsFromServer = useCallback(async () => {
+    if (!userId) {
+      setIsLoading(false);
+      return false;
+    }
+    
+    try {
+      const endpoint = isAdmin 
+        ? '/api/user-preferences/dashboard' 
+        : '/api/client-user-preferences/dashboard';
+      
+      const response = await apiRequest('GET', endpoint);
+      const data = await response.json();
+      
+      if (data && data.dashboardLayout) {
+        setWidgets(data.dashboardLayout);
+        // Also cache in localStorage as fallback
+        localStorage.setItem('dashboard-widgets', JSON.stringify(data.dashboardLayout));
+        return true;
       }
-    } else {
-      setWidgets(defaultWidgets);
+      return false;
+    } catch (error) {
+      console.error('Error fetching widgets from server:', error);
+      return false;
+    } finally {
+      setIsLoading(false);
     }
-  }, []);
+  }, [userId, isAdmin]);
 
-  // Save widgets to localStorage when they change
-  useEffect(() => {
-    if (widgets.length > 0) {
-      localStorage.setItem('dashboard-widgets', JSON.stringify(widgets));
+  // Save widgets to server API
+  const saveWidgetsToServer = useCallback(async (widgetsToSave: Widget[]) => {
+    if (!userId) return;
+    
+    try {
+      const endpoint = isAdmin 
+        ? '/api/user-preferences/dashboard' 
+        : '/api/client-user-preferences/dashboard';
+      
+      await apiRequest('POST', endpoint, {
+        dashboardLayout: widgetsToSave
+      });
+      
+      // Also update localStorage as fallback
+      localStorage.setItem('dashboard-widgets', JSON.stringify(widgetsToSave));
+    } catch (error) {
+      console.error('Error saving widgets to server:', error);
+      toast({
+        title: "Unable to save dashboard layout",
+        description: "Your changes will be stored locally but may not persist across devices.",
+        variant: "destructive"
+      });
     }
-  }, [widgets]);
+  }, [userId, isAdmin, toast]);
+
+  // Load widgets on mount
+  useEffect(() => {
+    const loadWidgets = async () => {
+      // First try to load from server
+      const success = await fetchWidgetsFromServer();
+      
+      // If server fetch fails or returns no data, try localStorage
+      if (!success) {
+        const savedWidgets = localStorage.getItem('dashboard-widgets');
+        if (savedWidgets) {
+          try {
+            setWidgets(JSON.parse(savedWidgets));
+          } catch (error) {
+            console.error('Error loading widgets from localStorage:', error);
+            setWidgets(defaultWidgets);
+          }
+        } else {
+          setWidgets(defaultWidgets);
+        }
+      }
+    };
+    
+    loadWidgets();
+  }, [fetchWidgetsFromServer]);
+
+  // Save widgets when they change
+  useEffect(() => {
+    if (widgets.length > 0 && !isLoading) {
+      saveWidgetsToServer(widgets);
+    }
+  }, [widgets, saveWidgetsToServer, isLoading]);
 
   // Add a new widget
   const addWidget = (type: WidgetType) => {
@@ -239,6 +312,11 @@ export const WidgetsProvider: React.FC<{ children: ReactNode }> = ({ children })
   const resetToDefault = () => {
     localStorage.removeItem('dashboard-widgets');
     setWidgets(defaultWidgets);
+    
+    // Also update server if user is logged in
+    if (userId) {
+      saveWidgetsToServer(defaultWidgets);
+    }
   };
 
   // Toggle widget visibility
