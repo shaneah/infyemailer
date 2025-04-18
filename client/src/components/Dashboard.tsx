@@ -17,56 +17,40 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
 
   // Fetch necessary data for dashboard widgets
-  const { data: statsData, isLoading: isLoadingStats } = useQuery({
+  const { data: statsData, isLoading: isLoadingStats, error: statsError } = useQuery({
     queryKey: ['/api/dashboard/stats'],
     queryFn: async () => {
-      try {
-        const response = await fetch('/api/dashboard/stats');
-        if (!response.ok) {
-          return {
-            activeCampaigns: 5,
-            totalEmails: 48250,
-            openRate: 23.7,
-            clickRate: 4.2,
-            contactsCount: 5278
-          };
-        }
-        return await response.json();
-      } catch (error) {
-        console.error("Error fetching dashboard stats", error);
-        return {
-          activeCampaigns: 5,
-          totalEmails: 48250,
-          openRate: 23.7,
-          clickRate: 4.2,
-          contactsCount: 5278
-        };
+      const response = await fetch('/api/dashboard/stats');
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to fetch dashboard stats: ${errorText}`);
       }
+      return await response.json();
     }
   });
 
   // Prepare client data for widgets
   useEffect(() => {
-    if (!isLoadingStats && statsData) {
-      setClientData({
-        stats: statsData,
-        performanceData: [
-          { name: "Jan", opens: 68, clicks: 14 },
-          { name: "Feb", opens: 72, clicks: 16 },
-          { name: "Mar", opens: 85, clicks: 18 },
-          { name: "Apr", opens: 92, clicks: 21 },
-          { name: "May", opens: 78, clicks: 17 },
-          { name: "Jun", opens: 82, clicks: 19 }
-        ],
-        deviceData: [
-          { name: "Mobile", value: 48 },
-          { name: "Desktop", value: 38 },
-          { name: "Tablet", value: 14 }
-        ]
-      });
+    // Only proceed if we have stats data and not in loading state
+    if (!isLoadingStats) {
+      if (statsData) {
+        // Use the real stats data from the API
+        setClientData({
+          stats: statsData,
+          // We still need to handle the performance and device data
+          // In a real app, these would come from APIs too, but we'll
+          // just use this as placeholder UI until those APIs are implemented
+          performanceData: [],
+          deviceData: []
+        });
+      } else if (statsError) {
+        // If there's an error, we don't set client data but we do stop loading
+        console.error('Error loading dashboard data:', statsError);
+      }
+      // Whether we have data or an error, we're no longer loading
       setLoading(false);
     }
-  }, [isLoadingStats, statsData]);
+  }, [isLoadingStats, statsData, statsError]);
 
   if (loading) {
     return (
