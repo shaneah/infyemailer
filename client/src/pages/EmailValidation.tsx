@@ -561,30 +561,34 @@ const EmailValidation = () => {
       >
         <Tabs defaultValue="single" className="mb-8">
           <div className="bg-gradient-to-r from-indigo-900/90 to-purple-900/90 rounded-xl shadow-inner p-1">
-            <TabsList className="grid w-full grid-cols-2 bg-transparent border-0 shadow-none">
-              <TabsTrigger 
-                value="single" 
-                className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-indigo-600 data-[state=active]:to-purple-700 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg transition-all duration-200 ease-in-out p-0.5"
-              >
-                <div className="flex items-center py-2 px-2">
-                  <div className="mr-2 flex items-center justify-center h-6 w-6 rounded-full bg-gradient-to-br from-indigo-400/80 to-purple-500/80">
-                    <MailIcon className="h-3 w-3 text-white" />
+            <div className="grid w-full grid-cols-2 gap-1">
+              <div>
+                <TabsTrigger 
+                  value="single" 
+                  className="w-full data-[state=active]:bg-gradient-to-br data-[state=active]:from-indigo-600 data-[state=active]:to-purple-700 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg transition-all duration-200 ease-in-out p-0.5"
+                >
+                  <div className="flex items-center py-2 px-2">
+                    <div className="mr-2 flex items-center justify-center h-6 w-6 rounded-full bg-gradient-to-br from-indigo-400/80 to-purple-500/80">
+                      <MailIcon className="h-3 w-3 text-white" />
+                    </div>
+                    <span className="font-medium">Single Email Validation</span>
                   </div>
-                  <span className="font-medium">Single Email Validation</span>
-                </div>
-              </TabsTrigger>
-              <TabsTrigger 
-                value="bulk" 
-                className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-indigo-600 data-[state=active]:to-purple-700 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg transition-all duration-200 ease-in-out p-0.5"
-              >
-                <div className="flex items-center py-2 px-2">
-                  <div className="mr-2 flex items-center justify-center h-6 w-6 rounded-full bg-gradient-to-br from-indigo-400/80 to-purple-500/80">
-                    <Layers className="h-3 w-3 text-white" />
+                </TabsTrigger>
+              </div>
+              <div>
+                <TabsTrigger 
+                  value="bulk" 
+                  className="w-full data-[state=active]:bg-gradient-to-br data-[state=active]:from-indigo-600 data-[state=active]:to-purple-700 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg transition-all duration-200 ease-in-out p-0.5"
+                >
+                  <div className="flex items-center py-2 px-2">
+                    <div className="mr-2 flex items-center justify-center h-6 w-6 rounded-full bg-gradient-to-br from-indigo-400/80 to-purple-500/80">
+                      <Layers className="h-3 w-3 text-white" />
+                    </div>
+                    <span className="font-medium">Bulk Email Validation</span>
                   </div>
-                  <span className="font-medium">Bulk Email Validation</span>
-                </div>
-              </TabsTrigger>
-            </TabsList>
+                </TabsTrigger>
+              </div>
+            </div>
           </div>
         
         <TabsContent value="single">
@@ -663,9 +667,10 @@ const EmailValidation = () => {
                     </motion.div>
                   </div>
                   
-                  <AnimatePresence>
+                  <AnimatePresence mode="wait">
                     {singleValidationResult && (
                       <motion.div
+                        key="single-validation-result"
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: 'auto' }}
                         exit={{ opacity: 0, height: 0 }}
@@ -713,6 +718,7 @@ const EmailValidation = () => {
                     
                     {singleHealthResult && (
                       <motion.div
+                        key="single-health-result"
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: 'auto' }}
                         exit={{ opacity: 0, height: 0 }}
@@ -960,9 +966,10 @@ email3@domain.com"
                     />
                   </div>
                   
-                  <AnimatePresence>
+                  <AnimatePresence mode="wait">
                     {isLoading && (
                       <motion.div 
+                        key="bulk-loading"
                         className="space-y-3"
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: 'auto' }}
@@ -992,9 +999,10 @@ email3@domain.com"
                     )}
                   </AnimatePresence>
                   
-                  <AnimatePresence>
+                  <AnimatePresence mode="wait">
                     {bulkAnalysisResult && (
                       <motion.div
+                        key="bulk-analysis-result"
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -20 }}
@@ -1157,9 +1165,10 @@ email3@domain.com"
                               </motion.div>
                             </div>
                             
-                            <AnimatePresence>
+                            <AnimatePresence mode="wait">
                               {bulkAnalysisResult.suggestedFixes.length > 0 && (
                                 <motion.div 
+                                  key="suggested-fixes"
                                   className="mb-6 p-5 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg border border-indigo-200 shadow-sm"
                                   initial={{ opacity: 0, y: -10 }}
                                   animate={{ opacity: 1, y: 0 }}
@@ -1214,9 +1223,10 @@ email3@domain.com"
                               </Button>
                             </div>
                             
-                            <AnimatePresence>
+                            <AnimatePresence mode="wait">
                               {showDetailedReport && (
                                 <motion.div
+                                  key="detailed-report"
                                   initial={{ opacity: 0, height: 0 }}
                                   animate={{ opacity: 1, height: 'auto' }}
                                   exit={{ opacity: 0, height: 0 }}
