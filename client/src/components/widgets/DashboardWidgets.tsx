@@ -505,7 +505,7 @@ const DashboardWidgets: React.FC<DashboardWidgetsProps> = ({ clientData }) => {
             data={{
               deviceData: clientData.deviceData
             }}
-            onRemove={removeWidget}
+            onRemove={handleRemoveWidget}
           />
         );
       
@@ -517,7 +517,7 @@ const DashboardWidgets: React.FC<DashboardWidgetsProps> = ({ clientData }) => {
             data={{
               recentCampaigns: clientData.recentCampaigns
             }}
-            onRemove={removeWidget}
+            onRemove={handleRemoveWidget}
           />
         );
         
@@ -532,7 +532,7 @@ const DashboardWidgets: React.FC<DashboardWidgetsProps> = ({ clientData }) => {
               recentCampaigns: clientData.recentCampaigns,
               stats: clientData.stats
             }}
-            onRemove={removeWidget}
+            onRemove={handleRemoveWidget}
           />
         );
         
@@ -541,8 +541,8 @@ const DashboardWidgets: React.FC<DashboardWidgetsProps> = ({ clientData }) => {
           <OptimalSendTimeWidget 
             key={widget.id}
             widget={widget}
-            onConfig={(config) => updateWidgetConfig(widget.id, config)}
-            onRemove={removeWidget}
+            onConfig={handleUpdateWidgetConfig}
+            onRemove={handleRemoveWidget}
           />
         );
         
@@ -552,7 +552,7 @@ const DashboardWidgets: React.FC<DashboardWidgetsProps> = ({ clientData }) => {
             key={widget.id}
             widget={widget}
             data={mockData.upcomingCampaignsData}
-            onRemove={removeWidget}
+            onRemove={handleRemoveWidget}
           />
         );
         
@@ -562,7 +562,7 @@ const DashboardWidgets: React.FC<DashboardWidgetsProps> = ({ clientData }) => {
             key={widget.id}
             widget={widget}
             data={mockData.audienceGrowthData}
-            onRemove={removeWidget}
+            onRemove={handleRemoveWidget}
           />
         );
       
@@ -571,7 +571,7 @@ const DashboardWidgets: React.FC<DashboardWidgetsProps> = ({ clientData }) => {
           <RealTimeMetricsWidget
             key={widget.id}
             widget={widget}
-            onRemove={removeWidget}
+            onRemove={handleRemoveWidget}
           />
         );
         
@@ -584,7 +584,7 @@ const DashboardWidgets: React.FC<DashboardWidgetsProps> = ({ clientData }) => {
               performanceData: clientData.performanceData,
               stats: clientData.stats
             }}
-            onRemove={removeWidget}
+            onRemove={handleRemoveWidget}
           />
         );
         
@@ -595,7 +595,7 @@ const DashboardWidgets: React.FC<DashboardWidgetsProps> = ({ clientData }) => {
             key={widget.id}
             widget={widget}
             data={mockData.campaignROIData}
-            onRemove={removeWidget}
+            onRemove={handleRemoveWidget}
           />
         );
         
@@ -605,7 +605,7 @@ const DashboardWidgets: React.FC<DashboardWidgetsProps> = ({ clientData }) => {
             key={widget.id}
             widget={widget}
             data={mockData.engagementHeatmapData}
-            onRemove={removeWidget}
+            onRemove={handleRemoveWidget}
           />
         );
         
@@ -615,7 +615,7 @@ const DashboardWidgets: React.FC<DashboardWidgetsProps> = ({ clientData }) => {
             key={widget.id}
             widget={widget}
             data={mockData.smartNotificationsData}
-            onRemove={removeWidget}
+            onRemove={handleRemoveWidget}
           />
         );
         
@@ -624,7 +624,7 @@ const DashboardWidgets: React.FC<DashboardWidgetsProps> = ({ clientData }) => {
           <AIRecommendationWidget
             key={widget.id}
             widget={widget}
-            onRemove={removeWidget}
+            onRemove={handleRemoveWidget}
           />
         );
         
@@ -633,7 +633,7 @@ const DashboardWidgets: React.FC<DashboardWidgetsProps> = ({ clientData }) => {
           <CampaignPerformanceAnalyzerWidget
             key={widget.id}
             widget={widget}
-            onRemove={removeWidget}
+            onRemove={handleRemoveWidget}
           />
         );
         
@@ -642,7 +642,7 @@ const DashboardWidgets: React.FC<DashboardWidgetsProps> = ({ clientData }) => {
           <UserJourneyWidget
             key={widget.id}
             widget={widget}
-            onRemove={removeWidget}
+            onRemove={handleRemoveWidget}
           />
         );
       
@@ -652,9 +652,14 @@ const DashboardWidgets: React.FC<DashboardWidgetsProps> = ({ clientData }) => {
   };
 
   // The moveWidget implementation is delegated to useWidgets context
+  // Also track interaction when a widget is moved
   const handleMoveWidget = useCallback((id: string, col: number, row: number) => {
+    const widget = widgets.find(w => w.id === id);
+    if (widget) {
+      recordWidgetInteraction(widget);
+    }
     moveWidget(id, col, row);
-  }, [moveWidget]);
+  }, [widgets, moveWidget, recordWidgetInteraction]);
 
   // Group widgets by row
   const widgetsByRow = visibleWidgets.reduce<Record<number, Widget[]>>((acc, widget) => {
