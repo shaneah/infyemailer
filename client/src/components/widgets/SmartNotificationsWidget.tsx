@@ -1,12 +1,33 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Widget } from '@/hooks/useWidgets';
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { 
-  X, Bell, AlertCircle, TrendingUp, BarChart2, Clock, Zap, 
-  Eye, Users, Inbox, Mail, ArrowUpRight, CheckCircle2, Filter
+  Bell, 
+  X, 
+  AlertTriangle, 
+  Lightbulb, 
+  ArrowRight, 
+  CheckCircle2, 
+  TrendingUp, 
+  TrendingDown, 
+  Filter, 
+  CheckCircle 
 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { cn } from '@/lib/utils';
+import { Badge } from '@/components/ui/badge';
+import { 
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuCheckboxItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 interface Notification {
   id: string;
@@ -37,236 +58,395 @@ interface SmartNotificationsWidgetProps {
   onRemove: (id: string) => void;
 }
 
-const SmartNotificationsWidget: React.FC<SmartNotificationsWidgetProps> = ({ widget, data, onRemove }) => {
-  const [filter, setFilter] = useState<'all' | 'unread' | 'alerts' | 'insights'>('all');
+const SmartNotificationsWidget: React.FC<SmartNotificationsWidgetProps> = ({ 
+  widget, 
+  data, 
+  onRemove 
+}) => {
+  const [notifications, setNotifications] = useState<Notification[]>(data.notifications);
+  const [selectedTypes, setSelectedTypes] = useState<Record<string, boolean>>({
+    alert: true,
+    insight: true,
+    recommendation: true,
+    action: true
+  });
+  const [selectedPriorities, setSelectedPriorities] = useState<Record<string, boolean>>({
+    high: true,
+    medium: true,
+    low: true
+  });
   
-  // Get the icon for a notification type
+  // Mark notification as read
+  const markAsRead = (id: string) => {
+    setNotifications(notifications.map(notification => 
+      notification.id === id ? { ...notification, read: true } : notification
+    ));
+  };
+  
+  // Filter notifications
+  const filteredNotifications = notifications.filter(notification => 
+    selectedTypes[notification.type] && selectedPriorities[notification.priority]
+  );
+  
+  // Count unread notifications
+  const unreadCount = notifications.filter(n => !n.read).length;
+  
+  // Get icon for notification type
   const getIcon = (notification: Notification) => {
     switch (notification.type) {
       case 'alert':
-        return <AlertCircle className="h-4 w-4 text-red-500" />;
+        return <AlertTriangle className="h-4 w-4 text-amber-500" />;
       case 'insight':
-        return <TrendingUp className="h-4 w-4 text-blue-500" />;
+        return <Lightbulb className="h-4 w-4 text-blue-500" />;
       case 'recommendation':
-        return <BarChart2 className="h-4 w-4 text-purple-500" />;
+        return <Lightbulb className="h-4 w-4 text-green-500" />;
       case 'action':
-        return <Clock className="h-4 w-4 text-amber-500" />;
+        return <ArrowRight className="h-4 w-4 text-rose-500" />;
       default:
-        return <Bell className="h-4 w-4 text-indigo-500" />;
+        return <Bell className="h-4 w-4 text-slate-500" />;
+    }
+  };
+  
+  // Get background color for notification card
+  const getBackgroundColor = (notification: Notification) => {
+    if (notification.read) return "bg-white";
+    
+    switch (notification.type) {
+      case 'alert':
+        return "bg-amber-50";
+      case 'insight':
+        return "bg-blue-50";
+      case 'recommendation':
+        return "bg-green-50";
+      case 'action':
+        return "bg-rose-50";
+      default:
+        return "bg-white";
+    }
+  };
+  
+  // Get border color for notification card
+  const getBorderColor = (notification: Notification) => {
+    if (notification.read) return "border-gray-200";
+    
+    switch (notification.type) {
+      case 'alert':
+        return "border-amber-200";
+      case 'insight':
+        return "border-blue-200";
+      case 'recommendation':
+        return "border-green-200";
+      case 'action':
+        return "border-rose-200";
+      default:
+        return "border-gray-200";
+    }
+  };
+  
+  // Get badge for notification priority
+  const getPriorityBadge = (priority: Notification['priority']) => {
+    switch (priority) {
+      case 'high':
+        return (
+          <Badge variant="outline" className="border-rose-200 text-rose-700 bg-rose-50">
+            High Priority
+          </Badge>
+        );
+      case 'medium':
+        return (
+          <Badge variant="outline" className="border-amber-200 text-amber-700 bg-amber-50">
+            Medium
+          </Badge>
+        );
+      case 'low':
+        return (
+          <Badge variant="outline" className="border-slate-200 text-slate-600 bg-slate-50">
+            Low
+          </Badge>
+        );
+      default:
+        return null;
+    }
+  };
+  
+  // Get title for notification type
+  const getTypeTitle = (type: Notification['type']) => {
+    switch (type) {
+      case 'alert':
+        return 'Alert';
+      case 'insight':
+        return 'Insight';
+      case 'recommendation':
+        return 'Recommendation';
+      case 'action':
+        return 'Action Required';
+      default:
+        return 'Notification';
     }
   };
 
-  // Get the icon for a notification category
-  const getCategoryIcon = (category: string) => {
+  // Get category badge
+  const getCategoryBadge = (category: Notification['category']) => {
     switch (category) {
       case 'campaigns':
-        return <Mail className="h-3.5 w-3.5" />;
+        return (
+          <Badge variant="outline" className="border-purple-200 text-purple-700 bg-purple-50">
+            Campaigns
+          </Badge>
+        );
       case 'contacts':
-        return <Users className="h-3.5 w-3.5" />;
+        return (
+          <Badge variant="outline" className="border-blue-200 text-blue-700 bg-blue-50">
+            Contacts
+          </Badge>
+        );
       case 'performance':
-        return <Eye className="h-3.5 w-3.5" />;
+        return (
+          <Badge variant="outline" className="border-indigo-200 text-indigo-700 bg-indigo-50">
+            Performance
+          </Badge>
+        );
       case 'system':
-        return <Inbox className="h-3.5 w-3.5" />;
+        return (
+          <Badge variant="outline" className="border-slate-200 text-slate-700 bg-slate-50">
+            System
+          </Badge>
+        );
       default:
-        return <Bell className="h-3.5 w-3.5" />;
-    }
-  };
-
-  // Filter notifications based on the selected filter
-  const filteredNotifications = data.notifications.filter(notification => {
-    if (filter === 'all') return true;
-    if (filter === 'unread') return !notification.read;
-    if (filter === 'alerts') return notification.type === 'alert';
-    if (filter === 'insights') return notification.type === 'insight';
-    return true;
-  });
-
-  // Get the background color for a notification card
-  const getBackgroundColor = (notification: Notification) => {
-    if (notification.read) return 'bg-white';
-    
-    switch (notification.type) {
-      case 'alert':
-        return 'bg-red-50';
-      case 'insight':
-        return 'bg-blue-50';
-      case 'recommendation':
-        return 'bg-purple-50';
-      case 'action':
-        return 'bg-amber-50';
-      default:
-        return 'bg-indigo-50';
-    }
-  };
-
-  // Get the border color for a notification card
-  const getBorderColor = (notification: Notification) => {
-    if (notification.read) return 'border-gray-200';
-    
-    switch (notification.type) {
-      case 'alert':
-        return 'border-red-200';
-      case 'insight':
-        return 'border-blue-200';
-      case 'recommendation':
-        return 'border-purple-200';
-      case 'action':
-        return 'border-amber-200';
-      default:
-        return 'border-indigo-200';
+        return null;
     }
   };
 
   return (
-    <Card className="overflow-hidden shadow-md border border-indigo-100 hover:shadow-lg transition-shadow">
-      <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-50 border-b border-indigo-100 pb-3">
-        <div className="flex justify-between items-center">
-          <div className="flex items-center space-x-2">
-            <div className="bg-indigo-100 p-2 rounded-full">
-              <Zap className="h-5 w-5 text-indigo-600" />
-            </div>
-            <div>
-              <CardTitle className="text-lg text-indigo-900">{widget.title}</CardTitle>
-              <CardDescription className="text-indigo-700">
-                Personalized alerts & insights
-              </CardDescription>
-            </div>
+    <Card className={cn(
+      "col-span-3 md:col-span-1 shadow-sm hover:shadow-md transition-shadow",
+      widget.size === 'medium' && "md:col-span-1", 
+      widget.size === 'large' && "md:col-span-2"
+    )}>
+      <CardHeader className="pb-2 flex flex-row justify-between items-start">
+        <div className="flex items-start gap-2">
+          <div className="relative">
+            <Bell className="h-5 w-5 text-purple-600" />
+            {unreadCount > 0 && (
+              <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 text-[10px] font-medium text-white">
+                {unreadCount}
+              </span>
+            )}
           </div>
-          <button onClick={() => onRemove(widget.id)} className="text-gray-400 hover:text-red-500 transition-colors">
-            <X size={18} />
-          </button>
+          <div>
+            <CardTitle className="text-lg font-semibold">{widget.title}</CardTitle>
+            <CardDescription>Smart alerts and recommendations</CardDescription>
+          </div>
         </div>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-6 w-6 text-muted-foreground"
+          onClick={() => onRemove(widget.id)}
+        >
+          <X className="h-4 w-4" />
+        </Button>
       </CardHeader>
-      <CardContent className="p-4">
-        <div className="flex justify-between items-center mb-4">
-          <div className="flex items-center">
-            <Bell className="h-4 w-4 text-indigo-600 mr-2" />
-            <h3 className="text-sm font-medium text-gray-800">Notifications</h3>
+      <CardContent>
+        <div className="space-y-4">
+          {/* Filters */}
+          <div className="flex flex-wrap gap-2 justify-between items-center">
+            <div className="flex gap-2">
+              {/* Type filter */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs">
+                    <Filter className="h-3.5 w-3.5" />
+                    Type
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="w-40">
+                  <DropdownMenuCheckboxItem 
+                    checked={selectedTypes.alert} 
+                    onCheckedChange={(checked) => setSelectedTypes({...selectedTypes, alert: checked})}
+                  >
+                    <AlertTriangle className="h-3.5 w-3.5 text-amber-500 mr-1.5" />
+                    Alerts
+                  </DropdownMenuCheckboxItem>
+                  <DropdownMenuCheckboxItem 
+                    checked={selectedTypes.insight} 
+                    onCheckedChange={(checked) => setSelectedTypes({...selectedTypes, insight: checked})}
+                  >
+                    <Lightbulb className="h-3.5 w-3.5 text-blue-500 mr-1.5" />
+                    Insights
+                  </DropdownMenuCheckboxItem>
+                  <DropdownMenuCheckboxItem 
+                    checked={selectedTypes.recommendation} 
+                    onCheckedChange={(checked) => setSelectedTypes({...selectedTypes, recommendation: checked})}
+                  >
+                    <Lightbulb className="h-3.5 w-3.5 text-green-500 mr-1.5" />
+                    Recommendations
+                  </DropdownMenuCheckboxItem>
+                  <DropdownMenuCheckboxItem 
+                    checked={selectedTypes.action} 
+                    onCheckedChange={(checked) => setSelectedTypes({...selectedTypes, action: checked})}
+                  >
+                    <ArrowRight className="h-3.5 w-3.5 text-rose-500 mr-1.5" />
+                    Actions
+                  </DropdownMenuCheckboxItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+              
+              {/* Priority filter */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs">
+                    <Filter className="h-3.5 w-3.5" />
+                    Priority
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="w-40">
+                  <DropdownMenuCheckboxItem 
+                    checked={selectedPriorities.high} 
+                    onCheckedChange={(checked) => setSelectedPriorities({...selectedPriorities, high: checked})}
+                  >
+                    <span className="h-2 w-2 rounded-full bg-rose-500 mr-2" />
+                    High
+                  </DropdownMenuCheckboxItem>
+                  <DropdownMenuCheckboxItem 
+                    checked={selectedPriorities.medium} 
+                    onCheckedChange={(checked) => setSelectedPriorities({...selectedPriorities, medium: checked})}
+                  >
+                    <span className="h-2 w-2 rounded-full bg-amber-500 mr-2" />
+                    Medium
+                  </DropdownMenuCheckboxItem>
+                  <DropdownMenuCheckboxItem 
+                    checked={selectedPriorities.low} 
+                    onCheckedChange={(checked) => setSelectedPriorities({...selectedPriorities, low: checked})}
+                  >
+                    <span className="h-2 w-2 rounded-full bg-slate-400 mr-2" />
+                    Low
+                  </DropdownMenuCheckboxItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+            
+            {/* Mark all as read */}
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="h-8 text-xs"
+              onClick={() => setNotifications(notifications.map(n => ({...n, read: true})))}
+              disabled={unreadCount === 0}
+            >
+              <CheckCircle className="h-3.5 w-3.5 mr-1.5" />
+              Mark all as read
+            </Button>
           </div>
           
-          <div className="flex items-center gap-1">
-            <button 
-              onClick={() => setFilter('all')}
-              className={`px-2 py-1 text-xs rounded ${filter === 'all' ? 'bg-indigo-100 text-indigo-800' : 'bg-gray-50 text-gray-600 hover:bg-gray-100'}`}
-            >
-              All
-            </button>
-            <button 
-              onClick={() => setFilter('unread')}
-              className={`px-2 py-1 text-xs rounded ${filter === 'unread' ? 'bg-indigo-100 text-indigo-800' : 'bg-gray-50 text-gray-600 hover:bg-gray-100'}`}
-            >
-              Unread
-            </button>
-            <button 
-              onClick={() => setFilter('alerts')}
-              className={`px-2 py-1 text-xs rounded ${filter === 'alerts' ? 'bg-red-100 text-red-800' : 'bg-gray-50 text-gray-600 hover:bg-gray-100'}`}
-            >
-              Alerts
-            </button>
-            <button 
-              onClick={() => setFilter('insights')}
-              className={`px-2 py-1 text-xs rounded ${filter === 'insights' ? 'bg-blue-100 text-blue-800' : 'bg-gray-50 text-gray-600 hover:bg-gray-100'}`}
-            >
-              Insights
-            </button>
-          </div>
-        </div>
-        
-        <div className="space-y-3 max-h-[350px] overflow-y-auto pr-1">
+          {/* Notifications list */}
           {filteredNotifications.length === 0 ? (
-            <div className="text-center py-6 text-gray-500">
-              <Bell className="h-8 w-8 mx-auto mb-2 text-gray-300" />
-              <p className="text-sm">No notifications to display</p>
+            <div className="text-center py-8">
+              <Bell className="h-8 w-8 mx-auto text-slate-300 mb-2" />
+              <p className="text-sm text-slate-500">No notifications match your filters</p>
+              <Button 
+                variant="link" 
+                className="text-xs mt-1 h-auto p-0"
+                onClick={() => {
+                  setSelectedTypes({alert: true, insight: true, recommendation: true, action: true});
+                  setSelectedPriorities({high: true, medium: true, low: true});
+                }}
+              >
+                Reset filters
+              </Button>
             </div>
           ) : (
-            filteredNotifications.map((notification, index) => (
-              <motion.div
-                key={notification.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, delay: index * 0.05 }}
-                className={`border ${getBorderColor(notification)} rounded-md overflow-hidden ${getBackgroundColor(notification)}`}
-              >
-                <div className="p-3 relative">
-                  {!notification.read && (
-                    <div className="absolute top-3 right-3 w-2 h-2 bg-indigo-500 rounded-full"></div>
+            <div className="space-y-3 max-h-[380px] overflow-y-auto pr-1">
+              {filteredNotifications.map((notification) => (
+                <div 
+                  key={notification.id}
+                  className={cn(
+                    "border rounded-md p-3 transition-colors relative", 
+                    getBorderColor(notification),
+                    getBackgroundColor(notification)
                   )}
-                  
-                  <div className="flex items-start">
-                    <div className="flex-shrink-0 mr-3 mt-0.5">
+                  onClick={() => markAsRead(notification.id)}
+                >
+                  {/* Notification header */}
+                  <div className="flex justify-between items-start mb-1.5">
+                    <div className="flex items-center gap-1.5">
                       {getIcon(notification)}
+                      <span className={cn(
+                        "text-sm font-medium",
+                        notification.type === 'alert' && "text-amber-700",
+                        notification.type === 'insight' && "text-blue-700",
+                        notification.type === 'recommendation' && "text-green-700",
+                        notification.type === 'action' && "text-rose-700"
+                      )}>
+                        {getTypeTitle(notification.type)}
+                      </span>
                     </div>
-                    <div className="flex-1">
-                      <div className="flex items-center mb-1">
-                        <h4 className="text-sm font-medium text-gray-900 mr-2">{notification.title}</h4>
-                        <Badge 
-                          variant="outline" 
-                          className={`text-[10px] px-1.5 py-0 h-4 ${
-                            notification.category === 'campaigns' ? 'border-blue-200 text-blue-700 bg-blue-50' :
-                            notification.category === 'contacts' ? 'border-green-200 text-green-700 bg-green-50' :
-                            notification.category === 'performance' ? 'border-purple-200 text-purple-700 bg-purple-50' :
-                            'border-gray-200 text-gray-700 bg-gray-50'
-                          }`}
-                        >
-                          <span className="flex items-center">
-                            <span className="mr-1">{getCategoryIcon(notification.category)}</span>
-                            <span>{notification.category}</span>
-                          </span>
-                        </Badge>
-                      </div>
+                    <div className="flex items-center gap-1.5">
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span className="text-xs text-gray-500">{notification.timestamp}</span>
+                          </TooltipTrigger>
+                          <TooltipContent side="left">
+                            {notification.read ? 'Read' : 'Unread'}
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                       
-                      <p className="text-xs text-gray-600 mb-2">{notification.message}</p>
-                      
-                      {notification.metadata?.metric && (
-                        <div className="mb-2 bg-white bg-opacity-60 p-2 rounded border border-gray-100">
-                          <div className="flex justify-between items-center">
-                            <span className="text-xs text-gray-500">{notification.metadata.metric.name}</span>
-                            <div className="flex items-center">
-                              <span className="text-sm font-medium mr-1">
-                                {notification.metadata.metric.value.toFixed(1)}%
-                              </span>
-                              <span className={`text-xs flex items-center ${
-                                notification.metadata.metric.trend === 'up' 
-                                  ? 'text-green-600' 
-                                  : 'text-red-600'
-                              }`}>
-                                {notification.metadata.metric.trend === 'up' ? (
-                                  <ArrowUpRight className="h-3 w-3 mr-0.5" />
-                                ) : (
-                                  <ArrowUpRight className="h-3 w-3 mr-0.5 transform rotate-180" />
-                                )}
-                                {notification.metadata.metric.change.toFixed(1)}%
-                              </span>
-                            </div>
-                          </div>
-                        </div>
+                      {!notification.read && (
+                        <span className="h-2 w-2 rounded-full bg-blue-500" />
                       )}
-                      
-                      {notification.metadata?.link && (
-                        <a 
-                          href={notification.metadata.link} 
-                          className="text-xs text-indigo-600 hover:text-indigo-800 hover:underline inline-flex items-center"
-                        >
-                          {notification.metadata.linkText || 'View details'}
-                          <ArrowUpRight className="h-3 w-3 ml-1" />
-                        </a>
-                      )}
-                      
-                      <div className="mt-2 flex justify-between items-center">
-                        <span className="text-[10px] text-gray-400">{notification.timestamp}</span>
-                        
-                        <div className="flex items-center gap-1">
-                          <button className="text-xs text-indigo-600 hover:text-indigo-800 flex items-center">
-                            <CheckCircle2 className="h-3 w-3 mr-0.5" />
-                            Mark as read
-                          </button>
-                        </div>
-                      </div>
                     </div>
                   </div>
+                  
+                  {/* Notification body */}
+                  <div className="mb-2">
+                    <h4 className="text-sm font-medium mb-1">{notification.title}</h4>
+                    <p className="text-xs text-gray-600">{notification.message}</p>
+                  </div>
+                  
+                  {/* Notification footer with metadata */}
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div className="flex flex-wrap gap-1.5">
+                      {getPriorityBadge(notification.priority)}
+                      {getCategoryBadge(notification.category)}
+                    </div>
+                    
+                    {/* Show metric if available */}
+                    {notification.metadata?.metric && (
+                      <div className={cn(
+                        "flex items-center text-xs font-medium gap-1",
+                        notification.metadata.metric.trend === 'up' ? "text-green-600" : "text-rose-600"
+                      )}>
+                        {notification.metadata.metric.trend === 'up' ? (
+                          <TrendingUp className="h-3.5 w-3.5" />
+                        ) : (
+                          <TrendingDown className="h-3.5 w-3.5" />
+                        )}
+                        <span>{notification.metadata.metric.name}: {notification.metadata.metric.value}%</span>
+                        <span>{notification.metadata.metric.change > 0 ? '+' : ''}{notification.metadata.metric.change}%</span>
+                      </div>
+                    )}
+                    
+                    {/* Action link if available */}
+                    {notification.metadata?.link && (
+                      <Button
+                        variant="link"
+                        size="sm"
+                        className="h-7 p-0 text-xs text-purple-600"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          // Navigate to link in real implementation
+                          markAsRead(notification.id);
+                        }}
+                      >
+                        {notification.metadata.linkText || 'View details'}
+                      </Button>
+                    )}
+                  </div>
                 </div>
-              </motion.div>
-            ))
+              ))}
+            </div>
           )}
         </div>
       </CardContent>
