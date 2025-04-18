@@ -496,7 +496,7 @@ const DashboardWidgets: React.FC<DashboardWidgetsProps> = ({ clientData }) => {
             key={widget.id}
             widget={widget}
             data={{
-              performanceData: clientData.performanceData
+              performanceData: safeClientData.performanceData || {}
             }}
             onRemove={handleRemoveWidget}
           />

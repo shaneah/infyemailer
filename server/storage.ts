@@ -336,6 +336,14 @@ export class MemStorage implements IStorage {
   private templates: Map<number, Template>;
   private analytics: Map<number, Analytics>;
   private clients: Map<number, Client>;
+  
+  async getContactsCount(): Promise<number> {
+    return this.contacts?.size || 0;
+  }
+  
+  async getCampaignsCount(): Promise<number> {
+    return this.campaigns?.size || 0;
+  }
   private domains: Map<number, Domain>;
   private campaignDomains: Map<number, CampaignDomain>;
   private campaignVariants: Map<number, CampaignVariant>;
