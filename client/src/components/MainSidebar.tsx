@@ -69,14 +69,6 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
                 </div>
               )}
             </div>
-            {/* Toggle Button */}
-            <button
-              onClick={handleToggleCollapsed}
-              className="p-1 rounded-md text-gray-400 hover:text-white hover:bg-[#1e293b] focus:outline-none"
-              title={collapsed ? "Expand" : "Collapse"}
-            >
-              {collapsed ? <ChevronRight className="h-5 w-5" /> : <ChevronLeft className="h-5 w-5" />}
-            </button>
           </div>
           
           {/* User Profile */}
