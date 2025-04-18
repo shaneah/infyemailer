@@ -2202,6 +2202,70 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // User Preferences API - dashboard layout
+  app.post('/api/user-preferences/dashboard', async (req: Request, res: Response) => {
+    try {
+      const { userId, userType, layout } = req.body;
+      
+      if (!userId || !userType || !layout) {
+        return res.status(400).json({ error: 'Missing required fields' });
+      }
+      
+      // Validate userType
+      if (userType !== 'admin' && userType !== 'client') {
+        return res.status(400).json({ error: 'Invalid user type' });
+      }
+      
+      // Save preferences based on user type
+      let success;
+      if (userType === 'admin') {
+        success = await storage.updateUserPreferences(userId, { dashboardLayout: layout });
+      } else {
+        success = await storage.updateClientUserPreferences(userId, { dashboardLayout: layout });
+      }
+      
+      if (success) {
+        return res.status(200).json({ success: true });
+      } else {
+        return res.status(404).json({ error: 'User not found' });
+      }
+    } catch (error) {
+      console.error('Error saving user preferences:', error);
+      return res.status(500).json({ error: 'Failed to save preferences' });
+    }
+  });
+  
+  app.get('/api/user-preferences/dashboard', async (req: Request, res: Response) => {
+    try {
+      const { userId, userType } = req.query;
+      
+      if (!userId || !userType) {
+        return res.status(400).json({ error: 'Missing required query parameters' });
+      }
+      
+      // Validate userType
+      if (userType !== 'admin' && userType !== 'client') {
+        return res.status(400).json({ error: 'Invalid user type' });
+      }
+      
+      let preferences;
+      if (userType === 'admin') {
+        preferences = await storage.getUserPreferences(Number(userId));
+      } else {
+        preferences = await storage.getClientUserPreferences(Number(userId));
+      }
+      
+      if (preferences) {
+        return res.status(200).json(preferences);
+      } else {
+        return res.status(404).json({ error: 'User preferences not found' });
+      }
+    } catch (error) {
+      console.error('Error retrieving user preferences:', error);
+      return res.status(500).json({ error: 'Failed to retrieve preferences' });
+    }
+  });
+
   // Client User routes
   app.post('/api/client-login', async (req: Request, res: Response) => {
     console.log('Client login request received:', req.body);
