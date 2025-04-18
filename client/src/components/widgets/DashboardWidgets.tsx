@@ -1,5 +1,8 @@
 import React from 'react';
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
 import { Widget, useWidgets, WidgetType } from '@/hooks/useWidgets';
+import DraggableWidget from './DraggableWidget';
 import ActiveCampaignsWidget from './ActiveCampaignsWidget';
 import TotalEmailsWidget from './TotalEmailsWidget';
 import OpenRateWidget from './OpenRateWidget';
@@ -18,14 +21,13 @@ import SmartNotificationsWidget from './SmartNotificationsWidget';
 import AIRecommendationWidget from './AIRecommendationWidget';
 import CampaignPerformanceAnalyzerWidget from './CampaignPerformanceAnalyzerWidget';
 import UserJourneyWidget from './UserJourneyWidget';
-// WidgetManager is now used only in Dashboard components
 
 interface DashboardWidgetsProps {
   clientData: any; // The dashboard data
 }
 
 const DashboardWidgets: React.FC<DashboardWidgetsProps> = ({ clientData }) => {
-  const { widgets, removeWidget, updateWidgetConfig } = useWidgets();
+  const { widgets, removeWidget, updateWidgetConfig, moveWidget } = useWidgets();
 
   // Filter visible widgets and sort by row/col for display
   const visibleWidgets = widgets
@@ -625,16 +627,27 @@ const DashboardWidgets: React.FC<DashboardWidgetsProps> = ({ clientData }) => {
   }, {});
 
   return (
-    <div className="space-y-6">
-      {Object.entries(widgetsByRow).map(([row, rowWidgets]) => (
-        <div 
-          key={`row-${row}`} 
-          className="grid grid-cols-1 md:grid-cols-3 gap-6"
-        >
-          {rowWidgets.map(widget => renderWidget(widget))}
-        </div>
-      ))}
-    </div>
+    <DndProvider backend={HTML5Backend}>
+      <div className="space-y-6">
+        {Object.entries(widgetsByRow).map(([row, rowWidgets]) => (
+          <div 
+            key={`row-${row}`} 
+            className="grid grid-cols-1 md:grid-cols-3 gap-6"
+          >
+            {rowWidgets.map((widget, index) => (
+              <DraggableWidget 
+                key={widget.id} 
+                widget={widget} 
+                index={index}
+                moveWidget={moveWidget}
+              >
+                {renderWidget(widget)}
+              </DraggableWidget>
+            ))}
+          </div>
+        ))}
+      </div>
+    </DndProvider>
   );
 };
 
