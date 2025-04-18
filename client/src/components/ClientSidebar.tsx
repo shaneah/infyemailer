@@ -146,26 +146,52 @@ const ClientSidebar = ({ open, setOpen }: SidebarProps) => {
       
       {/* Sidebar */}
       <aside 
-        className={`fixed inset-y-0 left-0 z-40 w-64 transform transition-all duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-auto lg:z-auto ${
-          open ? 'translate-x-0 opacity-100 shadow-xl' : '-translate-x-full opacity-95 shadow-md'
-        } h-full bg-gradient-to-b from-[#0a1929] to-[#1a3a5f] text-white flex flex-col flex-shrink-0`}
+        className={`fixed inset-y-0 left-0 z-40 w-72 transform transition-all duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-auto lg:z-auto ${
+          open ? 'translate-x-0 opacity-100 shadow-2xl' : '-translate-x-full opacity-95 shadow-md'
+        } h-full bg-gradient-to-b from-[#051528] via-[#0a2440] to-[#0d2f55] text-white flex flex-col flex-shrink-0 border-r border-[#d4af37]/10`}
       >
+        {/* Decorative gold accent line */}
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#d4af37]/80 via-[#d4af37] to-[#d4af37]/80"></div>
+        
         {/* App name and client name header */}
-        <div className="flex flex-col items-center justify-center p-4 pt-6 pb-2 bg-gradient-to-r from-[#112b4a] to-[#0a1929]">
-          <div className="w-12 h-12 mb-2 flex items-center justify-center bg-white/10 rounded-full">
-            <img src={LogoWhite} alt="Logo" className="w-8 h-8 object-contain" />
+        <div className="flex flex-col items-center justify-center p-6 pt-8 pb-4 bg-gradient-to-r from-[#051528] to-[#0a2440] relative overflow-hidden">
+          {/* Decorative particles */}
+          <div className="absolute inset-0 opacity-10">
+            {[...Array(10)].map((_, i) => (
+              <div
+                key={i}
+                className="absolute rounded-full bg-[#d4af37]"
+                style={{
+                  width: `${Math.random() * 3 + 1}px`,
+                  height: `${Math.random() * 3 + 1}px`,
+                  top: `${Math.random() * 100}%`,
+                  left: `${Math.random() * 100}%`,
+                  opacity: Math.random() * 0.5 + 0.2
+                }}
+              />
+            ))}
+          </div>
+          
+          <div className="w-14 h-14 mb-3 flex items-center justify-center bg-gradient-to-br from-[#0a2440] to-[#051528] rounded-full border border-[#d4af37]/20 shadow-lg relative">
+            <div className="absolute inset-0 rounded-full bg-[#d4af37]/5 animate-pulse"></div>
+            <img src={LogoWhite} alt="Logo" className="w-10 h-10 object-contain relative z-10" />
           </div>
           <div className="text-center">
-            <h2 className="font-bold text-xl text-white mb-1">Infinity Tech</h2>
-            <div className="flex items-center justify-center space-x-2 mb-1">
+            <h2 className="font-bold text-xl text-white mb-2">
+              <span className="text-[#d4af37]">Infinity</span> Tech
+            </h2>
+            <div className="flex items-center justify-center space-x-2 mb-1 bg-[#0a1929]/50 px-3 py-1 rounded-full border border-[#d4af37]/10">
               <Building2 size={14} className="text-[#d4af37]" />
               <p className="text-sm font-medium text-blue-100">{clientName}</p>
             </div>
           </div>
         </div>
         
-        {/* Navbar divider */}
-        <div className="border-b border-blue-800/50 mb-2"></div>
+        {/* Navbar divider with gold accent */}
+        <div className="relative">
+          <div className="border-b border-blue-900/30"></div>
+          <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-16 h-0.5 bg-[#d4af37]/30"></div>
+        </div>
         
         {/* Navigation */}
         <div className="flex-1 overflow-y-auto py-4 px-1">
