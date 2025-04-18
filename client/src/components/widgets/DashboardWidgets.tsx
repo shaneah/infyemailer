@@ -28,8 +28,20 @@ interface DashboardWidgetsProps {
 }
 
 const DashboardWidgets: React.FC<DashboardWidgetsProps> = ({ clientData }) => {
+  // Create default stats if clientData is null
+  const clientDataWithDefaults = {
+    stats: clientData?.stats || {
+      activeCampaigns: 0,
+      totalEmails: 0,
+      openRate: 0,
+      clickRate: 0,
+      contactsCount: 0
+    },
+    performanceData: clientData?.performanceData || []
+  };
+  
   const { widgets, removeWidget, updateWidgetConfig, moveWidget } = useWidgets();
-  const { recordWidgetView, recordWidgetInteraction } = useWidgetRecommendations(widgets, clientData);
+  const { recordWidgetView, recordWidgetInteraction } = useWidgetRecommendations(widgets, clientDataWithDefaults);
 
   // Filter visible widgets and sort by row/col for display
   const visibleWidgets = widgets
@@ -112,7 +124,7 @@ const DashboardWidgets: React.FC<DashboardWidgetsProps> = ({ clientData }) => {
         { date: "Apr 25", subscribers: 135, unsubscribes: 14 },
         { date: "Apr 30", subscribers: 168, unsubscribes: 11 },
       ],
-      totalContacts: clientData.stats.contactsCount || 4560,
+      totalContacts: clientDataWithDefaults.stats.contactsCount || 4560,
       growthRate: 4.8
     },
     
@@ -439,7 +451,7 @@ const DashboardWidgets: React.FC<DashboardWidgetsProps> = ({ clientData }) => {
             key={widget.id}
             widget={widget}
             data={{
-              activeCampaigns: clientData.stats.activeCampaigns,
+              activeCampaigns: clientDataWithDefaults.stats.activeCampaigns,
               weeklyActive: 2 // Placeholder, would come from API
             }}
             onRemove={handleRemoveWidget}
@@ -452,7 +464,7 @@ const DashboardWidgets: React.FC<DashboardWidgetsProps> = ({ clientData }) => {
             key={widget.id}
             widget={widget}
             data={{
-              totalEmails: clientData.stats.totalEmails,
+              totalEmails: clientDataWithDefaults.stats.totalEmails,
               monthlyEmails: 1250 // Placeholder, would come from API
             }}
             onRemove={handleRemoveWidget}
@@ -465,7 +477,7 @@ const DashboardWidgets: React.FC<DashboardWidgetsProps> = ({ clientData }) => {
             key={widget.id}
             widget={widget}
             data={{
-              openRate: clientData.stats.openRate,
+              openRate: clientDataWithDefaults.stats.openRate,
               comparison: 3.2 // Placeholder, would come from API
             }}
             onRemove={handleRemoveWidget}
@@ -478,7 +490,7 @@ const DashboardWidgets: React.FC<DashboardWidgetsProps> = ({ clientData }) => {
             key={widget.id}
             widget={{...widget, title: 'Click Rate'}}
             data={{
-              openRate: clientData.stats.clickRate,
+              openRate: clientDataWithDefaults.stats.clickRate,
               comparison: 1.8 // Placeholder, would come from API
             }}
             onRemove={handleRemoveWidget}
@@ -491,7 +503,7 @@ const DashboardWidgets: React.FC<DashboardWidgetsProps> = ({ clientData }) => {
             key={widget.id}
             widget={widget}
             data={{
-              performanceData: clientData.performanceData
+              performanceData: clientDataWithDefaults.performanceData
             }}
             onRemove={handleRemoveWidget}
           />
