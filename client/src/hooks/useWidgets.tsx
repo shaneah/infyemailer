@@ -167,10 +167,7 @@ export const WidgetsProvider: React.FC<{
 
   // Fetch widgets from server API
   const fetchWidgetsFromServer = useCallback(async () => {
-    if (!userId) {
-      setIsLoading(false);
-      return false;
-    }
+    setIsLoading(true);
     
     try {
       const endpoint = isAdmin 
@@ -178,6 +175,15 @@ export const WidgetsProvider: React.FC<{
         : '/api/client-user-preferences/dashboard';
       
       const response = await apiRequest('GET', endpoint);
+      
+      // Check if request was successful (status code 2xx)
+      if (!response.ok) {
+        // If authentication error or other error, fallback to localStorage
+        console.log('Using localStorage fallback for widgets');
+        setIsLoading(false);
+        return false;
+      }
+      
       const data = await response.json();
       
       if (data && data.dashboardLayout) {
@@ -193,32 +199,37 @@ export const WidgetsProvider: React.FC<{
     } finally {
       setIsLoading(false);
     }
-  }, [userId, isAdmin]);
+  }, [isAdmin]);
 
   // Save widgets to server API
   const saveWidgetsToServer = useCallback(async (widgetsToSave: Widget[]) => {
-    if (!userId) return;
-    
     try {
       const endpoint = isAdmin 
         ? '/api/user-preferences/dashboard' 
         : '/api/client-user-preferences/dashboard';
       
-      await apiRequest('POST', endpoint, {
+      const response = await apiRequest('POST', endpoint, {
         dashboardLayout: widgetsToSave
       });
       
-      // Also update localStorage as fallback
+      // Only show error message if the request was sent but failed
+      // (not for auth failures which are expected for guest users)
+      if (!response.ok && response.status !== 401) {
+        toast({
+          title: "Unable to save dashboard layout",
+          description: "Your changes will be stored locally but may not persist across devices.",
+          variant: "destructive"
+        });
+      }
+      
+      // Always update localStorage as fallback
       localStorage.setItem('dashboard-widgets', JSON.stringify(widgetsToSave));
     } catch (error) {
       console.error('Error saving widgets to server:', error);
-      toast({
-        title: "Unable to save dashboard layout",
-        description: "Your changes will be stored locally but may not persist across devices.",
-        variant: "destructive"
-      });
+      // Still save to localStorage even if server save fails
+      localStorage.setItem('dashboard-widgets', JSON.stringify(widgetsToSave));
     }
-  }, [userId, isAdmin, toast]);
+  }, [isAdmin, toast]);
 
   // Load widgets on mount
   useEffect(() => {
@@ -310,13 +321,14 @@ export const WidgetsProvider: React.FC<{
 
   // Reset to default widgets
   const resetToDefault = () => {
+    // Clear local storage
     localStorage.removeItem('dashboard-widgets');
+    
+    // Set the widgets state to defaults
     setWidgets(defaultWidgets);
     
-    // Also update server if user is logged in
-    if (userId) {
-      saveWidgetsToServer(defaultWidgets);
-    }
+    // Try to save to server (will use localStorage as fallback automatically)
+    saveWidgetsToServer(defaultWidgets);
   };
 
   // Toggle widget visibility

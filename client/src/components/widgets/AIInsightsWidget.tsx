@@ -76,7 +76,16 @@ const AIInsightsWidget: React.FC<AIInsightsWidgetProps> = ({ widget, data, onRem
   // Generate insights on first load
   useEffect(() => {
     if (data && !insights.length && !loading) {
-      generateInsights();
+      // Validate data before attempting to generate insights
+      if (data.performanceData && Array.isArray(data.performanceData) && 
+          data.recentCampaigns && Array.isArray(data.recentCampaigns) && 
+          data.stats) {
+        generateInsights();
+      } else {
+        // Handle missing or invalid data
+        setInsights(['Insufficient data available to generate insights. Please check back when more campaign data is available.']);
+        setLastUpdated(new Date());
+      }
     }
   }, [data]);
 
