@@ -23,13 +23,40 @@ const ClientHeader: React.FC<ClientHeaderProps> = ({
 }) => {
   const [location, setLocation] = useLocation();
   
-  const handleLogout = () => {
-    // Clear session storage and localStorage
-    sessionStorage.removeItem('clientUser');
-    localStorage.removeItem('clientUser');
-    
-    // Redirect to login page
-    setLocation('/client-login');
+  const handleLogout = async () => {
+    try {
+      // Call logout API endpoint
+      const response = await fetch('/api/logout', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (response.ok) {
+        // Clear all storage
+        sessionStorage.clear();
+        localStorage.clear();
+        
+        // Redirect to client login page
+        setLocation('/client-login');
+      } else {
+        console.error('Logout failed:', response.status);
+        
+        // Fallback - still try to clear session and redirect
+        sessionStorage.clear();
+        localStorage.clear();
+        setLocation('/client-login');
+      }
+    } catch (error) {
+      console.error('Error during logout:', error);
+      
+      // Fallback - still try to clear session and redirect
+      sessionStorage.clear();
+      localStorage.clear();
+      setLocation('/client-login');
+    }
   };
   
   // Generate breadcrumb path based on current location

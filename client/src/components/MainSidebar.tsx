@@ -38,14 +38,40 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
     }
   };
 
-  const handleLogout = () => {
-    // Clear session storage
-    sessionStorage.removeItem('user');
-    sessionStorage.removeItem('isLoggedIn');
-    sessionStorage.removeItem('token');
-    
-    // Redirect to login
-    window.location.href = '/auth';
+  const handleLogout = async () => {
+    try {
+      // Call logout API endpoint
+      const response = await fetch('/api/logout', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (response.ok) {
+        // Clear all storage
+        sessionStorage.clear();
+        localStorage.clear();
+        
+        // Redirect to login page
+        window.location.href = '/auth';
+      } else {
+        console.error('Logout failed:', response.status);
+        
+        // Fallback - still try to clear session and redirect
+        sessionStorage.clear();
+        localStorage.clear();
+        window.location.href = '/auth';
+      }
+    } catch (error) {
+      console.error('Error during logout:', error);
+      
+      // Fallback - still try to clear session and redirect
+      sessionStorage.clear();
+      localStorage.clear();
+      window.location.href = '/auth';
+    }
   };
 
   return (
