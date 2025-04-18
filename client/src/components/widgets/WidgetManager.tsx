@@ -3,7 +3,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription, DialogFooter 
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Plus, LayoutGrid, Undo2 } from 'lucide-react';
+import { Plus, LayoutGrid, Undo2, Sparkles } from 'lucide-react';
 import { 
   WidgetType, useWidgets, availableWidgets, widgetTitles 
 } from '@/hooks/useWidgets';
@@ -34,8 +34,36 @@ const WidgetManager: React.FC = () => {
     }
   };
 
+  const handleResetLayout = () => {
+    localStorage.removeItem('dashboard-widgets');
+    resetToDefault();
+  };
+
+  const addAIWidgets = () => {
+    if (!visibleWidgetTypes.includes('aiRecommendations')) {
+      addWidget('aiRecommendations');
+    }
+    if (!visibleWidgetTypes.includes('campaignPerformanceAnalyzer')) {
+      addWidget('campaignPerformanceAnalyzer');
+    }
+    if (!visibleWidgetTypes.includes('userJourney')) {
+      addWidget('userJourney');
+    }
+    // Show success message
+    alert('Advanced AI widgets have been added to your dashboard!');
+  };
+
   return (
     <div className="flex gap-2">
+      <Button
+        variant="default"
+        size="sm"
+        className="gap-1 bg-indigo-600 hover:bg-indigo-700 text-white"
+        onClick={addAIWidgets}
+      >
+        <Sparkles className="h-4 w-4" />
+        <span>Add AI Widgets</span>
+      </Button>
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogTrigger asChild>
           <Button
@@ -97,7 +125,7 @@ const WidgetManager: React.FC = () => {
         variant="outline"
         size="sm"
         className="gap-1 text-purple-600 border-purple-200 hover:border-purple-300 hover:bg-purple-50"
-        onClick={() => resetToDefault()}
+        onClick={handleResetLayout}
       >
         <Undo2 className="h-4 w-4" />
         <span>Reset Layout</span>
