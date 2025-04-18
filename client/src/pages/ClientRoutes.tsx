@@ -15,6 +15,7 @@ import ClientEmailPerformance from '@/pages/ClientEmailPerformance';
 import ClientABTestingAdvanced from '@/pages/ClientABTestingAdvanced';
 import ClientSecurity from '@/pages/ClientSecurity';
 import ClientBilling from '@/pages/ClientBilling';
+import ClientSettings from '@/pages/ClientSettings';
 
 // Advanced Campaigns component with modern UI
 const ClientCampaigns = ({ onCreateCampaign }: { onCreateCampaign: () => void }) => {
@@ -2855,19 +2856,7 @@ const ClientABTesting = () => (
     </div>
   </div>
 );
-const ClientSettings = () => (
-  <div className="p-8">
-    <div className="flex items-center gap-3 mb-6">
-      <div className="bg-primary/10 p-2 rounded-full">
-        <Activity className="h-6 w-6 text-primary" />
-      </div>
-      <h1 className="text-2xl font-bold">Client Settings</h1>
-    </div>
-    <div className="bg-white rounded-lg shadow p-6 border border-gray-100">
-      <p className="text-gray-600">This page is under development.</p>
-    </div>
-  </div>
-);
+// Legacy ClientSettings component has been replaced with the imported ClientSettings component
 
 export default function ClientRoutes() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
