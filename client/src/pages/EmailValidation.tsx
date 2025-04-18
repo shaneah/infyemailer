@@ -561,7 +561,7 @@ const EmailValidation = () => {
       >
         <Tabs defaultValue="single" className="mb-8">
           <div className="bg-gradient-to-r from-indigo-900/90 to-purple-900/90 rounded-xl shadow-inner p-1">
-            <div className="grid w-full grid-cols-2 gap-1">
+            <TabsList className="grid w-full grid-cols-2 gap-1 bg-transparent">
               <div>
                 <TabsTrigger 
                   value="single" 
@@ -588,7 +588,7 @@ const EmailValidation = () => {
                   </div>
                 </TabsTrigger>
               </div>
-            </div>
+            </TabsList>
           </div>
         
         <TabsContent value="single">
