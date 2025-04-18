@@ -313,6 +313,12 @@ export interface IStorage {
   createAudienceSegment(segment: InsertAudienceSegment): Promise<AudienceSegment>;
   updateAudienceSegment(id: number, segment: Partial<AudienceSegment>): Promise<AudienceSegment | undefined>;
   deleteAudienceSegment(id: number): Promise<boolean>;
+  
+  // User preferences - dashboard layout
+  getUserPreferences(userId: number): Promise<any>;
+  updateUserPreferences(userId: number, preferences: any): Promise<boolean>;
+  getClientUserPreferences(clientUserId: number): Promise<any>;
+  updateClientUserPreferences(clientUserId: number, preferences: any): Promise<boolean>;
 }
 
 import session from 'express-session';
