@@ -167,23 +167,17 @@ export const WidgetsProvider: React.FC<{
 
   // Fetch widgets from server API
   const fetchWidgetsFromServer = useCallback(async () => {
+    if (!userId) {
+      setIsLoading(false);
+      return false;
+    }
+    
     try {
       const endpoint = isAdmin 
         ? '/api/user-preferences/dashboard' 
         : '/api/client-user-preferences/dashboard';
       
       const response = await apiRequest('GET', endpoint);
-      
-      // If response is not OK, handle authentication errors
-      if (!response.ok) {
-        if (response.status === 401) {
-          console.log('Authentication required to fetch widgets');
-          loadWidgetsFromLocalStorage();
-          return false;
-        }
-        throw new Error(`Server responded with ${response.status}`);
-      }
-      
       const data = await response.json();
       
       if (data && data.dashboardLayout) {
@@ -191,19 +185,15 @@ export const WidgetsProvider: React.FC<{
         // Also cache in localStorage as fallback
         localStorage.setItem('dashboard-widgets', JSON.stringify(data.dashboardLayout));
         return true;
-      } else {
-        // Load from localStorage as fallback
-        loadWidgetsFromLocalStorage();
       }
       return false;
     } catch (error) {
       console.error('Error fetching widgets from server:', error);
-      loadWidgetsFromLocalStorage();
       return false;
     } finally {
       setIsLoading(false);
     }
-  }, [isAdmin]);
+  }, [userId, isAdmin]);
 
   // Save widgets to server API
   const saveWidgetsToServer = useCallback(async (widgetsToSave: Widget[]) => {

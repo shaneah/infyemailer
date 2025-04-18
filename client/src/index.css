@@ -2,25 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Floating animation for client dashboard particles */
-@keyframes float {
-  0% {
-    transform: translateY(0) translateX(0);
-  }
-  25% {
-    transform: translateY(-10px) translateX(5px);
-  }
-  50% {
-    transform: translateY(0) translateX(10px);
-  }
-  75% {
-    transform: translateY(10px) translateX(5px);
-  }
-  100% {
-    transform: translateY(0) translateX(0);
-  }
-}
-
 /* Template preview container */
 .template-preview {
   font-family: Arial, sans-serif;

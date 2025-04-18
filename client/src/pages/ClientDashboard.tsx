@@ -170,29 +170,11 @@ export default function ClientDashboard() {
 
   return (
     <WidgetsProvider isAdmin={false} userId={clientUser?.id}>
-      <div className="flex flex-col overflow-hidden min-h-screen bg-gradient-to-b from-[#051528] via-[#0a2440] to-[#0d2f55]">
-        {/* Background animated particles */}
-        <div className="absolute inset-0 z-0 opacity-30">
-          {particles.map((particle, index) => (
-            <div 
-              key={index}
-              className="absolute rounded-full bg-[#d4af37]"
-              style={{
-                left: `${particle.x}%`,
-                top: `${particle.y}%`,
-                width: `${particle.size}px`,
-                height: `${particle.size}px`,
-                opacity: particle.opacity,
-                animation: `float ${10/particle.speed}s infinite ease-in-out`
-              }}
-            />
-          ))}
-        </div>
-        
+      <div className="flex flex-col overflow-hidden min-h-screen bg-gradient-to-br from-[#0a1929] via-[#112b4a] to-[#1a3a5f]">
         {/* Main Content */}
         <div className="flex-1 flex flex-col overflow-hidden relative z-10">
           {/* Header */}
-          <header className="relative z-20 flex items-center justify-between px-6 py-4 bg-gradient-to-r from-[#051528] to-[#0a2440] border-b border-[#d4af37]/20 shadow-lg">
+          <header className="relative z-20 flex items-center justify-between p-4 bg-[#0a1929] border-b border-[#1a3a5f]/50">
             <div className="flex items-center">
               <Button 
                 variant="ghost" 
@@ -202,29 +184,24 @@ export default function ClientDashboard() {
               >
                 <Menu size={24} />
               </Button>
-              <h1 className="text-xl font-semibold text-[#d4af37]">
-                <span className="mr-2">✦</span> 
-                Client Dashboard
-              </h1>
+              <h1 className="text-xl font-semibold text-[#d4af37]">Dashboard</h1>
             </div>
             
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
               {clientData && (
-                <span className="text-sm text-blue-100 hidden md:flex items-center">
-                  Welcome, <span className="font-medium text-[#d4af37] ml-1">{clientData.clientName}</span>
+                <span className="text-sm text-blue-100 hidden md:inline-block">
+                  Welcome, <span className="font-medium text-white">{clientData.clientName}</span>
                 </span>
               )}
             </div>
           </header>
 
           {/* Dashboard Content */}
-          <main className="flex-1 overflow-y-auto p-6 relative z-10 bg-gradient-to-br from-[#0a2440] to-[#0d2f55]">
+          <main className="flex-1 overflow-y-auto p-6 relative z-10 bg-[#112b4a]">
             <div className="container mx-auto">
               {/* Widget Management Controls */}
-              <div className="mb-6 flex justify-end">
-                <div className="backdrop-blur-sm bg-[#051528]/50 p-2 rounded-lg border border-[#d4af37]/10 shadow-lg">
-                  <WidgetManager clientData={clientData} />
-                </div>
+              <div className="mb-4 flex justify-end">
+                <WidgetManager clientData={clientData} />
               </div>
               
               {/* Customizable Dashboard Widgets */}

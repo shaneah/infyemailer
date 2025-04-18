@@ -8,7 +8,6 @@ import {
   WidgetType, useWidgets, availableWidgets, widgetTitles 
 } from '@/hooks/useWidgets';
 import { Label } from '@/components/ui/label';
-import { useToast } from '@/hooks/use-toast';
 import {
   Select,
   SelectContent,
@@ -25,7 +24,6 @@ interface WidgetManagerProps {
 
 const WidgetManager: React.FC<WidgetManagerProps> = ({ clientData = null }) => {
   const { widgets, addWidget, resetToDefault } = useWidgets();
-  const { toast } = useToast();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [recommendationsOpen, setRecommendationsOpen] = useState(false);
   const [selectedWidget, setSelectedWidget] = useState<WidgetType | ''>('');
@@ -44,53 +42,28 @@ const WidgetManager: React.FC<WidgetManagerProps> = ({ clientData = null }) => {
 
   const handleResetLayout = () => {
     try {
-      // Use the resetToDefault function which handles both local and server storage
-      resetToDefault();
-      
-      // Show success message using toast
-      toast({
-        title: "Dashboard reset",
-        description: "Your dashboard layout has been reset to default.",
-      });
+      // Let's do a more aggressive approach
+      localStorage.removeItem('dashboard-widgets');
+      // Force a page reload after clearing localStorage
+      window.location.reload();
     } catch (error) {
       console.error('Error resetting layout:', error);
-      toast({
-        title: "Reset failed",
-        description: "Failed to reset dashboard layout. Please try again.",
-        variant: "destructive"
-      });
+      alert('Failed to reset layout. Please try refreshing the page.');
     }
   };
 
   const addAIWidgets = () => {
-    let widgetsAdded = 0;
-    
     if (!visibleWidgetTypes.includes('aiRecommendations')) {
       addWidget('aiRecommendations');
-      widgetsAdded++;
     }
     if (!visibleWidgetTypes.includes('campaignPerformanceAnalyzer')) {
       addWidget('campaignPerformanceAnalyzer');
-      widgetsAdded++;
     }
     if (!visibleWidgetTypes.includes('userJourney')) {
       addWidget('userJourney');
-      widgetsAdded++;
     }
-    
-    // Show success message using toast
-    if (widgetsAdded > 0) {
-      toast({
-        title: "AI Widgets Added",
-        description: `${widgetsAdded} advanced AI ${widgetsAdded === 1 ? 'widget has' : 'widgets have'} been added to your dashboard.`,
-      });
-    } else {
-      toast({
-        title: "No New Widgets",
-        description: "All AI widgets are already on your dashboard.",
-        variant: "default"
-      });
-    }
+    // Show success message
+    alert('Advanced AI widgets have been added to your dashboard!');
   };
 
   return (
