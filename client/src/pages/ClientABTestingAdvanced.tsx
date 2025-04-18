@@ -119,24 +119,7 @@ const ClientABTestingAdvanced = () => {
         return res.json();
       } catch (error) {
         console.error("Error fetching campaign analytics:", error);
-        // Return fallback data when API fails
-        return {
-          campaign: campaignDetail?.campaign,
-          variantAnalytics: campaignDetail?.variants.map(variant => ({
-            variant,
-            analytics: [{
-              id: variant.id,
-              variantId: variant.id,
-              campaignId: parseInt(params?.id || '0'),
-              recipients: Math.floor(Math.random() * 1000) + 500,
-              opens: Math.floor(Math.random() * 300) + 100,
-              clicks: Math.floor(Math.random() * 100) + 10,
-              bounces: Math.floor(Math.random() * 20),
-              unsubscribes: Math.floor(Math.random() * 10),
-              date: new Date().toISOString()
-            }]
-          }))
-        };
+        throw error;
       }
     },
     enabled: !!params?.id && !!campaignDetail,
