@@ -94,7 +94,10 @@ export const defaultWidgets: Widget[] = [
   { id: '8', type: 'upcomingCampaigns', title: 'Upcoming Campaigns & Tasks', col: 0, row: 3, size: 'medium', visible: true },
   { id: '9', type: 'aiInsights', title: 'AI-Powered Insights', col: 1, row: 3, size: 'large', visible: true },
   { id: '10', type: 'emailPerformance', title: 'Email Performance', col: 0, row: 4, size: 'large', visible: true },
-  { id: '11', type: 'deviceBreakdown', title: 'Device Breakdown', col: 2, row: 4, size: 'medium', visible: true }
+  { id: '11', type: 'deviceBreakdown', title: 'Device Breakdown', col: 2, row: 4, size: 'medium', visible: true },
+  { id: '12', type: 'campaignROI', title: 'Campaign ROI Tracker', col: 0, row: 5, size: 'large', visible: true },
+  { id: '13', type: 'engagementHeatmap', title: 'Engagement Heatmap', col: 0, row: 6, size: 'large', visible: true },
+  { id: '14', type: 'smartNotifications', title: 'Smart Notifications', col: 2, row: 5, size: 'medium', visible: true }
 ];
 
 // Available widgets for the add widget modal
@@ -115,7 +118,10 @@ export const availableWidgets: WidgetType[] = [
   'upcomingCampaigns',
   'audienceGrowth',
   'realtimeMetrics',
-  'emailHealthScore'
+  'emailHealthScore',
+  'campaignROI',
+  'engagementHeatmap',
+  'smartNotifications'
 ];
 
 // Context type
