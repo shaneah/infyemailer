@@ -515,7 +515,7 @@ const DashboardWidgets: React.FC<DashboardWidgetsProps> = ({ clientData }) => {
             key={widget.id}
             widget={widget}
             data={{
-              deviceData: clientData.deviceData
+              deviceData: clientData?.deviceData || []
             }}
             onRemove={handleRemoveWidget}
           />
@@ -527,7 +527,7 @@ const DashboardWidgets: React.FC<DashboardWidgetsProps> = ({ clientData }) => {
             key={widget.id}
             widget={widget}
             data={{
-              recentCampaigns: clientData.recentCampaigns
+              recentCampaigns: clientData?.recentCampaigns || []
             }}
             onRemove={handleRemoveWidget}
           />
@@ -540,9 +540,9 @@ const DashboardWidgets: React.FC<DashboardWidgetsProps> = ({ clientData }) => {
             key={widget.id}
             widget={widget}
             data={{
-              performanceData: clientData.performanceData,
-              recentCampaigns: clientData.recentCampaigns,
-              stats: clientData.stats
+              performanceData: clientDataWithDefaults.performanceData,
+              recentCampaigns: clientData?.recentCampaigns || [],
+              stats: clientDataWithDefaults.stats
             }}
             onRemove={handleRemoveWidget}
           />
@@ -593,8 +593,8 @@ const DashboardWidgets: React.FC<DashboardWidgetsProps> = ({ clientData }) => {
             key={widget.id}
             widget={widget}
             data={{
-              performanceData: clientData.performanceData,
-              stats: clientData.stats
+              performanceData: clientDataWithDefaults.performanceData,
+              stats: clientDataWithDefaults.stats
             }}
             onRemove={handleRemoveWidget}
           />
