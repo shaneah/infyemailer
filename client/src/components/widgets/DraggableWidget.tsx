@@ -73,13 +73,13 @@ const DraggableWidget: React.FC<DraggableWidgetProps> = ({
         position: 'relative',
         transition: 'all 0.2s ease',
         transform: isOver ? 'scale(1.01)' : 'scale(1)',
-        boxShadow: isOver ? '0 0 10px rgba(147, 51, 234, 0.3)' : 'none',
+        boxShadow: isOver ? '0 0 10px rgba(30, 64, 175, 0.25)' : 'none',
         zIndex: isDragging ? 1000 : 1
       }}
     >
       <div 
-        className={`widget-container h-full rounded-lg transition-all duration-200 bg-white shadow-sm border border-purple-100 hover:shadow-md
-          ${isOver ? 'ring-2 ring-purple-400 ring-opacity-50' : ''}
+        className={`widget-container h-full rounded-md transition-all duration-200 bg-white shadow-sm border border-slate-200 hover:shadow-md
+          ${isOver ? 'ring-1 ring-blue-500 ring-opacity-50' : ''}
         `}
       >
         {children}
