@@ -489,7 +489,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
       {/* Header with blue gradient styling to match other client pages */}
-      <div className="w-full bg-gradient-to-r from-blue-600 to-indigo-700">
+      <div className="w-full bg-gradient-to-r from-blue-500 to-blue-700">
         <div className="max-w-[1600px] mx-auto px-6 py-6">
           <div className="flex items-center gap-3">
             <div className="bg-white/20 p-2 rounded-lg">
