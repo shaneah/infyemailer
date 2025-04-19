@@ -490,8 +490,8 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
     <div className="flex flex-col min-h-screen bg-white">
       
       <div className="space-y-8 p-6 max-w-[1600px] mx-auto">
-        {/* Hero section with purple/indigo gradient */}
-        <div className="relative overflow-hidden bg-gradient-to-r from-purple-50 via-indigo-50 to-violet-50 rounded-xl p-6 sm:p-8 shadow-md border border-purple-100">
+        {/* Hero section with blue/gold gradient */}
+        <div className="relative overflow-hidden bg-gradient-to-r from-blue-50 via-blue-100 to-blue-50 rounded-xl p-6 sm:p-8 shadow-md border border-blue-100">
           <div className="absolute inset-0 bg-grid-primary-500/10 [mask-image:linear-gradient(0deg,#fff2,transparent)] bg-fixed"></div>
           <div className="relative">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -543,7 +543,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
                   )}
                 </Button>
                 <Button 
-                  className="rounded-lg shadow-md gap-2 px-5 bg-purple-600 hover:bg-purple-700 text-white transition-all border-none font-medium"
+                  className="rounded-lg shadow-md gap-2 px-5 bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white transition-all border border-blue-300"
                   onClick={onCreateTemplate}
                 >
                   <PlusCircle className="h-4 w-4 mr-1" /> 
@@ -556,16 +556,16 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
         
         {/* Search and action tools */}
         <div className="flex flex-col gap-4">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-gradient-to-r from-purple-50/70 to-indigo-50/70 rounded-xl p-4 border border-purple-100 shadow-sm">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-gradient-to-r from-blue-50/70 to-indigo-50/70 rounded-xl p-4 border border-blue-100 shadow-sm">
             <div className="relative w-full sm:w-64">
               <Input
                 type="search"
                 placeholder="Search templates..."
-                className="w-full border-purple-200 focus-visible:ring-purple-300 pl-9 bg-white shadow-sm"
+                className="w-full border-blue-200 focus-visible:ring-blue-300 pl-9 bg-white shadow-sm"
                 value={searchQuery}
                 onChange={handleSearchChange}
               />
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-purple-500 absolute left-3 top-[50%] transform -translate-y-1/2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-blue-500 absolute left-3 top-[50%] transform -translate-y-1/2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="11" cy="11" r="8"></circle>
                 <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
               </svg>
@@ -575,7 +575,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
               <Button 
                 variant="outline" 
                 size="sm" 
-                className={`text-xs px-3 py-1 h-9 shadow-sm ${activeTab === 'all' ? 'bg-gradient-to-r from-purple-100 to-indigo-100 border-purple-200 text-purple-800' : 'bg-white text-slate-600 hover:text-purple-700 hover:border-purple-200'}`}
+                className={`text-xs px-3 py-1 h-9 shadow-sm ${activeTab === 'all' ? 'bg-gradient-to-r from-blue-100 to-indigo-100 border-blue-200 text-blue-800' : 'bg-white text-slate-600 hover:text-blue-700 hover:border-blue-200'}`}
                 onClick={() => setActiveTab('all')}
               >
                 All Templates
@@ -583,7 +583,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
               <Button 
                 variant="outline" 
                 size="sm" 
-                className={`text-xs px-3 py-1 h-9 shadow-sm ${activeTab === 'ai' ? 'bg-gradient-to-r from-purple-100 to-indigo-100 border-purple-200 text-purple-800' : 'bg-white text-slate-600 hover:text-purple-700 hover:border-purple-200'}`}
+                className={`text-xs px-3 py-1 h-9 shadow-sm ${activeTab === 'ai' ? 'bg-gradient-to-r from-blue-100 to-indigo-100 border-blue-200 text-blue-800' : 'bg-white text-slate-600 hover:text-blue-700 hover:border-blue-200'}`}
                 onClick={() => setActiveTab('ai')}
               >
                 <Sparkles className="h-3 w-3 mr-1 text-amber-500" /> 
@@ -593,7 +593,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  className={`px-2 h-9 ${viewMode === 'grid' ? 'text-purple-700' : 'text-slate-400 hover:text-purple-600'}`}
+                  className={`px-2 h-9 ${viewMode === 'grid' ? 'text-blue-700' : 'text-slate-400 hover:text-blue-600'}`}
                   onClick={() => setViewMode('grid')}
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -603,7 +603,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  className={`px-2 h-9 ${viewMode === 'list' ? 'text-purple-700' : 'text-slate-400 hover:text-purple-600'}`}
+                  className={`px-2 h-9 ${viewMode === 'list' ? 'text-blue-700' : 'text-slate-400 hover:text-blue-600'}`}
                   onClick={() => setViewMode('list')}
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -644,7 +644,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
               </p>
               <div className="mt-6">
                 <Button 
-                  className="rounded-lg shadow-md gap-2 px-5 bg-purple-600 hover:bg-purple-700 text-white transition-all border-none font-medium"
+                  className="rounded-lg gap-2 px-5 bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white transition-all border border-blue-300"
                   onClick={onCreateTemplate}
                 >
                   <PlusCircle className="h-4 w-4" />
@@ -659,14 +659,14 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
               {viewMode === 'grid' ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
                   {filteredTemplates.map((template: Template) => (
-                    <Card key={template.id} className="overflow-hidden group hover:shadow-xl transition-all duration-300 bg-white rounded-xl border border-purple-100">
+                    <Card key={template.id} className="overflow-hidden group hover:shadow-xl transition-all duration-300 bg-white rounded-xl border border-blue-100">
                       <CardHeader className="p-0 overflow-hidden relative">
                         {/* Template Preview Section */}
-                        <div className="h-44 bg-gradient-to-br from-purple-50 via-indigo-50 to-violet-50 overflow-hidden relative flex items-center justify-center">
+                        <div className="h-44 bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-50 overflow-hidden relative flex items-center justify-center">
                           {/* Template design preview */}
                           <div className="template-preview-card bg-white rounded-lg shadow-md w-[85%] h-[85%] mx-auto overflow-hidden flex flex-col transform group-hover:scale-105 transition-transform duration-300">
                             {/* Template header */}
-                            <div className="template-preview-header h-7 bg-gradient-to-r from-purple-600 to-indigo-600 flex items-center px-3">
+                            <div className="template-preview-header h-7 bg-gradient-to-r from-blue-600 to-blue-800 flex items-center px-3">
                               <div className="flex space-x-1.5">
                                 <div className="w-2 h-2 rounded-full bg-white opacity-80"></div>
                                 <div className="w-2 h-2 rounded-full bg-white opacity-80"></div>
@@ -677,7 +677,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
                             {/* Template content mockup */}
                             <div className="flex-1 p-2 flex flex-col">
                               {/* Template title bar */}
-                              <div className="h-4 w-3/4 bg-gradient-to-r from-purple-300 to-indigo-300 rounded mb-2"></div>
+                              <div className="h-4 w-3/4 bg-gradient-to-r from-blue-300 to-indigo-300 rounded mb-2"></div>
                               
                               {/* Template content lines */}
                               <div className="space-y-1.5 mb-auto">
@@ -698,14 +698,14 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
                         <div className="absolute top-0 left-0 w-full flex justify-between p-2.5">
                           <Badge 
                             variant="outline" 
-                            className="capitalize px-2 py-0.5 text-xs bg-white bg-opacity-90 text-purple-700 border-purple-200 rounded-md shadow-sm"
+                            className="capitalize px-2 py-0.5 text-xs bg-white bg-opacity-90 text-blue-700 border-blue-200 rounded-md shadow-sm"
                           >
                             {template.category || "general"}
                           </Badge>
                           
                           {template.metadata?.generatedByAI && (
                             <Badge 
-                              className="capitalize px-2 py-0.5 text-xs rounded-md bg-gradient-to-r from-purple-600 to-indigo-600 text-white border-0 shadow-sm flex items-center gap-1"
+                              className="capitalize px-2 py-0.5 text-xs rounded-md bg-gradient-to-r from-indigo-600 to-blue-600 text-white border-0 shadow-sm flex items-center gap-1"
                             >
                               <Sparkles className="h-3 w-3" /> AI
                             </Badge>
@@ -718,7 +718,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
                             <Button 
                               variant="default" 
                               size="sm"
-                              className="shadow-lg opacity-90 hover:opacity-100 bg-purple-600 hover:bg-purple-700 border-none font-medium"
+                              className="shadow-lg opacity-90 hover:opacity-100 bg-gradient-to-r from-blue-600 to-blue-800 border border-blue-300 hover:from-blue-700 hover:to-blue-900"
                               onClick={() => handleViewTemplate(template)}
                             >
                               <Eye className="h-4 w-4 mr-1" />
@@ -727,7 +727,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
                             <Button 
                               variant="default" 
                               size="sm"
-                              className="shadow-lg opacity-90 hover:opacity-100 bg-white text-purple-700 border border-purple-200 hover:bg-purple-50"
+                              className="shadow-lg opacity-90 hover:opacity-100 bg-white text-gray-700 border border-gray-200 hover:bg-gray-50"
                               onClick={() => handleEditTemplate(template)}
                             >
                               <Edit className="h-4 w-4 mr-1" />
@@ -738,7 +738,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
                         
                         {/* NEW badge */}
                         {template.metadata?.new && (
-                          <div className="absolute top-12 -right-8 bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-xs px-10 py-1 font-medium shadow-md transform rotate-45">
+                          <div className="absolute top-12 -right-8 bg-gradient-to-r from-blue-600 to-blue-800 text-white text-xs px-10 py-1 font-medium shadow-md transform rotate-45">
                             NEW
                           </div>
                         )}
@@ -805,7 +805,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
                           <Button 
                             variant="link" 
                             size="sm" 
-                            className="p-0 h-auto text-purple-600 hover:text-purple-800"
+                            className="p-0 h-auto text-blue-600 hover:text-blue-800"
                             onClick={() => handleViewTemplate(template)}
                           >
                             Preview <MoveRight className="h-3 w-3 ml-1" />
@@ -973,7 +973,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
                   <div className="flex flex-col gap-2">
                     <Button 
                       variant="outline" 
-                      className="justify-start text-purple-700 border-purple-200 hover:bg-purple-50"
+                      className="justify-start text-blue-700 border-blue-200 hover:bg-blue-50"
                       onClick={() => handleEditTemplate(selectedTemplate!)}
                     >
                       <Edit className="h-4 w-4 mr-2" />
@@ -981,7 +981,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
                     </Button>
                     <Button 
                       variant="outline" 
-                      className="justify-start text-purple-700 border-purple-200 hover:bg-purple-50"
+                      className="justify-start text-blue-700 border-blue-200 hover:bg-blue-50"
                       onClick={() => {
                         setIsTestEmailOpen(true);
                       }}
@@ -991,7 +991,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
                     </Button>
                     <Button 
                       variant="outline" 
-                      className="justify-start text-purple-700 border-purple-200 hover:bg-purple-50"
+                      className="justify-start text-blue-700 border-blue-200 hover:bg-blue-50"
                       onClick={handleCopyHtmlCode}
                     >
                       <Copy className="h-4 w-4 mr-2" />
@@ -999,7 +999,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
                     </Button>
                     <Button 
                       variant="outline" 
-                      className="justify-start text-purple-700 border-purple-200 hover:bg-purple-50"
+                      className="justify-start text-blue-700 border-blue-200 hover:bg-blue-50"
                       onClick={() => handleShareTemplate(selectedTemplate!.id)}
                     >
                       <Share2 className="h-4 w-4 mr-2" />
@@ -1007,7 +1007,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
                     </Button>
                     <Button 
                       variant="outline" 
-                      className="justify-start text-purple-700 border-purple-200 hover:bg-purple-50"
+                      className="justify-start text-blue-700 border-blue-200 hover:bg-blue-50"
                       onClick={() => {
                         setIsUpdateTemplateOpen(true);
                       }}
@@ -1055,7 +1055,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
                         <Input 
                           placeholder="your@email.com" 
                           {...field} 
-                          className="border-purple-200 focus-visible:ring-purple-300"
+                          className="border-blue-200 focus-visible:ring-blue-300"
                         />
                       </FormControl>
                       <FormMessage />
@@ -1073,7 +1073,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
                         <Input 
                           placeholder="Test Email Subject" 
                           {...field} 
-                          className="border-purple-200 focus-visible:ring-purple-300"
+                          className="border-blue-200 focus-visible:ring-blue-300"
                         />
                       </FormControl>
                       <FormMessage />
@@ -1085,13 +1085,13 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
                   control={testEmailForm.control}
                   name="personalizeContent"
                   render={({ field }) => (
-                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border border-purple-200 p-4">
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border border-blue-200 p-4">
                       <FormControl>
                         <input
                           type="checkbox"
                           checked={field.value}
                           onChange={field.onChange}
-                          className="accent-purple-600 h-4 w-4 mt-1"
+                          className="accent-blue-600 h-4 w-4 mt-1"
                         />
                       </FormControl>
                       <div className="space-y-1 leading-none">
@@ -1114,7 +1114,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
                   </Button>
                   <Button 
                     type="submit"
-                    className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
+                    className="bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900"
                     disabled={sendTestEmailMutation.isPending}
                   >
                     {sendTestEmailMutation.isPending ? (
@@ -1238,7 +1238,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
                   </Button>
                   <Button 
                     type="submit"
-                    className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
+                    className="bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900"
                     disabled={updateTemplateMutation.isPending}
                   >
                     {updateTemplateMutation.isPending ? (
@@ -1273,7 +1273,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
               <div className="space-y-2">
                 <Label htmlFor="expiration">Link Expiration</Label>
                 <Select value={shareExpiration} onValueChange={setShareExpiration}>
-                  <SelectTrigger className="w-full border-purple-200 focus-visible:ring-purple-300">
+                  <SelectTrigger className="w-full border-blue-200 focus-visible:ring-blue-300">
                     <SelectValue placeholder="Select expiration" />
                   </SelectTrigger>
                   <SelectContent>
@@ -1285,7 +1285,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
                 </Select>
               </div>
               
-              <div className="bg-purple-50 border border-purple-200 rounded-md p-3 text-sm text-purple-800">
+              <div className="bg-blue-50 border border-blue-200 rounded-md p-3 text-sm text-blue-800">
                 <Info className="h-4 w-4 inline-block mr-2" />
                 The recipient will be able to import this template into their own account.
               </div>
@@ -1301,7 +1301,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
               </Button>
               <Button 
                 type="button"
-                className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
+                className="bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900"
                 onClick={handleConfirmShare}
                 disabled={shareTemplateMutation.isPending}
               >

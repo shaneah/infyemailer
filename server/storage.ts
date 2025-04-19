@@ -799,114 +799,6 @@ export class MemStorage implements IStorage {
         date: "May 15, 2023"
       }
     });
-    
-    // Add A/B test campaigns
-    const abTestCampaign1 = this.createCampaign({
-      name: "Subject Line Testing",
-      subject: "A/B Test: Subject Line Variations",
-      previewText: "Testing different subject lines",
-      senderName: "Marketing Team",
-      replyToEmail: "marketing@example.com",
-      content: "<h1>A/B Test Campaign</h1><p>This campaign tests different subject lines.</p>",
-      status: "active",
-      scheduledAt: new Date("2025-04-25T09:00:00"),
-      isAbTest: true,
-      metadata: {
-        icon: { name: "bar-chart-fill", color: "success" },
-        subtitle: "Subject Line Testing",
-        recipients: 5000,
-        openRate: 38.5,
-        clickRate: 12.3,
-        date: "April 25, 2025"
-      }
-    });
-    
-    // Add variants for the A/B test campaign
-    if (abTestCampaign1) {
-      this.createCampaignVariant({
-        campaignId: abTestCampaign1.id,
-        name: "Variant A",
-        subject: "Limited Time Offer - 30% Off All Products!",
-        previewText: "Get your discount before it's gone",
-        content: "<h1>Limited Time Offer!</h1><p>Enjoy 30% off all products for the next 48 hours.</p>",
-        recipientPercentage: 50,
-        metadata: {
-          opens: 652,
-          clicks: 218,
-          openRate: 41.8,
-          clickRate: 14.0
-        }
-      });
-      
-      this.createCampaignVariant({
-        campaignId: abTestCampaign1.id,
-        name: "Variant B",
-        subject: "Exclusive Deal: Save 30% On Your Next Purchase",
-        previewText: "Members-only savings inside",
-        content: "<h1>Exclusive Deal!</h1><p>As a valued customer, you can save 30% on your next purchase.</p>",
-        recipientPercentage: 50,
-        metadata: {
-          opens: 548,
-          clicks: 165,
-          openRate: 35.2,
-          clickRate: 10.6
-        }
-      });
-    }
-    
-    // Add another A/B test campaign for email design testing
-    const abTestCampaign2 = this.createCampaign({
-      name: "Email Design Testing",
-      subject: "April Product Newsletter",
-      previewText: "See what's new this month",
-      senderName: "Product Team",
-      replyToEmail: "products@example.com",
-      content: "<h1>A/B Test Campaign</h1><p>This campaign tests different email designs.</p>",
-      status: "active",
-      scheduledAt: new Date("2025-04-30T09:00:00"),
-      isAbTest: true,
-      metadata: {
-        icon: { name: "layout-fill", color: "primary" },
-        subtitle: "Design Testing",
-        recipients: 3500,
-        openRate: 42.1,
-        clickRate: 15.7,
-        date: "April 30, 2025"
-      }
-    });
-    
-    // Add variants for the second A/B test campaign
-    if (abTestCampaign2) {
-      this.createCampaignVariant({
-        campaignId: abTestCampaign2.id,
-        name: "Minimal Design",
-        subject: "April Product Newsletter",
-        previewText: "See what's new this month",
-        content: "<h1>April Updates</h1><p>A clean, minimal design highlighting our newest products.</p>",
-        recipientPercentage: 50,
-        metadata: {
-          opens: 748,
-          clicks: 283,
-          openRate: 44.3,
-          clickRate: 16.8
-        }
-      });
-      
-      this.createCampaignVariant({
-        campaignId: abTestCampaign2.id,
-        name: "Image-heavy Design",
-        subject: "April Product Newsletter",
-        previewText: "See what's new this month",
-        content: "<h1>April Updates</h1><p>An image-focused design showcasing product photography.</p>",
-        recipientPercentage: 50,
-        metadata: {
-          opens: 672,
-          clicks: 246,
-          openRate: 39.8,
-          clickRate: 14.6
-        }
-      });
-    }
 
     this.createCampaign({
       name: "Product Launch",
@@ -1961,17 +1853,7 @@ export class MemStorage implements IStorage {
   }
   
   async createCampaignVariant(variant: InsertCampaignVariant): Promise<CampaignVariant> {
-    const id = this.campaignVariantId++;
-    const now = new Date();
-    const newVariant: CampaignVariant = {
-      ...variant,
-      id,
-      createdAt: now,
-      status: variant.status || "active",
-      metadata: variant.metadata || {}
-    };
-    this.campaignVariants.set(id, newVariant);
-    return newVariant;
+    throw new Error("A/B testing requires database storage. Please switch to DbStorage.");
   }
   
   async updateCampaignVariant(id: number, variant: Partial<CampaignVariant>): Promise<CampaignVariant | undefined> {
@@ -2001,8 +1883,7 @@ export class MemStorage implements IStorage {
   }
   
   async getAbTestCampaigns(): Promise<Campaign[]> {
-    // Filter campaigns where isAbTest is true
-    return Array.from(this.campaigns.values()).filter(campaign => campaign.isAbTest === true);
+    return [];
   }
 
   // Domain methods

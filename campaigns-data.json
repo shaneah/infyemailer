@@ -21,60 +21,8 @@
     },
     "id": 1,
     "sentAt": null,
-    "createdAt": "2025-04-19T21:17:24.245Z",
-    "updatedAt": "2025-04-19T21:17:24.245Z"
-  },
-  {
-    "name": "Subject Line Testing",
-    "subject": "A/B Test: Subject Line Variations",
-    "previewText": "Testing different subject lines",
-    "senderName": "Marketing Team",
-    "replyToEmail": "marketing@example.com",
-    "content": "<h1>A/B Test Campaign</h1><p>This campaign tests different subject lines.</p>",
-    "status": "active",
-    "scheduledAt": "2025-04-25T09:00:00.000Z",
-    "isAbTest": true,
-    "metadata": {
-      "icon": {
-        "name": "bar-chart-fill",
-        "color": "success"
-      },
-      "subtitle": "Subject Line Testing",
-      "recipients": 5000,
-      "openRate": 38.5,
-      "clickRate": 12.3,
-      "date": "April 25, 2025"
-    },
-    "id": 2,
-    "sentAt": null,
-    "createdAt": "2025-04-19T21:17:24.245Z",
-    "updatedAt": "2025-04-19T21:17:24.245Z"
-  },
-  {
-    "name": "Email Design Testing",
-    "subject": "April Product Newsletter",
-    "previewText": "See what's new this month",
-    "senderName": "Product Team",
-    "replyToEmail": "products@example.com",
-    "content": "<h1>A/B Test Campaign</h1><p>This campaign tests different email designs.</p>",
-    "status": "active",
-    "scheduledAt": "2025-04-30T09:00:00.000Z",
-    "isAbTest": true,
-    "metadata": {
-      "icon": {
-        "name": "layout-fill",
-        "color": "primary"
-      },
-      "subtitle": "Design Testing",
-      "recipients": 3500,
-      "openRate": 42.1,
-      "clickRate": 15.7,
-      "date": "April 30, 2025"
-    },
-    "id": 3,
-    "sentAt": null,
-    "createdAt": "2025-04-19T21:17:24.245Z",
-    "updatedAt": "2025-04-19T21:17:24.245Z"
+    "createdAt": "2025-04-17T21:09:54.300Z",
+    "updatedAt": "2025-04-17T21:09:54.300Z"
   },
   {
     "name": "Product Launch",
@@ -96,10 +44,10 @@
       "clickRate": 32.4,
       "date": "May 8, 2023"
     },
-    "id": 4,
+    "id": 2,
     "sentAt": null,
-    "createdAt": "2025-04-19T21:17:24.246Z",
-    "updatedAt": "2025-04-19T21:17:24.246Z"
+    "createdAt": "2025-04-17T21:09:54.300Z",
+    "updatedAt": "2025-04-17T21:09:54.300Z"
   },
   {
     "name": "Spring Sale",
@@ -121,10 +69,10 @@
       "clickRate": 0,
       "date": "May 20, 2023"
     },
-    "id": 5,
+    "id": 3,
     "sentAt": null,
-    "createdAt": "2025-04-19T21:17:24.246Z",
-    "updatedAt": "2025-04-19T21:17:24.246Z"
+    "createdAt": "2025-04-17T21:09:54.300Z",
+    "updatedAt": "2025-04-17T21:09:54.300Z"
   },
   {
     "name": "Welcome Series",
@@ -146,9 +94,9 @@
       "clickRate": 27.5,
       "date": "Ongoing"
     },
-    "id": 6,
+    "id": 4,
     "sentAt": null,
-    "createdAt": "2025-04-19T21:17:24.247Z",
-    "updatedAt": "2025-04-19T21:17:24.247Z"
+    "createdAt": "2025-04-17T21:09:54.301Z",
+    "updatedAt": "2025-04-17T21:09:54.301Z"
   }
 ]
