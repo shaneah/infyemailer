@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
+import { useQuery } from '@tanstack/react-query';
 import {
   Users,
   MessageSquare,
@@ -25,7 +26,8 @@ import {
   RefreshCw,
   Megaphone,
   Building,
-  Download
+  Download,
+  Loader2
 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -711,8 +713,28 @@ export default function ClientCollaboration() {
   const { toast } = useToast();
   const [, setLocation] = useLocation();
 
+  // Fetch actual clients from API
+  const { data: apiClients = [], isLoading: isLoadingClients } = useQuery<any[]>({
+    queryKey: ['/api/clients'],
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+
+  // Map API clients to match our Client interface
+  const clients = apiClients.map(client => ({
+    id: client.id,
+    name: client.name || 'Unknown',
+    company: client.company || 'Unknown Company',
+    email: client.email || 'no-email@example.com',
+    status: client.status === 'active' ? 'active' : 'inactive',
+    lastActive: client.lastLoginAt || new Date().toISOString(),
+    // Add mock data for these properties since they don't exist in the API
+    unreadMessages: Math.floor(Math.random() * 5),
+    pendingApprovals: Math.floor(Math.random() * 4),
+    avatar: client.avatar || undefined
+  } as Client));
+
   // Filter clients based on search query
-  const filteredClients = sampleClients.filter(client => 
+  const filteredClients = clients.filter(client => 
     client.name.toLowerCase().includes(clientSearchQuery.toLowerCase()) ||
     client.company.toLowerCase().includes(clientSearchQuery.toLowerCase()) ||
     client.email.toLowerCase().includes(clientSearchQuery.toLowerCase())
@@ -738,6 +760,20 @@ export default function ClientCollaboration() {
       setCollaborationRequests(clientRequests);
     }
   }, [selectedClient]);
+
+  // Check for a selected client ID in sessionStorage
+  useEffect(() => {
+    const storedClientId = sessionStorage.getItem('selectedClientId');
+    if (storedClientId && clients.length > 0) {
+      const clientId = parseInt(storedClientId, 10);
+      const client = clients.find(c => c.id === clientId);
+      if (client) {
+        setSelectedClient(client);
+        // Clear the stored ID after using it to prevent unexpected behavior
+        sessionStorage.removeItem('selectedClientId');
+      }
+    }
+  }, [clients]);
 
   // If no client is selected, select the first one by default
   useEffect(() => {
@@ -824,16 +860,31 @@ export default function ClientCollaboration() {
               </div>
             </CardHeader>
             <ScrollArea className="h-[calc(100vh-270px)] px-3">
-              <div className="space-y-2 pt-2">
-                {filteredClients.map((client) => (
-                  <ClientListItem
-                    key={client.id}
-                    client={client}
-                    isSelected={selectedClient?.id === client.id}
-                    onClick={() => setSelectedClient(client)}
-                  />
-                ))}
-              </div>
+              {isLoadingClients ? (
+                <div className="flex items-center justify-center h-full">
+                  <div className="flex flex-col items-center space-y-2">
+                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                    <p className="text-sm text-muted-foreground">Loading clients...</p>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-2 pt-2">
+                  {filteredClients.length > 0 ? (
+                    filteredClients.map((client) => (
+                      <ClientListItem
+                        key={client.id}
+                        client={client}
+                        isSelected={selectedClient?.id === client.id}
+                        onClick={() => setSelectedClient(client)}
+                      />
+                    ))
+                  ) : (
+                    <div className="text-center py-6">
+                      <p className="text-sm text-muted-foreground">No clients found</p>
+                    </div>
+                  )}
+                </div>
+              )}
             </ScrollArea>
           </Card>
         </div>
