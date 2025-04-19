@@ -32,7 +32,7 @@ export interface Widget {
   config?: any;
 }
 
-// Sizes for different widget types
+// Sizes for different widget types - AI-related widgets removed
 export const widgetSizes: Record<WidgetType, 'small' | 'medium' | 'large'> = {
   activeCampaigns: 'small',
   totalEmails: 'small',
@@ -45,21 +45,16 @@ export const widgetSizes: Record<WidgetType, 'small' | 'medium' | 'large'> = {
   calendar: 'medium',
   tasks: 'medium',
   notes: 'medium',
-  aiInsights: 'large',
   optimalSendTime: 'medium',
   upcomingCampaigns: 'medium',
   audienceGrowth: 'medium',
   realtimeMetrics: 'large',
   emailHealthScore: 'large',
   campaignROI: 'large',
-  engagementHeatmap: 'large',
-  smartNotifications: 'medium',
-  aiRecommendations: 'large',
-  campaignPerformanceAnalyzer: 'large',
-  userJourney: 'large'
+  engagementHeatmap: 'large'
 };
 
-// Widget titles
+// Widget titles - AI-related widgets removed
 export const widgetTitles: Record<WidgetType, string> = {
   activeCampaigns: 'Active Campaigns',
   totalEmails: 'Total Emails',
@@ -72,18 +67,13 @@ export const widgetTitles: Record<WidgetType, string> = {
   calendar: 'Campaign Calendar',
   tasks: 'Tasks',
   notes: 'Notes',
-  aiInsights: 'AI-Powered Insights',
   optimalSendTime: 'Optimal Send Times',
   upcomingCampaigns: 'Upcoming Campaigns & Tasks',
   audienceGrowth: 'Audience Growth',
   realtimeMetrics: 'Real-Time Engagement Metrics',
   emailHealthScore: 'Email Health Score',
   campaignROI: 'Campaign ROI Tracker',
-  engagementHeatmap: 'Engagement Heatmap',
-  smartNotifications: 'Smart Notifications',
-  aiRecommendations: 'AI Marketing Recommendations',
-  campaignPerformanceAnalyzer: 'Campaign Performance Analyzer',
-  userJourney: 'User Journey Tracking'
+  engagementHeatmap: 'Engagement Heatmap'
 };
 
 // Default widgets configuration
@@ -96,7 +86,7 @@ export const defaultWidgets: Widget[] = [
   { id: '6', type: 'recentCampaigns', title: 'Recent Campaigns', col: 0, row: 2, size: 'large', visible: true }
 ];
 
-// Available widgets for the add widget modal
+// Available widgets for the add widget modal - expanded with all non-AI widgets
 export const availableWidgets: WidgetType[] = [
   'activeCampaigns',
   'totalEmails',
@@ -109,7 +99,13 @@ export const availableWidgets: WidgetType[] = [
   'calendar',
   'tasks',
   'notes',
-  'upcomingCampaigns'
+  'upcomingCampaigns',
+  'audienceGrowth',
+  'realtimeMetrics',
+  'emailHealthScore',
+  'campaignROI',
+  'engagementHeatmap',
+  'optimalSendTime'
 ];
 
 // Context type
@@ -130,12 +126,20 @@ const WidgetsContext = createContext<WidgetsContextType | undefined>(undefined);
 export const WidgetsProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [widgets, setWidgets] = useState<Widget[]>([]);
 
-  // Load widgets from localStorage on mount
+  // Load widgets from localStorage on mount and filter out AI-related widgets
   useEffect(() => {
     const savedWidgets = localStorage.getItem('dashboard-widgets');
     if (savedWidgets) {
       try {
-        setWidgets(JSON.parse(savedWidgets));
+        // Parse saved widgets and filter out any AI-related ones
+        const parsedWidgets = JSON.parse(savedWidgets);
+        const filteredWidgets = parsedWidgets.filter((w: Widget) => 
+          !w.type.toLowerCase().includes('ai') && 
+          !w.type.includes('smart') &&
+          !w.type.includes('userJourney') &&
+          !w.type.includes('campaignPerformanceAnalyzer')
+        );
+        setWidgets(filteredWidgets);
       } catch (error) {
         console.error('Error loading widgets from localStorage:', error);
         setWidgets(defaultWidgets);

@@ -37,7 +37,9 @@ const DashboardWidgets: React.FC<DashboardWidgetsProps> = ({ clientData }) => {
     .filter(widget => widget.visible)
     .filter(widget => !widget.type.toLowerCase().includes('ai') && 
            !widget.type.includes('smart') &&
-           !widget.type.includes('recommendation'))
+           !widget.type.includes('recommendation') &&
+           !widget.type.includes('userJourney') &&
+           !widget.type.includes('campaignPerformanceAnalyzer'))
     .sort((a, b) => {
       if (a.row === b.row) {
         return a.col - b.col;
@@ -91,7 +93,9 @@ const DashboardWidgets: React.FC<DashboardWidgetsProps> = ({ clientData }) => {
     // Skip AI-related widgets for additional safety
     if (widget.type.toLowerCase().includes('ai') || 
         widget.type.includes('smart') ||
-        widget.type.includes('recommendation')) {
+        widget.type.includes('recommendation') ||
+        widget.type.includes('userJourney') ||
+        widget.type.includes('campaignPerformanceAnalyzer')) {
       return null;
     }
 
