@@ -60,24 +60,24 @@ const WidgetManager: React.FC<WidgetManagerProps> = ({ clientData = null }) => {
             <Button
               variant="outline"
               size="sm"
-              className="gap-1 text-blue-700 border-slate-200 hover:border-blue-200 hover:bg-blue-50 shadow-sm"
+              className="gap-1 text-purple-700 border-purple-200 hover:border-purple-300 hover:bg-purple-50 shadow-sm"
             >
               <Plus className="h-4 w-4" />
               <span>Add Widget</span>
             </Button>
           </DialogTrigger>
-          <DialogContent className="border-slate-200">
+          <DialogContent className="border-purple-200">
             <DialogHeader>
-              <DialogTitle className="text-blue-900">Add Widget</DialogTitle>
+              <DialogTitle className="text-purple-900">Add Widget</DialogTitle>
               <DialogDescription>
                 Select a widget to add to your dashboard.
               </DialogDescription>
             </DialogHeader>
 
             <div className="py-4">
-              <Label htmlFor="widget-type" className="block mb-2 text-blue-800">Widget Type</Label>
+              <Label htmlFor="widget-type" className="block mb-2 text-purple-800">Widget Type</Label>
               <Select value={selectedWidget} onValueChange={(value) => setSelectedWidget(value as WidgetType)}>
-                <SelectTrigger id="widget-type" className="border-slate-200 focus:ring-blue-500">
+                <SelectTrigger id="widget-type" className="border-purple-200 focus:ring-purple-500">
                   <SelectValue placeholder="Select Widget Type" />
                 </SelectTrigger>
                 <SelectContent>
@@ -119,7 +119,7 @@ const WidgetManager: React.FC<WidgetManagerProps> = ({ clientData = null }) => {
         <Button
           variant="outline"
           size="sm"
-          className="gap-1 text-blue-700 border-slate-200 hover:border-blue-200 hover:bg-blue-50 shadow-sm"
+          className="gap-1 text-purple-700 border-purple-200 hover:border-purple-300 hover:bg-purple-50 shadow-sm"
           onClick={handleResetLayout}
         >
           <Undo2 className="h-4 w-4" />

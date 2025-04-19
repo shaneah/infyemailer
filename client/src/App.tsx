@@ -215,7 +215,7 @@ function App() {
               />
               
               <div className="flex-1 flex flex-col overflow-hidden">
-                <main className="flex-1 overflow-y-auto p-4">
+                <main className="flex-1 overflow-y-auto p-4 bg-gradient-to-br from-purple-50 to-white">
                   <Switch>
                     <ProtectedRoute path="/" component={Dashboard} />
                     <ProtectedRoute path="dashboard" component={Dashboard} />

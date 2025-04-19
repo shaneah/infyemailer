@@ -42,15 +42,15 @@ export const BaseWidget: React.FC<BaseWidgetProps> = ({
   };
 
   return (
-    <Card className={`border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 group ${sizeClasses[widget.size]} ${className}`}>
-      <CardHeader className={`flex flex-row items-center justify-between pb-2 border-b border-slate-100 bg-gradient-to-r from-slate-50 to-blue-50/30 ${headerClassName}`}>
+    <Card className={`border border-purple-100 overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 group rounded-lg ${sizeClasses[widget.size]} ${className}`}>
+      <CardHeader className={`flex flex-row items-center justify-between pb-2 border-b border-purple-100 bg-gradient-to-r from-purple-50 to-purple-100/30 ${headerClassName}`}>
         <div className="flex items-center">
           {icon && (
-            <div className="h-7 w-7 rounded-sm bg-blue-800 flex items-center justify-center mr-3">
+            <div className="h-7 w-7 rounded-md bg-purple-700 flex items-center justify-center mr-3">
               {icon}
             </div>
           )}
-          <CardTitle className="text-sm font-semibold text-slate-700">{widget.title}</CardTitle>
+          <CardTitle className="text-sm font-semibold text-purple-900">{widget.title}</CardTitle>
         </div>
         <div className="flex items-center">
           <div className="flex items-center">
@@ -58,7 +58,7 @@ export const BaseWidget: React.FC<BaseWidgetProps> = ({
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" className="h-7 w-7 rounded-sm p-0">
-                  <MoreVertical className="h-4 w-4 text-slate-500" />
+                  <MoreVertical className="h-4 w-4 text-purple-500" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
@@ -81,7 +81,7 @@ export const BaseWidget: React.FC<BaseWidgetProps> = ({
         </div>
       </CardHeader>
       <CardContent className={`relative ${contentClassName}`}>
-        <div className="absolute top-0 right-0 w-24 h-24 bg-blue-50 rounded-full blur-xl -mt-10 -mr-10 opacity-30"></div>
+        <div className="absolute top-0 right-0 w-24 h-24 bg-purple-100 rounded-full blur-xl -mt-10 -mr-10 opacity-30"></div>
         {children}
       </CardContent>
     </Card>
