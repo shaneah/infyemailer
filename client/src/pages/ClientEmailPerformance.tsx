@@ -293,7 +293,7 @@ const ClientEmailPerformance: React.FC = () => {
         return await res.json();
       } catch (error) {
         console.error('Error fetching charts:', error);
-      return fallbackChartData;
+        return fallbackChartData;
       }
     },
     retry: 3,
@@ -375,14 +375,14 @@ const ClientEmailPerformance: React.FC = () => {
         <div className="mb-6">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h2 className="text-xl font-semibold text-blue-900 dark:text-blue-300">Email Campaign Analytics</h2>
-              <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">
+              <h2 className="text-xl font-semibold text-blue-900">Email Campaign Analytics</h2>
+              <p className="text-gray-600 text-sm mt-1">
                 Track open rates, click rates, and performance across all campaigns
               </p>
             </div>
             <div className="flex space-x-4">
               <Select value={timeframe} onValueChange={setTimeframe}>
-                <SelectTrigger className="border-blue-200 dark:border-blue-800">
+                <SelectTrigger className="border-blue-200">
                   <SelectValue placeholder="Select Timeframe" />
                 </SelectTrigger>
                 <SelectContent>
@@ -395,7 +395,7 @@ const ClientEmailPerformance: React.FC = () => {
               </Select>
               
               <Select value={campaignFilter} onValueChange={setCampaignFilter}>
-                <SelectTrigger className="border-blue-200 dark:border-blue-800">
+                <SelectTrigger className="border-blue-200">
                   <SelectValue placeholder="All Campaigns" />
                 </SelectTrigger>
                 <SelectContent>
@@ -413,220 +413,91 @@ const ClientEmailPerformance: React.FC = () => {
           <div className="h-0.5 w-full bg-gradient-to-r from-blue-800 to-blue-400 rounded-full opacity-70"></div>
         </div>
       
-      {/* Key Metrics Section */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <MetricCard 
-          title="Open Rate" 
-          value={metricsData ? `${metricsData.openRate.value.toFixed(1)}%` : "24.8%"} 
-          subValue={metricsData ? `Industry avg: ${metricsData.openRate.industryAvg.toFixed(1)}%` : "Industry avg: 21.5%"} 
-          trend={metricsData ? metricsData.openRate.trend as 'up' | 'down' | 'neutral' : "up"} 
-          trendValue={metricsData ? metricsData.openRate.trendValue : "3.2%"}
-        />
-        <MetricCard 
-          title="Click Rate" 
-          value={metricsData ? `${metricsData.clickRate.value.toFixed(1)}%` : "3.6%"} 
-          subValue={metricsData ? `Industry avg: ${metricsData.clickRate.industryAvg.toFixed(1)}%` : "Industry avg: 2.7%"} 
-          trend={metricsData ? metricsData.clickRate.trend as 'up' | 'down' | 'neutral' : "up"} 
-          trendValue={metricsData ? metricsData.clickRate.trendValue : "0.9%"}
-        />
-        <MetricCard 
-          title="Conversion Rate" 
-          value={metricsData ? `${metricsData.conversionRate.value.toFixed(1)}%` : "1.2%"} 
-          subValue={metricsData ? `Goal: ${metricsData.conversionRate.goal.toFixed(1)}%` : "Goal: 1.5%"} 
-          trend={metricsData ? metricsData.conversionRate.trend as 'up' | 'down' | 'neutral' : "down"} 
-          trendValue={metricsData ? metricsData.conversionRate.trendValue : "0.3%"}
-        />
-        <MetricCard 
-          title="Bounce Rate" 
-          value={metricsData ? `${metricsData.bounceRate.value.toFixed(1)}%` : "0.8%"} 
-          subValue={metricsData ? `Industry avg: ${metricsData.bounceRate.industryAvg.toFixed(1)}%` : "Industry avg: 1.2%"} 
-          trend={metricsData ? metricsData.bounceRate.trend as 'up' | 'down' | 'neutral' : "up"} 
-          trendValue={metricsData ? metricsData.bounceRate.trendValue : "0.4%"}
-        />
-      </div>
-      
-      {/* Extended Metrics Section */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <MetricCard 
-          title="Total Sent" 
-          value={metricsData ? metricsData.totalSent.toLocaleString() : "42,857"} 
-          subValue={`Last ${timeframe === '7days' ? '7 days' : timeframe === '30days' ? '30 days' : timeframe === '90days' ? '90 days' : timeframe}`}
-        />
-        <MetricCard 
-          title="Total Opens" 
-          value={metricsData ? metricsData.totalOpens.toLocaleString() : "10,628"} 
-          subValue={metricsData ? `${(metricsData.totalOpens / metricsData.totalSent * 100).toFixed(1)}% of sent` : "24.8% of sent"}
-        />
-        <MetricCard 
-          title="Total Clicks" 
-          value={metricsData ? metricsData.totalClicks.toLocaleString() : "1,543"} 
-          subValue={metricsData ? `${(metricsData.totalClicks / metricsData.totalSent * 100).toFixed(1)}% of sent` : "3.6% of sent"}
-        />
-        <MetricCard 
-          title="Unsubscribes" 
-          value={metricsData ? metricsData.unsubscribes.toLocaleString() : "38"} 
-          subValue={metricsData ? `${(metricsData.unsubscribes / metricsData.totalSent * 100).toFixed(2)}% of sent` : "0.09% of sent"}
-        />
-      </div>
-      
-      {/* Main Dashboard Content */}
-      <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="opens">Email Opens</TabsTrigger>
-          <TabsTrigger value="engagement">Engagement Metrics</TabsTrigger>
-          <TabsTrigger value="campaigns">Campaign Comparison</TabsTrigger>
-          <TabsTrigger value="audience">Audience Insights</TabsTrigger>
-        </TabsList>
+        {/* Key Metrics Section */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          <MetricCard 
+            title="Open Rate" 
+            value={metricsData ? `${metricsData.openRate.value.toFixed(1)}%` : "24.8%"} 
+            subValue={metricsData ? `Industry avg: ${metricsData.openRate.industryAvg.toFixed(1)}%` : "Industry avg: 21.5%"} 
+            trend={metricsData ? metricsData.openRate.trend as 'up' | 'down' | 'neutral' : "up"} 
+            trendValue={metricsData ? metricsData.openRate.trendValue : "3.2%"}
+          />
+          <MetricCard 
+            title="Click Rate" 
+            value={metricsData ? `${metricsData.clickRate.value.toFixed(1)}%` : "3.6%"} 
+            subValue={metricsData ? `Industry avg: ${metricsData.clickRate.industryAvg.toFixed(1)}%` : "Industry avg: 2.7%"} 
+            trend={metricsData ? metricsData.clickRate.trend as 'up' | 'down' | 'neutral' : "up"} 
+            trendValue={metricsData ? metricsData.clickRate.trendValue : "0.9%"}
+          />
+          <MetricCard 
+            title="Conversion Rate" 
+            value={metricsData ? `${metricsData.conversionRate.value.toFixed(1)}%` : "1.2%"} 
+            subValue={metricsData ? `Goal: ${metricsData.conversionRate.goal.toFixed(1)}%` : "Goal: 1.5%"} 
+            trend={metricsData ? metricsData.conversionRate.trend as 'up' | 'down' | 'neutral' : "down"} 
+            trendValue={metricsData ? metricsData.conversionRate.trendValue : "0.3%"}
+          />
+          <MetricCard 
+            title="Bounce Rate" 
+            value={metricsData ? `${metricsData.bounceRate.value.toFixed(1)}%` : "0.8%"} 
+            subValue={metricsData ? `Industry avg: ${metricsData.bounceRate.industryAvg.toFixed(1)}%` : "Industry avg: 1.2%"} 
+            trend={metricsData ? metricsData.bounceRate.trend as 'up' | 'down' | 'neutral' : "up"} 
+            trendValue={metricsData ? metricsData.bounceRate.trendValue : "0.4%"}
+          />
+        </div>
         
-        {/* Overview Tab */}
-        <TabsContent value="overview" className="space-y-4">
-          {/* Email Heatmap Section */}
-          <Card className="mb-4">
-            <CardHeader>
-              <CardTitle>Email Click Heatmap</CardTitle>
-              <CardDescription>Visual representation of where users click in your emails</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="relative border rounded-md p-2">
-                  <h4 className="text-center text-sm font-medium mb-2">Monthly Newsletter Template</h4>
-                  <div className="relative bg-gray-100 rounded-md overflow-hidden" style={{ height: '400px' }}>
-                    {/* Email Header */}
-                    <div className="p-4 bg-[#1e40af] text-white text-center">
-                      <div className="text-lg font-bold">Company Newsletter</div>
-                      <div className="text-xs">Monthly Updates & Insights</div>
-                    </div>
-                    
-                    {/* Hero Section */}
-                    <div className="p-4 bg-white text-center border-b">
-                      <h3 className="text-lg font-bold mb-2">April Edition: New Product Launch</h3>
-                      <div className="bg-gray-200 mx-auto mb-2" style={{ height: '100px', width: '90%' }}></div>
-                      <div className="inline-block px-3 py-1 bg-[#d4af37] text-white rounded relative">
-                        Read More
-                        {/* High click area overlay */}
-                        <div className="absolute inset-0 bg-red-500 rounded opacity-40"></div>
-                      </div>
-                    </div>
-                    
-                    {/* Content Section */}
-                    <div className="grid grid-cols-2 gap-2 p-3">
-                      <div className="bg-white p-2 rounded">
-                        <div className="bg-gray-200 mb-1" style={{ height: '40px', width: '100%' }}></div>
-                        <div className="bg-gray-200 mb-1" style={{ height: '20px', width: '80%' }}></div>
-                        <div className="bg-gray-200 mb-1" style={{ height: '20px', width: '90%' }}></div>
-                        <div className="inline-block px-2 py-1 text-xs bg-[#1e40af] text-white rounded mt-1 relative">
-                          Learn More
-                          {/* Medium click area overlay */}
-                          <div className="absolute inset-0 bg-orange-500 rounded opacity-40"></div>
-                        </div>
-                      </div>
-                      <div className="bg-white p-2 rounded">
-                        <div className="bg-gray-200 mb-1" style={{ height: '40px', width: '100%' }}></div>
-                        <div className="bg-gray-200 mb-1" style={{ height: '20px', width: '70%' }}></div>
-                        <div className="bg-gray-200 mb-1" style={{ height: '20px', width: '85%' }}></div>
-                        <div className="inline-block px-2 py-1 text-xs bg-[#1e40af] text-white rounded mt-1 relative">
-                          View Details
-                          {/* Low click area overlay */}
-                          <div className="absolute inset-0 bg-yellow-500 rounded opacity-40"></div>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    {/* Footer */}
-                    <div className="p-3 bg-gray-200 text-center text-xs">
-                      <div className="mb-1">© 2025 Your Company</div>
-                      <div className="flex justify-center gap-2">
-                        <span className="underline relative">Unsubscribe
-                          {/* Medium click area overlay */}
-                          <div className="absolute inset-0 bg-orange-500 opacity-30"></div>
-                        </span>
-                        <span className="underline">Preferences</span>
-                        <span className="underline">View in Browser</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                
-                <div>
-                  <h4 className="text-sm font-medium mb-4">Click Distribution Analysis</h4>
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center">
-                          <div className="w-3 h-3 bg-red-500 opacity-70 mr-2"></div>
-                          <span className="text-sm">High Click Areas (15%+ CTR)</span>
-                        </div>
-                        <span className="text-sm font-medium">24.8%</span>
-                      </div>
-                      <Progress value={24.8} className="h-2" style={{ '--progress-foreground': 'rgb(239, 68, 68)' } as React.CSSProperties} />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center">
-                          <div className="w-3 h-3 bg-orange-500 opacity-70 mr-2"></div>
-                          <span className="text-sm">Medium Click Areas (5-15% CTR)</span>
-                        </div>
-                        <span className="text-sm font-medium">12.3%</span>
-                      </div>
-                      <Progress value={12.3} className="h-2" style={{ '--progress-foreground': 'rgb(249, 115, 22)' } as React.CSSProperties} />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center">
-                          <div className="w-3 h-3 bg-yellow-500 opacity-70 mr-2"></div>
-                          <span className="text-sm">Low Click Areas (&lt; 5% CTR)</span>
-                        </div>
-                        <span className="text-sm font-medium">3.8%</span>
-                      </div>
-                      <Progress value={3.8} className="h-2" style={{ '--progress-foreground': 'rgb(234, 179, 8)' } as React.CSSProperties} />
-                    </div>
-                    
-                    <div className="mt-6">
-                      <h5 className="text-sm font-medium mb-3">CTA Performance</h5>
-                      <div>
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm">Main CTA Button</span>
-                          <span className="text-sm font-medium">23.5% CTR</span>
-                        </div>
-                        <Progress value={23.5} className="h-2" style={{ '--progress-foreground': '#1e40af' } as React.CSSProperties} />
-                      </div>
-                      <div>
-                        <div className="flex items-center justify-between mt-2">
-                          <span className="text-sm">Links in Text</span>
-                          <span className="text-sm font-medium">8.7% CTR</span>
-                        </div>
-                        <Progress value={8.7} className="h-2" style={{ '--progress-foreground': '#d4af37' } as React.CSSProperties} />
-                      </div>
-                      <div>
-                        <div className="flex items-center justify-between mt-2">
-                          <span className="text-sm">Image + Text CTAs</span>
-                          <span className="text-sm font-medium">18.3% CTR</span>
-                        </div>
-                        <Progress value={18.3} className="h-2" style={{ '--progress-foreground': '#1a3a5f' } as React.CSSProperties} />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+        {/* Extended Metrics Section */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          <MetricCard 
+            title="Total Sent" 
+            value={metricsData ? metricsData.totalSent.toLocaleString() : "42,857"} 
+            subValue={`Last ${timeframe === '7days' ? '7 days' : timeframe === '30days' ? '30 days' : timeframe === '90days' ? '90 days' : timeframe}`}
+          />
+          <MetricCard 
+            title="Total Opens" 
+            value={metricsData ? metricsData.totalOpens.toLocaleString() : "10,628"} 
+            subValue={metricsData ? `${(metricsData.totalOpens / metricsData.totalSent * 100).toFixed(1)}% of sent` : "24.8% of sent"}
+          />
+          <MetricCard 
+            title="Total Clicks" 
+            value={metricsData ? metricsData.totalClicks.toLocaleString() : "1,543"} 
+            subValue={metricsData ? `${(metricsData.totalClicks / metricsData.totalSent * 100).toFixed(1)}% of sent` : "3.6% of sent"}
+          />
+          <MetricCard 
+            title="Unsubscribes" 
+            value={metricsData ? metricsData.unsubscribes.toLocaleString() : "38"} 
+            subValue={metricsData ? `${(metricsData.unsubscribes / metricsData.totalSent * 100).toFixed(2)}% of sent` : "0.09% of sent"}
+          />
+        </div>
+        
+        {/* Main Dashboard Content */}
+        <Tabs defaultValue="overview" className="space-y-4">
+          <TabsList>
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="opens">Email Opens</TabsTrigger>
+            <TabsTrigger value="engagement">Engagement Metrics</TabsTrigger>
+            <TabsTrigger value="campaigns">Campaign Comparison</TabsTrigger>
+            <TabsTrigger value="audience">Audience Insights</TabsTrigger>
+          </TabsList>
           
-          {/* Weekly Performance & Device Breakdowns */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
-            <Card>
+          {/* Overview Tab */}
+          <TabsContent value="overview" className="space-y-4">
+            {/* Weekly Performance Chart */}
+            <Card className="mb-4">
               <CardHeader>
                 <CardTitle>Weekly Performance</CardTitle>
-                <CardDescription>Open, click, and conversion rates by day</CardDescription>
+                <CardDescription>Opens, clicks and conversions over the past week</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="h-80">
+                <div className="h-[300px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart
-                      data={chartData?.weeklyPerformance || fallbackChartData.weeklyPerformance}
-                      margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                      data={chartData?.weeklyPerformance || emailPerformanceData}
+                      margin={{
+                        top: 5,
+                        right: 30,
+                        left: 20,
+                        bottom: 5,
+                      }}
                     >
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="day" />
@@ -635,130 +506,270 @@ const ClientEmailPerformance: React.FC = () => {
                       <Legend />
                       <Bar dataKey="opens" fill="#1e40af" name="Opens" />
                       <Bar dataKey="clicks" fill="#d4af37" name="Clicks" />
-                      <Bar dataKey="conversions" fill="#1a3a5f" name="Conversions" />
+                      <Bar dataKey="conversions" fill="#15803d" name="Conversions" />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
               </CardContent>
             </Card>
             
-            <Card>
-              <CardHeader>
-                <CardTitle>Device Breakdown</CardTitle>
-                <CardDescription>Email opens by device type</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="h-80 flex items-center justify-center">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={chartData?.deviceBreakdown || fallbackChartData.deviceBreakdown}
-                        cx="50%"
-                        cy="50%"
-                        labelLine={false}
-                        outerRadius={80}
-                        fill="#8884d8"
-                        dataKey="value"
-                        label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+            {/* Device Breakdown */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Device Breakdown</CardTitle>
+                  <CardDescription>Email opens by device type</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-[300px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={chartData?.deviceBreakdown || engagementByDevice}
+                          cx="50%"
+                          cy="50%"
+                          labelLine={false}
+                          label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                          outerRadius={100}
+                          fill="#8884d8"
+                          dataKey="value"
+                        >
+                          {(chartData?.deviceBreakdown || engagementByDevice).map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                          ))}
+                        </Pie>
+                        <Tooltip formatter={(value) => [`${value}%`, 'Percentage']} />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              {/* Link Performance */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Link Performance</CardTitle>
+                  <CardDescription>Click distribution across links</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-[300px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart
+                        layout="vertical"
+                        data={chartData?.clickDistribution || []}
+                        margin={{
+                          top: 5,
+                          right: 30,
+                          left: 100,
+                          bottom: 5,
+                        }}
                       >
-                        {(chartData?.deviceBreakdown || fallbackChartData.deviceBreakdown).map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                        ))}
-                      </Pie>
-                      <Tooltip formatter={(value) => `${value}%`} />
-                    </PieChart>
-                  </ResponsiveContainer>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-          
-          {/* Engagement Over Time and Link Performance */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
-            <Card>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis type="number" />
+                        <YAxis type="category" dataKey="link" />
+                        <Tooltip />
+                        <Bar dataKey="clicks" fill="#1e40af" name="Clicks" />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+            
+            {/* Engagement Over Time */}
+            <Card className="mb-4">
               <CardHeader>
-                <CardTitle>Engagement Over Time</CardTitle>
-                <CardDescription>Open, click, and conversion rates over time</CardDescription>
+                <CardTitle>Engagement Trends</CardTitle>
+                <CardDescription>Open, click and conversion rates over time</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="h-80">
+                <div className="h-[300px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart
-                      data={chartData?.engagementOverTime || fallbackChartData.engagementOverTime}
-                      margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                      data={chartData?.engagementOverTime || []}
+                      margin={{
+                        top: 5,
+                        right: 30,
+                        left: 20,
+                        bottom: 5,
+                      }}
                     >
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="date" />
                       <YAxis />
-                      <Tooltip />
+                      <Tooltip formatter={(value) => [`${value}%`, 'Rate']} />
                       <Legend />
-                      <Line type="monotone" dataKey="open" stroke="#1e40af" name="Open Rate %" activeDot={{ r: 8 }} />
-                      <Line type="monotone" dataKey="click" stroke="#d4af37" name="Click Rate %" />
-                      <Line type="monotone" dataKey="conversion" stroke="#1a3a5f" name="Conversion Rate %" />
+                      <Line type="monotone" dataKey="open" stroke="#1e40af" name="Open Rate" />
+                      <Line type="monotone" dataKey="click" stroke="#d4af37" name="Click Rate" />
+                      <Line type="monotone" dataKey="conversion" stroke="#15803d" name="Conversion Rate" />
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
               </CardContent>
             </Card>
             
+            {/* Realtime Activity */}
             <Card>
               <CardHeader>
-                <CardTitle>Link Performance</CardTitle>
-                <CardDescription>Click distribution by link type</CardDescription>
+                <CardTitle>Realtime Activity</CardTitle>
+                <CardDescription>Recent user interactions with your emails</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="h-80">
+                <div className="space-y-3">
+                  {(realtimeData || []).map((activity, index) => (
+                    <div key={index} className="flex justify-between items-center border-b pb-3">
+                      <div className="flex flex-col">
+                        <div className="flex items-center gap-2">
+                          <Badge variant={activity.type === 'Open' ? 'outline' : activity.type === 'Click' ? 'secondary' : 'default'}>
+                            {activity.type}
+                          </Badge>
+                          <span>{activity.email}</span>
+                        </div>
+                        <span className="font-medium">{activity.user}</span>
+                      </div>
+                      <span className="text-sm text-gray-500">{activity.time}</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-4 text-center">
+                  <Button variant="outline">View All Activity</Button>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+          
+          {/* Email Opens Tab */}
+          <TabsContent value="opens" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Email Opens By Time of Day</CardTitle>
+                <CardDescription>When your audience is most active</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="h-[400px]">
                   <ResponsiveContainer width="100%" height="100%">
-                    <BarChart
-                      layout="vertical"
-                      data={chartData?.clickDistribution || fallbackChartData.clickDistribution}
-                      margin={{ top: 5, right: 30, left: 70, bottom: 5 }}
+                    <AreaChart
+                      data={chartData?.engagementByTimeOfDay || []}
+                      margin={{
+                        top: 10,
+                        right: 30,
+                        left: 0,
+                        bottom: 0,
+                      }}
                     >
                       <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis type="number" />
-                      <YAxis type="category" dataKey="link" />
-                      <Tooltip />
-                      <Bar dataKey="clicks" fill="#1e40af" name="Clicks">
-                        {(chartData?.clickDistribution || fallbackChartData.clickDistribution).map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                        ))}
-                      </Bar>
+                      <XAxis dataKey="hour" />
+                      <YAxis />
+                      <Tooltip formatter={(value) => [`${value}%`, 'Open Rate']} />
+                      <Area type="monotone" dataKey="opens" stroke="#1e40af" fill="#93c5fd" />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+          
+          {/* Engagement Tab */}
+          <TabsContent value="engagement" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Send Time Effectiveness</CardTitle>
+                <CardDescription>Open rates by day and time</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="h-[400px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart
+                      data={chartData?.sendTimeEffectiveness || []}
+                      margin={{
+                        top: 20,
+                        right: 30,
+                        left: 20,
+                        bottom: 5,
+                      }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="day" />
+                      <YAxis />
+                      <Tooltip formatter={(value) => [`${value}%`, 'Open Rate']} />
+                      <Legend />
+                      <Bar dataKey="morning" stackId="a" fill="#93c5fd" name="Morning" />
+                      <Bar dataKey="afternoon" stackId="a" fill="#3b82f6" name="Afternoon" />
+                      <Bar dataKey="evening" stackId="a" fill="#1e40af" name="Evening" />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
               </CardContent>
             </Card>
-          </div>
+          </TabsContent>
           
-          {/* Realtime Activity */}
-          <Card className="mb-4">
-            <CardHeader>
-              <CardTitle>Realtime Email Activity</CardTitle>
-              <CardDescription>Live feed of opens, clicks, and conversions</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {(realtimeData || fallbackRealtimeData).map((activity, index) => (
-                  <div key={index} className="flex justify-between items-center border-b pb-3">
-                    <div className="flex items-center space-x-2">
-                      <div className="rounded-full w-2 h-2 bg-primary"></div>
-                      <span className="font-medium">{activity.user}</span>
-                      <Badge variant={activity.type === 'open' ? 'outline' : activity.type === 'click' ? 'secondary' : 'default'}>
-                        {activity.type === 'open' ? 'Opened' : activity.type === 'click' ? 'Clicked' : 'Converted'}
-                      </Badge>
-                      <span>{activity.email}</span>
-                    </div>
-                    <span className="text-sm text-gray-500">{activity.time}</span>
-                  </div>
-                ))}
-              </div>
-              <div className="mt-4 text-center">
-                <Button variant="outline">View All Activity</Button>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+          {/* Campaigns Tab */}
+          <TabsContent value="campaigns" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Campaign Performance Comparison</CardTitle>
+                <CardDescription>Compare metrics across campaigns</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="h-[400px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart
+                      data={chartData?.campaignComparison || []}
+                      margin={{
+                        top: 20,
+                        right: 30,
+                        left: 20,
+                        bottom: 5,
+                      }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="name" />
+                      <YAxis />
+                      <Tooltip formatter={(value) => [`${value}%`, 'Rate']} />
+                      <Legend />
+                      <Bar dataKey="open" fill="#93c5fd" name="Open Rate" />
+                      <Bar dataKey="click" fill="#3b82f6" name="Click Rate" />
+                      <Bar dataKey="conversion" fill="#1e40af" name="Conversion Rate" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+          
+          {/* Audience Tab */}
+          <TabsContent value="audience" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Subscriber Engagement Segments</CardTitle>
+                <CardDescription>Engagement profile of your audience</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="h-[400px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={chartData?.subscriberEngagementSegments || []}
+                        cx="50%"
+                        cy="50%"
+                        labelLine={false}
+                        label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                        outerRadius={120}
+                        fill="#8884d8"
+                        dataKey="value"
+                      >
+                        {(chartData?.subscriberEngagementSegments || []).map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        ))}
+                      </Pie>
+                      <Tooltip formatter={(value) => [`${value}%`, 'Percentage']} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
