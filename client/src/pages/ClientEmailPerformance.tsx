@@ -334,30 +334,41 @@ const ClientEmailPerformance: React.FC = () => {
   ];
   
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* Header */}
-      <header className="relative z-20 flex items-center justify-between p-4 bg-gradient-to-r from-blue-900 to-blue-800 text-white shadow-md">
-        <div className="flex items-center">
-          <div className="flex flex-col">
-            <h1 className="text-2xl font-bold tracking-tight text-white">Email Performance</h1>
-            <p className="text-sm text-blue-100 mt-0.5">Analytics & Engagement Metrics</p>
+    <div className="flex flex-col min-h-screen bg-gray-50">
+      {/* Header with blue gradient styling to match other client pages */}
+      <div className="w-full bg-gradient-to-r from-blue-500 to-blue-700">
+        <div className="max-w-[1600px] mx-auto px-6 py-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="bg-white/20 p-2 rounded-lg">
+                <svg className="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21.2 8.4c.5.38.8.97.8 1.6v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V10a2 2 0 0 1 2-2h3.8a2 2 0 0 0 1.4-.6L12 4.6a2 2 0 0 1 1.4-.6H20a2 2 0 0 1 2 2v1.4"></path>
+                  <path d="M8 16l8-8"></path>
+                  <path d="M16 16V8h-8"></path>
+                </svg>
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-white">Email Performance</h1>
+                <p className="text-blue-100 text-sm">Analytics & Engagement Metrics</p>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-3">
+              {clientInfo && (
+                <div className="flex items-center bg-blue-800/50 rounded-full px-4 py-2 border border-blue-700/50">
+                  <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse mr-2"></div>
+                  <span className="text-sm text-blue-50">
+                    {timeframe === '7days' ? 'Last 7 Days' : 
+                     timeframe === '30days' ? 'Last 30 Days' : 
+                     timeframe === 'today' ? 'Today' : 
+                     timeframe === 'yesterday' ? 'Yesterday' : 'Last 90 Days'}
+                  </span>
+                </div>
+              )}
+            </div>
           </div>
         </div>
-        
-        <div className="flex items-center gap-3">
-          {clientInfo && (
-            <div className="flex items-center bg-blue-800/50 rounded-full px-4 py-2 border border-blue-700/50">
-              <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse mr-2"></div>
-              <span className="text-sm text-blue-50">
-                {timeframe === '7days' ? 'Last 7 Days' : 
-                 timeframe === '30days' ? 'Last 30 Days' : 
-                 timeframe === 'today' ? 'Today' : 
-                 timeframe === 'yesterday' ? 'Yesterday' : 'Last 90 Days'}
-              </span>
-            </div>
-          )}
-        </div>
-      </header>
+      </div>
 
       <div className="container mx-auto py-6 px-4">
         {/* Page introduction */}
