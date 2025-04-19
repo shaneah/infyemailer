@@ -413,13 +413,28 @@ const ClientABTesting = () => {
   
   // Overview/list view
   return (
-    <div className="container mx-auto py-6">
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <h1 className="text-3xl font-bold text-indigo-800 dark:text-indigo-300">A/B Testing</h1>
-          <p className="text-indigo-600 dark:text-indigo-400">View and analyze your A/B test campaigns</p>
+    <div className="flex flex-col min-h-screen bg-gray-50">
+      {/* Header with blue gradient styling to match other client pages */}
+      <div className="w-full bg-gradient-to-r from-blue-500 to-blue-700">
+        <div className="max-w-[1600px] mx-auto px-6 py-6">
+          <div className="flex items-center gap-3">
+            <div className="bg-white/20 p-2 rounded-lg">
+              <svg className="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+              </svg>
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-white">A/B Testing</h1>
+              <p className="text-blue-100 text-sm">View and analyze your A/B test campaigns</p>
+            </div>
+          </div>
         </div>
       </div>
+      
+      <div className="container mx-auto py-6 px-6 pt-6">
 
       {isLoadingCampaigns ? (
         <div className="flex items-center justify-center py-10">
@@ -481,6 +496,7 @@ const ClientABTesting = () => {
           ))}
         </div>
       )}
+      </div>
     </div>
   );
 };
