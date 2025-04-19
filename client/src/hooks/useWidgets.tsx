@@ -1,6 +1,6 @@
 import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
 
-// Widget types
+// Widget types - AI-related widgets removed
 export type WidgetType = 
   | 'activeCampaigns' 
   | 'totalEmails' 
@@ -13,18 +13,13 @@ export type WidgetType =
   | 'calendar'
   | 'tasks'
   | 'notes'
-  | 'aiInsights'
   | 'optimalSendTime'
   | 'upcomingCampaigns'
   | 'audienceGrowth'
   | 'realtimeMetrics'
   | 'emailHealthScore'
   | 'campaignROI'
-  | 'engagementHeatmap'
-  | 'smartNotifications'
-  | 'aiRecommendations'
-  | 'campaignPerformanceAnalyzer'
-  | 'userJourney';
+  | 'engagementHeatmap';
 
 export interface Widget {
   id: string;

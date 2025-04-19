@@ -16,9 +16,18 @@ export const useWidgetRecommendations = () => {
     // No-op function
   }, []);
 
-  // Get widget recommendations - returns empty array
+  // Get widget recommendations - returns basic non-AI widgets
   const getRecommendations = useCallback((count: number = 3): WidgetType[] => {
     return ['totalEmails', 'openRate', 'recentCampaigns'];
+  }, []);
+  
+  // Added for compatibility with previous implementation
+  const generateRecommendations = useCallback((): WidgetType[] => {
+    return ['totalEmails', 'openRate', 'recentCampaigns'];
+  }, []);
+  
+  const getRecommendationReason = useCallback((widgetType: WidgetType): string => {
+    return "This widget provides useful data visualization.";
   }, []);
 
   // Show a recommendation toast - does nothing
@@ -30,7 +39,11 @@ export const useWidgetRecommendations = () => {
     recordWidgetView,
     recordWidgetInteraction,
     getRecommendations,
-    showRecommendation
+    showRecommendation,
+    generateRecommendations,
+    getRecommendationReason,
+    userPersona: 'marketer', // Default non-AI user persona
+    isAnalyzing: false
   };
 }
 
