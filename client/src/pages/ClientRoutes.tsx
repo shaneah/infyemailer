@@ -1983,40 +1983,51 @@ const ClientDomains = () => {
   };
 
   return (
-    <div className="p-8">
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-3">
-          <div className="bg-purple-100 p-2 rounded-full">
-            <Globe className="h-6 w-6 text-purple-600" />
+    <div className="p-0">
+      {/* Header with blue gradient styling to match other client pages */}
+      <div className="w-full bg-gradient-to-r from-blue-500 to-blue-700">
+        <div className="max-w-[1600px] mx-auto px-6 py-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="bg-white/20 p-2 rounded-lg">
+                <Globe className="h-6 w-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-white">Domains</h1>
+                <p className="text-blue-100 text-sm">Manage your verified sending domains</p>
+              </div>
+            </div>
+            
+            <button 
+              onClick={() => setShowAddDomainModal(true)}
+              className="bg-blue-600/80 hover:bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-all shadow-sm hover:shadow-md border border-blue-500"
+            >
+              <span>Add Domain</span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
+            </button>
           </div>
-          <h1 className="text-2xl font-bold">Domains</h1>
         </div>
-        <button 
-          onClick={() => setShowAddDomainModal(true)}
-          className="bg-purple-600 text-white px-4 py-2 rounded-md flex items-center gap-2 hover:bg-purple-700 transition-colors"
-        >
-          <span>Add Domain</span>
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
-        </button>
       </div>
       
-      {/* Domain Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div className="bg-white rounded-lg shadow p-4 border border-gray-100">
-          <h3 className="text-sm font-medium text-gray-500 mb-1">Total Domains</h3>
-          <p className="text-2xl font-bold">{domains.length}</p>
+      <div className="px-8 py-6">
+      
+        {/* Domain Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <div className="bg-white rounded-lg shadow p-4 border border-gray-100">
+            <h3 className="text-sm font-medium text-gray-500 mb-1">Total Domains</h3>
+            <p className="text-2xl font-bold">{domains.length}</p>
+          </div>
+          <div className="bg-white rounded-lg shadow p-4 border border-gray-100">
+            <h3 className="text-sm font-medium text-gray-500 mb-1">Verified Domains</h3>
+            <p className="text-2xl font-bold">{domains.filter(d => d.status === 'Verified').length}</p>
+          </div>
+          <div className="bg-white rounded-lg shadow p-4 border border-gray-100">
+            <h3 className="text-sm font-medium text-gray-500 mb-1">Default Domain</h3>
+            <p className="text-lg font-medium text-gray-800 truncate">
+              {domains.find(d => d.isDefault)?.name || '—'}
+            </p>
+          </div>
         </div>
-        <div className="bg-white rounded-lg shadow p-4 border border-gray-100">
-          <h3 className="text-sm font-medium text-gray-500 mb-1">Verified Domains</h3>
-          <p className="text-2xl font-bold">{domains.filter(d => d.status === 'Verified').length}</p>
-        </div>
-        <div className="bg-white rounded-lg shadow p-4 border border-gray-100">
-          <h3 className="text-sm font-medium text-gray-500 mb-1">Default Domain</h3>
-          <p className="text-lg font-medium text-gray-800 truncate">
-            {domains.find(d => d.isDefault)?.name || '—'}
-          </p>
-        </div>
-      </div>
       
       {/* Domains Table */}
       <div className="bg-white rounded-lg shadow border border-gray-100 overflow-hidden">
@@ -2183,6 +2194,7 @@ const ClientDomains = () => {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 };
