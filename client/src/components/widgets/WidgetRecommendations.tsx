@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useWidgets, WidgetType, widgetTitles } from '@/hooks/useWidgets';
 import { useWidgetRecommendations } from '@/hooks/useWidgetRecommendations';
-import { BadgeCheck, BarChart2, Brain, Calendar, LineChart, Mail, Sparkles, User, UserCheck, PieChart, Zap } from 'lucide-react';
+import { BadgeCheck, BarChart2, Brain, Calendar, LineChart, Mail, Sparkles, User, UserCheck, PieChart, Zap, MousePointer } from 'lucide-react';
 
 interface WidgetRecommendationsProps {
   clientData: any;
@@ -27,7 +27,7 @@ const widgetIcons: Record<WidgetType, React.ReactNode> = {
   'activeCampaigns': <Mail className="h-4 w-4" />,
   'totalEmails': <Mail className="h-4 w-4" />,
   'openRate': <Mail className="h-4 w-4" />,
-  'clickRate': <Mouse className="h-4 w-4" />,
+  'clickRate': <MousePointer className="h-4 w-4" />,
   'contacts': <Users className="h-4 w-4" />,
   'emailPerformance': <BarChart2 className="h-4 w-4" />,
   'deviceBreakdown': <Smartphone className="h-4 w-4" />,
@@ -51,7 +51,7 @@ const widgetIcons: Record<WidgetType, React.ReactNode> = {
 
 // Import missing icons from Lucide
 import { 
-  Mouse, Users, Smartphone, Clock, CheckSquare, FileText, 
+  Users, Smartphone, Clock, CheckSquare, FileText, 
   TrendingUp, Activity, Heart, DollarSign, Grid, Bell, GitCommit
 } from 'lucide-react';
 

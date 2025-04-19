@@ -144,9 +144,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Dashboard stats
   app.get('/api/dashboard/stats', async (req: Request, res: Response) => {
     try {
-      // Get counts from storage
-      const contactsCount = await storage.getContactsCount();
-      const campaignsCount = await storage.getCampaignsCount();
+      // Get counts from storage with fallback values
+      let contactsCount = 0;
+      let campaignsCount = 0;
+      
+      try {
+        contactsCount = await storage.getContactsCount();
+        campaignsCount = await storage.getCampaignsCount();
+      } catch (error) {
+        console.warn('Error getting counts from storage:', error);
+      }
       
       // Default values for metrics that might not be available
       let openRate = 23.7;
