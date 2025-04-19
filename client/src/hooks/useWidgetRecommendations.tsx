@@ -537,7 +537,7 @@ export const useWidgetRecommendations = (
       const updatedHistory = [
         ...existingData.actionHistory,
         {
-          type: 'view',
+          type: 'view' as const,
           timestamp: now
         }
       ].slice(-20); // Keep last 20 actions
@@ -610,14 +610,13 @@ export const useWidgetRecommendations = (
       }
       
       // Add current action to history
-      const updatedHistory = [
-        ...existingData.actionHistory,
-        {
-          type: actionType,
-          timestamp: now,
-          context
-        }
-      ].slice(-20); // Keep last 20 actions
+      const action: WidgetAction = {
+        type: actionType,
+        timestamp: now,
+        context
+      };
+      
+      const updatedHistory = [...existingData.actionHistory, action].slice(-20); // Keep last 20 actions
 
       const updatedData = {
         ...existingData,
@@ -673,13 +672,15 @@ export const useWidgetRecommendations = (
       }
       
       // Add feedback action to history
+      const feedbackAction: WidgetAction = {
+        type: 'feedback',
+        timestamp: now,
+        context: `feedback:${feedback}`
+      };
+      
       const updatedHistory = [
         ...existingData.actionHistory,
-        {
-          type: 'click',
-          timestamp: now,
-          context: `feedback:${feedback}`
-        }
+        feedbackAction
       ].slice(-20);
 
       const updatedData = {
@@ -962,12 +963,14 @@ export const useWidgetRecommendations = (
       // 5. First-time user guidance
       if (isFirstSession) {
         // Prioritize simpler widgets for new users
-        if (['activeCampaigns', 'totalEmails', 'contacts', 'calendar'].includes(widgetType)) {
+        const simpleWidgets: WidgetType[] = ['activeCampaigns', 'totalEmails', 'contacts', 'calendar'];
+        if (simpleWidgets.includes(widgetType)) {
           score += 2;
         }
         
         // Deprioritize complex widgets for new users
-        if (['aiRecommendations', 'campaignPerformanceAnalyzer', 'engagementHeatmap'].includes(widgetType)) {
+        const complexWidgets: WidgetType[] = ['aiRecommendations', 'campaignPerformanceAnalyzer', 'engagementHeatmap'];
+        if (complexWidgets.includes(widgetType)) {
           score -= 1;
         }
       }
@@ -985,8 +988,8 @@ export const useWidgetRecommendations = (
         }
         
         // If client has active campaigns, suggest campaign analytics
-        if (clientData.stats?.activeCampaigns > 0 && 
-            ['campaignROI', 'campaignPerformanceAnalyzer'].includes(widgetType)) {
+        const campaignWidgets: WidgetType[] = ['campaignROI', 'campaignPerformanceAnalyzer'];
+        if (clientData.stats?.activeCampaigns > 0 && campaignWidgets.includes(widgetType)) {
           score += 1.5;
         }
       }
@@ -1004,14 +1007,17 @@ export const useWidgetRecommendations = (
     
     // Fallback if we don't have enough recommendations
     if (topRecommendations.length < 3) {
-      const defaultRecommendations: WidgetType[] = [
+      const defaultRecommendationOptions: WidgetType[] = [
         'aiRecommendations', 
         'campaignPerformanceAnalyzer', 
         'userJourney', 
         'engagementHeatmap', 
         'realtimeMetrics'
-      ].filter(type => !visibleWidgetTypes.includes(type) && 
-                       !topRecommendations.includes(type));
+      ];
+      
+      const defaultRecommendations = defaultRecommendationOptions.filter(
+        type => !visibleWidgetTypes.includes(type) && !topRecommendations.includes(type)
+      );
       
       // Add default recommendations until we have at least 3
       while (topRecommendations.length < 3 && defaultRecommendations.length > 0) {
@@ -1038,10 +1044,11 @@ export const useWidgetRecommendations = (
     const isHighValueWidget = businessValueScores[widgetType] >= 8;
     
     // Check if it matches current usage context
+    const mobileWidgets: WidgetType[] = ['smartNotifications', 'activeCampaigns'];
     const matchesContext = usageContext && (
       (usageContext.timeOfDay === 'morning' && category === 'analytics') ||
       (usageContext.timeOfDay === 'evening' && category === 'ai') ||
-      (usageContext.deviceType === 'mobile' && ['smartNotifications', 'activeCampaigns'].includes(widgetType))
+      (usageContext.deviceType === 'mobile' && mobileWidgets.includes(widgetType))
     );
     
     // Check if it's relevant to client data
