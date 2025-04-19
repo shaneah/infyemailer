@@ -53,12 +53,21 @@ const ClientSidebar = ({ open, setOpen }: SidebarProps) => {
   const [clientId, setClientId] = useState("tech1");
   
   useEffect(() => {
-    // Get client info from session storage
+    // Force clear any existing session data that might have the old company name
     const clientUser = sessionStorage.getItem('clientUser');
     if (clientUser) {
       try {
         const userData = JSON.parse(clientUser);
-        setClientName(userData.company || "InfyTech Solutions");
+        // Always use "InfyTech Solutions" for client with ID 1
+        if (userData.id === 1) {
+          setClientName("InfyTech Solutions");
+          
+          // Update the sessionStorage with the correct company name
+          userData.company = "InfyTech Solutions";
+          sessionStorage.setItem('clientUser', JSON.stringify(userData));
+        } else {
+          setClientName(userData.company || "InfyTech Solutions");
+        }
         setClientId(userData.id || "tech1");
       } catch (error) {
         console.error("Error parsing client user data", error);
