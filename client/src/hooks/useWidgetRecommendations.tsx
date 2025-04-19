@@ -1052,21 +1052,27 @@ export const useWidgetRecommendations = (
     );
     
     // Check if it's relevant to client data
+    const campaignWidgets: WidgetType[] = ['campaignROI', 'campaignPerformanceAnalyzer'];
     const isDataRelevant = clientData && (
       (clientData.stats?.contactsCount > 100 && category === 'audience') ||
       (clientData.stats?.totalEmails > 1000 && category === 'performance') ||
-      (clientData.stats?.activeCampaigns > 0 && ['campaignROI', 'campaignPerformanceAnalyzer'].includes(widgetType))
+      (clientData.stats?.activeCampaigns > 0 && campaignWidgets.includes(widgetType))
     );
     
     // If it's the user's first session, provide more educational reasons
     if (isFirstSession) {
-      if (['activeCampaigns', 'totalEmails', 'openRate'].includes(widgetType)) {
+      const essentialWidgets: WidgetType[] = ['activeCampaigns', 'totalEmails', 'openRate'];
+      if (essentialWidgets.includes(widgetType)) {
         return 'Essential widget to get started with your dashboard';
       }
-      if (['emailPerformance', 'deviceBreakdown'].includes(widgetType)) {
+      
+      const insightWidgets: WidgetType[] = ['emailPerformance', 'deviceBreakdown'];
+      if (insightWidgets.includes(widgetType)) {
         return 'Provides key insights into your email campaign performance';
       }
-      if (['aiInsights', 'aiRecommendations'].includes(widgetType)) {
+      
+      const aiWidgets: WidgetType[] = ['aiInsights', 'aiRecommendations'];
+      if (aiWidgets.includes(widgetType)) {
         return 'Leverages AI to provide actionable marketing insights';
       }
     }
@@ -1084,7 +1090,7 @@ export const useWidgetRecommendations = (
       if (category === 'performance' && clientData.stats?.totalEmails > 1000) {
         return `Valuable for analyzing your high volume of ${clientData.stats.totalEmails} emails`;
       }
-      if (['campaignROI', 'campaignPerformanceAnalyzer'].includes(widgetType) && clientData.stats?.activeCampaigns > 0) {
+      if (campaignWidgets.includes(widgetType) && clientData.stats?.activeCampaigns > 0) {
         return `Helps optimize your ${clientData.stats.activeCampaigns} active campaign${clientData.stats.activeCampaigns > 1 ? 's' : ''}`;
       }
     }
@@ -1097,7 +1103,7 @@ export const useWidgetRecommendations = (
       if (usageContext?.timeOfDay === 'evening' && category === 'ai') {
         return 'Provides AI-powered insights to review at the end of your day';
       }
-      if (usageContext?.deviceType === 'mobile' && ['smartNotifications', 'activeCampaigns'].includes(widgetType)) {
+      if (usageContext?.deviceType === 'mobile' && mobileWidgets.includes(widgetType)) {
         return 'Optimized for mobile viewing with at-a-glance insights';
       }
     }
