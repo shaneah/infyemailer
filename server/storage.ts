@@ -20,21 +20,11 @@ import {
   ClientEmailCreditsHistory, InsertClientEmailCreditsHistory,
   SystemCredits, InsertSystemCredits,
   SystemCreditsHistory, InsertSystemCreditsHistory,
-  AudiencePersona, InsertAudiencePersona,
-  PersonaDemographic, InsertPersonaDemographic,
-  PersonaBehavior, InsertPersonaBehavior,
-  PersonaInsight, InsertPersonaInsight,
-  AudienceSegment, InsertAudienceSegment,
   Role, InsertRole,
   Permission, InsertPermission,
   UserRole, InsertUserRole,
   RolePermission, InsertRolePermission,
-  ClientProvider, InsertClientProvider,
-  insertAudiencePersonaSchema,
-  insertPersonaDemographicSchema,
-  insertPersonaBehaviorSchema,
-  insertPersonaInsightSchema,
-  insertAudienceSegmentSchema
+  ClientProvider, InsertClientProvider
 } from "@shared/schema";
 import { ListPersistenceService } from './services/ListPersistenceService';
 import { TemplatePersistenceService } from './services/TemplatePersistenceService';
@@ -278,41 +268,7 @@ export interface IStorage {
   createTrackingLink(link: InsertLinkTracking): Promise<LinkTracking>;
   updateTrackingLink(id: number, link: Partial<LinkTracking>): Promise<LinkTracking | undefined>;
   
-  // Audience Persona methods
-  audiencePersonaSchema: typeof insertAudiencePersonaSchema;
-  personaDemographicSchema: typeof insertPersonaDemographicSchema;
-  personaBehaviorSchema: typeof insertPersonaBehaviorSchema;
-  personaInsightSchema: typeof insertPersonaInsightSchema;
-  audienceSegmentSchema: typeof insertAudienceSegmentSchema;
-  
-  getAudiencePersonas(clientId?: number): Promise<AudiencePersona[]>;
-  getAudiencePersona(id: number): Promise<AudiencePersona | undefined>;
-  createAudiencePersona(persona: InsertAudiencePersona): Promise<AudiencePersona>;
-  updateAudiencePersona(id: number, persona: Partial<AudiencePersona>): Promise<AudiencePersona | undefined>;
-  deleteAudiencePersona(id: number): Promise<boolean>;
-  
-  // Persona Demographics methods
-  getPersonaDemographics(personaId: number): Promise<PersonaDemographic | undefined>;
-  createPersonaDemographics(demographics: InsertPersonaDemographic): Promise<PersonaDemographic>;
-  updatePersonaDemographics(id: number, demographics: Partial<PersonaDemographic>): Promise<PersonaDemographic | undefined>;
-  
-  // Persona Behaviors methods
-  getPersonaBehaviors(personaId: number): Promise<PersonaBehavior | undefined>;
-  createPersonaBehaviors(behaviors: InsertPersonaBehavior): Promise<PersonaBehavior>;
-  updatePersonaBehaviors(id: number, behaviors: Partial<PersonaBehavior>): Promise<PersonaBehavior | undefined>;
-  
-  // Persona Insights methods
-  getPersonaInsights(personaId: number): Promise<PersonaInsight[]>;
-  createPersonaInsight(insight: InsertPersonaInsight): Promise<PersonaInsight>;
-  deletePersonaInsight(id: number): Promise<boolean>;
-  
-  // Audience Segments methods
-  getAudienceSegments(personaId?: number): Promise<AudienceSegment[]>;
-  getPersonaSegments(personaId: number): Promise<AudienceSegment[]>;
-  getAudienceSegment(id: number): Promise<AudienceSegment | undefined>;
-  createAudienceSegment(segment: InsertAudienceSegment): Promise<AudienceSegment>;
-  updateAudienceSegment(id: number, segment: Partial<AudienceSegment>): Promise<AudienceSegment | undefined>;
-  deleteAudienceSegment(id: number): Promise<boolean>;
+  // Audience Personas functionality has been removed
 }
 
 import session from 'express-session';
@@ -340,11 +296,7 @@ export class MemStorage implements IStorage {
   private openEvents: Map<number, OpenEvent>;
   private engagementMetrics: Map<number, EngagementMetrics>;
   private linkTrackings: Map<number, LinkTracking>;
-  private audiencePersonas: Map<number, AudiencePersona>;
-  private personaDemographics: Map<number, PersonaDemographic>;
-  private personaBehaviors: Map<number, PersonaBehavior>;
-  private personaInsights: Map<number, PersonaInsight>;
-  private audienceSegments: Map<number, AudienceSegment>;
+  // Audience Personas maps removed
   private roles: Map<number, Role>;
   private permissions: Map<number, Permission>;
   private userRoles: Map<number, UserRole>;
@@ -387,11 +339,7 @@ export class MemStorage implements IStorage {
   private clientProviderId: number;
 
   // Schema validation objects
-  public audiencePersonaSchema = insertAudiencePersonaSchema;
-  public personaDemographicSchema = insertPersonaDemographicSchema;
-  public personaBehaviorSchema = insertPersonaBehaviorSchema;
-  public personaInsightSchema = insertPersonaInsightSchema;
-  public audienceSegmentSchema = insertAudienceSegmentSchema;
+  // Audience Personas schemas removed
 
   constructor() {
     this.contacts = new Map();
@@ -412,11 +360,7 @@ export class MemStorage implements IStorage {
     this.openEvents = new Map();
     this.engagementMetrics = new Map();
     this.linkTrackings = new Map();
-    this.audiencePersonas = new Map();
-    this.personaDemographics = new Map();
-    this.personaBehaviors = new Map();
-    this.personaInsights = new Map();
-    this.audienceSegments = new Map();
+    // Audience Personas maps initialization removed
     this.roles = new Map();
     this.permissions = new Map();
     this.userRoles = new Map();
@@ -446,11 +390,7 @@ export class MemStorage implements IStorage {
     this.openEventId = 1;
     this.engagementMetricId = 1;
     this.linkTrackingId = 1;
-    this.audiencePersonaId = 1;
-    this.personaDemographicId = 1;
-    this.personaBehaviorId = 1;
-    this.personaInsightId = 1;
-    this.audienceSegmentId = 1;
+    // Audience Personas IDs removed
     this.roleId = 1;
     this.permissionId = 1;
     this.userRoleId = 1;
