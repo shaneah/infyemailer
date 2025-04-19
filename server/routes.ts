@@ -29,7 +29,7 @@ declare global {
   }
 }
 import { registerEmailProviderRoutes } from "./routes/emailProviders";
-import { registerAudiencePersonaRoutes } from "./routes/audiencePersonas";
+// AudiencePersona routes removed
 import { registerClientProviderRoutes } from "./routes/clientProviders";
 import { registerTestEmailRoutes } from "./routes/testEmail";
 import { registerHealthRoutes } from "./routes/health";
@@ -84,8 +84,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register email provider routes
   await registerEmailProviderRoutes(app);
   
-  // Register audience persona routes
-  registerAudiencePersonaRoutes(app);
+  // Audience Persona routes registration removed
   
   // Register client provider routes
   registerClientProviderRoutes(app);
