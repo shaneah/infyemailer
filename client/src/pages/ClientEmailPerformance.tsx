@@ -106,28 +106,28 @@ interface MetricCardProps {
   trendValue?: string;
 }
 
-// Metric Card Component
 const MetricCard: React.FC<MetricCardProps> = ({ 
   title, 
   value, 
   subValue, 
-  trend = 'neutral',
-  trendValue
+  trend, 
+  trendValue 
 }) => {
   return (
     <Card>
-      <CardHeader className="pb-2">
-        <CardTitle className="text-sm font-medium text-gray-500">{title}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="flex items-baseline justify-between">
+      <CardContent className="pt-6">
+        <div className="flex justify-between items-start">
           <div>
-            <div className="text-2xl font-bold">{value}</div>
-            {subValue && <p className="text-sm text-gray-500">{subValue}</p>}
+            <p className="text-sm font-medium text-gray-500">{title}</p>
+            <h4 className="text-2xl font-bold mt-1">{value}</h4>
+            {subValue && <p className="text-xs text-gray-500 mt-1">{subValue}</p>}
           </div>
-          {trend && trendValue && (
-            <Badge variant={trend === 'up' ? 'default' : trend === 'down' ? 'destructive' : 'outline'}>
-              {trend === 'up' ? '↑' : trend === 'down' ? '↓' : '–'} {trendValue}
+          {trend && (
+            <Badge 
+              variant={trend === 'up' ? 'success' : trend === 'down' ? 'destructive' : 'outline'}
+              className="flex items-center gap-1"
+            >
+              {trend === 'up' ? '↑' : trend === 'down' ? '↓' : '→'} {trendValue}
             </Badge>
           )}
         </div>
@@ -168,55 +168,58 @@ const ClientEmailPerformance: React.FC = () => {
     weeklyPerformance: emailPerformanceData,
     deviceBreakdown: engagementByDevice,
     clickDistribution: [
-      { link: 'Primary CTA', clicks: 350 },
-      { link: 'Secondary Link', clicks: 210 },
-      { link: 'Learn More', clicks: 180 },
-      { link: 'Help Link', clicks: 90 },
-      { link: 'Footer', clicks: 75 }
+      { link: 'Primary CTA', clicks: 523 },
+      { link: 'Secondary CTA', clicks: 412 },
+      { link: 'Logo', clicks: 289 },
+      { link: 'Feature Link 1', clicks: 156 },
+      { link: 'Feature Link 2', clicks: 98 },
+      { link: 'Social Media', clicks: 65 }
     ],
     engagementOverTime: [
-      { date: '01/01', open: 24.5, click: 4.5, conversion: 1.2 },
-      { date: '01/08', open: 25.1, click: 4.7, conversion: 1.3 },
-      { date: '01/15', open: 24.8, click: 4.6, conversion: 1.1 },
-      { date: '01/22', open: 26.2, click: 5.3, conversion: 1.5 },
-      { date: '01/29', open: 27.1, click: 5.5, conversion: 1.6 },
-      { date: '02/05', open: 28.3, click: 5.8, conversion: 1.8 }
+      { date: '2025-03-15', open: 22.4, click: 3.2, conversion: 1.1 },
+      { date: '2025-03-22', open: 23.1, click: 3.4, conversion: 1.2 },
+      { date: '2025-03-29', open: 22.8, click: 3.3, conversion: 1.1 },
+      { date: '2025-04-05', open: 23.5, click: 3.5, conversion: 1.3 },
+      { date: '2025-04-12', open: 24.2, click: 3.6, conversion: 1.2 },
+      { date: '2025-04-18', open: 24.8, click: 3.7, conversion: 1.3 }
     ],
     engagementByTimeOfDay: [
-      { hour: '6am', opens: 320 },
-      { hour: '9am', opens: 1240 },
-      { hour: '12pm', opens: 1800 },
-      { hour: '3pm', opens: 2100 },
-      { hour: '6pm', opens: 1900 },
-      { hour: '9pm', opens: 1050 }
+      { hour: '6am', opens: 3.2 },
+      { hour: '8am', opens: 8.7 },
+      { hour: '10am', opens: 15.3 },
+      { hour: '12pm', opens: 12.8 },
+      { hour: '2pm', opens: 10.5 },
+      { hour: '4pm', opens: 9.2 },
+      { hour: '6pm', opens: 14.6 },
+      { hour: '8pm', opens: 18.2 },
+      { hour: '10pm', opens: 7.5 }
     ],
     emailClientDistribution: [
-      { name: 'Gmail', value: 45 },
-      { name: 'Outlook', value: 28 },
-      { name: 'Apple Mail', value: 15 },
-      { name: 'Yahoo', value: 8 },
-      { name: 'Other', value: 4 }
+      { name: 'Gmail', value: 48 },
+      { name: 'Apple Mail', value: 27 },
+      { name: 'Outlook', value: 18 },
+      { name: 'Yahoo', value: 5 },
+      { name: 'Other', value: 2 }
     ],
     campaignComparison: [
-      { name: 'Campaign A', open: 26.5, click: 5.2, conversion: 1.3 },
-      { name: 'Campaign B', open: 24.8, click: 4.9, conversion: 1.1 },
-      { name: 'Campaign C', open: 28.9, click: 6.1, conversion: 1.8 },
-      { name: 'Campaign D', open: 22.3, click: 3.8, conversion: 0.9 }
+      { name: 'Newsletter', open: 24.8, click: 3.6, conversion: 1.2 },
+      { name: 'Product Launch', open: 28.3, click: 4.2, conversion: 1.7 },
+      { name: 'Sale Announcement', open: 32.1, click: 5.8, conversion: 2.3 },
+      { name: 'Reengagement', open: 18.5, click: 2.7, conversion: 0.9 }
     ],
     subjectLinePerformance: [
-      { type: 'Question-based', rate: 28.4 },
-      { type: 'Emoji in subject', rate: 22.7 },
-      { type: 'Personalized', rate: 31.2 },
-      { type: 'Urgent/FOMO', rate: 26.8 },
-      { type: 'Discount mention', rate: 29.5 },
-      { type: 'Curiosity gap', rate: 25.3 }
+      { type: 'Question', rate: 26.8 },
+      { type: 'Curiosity', rate: 28.3 },
+      { type: 'Benefit', rate: 24.1 },
+      { type: 'Urgency', rate: 27.5 },
+      { type: 'Announcement', rate: 23.2 }
     ],
     sendTimeEffectiveness: [
-      { day: 'Mon', morning: 23.4, afternoon: 24.8, evening: 21.2 },
-      { day: 'Tue', morning: 24.1, afternoon: 25.3, evening: 22.0 },
-      { day: 'Wed', morning: 25.6, afternoon: 26.9, evening: 23.5 },
-      { day: 'Thu', morning: 23.9, afternoon: 24.7, evening: 22.1 },
-      { day: 'Fri', morning: 22.5, afternoon: 23.8, evening: 20.9 },
+      { day: 'Mon', morning: 23.5, afternoon: 22.8, evening: 24.3 },
+      { day: 'Tue', morning: 24.2, afternoon: 23.5, evening: 25.1 },
+      { day: 'Wed', morning: 22.8, afternoon: 23.1, evening: 24.9 },
+      { day: 'Thu', morning: 23.1, afternoon: 22.4, evening: 24.5 },
+      { day: 'Fri', morning: 22.2, afternoon: 21.9, evening: 24.0 },
       { day: 'Sat', morning: 21.0, afternoon: 22.2, evening: 23.8 },
       { day: 'Sun', morning: 20.5, afternoon: 21.7, evening: 23.2 }
     ],
@@ -273,10 +276,10 @@ const ClientEmailPerformance: React.FC = () => {
     },
     retry: 3,
     refetchOnWindowFocus: false,
-    staleTime: 60000, // 1 minute
+    staleTime: 60000, // 1 minute 
     gcTime: 300000, // 5 minutes
   });
-  
+
   // Using React Query to fetch chart data with fallback
   const { data: chartData, isLoading: isLoadingCharts } = useQuery<ChartData>({
     queryKey: ['/api/email-performance/charts', timeframe, campaignFilter],
@@ -289,8 +292,8 @@ const ClientEmailPerformance: React.FC = () => {
         }
         return await res.json();
       } catch (error) {
-        console.error('Error fetching chart data:', error);
-        return fallbackChartData;
+        console.error('Error fetching charts:', error);
+      return fallbackChartData;
       }
     },
     retry: 3,
@@ -331,43 +334,73 @@ const ClientEmailPerformance: React.FC = () => {
   ];
   
   return (
-    <div className="container mx-auto py-6">
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">
-            Email Performance Dashboard
-          </h1>
-          <p className="text-gray-500">Track and analyze your email campaign metrics</p>
+    <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900">
+      {/* Header */}
+      <header className="relative z-20 flex items-center justify-between p-4 bg-gradient-to-r from-blue-900 to-blue-800 text-white shadow-md">
+        <div className="flex items-center">
+          <div className="flex flex-col">
+            <h1 className="text-2xl font-bold tracking-tight text-white">Email Performance</h1>
+            <p className="text-sm text-blue-100 mt-0.5">Analytics & Engagement Metrics</p>
+          </div>
         </div>
-        <div className="flex space-x-4">
-          <Select value={timeframe} onValueChange={setTimeframe}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Select Timeframe" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="today">Today</SelectItem>
-              <SelectItem value="yesterday">Yesterday</SelectItem>
-              <SelectItem value="7days">Last 7 Days</SelectItem>
-              <SelectItem value="30days">Last 30 Days</SelectItem>
-              <SelectItem value="90days">Last 90 Days</SelectItem>
-            </SelectContent>
-          </Select>
+        
+        <div className="flex items-center gap-3">
+          {clientInfo && (
+            <div className="flex items-center bg-blue-800/50 rounded-full px-4 py-2 border border-blue-700/50">
+              <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse mr-2"></div>
+              <span className="text-sm text-blue-50">
+                {timeframe === '7days' ? 'Last 7 Days' : 
+                 timeframe === '30days' ? 'Last 30 Days' : 
+                 timeframe === 'today' ? 'Today' : 
+                 timeframe === 'yesterday' ? 'Yesterday' : 'Last 90 Days'}
+              </span>
+            </div>
+          )}
+        </div>
+      </header>
+
+      <div className="container mx-auto py-6 px-4">
+        {/* Page introduction */}
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h2 className="text-xl font-semibold text-blue-900 dark:text-blue-300">Email Campaign Analytics</h2>
+              <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">
+                Track open rates, click rates, and performance across all campaigns
+              </p>
+            </div>
+            <div className="flex space-x-4">
+              <Select value={timeframe} onValueChange={setTimeframe}>
+                <SelectTrigger className="border-blue-200 dark:border-blue-800">
+                  <SelectValue placeholder="Select Timeframe" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="today">Today</SelectItem>
+                  <SelectItem value="yesterday">Yesterday</SelectItem>
+                  <SelectItem value="7days">Last 7 Days</SelectItem>
+                  <SelectItem value="30days">Last 30 Days</SelectItem>
+                  <SelectItem value="90days">Last 90 Days</SelectItem>
+                </SelectContent>
+              </Select>
+              
+              <Select value={campaignFilter} onValueChange={setCampaignFilter}>
+                <SelectTrigger className="border-blue-200 dark:border-blue-800">
+                  <SelectValue placeholder="All Campaigns" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Campaigns</SelectItem>
+                  {campaigns.map(campaign => (
+                    <SelectItem key={campaign.id} value={String(campaign.id)}>
+                      {campaign.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
           
-          <Select value={campaignFilter} onValueChange={setCampaignFilter}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="All Campaigns" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Campaigns</SelectItem>
-              {campaigns.map(campaign => (
-                <SelectItem key={campaign.id} value={String(campaign.id)}>
-                  {campaign.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="h-0.5 w-full bg-gradient-to-r from-blue-800 to-blue-400 rounded-full opacity-70"></div>
         </div>
-      </div>
       
       {/* Key Metrics Section */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
@@ -533,37 +566,35 @@ const ClientEmailPerformance: React.FC = () => {
                       <div className="flex items-center justify-between">
                         <div className="flex items-center">
                           <div className="w-3 h-3 bg-yellow-500 opacity-70 mr-2"></div>
-                          <span className="text-sm">Low Click Areas (&lt;5% CTR)</span>
+                          <span className="text-sm">Low Click Areas (&lt; 5% CTR)</span>
                         </div>
-                        <span className="text-sm font-medium">3.2%</span>
+                        <span className="text-sm font-medium">3.8%</span>
                       </div>
-                      <Progress value={3.2} className="h-2" style={{ '--progress-foreground': 'rgb(234, 179, 8)' } as React.CSSProperties} />
+                      <Progress value={3.8} className="h-2" style={{ '--progress-foreground': 'rgb(234, 179, 8)' } as React.CSSProperties} />
                     </div>
                     
                     <div className="mt-6">
-                      <h4 className="text-sm font-medium mb-2">Content Effectiveness</h4>
-                      <div className="space-y-3">
-                        <div>
-                          <div className="flex items-center justify-between mt-2">
-                            <span className="text-sm">CTA Buttons</span>
-                            <span className="text-sm font-medium">23.5% CTR</span>
-                          </div>
-                          <Progress value={23.5} className="h-2" style={{ '--progress-foreground': '#1e40af' } as React.CSSProperties} />
+                      <h5 className="text-sm font-medium mb-3">CTA Performance</h5>
+                      <div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm">Main CTA Button</span>
+                          <span className="text-sm font-medium">23.5% CTR</span>
                         </div>
-                        <div>
-                          <div className="flex items-center justify-between mt-2">
-                            <span className="text-sm">Links in Text</span>
-                            <span className="text-sm font-medium">8.7% CTR</span>
-                          </div>
-                          <Progress value={8.7} className="h-2" style={{ '--progress-foreground': '#d4af37' } as React.CSSProperties} />
+                        <Progress value={23.5} className="h-2" style={{ '--progress-foreground': '#1e40af' } as React.CSSProperties} />
+                      </div>
+                      <div>
+                        <div className="flex items-center justify-between mt-2">
+                          <span className="text-sm">Links in Text</span>
+                          <span className="text-sm font-medium">8.7% CTR</span>
                         </div>
-                        <div>
-                          <div className="flex items-center justify-between mt-2">
-                            <span className="text-sm">Image + Text CTAs</span>
-                            <span className="text-sm font-medium">18.3% CTR</span>
-                          </div>
-                          <Progress value={18.3} className="h-2" style={{ '--progress-foreground': '#1a3a5f' } as React.CSSProperties} />
+                        <Progress value={8.7} className="h-2" style={{ '--progress-foreground': '#d4af37' } as React.CSSProperties} />
+                      </div>
+                      <div>
+                        <div className="flex items-center justify-between mt-2">
+                          <span className="text-sm">Image + Text CTAs</span>
+                          <span className="text-sm font-medium">18.3% CTR</span>
                         </div>
+                        <Progress value={18.3} className="h-2" style={{ '--progress-foreground': '#1a3a5f' } as React.CSSProperties} />
                       </div>
                     </div>
                   </div>
@@ -572,29 +603,31 @@ const ClientEmailPerformance: React.FC = () => {
             </CardContent>
           </Card>
           
-          {/* Email performance over time */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Weekly Performance & Device Breakdowns */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
             <Card>
               <CardHeader>
-                <CardTitle>Performance Over Time</CardTitle>
-                <CardDescription>Opens, clicks and conversions by day</CardDescription>
+                <CardTitle>Weekly Performance</CardTitle>
+                <CardDescription>Open, click, and conversion rates by day</CardDescription>
               </CardHeader>
-              <CardContent className="h-80">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart
-                    data={chartData?.weeklyPerformance || emailPerformanceData}
-                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
-                    <XAxis dataKey="day" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Line type="monotone" dataKey="opens" stroke="#1e40af" activeDot={{ r: 8 }} strokeWidth={2} />
-                    <Line type="monotone" dataKey="clicks" stroke="#d4af37" activeDot={{ r: 6 }} strokeWidth={2} />
-                    <Line type="monotone" dataKey="conversions" stroke="#1a3a5f" strokeWidth={2} />
-                  </LineChart>
-                </ResponsiveContainer>
+              <CardContent>
+                <div className="h-80">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart
+                      data={chartData?.weeklyPerformance || fallbackChartData.weeklyPerformance}
+                      margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="day" />
+                      <YAxis />
+                      <Tooltip />
+                      <Legend />
+                      <Bar dataKey="opens" fill="#1e40af" name="Opens" />
+                      <Bar dataKey="clicks" fill="#d4af37" name="Clicks" />
+                      <Bar dataKey="conversions" fill="#1a3a5f" name="Conversions" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
               </CardContent>
             </Card>
             
@@ -603,679 +636,120 @@ const ClientEmailPerformance: React.FC = () => {
                 <CardTitle>Device Breakdown</CardTitle>
                 <CardDescription>Email opens by device type</CardDescription>
               </CardHeader>
-              <CardContent className="h-80">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={chartData?.deviceBreakdown || engagementByDevice}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                      outerRadius={80}
-                      fill="#8884d8"
-                      dataKey="value"
-                    >
-                      {(chartData?.deviceBreakdown || engagementByDevice).map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip formatter={(value) => `${value}%`} />
-                    <Legend />
-                  </PieChart>
-                </ResponsiveContainer>
+              <CardContent>
+                <div className="h-80 flex items-center justify-center">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={chartData?.deviceBreakdown || fallbackChartData.deviceBreakdown}
+                        cx="50%"
+                        cy="50%"
+                        labelLine={false}
+                        outerRadius={80}
+                        fill="#8884d8"
+                        dataKey="value"
+                        label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                      >
+                        {(chartData?.deviceBreakdown || fallbackChartData.deviceBreakdown).map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        ))}
+                      </Pie>
+                      <Tooltip formatter={(value) => `${value}%`} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
               </CardContent>
             </Card>
           </div>
           
-          {/* Engagement by Time of Day & Email Clients */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Engagement by Time of Day</CardTitle>
-                <CardDescription>When your audience opens emails</CardDescription>
-              </CardHeader>
-              <CardContent className="h-80">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart
-                    data={chartData?.engagementByTimeOfDay || [
-                      { hour: '12am-4am', opens: 120 },
-                      { hour: '4am-8am', opens: 380 },
-                      { hour: '8am-12pm', opens: 980 },
-                      { hour: '12pm-4pm', opens: 850 },
-                      { hour: '4pm-8pm', opens: 620 },
-                      { hour: '8pm-12am', opens: 450 }
-                    ]}
-                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
-                    <XAxis dataKey="hour" />
-                    <YAxis />
-                    <Tooltip />
-                    <Bar dataKey="opens" fill="#1e40af" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader>
-                <CardTitle>Email Client Distribution</CardTitle>
-                <CardDescription>What your audience uses to read emails</CardDescription>
-              </CardHeader>
-              <CardContent className="h-80">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart
-                    data={chartData?.emailClientDistribution || [
-                      { name: 'Gmail', value: 42 },
-                      { name: 'Apple Mail', value: 28 },
-                      { name: 'Outlook', value: 18 },
-                      { name: 'Yahoo Mail', value: 8 },
-                      { name: 'Samsung Mail', value: 3 },
-                      { name: 'Other', value: 1 }
-                    ]}
-                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                    layout="vertical"
-                  >
-                    <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
-                    <XAxis type="number" />
-                    <YAxis dataKey="name" type="category" width={100} />
-                    <Tooltip />
-                    <Bar dataKey="value" fill="#d4af37" name="Percentage" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-        
-        {/* Email Opens Tab Content - Detailed breakdown */}
-        <TabsContent value="opens">
-          <DetailedOpens />
-        </TabsContent>
-        
-        {/* Engagement Metrics Tab */}
-        <TabsContent value="engagement" className="space-y-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Subject Line Performance</CardTitle>
-                <CardDescription>Open rates by subject line type</CardDescription>
-              </CardHeader>
-              <CardContent className="h-80">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart
-                    data={chartData?.subjectLinePerformance || [
-                      { type: 'Question-based', rate: 28.4 },
-                      { type: 'Emoji in subject', rate: 22.7 },
-                      { type: 'Personalized', rate: 31.2 },
-                      { type: 'Urgent/FOMO', rate: 26.8 },
-                      { type: 'Discount mention', rate: 29.5 },
-                      { type: 'Curiosity gap', rate: 25.3 }
-                    ]}
-                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
-                    <XAxis dataKey="type" />
-                    <YAxis />
-                    <Tooltip />
-                    <Bar dataKey="rate" fill="#1e40af" name="Open Rate %" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader>
-                <CardTitle>Send Time Effectiveness</CardTitle>
-                <CardDescription>Open rates by day and time</CardDescription>
-              </CardHeader>
-              <CardContent className="h-80">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart
-                    data={chartData?.sendTimeEffectiveness || [
-                      { day: 'Monday', morning: 23.4, afternoon: 21.2, evening: 18.7 },
-                      { day: 'Tuesday', morning: 24.8, afternoon: 22.5, evening: 19.2 },
-                      { day: 'Wednesday', morning: 25.2, afternoon: 23.8, evening: 19.5 },
-                      { day: 'Thursday', morning: 23.1, afternoon: 21.9, evening: 18.4 },
-                      { day: 'Friday', morning: 21.5, afternoon: 19.8, evening: 17.2 },
-                      { day: 'Saturday', morning: 18.9, afternoon: 20.1, evening: 21.3 },
-                      { day: 'Sunday', morning: 19.2, afternoon: 20.8, evening: 22.4 }
-                    ]}
-                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
-                    <XAxis dataKey="day" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Bar dataKey="morning" fill="#1e40af" name="Morning (6am-12pm)" />
-                    <Bar dataKey="afternoon" fill="#d4af37" name="Afternoon (12pm-6pm)" />
-                    <Bar dataKey="evening" fill="#1a3a5f" name="Evening (6pm-12am)" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-          </div>
-          
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {/* Engagement Over Time and Link Performance */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
             <Card>
               <CardHeader>
                 <CardTitle>Engagement Over Time</CardTitle>
-                <CardDescription>Tracking opens, clicks and conversions over time</CardDescription>
+                <CardDescription>Open, click, and conversion rates over time</CardDescription>
               </CardHeader>
-              <CardContent className="h-80">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart
-                    data={chartData?.engagementOverTime || [
-                      { date: 'Jan', open: 24.2, click: 3.8, conversion: 1.2 },
-                      { date: 'Feb', open: 23.8, click: 3.5, conversion: 1.1 },
-                      { date: 'Mar', open: 25.1, click: 4.0, conversion: 1.3 },
-                      { date: 'Apr', open: 26.4, click: 4.2, conversion: 1.4 },
-                      { date: 'May', open: 24.8, click: 3.7, conversion: 1.2 },
-                      { date: 'Jun', open: 23.5, click: 3.5, conversion: 1.0 }
-                    ]}
-                    margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
-                    <XAxis dataKey="date" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Area type="monotone" dataKey="open" stackId="1" stroke="#1e40af" fill="#1e40af" fillOpacity={0.8} name="Open Rate %" />
-                    <Area type="monotone" dataKey="click" stackId="2" stroke="#d4af37" fill="#d4af37" fillOpacity={0.8} name="Click Rate %" />
-                    <Area type="monotone" dataKey="conversion" stackId="3" stroke="#1a3a5f" fill="#1a3a5f" fillOpacity={0.8} name="Conversion Rate %" />
-                  </AreaChart>
-                </ResponsiveContainer>
+              <CardContent>
+                <div className="h-80">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart
+                      data={chartData?.engagementOverTime || fallbackChartData.engagementOverTime}
+                      margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="date" />
+                      <YAxis />
+                      <Tooltip />
+                      <Legend />
+                      <Line type="monotone" dataKey="open" stroke="#1e40af" name="Open Rate %" activeDot={{ r: 8 }} />
+                      <Line type="monotone" dataKey="click" stroke="#d4af37" name="Click Rate %" />
+                      <Line type="monotone" dataKey="conversion" stroke="#1a3a5f" name="Conversion Rate %" />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
               </CardContent>
             </Card>
             
             <Card>
               <CardHeader>
-                <CardTitle>Click Distribution</CardTitle>
-                <CardDescription>Most clicked links in your emails</CardDescription>
+                <CardTitle>Link Performance</CardTitle>
+                <CardDescription>Click distribution by link type</CardDescription>
               </CardHeader>
-              <CardContent className="h-80">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart
-                    data={chartData?.clickDistribution || [
-                      { link: 'Product Page', clicks: 423 },
-                      { link: 'Pricing', clicks: 356 },
-                      { link: 'Blog Post', clicks: 289 },
-                      { link: 'Special Offer', clicks: 475 },
-                      { link: 'Documentation', clicks: 187 },
-                      { link: 'Contact Us', clicks: 142 }
-                    ]}
-                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                    layout="vertical"
-                  >
-                    <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
-                    <XAxis type="number" />
-                    <YAxis dataKey="link" type="category" width={100} />
-                    <Tooltip />
-                    <Bar dataKey="clicks" fill="#1a3a5f" />
-                  </BarChart>
-                </ResponsiveContainer>
+              <CardContent>
+                <div className="h-80">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart
+                      layout="vertical"
+                      data={chartData?.clickDistribution || fallbackChartData.clickDistribution}
+                      margin={{ top: 5, right: 30, left: 70, bottom: 5 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis type="number" />
+                      <YAxis type="category" dataKey="link" />
+                      <Tooltip />
+                      <Bar dataKey="clicks" fill="#1e40af" name="Clicks">
+                        {(chartData?.clickDistribution || fallbackChartData.clickDistribution).map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
               </CardContent>
             </Card>
           </div>
-        </TabsContent>
-        
-        {/* Campaign Comparison Tab */}
-        <TabsContent value="campaigns" className="space-y-4">
-          <Card>
+          
+          {/* Realtime Activity */}
+          <Card className="mb-4">
             <CardHeader>
-              <CardTitle>Campaign Performance Comparison</CardTitle>
-              <CardDescription>Compare open, click, and conversion rates across campaigns</CardDescription>
+              <CardTitle>Realtime Email Activity</CardTitle>
+              <CardDescription>Live feed of opens, clicks, and conversions</CardDescription>
             </CardHeader>
-            <CardContent className="h-96">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  data={chartData?.campaignComparison || [
-                    { name: 'Monthly Newsletter', open: 25.4, click: 3.9, conversion: 1.2 },
-                    { name: 'Product Launch', open: 31.8, click: 4.7, conversion: 1.8 },
-                    { name: 'Summer Sale', open: 28.2, click: 5.3, conversion: 2.1 },
-                    { name: 'Customer Re-engagement', open: 22.5, click: 3.2, conversion: 0.9 },
-                    { name: 'Weekly Digest', open: 24.3, click: 3.5, conversion: 1.0 }
-                  ]}
-                  margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Bar dataKey="open" fill="#1e40af" name="Open Rate %" />
-                  <Bar dataKey="click" fill="#d4af37" name="Click Rate %" />
-                  <Bar dataKey="conversion" fill="#1a3a5f" name="Conversion Rate %" />
-                </BarChart>
-              </ResponsiveContainer>
+            <CardContent>
+              <div className="space-y-4">
+                {(realtimeData || fallbackRealtimeData).map((activity, index) => (
+                  <div key={index} className="flex justify-between items-center border-b pb-3">
+                    <div className="flex items-center space-x-2">
+                      <div className="rounded-full w-2 h-2 bg-primary"></div>
+                      <span className="font-medium">{activity.user}</span>
+                      <Badge variant={activity.type === 'open' ? 'outline' : activity.type === 'click' ? 'secondary' : 'default'}>
+                        {activity.type === 'open' ? 'Opened' : activity.type === 'click' ? 'Clicked' : 'Converted'}
+                      </Badge>
+                      <span>{activity.email}</span>
+                    </div>
+                    <span className="text-sm text-gray-500">{activity.time}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-4 text-center">
+                <Button variant="outline">View All Activity</Button>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
-        
-        {/* Audience Insights Tab */}
-        <TabsContent value="audience" className="space-y-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Geographical Distribution</CardTitle>
-                <CardDescription>Opens by geographical location</CardDescription>
-              </CardHeader>
-              <CardContent className="h-80">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart
-                    data={[
-                      { country: 'United States', opens: 5240 },
-                      { country: 'United Kingdom', opens: 1820 },
-                      { country: 'Canada', opens: 1350 },
-                      { country: 'Australia', opens: 980 },
-                      { country: 'Germany', opens: 780 },
-                      { country: 'France', opens: 650 },
-                      { country: 'Other', opens: 1540 },
-                    ]}
-                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                    layout="vertical"
-                  >
-                    <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
-                    <XAxis type="number" />
-                    <YAxis dataKey="country" type="category" width={100} />
-                    <Tooltip />
-                    <Legend />
-                    <Bar dataKey="opens" fill="#1e40af" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader>
-                <CardTitle>Device Breakdown Over Time</CardTitle>
-                <CardDescription>Changing device preferences</CardDescription>
-              </CardHeader>
-              <CardContent className="h-80">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart
-                    data={[
-                      { month: 'Jan', desktop: 48, mobile: 40, tablet: 12 },
-                      { month: 'Feb', desktop: 47, mobile: 41, tablet: 12 },
-                      { month: 'Mar', desktop: 46, mobile: 42, tablet: 12 },
-                      { month: 'Apr', desktop: 45, mobile: 43, tablet: 12 },
-                      { month: 'May', desktop: 43, mobile: 45, tablet: 12 },
-                      { month: 'Jun', desktop: 42, mobile: 47, tablet: 11 },
-                    ]}
-                    margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
-                    <XAxis dataKey="month" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Area type="monotone" dataKey="desktop" stackId="1" stroke="#1e40af" fill="#1e40af" />
-                    <Area type="monotone" dataKey="mobile" stackId="1" stroke="#d4af37" fill="#d4af37" />
-                    <Area type="monotone" dataKey="tablet" stackId="1" stroke="#1a3a5f" fill="#1a3a5f" />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-            
-            <Card className="col-span-2">
-              <CardHeader>
-                <CardTitle>Subscriber Engagement Segments</CardTitle>
-                <CardDescription>Distribution of subscribers by engagement level</CardDescription>
-              </CardHeader>
-              <CardContent className="h-80">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart
-                    data={[
-                      { segment: 'Highly Engaged (3+ clicks/email)', value: 15, count: 3658 },
-                      { segment: 'Engaged (1-2 clicks/email)', value: 28, count: 6789 },
-                      { segment: 'Passive (opens only)', value: 32, count: 7865 },
-                      { segment: 'Dormant (no opens in 30 days)', value: 18, count: 4321 },
-                      { segment: 'At Risk (no opens in 60 days)', value: 7, count: 1654 },
-                    ]}
-                    margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
-                    <XAxis dataKey="segment" />
-                    <YAxis />
-                    <Tooltip formatter={(value, name, props) => {
-                      return name === 'value' ? `${value}% (${props.payload.count} subscribers)` : value;
-                    }} />
-                    <Bar dataKey="value" fill="#1e40af" name="Percentage" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
       </Tabs>
-      
-      {/* Real-time activity feed */}
-      <Card className="mt-6">
-        <CardHeader>
-          <CardTitle>Real-time Activity</CardTitle>
-          <CardDescription>Latest email interactions</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {(realtimeData ? realtimeData.slice(0, 5) : [
-              { time: '2 mins ago', type: 'open', email: 'Weekly Newsletter', user: 'john.doe@example.com' },
-              { time: '5 mins ago', type: 'click', email: 'Product Launch', user: 'maria.smith@example.com' },
-              { time: '8 mins ago', type: 'conversion', email: 'Summer Sale', user: 'robert.jones@example.com' },
-              { time: '15 mins ago', type: 'open', email: 'Weekly Newsletter', user: 'alice.johnson@example.com' },
-              { time: '18 mins ago', type: 'click', email: 'Customer Re-engagement', user: 'david.wilson@example.com' },
-            ]).map((activity: any, index: number) => (
-              <div key={index} className="flex items-center justify-between border-b pb-2">
-                <div className="flex items-center space-x-2">
-                  <div className="rounded-full w-2 h-2 bg-primary"></div>
-                  <span className="font-medium">{activity.user}</span>
-                  <Badge variant={activity.type === 'open' ? 'outline' : activity.type === 'click' ? 'secondary' : 'default'}>
-                    {activity.type === 'open' ? 'Opened' : activity.type === 'click' ? 'Clicked' : 'Converted'}
-                  </Badge>
-                  <span>{activity.email}</span>
-                </div>
-                <span className="text-sm text-gray-500">{activity.time}</span>
-              </div>
-            ))}
-          </div>
-          <div className="mt-4 text-center">
-            <Button variant="outline">View All Activity</Button>
-          </div>
-        </CardContent>
-      </Card>
+      </div>
     </div>
-  );
-};
-
-// Detailed Opens component to show which emails have been opened
-const DetailedOpens = () => {
-  const [selectedCampaign, setSelectedCampaign] = useState<string>("all");
-  const [searchTerm, setSearchTerm] = useState<string>("");
-  
-  // Get client info from sessionStorage as that's where ClientSidebar stores it
-  const clientInfo = useMemo(() => {
-    try {
-      const stored = sessionStorage.getItem('clientUser');
-      return stored ? JSON.parse(stored) : null;
-    } catch (e) {
-      console.error('Error parsing client info from sessionStorage', e);
-      return null;
-    }
-  }, []);
-
-  // Sample fallback campaign data for when API request fails
-  const fallbackCampaigns = [
-    { id: 1, name: 'Summer Sale Campaign' },
-    { id: 2, name: 'Product Launch' },
-    { id: 3, name: 'Weekly Newsletter' },
-    { id: 4, name: 'Customer Re-engagement' },
-  ];
-
-  // Sample fallback opens data
-  const fallbackOpensData = {
-    emails: [
-      {
-        id: 1,
-        emailName: 'Monthly Newsletter - April',
-        recipient: 'john.smith@example.com',
-        openCount: 3,
-        lastOpenedAt: '2025-04-15T10:23:45Z',
-        device: 'iPhone',
-        campaignId: 1,
-        campaignName: 'Monthly Newsletter'
-      },
-      {
-        id: 2,
-        emailName: 'Spring Sale Announcement',
-        recipient: 'jane.doe@example.com',
-        openCount: 2,
-        lastOpenedAt: '2025-04-15T09:15:30Z',
-        device: 'Chrome/Desktop',
-        campaignId: 3,
-        campaignName: 'Spring Sale'
-      },
-      {
-        id: 3,
-        emailName: 'Product Launch - XYZ',
-        recipient: 'michael.johnson@example.com',
-        openCount: 1,
-        lastOpenedAt: '2025-04-14T14:45:22Z',
-        device: 'Gmail/Android',
-        campaignId: 2,
-        campaignName: 'Product Launch'
-      },
-      {
-        id: 4,
-        emailName: 'Weekly Digest',
-        recipient: 'sarah.williams@example.com',
-        openCount: 4,
-        lastOpenedAt: '2025-04-15T11:05:17Z',
-        device: 'Safari/Desktop',
-        campaignId: 1,
-        campaignName: 'Weekly Newsletter'
-      },
-      {
-        id: 5,
-        emailName: 'Welcome Series - Message 1',
-        recipient: 'robert.davis@example.com',
-        openCount: 1,
-        lastOpenedAt: '2025-04-15T08:30:45Z',
-        device: 'Outlook/Desktop',
-        campaignId: 4,
-        campaignName: 'Customer Re-engagement'
-      }
-    ]
-  };
-  
-  // Fetch campaigns for the filter dropdown
-  const { data: campaignsData } = useQuery<Array<{ id: number; name: string }>>({
-    queryKey: ['/api/campaigns'],
-    queryFn: async () => {
-      try {
-        const clientId = clientInfo?.clientId;
-        const res = await fetch(`/api/campaigns${clientId ? `?clientId=${clientId}` : ''}`);
-        if (!res.ok) {
-          throw new Error('Failed to fetch campaigns');
-        }
-        console.log("Campaigns data:", await res.json());
-        // Re-fetch to avoid "body already read" error
-        const secondRes = await fetch(`/api/campaigns${clientId ? `?clientId=${clientId}` : ''}`);
-        return await secondRes.json();
-      } catch (error) {
-        console.error('Error fetching campaigns:', error);
-        return [];
-      }
-    },
-    retry: 3,
-    refetchOnWindowFocus: false,
-    staleTime: 300000, // 5 minutes
-    gcTime: 600000, // 10 minutes
-  });
-  
-  // Using React Query to fetch detailed open data
-  const { data: openData, isLoading } = useQuery<{
-    emails: Array<{
-      id: number;
-      emailName: string;
-      recipient: string;
-      openCount: number;
-      lastOpenedAt: string;
-      device: string;
-      campaignId: number;
-      campaignName: string;
-    }>
-  }>({
-    queryKey: ['/api/email-performance/detailed-opens', selectedCampaign],
-    queryFn: async () => {
-      try {
-        const res = await fetch(`/api/email-performance/detailed-opens${selectedCampaign !== "all" ? `?campaignId=${selectedCampaign}` : ''}`);
-        if (!res.ok) throw new Error('Failed to fetch open data');
-        return res.json();
-      } catch (error) {
-        console.error("Error fetching detailed opens data:", error);
-        // Return fallback data when API fails
-        return fallbackOpensData;
-      }
-    },
-    retry: 3,
-    refetchOnWindowFocus: false,
-    staleTime: 300000, // 5 minutes
-    gcTime: 600000, // 10 minutes
-  });
-
-  // Define the EmailOpen type
-  type EmailOpen = {
-    id: number;
-    emailName: string;
-    recipient: string;
-    openCount: number;
-    lastOpenedAt: string;
-    device: string;
-    campaignId: number;
-    campaignName: string;
-  };
-
-  // Filter emails based on search term
-  const filteredEmails = useMemo(() => {
-    if (!openData?.emails) return [];
-    return openData.emails.filter((email: EmailOpen) => 
-      email.emailName.toLowerCase().includes(searchTerm.toLowerCase()) || 
-      email.recipient.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      email.campaignName.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }, [openData, searchTerm]);
-
-  // Function to download email opens data as CSV
-  const handleDownload = () => {
-    if (!filteredEmails || filteredEmails.length === 0) return;
-    
-    // Create CSV content
-    const headers = ["Email Name", "Recipient", "Opens", "Last Opened", "Device", "Campaign"];
-    const csvRows = [headers];
-    
-    filteredEmails.forEach((email: EmailOpen) => {
-      csvRows.push([
-        email.emailName,
-        email.recipient,
-        email.openCount.toString(),
-        email.lastOpenedAt,
-        email.device,
-        email.campaignName
-      ]);
-    });
-    
-    // Convert to CSV format
-    const csvContent = csvRows.map(row => row.join(",")).join("\n");
-    
-    // Create download link
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.setAttribute('href', url);
-    link.setAttribute('download', `email-opens-report-${new Date().toISOString().slice(0, 10)}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
-  return (
-    <Card className="h-full">
-      <CardHeader>
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <div>
-            <CardTitle>Detailed Email Opens</CardTitle>
-            <CardDescription>Specific emails that have been opened</CardDescription>
-          </div>
-          <Button onClick={handleDownload} variant="outline" size="sm" className="flex items-center">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="mr-2"
-            >
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-              <polyline points="7 10 12 15 17 10"></polyline>
-              <line x1="12" y1="15" x2="12" y2="3"></line>
-            </svg>
-            Download CSV
-          </Button>
-        </div>
-        <div className="flex flex-col sm:flex-row gap-4 pt-2">
-          <div className="flex-1">
-            <label htmlFor="search-opens" className="text-sm font-medium mb-1 block">Search</label>
-            <input
-              id="search-opens"
-              type="text"
-              placeholder="Search by email or recipient..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full px-3 py-2 border rounded-md text-sm"
-            />
-          </div>
-          <div>
-            <label htmlFor="campaign-filter" className="text-sm font-medium mb-1 block">Filter by Campaign</label>
-            <select
-              id="campaign-filter"
-              value={selectedCampaign}
-              onChange={(e) => setSelectedCampaign(e.target.value)}
-              className="w-full px-3 py-2 border rounded-md text-sm"
-            >
-              <option value="all">All Campaigns</option>
-              {campaignsData?.map(campaign => (
-                <option key={campaign.id} value={campaign.id.toString()}>
-                  {campaign.name}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent>
-        {isLoading ? (
-          <div className="text-center py-4 text-gray-400">Loading open data...</div>
-        ) : (
-          <div className="overflow-auto max-h-96">
-            <table className="w-full border-collapse">
-              <thead>
-                <tr className="border-b">
-                  <th className="text-left py-2 px-4 font-medium text-gray-500">Email</th>
-                  <th className="text-left py-2 px-4 font-medium text-gray-500">Recipient</th>
-                  <th className="text-center py-2 px-4 font-medium text-gray-500">Opens</th>
-                  <th className="text-left py-2 px-4 font-medium text-gray-500">Last Opened</th>
-                  <th className="text-left py-2 px-4 font-medium text-gray-500">Device</th>
-                  <th className="text-left py-2 px-4 font-medium text-gray-500">Campaign</th>
-                </tr>
-              </thead>
-              <tbody>
-                {!filteredEmails || filteredEmails.length === 0 ? (
-                  <tr>
-                    <td colSpan={6} className="text-center py-4 text-gray-400">No email open data available</td>
-                  </tr>
-                ) : (
-                  filteredEmails.map((email: EmailOpen) => (
-                    <tr key={email.id} className="border-b hover:bg-gray-50">
-                      <td className="py-3 px-4">{email.emailName}</td>
-                      <td className="py-3 px-4">{email.recipient}</td>
-                      <td className="py-3 px-4 text-center font-medium">{email.openCount}</td>
-                      <td className="py-3 px-4">{email.lastOpenedAt}</td>
-                      <td className="py-3 px-4">{email.device}</td>
-                      <td className="py-3 px-4">{email.campaignName}</td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </CardContent>
-    </Card>
   );
 };
 
