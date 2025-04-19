@@ -253,8 +253,22 @@ const DashboardWidgets: React.FC<DashboardWidgetsProps> = ({ clientData }) => {
         })}
         
         {visibleWidgets.length === 0 && (
-          <div className="lg:col-span-12 p-8 text-center bg-white rounded-sm shadow-sm border border-slate-200">
-            <p className="text-slate-500">No widgets are currently available. Add a widget to get started.</p>
+          <div className="lg:col-span-12 p-10 text-center bg-white rounded-lg shadow-sm border border-purple-100">
+            <div className="flex flex-col items-center justify-center py-6">
+              <div className="w-16 h-16 mb-4 rounded-full bg-purple-100 flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-purple-600" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <p className="text-lg font-medium text-purple-900 mb-2">No widgets available</p>
+              <p className="text-purple-600 mb-6">Add widgets to customize your dashboard experience</p>
+              <button 
+                onClick={() => document.querySelector('button')?.click()}
+                className="px-4 py-2 bg-purple-700 text-white rounded-md hover:bg-purple-800 transition-colors"
+              >
+                Add Your First Widget
+              </button>
+            </div>
           </div>
         )}
       </div>

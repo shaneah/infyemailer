@@ -101,14 +101,14 @@ const WidgetManager: React.FC<WidgetManagerProps> = ({ clientData = null }) => {
               <Button 
                 variant="outline" 
                 onClick={() => setDialogOpen(false)}
-                className="border-slate-200 text-slate-700 hover:bg-slate-50"
+                className="border-purple-200 text-purple-700 hover:bg-purple-50"
               >
                 Cancel
               </Button>
               <Button 
                 onClick={handleAddWidget} 
                 disabled={!selectedWidget}
-                className="bg-blue-800 hover:bg-blue-900 text-white shadow-sm"
+                className="bg-purple-700 hover:bg-purple-800 text-white shadow-sm"
               >
                 Add Widget
               </Button>
