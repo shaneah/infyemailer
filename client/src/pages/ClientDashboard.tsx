@@ -254,8 +254,8 @@ export default function ClientDashboard() {
           </header>
 
           {/* Dashboard Content */}
-          <main className="flex-1 overflow-y-auto p-6 bg-white">
-            <div className="container mx-auto">
+          <main className="flex-1 overflow-y-auto p-6 bg-gray-50">
+            <div className="max-w-7xl mx-auto">
               {/* Customizable Dashboard Widgets */}
               <DashboardWidgets clientData={clientData} />
             </div>
