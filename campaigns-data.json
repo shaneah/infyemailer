@@ -21,8 +21,8 @@
     },
     "id": 1,
     "sentAt": null,
-    "createdAt": "2025-04-19T20:11:36.329Z",
-    "updatedAt": "2025-04-19T20:11:36.329Z"
+    "createdAt": "2025-04-19T20:12:57.284Z",
+    "updatedAt": "2025-04-19T20:12:57.284Z"
   },
   {
     "name": "Subject Line Testing",
@@ -47,8 +47,8 @@
     },
     "id": 2,
     "sentAt": null,
-    "createdAt": "2025-04-19T20:11:36.329Z",
-    "updatedAt": "2025-04-19T20:11:36.329Z"
+    "createdAt": "2025-04-19T20:12:57.285Z",
+    "updatedAt": "2025-04-19T20:12:57.285Z"
   },
   {
     "name": "Email Design Testing",
@@ -73,8 +73,8 @@
     },
     "id": 3,
     "sentAt": null,
-    "createdAt": "2025-04-19T20:11:36.329Z",
-    "updatedAt": "2025-04-19T20:11:36.329Z"
+    "createdAt": "2025-04-19T20:12:57.285Z",
+    "updatedAt": "2025-04-19T20:12:57.285Z"
   },
   {
     "name": "Product Launch",
@@ -98,8 +98,8 @@
     },
     "id": 4,
     "sentAt": null,
-    "createdAt": "2025-04-19T20:11:36.329Z",
-    "updatedAt": "2025-04-19T20:11:36.329Z"
+    "createdAt": "2025-04-19T20:12:57.285Z",
+    "updatedAt": "2025-04-19T20:12:57.285Z"
   },
   {
     "name": "Spring Sale",
@@ -123,8 +123,8 @@
     },
     "id": 5,
     "sentAt": null,
-    "createdAt": "2025-04-19T20:11:36.330Z",
-    "updatedAt": "2025-04-19T20:11:36.330Z"
+    "createdAt": "2025-04-19T20:12:57.285Z",
+    "updatedAt": "2025-04-19T20:12:57.285Z"
   },
   {
     "name": "Welcome Series",
@@ -148,7 +148,7 @@
     },
     "id": 6,
     "sentAt": null,
-    "createdAt": "2025-04-19T20:11:36.330Z",
-    "updatedAt": "2025-04-19T20:11:36.330Z"
+    "createdAt": "2025-04-19T20:12:57.286Z",
+    "updatedAt": "2025-04-19T20:12:57.286Z"
   }
 ]

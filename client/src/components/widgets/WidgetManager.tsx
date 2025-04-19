@@ -3,7 +3,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription, DialogFooter 
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Plus, LayoutGrid, Undo2, Sparkles, Lightbulb, Brain } from 'lucide-react';
+import { Plus, Undo2 } from 'lucide-react';
 import { 
   WidgetType, useWidgets, availableWidgets, widgetTitles 
 } from '@/hooks/useWidgets';
@@ -16,7 +16,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from '@/components/ui/switch';
-import WidgetRecommendations from './WidgetRecommendations';
 
 interface WidgetManagerProps {
   clientData?: any;
@@ -25,7 +24,6 @@ interface WidgetManagerProps {
 const WidgetManager: React.FC<WidgetManagerProps> = ({ clientData = null }) => {
   const { widgets, addWidget, resetToDefault } = useWidgets();
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [recommendationsOpen, setRecommendationsOpen] = useState(false);
   const [selectedWidget, setSelectedWidget] = useState<WidgetType | ''>('');
 
   // Filter out already visible widgets
@@ -52,19 +50,7 @@ const WidgetManager: React.FC<WidgetManagerProps> = ({ clientData = null }) => {
     }
   };
 
-  const addAIWidgets = () => {
-    if (!visibleWidgetTypes.includes('aiRecommendations')) {
-      addWidget('aiRecommendations');
-    }
-    if (!visibleWidgetTypes.includes('campaignPerformanceAnalyzer')) {
-      addWidget('campaignPerformanceAnalyzer');
-    }
-    if (!visibleWidgetTypes.includes('userJourney')) {
-      addWidget('userJourney');
-    }
-    // Show success message
-    alert('Advanced AI widgets have been added to your dashboard!');
-  };
+  // No AI widget functionality
 
   return (
     <>
