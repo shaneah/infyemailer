@@ -56,40 +56,95 @@ export default function ClientDashboard() {
     const fetchClientData = async () => {
       try {
         setLoading(true);
-        // Simulated data - in a real app, this would fetch from the API
-        // const response = await fetch(`/api/client-dashboard/${currentClientUser.clientId}`);
-        // const data = await response.json();
         
-        // For now, using mock data based on the logged-in client
-        setClientData({
-          clientName: currentClientUser.clientName,
-          clientCompany: currentClientUser.clientCompany,
-          stats: {
-            activeCampaigns: 3,
-            totalEmails: 12500,
-            openRate: 24.8,
-            clickRate: 3.6,
-            contactsCount: 4560
-          },
-          recentCampaigns: [
-            { id: 1, name: "Monthly Newsletter", date: "2025-03-15", status: "Completed", opens: 2430, clicks: 358 },
-            { id: 2, name: "Product Launch", date: "2025-03-28", status: "Ongoing", opens: 1856, clicks: 312 },
-            { id: 3, name: "Spring Promotion", date: "2025-04-01", status: "Scheduled", opens: 0, clicks: 0 }
-          ],
-          performanceData: [
-            { name: "Jan", opens: 65, clicks: 12 },
-            { name: "Feb", opens: 59, clicks: 10 },
-            { name: "Mar", opens: 80, clicks: 15 },
-            { name: "Apr", opens: 81, clicks: 16 },
-            { name: "May", opens: 56, clicks: 8 },
-            { name: "Jun", opens: 55, clicks: 7 }
-          ],
-          deviceData: [
-            { name: "Mobile", value: 45 },
-            { name: "Desktop", value: 35 },
-            { name: "Tablet", value: 20 }
-          ]
-        });
+        // Try to fetch client data from API
+        let apiData;
+        try {
+          const [statsResponse, campaignsResponse] = await Promise.all([
+            fetch('/api/stats'),
+            fetch('/api/campaigns')
+          ]);
+          
+          if (statsResponse.ok && campaignsResponse.ok) {
+            const stats = await statsResponse.json();
+            const campaigns = await campaignsResponse.json();
+            
+            // If successful, use the API data
+            apiData = {
+              clientName: currentClientUser.clientName,
+              clientCompany: currentClientUser.clientCompany,
+              stats: {
+                // Extract stats from API data or use defaults
+                activeCampaigns: campaigns.filter(c => c.status?.label === 'Active').length || 3,
+                totalEmails: parseInt(stats.find(s => s.id === 2)?.value?.replace(/,/g, '') || '12500'),
+                openRate: parseFloat(stats.find(s => s.id === 3)?.value?.replace(/%/g, '') || '24.8'),
+                clickRate: parseFloat(stats.find(s => s.id === 4)?.value?.replace(/%/g, '') || '3.6'),
+                contactsCount: parseInt(stats.find(s => s.id === 1)?.value?.replace(/,/g, '') || '4560')
+              },
+              recentCampaigns: campaigns.slice(0, 3).map(c => ({
+                id: c.id,
+                name: c.name,
+                date: c.date || "2025-04-01",
+                status: c.status?.label || "Scheduled",
+                opens: Math.round(c.recipients * (c.openRate / 100)) || 0,
+                clicks: Math.round(c.recipients * (c.clickRate / 100)) || 0
+              })),
+              // Performance data (mock for now, would come from an analytics endpoint)
+              performanceData: [
+                { name: "Jan", opens: 65, clicks: 12 },
+                { name: "Feb", opens: 59, clicks: 10 },
+                { name: "Mar", opens: 80, clicks: 15 },
+                { name: "Apr", opens: 81, clicks: 16 },
+                { name: "May", opens: 56, clicks: 8 },
+                { name: "Jun", opens: 55, clicks: 7 }
+              ],
+              deviceData: [
+                { name: "Mobile", value: 45 },
+                { name: "Desktop", value: 35 },
+                { name: "Tablet", value: 20 }
+              ]
+            };
+          }
+        } catch (apiError) {
+          console.warn("Could not fetch API data, using fallback data:", apiError);
+          // API error - continue to fallback data
+        }
+        
+        // If we successfully got API data, use it
+        if (apiData) {
+          setClientData(apiData);
+        } else {
+          // Otherwise use the fallback data
+          setClientData({
+            clientName: currentClientUser.clientName,
+            clientCompany: currentClientUser.clientCompany,
+            stats: {
+              activeCampaigns: 3,
+              totalEmails: 12500,
+              openRate: 24.8,
+              clickRate: 3.6,
+              contactsCount: 4560
+            },
+            recentCampaigns: [
+              { id: 1, name: "Monthly Newsletter", date: "2025-03-15", status: "Completed", opens: 2430, clicks: 358 },
+              { id: 2, name: "Product Launch", date: "2025-03-28", status: "Ongoing", opens: 1856, clicks: 312 },
+              { id: 3, name: "Spring Promotion", date: "2025-04-01", status: "Scheduled", opens: 0, clicks: 0 }
+            ],
+            performanceData: [
+              { name: "Jan", opens: 65, clicks: 12 },
+              { name: "Feb", opens: 59, clicks: 10 },
+              { name: "Mar", opens: 80, clicks: 15 },
+              { name: "Apr", opens: 81, clicks: 16 },
+              { name: "May", opens: 56, clicks: 8 },
+              { name: "Jun", opens: 55, clicks: 7 }
+            ],
+            deviceData: [
+              { name: "Mobile", value: 45 },
+              { name: "Desktop", value: 35 },
+              { name: "Tablet", value: 20 }
+            ]
+          });
+        }
       } catch (error) {
         console.error("Error fetching client data:", error);
         toast({
@@ -169,9 +224,12 @@ export default function ClientDashboard() {
 
   return (
     <WidgetsProvider>
-      <div className="flex flex-col overflow-hidden min-h-screen bg-white">
+      <div className="flex overflow-hidden min-h-screen bg-white">
+        {/* Sidebar Component */}
+        <ClientSidebar open={sidebarOpen} setOpen={setSidebarOpen} />
+        
         {/* Main Content */}
-        <div className="flex-1 flex flex-col overflow-hidden relative z-10">
+        <div className="flex-1 flex flex-col overflow-hidden">
           {/* Header */}
           <header className="relative z-20 flex items-center justify-between p-4 bg-white border-b border-gray-200">
             <div className="flex items-center">
@@ -196,7 +254,7 @@ export default function ClientDashboard() {
           </header>
 
           {/* Dashboard Content */}
-          <main className="flex-1 overflow-y-auto p-6 relative z-10 bg-white">
+          <main className="flex-1 overflow-y-auto p-6 bg-white">
             <div className="container mx-auto">
               {/* Customizable Dashboard Widgets */}
               <DashboardWidgets clientData={clientData} />
