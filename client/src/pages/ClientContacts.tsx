@@ -30,220 +30,192 @@ const ClientContacts: React.FC<ClientContactsProps> = ({ onAddContact }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
   const [filterTag, setFilterTag] = useState('');
-  const [sortBy, setSortBy] = useState('name');
-  const [viewMode, setViewMode] = useState<'card' | 'table'>('table');
-  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
-  const [dateFilter, setDateFilter] = useState('all');
+  const [sortBy, setSortBy] = useState<'name' | 'date' | 'status' | 'engagement'>('date');
+  const [viewMode, setViewMode] = useState<'table' | 'card'>('table');
   const [showContactDetails, setShowContactDetails] = useState<number | null>(null);
+  const [filterDate, setFilterDate] = useState<'all' | 'last30days'>('all');
   const { toast } = useToast();
 
-  // Enhanced contacts data with more metrics
-  const [contacts, setContacts] = useState<Contact[]>([
+  // Sample contacts data with enhanced engagement metrics
+  const contacts: Contact[] = [
     {
       id: 1,
-      firstName: "John",
-      lastName: "Smith",
-      email: "john.smith@example.com",
-      status: "Active",
-      tags: ["Customer", "Newsletter"],
-      dateAdded: "2025-01-15",
-      engagement: 86,
-      lastActive: "2025-04-02",
-      source: "Website",
-      avatar: "https://ui-avatars.com/api/?name=John+Smith&background=6366f1&color=fff",
-      notes: "Premium customer, interested in new product updates"
+      firstName: 'Alex',
+      lastName: 'Johnson',
+      email: 'alex.johnson@example.com',
+      status: 'Active',
+      tags: ['VIP', 'Customer'],
+      dateAdded: '2025-03-01',
+      engagement: 82,
+      lastActive: '2025-04-18',
+      source: 'Website',
+      avatar: 'https://i.pravatar.cc/150?img=1',
+      notes: 'Regular customer, interested in premium features.'
     },
     {
       id: 2,
-      firstName: "Emily",
-      lastName: "Johnson",
-      email: "emily.johnson@example.com",
-      status: "Active",
-      tags: ["Lead", "Event"],
-      dateAdded: "2025-02-03",
-      engagement: 72,
-      lastActive: "2025-03-28",
-      source: "Webinar",
-      avatar: "https://ui-avatars.com/api/?name=Emily+Johnson&background=8b5cf6&color=fff",
-      notes: "Attended March webinar, follows on social media"
+      firstName: 'Sarah',
+      lastName: 'Williams',
+      email: 'sarah.w@example.com',
+      status: 'Active',
+      tags: ['Prospect'],
+      dateAdded: '2025-03-10',
+      engagement: 45,
+      lastActive: '2025-04-15',
+      source: 'Referral',
+      avatar: 'https://i.pravatar.cc/150?img=5',
+      notes: 'Follow up about enterprise plan.'
     },
     {
       id: 3,
-      firstName: "Michael",
-      lastName: "Williams",
-      email: "michael.williams@example.com",
-      status: "Inactive",
-      tags: ["Customer", "Product Launch"],
-      dateAdded: "2024-11-20",
-      engagement: 23,
-      lastActive: "2025-01-15",
-      source: "Referral",
-      avatar: "https://ui-avatars.com/api/?name=Michael+Williams&background=ec4899&color=fff",
-      notes: "Hasn't opened emails in 3 months"
+      firstName: 'Michael',
+      lastName: 'Chen',
+      email: 'michael.chen@example.com',
+      status: 'Inactive',
+      tags: ['Customer'],
+      dateAdded: '2025-02-15',
+      engagement: 12,
+      lastActive: '2025-03-01',
+      source: 'Trade Show',
+      avatar: 'https://i.pravatar.cc/150?img=3',
+      notes: 'Last purchase 6 months ago.'
     },
     {
       id: 4,
-      firstName: "Sarah",
-      lastName: "Davis",
-      email: "sarah.davis@example.com",
-      status: "Bounced",
-      tags: ["Lead"],
-      dateAdded: "2025-01-25",
+      firstName: 'Jessica',
+      lastName: 'Brown',
+      email: 'jessica.b@example.com',
+      status: 'Unsubscribed',
+      tags: ['Former Customer'],
+      dateAdded: '2025-01-15',
       engagement: 0,
-      lastActive: "2025-01-25",
-      source: "Form Submission",
-      avatar: "https://ui-avatars.com/api/?name=Sarah+Davis&background=14b8a6&color=fff",
-      notes: "Email has been bouncing since February"
+      lastActive: '2025-02-10',
+      source: 'Website',
+      avatar: 'https://i.pravatar.cc/150?img=9',
+      notes: 'Unsubscribed after 1 year.'
     },
     {
       id: 5,
-      firstName: "Robert",
-      lastName: "Jones",
-      email: "robert.jones@example.com",
-      status: "Active",
-      tags: ["Customer", "VIP"],
-      dateAdded: "2024-12-05",
+      firstName: 'David',
+      lastName: 'Miller',
+      email: 'david.miller@example.com',
+      status: 'Active',
+      tags: ['VIP', 'Early Adopter'],
+      dateAdded: '2025-04-01',
       engagement: 95,
-      lastActive: "2025-04-16",
-      source: "Direct",
-      avatar: "https://ui-avatars.com/api/?name=Robert+Jones&background=f59e0b&color=fff",
-      notes: "High-value customer, personalized follow-up recommended"
+      lastActive: '2025-04-18',
+      source: 'Partner Referral',
+      avatar: 'https://i.pravatar.cc/150?img=4',
+      notes: 'Provided detailed product feedback.'
     },
     {
       id: 6,
-      firstName: "Jessica",
-      lastName: "Brown",
-      email: "jessica.brown@example.com",
-      status: "Active",
-      tags: ["Customer", "Newsletter"],
-      dateAdded: "2025-02-15",
-      engagement: 67,
-      lastActive: "2025-04-05",
-      source: "Website",
-      avatar: "https://ui-avatars.com/api/?name=Jessica+Brown&background=10b981&color=fff"
+      firstName: 'Emily',
+      lastName: 'Wilson',
+      email: 'emily.w@example.com',
+      status: 'Active',
+      tags: ['Newsletter'],
+      dateAdded: '2025-03-28',
+      engagement: 38,
+      lastActive: '2025-04-10',
+      source: 'Blog Signup',
+      avatar: 'https://i.pravatar.cc/150?img=7',
+      notes: 'Interested in content marketing.'
     },
     {
       id: 7,
-      firstName: "David",
-      lastName: "Miller",
-      email: "david.miller@example.com",
-      status: "Unsubscribed",
-      tags: ["Former Customer"],
-      dateAdded: "2024-10-12",
-      engagement: 5,
-      lastActive: "2025-01-03",
-      source: "Import",
-      avatar: "https://ui-avatars.com/api/?name=David+Miller&background=ef4444&color=fff",
-      notes: "Unsubscribed after product launch campaign"
+      firstName: 'Robert',
+      lastName: 'Taylor',
+      email: 'robert.t@example.com',
+      status: 'Bounced',
+      tags: ['Lead'],
+      dateAdded: '2025-02-20',
+      engagement: 0,
+      lastActive: undefined,
+      source: 'LinkedIn',
+      avatar: 'https://i.pravatar.cc/150?img=12',
+      notes: 'Email invalid.'
     },
     {
       id: 8,
-      firstName: "Amanda",
-      lastName: "Wilson",
-      email: "amanda.wilson@example.com",
-      status: "Active",
-      tags: ["Lead", "Webinar"],
-      dateAdded: "2025-03-22",
-      engagement: 81,
-      lastActive: "2025-04-15",
-      source: "Webinar",
-      avatar: "https://ui-avatars.com/api/?name=Amanda+Wilson&background=6366f1&color=fff",
-      notes: "Interested in premium features"
-    }
-  ]);
-  
-  // All unique tags and statuses for filtering
-  const allTags = Array.from(new Set(contacts.flatMap(contact => contact.tags)));
-  const allStatuses = Array.from(new Set(contacts.map(contact => contact.status)));
-  const allSources = Array.from(new Set(contacts.map(contact => contact.source).filter(Boolean)));
-  
-  // Contact metrics
+      firstName: 'Jennifer',
+      lastName: 'Garcia',
+      email: 'jennifer.g@example.com',
+      status: 'Active',
+      tags: ['Customer', 'Technical'],
+      dateAdded: '2025-03-15',
+      engagement: 76,
+      lastActive: '2025-04-17',
+      source: 'Webinar',
+      avatar: 'https://i.pravatar.cc/150?img=6',
+      notes: 'Developer at ABC Corp.'
+    },
+  ];
+
+  // Contact statistics
   const totalContacts = contacts.length;
   const activeContacts = contacts.filter(c => c.status === 'Active').length;
   const inactiveContacts = contacts.filter(c => c.status === 'Inactive').length;
-  const bouncedContacts = contacts.filter(c => c.status === 'Bounced').length;
   const unsubscribedContacts = contacts.filter(c => c.status === 'Unsubscribed').length;
+  const bouncedContacts = contacts.filter(c => c.status === 'Bounced').length;
 
-  // Custom color mappings for statuses and tags
-  const statusColors = {
-    Active: {
-      bg: "bg-green-100",
-      text: "text-green-800",
-      icon: "bg-green-500"
-    },
-    Inactive: {
-      bg: "bg-gray-100",
-      text: "text-gray-800",
-      icon: "bg-gray-500"
-    },
-    Bounced: {
-      bg: "bg-red-100",
-      text: "text-red-800",
-      icon: "bg-red-500"
-    },
-    Unsubscribed: {
-      bg: "bg-yellow-100",
-      text: "text-yellow-800",
-      icon: "bg-yellow-500"
-    }
-  };
-
-  // Generate CSS classes for engagement scores
+  // Generate all unique tags
+  const allTags = Array.from(new Set(contacts.flatMap(contact => contact.tags)));
+  
+  // Helper function to get engagement color based on engagement score
   const getEngagementColor = (score: number) => {
-    if (score >= 80) return "bg-green-500";
-    if (score >= 60) return "bg-emerald-500";
-    if (score >= 40) return "bg-yellow-500";
-    if (score >= 20) return "bg-orange-500";
-    return "bg-red-500";
-  };
-
-  // Handle file import function
-  const handleFileImport = (file: File) => {
-    console.log("Starting import for file:", file.name);
-    setIsLoading(true);
-    setImportStatus('Importing contacts...');
-    
-    // Simulate file import process
-    setTimeout(() => {
-      toast({
-        title: "Import Complete",
-        description: "Successfully imported 12 contacts. 3 duplicates were skipped.",
-        variant: "default"
-      });
-      setIsLoading(false);
-      setImportStatus(null);
-    }, 2000);
+    if (score >= 80) return 'bg-green-500';
+    if (score >= 60) return 'bg-emerald-500';
+    if (score >= 40) return 'bg-yellow-500';
+    if (score >= 20) return 'bg-orange-500';
+    return 'bg-red-500';
   };
   
-  // Filter and sort contacts based on current filters
+  // Helper function to format date
+  const formatDate = (dateString: string | undefined) => {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat('en-US', { 
+      month: 'short', 
+      day: 'numeric', 
+      year: 'numeric' 
+    }).format(date);
+  };
+  
+  // Handle file import
+  const handleFileImport = (file: File) => {
+    setIsLoading(true);
+    setImportStatus('Importing...');
+    
+    // Mock file import process
+    setTimeout(() => {
+      setIsLoading(false);
+      setImportStatus('Import completed: ' + file.name);
+      toast({
+        title: "Import successful",
+        description: `Imported ${Math.floor(Math.random() * 50) + 10} contacts from ${file.name}`,
+      });
+    }, 1500);
+  };
+  
+  // Filter contacts based on search and filters
   const filteredContacts = contacts.filter(contact => {
-    let matchesSearch = true;
-    let matchesStatus = true;
-    let matchesTag = true;
+    // Search in name, email, and notes
+    const fullName = `${contact.firstName} ${contact.lastName}`.toLowerCase();
+    const matchesSearch = searchTerm === '' || 
+      fullName.includes(searchTerm.toLowerCase()) || 
+      contact.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (contact.notes && contact.notes.toLowerCase().includes(searchTerm.toLowerCase()));
+    
+    // Filter by status
+    const matchesStatus = filterStatus === '' || contact.status === filterStatus;
+    
+    // Filter by tag
+    const matchesTag = filterTag === '' || contact.tags.includes(filterTag);
+    
+    // Filter by date
     let matchesDate = true;
-    
-    // Apply search filter
-    if (searchTerm) {
-      const searchLower = searchTerm.toLowerCase();
-      matchesSearch = 
-        contact.firstName.toLowerCase().includes(searchLower) ||
-        contact.lastName.toLowerCase().includes(searchLower) ||
-        contact.email.toLowerCase().includes(searchLower) ||
-        (contact.notes ? contact.notes.toLowerCase().includes(searchLower) : false);
-    }
-    
-    // Apply status filter
-    if (filterStatus) {
-      matchesStatus = contact.status === filterStatus;
-    }
-    
-    // Apply tag filter
-    if (filterTag) {
-      matchesTag = contact.tags.includes(filterTag);
-    }
-    
-    // Apply date filter
-    if (dateFilter === 'recent') {
+    if (filterDate === 'last30days') {
       const thirtyDaysAgo = new Date();
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
       const contactDate = new Date(contact.dateAdded);
@@ -527,562 +499,400 @@ const ClientContacts: React.FC<ClientContactsProps> = ({ onAddContact }) => {
       </div>
       
       {/* Advanced Search and Filters */}
-      <div className="bg-white rounded-lg shadow-md border border-gray-100 p-4 mb-6">
-        <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
-          <div className="relative flex-1">
-            <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="11" cy="11" r="8"></circle>
-              <path d="m21 21-4.3-4.3"></path>
-            </svg>
-            <input 
-              type="text" 
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search contacts by name, email or notes..." 
-              className="pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-            />
+      <div className="bg-white rounded-lg shadow-md border border-gray-100 p-5 mb-6">
+        <div className="flex flex-col md:flex-row md:items-end gap-4 mb-6">
+          <div className="flex-1">
+            <label htmlFor="searchContacts" className="block text-sm font-medium text-gray-700 mb-1">Search Contacts</label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+              </div>
+              <input
+                type="text"
+                id="searchContacts"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Search contacts by name, email or notes..." 
+                className="pl-10 w-full rounded-lg border border-gray-300 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              />
+            </div>
           </div>
           
-          <div className="flex flex-wrap gap-2 lg:gap-3">
-            <select 
-              value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
-              className="px-3 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm text-gray-700 appearance-none bg-white pr-8"
-              style={{ backgroundImage: "url(\"data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e\")", backgroundRepeat: "no-repeat", backgroundPosition: "right 0.5rem center", backgroundSize: "1.5em 1.5em" }}
-            >
-              <option value="">All Statuses</option>
-              {allStatuses.map((status, idx) => (
-                <option key={idx} value={status}>{status}</option>
-              ))}
-            </select>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <div>
+              <label htmlFor="statusFilter" className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+              <select
+                id="statusFilter"
+                value={filterStatus}
+                onChange={(e) => setFilterStatus(e.target.value)}
+                className="w-full rounded-lg border border-gray-300 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              >
+                <option value="">All Statuses</option>
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive</option>
+                <option value="Unsubscribed">Unsubscribed</option>
+                <option value="Bounced">Bounced</option>
+              </select>
+            </div>
             
-            <select 
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              className="px-3 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm text-gray-700 appearance-none bg-white pr-8"
-              style={{ backgroundImage: "url(\"data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e\")", backgroundRepeat: "no-repeat", backgroundPosition: "right 0.5rem center", backgroundSize: "1.5em 1.5em" }}
-            >
-              <option value="name">Sort by Name</option>
-              <option value="date">Sort by Date Added</option>
-              <option value="status">Sort by Status</option>
-              <option value="engagement">Sort by Engagement</option>
-            </select>
+            <div>
+              <label htmlFor="dateFilter" className="block text-sm font-medium text-gray-700 mb-1">Date Added</label>
+              <select
+                id="dateFilter"
+                value={filterDate}
+                onChange={(e) => setFilterDate(e.target.value as 'all' | 'last30days')}
+                className="w-full rounded-lg border border-gray-300 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              >
+                <option value="all">All Time</option>
+                <option value="last30days">Last 30 Days</option>
+              </select>
+            </div>
             
-            <button 
-              onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
-              className={`px-3 py-2.5 rounded-lg flex items-center gap-2 transition-colors text-sm ${
-                showAdvancedFilters 
-                  ? 'bg-indigo-50 text-indigo-700 border border-indigo-200' 
-                  : 'bg-gray-100 text-gray-700 border border-gray-200 hover:bg-gray-200'
-              }`}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z" clipRule="evenodd" />
-              </svg>
-              {showAdvancedFilters ? 'Hide Filters' : 'Advanced Filters'}
-            </button>
+            <div>
+              <label htmlFor="sortBy" className="block text-sm font-medium text-gray-700 mb-1">Sort By</label>
+              <select
+                id="sortBy"
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as 'name' | 'date' | 'status' | 'engagement')}
+                className="w-full rounded-lg border border-gray-300 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              >
+                <option value="name">Name</option>
+                <option value="date">Date Added</option>
+                <option value="status">Status</option>
+                <option value="engagement">Engagement</option>
+              </select>
+            </div>
           </div>
         </div>
         
-        {/* Advanced Filters Panel */}
-        {showAdvancedFilters && (
-          <div className="mt-4 pt-4 border-t border-gray-100">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Date Added</label>
-                <select 
-                  value={dateFilter}
-                  onChange={(e) => setDateFilter(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
-                >
-                  <option value="all">All Time</option>
-                  <option value="recent">Last 30 Days</option>
-                  <option value="quarter">This Quarter</option>
-                  <option value="year">This Year</option>
-                </select>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Source</label>
-                <select 
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
-                >
-                  <option value="">All Sources</option>
-                  {allSources.map((source, idx) => (
-                    <option key={idx} value={source}>{source}</option>
-                  ))}
-                </select>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Engagement Level</label>
-                <select 
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
-                >
-                  <option value="">All Levels</option>
-                  <option value="high">High (80-100%)</option>
-                  <option value="medium">Medium (40-79%)</option>
-                  <option value="low">Low (1-39%)</option>
-                  <option value="none">None (0%)</option>
-                </select>
-              </div>
+        {/* Selected count and actions */}
+        {selectedContacts.length > 0 && (
+          <div className="bg-indigo-50 rounded-lg p-3 mb-4 flex justify-between items-center">
+            <div className="flex items-center gap-2">
+              <span className="text-indigo-700 font-medium">{selectedContacts.length} contacts selected</span>
             </div>
-            
-            <div className="flex justify-end mt-4">
-              <button className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700">
-                Apply Filters
+            <div className="flex gap-2">
+              <button className="px-3 py-1.5 bg-white text-gray-700 rounded border border-gray-300 text-sm font-medium hover:bg-gray-50">
+                Add to List
+              </button>
+              <button className="px-3 py-1.5 bg-white text-gray-700 rounded border border-gray-300 text-sm font-medium hover:bg-gray-50">
+                Export
+              </button>
+              <button className="px-3 py-1.5 bg-white text-red-600 rounded border border-gray-300 text-sm font-medium hover:bg-red-50">
+                Delete
               </button>
             </div>
           </div>
         )}
-      </div>
-      
-      {/* Import Status */}
-      {importStatus && (
-        <div className="bg-indigo-50 rounded-lg p-3 mb-4 border border-indigo-200 flex items-center justify-between animate-pulse">
-          <div className="flex items-center gap-2">
-            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-indigo-600"></div>
-            <span className="text-sm text-indigo-700 font-medium">{importStatus}</span>
-          </div>
-        </div>
-      )}
-      
-      {/* Selection Actions */}
-      {contacts.length > 0 && selectedContacts.length === 0 && (
-        <div className="bg-white rounded-lg p-3 mb-4 border border-gray-100 flex items-center justify-between">
-          <span className="text-sm text-gray-700">
-            Showing <span className="font-medium">{sortedContacts.length}</span> of <span className="font-medium">{contacts.length}</span> contacts
-          </span>
-          <div className="flex gap-2">
+        
+        {/* Results count */}
+        <div className="flex justify-between items-center mb-4">
+          <p className="text-sm text-gray-500">
+            Showing <span className="font-medium text-gray-900">{sortedContacts.length}</span> {sortedContacts.length === 1 ? 'contact' : 'contacts'}
+            {(filterStatus || searchTerm || filterTag || filterDate !== 'all') && ' with applied filters'}
+          </p>
+          
+          {(filterStatus || searchTerm || filterTag || filterDate !== 'all') && (
             <button 
-              className="text-sm px-3 py-1.5 border border-gray-300 rounded-lg bg-white text-gray-700 hover:bg-gray-50 transition-colors"
-              onClick={() => setSelectedContacts(sortedContacts.map(c => c.id))}
+              onClick={() => {
+                setFilterStatus('');
+                setSearchTerm('');
+                setFilterTag('');
+                setFilterDate('all');
+              }}
+              className="text-indigo-600 hover:text-indigo-800 text-sm font-medium"
             >
-              Select All
+              Clear all filters
             </button>
-          </div>
-        </div>
-      )}
-      
-      {/* Bulk Actions */}
-      {selectedContacts.length > 0 && (
-        <div className="bg-indigo-50 rounded-lg p-3 mb-4 border border-indigo-200 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="bg-indigo-100 rounded-full w-6 h-6 flex items-center justify-center">
-              <span className="text-xs font-semibold text-indigo-700">{selectedContacts.length}</span>
-            </div>
-            <span className="text-sm text-indigo-700 font-medium">
-              {selectedContacts.length} contact{selectedContacts.length !== 1 ? 's' : ''} selected
-            </span>
-          </div>
-          <div className="flex gap-2">
-            <button className="text-sm px-3 py-1.5 border border-indigo-300 rounded-lg bg-white text-indigo-700 hover:bg-indigo-50 transition-colors">
-              Add to List
-            </button>
-            <button className="text-sm px-3 py-1.5 border border-indigo-300 rounded-lg bg-white text-indigo-700 hover:bg-indigo-50 transition-colors">
-              Export
-            </button>
-            <button className="text-sm px-3 py-1.5 border border-red-300 rounded-lg bg-white text-red-700 hover:bg-red-50 transition-colors">
-              Delete
-            </button>
-          </div>
-        </div>
-      )}
-      
-      {/* Card View */}
-      {viewMode === 'card' && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          {isLoading ? (
-            <>
-              {[1, 2, 3, 4, 5, 6].map(i => (
-                <div key={i} className="bg-white rounded-lg shadow-md animate-pulse h-48"></div>
-              ))}
-            </>
-          ) : sortedContacts.length === 0 ? (
-            <div className="col-span-full bg-white rounded-lg shadow-md p-8 text-center">
-              <div className="mx-auto bg-indigo-50 rounded-full w-16 h-16 flex items-center justify-center mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">No Contacts Found</h3>
-              <p className="text-gray-500 max-w-md mx-auto mb-6">
-                {searchTerm || filterStatus || filterTag ? 
-                  "No contacts match your current search criteria. Try adjusting your filters or search terms." : 
-                  "You haven't added any contacts yet. Import existing contacts or add them manually."}
-              </p>
-              <button onClick={onAddContact} className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg shadow-md hover:from-purple-700 hover:to-indigo-700 transition-all">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
-                </svg>
-                Add Your First Contact
-              </button>
-            </div>
-          ) : (
-            sortedContacts.map(contact => {
-              const statusStyle = statusColors[contact.status as keyof typeof statusColors] || statusColors.Inactive;
-              
-              return (
-                <div key={contact.id} className="group bg-white rounded-lg shadow-md border border-gray-100 hover:shadow-lg transition-all duration-200 overflow-hidden">
-                  <div className="relative">
-                    <div className={`h-3 w-full ${statusStyle.icon}`}></div>
-                    
-                    <div className="absolute right-3 top-6">
-                      <div className="flex items-center space-x-1">
-                        <input 
-                          type="checkbox" 
-                          className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                          checked={selectedContacts.includes(contact.id)}
-                          onChange={() => handleSelectContact(contact.id)}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="p-5">
-                    <div className="flex items-start mb-4">
-                      <div className="h-10 w-10 rounded-full overflow-hidden mr-3 border border-gray-200">
-                        <img src={contact.avatar} alt={`${contact.firstName} ${contact.lastName}`} className="h-full w-full object-cover" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h3 className="text-lg font-semibold text-gray-900 truncate group-hover:text-indigo-700 transition-colors duration-200">
-                          {contact.firstName} {contact.lastName}
-                        </h3>
-                        <p className="text-sm text-gray-500 truncate">{contact.email}</p>
-                      </div>
-                    </div>
-                    
-                    <div className="mb-4">
-                      <div className="flex justify-between items-center mb-1">
-                        <span className="text-xs text-gray-500">Engagement</span>
-                        <span className="text-xs font-medium text-gray-700">{contact.engagement || 0}%</span>
-                      </div>
-                      <div className="w-full bg-gray-200 rounded-full h-1.5">
-                        <div 
-                          className={`h-1.5 rounded-full ${getEngagementColor(contact.engagement || 0)}`} 
-                          style={{ width: `${contact.engagement || 0}%` }}
-                        ></div>
-                      </div>
-                    </div>
-                    
-                    <div className="flex flex-wrap gap-1.5 mb-4">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusStyle.bg} ${statusStyle.text}`}>
-                        {contact.status}
-                      </span>
-                      {contact.tags.slice(0, 2).map((tag, idx) => (
-                        <span key={idx} className="px-2 py-1 bg-indigo-100 text-indigo-800 rounded-full text-xs">
-                          {tag}
-                        </span>
-                      ))}
-                      {contact.tags.length > 2 && (
-                        <span className="px-2 py-1 bg-gray-100 text-gray-800 rounded-full text-xs">
-                          +{contact.tags.length - 2}
-                        </span>
-                      )}
-                    </div>
-                    
-                    <div className="text-xs text-gray-500">
-                      <div className="flex items-center mb-1">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                        Added: {new Date(contact.dateAdded).toLocaleDateString()}
-                      </div>
-                      {contact.lastActive && (
-                        <div className="flex items-center">
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                          </svg>
-                          Last active: {new Date(contact.lastActive).toLocaleDateString()}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                  
-                  <div className="border-t border-gray-100 px-5 py-3 bg-gray-50 flex justify-between">
-                    <button 
-                      className="text-sm font-medium text-indigo-600 hover:text-indigo-800"
-                      onClick={() => handleViewContact(contact.id)}
-                    >
-                      View Details
-                    </button>
-                    <button className="text-sm font-medium text-gray-600 hover:text-gray-800">
-                      Edit
-                    </button>
-                  </div>
-                </div>
-              );
-            })
           )}
         </div>
-      )}
-      
-      {/* Table View */}
-      {viewMode === 'table' && (
-        <div className="bg-white rounded-lg shadow-md border border-gray-100 overflow-hidden mb-6">
+        
+        {/* Table View */}
+        {viewMode === 'table' && (
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="min-w-full">
               <thead>
-                <tr className="bg-gray-50 border-b border-gray-100">
-                  <th className="py-3 px-4">
-                    <input 
-                      type="checkbox" 
-                      className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                      onChange={handleSelectAll}
-                      checked={selectedContacts.length === sortedContacts.length && sortedContacts.length > 0}
-                    />
+                <tr className="bg-gray-50 border-b border-gray-200">
+                  <th className="py-3 px-4 text-left">
+                    <div className="flex items-center">
+                      <input 
+                        type="checkbox"
+                        checked={selectedContacts.length === sortedContacts.length && sortedContacts.length > 0}
+                        onChange={handleSelectAll}
+                        className="h-4 w-4 text-indigo-600 rounded"
+                      />
+                    </div>
                   </th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-700">Contact</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-700">Email</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-700">Status</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-700">Engagement</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-700">Tags</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-700">Date Added</th>
-                  <th className="text-right py-3 px-4 font-medium text-gray-700">Actions</th>
+                  <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact</th>
+                  <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                  <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tags</th>
+                  <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Engagement</th>
+                  <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date Added</th>
+                  <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
-              <tbody>
-                {isLoading ? (
-                  <tr>
-                    <td colSpan={8} className="text-center py-8">
-                      <div className="flex justify-center">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+              <tbody className="divide-y divide-gray-200 bg-white">
+                {sortedContacts.map(contact => (
+                  <tr 
+                    key={contact.id} 
+                    className={`hover:bg-gray-50 ${selectedContacts.includes(contact.id) ? 'bg-indigo-50/40' : ''}`}
+                  >
+                    <td className="py-4 px-4">
+                      <input 
+                        type="checkbox"
+                        checked={selectedContacts.includes(contact.id)}
+                        onChange={() => handleSelectContact(contact.id)}
+                        className="h-4 w-4 text-indigo-600 rounded"
+                      />
+                    </td>
+                    <td className="py-4 px-4">
+                      <div className="flex items-center">
+                        <div className="h-10 w-10 rounded-full overflow-hidden mr-3 flex-shrink-0">
+                          <img src={contact.avatar} alt={`${contact.firstName} ${contact.lastName}`} className="h-full w-full object-cover" />
+                        </div>
+                        <div>
+                          <div className="font-medium text-gray-900">{contact.firstName} {contact.lastName}</div>
+                          <div className="text-sm text-gray-500">{contact.email}</div>
+                        </div>
                       </div>
                     </td>
-                  </tr>
-                ) : sortedContacts.length === 0 ? (
-                  <tr>
-                    <td colSpan={8} className="text-center py-8 text-gray-500">
-                      <div className="mx-auto bg-indigo-50 rounded-full w-12 h-12 flex items-center justify-center mb-3">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                        </svg>
-                      </div>
-                      <p className="font-medium text-gray-900 mb-1">No contacts found</p>
-                      <p className="text-sm text-gray-500">
-                        {searchTerm || filterStatus || filterTag ? 
-                          "Try adjusting your search or filters." : 
-                          "Get started by adding your first contact."}
-                      </p>
+                    <td className="py-4 px-4">
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                        ${contact.status === 'Active' ? 'bg-green-100 text-green-800' : 
+                          contact.status === 'Inactive' ? 'bg-yellow-100 text-yellow-800' : 
+                          contact.status === 'Unsubscribed' ? 'bg-gray-100 text-gray-800' :
+                          'bg-red-100 text-red-800'}`}
+                      >
+                        {contact.status}
+                      </span>
                     </td>
-                  </tr>
-                ) : (
-                  sortedContacts.map(contact => {
-                    const statusStyle = statusColors[contact.status as keyof typeof statusColors] || statusColors.Inactive;
-                    
-                    return (
-                      <tr key={contact.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                        <td className="py-3 px-4">
-                          <input 
-                            type="checkbox" 
-                            className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                            checked={selectedContacts.includes(contact.id)}
-                            onChange={() => handleSelectContact(contact.id)}
-                          />
-                        </td>
-                        <td className="py-3 px-4">
-                          <div className="flex items-center">
-                            <div className="h-8 w-8 rounded-full overflow-hidden mr-3 border border-gray-200">
-                              <img src={contact.avatar} alt={`${contact.firstName} ${contact.lastName}`} className="h-full w-full object-cover" />
-                            </div>
-                            <div>
-                              <div className="font-medium text-gray-900">{contact.firstName} {contact.lastName}</div>
-                              {contact.source && <div className="text-xs text-gray-500">Source: {contact.source}</div>}
-                            </div>
-                          </div>
-                        </td>
-                        <td className="py-3 px-4 text-gray-700">
-                          {contact.email}
-                        </td>
-                        <td className="py-3 px-4">
-                          <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${statusStyle.bg} ${statusStyle.text}`}>
-                            {contact.status}
+                    <td className="py-4 px-4">
+                      <div className="flex flex-wrap gap-1">
+                        {contact.tags.map(tag => (
+                          <span key={tag} className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-indigo-100 text-indigo-800">
+                            {tag}
                           </span>
-                        </td>
-                        <td className="py-3 px-4">
-                          <div className="flex items-center">
-                            <div className="w-16 bg-gray-200 rounded-full h-1.5 mr-2">
-                              <div 
-                                className={`h-1.5 rounded-full ${getEngagementColor(contact.engagement || 0)}`} 
-                                style={{ width: `${contact.engagement || 0}%` }}
-                              ></div>
-                            </div>
-                            <span className="text-sm font-medium text-gray-700">{contact.engagement || 0}%</span>
-                          </div>
-                        </td>
-                        <td className="py-3 px-4">
-                          <div className="flex flex-wrap gap-1">
-                            {contact.tags.map((tag, idx) => (
-                              <span key={idx} className="px-2 py-1 bg-indigo-100 text-indigo-800 rounded-full text-xs">
-                                {tag}
-                              </span>
-                            ))}
-                          </div>
-                        </td>
-                        <td className="py-3 px-4 text-gray-700 whitespace-nowrap">
-                          {new Date(contact.dateAdded).toLocaleDateString()}
-                        </td>
-                        <td className="py-3 px-4 text-right">
-                          <div className="flex items-center justify-end gap-2">
-                            <button 
-                              className="text-indigo-600 hover:text-indigo-900 p-1 rounded hover:bg-indigo-50"
-                              onClick={() => handleViewContact(contact.id)}
-                            >
-                              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                              </svg>
-                            </button>
-                            <button className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50">
-                              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                              </svg>
-                            </button>
-                            <button className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50">
-                              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                              </svg>
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })
-                )}
+                        ))}
+                      </div>
+                    </td>
+                    <td className="py-4 px-4">
+                      <div className="flex items-center">
+                        <div className="h-2 w-16 bg-gray-200 rounded-full overflow-hidden mr-2">
+                          <div className={`h-full ${getEngagementColor(contact.engagement || 0)}`} style={{ width: `${contact.engagement}%` }}></div>
+                        </div>
+                        <span className="text-sm font-medium">{contact.engagement}%</span>
+                      </div>
+                    </td>
+                    <td className="py-4 px-4 whitespace-nowrap text-sm text-gray-500">
+                      {formatDate(contact.dateAdded)}
+                    </td>
+                    <td className="py-4 px-4 text-sm font-medium whitespace-nowrap">
+                      <div className="flex space-x-2">
+                        <button 
+                          onClick={() => handleViewContact(contact.id)}
+                          className="text-indigo-600 hover:text-indigo-900"
+                        >
+                          View
+                        </button>
+                        <button className="text-gray-600 hover:text-gray-900">
+                          Edit
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
-          
-          {/* Pagination */}
-          {sortedContacts.length > 0 && (
-            <div className="flex items-center justify-between border-t border-gray-100 px-4 py-3">
-              <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
-                <div>
-                  <p className="text-sm text-gray-700">
-                    Showing <span className="font-medium">1</span> to <span className="font-medium">{sortedContacts.length}</span> of{" "}
-                    <span className="font-medium">{contacts.length}</span> results
-                  </p>
+        )}
+        
+        {/* Card View */}
+        {viewMode === 'card' && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {sortedContacts.map(contact => (
+              <div 
+                key={contact.id} 
+                className={`bg-white rounded-lg overflow-hidden border transition-all ${
+                  selectedContacts.includes(contact.id) 
+                    ? 'border-indigo-300 ring-2 ring-indigo-100 shadow-md' 
+                    : 'border-gray-200 hover:shadow-md'
+                }`}
+              >
+                <div className="px-4 pt-4 pb-2 flex justify-between items-start">
+                  <div className="flex items-start space-x-3">
+                    <input 
+                      type="checkbox"
+                      checked={selectedContacts.includes(contact.id)}
+                      onChange={() => handleSelectContact(contact.id)}
+                      className="h-4 w-4 text-indigo-600 rounded mt-1"
+                    />
+                    <div>
+                      <h3 className="font-medium text-gray-900">{contact.firstName} {contact.lastName}</h3>
+                      <p className="text-sm text-gray-500">{contact.email}</p>
+                    </div>
+                  </div>
+                  <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium
+                    ${contact.status === 'Active' ? 'bg-green-100 text-green-800' : 
+                      contact.status === 'Inactive' ? 'bg-yellow-100 text-yellow-800' : 
+                      contact.status === 'Unsubscribed' ? 'bg-gray-100 text-gray-800' :
+                      'bg-red-100 text-red-800'}`}
+                  >
+                    {contact.status}
+                  </span>
                 </div>
-                <div>
-                  <nav className="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
-                    <button className="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0">
-                      <span className="sr-only">Previous</span>
-                      <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                        <path fillRule="evenodd" d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z" clipRule="evenodd" />
-                      </svg>
-                    </button>
-                    <button className="relative z-10 inline-flex items-center bg-indigo-600 px-4 py-2 text-sm font-semibold text-white focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
-                      1
-                    </button>
-                    <button className="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0">
-                      <span className="sr-only">Next</span>
-                      <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                        <path fillRule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clipRule="evenodd" />
-                      </svg>
-                    </button>
-                  </nav>
+                
+                <div className="px-4 py-2">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-xs text-gray-500">Engagement</span>
+                    <span className="text-xs font-medium">{contact.engagement}%</span>
+                  </div>
+                  <div className="h-1.5 w-full bg-gray-200 rounded-full overflow-hidden">
+                    <div 
+                      className={`h-full ${getEngagementColor(contact.engagement || 0)}`} 
+                      style={{ width: `${contact.engagement}%` }}
+                    ></div>
+                  </div>
+                </div>
+                
+                <div className="px-4 py-2">
+                  <div className="flex flex-wrap gap-1 mb-3">
+                    {contact.tags.map(tag => (
+                      <span key={tag} className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-indigo-50 text-indigo-700">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                  
+                  <div className="text-xs text-gray-500 mb-1 flex items-center justify-between">
+                    <div>Added: {formatDate(contact.dateAdded)}</div>
+                    <div>{contact.source}</div>
+                  </div>
+                  
+                  {contact.lastActive && (
+                    <div className="text-xs text-gray-500 mb-2">
+                      Last active: {formatDate(contact.lastActive)}
+                    </div>
+                  )}
+                </div>
+                
+                <div className="border-t border-gray-100 px-4 py-3 bg-gray-50 flex justify-between">
+                  <button 
+                    onClick={() => handleViewContact(contact.id)}
+                    className="text-indigo-600 text-sm font-medium hover:text-indigo-800"
+                  >
+                    View Details
+                  </button>
+                  <button className="text-gray-600 text-sm font-medium hover:text-gray-800">
+                    Edit
+                  </button>
                 </div>
               </div>
-            </div>
-          )}
-        </div>
-      )}
+            ))}
+          </div>
+        )}
+      </div>
       
-      {/* Contact Details Modal */}
+      {/* Contact Detail Drawer */}
       {showContactDetails && (
-        <div className="fixed inset-0 z-50 overflow-y-auto p-4 sm:p-6 md:p-20" onClick={() => setShowContactDetails(null)}>
-          <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
-          
-          <div 
-            className="relative bg-white rounded-xl shadow-xl max-w-xl mx-auto"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {contacts.filter(c => c.id === showContactDetails).map(contact => {
-              const statusStyle = statusColors[contact.status as keyof typeof statusColors] || statusColors.Inactive;
+        <div className="fixed inset-0 bg-black bg-opacity-30 z-50 flex justify-end">
+          <div className="bg-white w-full max-w-md h-screen overflow-y-auto shadow-xl transform transition-all">
+            <div className="p-6">
+              <div className="flex justify-between items-start mb-6">
+                <h2 className="text-xl font-bold text-gray-900">Contact Details</h2>
+                <button 
+                  onClick={() => setShowContactDetails(null)}
+                  className="text-gray-400 hover:text-gray-500"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
               
-              return (
-                <div key={contact.id} className="p-6">
-                  <div className="flex justify-between items-start mb-6">
-                    <div className="flex items-center gap-4">
-                      <div className="h-16 w-16 rounded-full overflow-hidden border border-gray-200">
-                        <img src={contact.avatar} alt={`${contact.firstName} ${contact.lastName}`} className="h-full w-full object-cover" />
-                      </div>
-                      <div>
-                        <h2 className="text-xl font-bold text-gray-900">
-                          {contact.firstName} {contact.lastName}
-                        </h2>
-                        <p className="text-gray-600">{contact.email}</p>
-                        <div className="flex mt-2">
-                          <span className={`px-3 py-1 rounded-full text-xs font-medium ${statusStyle.bg} ${statusStyle.text}`}>
-                            {contact.status}
-                          </span>
+              {contacts.filter(c => c.id === showContactDetails).map(contact => (
+                <div key={contact.id}>
+                  <div className="flex items-center mb-6">
+                    <div className="h-16 w-16 rounded-full overflow-hidden mr-4">
+                      <img src={contact.avatar} alt={`${contact.firstName} ${contact.lastName}`} className="h-full w-full object-cover" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900">{contact.firstName} {contact.lastName}</h3>
+                      <p className="text-gray-600">{contact.email}</p>
+                      <span className={`mt-1 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                        ${contact.status === 'Active' ? 'bg-green-100 text-green-800' : 
+                          contact.status === 'Inactive' ? 'bg-yellow-100 text-yellow-800' : 
+                          contact.status === 'Unsubscribed' ? 'bg-gray-100 text-gray-800' :
+                          'bg-red-100 text-red-800'}`}
+                      >
+                        {contact.status}
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4 mb-6">
+                    <div className="bg-indigo-50 rounded-lg p-3">
+                      <p className="text-xs font-medium text-indigo-700 uppercase">Engagement Score</p>
+                      <div className="mt-1 flex items-center">
+                        <span className="text-2xl font-bold text-gray-900">{contact.engagement}%</span>
+                        <div className="ml-2 h-2 w-16 bg-gray-200 rounded-full overflow-hidden">
+                          <div className={`h-full ${getEngagementColor(contact.engagement || 0)}`} style={{ width: `${contact.engagement}%` }}></div>
                         </div>
                       </div>
                     </div>
-                    <button 
-                      onClick={() => setShowContactDetails(null)}
-                      className="text-gray-400 hover:text-gray-500"
-                    >
-                      <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    </button>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                    <div>
-                      <h3 className="text-sm font-medium text-gray-500 mb-2">Engagement Score</h3>
-                      <div className="flex items-center">
-                        <div className="h-4 w-4 rounded-full mr-2" style={{ backgroundColor: getEngagementColor(contact.engagement || 0) }}></div>
-                        <span className="text-lg font-bold text-gray-900">{contact.engagement || 0}%</span>
-                      </div>
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-medium text-gray-500 mb-2">Contact Source</h3>
-                      <p className="text-gray-900">{contact.source || 'Unknown'}</p>
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-medium text-gray-500 mb-2">Added On</h3>
-                      <p className="text-gray-900">{new Date(contact.dateAdded).toLocaleDateString()}</p>
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-medium text-gray-500 mb-2">Last Active</h3>
-                      <p className="text-gray-900">{contact.lastActive ? new Date(contact.lastActive).toLocaleDateString() : 'Never'}</p>
+                    
+                    <div className="bg-blue-50 rounded-lg p-3">
+                      <p className="text-xs font-medium text-blue-700 uppercase">Last Active</p>
+                      <p className="mt-1 text-lg font-semibold text-gray-900">{formatDate(contact.lastActive || null)}</p>
                     </div>
                   </div>
                   
-                  <div className="mb-6">
-                    <h3 className="text-sm font-medium text-gray-500 mb-2">Tags</h3>
+                  <div className="border-t border-gray-200 py-4">
+                    <h4 className="text-sm font-semibold text-gray-700 mb-2">Tags</h4>
                     <div className="flex flex-wrap gap-2">
-                      {contact.tags.map((tag, idx) => (
-                        <span key={idx} className="px-3 py-1 bg-indigo-100 text-indigo-800 rounded-full text-sm">
+                      {contact.tags.map(tag => (
+                        <span key={tag} className="inline-flex items-center px-2.5 py-1 rounded-full text-sm font-medium bg-indigo-100 text-indigo-800">
                           {tag}
                         </span>
                       ))}
+                    </div>
+                  </div>
+                  
+                  <div className="border-t border-gray-200 py-4">
+                    <h4 className="text-sm font-semibold text-gray-700 mb-2">Contact Information</h4>
+                    <div className="space-y-3">
+                      <div>
+                        <p className="text-xs text-gray-500">Email Address</p>
+                        <p className="text-sm text-gray-900">{contact.email}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-500">Source</p>
+                        <p className="text-sm text-gray-900">{contact.source || 'Not specified'}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-500">Date Added</p>
+                        <p className="text-sm text-gray-900">{formatDate(contact.dateAdded)}</p>
+                      </div>
                     </div>
                   </div>
                   
                   {contact.notes && (
-                    <div className="mb-6">
-                      <h3 className="text-sm font-medium text-gray-500 mb-2">Notes</h3>
-                      <p className="text-gray-900 p-3 bg-gray-50 rounded-md border border-gray-100">{contact.notes}</p>
+                    <div className="border-t border-gray-200 py-4">
+                      <h4 className="text-sm font-semibold text-gray-700 mb-2">Notes</h4>
+                      <p className="text-sm text-gray-600 whitespace-pre-line">{contact.notes}</p>
                     </div>
                   )}
                   
-                  <div className="bg-gray-50 -mx-6 -mb-6 px-6 py-3 rounded-b-xl border-t border-gray-100 flex justify-end gap-3">
-                    <button 
-                      onClick={() => setShowContactDetails(null)}
-                      className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50 text-sm font-medium"
-                    >
-                      Close
-                    </button>
+                  <div className="border-t border-gray-200 pt-6 flex gap-3">
                     <button className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 text-sm font-medium">
                       Edit Contact
                     </button>
                   </div>
                 </div>
-              );
-            })}
+              ))}
+            </div>
           </div>
         </div>
       )}
