@@ -69,26 +69,6 @@ const WidgetManager: React.FC<WidgetManagerProps> = ({ clientData = null }) => {
   return (
     <>
       <div className="flex gap-2">
-        <Button
-          variant="outline"
-          size="sm"
-          className="gap-1 text-amber-600 border-slate-200 hover:border-amber-200 hover:bg-amber-50 shadow-sm"
-          onClick={() => setRecommendationsOpen(true)}
-        >
-          <Lightbulb className="h-4 w-4" />
-          <span>Get Recommendations</span>
-        </Button>
-        
-        <Button
-          variant="default"
-          size="sm"
-          className="gap-1 bg-blue-800 hover:bg-blue-900 text-white shadow-sm"
-          onClick={addAIWidgets}
-        >
-          <Brain className="h-4 w-4" />
-          <span>Add AI Widgets</span>
-        </Button>
-        
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
             <Button
@@ -102,7 +82,7 @@ const WidgetManager: React.FC<WidgetManagerProps> = ({ clientData = null }) => {
           </DialogTrigger>
           <DialogContent className="border-slate-200">
             <DialogHeader>
-              <DialogTitle className="text-blue-900">Add New Widget</DialogTitle>
+              <DialogTitle className="text-blue-900">Add Widget</DialogTitle>
               <DialogDescription>
                 Select a widget to add to your dashboard.
               </DialogDescription>
@@ -118,7 +98,10 @@ const WidgetManager: React.FC<WidgetManagerProps> = ({ clientData = null }) => {
                   {availableWidgetOptions.length === 0 ? (
                     <SelectItem value="none" disabled>All widgets are already displayed</SelectItem>
                   ) : (
-                    availableWidgetOptions.map((type) => (
+                    availableWidgetOptions.filter(type => 
+                      !type.toLowerCase().includes('ai') && 
+                      !type.includes('recommendations')
+                    ).map((type) => (
                       <SelectItem key={type} value={type}>
                         {widgetTitles[type]}
                       </SelectItem>
@@ -156,24 +139,7 @@ const WidgetManager: React.FC<WidgetManagerProps> = ({ clientData = null }) => {
           <Undo2 className="h-4 w-4" />
           <span>Reset Layout</span>
         </Button>
-
-        <Button
-          variant="outline"
-          size="sm"
-          className="gap-1 text-blue-700 border-slate-200 hover:border-blue-200 hover:bg-blue-50 shadow-sm"
-          onClick={() => {/* Open layout editor */}}
-        >
-          <LayoutGrid className="h-4 w-4" />
-          <span>Edit Layout</span>
-        </Button>
       </div>
-
-      {/* Widget Recommendations Dialog */}
-      <WidgetRecommendations 
-        clientData={clientData}
-        open={recommendationsOpen}
-        onOpenChange={setRecommendationsOpen}
-      />
     </>
   );
 };
