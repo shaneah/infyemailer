@@ -231,7 +231,7 @@ export default function ClientDashboard() {
         {/* Main Content */}
         <div className="flex-1 flex flex-col overflow-hidden">
           {/* Header */}
-          <header className="relative z-20 flex items-center justify-between p-4 bg-white border-b border-gray-200">
+          <header className="relative z-20 flex items-center justify-between p-4 bg-white">
             <div className="flex items-center">
               <Button 
                 variant="ghost" 

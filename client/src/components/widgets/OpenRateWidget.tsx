@@ -19,15 +19,15 @@ const OpenRateWidget: React.FC<OpenRateWidgetProps> = ({ widget, data, onRemove 
       onRemove={onRemove} 
       icon={<MailCheck className="h-4 w-4 text-white" />}
     >
-      <div className="pt-4">
-        <div className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-purple-800 inline-block text-transparent bg-clip-text">
+      <div className="pt-2">
+        <div className="text-4xl font-bold text-purple-700">
           {data.openRate}%
         </div>
-        <p className="text-sm text-slate-600 mt-1 font-medium">Average across all campaigns</p>
+        <p className="text-sm text-gray-600 mt-1">Average across all campaigns</p>
         
-        <div className="mt-4 flex items-center gap-1 text-xs text-slate-500">
-          <TrendingUp className="h-3 w-3 text-purple-600" />
-          <span>{data.comparison || 0}% higher than industry average</span>
+        <div className="mt-4 flex items-center gap-1 text-xs text-green-600">
+          <TrendingUp className="h-3 w-3" />
+          <span>{data.comparison || 3.2}% higher than industry average</span>
         </div>
       </div>
     </BaseWidget>

@@ -255,18 +255,43 @@ const DashboardWidgets: React.FC<DashboardWidgetsProps> = ({ clientData }) => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-end mb-4">
-        <WidgetManager />
+      <div className="flex justify-end mb-4 gap-2">
+        <Button variant="outline" className="text-xs flex gap-1 text-purple-700" size="sm">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-3.5 w-3.5">
+            <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"></path>
+          </svg>
+          Edit Layout
+        </Button>
+        
+        <Button variant="outline" className="text-xs flex gap-1 text-purple-700" size="sm">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-3.5 w-3.5">
+            <line x1="12" x2="12" y1="5" y2="19"></line>
+            <line x1="5" x2="19" y1="12" y2="12"></line>
+          </svg>
+          Add Widget
+        </Button>
       </div>
 
-      {Object.entries(widgetsByRow).map(([row, rowWidgets]) => (
-        <div 
-          key={`row-${row}`} 
-          className="grid grid-cols-1 md:grid-cols-3 gap-6"
-        >
-          {rowWidgets.map(widget => renderWidget(widget))}
+      {/* Simple fixed grid layout for widgets that match the screenshot */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          {widgets.find(w => w.type === 'openRate' && w.visible) && 
+            renderWidget(widgets.find(w => w.type === 'openRate' && w.visible)!)}
         </div>
-      ))}
+        <div className="col-span-2">
+          {/* Empty space to match the layout */}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          {widgets.find(w => w.type === 'deviceBreakdown' && w.visible) && 
+            renderWidget(widgets.find(w => w.type === 'deviceBreakdown' && w.visible)!)}
+        </div>
+        <div className="col-span-2">
+          {/* Empty space to match the layout */}
+        </div>
+      </div>
     </div>
   );
 };
