@@ -21,10 +21,10 @@ const MenuItem = ({ href, icon: Icon, label, active }: {
   return (
     <Link 
       href={href} 
-      className={`group flex items-center px-3 py-2.5 text-sm rounded-md transition-all duration-150 ${
+      className={`group flex items-center px-3 py-2.5 text-sm rounded-sm transition-all duration-150 ${
         active 
-          ? 'bg-purple-800 text-white shadow-sm' 
-          : 'text-blue-100 hover:bg-purple-800/50 hover:translate-x-1'
+          ? 'bg-blue-800 text-white shadow-sm' 
+          : 'text-slate-200 hover:bg-blue-800/40 hover:translate-x-0.5'
       }`}
     >
       <div className="flex items-center justify-center">
@@ -32,8 +32,8 @@ const MenuItem = ({ href, icon: Icon, label, active }: {
           size={18} 
           className={`mr-3 transition-all duration-200 ${
             active 
-              ? 'text-purple-300 scale-110' 
-              : 'text-blue-200 group-hover:text-purple-300 group-hover:scale-110 transform'
+              ? 'text-blue-200 scale-105' 
+              : 'text-slate-300 group-hover:text-blue-200 group-hover:scale-105 transform'
           }`} 
         />
       </div>
@@ -44,7 +44,7 @@ const MenuItem = ({ href, icon: Icon, label, active }: {
       }`}>{label}</span>
       {active && (
         <div className="ml-auto">
-          <div className="w-1.5 h-1.5 rounded-full bg-purple-300 opacity-90 animate-pulse"></div>
+          <div className="w-1.5 h-1.5 rounded-full bg-blue-300 opacity-90 animate-pulse"></div>
         </div>
       )}
     </Link>
@@ -54,11 +54,11 @@ const MenuItem = ({ href, icon: Icon, label, active }: {
 const MenuSection = ({ title, children }: { title: string; children: React.ReactNode }) => {
   return (
     <div className="mb-4">
-      <div className="px-4 py-1 text-xs font-medium uppercase tracking-wider text-purple-300/90 relative group">
-        <span className="transition-all duration-300 group-hover:text-purple-300 group-hover:translate-x-0.5 inline-block">
+      <div className="px-4 py-1 text-xs font-medium uppercase tracking-wider text-blue-300/90 relative group">
+        <span className="transition-all duration-300 group-hover:text-blue-200 group-hover:translate-x-0.5 inline-block">
           {title}
         </span>
-        <div className="h-px w-0 bg-purple-300/50 absolute -bottom-0.5 left-4 transition-all duration-300 group-hover:w-12"></div>
+        <div className="h-px w-0 bg-blue-700 absolute -bottom-0.5 left-4 transition-all duration-300 group-hover:w-12"></div>
       </div>
       <nav className="mt-1 space-y-0.5 px-2">
         {children}
@@ -135,7 +135,7 @@ const ClientSidebar = ({ open, setOpen }: SidebarProps) => {
       {/* Mobile menu button */}
       <button
         onClick={() => setOpen(!open)}
-        className="fixed top-4 left-4 z-50 lg:hidden flex items-center justify-center w-10 h-10 rounded-md bg-purple-700 text-white shadow-md transition-all duration-150 hover:bg-purple-600 hover:shadow-lg active:scale-95"
+        className="fixed top-4 left-4 z-50 lg:hidden flex items-center justify-center w-10 h-10 rounded-sm bg-blue-800 text-white shadow-md transition-all duration-150 hover:bg-blue-700 hover:shadow-lg active:scale-95"
       >
         {open ? (
           <X size={20} className="transition-all duration-200 animate-in fade-in rotate-in" />
@@ -148,24 +148,24 @@ const ClientSidebar = ({ open, setOpen }: SidebarProps) => {
       <aside 
         className={`fixed inset-y-0 left-0 z-40 w-64 transform transition-all duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-auto lg:z-auto ${
           open ? 'translate-x-0 opacity-100 shadow-xl' : '-translate-x-full opacity-95 shadow-md'
-        } h-full bg-gradient-to-b from-purple-900 via-purple-800 to-indigo-900 text-white flex flex-col flex-shrink-0`}
+        } h-full bg-blue-900 text-white flex flex-col flex-shrink-0`}
       >
         {/* App name and client name header */}
-        <div className="flex flex-col items-center justify-center p-4 pt-6 pb-2 bg-gradient-to-r from-purple-800 to-indigo-700">
-          <div className="w-12 h-12 mb-2 flex items-center justify-center bg-white/10 backdrop-blur-sm rounded-full">
+        <div className="flex flex-col items-center justify-center p-4 pt-6 pb-2 bg-blue-950">
+          <div className="w-12 h-12 mb-2 flex items-center justify-center bg-white/10 backdrop-blur-sm rounded-sm">
             <img src={LogoWhite} alt="Logo" className="w-8 h-8 object-contain" />
           </div>
           <div className="text-center">
             <h2 className="font-bold text-xl text-white mb-1">Infinity Tech</h2>
             <div className="flex items-center justify-center space-x-2 mb-1">
-              <Building2 size={14} className="text-purple-200" />
-              <p className="text-sm font-medium text-purple-100">{clientName}</p>
+              <Building2 size={14} className="text-blue-200" />
+              <p className="text-sm font-medium text-blue-100">{clientName}</p>
             </div>
           </div>
         </div>
         
         {/* Navbar divider */}
-        <div className="border-b border-purple-700/50 mb-2"></div>
+        <div className="border-b border-blue-800 mb-2"></div>
         
         {/* Navigation */}
         <div className="flex-1 overflow-y-auto py-4 px-1">

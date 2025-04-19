@@ -72,7 +72,7 @@ const WidgetManager: React.FC<WidgetManagerProps> = ({ clientData = null }) => {
         <Button
           variant="outline"
           size="sm"
-          className="gap-1 text-amber-600 border-amber-200 hover:border-amber-300 hover:bg-amber-50 shadow-sm"
+          className="gap-1 text-amber-600 border-slate-200 hover:border-amber-200 hover:bg-amber-50 shadow-sm"
           onClick={() => setRecommendationsOpen(true)}
         >
           <Lightbulb className="h-4 w-4" />
@@ -82,7 +82,7 @@ const WidgetManager: React.FC<WidgetManagerProps> = ({ clientData = null }) => {
         <Button
           variant="default"
           size="sm"
-          className="gap-1 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-sm"
+          className="gap-1 bg-blue-800 hover:bg-blue-900 text-white shadow-sm"
           onClick={addAIWidgets}
         >
           <Brain className="h-4 w-4" />
@@ -94,24 +94,24 @@ const WidgetManager: React.FC<WidgetManagerProps> = ({ clientData = null }) => {
             <Button
               variant="outline"
               size="sm"
-              className="gap-1 text-purple-600 border-purple-200 hover:border-purple-300 hover:bg-purple-50 shadow-sm"
+              className="gap-1 text-blue-700 border-slate-200 hover:border-blue-200 hover:bg-blue-50 shadow-sm"
             >
               <Plus className="h-4 w-4" />
               <span>Add Widget</span>
             </Button>
           </DialogTrigger>
-          <DialogContent className="border-purple-100">
+          <DialogContent className="border-slate-200">
             <DialogHeader>
-              <DialogTitle className="text-purple-800">Add New Widget</DialogTitle>
+              <DialogTitle className="text-blue-900">Add New Widget</DialogTitle>
               <DialogDescription>
                 Select a widget to add to your dashboard.
               </DialogDescription>
             </DialogHeader>
 
             <div className="py-4">
-              <Label htmlFor="widget-type" className="block mb-2 text-purple-700">Widget Type</Label>
+              <Label htmlFor="widget-type" className="block mb-2 text-blue-800">Widget Type</Label>
               <Select value={selectedWidget} onValueChange={(value) => setSelectedWidget(value as WidgetType)}>
-                <SelectTrigger id="widget-type" className="border-purple-200 focus:ring-purple-500">
+                <SelectTrigger id="widget-type" className="border-slate-200 focus:ring-blue-500">
                   <SelectValue placeholder="Select Widget Type" />
                 </SelectTrigger>
                 <SelectContent>
@@ -132,14 +132,14 @@ const WidgetManager: React.FC<WidgetManagerProps> = ({ clientData = null }) => {
               <Button 
                 variant="outline" 
                 onClick={() => setDialogOpen(false)}
-                className="border-purple-200 text-purple-700 hover:bg-purple-50"
+                className="border-slate-200 text-slate-700 hover:bg-slate-50"
               >
                 Cancel
               </Button>
               <Button 
                 onClick={handleAddWidget} 
                 disabled={!selectedWidget}
-                className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-sm"
+                className="bg-blue-800 hover:bg-blue-900 text-white shadow-sm"
               >
                 Add Widget
               </Button>
@@ -150,7 +150,7 @@ const WidgetManager: React.FC<WidgetManagerProps> = ({ clientData = null }) => {
         <Button
           variant="outline"
           size="sm"
-          className="gap-1 text-purple-600 border-purple-200 hover:border-purple-300 hover:bg-purple-50 shadow-sm"
+          className="gap-1 text-blue-700 border-slate-200 hover:border-blue-200 hover:bg-blue-50 shadow-sm"
           onClick={handleResetLayout}
         >
           <Undo2 className="h-4 w-4" />
@@ -160,7 +160,7 @@ const WidgetManager: React.FC<WidgetManagerProps> = ({ clientData = null }) => {
         <Button
           variant="outline"
           size="sm"
-          className="gap-1 text-purple-600 border-purple-200 hover:border-purple-300 hover:bg-purple-50 shadow-sm"
+          className="gap-1 text-blue-700 border-slate-200 hover:border-blue-200 hover:bg-blue-50 shadow-sm"
           onClick={() => {/* Open layout editor */}}
         >
           <LayoutGrid className="h-4 w-4" />
