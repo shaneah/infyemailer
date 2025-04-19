@@ -3,8 +3,8 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useWidgets, WidgetType, widgetTitles } from '@/hooks/useWidgets';
-import { useWidgetRecommendations, UserPersona } from '@/hooks/useWidgetRecommendations';
-import { BadgeCheck, BarChart2, Brain, Calendar, LineChart, Mail, Sparkles, User, UserCheck, PieChart } from 'lucide-react';
+import { useWidgetRecommendations } from '@/hooks/useWidgetRecommendations';
+import { BadgeCheck, BarChart2, Brain, Calendar, LineChart, Mail, Sparkles, User, UserCheck, PieChart, Zap } from 'lucide-react';
 
 interface WidgetRecommendationsProps {
   clientData: any;
@@ -12,22 +12,15 @@ interface WidgetRecommendationsProps {
   onOpenChange: (open: boolean) => void;
 }
 
-const personaIcons: Record<UserPersona, React.ReactNode> = {
-  'analyst': <BarChart2 className="h-5 w-5 text-blue-600" />,
-  'content-creator': <Sparkles className="h-5 w-5 text-purple-600" />,
-  'planner': <Calendar className="h-5 w-5 text-green-600" />,
-  'marketer': <Mail className="h-5 w-5 text-indigo-600" />,
-  'executive': <PieChart className="h-5 w-5 text-amber-600" />,
-  'undefined': <User className="h-5 w-5 text-gray-600" />
-};
-
-const personaDescriptions: Record<UserPersona, string> = {
-  'analyst': 'You focus on metrics and analyzing campaign performance.',
-  'content-creator': 'Your primary focus is on creating engaging content and understanding audience preferences.',
-  'planner': 'You prioritize organization, scheduling, and campaign planning.',
-  'marketer': 'You have a balanced approach to marketing with focus on performance and audience.',
-  'executive': 'You prefer high-level metrics and overall performance indicators.',
-  'undefined': 'We\'re still learning about your preferences to personalize recommendations.'
+// Icons for widget categories
+const categoryIcons = {
+  'analytics': <BarChart2 className="h-5 w-5 text-blue-600" />,
+  'performance': <LineChart className="h-5 w-5 text-green-600" />,
+  'audience': <User className="h-5 w-5 text-purple-600" />,
+  'planning': <Calendar className="h-5 w-5 text-amber-600" />,
+  'ai': <Brain className="h-5 w-5 text-indigo-600" />,
+  'content': <Mail className="h-5 w-5 text-rose-600" />,
+  'default': <Zap className="h-5 w-5 text-gray-600" />
 };
 
 const widgetIcons: Record<WidgetType, React.ReactNode> = {
@@ -111,19 +104,21 @@ const WidgetRecommendations: React.FC<WidgetRecommendationsProps> = ({
           </DialogDescription>
         </DialogHeader>
         
-        {/* User Persona Section */}
+        {/* Usage Insights Section */}
         <div className="bg-purple-50 border border-purple-100 rounded-lg p-4 mb-4">
           <div className="flex items-center gap-2 mb-1">
-            <UserCheck className="h-5 w-5 text-purple-600" />
-            <h3 className="font-medium text-purple-900">Your Dashboard Persona</h3>
+            <Sparkles className="h-5 w-5 text-purple-600" />
+            <h3 className="font-medium text-purple-900">Smart Widget Suggestions</h3>
           </div>
           <div className="flex items-center gap-3 mb-2">
             <div className="bg-white p-2 rounded-full shadow-sm">
-              {personaIcons[userPersona]}
+              <Zap className="h-5 w-5 text-blue-600" />
             </div>
             <div>
-              <p className="font-medium text-gray-900 capitalize">{userPersona === 'undefined' ? 'Learning...' : userPersona}</p>
-              <p className="text-sm text-gray-600">{personaDescriptions[userPersona]}</p>
+              <p className="font-medium text-gray-900">Personalized Dashboard</p>
+              <p className="text-sm text-gray-600">
+                Recommendations based on your usage patterns and dashboard interactions
+              </p>
             </div>
           </div>
         </div>
