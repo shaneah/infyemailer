@@ -1,5 +1,6 @@
 import React from 'react';
 import { Widget, useWidgets, WidgetType } from '@/hooks/useWidgets';
+import { Button } from "@/components/ui/button";
 import ActiveCampaignsWidget from './ActiveCampaignsWidget';
 import TotalEmailsWidget from './TotalEmailsWidget';
 import OpenRateWidget from './OpenRateWidget';

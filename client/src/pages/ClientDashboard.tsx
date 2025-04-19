@@ -75,13 +75,13 @@ export default function ClientDashboard() {
               clientCompany: currentClientUser.clientCompany,
               stats: {
                 // Extract stats from API data or use defaults
-                activeCampaigns: campaigns.filter(c => c.status?.label === 'Active').length || 3,
-                totalEmails: parseInt(stats.find(s => s.id === 2)?.value?.replace(/,/g, '') || '12500'),
-                openRate: parseFloat(stats.find(s => s.id === 3)?.value?.replace(/%/g, '') || '24.8'),
-                clickRate: parseFloat(stats.find(s => s.id === 4)?.value?.replace(/%/g, '') || '3.6'),
-                contactsCount: parseInt(stats.find(s => s.id === 1)?.value?.replace(/,/g, '') || '4560')
+                activeCampaigns: campaigns.filter((c: any) => c.status?.label === 'Active').length || 3,
+                totalEmails: parseInt(stats.find((s: any) => s.id === 2)?.value?.replace(/,/g, '') || '12500'),
+                openRate: parseFloat(stats.find((s: any) => s.id === 3)?.value?.replace(/%/g, '') || '24.8'),
+                clickRate: parseFloat(stats.find((s: any) => s.id === 4)?.value?.replace(/%/g, '') || '3.6'),
+                contactsCount: parseInt(stats.find((s: any) => s.id === 1)?.value?.replace(/,/g, '') || '4560')
               },
-              recentCampaigns: campaigns.slice(0, 3).map(c => ({
+              recentCampaigns: campaigns.slice(0, 3).map((c: any) => ({
                 id: c.id,
                 name: c.name,
                 date: c.date || "2025-04-01",
