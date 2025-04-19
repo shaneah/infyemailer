@@ -182,57 +182,53 @@ const ClientABTesting = () => {
     
     return (
       <div className="container mx-auto py-6">
-        <Button 
-          variant="outline" 
-          onClick={handleBackClick} 
-          className="mb-6 border-indigo-300 dark:border-indigo-700 hover:bg-indigo-100 dark:hover:bg-indigo-950 text-indigo-700 dark:text-indigo-300"
-        >
+        <Button variant="outline" onClick={handleBackClick} className="mb-6">
           &larr; Back to A/B Tests
         </Button>
         
         {isLoadingDetail ? (
           <div className="flex items-center justify-center py-10">
-            <Loader2 className="h-8 w-8 animate-spin text-indigo-600 mr-2" />
-            <span className="text-indigo-700 dark:text-indigo-300">Loading campaign details...</span>
+            <Loader2 className="h-8 w-8 animate-spin text-primary mr-2" />
+            <span>Loading campaign details...</span>
           </div>
         ) : detailError ? (
-          <Alert variant="destructive" className="mb-6 border-indigo-300 bg-indigo-50 dark:bg-indigo-950/50 dark:border-indigo-800">
-            <AlertTitle className="text-indigo-800 dark:text-indigo-300">Error</AlertTitle>
-            <AlertDescription className="text-indigo-700 dark:text-indigo-400">Failed to load campaign details</AlertDescription>
+          <Alert variant="destructive" className="mb-6">
+            <AlertTitle>Error</AlertTitle>
+            <AlertDescription>Failed to load campaign details</AlertDescription>
           </Alert>
         ) : campaign ? (
           <>
             <div className="flex justify-between items-start mb-6">
               <div>
-                <h1 className="text-3xl font-bold text-indigo-800 dark:text-indigo-300">{campaign.name}</h1>
-                <p className="text-indigo-600 dark:text-indigo-400">{campaign.metadata?.subtitle || 'A/B Test Campaign'}</p>
+                <h1 className="text-3xl font-bold">{campaign.name}</h1>
+                <p className="text-gray-500">{campaign.metadata?.subtitle || 'A/B Test Campaign'}</p>
               </div>
               <Badge variant={
-                campaign.status === 'active' ? 'default' : 
+                campaign.status === 'active' ? 'success' : 
                 campaign.status === 'draft' ? 'outline' : 'secondary'
-              } className={campaign.status === 'active' ? 'bg-indigo-600 hover:bg-indigo-700' : ''}>
+              }>
                 {campaign.status.charAt(0).toUpperCase() + campaign.status.slice(1)}
               </Badge>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-              <Card className="border-indigo-200 dark:border-indigo-800 bg-white dark:bg-gray-900 shadow-md">
-                <CardHeader className="bg-indigo-50 dark:bg-indigo-950/50">
-                  <CardTitle className="text-indigo-800 dark:text-indigo-300">Campaign Information</CardTitle>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Campaign Information</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
                     <div className="grid grid-cols-3 gap-4">
-                      <span className="text-indigo-500 dark:text-indigo-400">Subject:</span>
-                      <span className="col-span-2 font-medium text-gray-800 dark:text-gray-200">{campaign.subject}</span>
+                      <span className="text-gray-500">Subject:</span>
+                      <span className="col-span-2 font-medium">{campaign.subject}</span>
                     </div>
                     <div className="grid grid-cols-3 gap-4">
-                      <span className="text-indigo-500 dark:text-indigo-400">Status:</span>
-                      <span className="col-span-2 text-gray-800 dark:text-gray-200">{campaign.status}</span>
+                      <span className="text-gray-500">Status:</span>
+                      <span className="col-span-2">{campaign.status}</span>
                     </div>
                     <div className="grid grid-cols-3 gap-4">
-                      <span className="text-indigo-500 dark:text-indigo-400">Winning Variant:</span>
-                      <span className="col-span-2 font-medium text-gray-800 dark:text-gray-200">
+                      <span className="text-gray-500">Winning Variant:</span>
+                      <span className="col-span-2 font-medium">
                         {campaign.winningVariantId ? (
                           variants.find(v => v.id === campaign.winningVariantId)?.name || `Variant ${campaign.winningVariantId}`
                         ) : (
@@ -244,27 +240,24 @@ const ClientABTesting = () => {
                 </CardContent>
               </Card>
               
-              <Card className="border-indigo-200 dark:border-indigo-800 bg-white dark:bg-gray-900 shadow-md">
-                <CardHeader className="bg-indigo-50 dark:bg-indigo-950/50">
-                  <CardTitle className="text-indigo-800 dark:text-indigo-300">Variants Overview</CardTitle>
-                  <CardDescription className="text-indigo-600 dark:text-indigo-400">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Variants Overview</CardTitle>
+                  <CardDescription>
                     {variants.length} variant{variants.length !== 1 ? 's' : ''} in this test
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {variants.map((variant) => (
-                    <div key={variant.id} className="border border-indigo-200 dark:border-indigo-800 rounded-md p-3 bg-white dark:bg-gray-900">
+                    <div key={variant.id} className="border rounded-md p-3">
                       <div className="flex justify-between items-center mb-2">
-                        <div className="font-medium text-indigo-700 dark:text-indigo-300">{variant.name}</div>
-                        <Badge 
-                          variant={campaign.winningVariantId === variant.id ? 'default' : 'outline'}
-                          className={campaign.winningVariantId === variant.id ? 'bg-indigo-600 hover:bg-indigo-700' : 'border-indigo-300 dark:border-indigo-700'}
-                        >
+                        <div className="font-medium">{variant.name}</div>
+                        <Badge variant={campaign.winningVariantId === variant.id ? 'success' : 'outline'}>
                           {campaign.winningVariantId === variant.id ? 'Winner' : `Weight: ${variant.weight}%`}
                         </Badge>
                       </div>
-                      <div className="text-sm text-indigo-500 dark:text-indigo-400">
-                        Subject: <span className="text-gray-800 dark:text-gray-200">{variant.subject}</span>
+                      <div className="text-sm text-gray-500">
+                        Subject: {variant.subject}
                       </div>
                     </div>
                   ))}
@@ -272,16 +265,16 @@ const ClientABTesting = () => {
               </Card>
             </div>
             
-            <h2 className="text-2xl font-bold mb-4 text-indigo-800 dark:text-indigo-300">Performance Comparison</h2>
+            <h2 className="text-2xl font-bold mb-4">Performance Comparison</h2>
             {isLoadingAnalytics ? (
               <div className="flex items-center justify-center py-10">
-                <Loader2 className="h-8 w-8 animate-spin text-indigo-600 mr-2" />
-                <span className="text-indigo-700 dark:text-indigo-300">Loading analytics data...</span>
+                <Loader2 className="h-8 w-8 animate-spin text-primary mr-2" />
+                <span>Loading analytics data...</span>
               </div>
             ) : analyticsError ? (
-              <Alert variant="destructive" className="mb-6 border-indigo-300 bg-indigo-50 dark:bg-indigo-950/50 dark:border-indigo-800">
-                <AlertTitle className="text-indigo-800 dark:text-indigo-300">Error</AlertTitle>
-                <AlertDescription className="text-indigo-700 dark:text-indigo-400">Failed to load analytics data</AlertDescription>
+              <Alert variant="destructive" className="mb-6">
+                <AlertTitle>Error</AlertTitle>
+                <AlertDescription>Failed to load analytics data</AlertDescription>
               </Alert>
             ) : campaignAnalytics ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
@@ -292,58 +285,47 @@ const ClientABTesting = () => {
                   const totalClicks = analytics.reduce((acc, curr) => acc + curr.clicks, 0);
                   
                   return (
-                    <Card 
-                      key={variant.id} 
-                      className={`border-indigo-200 dark:border-indigo-800 bg-white dark:bg-gray-900 shadow-md ${
-                        campaign.winningVariantId === variant.id ? 'border-indigo-500 dark:border-indigo-400' : ''
-                      }`}
-                    >
-                      <CardHeader className={`${
-                        campaign.winningVariantId === variant.id ? 'bg-indigo-100 dark:bg-indigo-900/50' : 'bg-indigo-50 dark:bg-indigo-950/50'
-                      }`}>
+                    <Card key={variant.id} className={campaign.winningVariantId === variant.id ? 'border-primary' : ''}>
+                      <CardHeader className={campaign.winningVariantId === variant.id ? 'bg-primary/5' : ''}>
                         <div className="flex justify-between items-center">
-                          <CardTitle className="text-indigo-800 dark:text-indigo-300">{variant.name}</CardTitle>
+                          <CardTitle>{variant.name}</CardTitle>
                           {campaign.winningVariantId === variant.id && (
-                            <Badge className="bg-indigo-600 hover:bg-indigo-700">Winner</Badge>
+                            <Badge variant="success">Winner</Badge>
                           )}
                         </div>
-                        <CardDescription className="text-indigo-600 dark:text-indigo-400">
+                        <CardDescription>
                           Subject: {variant.subject}
                         </CardDescription>
                       </CardHeader>
                       <CardContent className="space-y-4">
                         <div className="space-y-2">
                           <div className="flex justify-between items-center">
-                            <span className="text-sm text-indigo-500 dark:text-indigo-400">Recipients</span>
-                            <span className="font-medium text-gray-800 dark:text-gray-200">{totalRecipients.toLocaleString()}</span>
+                            <span className="text-sm text-gray-500">Recipients</span>
+                            <span className="font-medium">{totalRecipients.toLocaleString()}</span>
                           </div>
                           <div className="flex justify-between items-center">
-                            <span className="text-sm text-indigo-500 dark:text-indigo-400">Open Rate</span>
-                            <span className="font-medium text-gray-800 dark:text-gray-200">{metrics.openRate.toFixed(1)}%</span>
+                            <span className="text-sm text-gray-500">Open Rate</span>
+                            <span className="font-medium">{metrics.openRate.toFixed(1)}%</span>
                           </div>
-                          <Progress value={metrics.openRate} className="h-2 bg-indigo-100 dark:bg-indigo-950">
-                            <div className="h-full bg-indigo-600 dark:bg-indigo-500" style={{ width: `${metrics.openRate}%` }} />
-                          </Progress>
+                          <Progress value={metrics.openRate} className="h-2" />
                         </div>
                         
                         <div className="space-y-2">
                           <div className="flex justify-between items-center">
-                            <span className="text-sm text-indigo-500 dark:text-indigo-400">Click Rate</span>
-                            <span className="font-medium text-gray-800 dark:text-gray-200">{metrics.clickRate.toFixed(1)}%</span>
+                            <span className="text-sm text-gray-500">Click Rate</span>
+                            <span className="font-medium">{metrics.clickRate.toFixed(1)}%</span>
                           </div>
-                          <Progress value={metrics.clickRate} className="h-2 bg-indigo-100 dark:bg-indigo-950">
-                            <div className="h-full bg-indigo-600 dark:bg-indigo-500" style={{ width: `${metrics.clickRate}%` }} />
-                          </Progress>
+                          <Progress value={metrics.clickRate} className="h-2" />
                         </div>
                         
                         <div className="grid grid-cols-2 gap-4">
                           <div>
-                            <span className="text-sm text-indigo-500 dark:text-indigo-400 block">Opens</span>
-                            <span className="font-medium text-lg text-gray-800 dark:text-gray-200">{totalOpens.toLocaleString()}</span>
+                            <span className="text-sm text-gray-500 block">Opens</span>
+                            <span className="font-medium text-lg">{totalOpens.toLocaleString()}</span>
                           </div>
                           <div>
-                            <span className="text-sm text-indigo-500 dark:text-indigo-400 block">Clicks</span>
-                            <span className="font-medium text-lg text-gray-800 dark:text-gray-200">{totalClicks.toLocaleString()}</span>
+                            <span className="text-sm text-gray-500 block">Clicks</span>
+                            <span className="font-medium text-lg">{totalClicks.toLocaleString()}</span>
                           </div>
                         </div>
                       </CardContent>
@@ -352,49 +334,42 @@ const ClientABTesting = () => {
                 })}
               </div>
             ) : (
-              <Card className="text-center py-6 border-indigo-200 dark:border-indigo-800 bg-white dark:bg-gray-900 shadow-md">
+              <Card className="text-center py-6">
                 <CardContent>
-                  <p className="text-indigo-700 dark:text-indigo-300">No analytics data available for this campaign yet.</p>
+                  <p>No analytics data available for this campaign yet.</p>
                 </CardContent>
               </Card>
             )}
             
-            <h2 className="text-2xl font-bold mb-4 text-indigo-800 dark:text-indigo-300">Variant Details</h2>
+            <h2 className="text-2xl font-bold mb-4">Variant Details</h2>
             <div className="space-y-6">
               {variants.map((variant) => (
-                <Card 
-                  key={variant.id} 
-                  className={`border-indigo-200 dark:border-indigo-800 bg-white dark:bg-gray-900 shadow-md ${
-                    campaign.winningVariantId === variant.id ? 'border-indigo-500 dark:border-indigo-400' : ''
-                  }`}
-                >
-                  <CardHeader className={`${
-                    campaign.winningVariantId === variant.id ? 'bg-indigo-100 dark:bg-indigo-900/50' : 'bg-indigo-50 dark:bg-indigo-950/50'
-                  }`}>
+                <Card key={variant.id}>
+                  <CardHeader>
                     <div className="flex justify-between items-start">
                       <div>
-                        <CardTitle className="text-indigo-800 dark:text-indigo-300">{variant.name}</CardTitle>
-                        <CardDescription className="text-indigo-600 dark:text-indigo-400">Weight: {variant.weight}%</CardDescription>
+                        <CardTitle>{variant.name}</CardTitle>
+                        <CardDescription>Weight: {variant.weight}%</CardDescription>
                       </div>
                       {campaign.winningVariantId === variant.id && (
-                        <Badge className="bg-indigo-600 hover:bg-indigo-700">Winner</Badge>
+                        <Badge variant="success">Winner</Badge>
                       )}
                     </div>
                   </CardHeader>
-                  <CardContent className="bg-white dark:bg-gray-900">
+                  <CardContent>
                     <div className="space-y-4">
                       <div>
-                        <h4 className="text-sm font-medium mb-1 text-indigo-700 dark:text-indigo-300">Subject</h4>
-                        <p className="border border-indigo-200 dark:border-indigo-800 p-2 rounded-md text-gray-800 dark:text-gray-200 bg-white dark:bg-gray-900">{variant.subject}</p>
+                        <h4 className="text-sm font-medium mb-1">Subject</h4>
+                        <p className="border p-2 rounded-md">{variant.subject}</p>
                       </div>
                       <div>
-                        <h4 className="text-sm font-medium mb-1 text-indigo-700 dark:text-indigo-300">Preview Text</h4>
-                        <p className="border border-indigo-200 dark:border-indigo-800 p-2 rounded-md text-gray-800 dark:text-gray-200 bg-white dark:bg-gray-900">{variant.previewText || 'No preview text'}</p>
+                        <h4 className="text-sm font-medium mb-1">Preview Text</h4>
+                        <p className="border p-2 rounded-md">{variant.previewText || 'No preview text'}</p>
                       </div>
                       <div>
-                        <h4 className="text-sm font-medium mb-1 text-indigo-700 dark:text-indigo-300">Content Preview</h4>
+                        <h4 className="text-sm font-medium mb-1">Content Preview</h4>
                         <div 
-                          className="border border-indigo-200 dark:border-indigo-800 p-3 rounded-md max-h-[150px] overflow-auto bg-white dark:bg-gray-900"
+                          className="border p-3 rounded-md max-h-[150px] overflow-auto bg-gray-50"
                           dangerouslySetInnerHTML={{ __html: variant.content }}
                         />
                       </div>
@@ -413,78 +388,64 @@ const ClientABTesting = () => {
   
   // Overview/list view
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50">
-      {/* Header with blue gradient styling to match other client pages */}
-      <div className="w-full bg-gradient-to-r from-blue-500 to-blue-700">
-        <div className="max-w-[1600px] mx-auto px-6 py-6">
-          <div className="flex items-center gap-3">
-            <div className="bg-white/20 p-2 rounded-lg">
-              <svg className="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
-                <circle cx="9" cy="7" r="4"></circle>
-                <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
-                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-              </svg>
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold text-white">A/B Testing</h1>
-              <p className="text-blue-100 text-sm">View and analyze your A/B test campaigns</p>
-            </div>
-          </div>
+    <div className="container mx-auto py-6">
+      <div className="flex justify-between items-center mb-6">
+        <div>
+          <h1 className="text-3xl font-bold">A/B Testing</h1>
+          <p className="text-gray-500">View and manage your A/B test campaigns</p>
         </div>
       </div>
-      
-      <div className="container mx-auto py-6 px-6 pt-6">
 
       {isLoadingCampaigns ? (
         <div className="flex items-center justify-center py-10">
-          <Loader2 className="h-8 w-8 animate-spin text-indigo-600 mr-2" />
-          <span className="text-indigo-700 dark:text-indigo-300">Loading campaigns...</span>
+          <Loader2 className="h-8 w-8 animate-spin text-primary mr-2" />
+          <span>Loading campaigns...</span>
         </div>
       ) : campaignsError ? (
-        <Alert variant="destructive" className="mb-6 border-indigo-300 bg-indigo-50 dark:bg-indigo-950 dark:border-indigo-800">
-          <AlertTitle className="text-indigo-800 dark:text-indigo-300">Error</AlertTitle>
-          <AlertDescription className="text-indigo-700 dark:text-indigo-400">Failed to load A/B test campaigns</AlertDescription>
+        <Alert variant="destructive" className="mb-6">
+          <AlertTitle>Error</AlertTitle>
+          <AlertDescription>Failed to load A/B test campaigns</AlertDescription>
         </Alert>
       ) : campaigns.length === 0 ? (
-        <Card className="text-center py-10 border-indigo-200 dark:border-indigo-800 bg-white dark:bg-gray-900 shadow-md">
+        <Card className="text-center py-10">
           <CardContent>
-            <p className="mb-4 text-indigo-700 dark:text-indigo-300">No A/B test campaigns found</p>
+            <p className="mb-4">No A/B test campaigns found</p>
           </CardContent>
         </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {campaigns.map((campaign) => (
-            <Card key={campaign.id} className="overflow-hidden border-indigo-200 dark:border-indigo-800 bg-white dark:bg-gray-900 shadow-md hover:shadow-lg transition-shadow duration-200">
-              <CardHeader className="pb-2 bg-indigo-50 dark:bg-indigo-950/50">
+            <Card key={campaign.id} className="overflow-hidden">
+              <CardHeader className="pb-2">
                 <div className="flex justify-between items-start">
                   <div>
-                    <CardTitle className="text-indigo-800 dark:text-indigo-300">{campaign.name}</CardTitle>
-                    <CardDescription className="text-indigo-600 dark:text-indigo-400">{campaign.metadata?.subtitle || ''}</CardDescription>
+                    <CardTitle>{campaign.name}</CardTitle>
+                    <CardDescription>{campaign.metadata?.subtitle || ''}</CardDescription>
                   </div>
                   <Badge variant={
-                    campaign.status === 'active' ? 'default' : 
+                    campaign.status === 'active' ? 'success' : 
                     campaign.status === 'draft' ? 'outline' : 'secondary'
-                  } className={campaign.status === 'active' ? 'bg-indigo-600 hover:bg-indigo-700' : ''}>
+                  }>
                     {campaign.status.charAt(0).toUpperCase() + campaign.status.slice(1)}
                   </Badge>
                 </div>
               </CardHeader>
-              <CardContent className="bg-white dark:bg-gray-900">
+              <CardContent>
                 <div className="space-y-2 mb-4">
                   <div className="flex justify-between text-sm">
-                    <span className="text-indigo-500 dark:text-indigo-400">Subject:</span>
-                    <span className="font-medium truncate max-w-[200px] text-gray-800 dark:text-gray-200">{campaign.subject}</span>
+                    <span className="text-gray-500">Subject:</span>
+                    <span className="font-medium truncate max-w-[200px]">{campaign.subject}</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-indigo-500 dark:text-indigo-400">Winning Variant:</span>
-                    <span className="text-gray-800 dark:text-gray-200">{campaign.winningVariantId ? `Variant ${campaign.winningVariantId}` : 'Not set'}</span>
+                    <span className="text-gray-500">Winning Variant:</span>
+                    <span>{campaign.winningVariantId ? `Variant ${campaign.winningVariantId}` : 'Not set'}</span>
                   </div>
                 </div>
               </CardContent>
-              <CardFooter className="pt-0 bg-white dark:bg-gray-900">
+              <CardFooter className="pt-0">
                 <Button 
-                  className="w-full bg-indigo-600 hover:bg-indigo-700 text-white"
+                  variant="outline" 
+                  className="w-full"
                   onClick={() => {
                     setLocation(`/client-ab-testing/${campaign.id}`);
                   }}
@@ -496,7 +457,6 @@ const ClientABTesting = () => {
           ))}
         </div>
       )}
-      </div>
     </div>
   );
 };

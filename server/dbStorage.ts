@@ -13,27 +13,6 @@ export class DbStorage implements IStorage {
     log('Database storage initialized', 'db-storage');
   }
   
-  // Dashboard statistics methods
-  async getContactsCount(): Promise<number> {
-    try {
-      const result = await db.select({ count: count() }).from(schema.contacts);
-      return result[0]?.count || 0;
-    } catch (error) {
-      console.error("Error getting contacts count:", error);
-      return 0;
-    }
-  }
-
-  async getCampaignsCount(): Promise<number> {
-    try {
-      const result = await db.select({ count: count() }).from(schema.campaigns);
-      return result[0]?.count || 0;
-    } catch (error) {
-      console.error("Error getting campaigns count:", error);
-      return 0;
-    }
-  }
-  
   // Data migration - initializes database with data from file storage
   async initializeWithSampleData(): Promise<boolean> {
     log('Data migration function called - using sync-db.ts instead', 'db-migration');

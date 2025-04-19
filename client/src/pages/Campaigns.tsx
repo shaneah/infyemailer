@@ -28,39 +28,38 @@ export default function Campaigns() {
 
   return (
     <div className="space-y-6 px-4 py-6 max-w-[1600px] mx-auto">
-      {/* Header with modern blue gradient design */}
-      <header className="relative z-20 -mt-6 -mx-4 mb-6 px-4 py-4 bg-gradient-to-r from-blue-900 to-blue-800 text-white shadow-md">
-        <div className="max-w-[1600px] mx-auto">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <div className="flex flex-col">
-                <h1 className="text-2xl font-bold tracking-tight text-white">Email Campaigns</h1>
-                <p className="text-sm text-blue-100 mt-0.5">Create, manage, and analyze your email campaigns</p>
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-3">
-              <div className="hidden sm:flex">
-                <Button variant="outline" size="sm" className="mr-2 border-blue-700 bg-blue-800/50 text-blue-50 hover:bg-blue-800 hover:text-white">
-                  <Filter className="h-4 w-4 mr-2" />
-                  Filter
-                </Button>
-                <Button variant="outline" size="sm" className="mr-4 border-blue-700 bg-blue-800/50 text-blue-50 hover:bg-blue-800 hover:text-white">
-                  <Download className="h-4 w-4 mr-2" />
-                  Export
-                </Button>
-              </div>
-              <Button 
-                className="bg-blue-700 hover:bg-blue-600 text-white whitespace-nowrap text-sm border border-blue-600"
-                onClick={() => setShowNewCampaignModal(true)}
-              >
-                <PlusCircle className="h-4 w-4 mr-1 sm:mr-2 flex-shrink-0" />
-                <span className="whitespace-nowrap">New Campaign</span>
+      {/* Header section with gradient background */}
+      <div className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 rounded-xl p-4 sm:p-6 shadow-sm border border-blue-100">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
+              Email Campaigns
+            </h1>
+            <p className="text-slate-600 mt-1 text-sm sm:text-base">
+              Create, manage, and analyze your email marketing campaigns
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="hidden sm:flex">
+              <Button variant="outline" size="sm" className="mr-2 border-blue-200">
+                <Filter className="h-4 w-4 mr-2" />
+                Filter
+              </Button>
+              <Button variant="outline" size="sm" className="mr-4 border-blue-200">
+                <Download className="h-4 w-4 mr-2" />
+                Export
               </Button>
             </div>
+            <Button 
+              className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 whitespace-nowrap text-sm"
+              onClick={() => setShowNewCampaignModal(true)}
+            >
+              <PlusCircle className="h-4 w-4 mr-1 sm:mr-2 flex-shrink-0" />
+              <span className="whitespace-nowrap">New Campaign</span>
+            </Button>
           </div>
         </div>
-      </header>
+      </div>
 
       {/* Stats cards with modern styling */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

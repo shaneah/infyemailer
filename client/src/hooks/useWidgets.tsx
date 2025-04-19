@@ -1,6 +1,6 @@
 import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
 
-// Widget types - AI-related widgets removed
+// Widget types
 export type WidgetType = 
   | 'activeCampaigns' 
   | 'totalEmails' 
@@ -13,13 +13,12 @@ export type WidgetType =
   | 'calendar'
   | 'tasks'
   | 'notes'
+  | 'aiInsights'
   | 'optimalSendTime'
   | 'upcomingCampaigns'
   | 'audienceGrowth'
   | 'realtimeMetrics'
-  | 'emailHealthScore'
-  | 'campaignROI'
-  | 'engagementHeatmap';
+  | 'emailHealthScore';
 
 export interface Widget {
   id: string;
@@ -32,7 +31,7 @@ export interface Widget {
   config?: any;
 }
 
-// Sizes for different widget types - AI-related widgets removed
+// Sizes for different widget types
 export const widgetSizes: Record<WidgetType, 'small' | 'medium' | 'large'> = {
   activeCampaigns: 'small',
   totalEmails: 'small',
@@ -45,16 +44,15 @@ export const widgetSizes: Record<WidgetType, 'small' | 'medium' | 'large'> = {
   calendar: 'medium',
   tasks: 'medium',
   notes: 'medium',
+  aiInsights: 'large',
   optimalSendTime: 'medium',
   upcomingCampaigns: 'medium',
   audienceGrowth: 'medium',
   realtimeMetrics: 'large',
-  emailHealthScore: 'large',
-  campaignROI: 'large',
-  engagementHeatmap: 'large'
+  emailHealthScore: 'large'
 };
 
-// Widget titles - AI-related widgets removed
+// Widget titles
 export const widgetTitles: Record<WidgetType, string> = {
   activeCampaigns: 'Active Campaigns',
   totalEmails: 'Total Emails',
@@ -67,13 +65,12 @@ export const widgetTitles: Record<WidgetType, string> = {
   calendar: 'Campaign Calendar',
   tasks: 'Tasks',
   notes: 'Notes',
+  aiInsights: 'AI-Powered Insights',
   optimalSendTime: 'Optimal Send Times',
   upcomingCampaigns: 'Upcoming Campaigns & Tasks',
   audienceGrowth: 'Audience Growth',
   realtimeMetrics: 'Real-Time Engagement Metrics',
-  emailHealthScore: 'Email Health Score',
-  campaignROI: 'Campaign ROI Tracker',
-  engagementHeatmap: 'Engagement Heatmap'
+  emailHealthScore: 'Email Health Score'
 };
 
 // Default widgets configuration
@@ -81,12 +78,17 @@ export const defaultWidgets: Widget[] = [
   { id: '1', type: 'activeCampaigns', title: 'Active Campaigns', col: 0, row: 0, size: 'small', visible: true },
   { id: '2', type: 'totalEmails', title: 'Total Emails', col: 1, row: 0, size: 'small', visible: true },
   { id: '3', type: 'openRate', title: 'Open Rate', col: 2, row: 0, size: 'small', visible: true },
-  { id: '4', type: 'emailPerformance', title: 'Email Performance', col: 0, row: 1, size: 'large', visible: true },
-  { id: '5', type: 'deviceBreakdown', title: 'Device Breakdown', col: 2, row: 1, size: 'medium', visible: true },
-  { id: '6', type: 'recentCampaigns', title: 'Recent Campaigns', col: 0, row: 2, size: 'large', visible: true }
+  { id: '4', type: 'realtimeMetrics', title: 'Real-Time Engagement Metrics', col: 0, row: 1, size: 'large', visible: true },
+  { id: '5', type: 'audienceGrowth', title: 'Audience Growth', col: 2, row: 1, size: 'medium', visible: true },
+  { id: '6', type: 'emailHealthScore', title: 'Email Health Score', col: 0, row: 2, size: 'large', visible: true },
+  { id: '7', type: 'optimalSendTime', title: 'Optimal Send Times', col: 2, row: 2, size: 'medium', visible: true },
+  { id: '8', type: 'upcomingCampaigns', title: 'Upcoming Campaigns & Tasks', col: 0, row: 3, size: 'medium', visible: true },
+  { id: '9', type: 'aiInsights', title: 'AI-Powered Insights', col: 1, row: 3, size: 'large', visible: true },
+  { id: '10', type: 'emailPerformance', title: 'Email Performance', col: 0, row: 4, size: 'large', visible: true },
+  { id: '11', type: 'deviceBreakdown', title: 'Device Breakdown', col: 2, row: 4, size: 'medium', visible: true }
 ];
 
-// Available widgets for the add widget modal - expanded with all non-AI widgets
+// Available widgets for the add widget modal
 export const availableWidgets: WidgetType[] = [
   'activeCampaigns',
   'totalEmails',
@@ -99,13 +101,12 @@ export const availableWidgets: WidgetType[] = [
   'calendar',
   'tasks',
   'notes',
+  'aiInsights',
+  'optimalSendTime',
   'upcomingCampaigns',
   'audienceGrowth',
   'realtimeMetrics',
-  'emailHealthScore',
-  'campaignROI',
-  'engagementHeatmap',
-  'optimalSendTime'
+  'emailHealthScore'
 ];
 
 // Context type
@@ -126,20 +127,12 @@ const WidgetsContext = createContext<WidgetsContextType | undefined>(undefined);
 export const WidgetsProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [widgets, setWidgets] = useState<Widget[]>([]);
 
-  // Load widgets from localStorage on mount and filter out AI-related widgets
+  // Load widgets from localStorage on mount
   useEffect(() => {
     const savedWidgets = localStorage.getItem('dashboard-widgets');
     if (savedWidgets) {
       try {
-        // Parse saved widgets and filter out any AI-related ones
-        const parsedWidgets = JSON.parse(savedWidgets);
-        const filteredWidgets = parsedWidgets.filter((w: Widget) => 
-          !w.type.toLowerCase().includes('ai') && 
-          !w.type.includes('smart') &&
-          !w.type.includes('userJourney') &&
-          !w.type.includes('campaignPerformanceAnalyzer')
-        );
-        setWidgets(filteredWidgets);
+        setWidgets(JSON.parse(savedWidgets));
       } catch (error) {
         console.error('Error loading widgets from localStorage:', error);
         setWidgets(defaultWidgets);
@@ -184,37 +177,15 @@ export const WidgetsProvider: React.FC<{ children: ReactNode }> = ({ children })
     setWidgets(widgets.filter(widget => widget.id !== id));
   };
 
-  // Move a widget with swapping functionality
-  const moveWidget = (id: string, targetCol: number, targetRow: number) => {
-    // Find the widget we want to move
-    const movingWidget = widgets.find(w => w.id === id);
-    if (!movingWidget) return;
-    
-    // Find any widget that's already in the target position
-    const targetWidget = widgets.find(w => 
-      w.visible && w.row === targetRow && w.col === targetCol && w.id !== id
-    );
-    
-    // Update widget positions
-    setWidgets(widgets.map(widget => {
-      // Update the moving widget to its new position
-      if (widget.id === id) {
-        return { ...widget, col: targetCol, row: targetRow };
-      }
-      
-      // If there's a widget in the target position, swap it to the moving widget's old position
-      if (targetWidget && widget.id === targetWidget.id) {
-        return { ...widget, col: movingWidget.col, row: movingWidget.row };
-      }
-      
-      // Leave other widgets unchanged
-      return widget;
-    }));
+  // Move a widget
+  const moveWidget = (id: string, col: number, row: number) => {
+    setWidgets(widgets.map(widget => 
+      widget.id === id ? { ...widget, col, row } : widget
+    ));
   };
 
   // Reset to default widgets
   const resetToDefault = () => {
-    localStorage.removeItem('dashboard-widgets');
     setWidgets(defaultWidgets);
   };
 

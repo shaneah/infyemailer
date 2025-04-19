@@ -227,69 +227,68 @@ const ClientCampaigns = ({ onCreateCampaign }: { onCreateCampaign: () => void })
   };
   
   return (
-    <div className="p-0">
-      {/* Header with modern blue gradient design */}
-      <header className="relative z-20 px-4 py-4 bg-gradient-to-r from-blue-900 to-blue-800 text-white shadow-md mb-6">
-        <div className="max-w-[1600px] mx-auto">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <div className="flex flex-col">
-                <h1 className="text-2xl font-bold tracking-tight text-white">Email Campaigns</h1>
-                <p className="text-sm text-blue-100 mt-0.5">Manage and monitor your email marketing campaigns</p>
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-3">
-              <div className="bg-blue-800/50 p-1 rounded-lg flex border border-blue-700/50">
-                <button
-                  onClick={() => setActiveView('grid')}
-                  className={`px-3 py-1.5 rounded-md flex items-center gap-1.5 text-sm font-medium transition-all ${
-                    activeView === 'grid' 
-                      ? 'bg-blue-700 text-white shadow-sm' 
-                      : 'text-blue-100 hover:text-white'
-                  }`}
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="3" y="3" width="7" height="7"></rect>
-                    <rect x="14" y="3" width="7" height="7"></rect>
-                    <rect x="14" y="14" width="7" height="7"></rect>
-                    <rect x="3" y="14" width="7" height="7"></rect>
-                  </svg>
-                  <span className="hidden sm:inline">Grid</span>
-                </button>
-                <button
-                  onClick={() => setActiveView('list')}
-                  className={`px-3 py-1.5 rounded-md flex items-center gap-1.5 text-sm font-medium transition-all ${
-                    activeView === 'list' 
-                      ? 'bg-blue-700 text-white shadow-sm' 
-                      : 'text-blue-100 hover:text-white'
-                  }`}
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <line x1="8" y1="6" x2="21" y2="6"></line>
-                    <line x1="8" y1="12" x2="21" y2="12"></line>
-                    <line x1="8" y1="18" x2="21" y2="18"></line>
-                    <line x1="3" y1="6" x2="3.01" y2="6"></line>
-                    <line x1="3" y1="12" x2="3.01" y2="12"></line>
-                    <line x1="3" y1="18" x2="3.01" y2="18"></line>
-                  </svg>
-                  <span className="hidden sm:inline">List</span>
-                </button>
-              </div>
-              
-              <button 
-                onClick={onCreateCampaign}
-                className="bg-blue-700 hover:bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-all shadow-sm hover:shadow-md border border-blue-600"
-              >
-                <span>Create Campaign</span>
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
-              </button>
-            </div>
+    <div className="p-8">
+      {/* Header with enhanced styling */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+        <div className="flex items-center gap-3">
+          <div className="bg-gradient-to-br from-purple-500 to-indigo-600 p-3 rounded-xl shadow-lg shadow-indigo-200">
+            <Mail className="h-6 w-6 text-white" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-indigo-700 to-purple-700 bg-clip-text text-transparent">
+              Email Campaigns
+            </h1>
+            <p className="text-gray-500 text-sm">Manage and monitor your email marketing campaigns</p>
           </div>
         </div>
-      </header>
-      
-      <div className="px-8 pb-8">
+        
+        <div className="flex items-center gap-3">
+          <div className="bg-gray-100 p-1 rounded-lg flex">
+            <button
+              onClick={() => setActiveView('grid')}
+              className={`px-3 py-1.5 rounded-md flex items-center gap-1.5 text-sm font-medium transition-all ${
+                activeView === 'grid' 
+                  ? 'bg-white text-indigo-600 shadow-sm' 
+                  : 'text-gray-500 hover:text-gray-800'
+              }`}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="3" width="7" height="7"></rect>
+                <rect x="14" y="3" width="7" height="7"></rect>
+                <rect x="14" y="14" width="7" height="7"></rect>
+                <rect x="3" y="14" width="7" height="7"></rect>
+              </svg>
+              <span className="hidden sm:inline">Grid</span>
+            </button>
+            <button
+              onClick={() => setActiveView('list')}
+              className={`px-3 py-1.5 rounded-md flex items-center gap-1.5 text-sm font-medium transition-all ${
+                activeView === 'list' 
+                  ? 'bg-white text-indigo-600 shadow-sm' 
+                  : 'text-gray-500 hover:text-gray-800'
+              }`}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="8" y1="6" x2="21" y2="6"></line>
+                <line x1="8" y1="12" x2="21" y2="12"></line>
+                <line x1="8" y1="18" x2="21" y2="18"></line>
+                <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                <line x1="3" y1="18" x2="3.01" y2="18"></line>
+              </svg>
+              <span className="hidden sm:inline">List</span>
+            </button>
+          </div>
+          
+          <button 
+            onClick={onCreateCampaign}
+            className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:from-purple-700 hover:to-indigo-700 transition-all shadow-md hover:shadow-lg"
+          >
+            <span>Create Campaign</span>
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
+          </button>
+        </div>
+      </div>
       
       {/* Campaign Stats with enhanced modern design */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
@@ -910,7 +909,6 @@ const ClientCampaigns = ({ onCreateCampaign }: { onCreateCampaign: () => void })
           )}
         </div>
       )}
-      </div>
     </div>
   );
 };
@@ -1983,51 +1981,40 @@ const ClientDomains = () => {
   };
 
   return (
-    <div className="p-0">
-      {/* Header with blue gradient styling to match other client pages */}
-      <div className="w-full bg-gradient-to-r from-blue-500 to-blue-700">
-        <div className="max-w-[1600px] mx-auto px-6 py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="bg-white/20 p-2 rounded-lg">
-                <Globe className="h-6 w-6 text-white" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold text-white">Domains</h1>
-                <p className="text-blue-100 text-sm">Manage your verified sending domains</p>
-              </div>
-            </div>
-            
-            <button 
-              onClick={() => setShowAddDomainModal(true)}
-              className="bg-blue-600/80 hover:bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-all shadow-sm hover:shadow-md border border-blue-500"
-            >
-              <span>Add Domain</span>
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
-            </button>
+    <div className="p-8">
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-3">
+          <div className="bg-purple-100 p-2 rounded-full">
+            <Globe className="h-6 w-6 text-purple-600" />
           </div>
+          <h1 className="text-2xl font-bold">Domains</h1>
         </div>
+        <button 
+          onClick={() => setShowAddDomainModal(true)}
+          className="bg-purple-600 text-white px-4 py-2 rounded-md flex items-center gap-2 hover:bg-purple-700 transition-colors"
+        >
+          <span>Add Domain</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
+        </button>
       </div>
       
-      <div className="px-8 py-6">
-      
-        {/* Domain Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <div className="bg-white rounded-lg shadow p-4 border border-gray-100">
-            <h3 className="text-sm font-medium text-gray-500 mb-1">Total Domains</h3>
-            <p className="text-2xl font-bold">{domains.length}</p>
-          </div>
-          <div className="bg-white rounded-lg shadow p-4 border border-gray-100">
-            <h3 className="text-sm font-medium text-gray-500 mb-1">Verified Domains</h3>
-            <p className="text-2xl font-bold">{domains.filter(d => d.status === 'Verified').length}</p>
-          </div>
-          <div className="bg-white rounded-lg shadow p-4 border border-gray-100">
-            <h3 className="text-sm font-medium text-gray-500 mb-1">Default Domain</h3>
-            <p className="text-lg font-medium text-gray-800 truncate">
-              {domains.find(d => d.isDefault)?.name || '—'}
-            </p>
-          </div>
+      {/* Domain Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div className="bg-white rounded-lg shadow p-4 border border-gray-100">
+          <h3 className="text-sm font-medium text-gray-500 mb-1">Total Domains</h3>
+          <p className="text-2xl font-bold">{domains.length}</p>
         </div>
+        <div className="bg-white rounded-lg shadow p-4 border border-gray-100">
+          <h3 className="text-sm font-medium text-gray-500 mb-1">Verified Domains</h3>
+          <p className="text-2xl font-bold">{domains.filter(d => d.status === 'Verified').length}</p>
+        </div>
+        <div className="bg-white rounded-lg shadow p-4 border border-gray-100">
+          <h3 className="text-sm font-medium text-gray-500 mb-1">Default Domain</h3>
+          <p className="text-lg font-medium text-gray-800 truncate">
+            {domains.find(d => d.isDefault)?.name || '—'}
+          </p>
+        </div>
+      </div>
       
       {/* Domains Table */}
       <div className="bg-white rounded-lg shadow border border-gray-100 overflow-hidden">
@@ -2194,7 +2181,6 @@ const ClientDomains = () => {
           </div>
         </div>
       )}
-      </div>
     </div>
   );
 };

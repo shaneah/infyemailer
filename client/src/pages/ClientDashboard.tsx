@@ -6,8 +6,7 @@ import { Menu } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import ClientSidebar from "@/components/ClientSidebar";
 import DashboardWidgets from "@/components/widgets/DashboardWidgets";
-import WidgetManager from "@/components/widgets/WidgetManager";
-import { Widget, WidgetsProvider, defaultWidgets } from "@/hooks/useWidgets";
+import { WidgetsProvider } from "@/hooks/useWidgets";
 
 type ClientDashboardProps = {
   clientId?: string;
@@ -135,13 +134,13 @@ export default function ClientDashboard() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-purple-900 via-indigo-800 to-purple-800">
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-[#0a1929] via-[#112b4a] to-[#1a3a5f]">
         <div className="flex flex-col items-center">
           <div className="w-16 h-16 relative">
-            <div className="absolute top-0 left-0 w-full h-full border-4 border-purple-300/30 rounded-full animate-ping"></div>
-            <div className="absolute top-0 left-0 w-full h-full border-4 border-t-purple-300 border-r-transparent border-b-transparent border-l-transparent rounded-full animate-spin"></div>
+            <div className="absolute top-0 left-0 w-full h-full border-4 border-[#d4af37]/30 rounded-full animate-ping"></div>
+            <div className="absolute top-0 left-0 w-full h-full border-4 border-t-[#d4af37] border-r-transparent border-b-transparent border-l-transparent rounded-full animate-spin"></div>
           </div>
-          <p className="mt-4 text-white/90 font-medium">Loading your dashboard...</p>
+          <p className="mt-4 text-white/80 font-medium">Loading your dashboard...</p>
         </div>
       </div>
     );
@@ -170,103 +169,40 @@ export default function ClientDashboard() {
 
   return (
     <WidgetsProvider>
-      <div className="flex flex-col overflow-hidden min-h-screen bg-gradient-to-br from-purple-50 via-white to-indigo-50">
+      <div className="flex flex-col overflow-hidden min-h-screen bg-white">
         {/* Main Content */}
         <div className="flex-1 flex flex-col overflow-hidden relative z-10">
           {/* Header */}
-          <header className="relative z-20 flex items-center justify-between p-4 bg-gradient-to-r from-purple-700 to-indigo-600 text-white shadow-lg">
+          <header className="relative z-20 flex items-center justify-between p-4 bg-white border-b border-gray-200">
             <div className="flex items-center">
               <Button 
                 variant="ghost" 
                 size="lg"
-                className="lg:hidden text-white hover:bg-white/10 mr-2"
+                className="lg:hidden text-gray-700 hover:bg-gray-100 mr-2"
                 onClick={() => setSidebarOpen(true)}
               >
                 <Menu size={24} />
               </Button>
-              <div className="flex flex-col">
-                <h1 className="text-2xl font-bold tracking-tight text-white">Client Dashboard</h1>
-                <p className="text-sm text-purple-100 mt-0.5">Performance & Analytics</p>
-              </div>
+              <h1 className="text-xl font-semibold text-purple-800">Dashboard</h1>
             </div>
             
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
               {clientData && (
-                <div className="flex items-center bg-white/10 backdrop-blur-md rounded-full px-4 py-2 border border-white/20">
-                  <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse mr-2"></div>
-                  <span className="text-sm text-white">
-                    Welcome, <span className="font-medium">{clientData.clientName}</span>
-                  </span>
-                </div>
+                <span className="text-sm text-gray-600 hidden md:inline-block">
+                  Welcome, <span className="font-medium">{clientData.clientName}</span>
+                </span>
               )}
             </div>
           </header>
 
           {/* Dashboard Content */}
-          <main className="flex-1 overflow-y-auto relative z-10">
-            <div className="container mx-auto py-8 px-4">
-              {/* Welcome Banner */}
-              <div className="bg-white rounded-xl shadow-sm mb-8 p-6 border border-purple-100">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div className="col-span-2">
-                    <h2 className="text-xl font-semibold text-purple-800 mb-2">Welcome to Your Client Portal</h2>
-                    <p className="text-slate-600 max-w-2xl mb-4">
-                      Track performance metrics, visualize campaign results, and manage your email marketing strategy all in one place.
-                    </p>
-                    <div className="flex gap-3">
-                      <Button size="sm" variant="outline" className="border-purple-200 hover:bg-purple-50">
-                        View Campaigns
-                      </Button>
-                      <Button size="sm" className="shadow-sm">
-                        Create Campaign
-                      </Button>
-                    </div>
-                  </div>
-                  <div className="hidden md:flex items-center justify-center">
-                    <div className="h-24 w-24 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-2xl shadow-md flex items-center justify-center">
-                      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-white">
-                        <path d="M22 8V16C22 17.1046 21.1046 18 20 18H4C2.89543 18 2 17.1046 2 16V8M22 8C22 6.89543 21.1046 6 20 6H4C2.89543 6 2 6.89543 2 8M22 8L12 13L2 8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Page introduction */}
-              <div className="mb-6">
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
-                  <div>
-                    <h2 className="text-xl font-semibold text-purple-900">Your Email Marketing at a Glance</h2>
-                    <p className="text-slate-600 text-sm mt-1">
-                      Track performance metrics and visualize campaign results
-                    </p>
-                  </div>
-                  {/* Widget Management Controls */}
-                  <div className="flex items-center">
-                    <WidgetManager clientData={clientData} />
-                  </div>
-                </div>
-                
-                <div className="h-0.5 w-full bg-gradient-to-r from-purple-600 to-indigo-500 rounded-full opacity-70"></div>
-              </div>
-              
+          <main className="flex-1 overflow-y-auto p-6 relative z-10 bg-white">
+            <div className="container mx-auto">
               {/* Customizable Dashboard Widgets */}
               <DashboardWidgets clientData={clientData} />
             </div>
           </main>
         </div>
-        
-        {/* Footer */}
-        <footer className="py-4 px-6 bg-white border-t border-purple-100">
-          <div className="container mx-auto flex flex-col md:flex-row justify-between items-center text-sm text-slate-500">
-            <div className="mb-2 md:mb-0">Email Marketing Client Portal © 2025</div>
-            <div className="flex items-center gap-4">
-              <span>Help</span>
-              <span>Privacy</span>
-              <span>Terms</span>
-            </div>
-          </div>
-        </footer>
       </div>
     </WidgetsProvider>
   );

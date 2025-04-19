@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
@@ -7,10 +7,7 @@ export default function NotFound() {
   return (
     <div className="w-full flex items-center justify-center p-8">
       <Card className="w-full max-w-lg shadow-lg">
-        <CardHeader>
-          <CardTitle className="text-center">Page Not Found</CardTitle>
-        </CardHeader>
-        <CardContent>
+        <CardContent className="pt-10 pb-10">
           <div className="flex flex-col items-center text-center">
             <div className="rounded-full bg-red-100 p-3 mb-4">
               <AlertCircle className="h-10 w-10 text-red-500" />

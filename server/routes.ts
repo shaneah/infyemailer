@@ -5,7 +5,6 @@ import { getStorage } from "./storageManager"; // Use dynamic storage selection
 const storage = getStorage();
 import { isDatabaseAvailable, db } from "./db"; // Import db and check if database is available
 import { eq, desc } from "drizzle-orm"; // Import Drizzle operators
-import * as schema from '@shared/schema'; // Import schema definitions
 import { generateSubjectLines, generateEmailTemplate, generateColorPalette } from "./services/openai";
 import { setupAuth, hashPassword, comparePasswords } from "./auth";
 import { EmailValidationService } from "./services/emailValidation";
@@ -29,7 +28,7 @@ declare global {
   }
 }
 import { registerEmailProviderRoutes } from "./routes/emailProviders";
-// AudiencePersona routes removed
+import { registerAudiencePersonaRoutes } from "./routes/audiencePersonas";
 import { registerClientProviderRoutes } from "./routes/clientProviders";
 import { registerTestEmailRoutes } from "./routes/testEmail";
 import { registerHealthRoutes } from "./routes/health";
@@ -84,7 +83,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register email provider routes
   await registerEmailProviderRoutes(app);
   
-  // Audience Persona routes registration removed
+  // Register audience persona routes
+  registerAudiencePersonaRoutes(app);
   
   // Register client provider routes
   registerClientProviderRoutes(app);
@@ -104,7 +104,103 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register user management routes
   app.use('/api', userManagementRoutes);
   
-  // A/B Testing endpoints - moved to dedicated section below
+  // A/B Testing endpoints
+  app.get('/api/ab-testing/campaigns', async (req: Request, res: Response) => {
+    try {
+      // Get A/B testing campaigns
+      const campaigns = await storage.getAbTestCampaigns();
+      console.log(`Retrieved ${campaigns.length} A/B test campaigns`);
+      res.json(campaigns);
+    } catch (error) {
+      console.error('Error fetching A/B test campaigns:', error);
+      res.status(500).json({ error: 'Error fetching A/B test campaigns' });
+    }
+  });
+
+  app.get('/api/ab-testing/campaigns/:id', async (req: Request, res: Response) => {
+    try {
+      const campaignId = parseInt(req.params.id);
+      const campaign = await storage.getCampaign(campaignId);
+      
+      if (!campaign) {
+        return res.status(404).json({ error: 'Campaign not found' });
+      }
+      
+      if (!campaign.isAbTest) {
+        return res.status(400).json({ error: 'This is not an A/B test campaign' });
+      }
+      
+      const variants = await storage.getCampaignVariants(campaignId);
+      res.json({ campaign, variants });
+    } catch (error) {
+      console.error(`Error fetching A/B test campaign details:`, error);
+      res.status(500).json({ error: 'Error fetching campaign details' });
+    }
+  });
+  
+  app.get('/api/ab-testing/campaigns/:id/analytics', async (req: Request, res: Response) => {
+    try {
+      const campaignId = parseInt(req.params.id);
+      const campaign = await storage.getCampaign(campaignId);
+      
+      if (!campaign) {
+        return res.status(404).json({ error: 'Campaign not found' });
+      }
+      
+      if (!campaign.isAbTest) {
+        return res.status(400).json({ error: 'This is not an A/B test campaign' });
+      }
+      
+      const variants = await storage.getCampaignVariants(campaignId);
+      const variantAnalytics = await Promise.all(
+        variants.map(async (variant) => {
+          const analytics = await storage.getVariantAnalyticsByCampaign(campaignId);
+          return {
+            variant,
+            analytics: analytics.filter(analytic => analytic.variantId === variant.id)
+          };
+        })
+      );
+      
+      res.json({ campaign, variantAnalytics });
+    } catch (error) {
+      console.error(`Error fetching A/B test campaign analytics:`, error);
+      res.status(500).json({ error: 'Error fetching campaign analytics' });
+    }
+  });
+  
+  app.post('/api/ab-testing/campaigns/:id/winner', async (req: Request, res: Response) => {
+    try {
+      const campaignId = parseInt(req.params.id);
+      const { variantId } = req.body;
+      
+      if (!variantId) {
+        return res.status(400).json({ error: 'Variant ID is required' });
+      }
+      
+      const campaign = await storage.getCampaign(campaignId);
+      
+      if (!campaign) {
+        return res.status(404).json({ error: 'Campaign not found' });
+      }
+      
+      if (!campaign.isAbTest) {
+        return res.status(400).json({ error: 'This is not an A/B test campaign' });
+      }
+      
+      const variant = await storage.getCampaignVariant(variantId);
+      
+      if (!variant || variant.campaignId !== campaignId) {
+        return res.status(404).json({ error: 'Variant not found for this campaign' });
+      }
+      
+      const updatedCampaign = await storage.setWinningVariant(campaignId, variantId);
+      res.json(updatedCampaign);
+    } catch (error) {
+      console.error(`Error setting winning variant:`, error);
+      res.status(500).json({ error: 'Error setting winning variant' });
+    }
+  });
 
   // Mock data for dashboard stats
   app.get('/api/stats', (req: Request, res: Response) => {
@@ -138,91 +234,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         comparison: 'Compared to last month'
       },
     ]);
-  });
-  
-  // Dashboard stats
-  app.get('/api/dashboard/stats', async (req: Request, res: Response) => {
-    try {
-      // Get counts from storage with fallback values
-      let contactsCount = 0;
-      let campaignsCount = 0;
-      
-      try {
-        contactsCount = await storage.getContactsCount();
-        campaignsCount = await storage.getCampaignsCount();
-      } catch (error) {
-        console.warn('Error getting counts from storage:', error);
-      }
-      
-      // Default values for metrics that might not be available
-      let openRate = 23.7;
-      let clickRate = 4.2;
-      let totalEmails = 48250;
-      
-      try {
-        // Use direct DB query for more accurate metrics if storage methods are insufficient
-        const { db } = await import("./db");
-        const { sql } = await import("drizzle-orm");
-        
-        // Get total emails count
-        const emailsCountResult = await db.execute(
-          sql`SELECT COUNT(*) as count FROM email`
-        );
-        if (emailsCountResult?.rows?.length > 0) {
-          totalEmails = parseInt(emailsCountResult.rows[0].count) || totalEmails;
-        }
-        
-        // Get open rate data
-        const openRateQuery = await db.execute(sql`
-          SELECT AVG(CASE WHEN opens > 0 THEN (opens * 100.0 / NULLIF(recipients, 0)) ELSE 0 END) as avg_open_rate
-          FROM variant_analytics
-          WHERE recipients > 0
-        `);
-        
-        // Get click rate data
-        const clickRateQuery = await db.execute(sql`
-          SELECT AVG(CASE WHEN clicks > 0 THEN (clicks * 100.0 / NULLIF(recipients, 0)) ELSE 0 END) as avg_click_rate
-          FROM variant_analytics
-          WHERE recipients > 0
-        `);
-        
-        // Extract rates from query results
-        if (openRateQuery?.rows?.length > 0) {
-          const rawOpenRate = parseFloat(openRateQuery.rows[0].avg_open_rate);
-          if (!isNaN(rawOpenRate)) {
-            openRate = parseFloat(rawOpenRate.toFixed(1));
-          }
-        }
-          
-        if (clickRateQuery?.rows?.length > 0) {
-          const rawClickRate = parseFloat(clickRateQuery.rows[0].avg_click_rate);
-          if (!isNaN(rawClickRate)) {
-            clickRate = parseFloat(rawClickRate.toFixed(1));
-          }
-        }
-      } catch (dbError) {
-        console.error("Error getting metrics from database:", dbError);
-        // Fall back to default values
-      }
-      
-      res.json({
-        activeCampaigns: campaignsCount || 5,
-        totalEmails,
-        openRate,
-        clickRate,
-        contactsCount: contactsCount || 5278
-      });
-    } catch (error) {
-      console.error("Error fetching dashboard stats:", error);
-      res.status(500).json({ 
-        error: "Failed to fetch dashboard stats",
-        activeCampaigns: 5,
-        totalEmails: 48250,
-        openRate: 23.7,
-        clickRate: 4.2,
-        contactsCount: 5278
-      });
-    }
   });
 
   // Campaign stats for campaign page

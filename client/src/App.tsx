@@ -31,7 +31,7 @@ import Reporting from "@/pages/Reporting";
 import EmailProviders from "@/pages/EmailProviders";
 import UserManagement from "@/pages/UserManagement";
 import ClientManagement from "@/pages/ClientManagement";
-// AudiencePersonas import removed
+import AudiencePersonas from "@/pages/AudiencePersonas";
 import EmailPreview from "@/pages/EmailPreview";
 import ClientCollaboration from "@/pages/ClientCollaboration";
 
@@ -215,7 +215,7 @@ function App() {
               />
               
               <div className="flex-1 flex flex-col overflow-hidden">
-                <main className="flex-1 overflow-y-auto p-4 bg-gradient-to-br from-purple-50 to-white">
+                <main className="flex-1 overflow-y-auto p-4">
                   <Switch>
                     <ProtectedRoute path="/" component={Dashboard} />
                     <ProtectedRoute path="dashboard" component={Dashboard} />
@@ -242,7 +242,7 @@ function App() {
                     <ProtectedRoute path="reporting" component={Reporting} />
                     <ProtectedRoute path="email-providers" component={EmailProviders} />
                     <ProtectedRoute path="client-management" component={ClientManagement} />
-                    {/* AudiencePersonas route removed */}
+                    <ProtectedRoute path="audience-personas" component={AudiencePersonas} />
                     <ProtectedRoute path="analytics" component={Analytics} />
                     <ProtectedRoute path="email-test" component={EmailTest} />
                     <ProtectedRoute path="email-preview" component={EmailPreview} />

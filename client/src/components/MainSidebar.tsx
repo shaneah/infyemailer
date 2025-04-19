@@ -247,7 +247,19 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
             
             {/* Advanced Features */}
             
-
+            {/* Audience Personas */}
+            <li>
+              <Link 
+                href="/audience-personas" 
+                className={`flex items-center px-3 py-2 rounded-md ${location === '/audience-personas' 
+                  ? 'text-white bg-gradient-to-r from-[#1e293b] to-transparent border-l-4 border-[#d4af37]' 
+                  : 'text-gray-300 hover:bg-[#1e293b]/50 hover:text-white'}`}
+                title="Audience Personas"
+              >
+                <UserCircle2 className={`h-5 w-5 mr-3 ${location === '/audience-personas' ? 'text-[#d4af37]' : ''}`} />
+                {!collapsed && <span>Audience Personas</span>}
+              </Link>
+            </li>
             
             {/* Email Validation */}
             <li>
