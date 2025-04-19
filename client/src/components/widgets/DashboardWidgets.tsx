@@ -1,8 +1,7 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback } from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-import { Widget, useWidgets, WidgetType } from '@/hooks/useWidgets';
-import { useWidgetRecommendations } from '@/hooks/useWidgetRecommendations';
+import { Widget, useWidgets } from '@/hooks/useWidgets';
 import DraggableWidget, { WIDGET_TYPE } from './DraggableWidget';
 import ActiveCampaignsWidget from './ActiveCampaignsWidget';
 import TotalEmailsWidget from './TotalEmailsWidget';
@@ -10,18 +9,8 @@ import OpenRateWidget from './OpenRateWidget';
 import EmailPerformanceWidget from './EmailPerformanceWidget';
 import DeviceBreakdownWidget from './DeviceBreakdownWidget';
 import RecentCampaignsWidget from './RecentCampaignsWidget';
-import AIInsightsWidget from './AIInsightsWidget';
 import OptimalSendTimeWidget from './OptimalSendTimeWidget';
 import UpcomingCampaignsWidget from './UpcomingCampaignsWidget';
-import AudienceGrowthWidget from './AudienceGrowthWidget';
-import RealTimeMetricsWidget from './RealTimeMetricsWidget';
-import EmailHealthScoreWidget from './EmailHealthScoreWidget';
-import CampaignROIWidget from './CampaignROIWidget';
-import EngagementHeatmapWidget from './EngagementHeatmapWidget';
-import SmartNotificationsWidget from './SmartNotificationsWidget';
-import AIRecommendationWidget from './AIRecommendationWidget';
-import CampaignPerformanceAnalyzerWidget from './CampaignPerformanceAnalyzerWidget';
-import UserJourneyWidget from './UserJourneyWidget';
 
 interface DashboardWidgetsProps {
   clientData: any; // The dashboard data
@@ -41,11 +30,14 @@ const DashboardWidgets: React.FC<DashboardWidgetsProps> = ({ clientData }) => {
   };
   
   const { widgets, removeWidget, updateWidgetConfig, moveWidget } = useWidgets();
-  const { recordWidgetView, recordWidgetInteraction } = useWidgetRecommendations(widgets, clientDataWithDefaults);
 
   // Filter visible widgets and sort by row/col for display
+  // Also filter out any AI-related widgets
   const visibleWidgets = widgets
     .filter(widget => widget.visible)
+    .filter(widget => !widget.type.toLowerCase().includes('ai') && 
+           !widget.type.includes('smart') &&
+           !widget.type.includes('recommendation'))
     .sort((a, b) => {
       if (a.row === b.row) {
         return a.col - b.col;
@@ -53,31 +45,14 @@ const DashboardWidgets: React.FC<DashboardWidgetsProps> = ({ clientData }) => {
       return a.row - b.row;
     });
     
-  // Track widget views when visible widgets change
-  useEffect(() => {
-    // Record views for all visible widgets
-    visibleWidgets.forEach(widget => {
-      recordWidgetView(widget);
-    });
-  }, [visibleWidgets, recordWidgetView]);
-  
-  // Enhanced remove widget function to track interaction
+  // Simple widget handlers
   const handleRemoveWidget = useCallback((widgetId: string) => {
-    const widget = widgets.find(w => w.id === widgetId);
-    if (widget) {
-      recordWidgetInteraction(widget);
-    }
     removeWidget(widgetId);
-  }, [widgets, removeWidget, recordWidgetInteraction]);
+  }, [removeWidget]);
   
-  // Enhanced update widget config function to track interaction
   const handleUpdateWidgetConfig = useCallback((widgetId: string, config: any) => {
-    const widget = widgets.find(w => w.id === widgetId);
-    if (widget) {
-      recordWidgetInteraction(widget);
-    }
     updateWidgetConfig(widgetId, config);
-  }, [widgets, updateWidgetConfig, recordWidgetInteraction]);
+  }, [updateWidgetConfig]);
 
   // Type definitions for mock data
   type Campaign = {
@@ -437,12 +412,14 @@ const DashboardWidgets: React.FC<DashboardWidgetsProps> = ({ clientData }) => {
   };
 
   // Render the appropriate widget based on its type
-  // This function also captures interactions for the recommendation engine
+  // Simplified widget rendering function
   const renderWidget = (widget: Widget) => {
-    // Create a tracking function for this specific widget
-    const trackInteraction = () => {
-      recordWidgetInteraction(widget);
-    };
+    // Skip AI-related widgets
+    if (widget.type.toLowerCase().includes('ai') || 
+        widget.type.includes('smart') ||
+        widget.type.includes('recommendation')) {
+      return null;
+    }
 
     switch (widget.type) {
       case 'activeCampaigns':
