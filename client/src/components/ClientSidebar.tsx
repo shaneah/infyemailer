@@ -252,21 +252,21 @@ const ClientSidebar = ({ open, setOpen }: SidebarProps) => {
         </div>
         
         {/* Footer actions */}
-        <div className="mt-auto border-t border-purple-700/50 bg-black/10">
+        <div className="mt-auto border-t border-blue-800 bg-blue-950">
           <Link
             href="/client-settings"
             className={`group flex items-center px-4 py-3 text-sm transition-all duration-150 ${
               location === '/client-settings' 
-                ? 'bg-purple-700 text-white shadow-inner' 
-                : 'text-purple-100 hover:bg-purple-700/40 hover:shadow-inner'
+                ? 'bg-blue-800 text-white shadow-inner' 
+                : 'text-blue-100 hover:bg-blue-800/40 hover:shadow-inner'
             }`}
           >
             <Settings 
               size={18} 
               className={`mr-3 transition-all duration-200 ${
                 location === '/client-settings' 
-                  ? 'text-purple-300 rotate-90' 
-                  : 'text-purple-200 group-hover:text-purple-300 group-hover:rotate-90'
+                  ? 'text-blue-300 rotate-90' 
+                  : 'text-blue-200 group-hover:text-blue-300 group-hover:rotate-90'
               }`} 
             />
             <span className="font-medium group-hover:font-semibold transition-all duration-150">
@@ -274,18 +274,18 @@ const ClientSidebar = ({ open, setOpen }: SidebarProps) => {
             </span>
             {location === '/client-settings' && (
               <div className="ml-auto">
-                <div className="w-1.5 h-1.5 rounded-full bg-purple-300 opacity-90 animate-pulse"></div>
+                <div className="w-1.5 h-1.5 rounded-full bg-blue-300 opacity-90 animate-pulse"></div>
               </div>
             )}
           </Link>
           
           <button
             onClick={handleLogout}
-            className="group flex items-center w-full px-4 py-3 text-sm text-purple-100 hover:bg-red-900/20 hover:text-red-100 transition-all duration-150"
+            className="group flex items-center w-full px-4 py-3 text-sm text-blue-100 hover:bg-red-900/20 hover:text-red-100 transition-all duration-150"
           >
             <LogOut 
               size={18} 
-              className="mr-3 transition-all duration-200 text-purple-200 group-hover:text-red-300 group-hover:translate-x-0.5" 
+              className="mr-3 transition-all duration-200 text-blue-200 group-hover:text-red-300 group-hover:translate-x-0.5" 
             />
             <span className="font-medium group-hover:font-semibold transition-all duration-150">
               Logout

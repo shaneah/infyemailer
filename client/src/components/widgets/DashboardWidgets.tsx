@@ -684,7 +684,7 @@ const DashboardWidgets: React.FC<DashboardWidgetsProps> = ({ clientData }) => {
 
   return (
     <DndProvider backend={HTML5Backend}>
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
         {visibleWidgets.map((widget, index) => {
           // Calculate column span based on widget size
           let colSpan;
@@ -715,6 +715,12 @@ const DashboardWidgets: React.FC<DashboardWidgetsProps> = ({ clientData }) => {
             </div>
           );
         })}
+        
+        {visibleWidgets.length === 0 && (
+          <div className="lg:col-span-12 p-8 text-center bg-white rounded-sm shadow-sm border border-slate-200">
+            <p className="text-slate-500">No widgets are currently available. Add a widget to get started.</p>
+          </div>
+        )}
       </div>
     </DndProvider>
   );
