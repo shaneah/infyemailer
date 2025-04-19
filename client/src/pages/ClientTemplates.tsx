@@ -487,26 +487,23 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
   });
   
   return (
-    <div className="flex flex-col min-h-screen bg-white">
-      
+    <div className="flex flex-col min-h-screen bg-gray-50">
       {/* Header with blue gradient styling to match other client pages */}
-      <div className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white py-6 px-8 mb-6">
-        <div className="max-w-[1600px] mx-auto">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2">
-            <div className="flex items-center gap-3 mb-4 sm:mb-0">
-              <div className="bg-white bg-opacity-20 p-2 rounded-lg">
-                <FileText className="h-6 w-6" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold">Email Templates</h1>
-                <p className="text-blue-100 text-sm">Create and manage your email templates</p>
-              </div>
+      <div className="w-full bg-gradient-to-r from-blue-600 to-indigo-700">
+        <div className="max-w-[1600px] mx-auto px-6 py-6">
+          <div className="flex items-center gap-3">
+            <div className="bg-white/20 p-2 rounded-lg">
+              <FileText className="h-6 w-6 text-white" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-white">Email Templates</h1>
+              <p className="text-blue-100 text-sm">Create and manage your email templates</p>
             </div>
           </div>
         </div>
       </div>
       
-      <div className="space-y-8 px-6 max-w-[1600px] mx-auto">
+      <div className="space-y-8 px-6 max-w-[1600px] mx-auto pt-6">
         {/* Hero section with purple/indigo gradient */}
         <div className="relative overflow-hidden bg-gradient-to-r from-purple-50 via-indigo-50 to-violet-50 rounded-xl p-6 sm:p-8 shadow-md border border-purple-100">
           <div className="absolute inset-0 bg-grid-primary-500/10 [mask-image:linear-gradient(0deg,#fff2,transparent)] bg-fixed"></div>
