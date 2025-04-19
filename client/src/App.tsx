@@ -31,7 +31,7 @@ import Reporting from "@/pages/Reporting";
 import EmailProviders from "@/pages/EmailProviders";
 import UserManagement from "@/pages/UserManagement";
 import ClientManagement from "@/pages/ClientManagement";
-import AudiencePersonas from "@/pages/AudiencePersonas";
+// AudiencePersonas import removed
 import EmailPreview from "@/pages/EmailPreview";
 import ClientCollaboration from "@/pages/ClientCollaboration";
 
@@ -242,7 +242,7 @@ function App() {
                     <ProtectedRoute path="reporting" component={Reporting} />
                     <ProtectedRoute path="email-providers" component={EmailProviders} />
                     <ProtectedRoute path="client-management" component={ClientManagement} />
-                    <ProtectedRoute path="audience-personas" component={AudiencePersonas} />
+                    {/* AudiencePersonas route removed */}
                     <ProtectedRoute path="analytics" component={Analytics} />
                     <ProtectedRoute path="email-test" component={EmailTest} />
                     <ProtectedRoute path="email-preview" component={EmailPreview} />
