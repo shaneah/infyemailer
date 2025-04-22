@@ -138,202 +138,84 @@ export function registerAudiencePersonaRoutes(app: Express) {
     });
   });
 
-  // Get demographics for a persona
+  // Get demographics for a persona - disabled
   app.get("/api/audience-personas/:id/demographics", async (req: Request, res: Response) => {
-    try {
-      const personaId = parseInt(req.params.id);
-      const demographics = await storage.getPersonaDemographics(personaId);
-      
-      if (!demographics) {
-        return res.status(404).json({ error: "Demographics not found for this persona" });
-      }
-      
-      res.json(demographics);
-    } catch (error) {
-      console.error(`Error fetching demographics for persona ID ${req.params.id}:`, error);
-      res.status(500).json({ error: "Failed to fetch demographics" });
-    }
+    res.status(200).json({ 
+      message: "Audience Personas feature has been disabled",
+      data: null
+    });
   });
 
-  // Create or update demographics for a persona
+  // Create or update demographics for a persona - disabled
   app.post("/api/audience-personas/:id/demographics", async (req: Request, res: Response) => {
-    try {
-      const personaId = parseInt(req.params.id);
-      const validatedData = createDemographicsSchema.parse({
-        ...req.body,
-        personaId
-      });
-      
-      const existingDemographics = await storage.getPersonaDemographics(personaId);
-      let demographics;
-      
-      if (existingDemographics) {
-        demographics = await storage.updatePersonaDemographics(personaId, validatedData);
-      } else {
-        demographics = await storage.createPersonaDemographics(validatedData);
-      }
-      
-      res.status(201).json(demographics);
-    } catch (error) {
-      console.error(`Error creating/updating demographics for persona ID ${req.params.id}:`, error);
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: error.errors });
-      }
-      res.status(500).json({ error: "Failed to create/update demographics" });
-    }
+    res.status(200).json({ 
+      message: "Audience Personas feature has been disabled",
+      success: false
+    });
   });
 
-  // Get behaviors for a persona
+  // Get behaviors for a persona - disabled
   app.get("/api/audience-personas/:id/behaviors", async (req: Request, res: Response) => {
-    try {
-      const personaId = parseInt(req.params.id);
-      const behaviors = await storage.getPersonaBehaviors(personaId);
-      
-      if (!behaviors) {
-        return res.status(404).json({ error: "Behaviors not found for this persona" });
-      }
-      
-      res.json(behaviors);
-    } catch (error) {
-      console.error(`Error fetching behaviors for persona ID ${req.params.id}:`, error);
-      res.status(500).json({ error: "Failed to fetch behaviors" });
-    }
+    res.status(200).json({ 
+      message: "Audience Personas feature has been disabled",
+      data: null
+    });
   });
 
-  // Create or update behaviors for a persona
+  // Create or update behaviors for a persona - disabled
   app.post("/api/audience-personas/:id/behaviors", async (req: Request, res: Response) => {
-    try {
-      const personaId = parseInt(req.params.id);
-      const validatedData = createBehaviorsSchema.parse({
-        ...req.body,
-        personaId
-      });
-      
-      const existingBehaviors = await storage.getPersonaBehaviors(personaId);
-      let behaviors;
-      
-      if (existingBehaviors) {
-        behaviors = await storage.updatePersonaBehaviors(personaId, validatedData);
-      } else {
-        behaviors = await storage.createPersonaBehaviors(validatedData);
-      }
-      
-      res.status(201).json(behaviors);
-    } catch (error) {
-      console.error(`Error creating/updating behaviors for persona ID ${req.params.id}:`, error);
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: error.errors });
-      }
-      res.status(500).json({ error: "Failed to create/update behaviors" });
-    }
+    res.status(200).json({ 
+      message: "Audience Personas feature has been disabled",
+      success: false
+    });
   });
 
-  // Get insights for a persona
+  // Get insights for a persona - disabled
   app.get("/api/audience-personas/:id/insights", async (req: Request, res: Response) => {
-    try {
-      const personaId = parseInt(req.params.id);
-      const insights = await storage.getPersonaInsights(personaId);
-      res.json(insights);
-    } catch (error) {
-      console.error(`Error fetching insights for persona ID ${req.params.id}:`, error);
-      res.status(500).json({ error: "Failed to fetch insights" });
-    }
+    res.status(200).json({ 
+      message: "Audience Personas feature has been disabled",
+      data: []
+    });
   });
 
-  // Create a new insight for a persona
+  // Create a new insight for a persona - disabled
   app.post("/api/audience-personas/:id/insights", async (req: Request, res: Response) => {
-    try {
-      const personaId = parseInt(req.params.id);
-      const validatedData = createInsightSchema.parse({
-        ...req.body,
-        personaId
-      });
-      
-      const insight = await storage.createPersonaInsight(validatedData);
-      res.status(201).json(insight);
-    } catch (error) {
-      console.error(`Error creating insight for persona ID ${req.params.id}:`, error);
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: error.errors });
-      }
-      res.status(500).json({ error: "Failed to create insight" });
-    }
+    res.status(200).json({ 
+      message: "Audience Personas feature has been disabled",
+      success: false
+    });
   });
 
-  // Update an insight
+  // Update an insight - disabled
   app.patch("/api/audience-personas/insights/:id", async (req: Request, res: Response) => {
-    try {
-      const id = parseInt(req.params.id);
-      const validatedData = updateInsightSchema.parse(req.body);
-      
-      const updatedInsight = await storage.updatePersonaInsight(id, validatedData);
-      
-      if (!updatedInsight) {
-        return res.status(404).json({ error: "Insight not found" });
-      }
-      
-      res.json(updatedInsight);
-    } catch (error) {
-      console.error(`Error updating insight with ID ${req.params.id}:`, error);
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: error.errors });
-      }
-      res.status(500).json({ error: "Failed to update insight" });
-    }
+    res.status(200).json({ 
+      message: "Audience Personas feature has been disabled",
+      success: false
+    });
   });
 
-  // Delete an insight
+  // Delete an insight - disabled
   app.delete("/api/audience-personas/insights/:id", async (req: Request, res: Response) => {
-    try {
-      const id = parseInt(req.params.id);
-      const success = await storage.deletePersonaInsight(id);
-      
-      if (!success) {
-        return res.status(404).json({ error: "Insight not found" });
-      }
-      
-      res.json({ success: true });
-    } catch (error) {
-      console.error(`Error deleting insight with ID ${req.params.id}:`, error);
-      res.status(500).json({ error: "Failed to delete insight" });
-    }
+    res.status(200).json({ 
+      message: "Audience Personas feature has been disabled",
+      success: false
+    });
   });
 
-  // Get segments for a persona
+  // Get segments for a persona - disabled
   app.get("/api/audience-personas/:id/segments", async (req: Request, res: Response) => {
-    try {
-      const personaId = parseInt(req.params.id);
-      const segments = await storage.getPersonaSegments(personaId);
-      res.json(segments);
-    } catch (error) {
-      console.error(`Error fetching segments for persona ID ${req.params.id}:`, error);
-      res.status(500).json({ error: "Failed to fetch segments" });
-    }
+    res.status(200).json({ 
+      message: "Audience Personas feature has been disabled",
+      data: []
+    });
   });
 
-  // Create a new segment for a persona
+  // Create a new segment for a persona - disabled
   app.post("/api/audience-personas/:id/segments", async (req: Request, res: Response) => {
-    try {
-      const personaId = parseInt(req.params.id);
-      
-      // Make sure rules is not undefined
-      const rules = req.body.rules || {};
-      
-      const validatedData = createSegmentSchema.parse({
-        ...req.body,
-        personaId,
-        rules
-      });
-      
-      const segment = await storage.createAudienceSegment(validatedData);
-      res.status(201).json(segment);
-    } catch (error) {
-      console.error(`Error creating segment for persona ID ${req.params.id}:`, error);
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: error.errors });
-      }
-      res.status(500).json({ error: "Failed to create segment" });
-    }
+    res.status(200).json({ 
+      message: "Audience Personas feature has been disabled",
+      success: false
+    });
   });
 
   // Update a segment
