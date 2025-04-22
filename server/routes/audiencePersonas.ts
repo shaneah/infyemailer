@@ -218,42 +218,19 @@ export function registerAudiencePersonaRoutes(app: Express) {
     });
   });
 
-  // Update a segment
+  // Update a segment - disabled
   app.patch("/api/audience-personas/segments/:id", async (req: Request, res: Response) => {
-    try {
-      const id = parseInt(req.params.id);
-      const validatedData = updateSegmentSchema.parse(req.body);
-      
-      const updatedSegment = await storage.updateAudienceSegment(id, validatedData);
-      
-      if (!updatedSegment) {
-        return res.status(404).json({ error: "Segment not found" });
-      }
-      
-      res.json(updatedSegment);
-    } catch (error) {
-      console.error(`Error updating segment with ID ${req.params.id}:`, error);
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: error.errors });
-      }
-      res.status(500).json({ error: "Failed to update segment" });
-    }
+    res.status(200).json({ 
+      message: "Audience Personas feature has been disabled",
+      success: false
+    });
   });
 
-  // Delete a segment
+  // Delete a segment - disabled
   app.delete("/api/audience-personas/segments/:id", async (req: Request, res: Response) => {
-    try {
-      const id = parseInt(req.params.id);
-      const success = await storage.deleteAudienceSegment(id);
-      
-      if (!success) {
-        return res.status(404).json({ error: "Segment not found" });
-      }
-      
-      res.json({ success: true });
-    } catch (error) {
-      console.error(`Error deleting segment with ID ${req.params.id}:`, error);
-      res.status(500).json({ error: "Failed to delete segment" });
-    }
+    res.status(200).json({ 
+      message: "Audience Personas feature has been disabled",
+      success: false
+    });
   });
 }
