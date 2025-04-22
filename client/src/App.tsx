@@ -31,7 +31,7 @@ import Reporting from "@/pages/Reporting";
 import EmailProviders from "@/pages/EmailProviders";
 import UserManagement from "@/pages/UserManagement";
 import ClientManagement from "@/pages/ClientManagement";
-import AudiencePersonas from "@/pages/AudiencePersonas";
+// import AudiencePersonas removed
 import EmailPreview from "@/pages/EmailPreview";
 
 // Client portal pages
@@ -126,12 +126,7 @@ function App() {
             <Toaster />
           </div>
         </Route>
-        <Route path="client-reports">
-          <div className="bg-background min-h-screen">
-            <ClientRoutes />
-            <Toaster />
-          </div>
-        </Route>
+        {/* client-reports route removed */}
         <Route path="client-domains">
           <div className="bg-background min-h-screen">
             <ClientRoutes />
