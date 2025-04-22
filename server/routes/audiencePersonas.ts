@@ -95,87 +95,47 @@ const updateSegmentSchema = z.object({
 });
 
 export function registerAudiencePersonaRoutes(app: Express) {
-  // Get all audience personas
+  // Audience Personas feature has been disabled as requested
+  // All API endpoints will now return a disabled message
+  
+  // Get all audience personas - disabled
   app.get("/api/audience-personas", async (req: Request, res: Response) => {
-    try {
-      const clientId = req.query.clientId ? parseInt(req.query.clientId as string) : undefined;
-      const personas = await storage.getAudiencePersonas(clientId);
-      res.json(personas);
-    } catch (error) {
-      console.error("Error fetching audience personas:", error);
-      res.status(500).json({ error: "Failed to fetch audience personas" });
-    }
+    res.status(200).json({ 
+      message: "Audience Personas feature has been disabled",
+      data: []
+    });
   });
 
-  // Get a specific audience persona by ID
+  // Get a specific audience persona by ID - disabled
   app.get("/api/audience-personas/:id", async (req: Request, res: Response) => {
-    try {
-      const id = parseInt(req.params.id);
-      const persona = await storage.getAudiencePersona(id);
-      
-      if (!persona) {
-        return res.status(404).json({ error: "Audience persona not found" });
-      }
-      
-      res.json(persona);
-    } catch (error) {
-      console.error(`Error fetching audience persona with ID ${req.params.id}:`, error);
-      res.status(500).json({ error: "Failed to fetch audience persona" });
-    }
+    res.status(200).json({ 
+      message: "Audience Personas feature has been disabled",
+      data: null
+    });
   });
 
-  // Create a new audience persona
+  // Create a new audience persona - disabled
   app.post("/api/audience-personas", async (req: Request, res: Response) => {
-    try {
-      const validatedData = createPersonaSchema.parse(req.body);
-      const newPersona = await storage.createAudiencePersona(validatedData);
-      res.status(201).json(newPersona);
-    } catch (error) {
-      console.error("Error creating audience persona:", error);
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: error.errors });
-      }
-      res.status(500).json({ error: "Failed to create audience persona" });
-    }
+    res.status(200).json({ 
+      message: "Audience Personas feature has been disabled",
+      success: false
+    });
   });
 
-  // Update an audience persona
+  // Update an audience persona - disabled
   app.patch("/api/audience-personas/:id", async (req: Request, res: Response) => {
-    try {
-      const id = parseInt(req.params.id);
-      const validatedData = updatePersonaSchema.parse(req.body);
-      
-      const updatedPersona = await storage.updateAudiencePersona(id, validatedData);
-      
-      if (!updatedPersona) {
-        return res.status(404).json({ error: "Audience persona not found" });
-      }
-      
-      res.json(updatedPersona);
-    } catch (error) {
-      console.error(`Error updating audience persona with ID ${req.params.id}:`, error);
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: error.errors });
-      }
-      res.status(500).json({ error: "Failed to update audience persona" });
-    }
+    res.status(200).json({ 
+      message: "Audience Personas feature has been disabled",
+      success: false
+    });
   });
 
-  // Delete an audience persona
+  // Delete an audience persona - disabled
   app.delete("/api/audience-personas/:id", async (req: Request, res: Response) => {
-    try {
-      const id = parseInt(req.params.id);
-      const success = await storage.deleteAudiencePersona(id);
-      
-      if (!success) {
-        return res.status(404).json({ error: "Audience persona not found" });
-      }
-      
-      res.json({ success: true });
-    } catch (error) {
-      console.error(`Error deleting audience persona with ID ${req.params.id}:`, error);
-      res.status(500).json({ error: "Failed to delete audience persona" });
-    }
+    res.status(200).json({ 
+      message: "Audience Personas feature has been disabled",
+      success: false
+    });
   });
 
   // Get demographics for a persona

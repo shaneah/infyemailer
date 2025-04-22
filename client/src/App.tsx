@@ -224,7 +224,7 @@ function App() {
                     <ProtectedRoute path="reporting" component={Reporting} />
                     <ProtectedRoute path="email-providers" component={EmailProviders} />
                     <ProtectedRoute path="client-management" component={ClientManagement} />
-                    <ProtectedRoute path="audience-personas" component={AudiencePersonas} />
+                    {/* Audience Personas route removed as requested */}
                     <ProtectedRoute path="analytics" component={Analytics} />
                     <ProtectedRoute path="email-test" component={EmailTest} />
                     <ProtectedRoute path="email-preview" component={EmailPreview} />
