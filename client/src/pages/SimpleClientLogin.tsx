@@ -10,12 +10,43 @@ const SimpleClientLogin = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [, setLocation] = useLocation();
+  const [particles, setParticles] = useState<Array<{x: number, y: number, size: number, speed: number, opacity: number}>>([]);
 
   // Clear any existing session storage on login page load
   useEffect(() => {
     // Clear any existing client user data to ensure a fresh login
     sessionStorage.removeItem('clientUser');
     localStorage.removeItem('clientUser');
+  }, []);
+
+  // Generate particles effect
+  useEffect(() => {
+    const particlesCount = 80;
+    const newParticles = [];
+    
+    for (let i = 0; i < particlesCount; i++) {
+      newParticles.push({
+        x: Math.random() * 100,
+        y: Math.random() * 100,
+        size: Math.random() * 3 + 0.5,
+        speed: Math.random() * 0.5 + 0.2,
+        opacity: Math.random() * 0.7 + 0.3
+      });
+    }
+    
+    setParticles(newParticles);
+    
+    const interval = setInterval(() => {
+      setParticles(prevParticles => 
+        prevParticles.map(particle => ({
+          ...particle,
+          y: particle.y - particle.speed > 0 ? particle.y - particle.speed : 100,
+          x: particle.x + (Math.random() * 0.4 - 0.2)
+        }))
+      );
+    }, 50);
+    
+    return () => clearInterval(interval);
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -33,7 +64,7 @@ const SimpleClientLogin = () => {
         id: 1,
         username: 'client1',
         name: 'Demo Client',
-        company: 'InfyTech Solutions',
+        company: 'My Company',
         email: 'client1@example.com',
         role: 'client',
         permissions: ['view_campaigns', 'edit_campaigns', 'view_contacts', 'edit_contacts']
@@ -100,151 +131,168 @@ const SimpleClientLogin = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-slate-900 to-slate-800 p-4">
-      {/* Simple background with subtle pattern */}
-      <div className="absolute inset-0 opacity-20 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MCIgaGVpZ2h0PSI4MCIgdmlld0JveD0iMCAwIDgwIDgwIj48cGF0aCBmaWxsPSJub25lIiBzdHJva2U9InJnYmEoMTEyLCAxMTIsIDExMiwgMC4xKSIgZD0iTTAsMGg4MCw4MHYtODAiIHN0cm9rZS13aWR0aD0iMSIvPjwvc3ZnPg==')]"></div>
-      
-      {/* Main container */}
-      <div className="w-full max-w-md z-10">
-        {/* Brand and logo */}
-        <div className="mb-10 text-center">
-          <img src={LogoColor} alt="InfyTech Logo" className="h-16 mx-auto" />
-        </div>
+    <div className="min-h-screen bg-gradient-to-br from-[#0a1929] via-[#112b4a] to-[#1a3a5f] text-white flex flex-col justify-center overflow-hidden">
+      {/* Particles background */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {particles.map((particle, index) => (
+          <div 
+            key={index}
+            className="absolute rounded-full bg-[#d4af37]"
+            style={{
+              left: `${particle.x}%`,
+              top: `${particle.y}%`,
+              width: `${particle.size}px`,
+              height: `${particle.size}px`,
+              opacity: particle.opacity,
+              boxShadow: `0 0 ${particle.size * 2}px ${particle.size}px rgba(212, 175, 55, 0.3)`
+            }}
+          />
+        ))}
+        <div className="absolute inset-0 bg-[url('/assets/infy.png')] bg-center bg-no-repeat opacity-5 mix-blend-overlay"></div>
         
-        {/* Card */}
-        <div className="bg-white rounded-xl shadow-xl overflow-hidden">
-          {/* Card header */}
-          <div className="p-6 bg-gradient-to-r from-blue-600 to-indigo-700 text-white">
-            <h2 className="text-xl font-bold">Welcome to InfyTech Solutions</h2>
-            <p className="text-blue-100 text-sm mt-1">Sign in to access your portal</p>
-          </div>
-          
-          {/* Error message */}
-          {error && (
-            <div className="mx-6 -mb-2 mt-6 bg-red-50 border-l-4 border-red-500 p-3 rounded text-red-700 text-sm">
-              <div className="flex items-center">
-                <svg className="h-5 w-5 mr-2 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                {error}
-              </div>
-            </div>
-          )}
-          
-          {/* Form */}
-          <div className="p-6">
-            <form onSubmit={handleSubmit} className="space-y-5">
-              {/* Username */}
-              <div>
-                <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">
-                  Username
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Mail className="h-5 w-5 text-gray-400" />
-                  </div>
-                  <input
-                    id="username"
-                    name="username"
-                    type="text"
-                    autoComplete="username"
-                    required
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5"
-                    placeholder="Enter your username"
-                  />
-                </div>
+        {/* Gradient overlays */}
+        <div className="absolute top-0 left-0 right-0 h-40 bg-gradient-to-b from-[#0a1929] to-transparent"></div>
+        <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-[#0a1929] to-transparent"></div>
+        
+        {/* Decorative elements */}
+        <div className="absolute top-20 left-20 w-40 h-40 rounded-full bg-[#d4af37]/5 blur-3xl"></div>
+        <div className="absolute bottom-20 right-20 w-60 h-60 rounded-full bg-[#1a3a5f]/30 blur-3xl"></div>
+        
+        {/* Animated borders */}
+        <div className="absolute top-[10%] left-[10%] w-[80%] h-[80%] border border-[#d4af37]/10 rounded-3xl"></div>
+        <div className="absolute top-[15%] left-[15%] w-[70%] h-[70%] border border-[#d4af37]/5 rounded-3xl"></div>
+      </div>
+      
+      {error && (
+        <div className="fixed top-4 right-4 bg-red-600 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-fade-in-down">
+          {error}
+        </div>
+      )}
+      
+      <div className="flex-1 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 z-10">
+        <div className="max-w-md w-full">
+          <div className="backdrop-blur-sm bg-white/10 p-8 rounded-3xl shadow-2xl overflow-hidden border border-white/10 relative">
+            {/* Glow effect */}
+            <div className="absolute -top-20 -left-20 w-40 h-40 bg-[#d4af37]/20 rounded-full blur-3xl"></div>
+            <div className="absolute -bottom-20 -right-20 w-40 h-40 bg-[#1a3a5f]/30 rounded-full blur-3xl"></div>
+            
+            <div className="relative">
+              <div className="text-center">
+                <img src={LogoColor} alt="InfyMailer Logo" className="h-32 mx-auto mb-6 drop-shadow-xl" />
+                <h2 className="text-4xl font-extrabold mb-2 bg-gradient-to-r from-white via-[#d4af37] to-white inline-block text-transparent bg-clip-text">
+                  NextGen Portal
+                </h2>
+                <div className="w-32 h-1 mx-auto bg-gradient-to-r from-transparent via-[#d4af37] to-transparent my-3"></div>
+                <p className="text-sm text-white/70">
+                  Access your premium AI-powered marketing suite
+                </p>
               </div>
               
-              {/* Password */}
-              <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-                  Password
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Lock className="h-5 w-5 text-gray-400" />
+              <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+                <div>
+                  <label htmlFor="username" className="text-white/80 font-medium text-sm block mb-2 flex items-center">
+                    <Mail className="h-3.5 w-3.5 mr-2 text-[#d4af37]" />
+                    Username
+                  </label>
+                  <div className="flex items-center relative bg-white/5 border border-white/20 rounded-lg focus-within:ring-1 focus-within:ring-[#d4af37]/50 focus-within:border-[#d4af37]/30 transition-all duration-300 backdrop-blur-sm">
+                    <div className="h-full aspect-square flex items-center justify-center bg-[#d4af37]/10 rounded-l-lg border-r border-white/10">
+                      <Mail className="h-4 w-4 text-[#d4af37]" />
+                    </div>
+                    <input
+                      id="username"
+                      name="username"
+                      type="text"
+                      required
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      className="py-3 px-3 block w-full bg-transparent border-0 rounded-r-lg focus:outline-none text-white"
+                      placeholder="Enter your username"
+                    />
                   </div>
-                  <input
-                    id="password"
-                    name="password"
-                    type={showPassword ? "text" : "password"}
-                    autoComplete="current-password"
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 pr-10 p-2.5"
-                    placeholder="Enter your password"
-                  />
-                  <button 
-                    type="button"
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-gray-700"
-                    onClick={() => setShowPassword(!showPassword)}
+                </div>
+                
+                <div>
+                  <label htmlFor="password" className="text-white/80 font-medium text-sm block mb-2 flex items-center">
+                    <Shield className="h-3.5 w-3.5 mr-2 text-[#d4af37]" />
+                    Password
+                  </label>
+                  <div className="flex items-center relative bg-white/5 border border-white/20 rounded-lg focus-within:ring-1 focus-within:ring-[#d4af37]/50 focus-within:border-[#d4af37]/30 transition-all duration-300 backdrop-blur-sm">
+                    <div className="h-full aspect-square flex items-center justify-center bg-[#d4af37]/10 rounded-l-lg border-r border-white/10">
+                      <Lock className="h-4 w-4 text-[#d4af37]" />
+                    </div>
+                    <input
+                      id="password"
+                      name="password"
+                      type={showPassword ? "text" : "password"}
+                      required
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="py-3 px-3 block w-full bg-transparent border-0 rounded-r-lg focus:outline-none text-white"
+                      placeholder="••••••••"
+                    />
+                    <button 
+                      type="button"
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white/60 hover:text-[#d4af37] transition-colors"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
+                </div>
+                
+                <div>
+                  <button
+                    type="submit"
+                    disabled={isLoading}
+                    className="w-full py-3 bg-gradient-to-r from-[#d4af37] to-[#d4af37]/70 hover:from-[#d4af37]/70 hover:to-[#d4af37] text-white font-medium rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center overflow-hidden relative group"
                   >
-                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                    <span className="absolute inset-0 w-0 bg-white/10 transition-all duration-500 ease-out group-hover:w-full"></span>
+                    {isLoading ? (
+                      <>
+                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span className="relative">Authenticating...</span>
+                      </>
+                    ) : (
+                      <span className="flex items-center relative">
+                        Access Portal <ArrowRight className="ml-2 h-4 w-4" />
+                      </span>
+                    )}
                   </button>
                 </div>
-              </div>
+                
+                <div className="bg-white/5 backdrop-blur-sm rounded-lg p-4 text-xs text-white/80 text-center border border-white/10">
+                  <p className="mb-1 font-medium text-[#d4af37]">For demonstration purposes:</p>
+                  <p>Username: <strong>client1</strong> | Password: <strong>clientdemo</strong></p>
+                </div>
+              </form>
               
-              {/* Submit button */}
-              <div>
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+              <div className="mt-6 text-sm text-center">
+                <p className="text-white/50 mb-2">
+                  Only authorized users with client credentials can access this portal.
+                  <br />Contact your account manager if you need assistance.
+                </p>
+                <a 
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setLocation('auth');
+                  }}
+                  className="font-medium text-[#d4af37] hover:text-white transition-colors duration-200 inline-flex items-center"
                 >
-                  {isLoading ? (
-                    <div className="flex items-center">
-                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      <span>Signing in...</span>
-                    </div>
-                  ) : (
-                    <span className="flex items-center">
-                      Sign In <ArrowRight className="ml-2 h-4 w-4" />
-                    </span>
-                  )}
-                </button>
-              </div>
-            </form>
-            
-            {/* Demo credentials */}
-            <div className="mt-6 bg-blue-50 border border-blue-100 rounded p-3 text-sm text-blue-800">
-              <div className="font-medium mb-1">Demo Credentials</div>
-              <div className="flex flex-col sm:flex-row justify-between gap-2">
-                <div className="flex items-center">
-                  <span className="text-gray-600 mr-1">Username:</span>
-                  <code className="bg-white px-1.5 py-0.5 rounded text-blue-700 font-mono">client1</code>
-                </div>
-                <div className="flex items-center">
-                  <span className="text-gray-600 mr-1">Password:</span>
-                  <code className="bg-white px-1.5 py-0.5 rounded text-blue-700 font-mono">clientdemo</code>
-                </div>
+                  Switch to Admin Login <ChevronRight className="ml-1 h-3 w-3" />
+                </a>
               </div>
             </div>
           </div>
           
-          {/* Card footer */}
-          <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-center">
-            <a 
-              href="#"
-              onClick={(e) => {
-                e.preventDefault();
-                setLocation('auth');
-              }}
-              className="text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center"
-            >
-              Switch to Admin Login <ChevronRight className="ml-1 h-4 w-4" />
-            </a>
+          <div className="mt-6 text-center">
+            <div className="text-white/40 text-sm">
+              &copy; {new Date().getFullYear()} InfyMailer. <span className="px-1 text-[#d4af37]/70">Enterprise Platform</span> All rights reserved.
+            </div>
           </div>
-        </div>
-        
-        {/* Footer */}
-        <div className="mt-6 text-center text-xs text-gray-400">
-          &copy; {new Date().getFullYear()} InfyTech Solutions | Advanced Email Marketing Platform
         </div>
       </div>
     </div>

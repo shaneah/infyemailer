@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Pencil, Trash2, Plus, CreditCard, BarChart4, User, Mail, Building2, Check, X, Loader2, Info as InfoIcon, PlusCircle, Shield } from 'lucide-react';
 import { queryClient, apiRequest } from '@/lib/queryClient';
@@ -158,12 +158,37 @@ const ClientManagement = () => {
   const [selectedClientId, setSelectedClientId] = useState<number | null>(null);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [selectedUser, setSelectedUser] = useState<any>(null);
+  
+  // Effect to check sessionStorage for client ID (for navigation from Collaboration Portal)
+  useEffect(() => {
+    const storedClientId = sessionStorage.getItem('selectedClientId');
+    if (storedClientId) {
+      const clientId = parseInt(storedClientId, 10);
+      if (!isNaN(clientId)) {
+        setSelectedClientId(clientId);
+        // We'll set the selectedClient in another effect once the clients data is loaded
+        setActiveTab('client-details');
+      }
+      // Remove from session storage to avoid persistence between visits
+      sessionStorage.removeItem('selectedClientId');
+    }
+  }, []);
 
   // Fetch clients
   const { data: clients = [] } = useQuery<Client[]>({
     queryKey: ['/api/clients'],
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
+  
+  // Effect to set the selected client when clients data is loaded
+  useEffect(() => {
+    if (selectedClientId && clients.length > 0) {
+      const client = clients.find(c => c.id === selectedClientId);
+      if (client) {
+        setSelectedClient(client);
+      }
+    }
+  }, [selectedClientId, clients]);
 
   // Selected client's users
   const { data: clientUsers = [], isLoading: isLoadingUsers } = useQuery<ClientUser[]>({

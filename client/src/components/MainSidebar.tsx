@@ -19,7 +19,9 @@ import {
   UserRound,
   ExternalLink,
   LogOut,
-  Settings
+  Settings,
+  MessagesSquare,
+  HandshakeIcon
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -38,14 +40,40 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
     }
   };
 
-  const handleLogout = () => {
-    // Clear session storage
-    sessionStorage.removeItem('user');
-    sessionStorage.removeItem('isLoggedIn');
-    sessionStorage.removeItem('token');
-    
-    // Redirect to login
-    window.location.href = '/auth';
+  const handleLogout = async () => {
+    try {
+      // Call logout API endpoint
+      const response = await fetch('/api/logout', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (response.ok) {
+        // Clear all storage
+        sessionStorage.clear();
+        localStorage.clear();
+        
+        // Redirect to login page
+        window.location.href = '/auth';
+      } else {
+        console.error('Logout failed:', response.status);
+        
+        // Fallback - still try to clear session and redirect
+        sessionStorage.clear();
+        localStorage.clear();
+        window.location.href = '/auth';
+      }
+    } catch (error) {
+      console.error('Error during logout:', error);
+      
+      // Fallback - still try to clear session and redirect
+      sessionStorage.clear();
+      localStorage.clear();
+      window.location.href = '/auth';
+    }
   };
 
   return (
@@ -69,14 +97,6 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
                 </div>
               )}
             </div>
-            {/* Toggle Button */}
-            <button
-              onClick={handleToggleCollapsed}
-              className="p-1 rounded-md text-gray-400 hover:text-white hover:bg-[#1e293b] focus:outline-none"
-              title={collapsed ? "Expand" : "Collapse"}
-            >
-              {collapsed ? <ChevronRight className="h-5 w-5" /> : <ChevronLeft className="h-5 w-5" />}
-            </button>
           </div>
           
           {/* User Profile */}
@@ -227,7 +247,19 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
             
             {/* Advanced Features */}
             
-            {/* Audience Personas removed */}
+            {/* Audience Personas */}
+            <li>
+              <Link 
+                href="/audience-personas" 
+                className={`flex items-center px-3 py-2 rounded-md ${location === '/audience-personas' 
+                  ? 'text-white bg-gradient-to-r from-[#1e293b] to-transparent border-l-4 border-[#d4af37]' 
+                  : 'text-gray-300 hover:bg-[#1e293b]/50 hover:text-white'}`}
+                title="Audience Personas"
+              >
+                <UserCircle2 className={`h-5 w-5 mr-3 ${location === '/audience-personas' ? 'text-[#d4af37]' : ''}`} />
+                {!collapsed && <span>Audience Personas</span>}
+              </Link>
+            </li>
             
             {/* Email Validation */}
             <li>
@@ -254,6 +286,20 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
               >
                 <ServerCog className={`h-5 w-5 mr-3 ${location === '/email-providers' ? 'text-[#d4af37]' : ''}`} />
                 {!collapsed && <span>Email Providers</span>}
+              </Link>
+            </li>
+            
+            {/* Client Collaboration Portal */}
+            <li>
+              <Link 
+                href="/client-collaboration" 
+                className={`flex items-center px-3 py-2 rounded-md ${location === '/client-collaboration' || location.includes('/client-collaboration/')
+                  ? 'text-white bg-gradient-to-r from-[#1e293b] to-transparent border-l-4 border-[#d4af37]' 
+                  : 'text-gray-300 hover:bg-[#1e293b]/50 hover:text-white'}`}
+                title="Client Collaboration Portal"
+              >
+                <HandshakeIcon className={`h-5 w-5 mr-3 ${location === '/client-collaboration' || location.includes('/client-collaboration/') ? 'text-[#d4af37]' : ''}`} />
+                {!collapsed && <span>Client Collaboration</span>}
               </Link>
             </li>
             

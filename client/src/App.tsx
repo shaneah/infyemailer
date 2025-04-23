@@ -31,8 +31,9 @@ import Reporting from "@/pages/Reporting";
 import EmailProviders from "@/pages/EmailProviders";
 import UserManagement from "@/pages/UserManagement";
 import ClientManagement from "@/pages/ClientManagement";
-// import AudiencePersonas removed
+import AudiencePersonas from "@/pages/AudiencePersonas";
 import EmailPreview from "@/pages/EmailPreview";
+import ClientCollaboration from "@/pages/ClientCollaboration";
 
 // Client portal pages
 import ClientLogin from "@/pages/ClientLogin";
@@ -43,6 +44,7 @@ import Analytics from "@/pages/Analytics";
 import EmailTest from "@/pages/EmailTest";
 import Login from "@/pages/Login";
 import EmailPerformanceDashboard from "@/pages/EmailPerformanceDashboard";
+import ClientPlaceholderPage from "@/pages/ClientPlaceholderPage";
 
 
 function App() {
@@ -126,7 +128,7 @@ function App() {
             <Toaster />
           </div>
         </Route>
-        {/* client-reports route removed */}
+
         <Route path="client-domains">
           <div className="bg-background min-h-screen">
             <ClientRoutes />
@@ -163,6 +165,27 @@ function App() {
             <Toaster />
           </div>
         </Route>
+        
+        {/* New Admin Panel Tab Routes */}
+        <Route path="client-overview">
+          <div className="bg-background min-h-screen">
+            <ClientPlaceholderPage title="System Overview" />
+            <Toaster />
+          </div>
+        </Route>
+        <Route path="client-security">
+          <div className="bg-background min-h-screen">
+            <ClientRoutes />
+            <Toaster />
+          </div>
+        </Route>
+        <Route path="client-billing">
+          <div className="bg-background min-h-screen">
+            <ClientRoutes />
+            <Toaster />
+          </div>
+        </Route>
+
         <Route path="email-performance-dashboard">
           <div className="bg-background min-h-screen">
             <EmailPerformanceDashboard />
@@ -219,12 +242,13 @@ function App() {
                     <ProtectedRoute path="reporting" component={Reporting} />
                     <ProtectedRoute path="email-providers" component={EmailProviders} />
                     <ProtectedRoute path="client-management" component={ClientManagement} />
-                    {/* Audience Personas route removed as requested */}
+                    <ProtectedRoute path="audience-personas" component={AudiencePersonas} />
                     <ProtectedRoute path="analytics" component={Analytics} />
                     <ProtectedRoute path="email-test" component={EmailTest} />
                     <ProtectedRoute path="email-preview" component={EmailPreview} />
                     <ProtectedRoute path="email-preview/:id" component={EmailPreview} />
                     <ProtectedRoute path="email-performance-dashboard" component={EmailPerformanceDashboard} />
+                    <ProtectedRoute path="client-collaboration" component={ClientCollaboration} />
 
                     <Route component={NotFound} />
                   </Switch>
