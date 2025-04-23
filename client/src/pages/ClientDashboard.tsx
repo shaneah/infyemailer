@@ -182,57 +182,46 @@ export default function ClientDashboard() {
       <div className="flex-1 flex flex-col overflow-hidden relative z-10">
         {/* Header */}
         <header className="relative z-20">
-          <div className="bg-gradient-to-r from-blue-900 via-blue-800 to-blue-900 border-b border-blue-700">
-            <div className="container mx-auto py-4 px-6 relative overflow-hidden">
-              {/* Decorative elements */}
-              <div className="absolute top-0 right-0 w-96 h-96 bg-blue-600 rounded-full opacity-10 blur-3xl -mt-48 -mr-48"></div>
-              <div className="absolute bottom-0 left-0 w-64 h-64 bg-amber-400 rounded-full opacity-10 blur-3xl -mb-32 -ml-32"></div>
-              
-              <div className="flex justify-between items-center relative z-10">
+          <div className="bg-white border-b border-gray-200 shadow-sm">
+            <div className="container mx-auto py-4 px-6 relative">
+              <div className="flex justify-between items-center">
                 <div className="flex items-center gap-4">
                   <Button 
                     variant="ghost" 
                     size="lg"
-                    className="lg:hidden text-white hover:bg-blue-800/50"
+                    className="lg:hidden text-gray-700 hover:bg-gray-100"
                     onClick={() => setSidebarOpen(true)}
                   >
                     <Menu size={24} />
                   </Button>
                   <div>
-                    <div className="flex items-end gap-2">
-                      <h1 className="text-2xl font-bold tracking-tight bg-gradient-to-r from-white via-blue-100 to-amber-200 inline-block text-transparent bg-clip-text">
-                        InfyMailer
+                    <div className="flex items-center">
+                      <h1 className="text-xl font-bold text-gray-800">
+                        InfyTech Solutions
                       </h1>
-                      <div className="bg-amber-500 h-6 w-1.5 rounded-full mb-1 blur-[0.5px]"></div>
-                      <span className="text-lg font-medium text-blue-100 tracking-wide">Dashboard</span>
+                      <div className="mx-2 h-5 w-px bg-gray-300"></div>
+                      <span className="text-lg font-medium text-blue-600">Dashboard</span>
                     </div>
                     <div className="flex items-center gap-2 mt-0.5">
-                      <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
-                      <p className="text-sm font-medium text-blue-200">{clientData.company || 'InfyTech Solutions'}</p>
+                      <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                      <p className="text-sm text-gray-500">Active Account</p>
                     </div>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="hidden md:flex px-4 py-1.5 rounded-lg backdrop-blur-sm bg-white/10 border border-white/20 text-white shadow-lg">
-                    <div className="relative">
-                      <div className="absolute -left-8 top-1/2 transform -translate-y-1/2 w-6 h-6 rounded-full bg-amber-400 flex items-center justify-center">
-                        <CircleUser className="h-3.5 w-3.5 text-blue-900" />
-                      </div>
-                      <div className="flex items-center pl-0.5">
-                        <div className="flex flex-col">
-                          <span className="text-xs font-semibold opacity-70">Welcome back</span>
-                          <span className="text-sm font-bold">{clientUser?.name || 'User'}</span>
-                        </div>
-                        <Bell className="h-4 w-4 ml-5 text-amber-300" />
-                      </div>
+                  <div className="hidden md:flex items-center mr-2">
+                    <CircleUser className="h-5 w-5 text-blue-600 mr-2" />
+                    <div className="flex flex-col">
+                      <span className="text-sm font-medium text-gray-800">{clientUser?.name || 'User'}</span>
+                      <span className="text-xs text-gray-500">Client</span>
                     </div>
                   </div>
                   <Button 
                     variant="outline" 
                     onClick={handleLogout} 
-                    className="text-white border-white/20 hover:bg-white/10 font-medium px-4 backdrop-blur-sm"
+                    className="text-gray-700 border-gray-300 hover:bg-gray-50"
                   >
-                    <LogOut className="h-4 w-4 mr-2 text-amber-300" />
+                    <LogOut className="h-4 w-4 mr-2 text-gray-500" />
                     Logout
                   </Button>
                 </div>
@@ -241,20 +230,20 @@ export default function ClientDashboard() {
           </div>
           
           {/* Sub header with breadcrumbs and quick actions */}
-          <div className="bg-gradient-to-r from-blue-100/80 via-white to-blue-50/80 border-b border-blue-200 py-2 px-6 shadow-sm">
+          <div className="bg-gray-50 border-b border-gray-200 py-2 px-6">
             <div className="container mx-auto flex justify-between items-center">
-              <div className="flex items-center text-sm text-slate-600">
+              <div className="flex items-center text-sm text-gray-600">
                 <Home className="h-3.5 w-3.5 mr-2 text-blue-600" />
                 <span className="text-blue-600 font-medium">Home</span>
-                <ChevronRight className="h-3.5 w-3.5 mx-1.5 text-slate-400" />
+                <ChevronRight className="h-3.5 w-3.5 mx-1.5 text-gray-400" />
                 <span className="font-medium">Dashboard</span>
               </div>
               <div className="flex items-center gap-2">
-                <Button variant="ghost" size="sm" className="h-8 text-slate-600 hover:text-blue-700 hover:bg-blue-100/50">
+                <Button variant="ghost" size="sm" className="h-8 text-gray-600 hover:text-blue-600 hover:bg-gray-100">
                   <RefreshCw className="h-3.5 w-3.5 mr-1" /> Refresh
                 </Button>
-                <div className="h-4 border-r border-slate-300 mx-1"></div>
-                <Button variant="ghost" size="sm" className="h-8 text-slate-600 hover:text-blue-700 hover:bg-blue-100/50">
+                <div className="h-4 border-r border-gray-300 mx-1"></div>
+                <Button variant="ghost" size="sm" className="h-8 text-gray-600 hover:text-blue-600 hover:bg-gray-100">
                   <Download className="h-3.5 w-3.5 mr-1" /> Export
                 </Button>
               </div>
