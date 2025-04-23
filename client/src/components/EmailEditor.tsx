@@ -1305,10 +1305,21 @@ declare global {
 
 const EmailEditor: React.FC<{
   initialTemplate?: EmailTemplate;
-  onSave: (template: EmailTemplate, html: string) => void;
+  onSave?: (template: EmailTemplate, html: string) => void;
+  onTemplateChange?: (template: EmailTemplate, type: string, targetType: string, targetId?: string, parentId?: string) => void;
+  onElementFocus?: (elementId: string, selection?: { start: number; end: number }) => void;
   isSaving?: boolean;
   className?: string;
-}> = ({ initialTemplate, onSave, isSaving = false, className = '' }) => {
+  readOnly?: boolean;
+}> = ({ 
+  initialTemplate, 
+  onSave, 
+  onTemplateChange,
+  onElementFocus,
+  isSaving = false, 
+  className = '',
+  readOnly = false
+}) => {
   const { toast } = useToast();
   const [templateName, setTemplateName] = useState(initialTemplate?.name || 'Untitled Template');
   const [templateSubject, setTemplateSubject] = useState(initialTemplate?.subject || '');
@@ -1497,6 +1508,11 @@ const EmailEditor: React.FC<{
     
     if (sectionWithElement) {
       setSelectedSectionId(sectionWithElement.id);
+    }
+    
+    // Trigger onElementFocus callback if provided
+    if (onElementFocus) {
+      onElementFocus(elementId);
     }
   };
   
@@ -1942,7 +1958,26 @@ const EmailEditor: React.FC<{
     };
     
     const html = generateHtml();
-    onSave(template, html);
+    
+    // Check for readOnly mode before saving
+    if (readOnly) {
+      toast({
+        title: "Read-only mode",
+        description: "Cannot save in read-only mode.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    // Call the onSave callback if provided
+    if (onSave) {
+      onSave(template, html);
+    }
+    
+    // Call the onTemplateChange callback if provided
+    if (onTemplateChange) {
+      onTemplateChange(template, 'update', 'template');
+    }
   };
   
   return (

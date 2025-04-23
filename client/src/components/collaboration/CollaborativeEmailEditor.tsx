@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useCollaboration } from '@/hooks/useCollaboration';
-import { EmailEditor } from '@/components/EmailEditor';
+import EmailEditor from '@/components/EmailEditor';
 import { CollaborationPanel } from './CollaborationPanel';
 import { CollaborationCursor } from './CollaborationCursor';
 import { CollaborationSelection } from './CollaborationSelection';
