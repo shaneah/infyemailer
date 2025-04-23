@@ -70,10 +70,10 @@ export function CollaborativeEmailEditor({
     setOnTemplateChange((user, change) => {
       // Apply changes from other users to the local template
       try {
-        const { changeData } = change;
-        if (!changeData) return;
+        // TemplateChange has the change data directly
+        if (!change) return;
         
-        switch (changeData.type) {
+        switch (change.type) {
           case 'add':
             // Handle add operation
             console.log('Collaboration: Add operation from', user.username);
@@ -102,7 +102,7 @@ export function CollaborativeEmailEditor({
         // Show toast for collaboration changes
         toast({
           title: `${user.username} made changes`,
-          description: `Updated ${changeData.targetType}`,
+          description: `Updated ${change.targetType}`,
           variant: 'default',
         });
       } catch (error) {
