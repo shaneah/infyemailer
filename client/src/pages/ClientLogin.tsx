@@ -183,7 +183,7 @@ const ClientLogin = () => {
         ))}
         
         {/* Decorative elements */}
-        <div className="absolute inset-0 bg-[url('/assets/infy.png')] bg-center bg-no-repeat opacity-5 mix-blend-overlay"></div>
+        <div className="absolute inset-0 bg-[url('../assets/infy.png')] bg-center bg-no-repeat opacity-5 mix-blend-overlay"></div>
         <div className="absolute top-20 left-20 w-40 h-40 rounded-full bg-[#d4af37]/5 blur-3xl"></div>
         <div className="absolute bottom-20 right-20 w-60 h-60 rounded-full bg-[#1a3a5f]/30 blur-3xl"></div>
         
