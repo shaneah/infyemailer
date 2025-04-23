@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { Lock, Mail, Eye, EyeOff, ChevronRight, ArrowRight, Shield, BarChart3, Zap, Layers } from 'lucide-react';
+import { Lock, Mail, Eye, EyeOff, ArrowRight } from 'lucide-react';
 import LogoWhite from '@/assets/Logo-white.png';
 
 // Form schema
@@ -18,47 +18,11 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-// Particle type
-type Particle = {
-  x: number;
-  y: number;
-  size: number;
-  speed: number;
-  opacity: number;
-};
-
 const ClientLogin = () => {
   const [location, setLocation] = useLocation();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [particles, setParticles] = useState<Particle[]>([]);
   const { toast } = useToast();
-
-  // Generate particles for background effect
-  useEffect(() => {
-    const particlesCount = 60;
-    const newParticles = Array.from({ length: particlesCount }).map(() => ({
-      x: Math.random() * 100,
-      y: Math.random() * 100,
-      size: Math.random() * 3 + 0.5,
-      speed: Math.random() * 0.4 + 0.1,
-      opacity: Math.random() * 0.7 + 0.3
-    }));
-    
-    setParticles(newParticles);
-    
-    const interval = setInterval(() => {
-      setParticles(prevParticles => 
-        prevParticles.map(particle => ({
-          ...particle,
-          y: particle.y - particle.speed > 0 ? particle.y - particle.speed : 100,
-          x: particle.x + (Math.random() * 0.4 - 0.2)
-        }))
-      );
-    }, 50);
-    
-    return () => clearInterval(interval);
-  }, []);
 
   // Check if user is already logged in
   React.useEffect(() => {
@@ -164,224 +128,134 @@ const ClientLogin = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0a1929] via-[#112b4a] to-[#1a3a5f] text-white flex flex-col justify-center overflow-hidden">
-      {/* Animated background particles */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {particles.map((particle, index) => (
-          <div 
-            key={index}
-            className="absolute rounded-full bg-[#d4af37]"
-            style={{
-              left: `${particle.x}%`,
-              top: `${particle.y}%`,
-              width: `${particle.size}px`,
-              height: `${particle.size}px`,
-              opacity: particle.opacity,
-              boxShadow: `0 0 ${particle.size * 2}px ${particle.size}px rgba(212, 175, 55, 0.3)`
-            }}
-          />
-        ))}
-        
-        {/* Decorative elements */}
-        <div className="absolute inset-0 bg-[url('../assets/infy.png')] bg-center bg-no-repeat opacity-5 mix-blend-overlay"></div>
-        <div className="absolute top-20 left-20 w-40 h-40 rounded-full bg-[#d4af37]/5 blur-3xl"></div>
-        <div className="absolute bottom-20 right-20 w-60 h-60 rounded-full bg-[#1a3a5f]/30 blur-3xl"></div>
-        
-        {/* Gradient overlays */}
-        <div className="absolute top-0 left-0 right-0 h-40 bg-gradient-to-b from-[#0a1929] to-transparent"></div>
-        <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-[#0a1929] to-transparent"></div>
-      </div>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-indigo-900 via-blue-900 to-indigo-800">
+      <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:40px_40px]"></div>
       
-      <div className="container mx-auto px-4 py-8 z-10 relative">
-        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+      {/* Background glow effects */}
+      <div className="absolute top-0 left-0 right-0 h-px bg-white/20"></div>
+      <div className="absolute left-1/4 w-3/4 h-px bg-gradient-to-r from-transparent via-indigo-500 to-transparent opacity-50"></div>
+      <div className="absolute top-1/3 -left-20 w-80 h-80 bg-purple-500 rounded-full mix-blend-screen filter blur-3xl opacity-10"></div>
+      <div className="absolute bottom-1/3 -right-20 w-80 h-80 bg-cyan-500 rounded-full mix-blend-screen filter blur-3xl opacity-10"></div>
+      
+      <div className="relative z-10 w-full max-w-md px-8">
+        <div className="bg-white/10 backdrop-filter backdrop-blur-sm border border-white/20 rounded-2xl overflow-hidden shadow-2xl">
+          {/* Card header */}
+          <div className="p-6 pb-0 text-center">
+            <img src={LogoWhite} alt="Infinity Tech Logo" className="h-20 mx-auto mb-4" />
+            <h2 className="text-2xl font-bold text-white mb-1">Client Portal</h2>
+            <p className="text-indigo-200 text-sm mb-6">Sign in to your Premium Dashboard</p>
+          </div>
           
-          {/* Left column - Form */}
-          <div className="backdrop-blur-sm bg-white/10 p-8 rounded-3xl shadow-2xl overflow-hidden border border-white/10 relative">
-            {/* Glow effects */}
-            <div className="absolute -top-20 -left-20 w-40 h-40 bg-[#d4af37]/20 rounded-full blur-3xl"></div>
-            <div className="absolute -bottom-20 -right-20 w-40 h-40 bg-[#1a3a5f]/30 rounded-full blur-3xl"></div>
-            
-            <div className="relative">
-              <div className="text-center">
-                <img src={LogoWhite} alt="InfyMailer Logo" className="h-28 mx-auto mb-6 drop-shadow-xl" />
-                <h2 className="text-4xl font-extrabold mb-2 bg-gradient-to-r from-white via-[#d4af37] to-white inline-block text-transparent bg-clip-text">
-                  Infinity Portal
-                </h2>
-                <div className="w-32 h-1 mx-auto bg-gradient-to-r from-transparent via-[#d4af37] to-transparent my-3"></div>
-                <p className="text-sm text-white/70">
-                  Access your premium AI-powered marketing suite
-                </p>
-              </div>
-              
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="mt-8 space-y-6">
-                  <FormField
-                    control={form.control}
-                    name="username"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-white/80 font-medium text-sm flex items-center">
-                          <Mail className="h-3.5 w-3.5 mr-2 text-[#d4af37]" />
-                          Username
-                        </FormLabel>
-                        <FormControl>
-                          <div className="flex items-center relative bg-white/5 border border-white/20 rounded-lg focus-within:ring-1 focus-within:ring-[#d4af37]/50 focus-within:border-[#d4af37]/30 transition-all duration-300 backdrop-blur-sm">
-                            <div className="h-full aspect-square flex items-center justify-center bg-[#d4af37]/10 rounded-l-lg border-r border-white/10">
-                              <Mail className="h-4 w-4 text-[#d4af37]" />
-                            </div>
-                            <Input 
-                              placeholder="Enter your username" 
-                              {...field} 
-                              className="py-3 px-3 block w-full bg-transparent border-0 rounded-r-lg focus:outline-none text-white"
-                            />
+          {/* Card body */}
+          <div className="p-6 pt-2">
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="username"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-indigo-100 text-sm font-medium">Username</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <Mail className="h-4 w-4 text-indigo-300" />
                           </div>
-                        </FormControl>
-                        <FormMessage className="text-red-400 text-sm mt-1" />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="password"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-white/80 font-medium text-sm flex items-center">
-                          <Shield className="h-3.5 w-3.5 mr-2 text-[#d4af37]" />
-                          Password
-                        </FormLabel>
-                        <FormControl>
-                          <div className="flex items-center relative bg-white/5 border border-white/20 rounded-lg focus-within:ring-1 focus-within:ring-[#d4af37]/50 focus-within:border-[#d4af37]/30 transition-all duration-300 backdrop-blur-sm">
-                            <div className="h-full aspect-square flex items-center justify-center bg-[#d4af37]/10 rounded-l-lg border-r border-white/10">
-                              <Lock className="h-4 w-4 text-[#d4af37]" />
-                            </div>
-                            <Input 
-                              type={showPassword ? "text" : "password"}
-                              placeholder="••••••••" 
-                              {...field} 
-                              className="py-3 px-3 block w-full bg-transparent border-0 rounded-r-lg focus:outline-none text-white" 
-                            />
-                            <button 
-                              type="button"
-                              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white/60 hover:text-[#d4af37] transition-colors"
-                              onClick={() => setShowPassword(!showPassword)}
-                            >
-                              {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                            </button>
+                          <Input 
+                            placeholder="Enter your username" 
+                            className="pl-10 bg-white/5 border-indigo-500/30 focus:border-indigo-400 text-white rounded-lg" 
+                            {...field} 
+                          />
+                        </div>
+                      </FormControl>
+                      <FormMessage className="text-red-300 text-xs" />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-indigo-100 text-sm font-medium">Password</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <Lock className="h-4 w-4 text-indigo-300" />
                           </div>
-                        </FormControl>
-                        <FormMessage className="text-red-400 text-sm mt-1" />
-                      </FormItem>
-                    )}
-                  />
-                  
+                          <Input 
+                            type={showPassword ? "text" : "password"}
+                            placeholder="••••••••••" 
+                            className="pl-10 bg-white/5 border-indigo-500/30 focus:border-indigo-400 text-white rounded-lg pr-10" 
+                            {...field} 
+                          />
+                          <button 
+                            type="button"
+                            className="absolute inset-y-0 right-0 pr-3 flex items-center text-indigo-300 hover:text-white transition-colors"
+                            onClick={() => setShowPassword(!showPassword)}
+                          >
+                            {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                          </button>
+                        </div>
+                      </FormControl>
+                      <FormMessage className="text-red-300 text-xs" />
+                    </FormItem>
+                  )}
+                />
+                
+                <div className="pt-2">
                   <Button 
                     type="submit" 
-                    className="w-full py-3 bg-gradient-to-r from-[#d4af37] to-[#d4af37]/70 hover:from-[#d4af37]/70 hover:to-[#d4af37] text-white font-medium rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center overflow-hidden relative group"
                     disabled={isLoading}
+                    className="w-full rounded-lg py-2.5 bg-gradient-to-r from-indigo-600 to-blue-500 hover:from-indigo-500 hover:to-blue-400 text-white shadow-md hover:shadow-lg transition duration-200"
                   >
-                    <span className="absolute inset-0 w-0 bg-white/10 transition-all duration-500 ease-out group-hover:w-full"></span>
                     {isLoading ? (
-                      <>
+                      <div className="flex items-center justify-center">
                         <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
-                        <span className="relative">Authenticating...</span>
-                      </>
+                        <span>Authenticating...</span>
+                      </div>
                     ) : (
-                      <span className="flex items-center relative">
-                        Access Portal <ArrowRight className="ml-2 h-4 w-4" />
+                      <span className="flex items-center justify-center">
+                        Sign In <ArrowRight className="ml-2 h-4 w-4" />
                       </span>
                     )}
                   </Button>
-                  
-                  <div className="bg-white/5 backdrop-blur-sm rounded-lg p-4 text-xs text-white/80 text-center border border-white/10">
-                    <p className="mb-1 font-medium text-[#d4af37]">For demonstration purposes:</p>
-                    <p>Username: <strong>client1</strong> | Password: <strong>clientdemo</strong></p>
-                  </div>
-                </form>
-              </Form>
-              
-              <div className="mt-6 text-sm text-center">
-                <p className="text-white/50 mb-2">
-                  Only authorized users with client credentials can access this portal.
-                  <br />Contact your account manager if you need assistance.
-                </p>
+                </div>
+                
+                <div className="mt-4 p-3 bg-indigo-900/30 rounded-lg border border-indigo-500/20 text-xs text-center">
+                  <p className="text-indigo-300 mb-1">For demonstration purposes:</p>
+                  <p className="text-white">Username: <strong>client1</strong> | Password: <strong>clientdemo</strong></p>
+                </div>
+              </form>
+            </Form>
+            
+            <div className="mt-6 text-center text-xs">
+              <p className="text-indigo-300">
+                Only authorized clients can access this portal.<br/>
+                Need help? Contact your account manager.
+              </p>
+              <div className="mt-4 border-t border-indigo-500/20 pt-4">
                 <a 
                   href="#"
                   onClick={(e) => {
                     e.preventDefault();
                     setLocation('auth');
                   }}
-                  className="font-medium text-[#d4af37] hover:text-white transition-colors duration-200 inline-flex items-center"
+                  className="text-indigo-300 hover:text-white transition-colors inline-flex items-center"
                 >
-                  Switch to Admin Login <ChevronRight className="ml-1 h-3 w-3" />
+                  Switch to Admin Login
                 </a>
-              </div>
-            </div>
-          </div>
-          
-          {/* Right column - Features */}
-          <div className="hidden md:block">
-            <div className="space-y-8">
-              <div>
-                <h1 className="text-4xl font-extrabold mb-2">
-                  <span className="text-white">Welcome to </span>
-                  <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#d4af37] to-[#f5f0e1]">
-                    Infinity Tech
-                  </span>
-                </h1>
-                <p className="text-xl text-white/80 max-w-lg">
-                  Access premium marketing tools, real-time analytics, and AI-powered insights in one elegant dashboard.
-                </p>
-              </div>
-              
-              <div className="space-y-5">
-                <div className="feature-card bg-white/5 border border-white/10 backdrop-blur-sm rounded-xl p-6 shadow-lg transform transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:border-[#d4af37]/30">
-                  <div className="flex items-start space-x-4">
-                    <div className="rounded-full bg-gradient-to-br from-[#d4af37] to-purple-600 p-3 shadow-lg">
-                      <BarChart3 size={24} className="text-white" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-bold text-white mb-2">Advanced Analytics</h3>
-                      <p className="text-white/70">Real-time metrics and campaign performance dashboards with AI-driven insights and recommendations.</p>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="feature-card bg-white/5 border border-white/10 backdrop-blur-sm rounded-xl p-6 shadow-lg transform transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:border-[#d4af37]/30">
-                  <div className="flex items-start space-x-4">
-                    <div className="rounded-full bg-gradient-to-br from-[#d4af37] to-purple-600 p-3 shadow-lg">
-                      <Zap size={24} className="text-white" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-bold text-white mb-2">AI Optimization</h3>
-                      <p className="text-white/70">Smart content suggestions, optimal send time predictions, and audience segmentation tools.</p>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="feature-card bg-white/5 border border-white/10 backdrop-blur-sm rounded-xl p-6 shadow-lg transform transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:border-[#d4af37]/30">
-                  <div className="flex items-start space-x-4">
-                    <div className="rounded-full bg-gradient-to-br from-[#d4af37] to-purple-600 p-3 shadow-lg">
-                      <Layers size={24} className="text-white" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-bold text-white mb-2">Enterprise Security</h3>
-                      <p className="text-white/70">Bank-level encryption, secure access controls, and comprehensive data protection measures.</p>
-                    </div>
-                  </div>
-                </div>
               </div>
             </div>
           </div>
         </div>
         
-        <div className="text-center mt-8">
-          <div className="text-white/40 text-sm">
-            &copy; {new Date().getFullYear()} Infinity Tech. <span className="px-1 text-[#d4af37]/70">Enterprise Platform</span> All rights reserved.
-          </div>
+        <div className="text-center mt-6 text-indigo-300/70 text-xs">
+          &copy; {new Date().getFullYear()} Infinity Tech • Premium Email Platform
         </div>
       </div>
     </div>
