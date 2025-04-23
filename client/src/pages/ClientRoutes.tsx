@@ -872,8 +872,8 @@ const ClientLists = ({ onCreateList }: { onCreateList: () => void }) => {
         </div>
       </div>
       
-      {/* Lists Grid - Minimalist flat design */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+      {/* Lists Grid - Compact minimalist flat design */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-8">
         {isLoading ? (
           <div className="col-span-full flex justify-center py-8">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -896,13 +896,13 @@ const ClientLists = ({ onCreateList }: { onCreateList: () => void }) => {
           </div>
         ) : (
           lists.map(list => (
-            <div key={list.id} className="group relative bg-white border-l-4 border-primary border-t border-r border-b border-gray-200 hover:border-l-8 transition-all duration-200">
+            <div key={list.id} className="group relative bg-white border-l-2 border-primary border-t border-r border-b border-gray-200 hover:border-l-4 transition-all duration-200">
               {/* Top section with title and menu */}
-              <div className="p-5">
-                <div className="flex justify-between items-start">
-                  <h3 className="text-lg font-semibold text-gray-800">{list.name}</h3>
-                  <button className="text-gray-400 hover:text-gray-600 p-1">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <div className="p-3">
+                <div className="flex justify-between items-start mb-1">
+                  <h3 className="text-base font-medium text-gray-800 truncate">{list.name}</h3>
+                  <button className="text-gray-400 hover:text-gray-600 -mt-1 -mr-1 p-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <circle cx="12" cy="12" r="1"></circle>
                       <circle cx="12" cy="5" r="1"></circle>
                       <circle cx="12" cy="19" r="1"></circle>
@@ -910,42 +910,46 @@ const ClientLists = ({ onCreateList }: { onCreateList: () => void }) => {
                   </button>
                 </div>
                 
-                {/* Description */}
-                <p className="text-sm text-gray-500 mt-2 mb-4 line-clamp-2">{list.description}</p>
+                {/* Description - compact */}
+                <p className="text-xs text-gray-500 mb-2 line-clamp-1">{list.description}</p>
                 
-                {/* Tags */}
+                {/* Tags - more compact */}
                 {list.tags.length > 0 && (
-                  <div className="flex flex-wrap gap-1.5 mb-4">
-                    {list.tags.map((tag, idx) => (
-                      <span key={idx} className="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs">
+                  <div className="flex flex-wrap gap-1 mb-2">
+                    {list.tags.slice(0, 2).map((tag, idx) => (
+                      <span key={idx} className="px-1.5 py-0.5 bg-gray-100 text-gray-600 text-xs">
                         {tag}
                       </span>
                     ))}
+                    {list.tags.length > 2 && (
+                      <span className="px-1.5 py-0.5 bg-gray-100 text-gray-600 text-xs">
+                        +{list.tags.length - 2} more
+                      </span>
+                    )}
                   </div>
                 )}
                 
-                {/* Stats */}
-                <div className="flex justify-between items-center text-sm pt-3 border-t border-gray-100">
+                {/* Stats - more compact */}
+                <div className="flex justify-between items-center text-xs pt-2 border-t border-gray-100">
                   <div className="flex items-center text-gray-500">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mr-1 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>
                     <span className="font-medium text-gray-700">{list.contactCount.toLocaleString()}</span>
-                    <span className="ml-1">contacts</span>
                   </div>
                   <div className="text-xs text-gray-400">
-                    Updated {new Date(list.lastUpdated).toLocaleDateString()}
+                    {new Date(list.lastUpdated).toLocaleDateString()}
                   </div>
                 </div>
               </div>
               
-              {/* Actions footer */}
-              <div className="flex border-t border-gray-100 divide-x divide-gray-100">
-                <button className="flex-1 py-3 text-sm text-center text-gray-600 hover:bg-gray-50 hover:text-primary transition-colors">
-                  View Contacts
+              {/* Actions footer - more compact */}
+              <div className="flex border-t border-gray-100 divide-x divide-gray-100 text-xs">
+                <button className="flex-1 py-2 text-center text-gray-600 hover:bg-gray-50 hover:text-primary transition-colors">
+                  View
                 </button>
-                <button className="flex-1 py-3 text-sm text-center text-gray-600 hover:bg-gray-50 hover:text-primary transition-colors">
-                  Edit List
+                <button className="flex-1 py-2 text-center text-gray-600 hover:bg-gray-50 hover:text-primary transition-colors">
+                  Edit
                 </button>
               </div>
             </div>
