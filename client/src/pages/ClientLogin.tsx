@@ -129,25 +129,39 @@ const ClientLogin = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-indigo-900 via-blue-900 to-indigo-800">
+      {/* Meta tag for proper mobile viewport */}
+      <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+      
+      {/* Background patterns and effects */}
       <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:40px_40px]"></div>
       
-      {/* Background glow effects */}
+      {/* Background glow effects - optimized for mobile */}
       <div className="absolute top-0 left-0 right-0 h-px bg-white/20"></div>
       <div className="absolute left-1/4 w-3/4 h-px bg-gradient-to-r from-transparent via-indigo-500 to-transparent opacity-50"></div>
-      <div className="absolute top-1/3 -left-20 w-80 h-80 bg-purple-500 rounded-full mix-blend-screen filter blur-3xl opacity-10"></div>
-      <div className="absolute bottom-1/3 -right-20 w-80 h-80 bg-cyan-500 rounded-full mix-blend-screen filter blur-3xl opacity-10"></div>
+      <div className="absolute top-1/3 -left-20 w-80 h-80 bg-purple-500 rounded-full mix-blend-screen filter blur-3xl opacity-10 hidden sm:block"></div>
+      <div className="absolute bottom-1/3 -right-20 w-80 h-80 bg-cyan-500 rounded-full mix-blend-screen filter blur-3xl opacity-10 hidden sm:block"></div>
       
-      <div className="relative z-10 w-full max-w-md px-8">
+      {/* Mobile-optimized glow effects (smaller, positioned differently) */}
+      <div className="absolute top-1/4 left-0 w-40 h-40 bg-purple-500 rounded-full mix-blend-screen filter blur-2xl opacity-10 sm:hidden"></div>
+      <div className="absolute bottom-1/4 right-0 w-40 h-40 bg-cyan-500 rounded-full mix-blend-screen filter blur-2xl opacity-10 sm:hidden"></div>
+      
+      {/* Main content container with responsive padding */}
+      <div className="relative z-10 w-full max-w-md px-4 sm:px-8">
+        {/* Glass card with responsive padding and sizing */}
         <div className="bg-white/10 backdrop-filter backdrop-blur-sm border border-white/20 rounded-2xl overflow-hidden shadow-2xl">
-          {/* Card header */}
-          <div className="p-6 pb-0 text-center">
-            <img src={LogoWhite} alt="Infinity Tech Logo" className="h-20 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-white mb-1">Client Portal</h2>
-            <p className="text-indigo-200 text-sm mb-6">Sign in to your Premium Dashboard</p>
+          {/* Card header with responsive sizing */}
+          <div className="p-4 sm:p-6 pb-0 text-center">
+            <img 
+              src={LogoWhite} 
+              alt="Infinity Tech Logo" 
+              className="h-16 sm:h-20 mx-auto mb-3 sm:mb-4" 
+            />
+            <h2 className="text-xl sm:text-2xl font-bold text-white mb-1">Client Portal</h2>
+            <p className="text-indigo-200 text-xs sm:text-sm mb-4 sm:mb-6">Sign in to your Premium Dashboard</p>
           </div>
           
-          {/* Card body */}
-          <div className="p-6 pt-2">
+          {/* Card body with responsive padding */}
+          <div className="p-4 sm:p-6 pt-2">
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                 <FormField
@@ -155,7 +169,7 @@ const ClientLogin = () => {
                   name="username"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-indigo-100 text-sm font-medium">Username</FormLabel>
+                      <FormLabel className="text-indigo-100 text-xs sm:text-sm font-medium">Username</FormLabel>
                       <FormControl>
                         <div className="relative">
                           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -163,8 +177,12 @@ const ClientLogin = () => {
                           </div>
                           <Input 
                             placeholder="Enter your username" 
-                            className="pl-10 bg-white/5 border-indigo-500/30 focus:border-indigo-400 text-white rounded-lg" 
-                            {...field} 
+                            className="pl-10 bg-white/5 border-indigo-500/30 focus:border-indigo-400 text-white rounded-lg text-sm" 
+                            {...field}
+                            // Mobile-optimized attributes
+                            autoCapitalize="none"
+                            autoCorrect="off"
+                            autoComplete="username"
                           />
                         </div>
                       </FormControl>
@@ -178,7 +196,7 @@ const ClientLogin = () => {
                   name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-indigo-100 text-sm font-medium">Password</FormLabel>
+                      <FormLabel className="text-indigo-100 text-xs sm:text-sm font-medium">Password</FormLabel>
                       <FormControl>
                         <div className="relative">
                           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -187,13 +205,17 @@ const ClientLogin = () => {
                           <Input 
                             type={showPassword ? "text" : "password"}
                             placeholder="••••••••••" 
-                            className="pl-10 bg-white/5 border-indigo-500/30 focus:border-indigo-400 text-white rounded-lg pr-10" 
-                            {...field} 
+                            className="pl-10 bg-white/5 border-indigo-500/30 focus:border-indigo-400 text-white rounded-lg pr-10 text-sm" 
+                            {...field}
+                            // Mobile-optimized attributes
+                            autoComplete="current-password"
                           />
                           <button 
                             type="button"
                             className="absolute inset-y-0 right-0 pr-3 flex items-center text-indigo-300 hover:text-white transition-colors"
                             onClick={() => setShowPassword(!showPassword)}
+                            // Improve mobile touch target
+                            aria-label={showPassword ? "Hide password" : "Show password"}
                           >
                             {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                           </button>
@@ -208,7 +230,7 @@ const ClientLogin = () => {
                   <Button 
                     type="submit" 
                     disabled={isLoading}
-                    className="w-full rounded-lg py-2.5 bg-gradient-to-r from-indigo-600 to-blue-500 hover:from-indigo-500 hover:to-blue-400 text-white shadow-md hover:shadow-lg transition duration-200"
+                    className="w-full h-11 rounded-lg py-2.5 bg-gradient-to-r from-indigo-600 to-blue-500 hover:from-indigo-500 hover:to-blue-400 text-white shadow-md hover:shadow-lg transition duration-200 text-base"
                   >
                     {isLoading ? (
                       <div className="flex items-center justify-center">
@@ -228,24 +250,28 @@ const ClientLogin = () => {
                 
                 <div className="mt-4 p-3 bg-indigo-900/30 rounded-lg border border-indigo-500/20 text-xs text-center">
                   <p className="text-indigo-300 mb-1">For demonstration purposes:</p>
-                  <p className="text-white">Username: <strong>client1</strong> | Password: <strong>clientdemo</strong></p>
+                  <p className="text-white">
+                    <span className="block sm:inline">Username: <strong>client1</strong></span>
+                    <span className="hidden sm:inline"> | </span>
+                    <span className="block sm:inline">Password: <strong>clientdemo</strong></span>
+                  </p>
                 </div>
               </form>
             </Form>
             
-            <div className="mt-6 text-center text-xs">
+            <div className="mt-5 sm:mt-6 text-center text-xs">
               <p className="text-indigo-300">
                 Only authorized clients can access this portal.<br/>
                 Need help? Contact your account manager.
               </p>
-              <div className="mt-4 border-t border-indigo-500/20 pt-4">
+              <div className="mt-3 sm:mt-4 border-t border-indigo-500/20 pt-3 sm:pt-4">
                 <a 
                   href="#"
                   onClick={(e) => {
                     e.preventDefault();
                     setLocation('auth');
                   }}
-                  className="text-indigo-300 hover:text-white transition-colors inline-flex items-center"
+                  className="text-indigo-300 hover:text-white transition-colors inline-flex items-center py-2"
                 >
                   Switch to Admin Login
                 </a>
@@ -254,7 +280,7 @@ const ClientLogin = () => {
           </div>
         </div>
         
-        <div className="text-center mt-6 text-indigo-300/70 text-xs">
+        <div className="text-center mt-4 sm:mt-6 text-indigo-300/70 text-xs pb-4">
           &copy; {new Date().getFullYear()} Infinity Tech • Premium Email Platform
         </div>
       </div>
