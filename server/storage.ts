@@ -1845,7 +1845,252 @@ export class MemStorage implements IStorage {
   
   // Campaign Variant methods for A/B Testing (stub implementation)
   async getCampaignVariants(campaignId: number): Promise<CampaignVariant[]> {
-    return [];
+    // Check if we have any campaign variants for this campaign
+    const existingVariants = Array.from(this.campaignVariants.values())
+      .filter(variant => variant.campaignId === campaignId);
+    
+    // If no variants exist for this campaign, create sample variants
+    if (existingVariants.length === 0 && [101, 102, 103].includes(campaignId)) {
+      // Create sample variants based on campaign ID
+      const now = new Date();
+      let sampleVariants: CampaignVariant[] = [];
+      
+      if (campaignId === 101) {
+        // Summer Sale Promotion variants
+        sampleVariants = [
+          {
+            id: 1001,
+            campaignId: 101,
+            name: "Variant A: Discount Focus",
+            subject: "SAVE 30% - Summer Clearance Sale!",
+            previewText: "Limited time discounts on summer essentials",
+            content: `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+              <h1 style="color: #e63946; text-align: center;">SUMMER SALE - 30% OFF!</h1>
+              <p style="font-size: 16px; line-height: 1.5;">Dear Customer,</p>
+              <p style="font-size: 16px; line-height: 1.5;">Summer is heating up, and so are our deals! For a limited time, enjoy <strong>30% off</strong> on all our summer essentials.</p>
+              <div style="background-color: #f1faee; padding: 15px; margin: 20px 0; border-radius: 5px;">
+                <h2 style="color: #1d3557; margin-top: 0;">HIGHLIGHTS:</h2>
+                <ul style="color: #457b9d;">
+                  <li>Beach accessories - 30% off</li>
+                  <li>Summer clothing - Buy 1 Get 1 at 50% off</li>
+                  <li>Outdoor gear - Extra 10% when you spend $100+</li>
+                </ul>
+              </div>
+              <p style="font-size: 16px; line-height: 1.5;">Don't miss out! Sale ends July 31st.</p>
+              <div style="text-align: center; margin: 25px 0;">
+                <a href="#" style="background-color: #e63946; color: white; padding: 12px 25px; text-decoration: none; border-radius: 4px; font-weight: bold;">SHOP THE SALE NOW</a>
+              </div>
+            </div>`,
+            weight: 50,
+            createdAt: now,
+            updatedAt: now
+          },
+          {
+            id: 1002,
+            campaignId: 101,
+            name: "Variant B: Value Focus",
+            subject: "Summer Essentials You'll Love - Shop Now!",
+            previewText: "Curated summer products to enhance your season",
+            content: `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+              <h1 style="color: #0077b6; text-align: center;">Summer Essentials Collection</h1>
+              <p style="font-size: 16px; line-height: 1.5;">Hello there,</p>
+              <p style="font-size: 16px; line-height: 1.5;">We've curated the perfect collection of summer must-haves to help you make the most of the season!</p>
+              <div style="background-color: #f8f9fa; padding: 15px; margin: 20px 0; border-radius: 5px;">
+                <h2 style="color: #023e8a; margin-top: 0;">OUR TOP PICKS FOR YOU:</h2>
+                <div style="display: flex; justify-content: space-between; margin-top: 15px;">
+                  <div style="text-align: center; padding: 10px;">
+                    <div style="background-color: #caf0f8; height: 100px; width: 100px; margin: 0 auto; border-radius: 5px;"></div>
+                    <p style="margin: 5px 0; font-weight: bold;">Beach Umbrella</p>
+                    <p style="margin: 5px 0; color: #0077b6;">Perfect for hot days</p>
+                  </div>
+                  <div style="text-align: center; padding: 10px;">
+                    <div style="background-color: #90e0ef; height: 100px; width: 100px; margin: 0 auto; border-radius: 5px;"></div>
+                    <p style="margin: 5px 0; font-weight: bold;">Cooling Towels</p>
+                    <p style="margin: 5px 0; color: #0077b6;">Stay comfortable</p>
+                  </div>
+                </div>
+              </div>
+              <p style="font-size: 16px; line-height: 1.5;">These items are popular and selling quickly. Grab yours while supplies last!</p>
+              <div style="text-align: center; margin: 25px 0;">
+                <a href="#" style="background-color: #0077b6; color: white; padding: 12px 25px; text-decoration: none; border-radius: 4px; font-weight: bold;">EXPLORE THE COLLECTION</a>
+              </div>
+            </div>`,
+            weight: 50,
+            createdAt: now,
+            updatedAt: now
+          }
+        ];
+      } else if (campaignId === 102) {
+        // New Product Launch variants
+        sampleVariants = [
+          {
+            id: 1003,
+            campaignId: 102,
+            name: "Variant A: Feature Focus",
+            subject: "Introducing InfyTech Pro: The Ultimate Solution",
+            previewText: "Discover the advanced features of our new flagship product",
+            content: `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+              <h1 style="color: #3a86ff; text-align: center;">Introducing InfyTech Pro</h1>
+              <p style="font-size: 16px; line-height: 1.5;">Dear Valued Customer,</p>
+              <p style="font-size: 16px; line-height: 1.5;">We're excited to announce our most advanced solution yet! InfyTech Pro delivers cutting-edge features to revolutionize your workflow.</p>
+              <div style="background-color: #f1f5f9; padding: 20px; margin: 20px 0; border-radius: 5px;">
+                <h2 style="color: #023e8a; margin-top: 0;">KEY FEATURES:</h2>
+                <ul style="padding-left: 20px;">
+                  <li style="margin-bottom: 10px;"><strong>AI-Powered Analytics:</strong> Get insights faster than ever before with machine learning algorithms</li>
+                  <li style="margin-bottom: 10px;"><strong>Cloud Integration:</strong> Seamless syncing across all your devices</li>
+                  <li style="margin-bottom: 10px;"><strong>Advanced Security:</strong> Enterprise-grade protection for your sensitive data</li>
+                  <li style="margin-bottom: 10px;"><strong>Customizable Dashboard:</strong> Tailor the interface to your specific needs</li>
+                </ul>
+              </div>
+              <div style="text-align: center; margin: 25px 0;">
+                <a href="#" style="background-color: #3a86ff; color: white; padding: 12px 25px; text-decoration: none; border-radius: 4px; font-weight: bold;">EXPLORE FEATURES</a>
+              </div>
+            </div>`,
+            weight: 50,
+            createdAt: now,
+            updatedAt: now
+          },
+          {
+            id: 1004,
+            campaignId: 102,
+            name: "Variant B: Benefit Focus",
+            subject: "How InfyTech Pro Will Transform Your Business",
+            previewText: "See how our new solution delivers real-world benefits",
+            content: `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+              <h1 style="color: #4361ee; text-align: center;">Transform Your Business with InfyTech Pro</h1>
+              <p style="font-size: 16px; line-height: 1.5;">Hello,</p>
+              <p style="font-size: 16px; line-height: 1.5;">We're thrilled to introduce InfyTech Pro - designed specifically to help businesses like yours achieve better results with less effort.</p>
+              <div style="background-color: #f8f9fa; padding: 20px; margin: 20px 0; border-radius: 5px;">
+                <h2 style="color: #3a0ca3; margin-top: 0;">WHAT THIS MEANS FOR YOU:</h2>
+                <div style="margin-bottom: 15px;">
+                  <h3 style="margin-bottom: 5px; color: #4361ee;">Save 5+ Hours Per Week</h3>
+                  <p style="margin-top: 0;">Automated workflows eliminate repetitive tasks, giving your team back valuable time</p>
+                </div>
+                <div style="margin-bottom: 15px;">
+                  <h3 style="margin-bottom: 5px; color: #4361ee;">Reduce Costs by 30%</h3>
+                  <p style="margin-top: 0;">Consolidated tools and efficient processes significantly lower operational expenses</p>
+                </div>
+                <div style="margin-bottom: 15px;">
+                  <h3 style="margin-bottom: 5px; color: #4361ee;">Improve Decision Making</h3>
+                  <p style="margin-top: 0;">Real-time insights help you make data-driven decisions with confidence</p>
+                </div>
+              </div>
+              <p style="font-style: italic; color: #4361ee;">"Since implementing InfyTech Pro, we've seen a 40% increase in productivity and reduced our tech stack costs by 35%." - Jane Smith, CEO</p>
+              <div style="text-align: center; margin: 25px 0;">
+                <a href="#" style="background-color: #4361ee; color: white; padding: 12px 25px; text-decoration: none; border-radius: 4px; font-weight: bold;">SEE THE BENEFITS</a>
+              </div>
+            </div>`,
+            weight: 50,
+            createdAt: now,
+            updatedAt: now
+          }
+        ];
+      } else if (campaignId === 103) {
+        // Monthly Newsletter variants
+        sampleVariants = [
+          {
+            id: 1005,
+            campaignId: 103,
+            name: "Variant A: Modern Layout",
+            subject: "Your April Newsletter: Latest Updates & Tips",
+            previewText: "The latest news and insights from InfyTech Solutions",
+            content: `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+              <h1 style="color: #2b2d42; text-align: center; border-bottom: 2px solid #8d99ae; padding-bottom: 10px;">INFYTECH MONTHLY</h1>
+              <p style="font-size: 16px; line-height: 1.5;">Hello there,</p>
+              <p style="font-size: 16px; line-height: 1.5;">Welcome to your April newsletter. Here's what's new this month:</p>
+              
+              <div style="margin: 25px 0;">
+                <h2 style="color: #2b2d42; border-left: 4px solid #ef233c; padding-left: 10px;">LATEST UPDATES</h2>
+                <div style="display: flex; margin-bottom: 20px;">
+                  <div style="background-color: #edf2f4; width: 120px; height: 120px; margin-right: 15px; flex-shrink: 0;"></div>
+                  <div>
+                    <h3 style="margin-top: 0; margin-bottom: 8px; color: #2b2d42;">New Feature Release</h3>
+                    <p style="margin-top: 0; color: #8d99ae;">We've launched our highly anticipated collaboration tools. Now you can work with your team more efficiently than ever.</p>
+                  </div>
+                </div>
+                <div style="display: flex; margin-bottom: 20px;">
+                  <div style="background-color: #edf2f4; width: 120px; height: 120px; margin-right: 15px; flex-shrink: 0;"></div>
+                  <div>
+                    <h3 style="margin-top: 0; margin-bottom: 8px; color: #2b2d42;">Customer Spotlight</h3>
+                    <p style="margin-top: 0; color: #8d99ae;">Learn how Agency XYZ increased their productivity by 35% using our platform.</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div style="margin: 25px 0;">
+                <h2 style="color: #2b2d42; border-left: 4px solid #ef233c; padding-left: 10px;">TIPS & TRICKS</h2>
+                <p style="color: #8d99ae;">Did you know you can automate your reporting? Check out our latest tutorial to learn how.</p>
+                <div style="text-align: center; margin: 15px 0;">
+                  <a href="#" style="background-color: #ef233c; color: white; padding: 8px 15px; text-decoration: none; border-radius: 4px; font-weight: bold;">READ TUTORIAL</a>
+                </div>
+              </div>
+            </div>`,
+            weight: 50,
+            createdAt: now,
+            updatedAt: now
+          },
+          {
+            id: 1006,
+            campaignId: 103,
+            name: "Variant B: Classic Layout",
+            subject: "InfyTech Newsletter - April 2025 Edition",
+            previewText: "Your monthly briefing on all things InfyTech",
+            content: `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+              <table width="100%" style="border-collapse: collapse;">
+                <tr style="background-color: #344055;">
+                  <td style="padding: 20px; text-align: center;">
+                    <h1 style="color: white; margin: 0;">InfyTech Newsletter</h1>
+                    <p style="color: #adb5bd; margin: 5px 0 0 0;">April 2025 Edition</p>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding: 20px;">
+                    <p>Dear Subscriber,</p>
+                    <p>Welcome to our April newsletter. We have exciting updates to share with you this month.</p>
+                    
+                    <h2 style="color: #344055; border-bottom: 1px solid #dee2e6; padding-bottom: 8px; margin-top: 25px;">Product Updates</h2>
+                    <ul>
+                      <li style="margin-bottom: 10px;">New collaboration features launched</li>
+                      <li style="margin-bottom: 10px;">Mobile app performance improvements</li>
+                      <li style="margin-bottom: 10px;">Enhanced security protocols implemented</li>
+                    </ul>
+                    
+                    <h2 style="color: #344055; border-bottom: 1px solid #dee2e6; padding-bottom: 8px; margin-top: 25px;">Industry News</h2>
+                    <p><strong>Market Trends:</strong> The latest research shows a 25% increase in demand for cloud-based solutions. Our platform is well-positioned to help you leverage this trend.</p>
+                    
+                    <h2 style="color: #344055; border-bottom: 1px solid #dee2e6; padding-bottom: 8px; margin-top: 25px;">Upcoming Events</h2>
+                    <p><strong>Webinar: Maximizing Productivity</strong><br>
+                    Date: April 15, 2025<br>
+                    Time: 2:00 PM EST</p>
+                    <div style="margin: 15px 0;">
+                      <a href="#" style="background-color: #344055; color: white; padding: 8px 15px; text-decoration: none; font-weight: bold;">REGISTER NOW</a>
+                    </div>
+                  </td>
+                </tr>
+                <tr style="background-color: #f8f9fa;">
+                  <td style="padding: 15px; text-align: center; color: #6c757d;">
+                    <p style="margin-bottom: 5px;">InfyTech Solutions</p>
+                    <p style="margin-top: 0;">© 2025 All Rights Reserved</p>
+                  </td>
+                </tr>
+              </table>
+            </div>`,
+            weight: 50,
+            createdAt: now,
+            updatedAt: now
+          }
+        ];
+      }
+      
+      // Add the sample variants to our storage
+      sampleVariants.forEach(variant => {
+        this.campaignVariants.set(variant.id, variant);
+      });
+      
+      return sampleVariants;
+    }
+    
+    return existingVariants;
   }
   
   async getCampaignVariant(id: number): Promise<CampaignVariant | undefined> {
@@ -1870,7 +2115,42 @@ export class MemStorage implements IStorage {
   }
   
   async getVariantAnalyticsByCampaign(campaignId: number): Promise<VariantAnalytics[]> {
-    return [];
+    // Check if we have any analytics for this campaign
+    const existingAnalytics = Array.from(this.variantAnalytics.values())
+      .filter(analytic => analytic.campaignId === campaignId);
+    
+    // If no analytics exist for this campaign, create sample analytics data
+    if (existingAnalytics.length === 0 && [101, 102, 103].includes(campaignId)) {
+      const variants = await this.getCampaignVariants(campaignId);
+      const now = new Date();
+      const analytics: VariantAnalytics[] = [];
+      
+      // Generate analytics for each variant
+      for (const variant of variants) {
+        // Create analytics based on random but realistic data
+        analytics.push({
+          id: 2000 + variant.id, // Unique ID for analytics
+          variantId: variant.id,
+          campaignId: campaignId,
+          recipients: Math.floor(Math.random() * 1000) + 500, // 500-1500 recipients
+          opens: Math.floor(Math.random() * 300) + 100, // 100-400 opens
+          clicks: Math.floor(Math.random() * 100) + 20, // 20-120 clicks
+          bounces: Math.floor(Math.random() * 20), // 0-20 bounces
+          unsubscribes: Math.floor(Math.random() * 10), // 0-10 unsubscribes
+          date: now,
+          metadata: {}
+        });
+      }
+      
+      // Store analytics in memory
+      analytics.forEach(analytic => {
+        this.variantAnalytics.set(analytic.id, analytic);
+      });
+      
+      return analytics;
+    }
+    
+    return existingAnalytics;
   }
   
   async recordVariantAnalytic(analytic: InsertVariantAnalytics): Promise<VariantAnalytics> {
