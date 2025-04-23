@@ -1883,7 +1883,83 @@ export class MemStorage implements IStorage {
   }
   
   async getAbTestCampaigns(): Promise<Campaign[]> {
-    return [];
+    // Filter campaigns that have isAbTest set to true
+    const abTestCampaigns = Array.from(this.campaigns.values()).filter(
+      campaign => campaign.isAbTest === true
+    );
+    
+    // If no A/B test campaigns exist, create some for demonstration
+    if (abTestCampaigns.length === 0) {
+      // Create sample A/B test campaigns
+      const sampleCampaigns = [
+        {
+          id: 101,
+          name: "Summer Sale Promotion",
+          subject: "Limited Time Offer: Summer Savings Inside!",
+          previewText: "Discover our hottest summer deals",
+          senderName: "InfyTech Solutions",
+          replyToEmail: "sales@infytechsolutions.com",
+          content: "<p>This is the default content for the Summer Sale campaign.</p>",
+          status: "active",
+          isAbTest: true,
+          createdAt: new Date("2025-03-15"),
+          updatedAt: new Date("2025-03-20"),
+          metadata: {
+            subtitle: "A/B Testing different subject lines",
+            date: "March 20, 2025",
+            icon: { name: "sun", color: "orange" }
+          }
+        },
+        {
+          id: 102,
+          name: "New Product Launch",
+          subject: "Introducing Our Latest Innovation",
+          previewText: "Be the first to experience our newest offering",
+          senderName: "InfyTech Solutions",
+          replyToEmail: "products@infytechsolutions.com",
+          content: "<p>This is the default content for the Product Launch campaign.</p>",
+          status: "draft",
+          isAbTest: true,
+          winningVariantId: 1002,
+          createdAt: new Date("2025-04-01"),
+          updatedAt: new Date("2025-04-05"),
+          metadata: {
+            subtitle: "Testing different product descriptions",
+            date: "April 5, 2025",
+            icon: { name: "package", color: "blue" }
+          }
+        },
+        {
+          id: 103,
+          name: "Monthly Newsletter",
+          subject: "Your April News Update",
+          previewText: "The latest updates from InfyTech Solutions",
+          senderName: "InfyTech Solutions",
+          replyToEmail: "news@infytechsolutions.com",
+          content: "<p>This is the default content for the Monthly Newsletter.</p>",
+          status: "scheduled",
+          scheduledAt: new Date("2025-04-25"),
+          isAbTest: true,
+          createdAt: new Date("2025-04-10"),
+          updatedAt: new Date("2025-04-15"),
+          metadata: {
+            subtitle: "Testing different newsletter layouts",
+            date: "April 15, 2025",
+            icon: { name: "newspaper", color: "green" }
+          }
+        }
+      ];
+      
+      // Add the sample campaigns to our storage
+      sampleCampaigns.forEach(campaign => {
+        this.campaigns.set(campaign.id, campaign as Campaign);
+      });
+      
+      // Return the newly created campaigns
+      return sampleCampaigns as Campaign[];
+    }
+    
+    return abTestCampaigns;
   }
 
   // Domain methods
