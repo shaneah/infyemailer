@@ -70,12 +70,16 @@ function validate<T>(schema: any, data: any): T | { error: string } {
 }
 
 import { initRealTimeMetrics } from './services/realTimeMetricsService';
+import { initCollaborationService } from './services/collaborationService';
 
 export async function registerRoutes(app: Express): Promise<Server> {
   const httpServer = createServer(app);
   
   // Initialize real-time metrics service with WebSocket support
   initRealTimeMetrics(httpServer);
+  
+  // Initialize real-time collaboration service
+  initCollaborationService(httpServer);
   
   // Set up authentication
   setupAuth(app);
