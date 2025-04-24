@@ -1,3 +1,6 @@
+// Import environment setup first to configure Vite optimization
+import "./env-setup";
+
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
