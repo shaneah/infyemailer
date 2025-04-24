@@ -61,10 +61,25 @@ import { initializeRolesAndPermissions } from './init-roles-permissions';
     await initDatabase();
     
     // Update storage references to use the appropriate storage implementation
-    updateStorageReferences();
+    // Make this await to ensure it completes before continuing
+    await updateStorageReferences();
     
     // Log storage mode after database initialization
     log(`Using ${isDatabaseAvailable ? 'PostgreSQL database' : 'memory storage'} for data operations`, 'server');
+    
+    // Extra verification for database connection
+    if (isDatabaseAvailable) {
+      log('Database connection confirmed - performing final checks', 'server');
+      try {
+        // Extra verification query to ensure database is fully ready
+        const { pool } = await import('./db');
+        const verifyResult = await pool.query('SELECT COUNT(*) FROM clients');
+        log(`Database verification successful - found ${verifyResult.rows[0].count} clients`, 'server');
+      } catch (verifyError) {
+        log(`Database verification warning: ${verifyError.message}`, 'server');
+        // Continue anyway as we've already determined database is available
+      }
+    }
     
     // Initialize roles and permissions
     await initializeRolesAndPermissions();

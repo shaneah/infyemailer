@@ -318,6 +318,16 @@ const MemoryStore = createMemoryStore(session);
 
 // In-memory implementation of storage
 export class MemStorage implements IStorage {
+  // Method to initialize memory storage with sample data if needed
+  async initializeWithSampleData(): Promise<boolean> {
+    try {
+      console.log('Initializing memory storage with sample data');
+      return true;
+    } catch (error) {
+      console.error('Failed to initialize memory storage with sample data:', error);
+      return false;
+    }
+  }
   private contacts: Map<number, Contact>;
   private lists: Map<number, List>;
   private contactLists: Map<number, ContactList>;

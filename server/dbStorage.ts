@@ -52,8 +52,65 @@ export class DbStorage implements IStorage {
 
   async createClient(client: Omit<schema.InsertClient, 'id'>) {
     try {
-      const [newClient] = await db.insert(schema.clients).values(client).returning();
-      return newClient;
+      // Setup default values for client if not provided
+      const clientWithDefaults = {
+        ...client,
+        status: client.status || 'active',
+        metadata: client.metadata || {
+          emailCredits: 0,
+          emailCreditsPurchased: 0,
+          emailCreditsUsed: 0,
+          notes: '',
+          tags: [],
+          contactPreference: 'email'
+        },
+        createdAt: client.createdAt || new Date()
+      };
+      
+      // Insert client with transaction to ensure data is properly committed
+      let newClient;
+      try {
+        // Start transaction
+        await db.transaction(async (tx) => {
+          const [insertedClient] = await tx
+            .insert(schema.clients)
+            .values(clientWithDefaults)
+            .returning();
+          
+          // Verify client was created
+          if (!insertedClient || !insertedClient.id) {
+            throw new Error('Failed to create client: No ID returned');
+          }
+          
+          // Double-check by querying the client
+          const [verifiedClient] = await tx
+            .select()
+            .from(schema.clients)
+            .where(eq(schema.clients.id, insertedClient.id));
+          
+          if (!verifiedClient) {
+            throw new Error('Failed to verify client creation');
+          }
+          
+          newClient = insertedClient;
+        });
+        
+        // Double-check outside transaction to ensure it was committed
+        if (newClient && newClient.id) {
+          const verificationClient = await this.getClient(newClient.id);
+          if (!verificationClient) {
+            console.error('Client created but not found in verification query');
+          }
+        }
+        
+        return newClient;
+      } catch (txError) {
+        console.error('Transaction error creating client:', txError);
+        // Try a simpler insert if transaction failed
+        console.log('Falling back to simple insert for client creation');
+        const [fallbackClient] = await db.insert(schema.clients).values(clientWithDefaults).returning();
+        return fallbackClient;
+      }
     } catch (error) {
       console.error('Error creating client:', error);
       throw error;
@@ -148,8 +205,68 @@ export class DbStorage implements IStorage {
 
   async createClientUser(user: Omit<schema.InsertClientUser, 'id'>) {
     try {
-      const [newUser] = await db.insert(schema.clientUsers).values(user).returning();
-      return newUser;
+      // Add default values if not provided
+      const userWithDefaults = {
+        ...user,
+        status: user.status || 'active',
+        metadata: user.metadata || {
+          permissions: {
+            campaigns: true,
+            contacts: true,
+            templates: true,
+            reporting: true,
+            domains: true,
+            abTesting: true,
+            emailValidation: true
+          }
+        },
+        createdAt: user.createdAt || new Date()
+      };
+      
+      // Use transaction to ensure data is properly committed
+      let newUser;
+      try {
+        // Start transaction for creating client user
+        await db.transaction(async (tx) => {
+          const [insertedUser] = await tx
+            .insert(schema.clientUsers)
+            .values(userWithDefaults)
+            .returning();
+          
+          // Verify user was created
+          if (!insertedUser || !insertedUser.id) {
+            throw new Error('Failed to create client user: No ID returned');
+          }
+          
+          // Double-check by querying the user within the transaction
+          const [verifiedUser] = await tx
+            .select()
+            .from(schema.clientUsers)
+            .where(eq(schema.clientUsers.id, insertedUser.id));
+          
+          if (!verifiedUser) {
+            throw new Error('Failed to verify client user creation');
+          }
+          
+          newUser = insertedUser;
+        });
+        
+        // Double-check outside transaction to ensure it was committed
+        if (newUser && newUser.id) {
+          const verificationUser = await this.getClientUser(newUser.id);
+          if (!verificationUser) {
+            console.error('Client user created but not found in verification query');
+          }
+        }
+        
+        return newUser;
+      } catch (txError) {
+        console.error('Transaction error creating client user:', txError);
+        // Try a simpler insert as fallback
+        console.log('Falling back to simple insert for client user creation');
+        const [fallbackUser] = await db.insert(schema.clientUsers).values(userWithDefaults).returning();
+        return fallbackUser;
+      }
     } catch (error) {
       console.error('Error creating client user:', error);
       throw error;
