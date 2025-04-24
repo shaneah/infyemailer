@@ -17,6 +17,7 @@ import heatMapsRoutes from "./routes/heat-maps";
 import userManagementRoutes from "./routes/user-management";
 import { emailService } from "./services/EmailService";
 import { defaultEmailSettings } from "./routes/emailSettings";
+import { registerAIAssistantRoutes } from "./routes/ai-assistant-routes";
 
 // Extend Express Request type to include files property
 declare global {
@@ -39,7 +40,6 @@ import { registerClientProviderRoutes } from "./routes/clientProviders";
 import { registerTestEmailRoutes } from "./routes/testEmail";
 import { registerHealthRoutes } from "./routes/health";
 import { registerEmailSettingsRoutes } from "./routes/emailSettings";
-import { registerAIAssistantRoutes } from "./routes/ai-assistant-routes";
 import AdmZip from "adm-zip";
 import { 
   insertContactSchema, 

@@ -1,26 +1,20 @@
-import { z } from 'zod';
+import { ZodSchema } from 'zod';
 
 /**
- * Validates data against a Zod schema
+ * Validate input data against a Zod schema
  * 
  * @param schema Zod schema to validate against
  * @param data Data to validate
  * @returns Validated data or error object
  */
-export function validateSchema<T extends z.ZodType>(
-  schema: T,
-  data: unknown
-): z.infer<T> | { error: string } {
+export function validateSchema<T>(schema: ZodSchema, data: unknown): T | { error: string } {
   try {
-    return schema.parse(data);
+    const validatedData = schema.parse(data);
+    return validatedData as T;
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      return { 
-        error: error.errors
-          .map(e => `${e.path.join('.')}: ${e.message}`)
-          .join(', ') 
-      };
+    if (error instanceof Error) {
+      return { error: error.message };
     }
-    return { error: 'Invalid data format' };
+    return { error: 'Validation failed' };
   }
 }

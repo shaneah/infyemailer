@@ -1,246 +1,557 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { X, MessageCircle, Loader2, ChevronDown, ChevronUp, CornerDownRight } from 'lucide-react';
+import { useAIAssistant } from '@/contexts/AIAssistantContext';
+import { 
+  formatMessageTime, 
+  groupMessagesByDate, 
+  getSuggestionsByContext,
+  parseMessageContent
+} from '@/utils/ai-assistant-utils';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { useToast } from '@/hooks/use-toast';
-import { useAIAssistant } from '@/contexts/AIAssistantContext';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from '@/components/ui/sheet';
+import { 
+  MessageSquare, 
+  X, 
+  Send, 
+  Trash2, 
+  Loader2, 
+  ChevronDown,
+  Maximize2,
+  Minimize2,
+  RotateCcw
+} from 'lucide-react';
 
-interface MessageType {
-  role: 'user' | 'assistant';
-  content: string;
-}
-
-const AIAssistant: React.FC = () => {
-  const [isExpanded, setIsExpanded] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  // Load previous messages from localStorage if available
-  const [messages, setMessages] = useState<MessageType[]>(() => {
-    const savedMessages = localStorage.getItem('assistant_messages');
-    if (savedMessages) {
-      try {
-        return JSON.parse(savedMessages);
-      } catch (e) {
-        console.error('Failed to parse saved messages:', e);
-      }
-    }
-    
-    // Default initial message
-    return [{ 
-      role: 'assistant', 
-      content: 'Hi there! I\'m your email marketing assistant. How can I help you today? I can provide tips on crafting effective subject lines, suggest campaign ideas, help with email content, or answer questions about marketing best practices.' 
-    }];
-  });
+/**
+ * AI Assistant component that provides a chat interface
+ */
+export function AIAssistant() {
+  const { 
+    isOpen, 
+    messages, 
+    isLoading, 
+    context,
+    sendMessage, 
+    setContext, 
+    clearMessages, 
+    toggleAssistant, 
+    closeAssistant 
+  } = useAIAssistant();
   
-  // Save messages to localStorage whenever they change
-  useEffect(() => {
-    localStorage.setItem('assistant_messages', JSON.stringify(messages));
-  }, [messages]);
+  // Local state
   const [inputValue, setInputValue] = useState('');
+  const [isExpanded, setIsExpanded] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { toggleAssistant } = useAIAssistant();
-  const { toast } = useToast();
-
-  // Auto-scroll to bottom of messages
+  
+  // Scroll to bottom when messages change
   useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
-    }
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setInputValue(e.target.value);
-  };
-
-  const sendMessage = async () => {
-    if (inputValue.trim() === '') return;
-    
-    const userMessage = { role: 'user' as const, content: inputValue.trim() };
-    setMessages(prev => [...prev, userMessage]);
-    setInputValue('');
-    setIsLoading(true);
-
-    try {
-      // Get previous messages to provide context (last 6 messages for context)
-      const conversationHistory = messages
-        .slice(-6)
-        .map(({ role, content }) => ({ role, content }));
-        
-      const response = await fetch('/api/assistant/chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
-          message: userMessage.content,
-          context: 'email_marketing',
-          history: conversationHistory
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to get response from assistant');
-      }
-
-      const data = await response.json();
-      setMessages(prev => [...prev, { role: 'assistant', content: data.response }]);
-    } catch (error) {
-      console.error('Error sending message to assistant:', error);
-      toast({
-        title: 'Communication Error',
-        description: 'Could not connect to the AI assistant. Using fallback mode.',
-        variant: 'destructive',
-      });
-      
-      // Fallback response
-      setMessages(prev => [...prev, { 
-        role: 'assistant', 
-        content: "I'm having trouble connecting to my knowledge base right now. Here are some general email marketing tips: Write clear subject lines, segment your audience, use mobile-friendly templates, include a single call-to-action, and always test before sending. How else can I help you?" 
-      }]);
-    } finally {
-      setIsLoading(false);
+  
+  // Handle submit
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (inputValue.trim() && !isLoading) {
+      sendMessage(inputValue);
+      setInputValue('');
     }
   };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage();
+  
+  // Handle suggestion click
+  const handleSuggestionClick = (suggestion: string) => {
+    if (!isLoading) {
+      sendMessage(suggestion);
     }
   };
-
-  const toggleExpand = () => {
-    setIsExpanded(!isExpanded);
+  
+  // Toggle expanded state
+  const toggleExpanded = () => {
+    setIsExpanded(prev => !prev);
   };
-
+  
+  // Message groups by date
+  const messageGroups = groupMessagesByDate(messages);
+  
+  // Get suggestions based on context
+  const suggestions = getSuggestionsByContext(context);
+  
+  // Render nothing if assistant is closed
+  if (!isOpen) {
+    return (
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              onClick={toggleAssistant}
+              className="fixed bottom-4 right-4 h-12 w-12 rounded-full shadow-lg"
+              size="icon"
+            >
+              <MessageSquare className="h-6 w-6" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="left">
+            <p>Open AI Assistant</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    );
+  }
+  
   return (
-    <div className="fixed bottom-4 right-4 z-50">
-      {!isExpanded ? (
-        <div className="relative flex flex-col">
+    <div 
+      className={`fixed ${
+        isExpanded ? 'inset-0 m-4' : 'bottom-4 right-4 w-80 h-96'
+      } bg-background border rounded-lg shadow-lg flex flex-col z-50 transition-all duration-200`}
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between p-3 border-b">
+        <div className="flex items-center space-x-2">
+          <MessageSquare className="h-5 w-5 text-primary" />
+          <h3 className="font-medium">AI Assistant</h3>
+        </div>
+        <div className="flex items-center space-x-1">
           <Button 
-            className="rounded-full w-12 h-12 shadow-lg hover:bg-primary/90 p-3"
-            onClick={toggleExpand}
+            variant="ghost" 
+            size="icon" 
+            onClick={toggleExpanded}
+            className="h-8 w-8"
           >
-            <MessageCircle size={24} />
+            {isExpanded ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+          </Button>
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={closeAssistant}
+            className="h-8 w-8"
+          >
+            <X className="h-4 w-4" />
           </Button>
         </div>
-      ) : (
-        <Card className="w-80 md:w-96 shadow-xl border-primary/20">
-          <CardHeader className="p-3 border-b flex flex-row justify-between items-center">
-            <div className="font-medium flex items-center">
-              <MessageCircle className="mr-2 h-5 w-5 text-primary" />
-              AI Marketing Assistant
-            </div>
-            <div className="flex space-x-1">
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground" 
-                onClick={() => {
-                  if (confirm('Are you sure you want to clear the conversation history?')) {
-                    setMessages([{ 
-                      role: 'assistant', 
-                      content: 'Conversation history cleared. How can I help you today?' 
-                    }]);
-                  }
-                }}
-                title="Clear conversation"
-              >
-                <svg 
-                  xmlns="http://www.w3.org/2000/svg" 
-                  width="16" 
-                  height="16" 
-                  viewBox="0 0 24 24" 
-                  fill="none" 
-                  stroke="currentColor" 
-                  strokeWidth="2" 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round"
+      </div>
+      
+      {/* Context Selector */}
+      <div className="px-3 py-2 border-b">
+        <Select value={context} onValueChange={setContext}>
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Select context" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="general">General Email Marketing</SelectItem>
+            <SelectItem value="templates">Email Templates</SelectItem>
+            <SelectItem value="analytics">Analytics & Metrics</SelectItem>
+            <SelectItem value="deliverability">Email Deliverability</SelectItem>
+            <SelectItem value="segmentation">List Segmentation</SelectItem>
+            <SelectItem value="compliance">Legal & Compliance</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+      
+      {/* Messages */}
+      <div className="flex-1 overflow-y-auto p-3 space-y-4">
+        {messages.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground">
+            <MessageSquare className="h-8 w-8 mb-2" />
+            <h4 className="text-sm font-medium mb-1">AI Email Marketing Assistant</h4>
+            <p className="text-xs max-w-[250px]">
+              Ask me anything about email marketing, templates, best practices, or optimization tips.
+            </p>
+          </div>
+        ) : (
+          Object.entries(messageGroups).map(([date, dateMessages]) => (
+            <div key={date} className="space-y-3">
+              <div className="flex justify-center">
+                <span className="text-xs px-2 py-1 bg-muted rounded-full text-muted-foreground">
+                  {date}
+                </span>
+              </div>
+              
+              {dateMessages.map((message, i) => (
+                <div
+                  key={i}
+                  className={`flex ${
+                    message.role === 'user' ? 'justify-end' : 'justify-start'
+                  }`}
                 >
-                  <path d="M3 6h18"></path>
-                  <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
-                  <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
-                </svg>
-              </Button>
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="h-8 w-8 p-0" 
-                onClick={toggleExpand}
-                title="Minimize"
-              >
-                <ChevronDown className="h-4 w-4" />
-              </Button>
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground" 
-                onClick={toggleAssistant}
-                title="Close"
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent className="p-0">
-            <div className="h-[350px] overflow-y-auto p-4 space-y-4">
-              {messages.map((message, index) => (
-                <div 
-                  key={index} 
-                  className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-                >
-                  <div 
-                    className={`max-w-[80%] rounded-lg p-3 ${
-                      message.role === 'user' 
-                        ? 'bg-primary text-primary-foreground ml-4' 
-                        : 'bg-muted text-muted-foreground mr-4'
+                  <div
+                    className={`max-w-[80%] rounded-lg px-3 py-2 ${
+                      message.role === 'user'
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-muted'
                     }`}
                   >
-                    {message.role === 'user' && (
-                      <div className="font-semibold text-xs mb-1">You</div>
-                    )}
-                    {message.role === 'assistant' && (
-                      <div className="font-semibold text-xs mb-1">Assistant</div>
-                    )}
-                    <div className="text-sm whitespace-pre-wrap">{message.content}</div>
+                    <div 
+                      className="text-sm"
+                      dangerouslySetInnerHTML={{ 
+                        __html: parseMessageContent(message.content) 
+                      }}
+                    />
+                    <div className="text-right mt-1">
+                      <span className="text-xs opacity-70">
+                        {message.timestamp && formatMessageTime(message.timestamp)}
+                      </span>
+                    </div>
                   </div>
                 </div>
               ))}
-              {isLoading && (
-                <div className="flex justify-start">
-                  <div className="max-w-[80%] rounded-lg p-3 bg-muted text-muted-foreground mr-4">
-                    <div className="font-semibold text-xs mb-1">Assistant</div>
-                    <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-                  </div>
-                </div>
-              )}
-              <div ref={messagesEndRef} />
             </div>
-          </CardContent>
-          <CardFooter className="p-3 pt-2 border-t">
-            <div className="relative w-full flex">
-              <Textarea
-                className="min-h-[60px] resize-none pr-12 flex-grow"
-                placeholder="Type your message..."
-                value={inputValue}
-                onChange={handleInputChange}
-                onKeyDown={handleKeyDown}
-              />
-              <Button 
-                size="icon" 
-                className="absolute right-1 bottom-1 h-8 w-8"
-                onClick={sendMessage}
-                disabled={isLoading || inputValue.trim() === ''}
+          ))
+        )}
+        
+        {isLoading && (
+          <div className="flex justify-start">
+            <div className="bg-muted max-w-[80%] rounded-lg px-3 py-2">
+              <div className="flex items-center space-x-2">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                <span className="text-sm">Thinking...</span>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {/* Invisible element to scroll to */}
+        <div ref={messagesEndRef} />
+      </div>
+      
+      {/* Suggestions */}
+      {messages.length > 0 && !isLoading && (
+        <div className="px-3 py-2 border-t">
+          <div className="flex overflow-x-auto gap-2 pb-1 no-scrollbar">
+            {suggestions.map((suggestion, i) => (
+              <Button
+                key={i}
+                variant="outline"
+                size="sm"
+                className="whitespace-nowrap text-xs"
+                onClick={() => handleSuggestionClick(suggestion)}
+                disabled={isLoading}
               >
-                <CornerDownRight className="h-4 w-4" />
+                {suggestion}
               </Button>
-            </div>
-          </CardFooter>
-        </Card>
+            ))}
+          </div>
+        </div>
       )}
+      
+      {/* Input */}
+      <form onSubmit={handleSubmit} className="p-3 border-t flex items-end gap-2">
+        <div className="flex-1">
+          <Textarea
+            placeholder="Ask me anything about email marketing..."
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                handleSubmit(e);
+              }
+            }}
+            className="min-h-[60px] max-h-[120px]"
+            disabled={isLoading}
+          />
+        </div>
+        <div className="flex flex-col gap-2">
+          <Button 
+            type="submit" 
+            size="icon" 
+            disabled={!inputValue.trim() || isLoading}
+          >
+            <Send className="h-4 w-4" />
+          </Button>
+          
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            onClick={clearMessages}
+            disabled={messages.length === 0 || isLoading}
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
+      </form>
     </div>
   );
-};
+}
 
-export default AIAssistant;
+/**
+ * AI Assistant Button that triggers a sheet on mobile
+ * and renders the assistant directly on larger screens
+ */
+export function AIAssistantButton() {
+  const { toggleAssistant, isOpen } = useAIAssistant();
+  const [isMobile, setIsMobile] = useState(false);
+  
+  // Check if mobile on mount and when window resizes
+  useEffect(() => {
+    const checkIfMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkIfMobile();
+    window.addEventListener('resize', checkIfMobile);
+    
+    return () => {
+      window.removeEventListener('resize', checkIfMobile);
+    };
+  }, []);
+  
+  if (isMobile) {
+    return (
+      <Sheet>
+        <SheetTrigger asChild>
+          <Button 
+            className="fixed bottom-4 right-4 h-12 w-12 rounded-full shadow-lg z-50"
+            size="icon"
+          >
+            <MessageSquare className="h-6 w-6" />
+          </Button>
+        </SheetTrigger>
+        <SheetContent side="bottom" className="h-[90vh] p-0">
+          <div className="h-full flex flex-col">
+            <SheetHeader className="px-4 py-3 border-b">
+              <SheetTitle>AI Assistant</SheetTitle>
+            </SheetHeader>
+            <div className="flex-1 overflow-y-auto">
+              <AIAssistantMobile />
+            </div>
+          </div>
+        </SheetContent>
+      </Sheet>
+    );
+  }
+  
+  return (
+    <>
+      <AIAssistant />
+      {!isOpen && (
+        <Button
+          onClick={toggleAssistant}
+          className="fixed bottom-4 right-4 h-12 w-12 rounded-full shadow-lg z-50"
+          size="icon"
+        >
+          <MessageSquare className="h-6 w-6" />
+        </Button>
+      )}
+    </>
+  );
+}
+
+/**
+ * Mobile-optimized version of the AI Assistant
+ * (stripped down for use in the sheet)
+ */
+function AIAssistantMobile() {
+  const { 
+    messages, 
+    isLoading, 
+    context,
+    sendMessage, 
+    setContext, 
+    clearMessages
+  } = useAIAssistant();
+  
+  // Local state
+  const [inputValue, setInputValue] = useState('');
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  
+  // Scroll to bottom when messages change
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+  
+  // Handle submit
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (inputValue.trim() && !isLoading) {
+      sendMessage(inputValue);
+      setInputValue('');
+    }
+  };
+  
+  // Handle suggestion click
+  const handleSuggestionClick = (suggestion: string) => {
+    if (!isLoading) {
+      sendMessage(suggestion);
+    }
+  };
+  
+  // Message groups by date
+  const messageGroups = groupMessagesByDate(messages);
+  
+  // Get suggestions based on context
+  const suggestions = getSuggestionsByContext(context);
+  
+  return (
+    <div className="flex flex-col h-full">
+      {/* Context Selector */}
+      <div className="px-4 py-2 border-b">
+        <Select value={context} onValueChange={setContext}>
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Select context" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="general">General Email Marketing</SelectItem>
+            <SelectItem value="templates">Email Templates</SelectItem>
+            <SelectItem value="analytics">Analytics & Metrics</SelectItem>
+            <SelectItem value="deliverability">Email Deliverability</SelectItem>
+            <SelectItem value="segmentation">List Segmentation</SelectItem>
+            <SelectItem value="compliance">Legal & Compliance</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+      
+      {/* Messages */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        {messages.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground">
+            <MessageSquare className="h-8 w-8 mb-2" />
+            <h4 className="text-sm font-medium mb-1">AI Email Marketing Assistant</h4>
+            <p className="text-xs max-w-[250px]">
+              Ask me anything about email marketing, templates, best practices, or optimization tips.
+            </p>
+          </div>
+        ) : (
+          Object.entries(messageGroups).map(([date, dateMessages]) => (
+            <div key={date} className="space-y-3">
+              <div className="flex justify-center">
+                <span className="text-xs px-2 py-1 bg-muted rounded-full text-muted-foreground">
+                  {date}
+                </span>
+              </div>
+              
+              {dateMessages.map((message, i) => (
+                <div
+                  key={i}
+                  className={`flex ${
+                    message.role === 'user' ? 'justify-end' : 'justify-start'
+                  }`}
+                >
+                  <div
+                    className={`max-w-[80%] rounded-lg px-3 py-2 ${
+                      message.role === 'user'
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-muted'
+                    }`}
+                  >
+                    <div 
+                      className="text-sm"
+                      dangerouslySetInnerHTML={{ 
+                        __html: parseMessageContent(message.content) 
+                      }}
+                    />
+                    <div className="text-right mt-1">
+                      <span className="text-xs opacity-70">
+                        {message.timestamp && formatMessageTime(message.timestamp)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ))
+        )}
+        
+        {isLoading && (
+          <div className="flex justify-start">
+            <div className="bg-muted max-w-[80%] rounded-lg px-3 py-2">
+              <div className="flex items-center space-x-2">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                <span className="text-sm">Thinking...</span>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {/* Invisible element to scroll to */}
+        <div ref={messagesEndRef} />
+      </div>
+      
+      {/* Suggestions */}
+      {messages.length > 0 && !isLoading && (
+        <div className="px-4 py-2 border-t">
+          <div className="flex overflow-x-auto gap-2 pb-2 no-scrollbar">
+            {suggestions.map((suggestion, i) => (
+              <Button
+                key={i}
+                variant="outline"
+                size="sm"
+                className="whitespace-nowrap text-xs"
+                onClick={() => handleSuggestionClick(suggestion)}
+                disabled={isLoading}
+              >
+                {suggestion}
+              </Button>
+            ))}
+          </div>
+        </div>
+      )}
+      
+      {/* Controls and clear button */}
+      <div className="px-4 py-2 border-t flex justify-between items-center">
+        <Button
+          variant="ghost"
+          size="sm"
+          className="text-xs"
+          onClick={clearMessages}
+          disabled={messages.length === 0 || isLoading}
+        >
+          <Trash2 className="h-4 w-4 mr-1" />
+          Clear chat
+        </Button>
+        
+        {isLoading && (
+          <div className="flex items-center text-xs text-muted-foreground">
+            <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+            <span>Processing...</span>
+          </div>
+        )}
+      </div>
+      
+      {/* Input */}
+      <form onSubmit={handleSubmit} className="p-4 border-t flex items-end gap-2">
+        <div className="flex-1">
+          <Textarea
+            placeholder="Ask me anything about email marketing..."
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                handleSubmit(e);
+              }
+            }}
+            className="min-h-[60px] resize-none"
+            disabled={isLoading}
+          />
+        </div>
+        <Button 
+          type="submit" 
+          size="icon" 
+          disabled={!inputValue.trim() || isLoading}
+        >
+          <Send className="h-4 w-4" />
+        </Button>
+      </form>
+    </div>
+  );
+}
