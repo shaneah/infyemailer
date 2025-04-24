@@ -1,275 +1,216 @@
-import { Request, Response } from "express";
-import { openAIService } from "../services/ai/openai-service";
-import { validateSchema } from "../helpers/validation";
-import { z } from "zod";
+import { Router, Request, Response } from 'express';
+import { z } from 'zod';
+import { validateSchema } from '../helpers/validation';
+import { OpenAIService } from '../services/ai/openai-service';
 
-// Schema for chat message validation
-const chatMessageSchema = z.object({
-  messages: z.array(
+const router = Router();
+const openaiService = new OpenAIService();
+
+// Schema for chat request validation
+const chatRequestSchema = z.object({
+  message: z.string().min(1, 'Message is required'),
+  context: z.string().optional().default('general'),
+  history: z.array(
     z.object({
-      role: z.enum(["user", "assistant", "system"]),
-      content: z.string(),
+      role: z.enum(['user', 'assistant', 'system']),
+      content: z.string()
     })
-  ),
-  systemPrompt: z.string().optional(),
+  ).optional().default([])
 });
 
-// Schema for email template generation request
-const emailTemplateRequestSchema = z.object({
-  subject: z.string(),
-  purpose: z.string(),
-  audience: z.string(),
-  tone: z.string(),
-  length: z.enum(["short", "medium", "long"]),
-  includeCallToAction: z.boolean(),
-  specialInstructions: z.string().optional(),
-});
-
-// Schema for subject line analysis request
-const subjectLineRequestSchema = z.object({
-  subjectLine: z.string(),
-});
-
-// Schema for email marketing best practices request
-const bestPracticesRequestSchema = z.object({
-  topic: z.string().optional(),
-});
-
-// Schema for email improvements request
-const emailImprovementsRequestSchema = z.object({
-  emailContent: z.string(),
-});
-
-// Schema for email marketing question request
-const emailMarketingQuestionSchema = z.object({
-  question: z.string(),
-  context: z.string().optional(),
-});
-
-// Schema for audience persona generation request
-const audiencePersonaRequestSchema = z.object({
-  industry: z.string(),
-  demographics: z.string().optional(),
-  interests: z.string().optional(),
-});
-
-// Schema for campaign results analysis request
-const campaignAnalysisRequestSchema = z.object({
-  name: z.string(),
-  sentCount: z.number(),
-  openRate: z.number(),
-  clickRate: z.number(),
-  bounceRate: z.number(),
-  unsubscribeRate: z.number(),
-  conversionRate: z.number().optional(),
-  industry: z.string().optional(),
-});
-
-// Schema for A/B test variations request
-const abTestVariationsRequestSchema = z.object({
-  component: z.enum(["subject", "headline", "cta", "body", "design"]),
-  originalContent: z.string(),
-  variationCount: z.number().min(1).max(5).default(3),
-  goal: z.string().optional(),
-});
+type ChatRequest = z.infer<typeof chatRequestSchema>;
 
 /**
- * Register AI Assistant API routes
+ * Register AI Assistant routes
+ * 
  * @param app Express application
  */
 export function registerAIAssistantRoutes(app: any) {
-  // Chat completion endpoint
-  app.post("/api/ai/chat", async (req: Request, res: Response) => {
+  // Check AI Assistant status
+  router.get('/status', (req: Request, res: Response) => {
+    res.json({
+      status: 'active',
+      implementation: process.env.OPENAI_API_KEY ? 'OpenAI with fallback' : 'Mock only',
+      mockProvided: true,
+      openaiConfigured: !!process.env.OPENAI_API_KEY
+    });
+  });
+
+  // Chat endpoint
+  router.post('/chat', async (req: Request, res: Response) => {
     try {
-      const validatedData = validateSchema(chatMessageSchema, req.body);
-      if ('error' in validatedData) {
-        return res.status(400).json({ error: validatedData.error });
+      const validation = validateSchema<ChatRequest>(chatRequestSchema, req.body);
+      
+      if ('error' in validation) {
+        return res.status(400).json({ error: validation.error });
       }
 
-      const response = await openAIService.getChatCompletion(
-        validatedData.messages,
-        validatedData.systemPrompt
-      );
-
-      res.json({ response });
-    } catch (error: any) {
-      console.error("Error in AI chat completion:", error);
+      const { message, context, history } = validation;
+      
+      // Get default system prompt based on context
+      const systemPrompt = getSystemPromptForContext(context);
+      
+      // Format history for OpenAI
+      const formattedHistory = history.map(msg => ({
+        role: msg.role,
+        content: msg.content
+      }));
+      
+      // Add current message to history
+      const messages = [
+        ...formattedHistory,
+        { role: 'user' as const, content: message }
+      ];
+      
+      // Get response from OpenAI service
+      const response = await openaiService.getChatCompletion(messages, systemPrompt);
+      
+      // Return response
+      res.json({
+        response,
+        context,
+        history: [
+          ...history,
+          { role: 'user', content: message },
+          { role: 'assistant', content: response }
+        ]
+      });
+    } catch (error) {
+      console.error('Error in AI assistant chat endpoint:', error);
       res.status(500).json({ 
-        error: "Failed to get AI response",
-        details: error.message
+        error: 'Failed to get assistant response',
+        response: 'I apologize, but I encountered an error processing your request. Please try again later.'
       });
     }
   });
 
   // Email template generation endpoint
-  app.post("/api/ai/email-template", async (req: Request, res: Response) => {
+  router.post('/generate-template', async (req: Request, res: Response) => {
     try {
-      const validatedData = validateSchema(emailTemplateRequestSchema, req.body);
-      if ('error' in validatedData) {
-        return res.status(400).json({ error: validatedData.error });
+      const { subject, purpose, audience, tone, length, includeCallToAction, specialInstructions } = req.body;
+      
+      if (!subject || !purpose || !audience) {
+        return res.status(400).json({ 
+          error: 'Required fields missing. Please provide subject, purpose, and audience.' 
+        });
       }
-
-      const template = await openAIService.generateEmailTemplate(validatedData);
+      
+      const template = await openaiService.generateEmailTemplate({
+        subject,
+        purpose,
+        audience,
+        tone: tone || 'professional',
+        length: length || 'medium',
+        includeCallToAction: includeCallToAction !== false,
+        specialInstructions
+      });
+      
       res.json({ template });
-    } catch (error: any) {
-      console.error("Error generating email template:", error);
+    } catch (error) {
+      console.error('Error generating email template:', error);
       res.status(500).json({ 
-        error: "Failed to generate email template",
-        details: error.message
+        error: 'Failed to generate email template',
+        template: 'An error occurred while generating your template. Please try again later.'
       });
     }
   });
 
   // Subject line analysis endpoint
-  app.post("/api/ai/analyze-subject", async (req: Request, res: Response) => {
+  router.post('/analyze-subject', async (req: Request, res: Response) => {
     try {
-      const validatedData = validateSchema(subjectLineRequestSchema, req.body);
-      if ('error' in validatedData) {
-        return res.status(400).json({ error: validatedData.error });
+      const { subjectLine } = req.body;
+      
+      if (!subjectLine) {
+        return res.status(400).json({ error: 'Subject line is required' });
       }
-
-      const analysis = await openAIService.analyzeSubjectLine(
-        validatedData.subjectLine
-      );
+      
+      const analysis = await openaiService.analyzeSubjectLine(subjectLine);
       res.json(analysis);
-    } catch (error: any) {
-      console.error("Error analyzing subject line:", error);
+    } catch (error) {
+      console.error('Error analyzing subject line:', error);
       res.status(500).json({ 
-        error: "Failed to analyze subject line",
-        details: error.message
+        error: 'Failed to analyze subject line',
+        score: 0,
+        feedback: 'An error occurred while analyzing your subject line. Please try again later.',
+        suggestions: [],
+        strength: '',
+        weakness: ''
       });
     }
   });
 
   // Email marketing best practices endpoint
-  app.post("/api/ai/best-practices", async (req: Request, res: Response) => {
+  router.get('/best-practices', async (req: Request, res: Response) => {
     try {
-      const validatedData = validateSchema(bestPracticesRequestSchema, req.body);
-      if ('error' in validatedData) {
-        return res.status(400).json({ error: validatedData.error });
-      }
-
-      const bestPractices = await openAIService.getEmailMarketingBestPractices(
-        validatedData.topic
-      );
+      const topic = req.query.topic as string | undefined;
+      const bestPractices = await openaiService.getEmailMarketingBestPractices(topic);
       res.json({ bestPractices });
-    } catch (error: any) {
-      console.error("Error getting best practices:", error);
+    } catch (error) {
+      console.error('Error getting best practices:', error);
       res.status(500).json({ 
-        error: "Failed to get email marketing best practices",
-        details: error.message
+        error: 'Failed to get best practices',
+        bestPractices: []
       });
     }
   });
 
-  // Email improvements endpoint
-  app.post("/api/ai/improve-email", async (req: Request, res: Response) => {
+  // Email improvement suggestions endpoint
+  router.post('/improve-email', async (req: Request, res: Response) => {
     try {
-      const validatedData = validateSchema(emailImprovementsRequestSchema, req.body);
-      if ('error' in validatedData) {
-        return res.status(400).json({ error: validatedData.error });
+      const { emailContent } = req.body;
+      
+      if (!emailContent) {
+        return res.status(400).json({ error: 'Email content is required' });
       }
-
-      const improvements = await openAIService.suggestEmailImprovements(
-        validatedData.emailContent
-      );
+      
+      const improvements = await openaiService.suggestEmailImprovements(emailContent);
       res.json(improvements);
-    } catch (error: any) {
-      console.error("Error getting email improvements:", error);
+    } catch (error) {
+      console.error('Error suggesting email improvements:', error);
       res.status(500).json({ 
-        error: "Failed to get email improvement suggestions",
-        details: error.message
+        error: 'Failed to suggest improvements',
+        improvements: [],
+        revisedContent: ''
       });
     }
   });
 
-  // Email marketing question endpoint
-  app.post("/api/ai/answer-question", async (req: Request, res: Response) => {
-    try {
-      const validatedData = validateSchema(emailMarketingQuestionSchema, req.body);
-      if ('error' in validatedData) {
-        return res.status(400).json({ error: validatedData.error });
-      }
+  // Register all routes with /api/assistant prefix
+  app.use('/api/assistant', router);
+}
 
-      const answer = await openAIService.answerEmailMarketingQuestion(
-        validatedData.question,
-        validatedData.context
-      );
-      res.json({ answer });
-    } catch (error: any) {
-      console.error("Error answering email marketing question:", error);
-      res.status(500).json({ 
-        error: "Failed to answer email marketing question",
-        details: error.message
-      });
-    }
-  });
-
-  // Audience persona generation endpoint
-  app.post("/api/ai/audience-persona", async (req: Request, res: Response) => {
-    try {
-      const validatedData = validateSchema(audiencePersonaRequestSchema, req.body);
-      if ('error' in validatedData) {
-        return res.status(400).json({ error: validatedData.error });
-      }
-
-      const persona = await openAIService.generateAudiencePersona(
-        validatedData.industry,
-        validatedData.demographics,
-        validatedData.interests
-      );
-      res.json(persona);
-    } catch (error: any) {
-      console.error("Error generating audience persona:", error);
-      res.status(500).json({ 
-        error: "Failed to generate audience persona",
-        details: error.message
-      });
-    }
-  });
-
-  // Campaign results analysis endpoint
-  app.post("/api/ai/analyze-campaign", async (req: Request, res: Response) => {
-    try {
-      const validatedData = validateSchema(campaignAnalysisRequestSchema, req.body);
-      if ('error' in validatedData) {
-        return res.status(400).json({ error: validatedData.error });
-      }
-
-      const analysis = await openAIService.analyzeCampaignResults(validatedData);
-      res.json(analysis);
-    } catch (error: any) {
-      console.error("Error analyzing campaign results:", error);
-      res.status(500).json({ 
-        error: "Failed to analyze campaign results",
-        details: error.message
-      });
-    }
-  });
-
-  // A/B test variations endpoint
-  app.post("/api/ai/ab-test-variations", async (req: Request, res: Response) => {
-    try {
-      const validatedData = validateSchema(abTestVariationsRequestSchema, req.body);
-      if ('error' in validatedData) {
-        return res.status(400).json({ error: validatedData.error });
-      }
-
-      const variations = await openAIService.generateABTestVariations(
-        validatedData.component,
-        validatedData.originalContent,
-        validatedData.variationCount,
-        validatedData.goal
-      );
-      res.json({ variations });
-    } catch (error: any) {
-      console.error("Error generating A/B test variations:", error);
-      res.status(500).json({ 
-        error: "Failed to generate A/B test variations",
-        details: error.message
-      });
-    }
-  });
-
-  console.log("AI Assistant API routes registered");
+/**
+ * Get system prompt based on context
+ * 
+ * @param context Context for the conversation
+ * @returns System prompt for the given context
+ */
+function getSystemPromptForContext(context: string): string {
+  const prompts: Record<string, string> = {
+    general: `You are an AI Assistant for an email marketing platform. You provide helpful, accurate, and concise information about email marketing.
+      Your role is to assist users with best practices, campaign strategies, content creation, and technical aspects of email marketing.
+      When possible, include specific metrics, examples, or actionable advice.`,
+    
+    templates: `You are an expert email marketer that helps create effective email templates.
+      Your specialty is creating engaging, conversion-oriented content that follows best practices for email marketing.
+      When asked about templates, provide specific structure and examples of effective email copy.`,
+    
+    analytics: `You are an email marketing analytics expert. You specialize in helping users understand and improve their email campaign performance.
+      When discussing analytics, mention key metrics like open rates, click rates, conversion rates, and what they mean.
+      Provide insights on how to interpret data and actionable strategies to improve metrics.`,
+    
+    deliverability: `You are an email deliverability specialist. You help users understand and solve issues related to email deliverability.
+      Provide specific advice on avoiding spam filters, improving sender reputation, and ensuring emails reach the inbox.
+      When appropriate, explain technical concepts like SPF, DKIM, and DMARC in simple terms.`,
+    
+    segmentation: `You are an expert in email list segmentation and audience targeting.
+      Provide strategies for effectively segmenting email lists and creating targeted campaigns for different audience segments.
+      Emphasize personalization and relevance as keys to engagement.`,
+    
+    compliance: `You are a specialist in email marketing compliance and regulations.
+      Your expertise covers GDPR, CAN-SPAM, CCPA and other relevant regulations that impact email marketing.
+      Provide clear, accurate information about compliance requirements, but clarify that you're not providing legal advice.`
+  };
+  
+  return prompts[context] || prompts.general;
 }

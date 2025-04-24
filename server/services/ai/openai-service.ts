@@ -1,5 +1,4 @@
 import OpenAI from "openai";
-import { env } from "../../env-setup";
 
 // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
 const GPT_MODEL = "gpt-4o";
@@ -8,7 +7,7 @@ const GPT_MODEL = "gpt-4o";
  * Initialize the OpenAI client with API key from environment variables
  */
 const openai = new OpenAI({
-  apiKey: env.OPENAI_API_KEY,
+  apiKey: process.env.OPENAI_API_KEY,
 });
 
 /**
@@ -23,7 +22,7 @@ export class OpenAIService {
   private readonly MOCK_DELAY_MS = 1000;
 
   constructor() {
-    this.isMocked = !env.OPENAI_API_KEY || env.OPENAI_API_KEY.trim() === "";
+    this.isMocked = !process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY.trim() === "";
     
     if (this.isMocked) {
       console.warn(
