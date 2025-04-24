@@ -62,10 +62,19 @@ export function useCollaboration({
   
   // Send a message to the server
   const sendMessage = useCallback((data: any) => {
-    if (socketRef.current?.readyState === WebSocket.OPEN) {
-      socketRef.current.send(JSON.stringify(data));
-    } else {
-      console.warn('Cannot send message - WebSocket is not connected');
+    try {
+      if (socketRef.current?.readyState === WebSocket.OPEN) {
+        const message = JSON.stringify(data);
+        console.log(`Sending message type: ${data.type}`);
+        socketRef.current.send(message);
+      } else {
+        console.warn('Cannot send message - WebSocket is not connected', {
+          readyState: socketRef.current ? socketRef.current.readyState : 'no socket',
+          messageType: data.type
+        });
+      }
+    } catch (error) {
+      console.error('Error sending WebSocket message:', error, data);
     }
   }, []);
   
@@ -126,7 +135,13 @@ export function useCollaboration({
   
   // Connect to WebSocket server
   const connect = useCallback(() => {
+    if (!userId || !templateId) {
+      console.log('Missing required params for WebSocket connection:', { userId, templateId });
+      return;
+    }
+    
     if (socketRef.current?.readyState === WebSocket.OPEN) {
+      console.log('WebSocket already connected, skipping connection attempt');
       return; // Already connected
     }
     
@@ -141,22 +156,26 @@ export function useCollaboration({
       const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
       const wsUrl = `${protocol}//${window.location.host}/collaboration?userId=${userId}&templateId=${templateId}`;
       
+      console.log('Attempting WebSocket connection to:', wsUrl);
+      
       // Create WebSocket connection
       const socket = new WebSocket(wsUrl);
       socketRef.current = socket;
       
       // Connection opened
       socket.addEventListener('open', () => {
-        console.log('Connected to collaboration server');
+        console.log('Successfully connected to collaboration server');
         setIsConnected(true);
         setIsReconnecting(false);
         
         // Join the collaboration room
-        sendMessage({
+        const joinMessage = {
           type: 'join',
           username,
           avatar
-        });
+        };
+        console.log('Sending join message:', joinMessage);
+        sendMessage(joinMessage);
         
         // Set up ping interval to keep connection alive
         if (pingIntervalRef.current) {
@@ -164,14 +183,21 @@ export function useCollaboration({
         }
         
         pingIntervalRef.current = window.setInterval(() => {
-          sendMessage({ type: 'ping' });
+          if (socket.readyState === WebSocket.OPEN) {
+            sendMessage({ type: 'ping' });
+          }
         }, 30000) as unknown as number; // 30 seconds
       });
       
       // Listen for messages
       socket.addEventListener('message', (event) => {
-        const message = JSON.parse(event.data);
-        handleMessage(message);
+        try {
+          const message = JSON.parse(event.data);
+          console.log('Received WebSocket message:', message.type);
+          handleMessage(message);
+        } catch (error) {
+          console.error('Error parsing WebSocket message:', error, event.data);
+        }
       });
       
       // Connection closed
@@ -188,7 +214,9 @@ export function useCollaboration({
         // Attempt to reconnect
         if (!isReconnecting) {
           setIsReconnecting(true);
+          console.log('Scheduling reconnection attempt in 2 seconds...');
           reconnectTimeoutRef.current = window.setTimeout(() => {
+            console.log('Attempting to reconnect...');
             connect();
           }, 2000) as unknown as number; // 2 seconds delay before reconnecting
         }
@@ -210,6 +238,7 @@ export function useCollaboration({
       // Attempt to reconnect
       if (!isReconnecting) {
         setIsReconnecting(true);
+        console.log('Error occurred, scheduling reconnection attempt in 3 seconds...');
         reconnectTimeoutRef.current = window.setTimeout(() => {
           connect();
         }, 3000) as unknown as number; // 3 seconds delay before reconnecting
@@ -246,13 +275,34 @@ export function useCollaboration({
   
   // Initialize connection on component mount
   useEffect(() => {
+    console.log('Initializing WebSocket connection with params:', { 
+      templateId, 
+      userId,
+      username 
+    });
     connect();
     
     // Clean up on unmount
     return () => {
+      console.log('Cleaning up WebSocket connection resources');
+      
       if (socketRef.current) {
-        socketRef.current.close();
-        socketRef.current = null;
+        try {
+          // Try to send a leave message if the connection is open
+          if (socketRef.current.readyState === WebSocket.OPEN) {
+            console.log('Sending leave message before disconnecting');
+            socketRef.current.send(JSON.stringify({ 
+              type: 'leave',
+              userId
+            }));
+          }
+          
+          socketRef.current.close();
+        } catch (error) {
+          console.error('Error while closing WebSocket:', error);
+        } finally {
+          socketRef.current = null;
+        }
       }
       
       if (pingIntervalRef.current) {
@@ -265,7 +315,7 @@ export function useCollaboration({
         reconnectTimeoutRef.current = null;
       }
     };
-  }, [connect]);
+  }, [connect, userId]);
   
   // Return hook value
   return {

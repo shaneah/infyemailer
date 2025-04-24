@@ -51,9 +51,27 @@ export default function CollaborativeTemplateEditor() {
   const [, navigate] = useLocation();
   
   // User information for collaboration
-  const [userId] = useState(sessionStorage.getItem('userId') || uuidv4());
-  const [username, setUsername] = useState(sessionStorage.getItem('username') || `User_${userId.substring(0, 6)}`);
-  const [avatar, setAvatar] = useState(sessionStorage.getItem('avatar') || '');
+  const [userId] = useState(() => {
+    const storedId = sessionStorage.getItem('userId');
+    if (storedId) return storedId;
+    
+    const newId = uuidv4();
+    sessionStorage.setItem('userId', newId);
+    return newId;
+  });
+  
+  const [username, setUsername] = useState(() => {
+    const storedName = sessionStorage.getItem('username');
+    if (storedName) return storedName;
+    
+    const defaultName = `User_${userId.substring(0, 6)}`;
+    sessionStorage.setItem('username', defaultName);
+    return defaultName;
+  });
+  
+  const [avatar, setAvatar] = useState(() => {
+    return sessionStorage.getItem('avatar') || '';
+  });
   
   // Template data
   const [template, setTemplate] = useState<Template>(initialTemplate);

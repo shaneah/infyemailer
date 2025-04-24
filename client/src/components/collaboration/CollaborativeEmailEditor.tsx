@@ -41,8 +41,17 @@ export function CollaborativeEmailEditor({
     // Generate a new ID as last resort
     const newId = uuidv4();
     sessionStorage.setItem('collaboration_user_id', newId);
+    console.log('Created new collaboration user ID:', newId);
     return newId;
   });
+  
+  // Store userId in sessionStorage whenever it changes
+  useEffect(() => {
+    if (userId) {
+      sessionStorage.setItem('collaboration_user_id', userId);
+      console.log('Using collaboration user ID:', userId);
+    }
+  }, [userId]);
   
   // Track mouse position for sharing cursor location
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
