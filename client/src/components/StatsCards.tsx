@@ -2,13 +2,24 @@ import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent } from "@/components/ui/card";
 
+interface Stat {
+  id: number;
+  title: string;
+  value: string;
+  change: {
+    value: string;
+    color: string;
+  };
+  comparison: string;
+}
+
 const StatsCards = () => {
-  const { data: stats, isLoading } = useQuery({
+  const { data: stats, isLoading } = useQuery<Stat[]>({
     queryKey: ['/api/stats'],
   });
 
   // Map Bootstrap style colors to Tailwind colors
-  const colorMap = {
+  const colorMap: Record<string, string> = {
     success: "bg-green-100 text-green-800",
     danger: "bg-red-100 text-red-800",
     warning: "bg-yellow-100 text-yellow-800",
@@ -37,7 +48,7 @@ const StatsCards = () => {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-      {stats?.map((stat) => (
+      {stats && stats.map((stat: Stat) => (
         <Card 
           key={stat.id} 
           className="shadow-sm hover:shadow transition-shadow"
