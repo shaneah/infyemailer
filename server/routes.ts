@@ -3058,13 +3058,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
         historyLength: history ? history.length : 0
       });
       
-      const response = await getAssistantResponse(message, history);
-      
-      res.json({ response });
+      try {
+        const response = await getAssistantResponse(message, history);
+        res.json({ response });
+      } catch (aiError) {
+        console.error('AI Assistant response error:', aiError);
+        // Always return a 200 response with a fallback message rather than an error
+        res.json({ 
+          response: "I'm experiencing some technical difficulties at the moment. Please try again later or contact support if this persists."
+        });
+      }
     } catch (error) {
-      console.error('Error getting assistant response:', error);
-      res.status(500).json({ 
-        error: 'Failed to get response from AI assistant. Please ensure your OpenAI API key is valid.'
+      console.error('Server error in assistant endpoint:', error);
+      // Always return a 200 response with a fallback message
+      res.json({ 
+        response: "I apologize, but I'm currently unable to process your request. Our team has been notified of this issue."
       });
     }
   });

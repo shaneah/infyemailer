@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Avatar } from '@/components/ui/avatar';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -25,7 +24,8 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ initialPrompt, className }) =
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [isMinimized, setIsMinimized] = useState(false);
+  const [isMinimized, setIsMinimized] = useState(true); // Start minimized
+  const [isVisible, setIsVisible] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const { toast } = useToast();
@@ -71,42 +71,45 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ initialPrompt, className }) =
     setIsLoading(true);
     
     try {
-      const response = await fetch('/api/assistant/chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          message: messageText,
-          history: messages.map(msg => ({
-            role: msg.role,
-            content: msg.content
-          }))
-        }),
-      });
+      // In case of API error, provide a graceful fallback response
+      let assistantResponse: string;
       
-      if (!response.ok) {
-        throw new Error('Failed to get response from AI assistant');
+      try {
+        const response = await fetch('/api/assistant/chat', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            message: messageText,
+            history: messages.map(msg => ({
+              role: msg.role,
+              content: msg.content
+            }))
+          }),
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to get response from AI assistant');
+        }
+        
+        const data = await response.json();
+        assistantResponse = data.response;
+      } catch (error) {
+        console.error('Error calling AI assistant:', error);
+        // Fallback response
+        assistantResponse = "I'm experiencing some technical difficulties right now. Please try again later or contact support if the issue persists.";
       }
-      
-      const data = await response.json();
       
       setMessages(prev => [
         ...prev,
         {
           id: Date.now().toString(),
           role: 'assistant',
-          content: data.response,
+          content: assistantResponse,
           timestamp: new Date()
         }
       ]);
-    } catch (error) {
-      console.error('Error calling AI assistant:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to connect with the AI assistant. Please try again.',
-        variant: 'destructive',
-      });
     } finally {
       setIsLoading(false);
     }
@@ -118,6 +121,9 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ initialPrompt, className }) =
       handleSendMessage();
     }
   };
+
+  // Hide completely if not visible
+  if (!isVisible) return null;
 
   return (
     <Card className={cn("fixed bottom-4 right-4 w-80 shadow-lg transition-all duration-200 z-50", 
@@ -144,7 +150,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ initialPrompt, className }) =
             variant="ghost" 
             size="icon" 
             className="h-8 w-8 hover:text-red-500" 
-            onClick={() => setMessages(messages.slice(0, 1))}
+            onClick={() => setIsVisible(false)}
           >
             <X className="h-4 w-4" />
           </Button>
