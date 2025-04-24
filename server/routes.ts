@@ -29,7 +29,12 @@ declare global {
   }
 }
 import { registerEmailProviderRoutes } from "./routes/emailProviders";
-import { registerAudiencePersonaRoutes } from "./routes/audiencePersonas";
+// Audience Personas routes removed
+// Dummy function to avoid breaking references
+function registerAudiencePersonaRoutes(_app: Express) {
+  // This empty function replaces the removed audience personas functionality
+  console.log("Audience personas feature has been removed");
+}
 import { registerClientProviderRoutes } from "./routes/clientProviders";
 import { registerTestEmailRoutes } from "./routes/testEmail";
 import { registerHealthRoutes } from "./routes/health";
@@ -128,8 +133,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register email provider routes
   await registerEmailProviderRoutes(app);
   
-  // Register audience persona routes
-  registerAudiencePersonaRoutes(app);
+  // Audience Personas routes removed
+  // registerAudiencePersonaRoutes(app);
   
   // Register client provider routes
   registerClientProviderRoutes(app);
