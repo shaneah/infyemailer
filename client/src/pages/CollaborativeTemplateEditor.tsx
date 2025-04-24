@@ -279,6 +279,7 @@ export default function CollaborativeTemplateEditor() {
                     templateId={template.id}
                     username={username}
                     avatar={avatar}
+                    userId={userId}
                     initialTemplate={template.content}
                     onSave={handleTemplateChange}
                     readOnly={false}

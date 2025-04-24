@@ -24,15 +24,21 @@ export function CollaborativeEmailEditor({
   readOnly = false,
   username = 'Anonymous User',
   avatar,
+  userId: providedUserId,
 }: CollaborativeEmailEditorProps) {
   const { toast } = useToast();
   const editorRef = useRef(null);
   
   // Generate a persistent user ID for this session if not already available
   const [userId] = useState(() => {
+    // Use provided userId if available
+    if (providedUserId) return providedUserId;
+    
+    // Otherwise check sessionStorage
     const storedId = sessionStorage.getItem('collaboration_user_id');
     if (storedId) return storedId;
     
+    // Generate a new ID as last resort
     const newId = uuidv4();
     sessionStorage.setItem('collaboration_user_id', newId);
     return newId;
