@@ -247,7 +247,7 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
             
             {/* Advanced Features */}
             
-            {/* Audience Personas */}
+            {/* Audience Personas - REMOVED
             <li>
               <Link 
                 href="/audience-personas" 
@@ -259,7 +259,7 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
                 <UserCircle2 className={`h-5 w-5 mr-3 ${location === '/audience-personas' ? 'text-[#d4af37]' : ''}`} />
                 {!collapsed && <span>Audience Personas</span>}
               </Link>
-            </li>
+            </li> */}
             
             {/* Email Validation */}
             <li>

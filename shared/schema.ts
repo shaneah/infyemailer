@@ -834,6 +834,7 @@ export const personaBehaviors = pgTable("persona_behaviors", {
   metadata: json("metadata")
 });
 
+// REMOVED: Schema removed from UI but kept for DB compatibility
 export const insertPersonaBehaviorSchema = createInsertSchema(personaBehaviors).pick({
   personaId: true,
   purchaseFrequency: true,
@@ -849,7 +850,7 @@ export const insertPersonaBehaviorSchema = createInsertSchema(personaBehaviors).
 export type InsertPersonaBehavior = z.infer<typeof insertPersonaBehaviorSchema>;
 export type PersonaBehavior = typeof personaBehaviors.$inferSelect;
 
-// Audience Persona Insights
+// REMOVED: Audience Persona Insights
 export const personaInsights = pgTable("persona_insights", {
   id: serial("id").primaryKey(),
   personaId: integer("persona_id").notNull().references(() => audiencePersonas.id),
@@ -861,6 +862,7 @@ export const personaInsights = pgTable("persona_insights", {
   metadata: json("metadata")
 });
 
+// REMOVED: Schema removed from UI but kept for DB compatibility
 export const insertPersonaInsightSchema = createInsertSchema(personaInsights).pick({
   personaId: true,
   insightType: true,
@@ -1175,7 +1177,7 @@ export const systemCreditsHistoryRelations = defineRelations(systemCreditsHistor
   user: { relationName: "systemCreditsHistory_to_user", fields: [systemCreditsHistory.performedBy], references: [users.id] }
 });
 
-// Define audience persona builder relations
+// REMOVED: Define audience persona builder relations
 export const audiencePersonasRelations = defineRelations(audiencePersonas, {
   demographics: { relationName: "persona_to_demographics", fields: [audiencePersonas.id], references: [personaDemographics.personaId] },
   behaviors: { relationName: "persona_to_behaviors", fields: [audiencePersonas.id], references: [personaBehaviors.personaId] },
@@ -1184,18 +1186,22 @@ export const audiencePersonasRelations = defineRelations(audiencePersonas, {
   client: { relationName: "persona_to_client", fields: [audiencePersonas.clientId], references: [clients.id] }
 });
 
+// REMOVED: Persona demographics relations
 export const personaDemographicsRelations = defineRelations(personaDemographics, {
   persona: { relationName: "demographics_to_persona", fields: [personaDemographics.personaId], references: [audiencePersonas.id] }
 });
 
+// REMOVED: Persona behaviors relations
 export const personaBehaviorsRelations = defineRelations(personaBehaviors, {
   persona: { relationName: "behaviors_to_persona", fields: [personaBehaviors.personaId], references: [audiencePersonas.id] }
 });
 
+// REMOVED: Persona insights relations
 export const personaInsightsRelations = defineRelations(personaInsights, {
   persona: { relationName: "insights_to_persona", fields: [personaInsights.personaId], references: [audiencePersonas.id] }
 });
 
+// REMOVED: Audience segments relations
 export const audienceSegmentsRelations = defineRelations(audienceSegments, {
   persona: { relationName: "segment_to_persona", fields: [audienceSegments.personaId], references: [audiencePersonas.id] },
   client: { relationName: "segment_to_client", fields: [audienceSegments.clientId], references: [clients.id] }
