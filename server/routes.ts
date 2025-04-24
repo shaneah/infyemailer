@@ -4,7 +4,7 @@ import { WebSocketServer, WebSocket } from 'ws';
 import { getStorage } from "./storageManager"; // Use dynamic storage selection
 const storage = getStorage();
 import { isDatabaseAvailable, db } from "./db"; // Import db and check if database is available
-import { eq, desc } from "drizzle-orm"; // Import Drizzle operators
+import { eq, desc, sql } from "drizzle-orm"; // Import Drizzle operators
 import { generateSubjectLines, generateEmailTemplate, generateColorPalette } from "./services/openai";
 import { getAssistantResponse } from "./services/assistant";
 import { setupAuth, hashPassword, comparePasswords } from "./auth";
@@ -2164,38 +2164,67 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { username, password } = validatedData;
       console.log(`Client login attempt for: ${username}`);
       
-      // First check if the user exists
-      const user = await storage.getClientUserByUsername(username);
-      console.log(`getClientUserByUsername returned:`, user);
-      
-      if (!user) {
-        console.log(`Client user not found: ${username}`);
-        return res.status(401).json({ error: 'Invalid credentials (user not found)' });
+      // Special case for client1/clientdemo during development
+      if (username === 'client1' && password === 'clientdemo') {
+        console.log('Processing hardcoded login for client1/clientdemo');
+        
+        // Get the hardcoded client user with direct SQL
+        const users = await db.execute(
+          sql`SELECT * FROM client_users WHERE username = 'client1'`
+        );
+        
+        if (users && users.length > 0) {
+          const user = users[0];
+          console.log('Found client1 user:', user);
+          
+          // Get the client data
+          const clients = await db.execute(
+            sql`SELECT * FROM clients WHERE id = ${user.client_id}`
+          );
+          
+          let client = null;
+          if (clients && clients.length > 0) {
+            client = clients[0];
+            console.log('Found client for client1:', client);
+          } else {
+            console.log('Client not found for client1');
+          }
+          
+          // Extract permissions from metadata if they exist
+          let permissions = {};
+          if (user.metadata && typeof user.metadata === 'object' && user.metadata.permissions) {
+            permissions = user.metadata.permissions;
+          }
+          
+          // Don't send password back to the client
+          const { password: _, ...userWithoutPassword } = user;
+          
+          const responseData = { 
+            ...userWithoutPassword,
+            permissions,
+            clientName: client ? client.name : 'Unknown Client',
+            clientCompany: client ? client.company : 'Unknown Company',
+            lastLogin: new Date().toISOString() 
+          };
+          
+          console.log(`Sending client login response:`, responseData);
+          return res.json(responseData);
+        }
       }
       
-      // Extract permissions from metadata if they exist
-      if (user.metadata && typeof user.metadata === 'object' && user.metadata.permissions) {
-        user.permissions = user.metadata.permissions;
-      }
-      
-      console.log(`Client user found. Password format: ${user.password.includes('.') ? 'hashed' : 'plain'}`);
-      console.log(`User metadata:`, user.metadata);
-      
-      // For demo purposes: special override for username "client1" with password "clientdemo" 
-      let clientUser;
-      if (username === "client1" && password === "clientdemo") {
-        console.log(`Using demo override for client login`);
-        clientUser = user;
-      } else {
-        // Regular password verification
-        clientUser = await storage.verifyClientLogin(username, password);
-      }
-      
+      // Regular verification path using storage methods
+      const clientUser = await storage.verifyClientLogin(username, password);
       console.log(`verifyClientLogin returned:`, clientUser);
       
       if (!clientUser) {
-        console.log(`Password verification failed for client user: ${username}`);
-        return res.status(401).json({ error: 'Invalid credentials (password mismatch)' });
+        console.log(`Client login failed for user: ${username}`);
+        return res.status(401).json({ error: 'Invalid credentials' });
+      }
+      
+      // Extract permissions from metadata if they exist
+      let permissions = {};
+      if (clientUser.metadata && typeof clientUser.metadata === 'object' && clientUser.metadata.permissions) {
+        permissions = clientUser.metadata.permissions;
       }
       
       // Get the associated client for this user
@@ -2214,13 +2243,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const responseData = { 
         ...clientUserWithoutPassword,
+        permissions,
         clientName: client.name,
         clientCompany: client.company,
         lastLogin: new Date().toISOString() 
       };
       
       console.log(`Sending client login response:`, responseData);
-      
       res.json(responseData);
     } catch (error) {
       console.error('Client login error:', error);
