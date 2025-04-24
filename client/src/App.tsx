@@ -98,36 +98,42 @@ function App() {
         <Route path="client-campaigns">
           <div className="bg-background min-h-screen">
             <ClientRoutes />
+            <AIAssistant />
             <Toaster />
           </div>
         </Route>
         <Route path="client-contacts">
           <div className="bg-background min-h-screen">
             <ClientRoutes />
+            <AIAssistant />
             <Toaster />
           </div>
         </Route>
         <Route path="client-lists">
           <div className="bg-background min-h-screen">
             <ClientRoutes />
+            <AIAssistant />
             <Toaster />
           </div>
         </Route>
         <Route path="client-templates">
           <div className="bg-background min-h-screen">
             <ClientRoutes />
+            <AIAssistant />
             <Toaster />
           </div>
         </Route>
         <Route path="client-template-builder">
           <div className="bg-background min-h-screen">
             <BasicTemplateBuilder isClientPortal={true} />
+            <AIAssistant />
             <Toaster />
           </div>
         </Route>
         <Route path="client-template-builder/:id">
           <div className="bg-background min-h-screen">
             <BasicTemplateBuilder isClientPortal={true} />
+            <AIAssistant />
             <Toaster />
           </div>
         </Route>
@@ -135,36 +141,42 @@ function App() {
         <Route path="client-domains">
           <div className="bg-background min-h-screen">
             <ClientRoutes />
+            <AIAssistant />
             <Toaster />
           </div>
         </Route>
         <Route path="client-email-validation">
           <div className="bg-background min-h-screen">
             <ClientRoutes />
+            <AIAssistant />
             <Toaster />
           </div>
         </Route>
         <Route path="client-ab-testing">
           <div className="bg-background min-h-screen">
             <ClientRoutes />
+            <AIAssistant />
             <Toaster />
           </div>
         </Route>
         <Route path="client-ab-testing/:id">
           <div className="bg-background min-h-screen">
             <ClientRoutes />
+            <AIAssistant />
             <Toaster />
           </div>
         </Route>
         <Route path="client-email-performance">
           <div className="bg-background min-h-screen">
             <ClientRoutes />
+            <AIAssistant />
             <Toaster />
           </div>
         </Route>
         <Route path="client-settings">
           <div className="bg-background min-h-screen">
             <ClientRoutes />
+            <AIAssistant />
             <Toaster />
           </div>
         </Route>
@@ -173,18 +185,21 @@ function App() {
         <Route path="client-overview">
           <div className="bg-background min-h-screen">
             <ClientPlaceholderPage title="System Overview" />
+            <AIAssistant />
             <Toaster />
           </div>
         </Route>
         <Route path="client-security">
           <div className="bg-background min-h-screen">
             <ClientRoutes />
+            <AIAssistant />
             <Toaster />
           </div>
         </Route>
         <Route path="client-billing">
           <div className="bg-background min-h-screen">
             <ClientRoutes />
+            <AIAssistant />
             <Toaster />
           </div>
         </Route>
@@ -192,6 +207,7 @@ function App() {
         <Route path="email-performance-dashboard">
           <div className="bg-background min-h-screen">
             <EmailPerformanceDashboard />
+            <AIAssistant />
             <Toaster />
           </div>
         </Route>
