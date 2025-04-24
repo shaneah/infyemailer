@@ -100,7 +100,19 @@ export class DbStorage implements IStorage {
 
   async getClientUserByUsername(username: string) {
     try {
-      const [user] = await db.select().from(schema.clientUsers).where(eq(schema.clientUsers.username, username));
+      console.log(`DB lookup for client user with username: ${username}`);
+      console.log(`Using db from import:`, typeof db, Object.keys(db));
+      console.log(`ClientUsers schema:`, typeof schema.clientUsers, Object.keys(schema.clientUsers));
+      
+      const query = db.select().from(schema.clientUsers).where(eq(schema.clientUsers.username, username));
+      console.log(`Generated SQL query:`, query.toSQL());
+      
+      const results = await query;
+      console.log(`Query results:`, results);
+      
+      const [user] = results;
+      console.log(`Extracted user:`, user);
+      
       return user;
     } catch (error) {
       console.error('Error getting client user by username:', error);
