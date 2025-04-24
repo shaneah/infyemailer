@@ -6,44 +6,59 @@ import AudienceGrowth from "./AudienceGrowth";
 import QuickActions from "./QuickActions";
 import NewCampaignModal from "@/modals/NewCampaignModal";
 import ComposeEmailModal from "@/modals/ComposeEmailModal";
+import { Button } from "@/components/ui/button";
+import { Plus, Share, Download } from "lucide-react";
 
 const Dashboard = () => {
   const [showNewCampaignModal, setShowNewCampaignModal] = useState(false);
   const [showComposeEmailModal, setShowComposeEmailModal] = useState(false);
 
   return (
-    <>
-      <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-        <h1 className="h2">Dashboard</h1>
-        <div className="btn-toolbar mb-2 mb-md-0">
-          <div className="btn-group me-2">
-            <button type="button" className="btn btn-sm btn-outline-secondary">Share</button>
-            <button type="button" className="btn btn-sm btn-outline-secondary">Export</button>
+    <div className="container mx-auto px-4 py-6">
+      <div className="flex justify-between items-center mb-6 pb-4 border-b">
+        <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
+        <div className="flex items-center space-x-2">
+          <div className="flex space-x-2 mr-2">
+            <Button variant="outline" size="sm" className="flex items-center gap-1">
+              <Share className="h-4 w-4" />
+              <span>Share</span>
+            </Button>
+            <Button variant="outline" size="sm" className="flex items-center gap-1">
+              <Download className="h-4 w-4" />
+              <span>Export</span>
+            </Button>
           </div>
-          <button 
-            type="button" 
-            className="btn btn-sm btn-primary"
+          <Button 
+            size="sm"
             onClick={() => setShowNewCampaignModal(true)}
+            className="flex items-center gap-1"
           >
-            <i className="bi bi-plus-lg me-1"></i>
-            New Campaign
-          </button>
+            <Plus className="h-4 w-4" />
+            <span>New Campaign</span>
+          </Button>
         </div>
       </div>
 
-      <StatsCards />
-      <CampaignsTable />
+      <div className="mb-8">
+        <StatsCards />
+      </div>
+      
+      <div className="mb-8">
+        <CampaignsTable />
+      </div>
 
-      <div className="row g-4 mb-4">
-        <div className="col-md-8">
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-8 mb-8">
+        <div className="md:col-span-8">
           <AnalyticsChart />
         </div>
-        <div className="col-md-4">
+        <div className="md:col-span-4">
           <AudienceGrowth />
         </div>
       </div>
 
-      <QuickActions onCreateEmail={() => setShowComposeEmailModal(true)} />
+      <div className="mb-8">
+        <QuickActions onCreateEmail={() => setShowComposeEmailModal(true)} />
+      </div>
       
       {showNewCampaignModal && 
         <NewCampaignModal onClose={() => setShowNewCampaignModal(false)} />
@@ -52,7 +67,7 @@ const Dashboard = () => {
       {showComposeEmailModal && 
         <ComposeEmailModal onClose={() => setShowComposeEmailModal(false)} />
       }
-    </>
+    </div>
   );
 };
 
