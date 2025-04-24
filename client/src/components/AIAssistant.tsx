@@ -1,15 +1,15 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useAIAssistant } from '@/contexts/AIAssistantContext';
-import { 
-  formatMessageTime, 
-  groupMessagesByDate, 
-  getSuggestionsByContext,
-  parseMessageContent
-} from '@/utils/ai-assistant-utils';
 import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Select,
   SelectContent,
@@ -18,540 +18,361 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import {
+  X,
+  Send,
+  Trash2,
+  Bot,
+  Minimize2,
+  Maximize2,
+  Sparkles,
+  Menu,
+  Loader2,
+} from 'lucide-react';
+import { formatTimestamp } from '@/utils/ai-assistant-utils';
+import { 
   Tooltip,
   TooltipContent,
   TooltipProvider,
-  TooltipTrigger,
+  TooltipTrigger 
 } from '@/components/ui/tooltip';
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from '@/components/ui/sheet';
 import { 
-  MessageSquare, 
-  X, 
-  Send, 
-  Trash2, 
-  Loader2, 
-  ChevronDown,
-  Maximize2,
-  Minimize2,
-  RotateCcw
-} from 'lucide-react';
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger 
+} from '@/components/ui/dropdown-menu';
+import { Separator } from '@/components/ui/separator';
+import { Badge } from '@/components/ui/badge';
 
-/**
- * AI Assistant component that provides a chat interface
- */
-export function AIAssistant() {
-  const { 
-    isOpen, 
-    messages, 
-    isLoading, 
-    context,
-    sendMessage, 
-    setContext, 
-    clearMessages, 
-    toggleAssistant, 
-    closeAssistant 
-  } = useAIAssistant();
+// Helper function to format message text with line breaks and links
+function formatMessageText(text: string): React.ReactNode {
+  // Split by line breaks
+  const parts = text.split('\n');
   
-  // Local state
-  const [inputValue, setInputValue] = useState('');
-  const [isExpanded, setIsExpanded] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  // Create an array to hold formatted parts
+  const formattedParts: React.ReactNode[] = [];
   
-  // Scroll to bottom when messages change
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
-  
-  // Handle submit
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (inputValue.trim() && !isLoading) {
-      sendMessage(inputValue);
-      setInputValue('');
+  // Process each part
+  parts.forEach((part, index) => {
+    // Add previous parts with line breaks
+    if (index > 0) {
+      formattedParts.push(<br key={`br-${index}`} />);
     }
-  };
+    
+    // Check for links and format them
+    const linkRegex = /(https?:\/\/[^\s]+)/g;
+    const segments = part.split(linkRegex);
+    
+    // Process each segment
+    segments.forEach((segment, segmentIndex) => {
+      if (segment.match(linkRegex)) {
+        // This is a link
+        formattedParts.push(
+          <a 
+            key={`link-${index}-${segmentIndex}`}
+            href={segment}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-500 hover:underline"
+          >
+            {segment}
+          </a>
+        );
+      } else if (segment) {
+        // This is regular text
+        formattedParts.push(
+          <span key={`text-${index}-${segmentIndex}`}>{segment}</span>
+        );
+      }
+    });
+  });
   
-  // Handle suggestion click
-  const handleSuggestionClick = (suggestion: string) => {
-    if (!isLoading) {
-      sendMessage(suggestion);
-    }
-  };
-  
-  // Toggle expanded state
-  const toggleExpanded = () => {
-    setIsExpanded(prev => !prev);
-  };
-  
-  // Message groups by date
-  const messageGroups = groupMessagesByDate(messages);
-  
-  // Get suggestions based on context
-  const suggestions = getSuggestionsByContext(context);
-  
-  // Render nothing if assistant is closed
-  if (!isOpen) {
-    return (
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              onClick={toggleAssistant}
-              className="fixed bottom-4 right-4 h-12 w-12 rounded-full shadow-lg"
-              size="icon"
-            >
-              <MessageSquare className="h-6 w-6" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent side="left">
-            <p>Open AI Assistant</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
-    );
-  }
-  
+  return <>{formattedParts}</>;
+}
+
+// Message component to display a single chat message
+const Message: React.FC<{
+  content: string;
+  isUser: boolean;
+  timestamp?: Date;
+}> = ({ content, isUser, timestamp }) => {
   return (
-    <div 
-      className={`fixed ${
-        isExpanded ? 'inset-0 m-4' : 'bottom-4 right-4 w-80 h-96'
-      } bg-background border rounded-lg shadow-lg flex flex-col z-50 transition-all duration-200`}
+    <div className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-4`}>
+      <div
+        className={`p-3 rounded-lg max-w-[75%] ${
+          isUser
+            ? 'bg-primary text-primary-foreground rounded-tr-none'
+            : 'bg-muted text-foreground rounded-tl-none'
+        }`}
+      >
+        <div className="text-sm">{formatMessageText(content)}</div>
+        {timestamp && (
+          <div className="text-xs opacity-70 mt-1 text-right">
+            {formatTimestamp(timestamp)}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// Suggested message component
+const SuggestedMessage: React.FC<{
+  message: string;
+  onSelect: (message: string) => void;
+}> = ({ message, onSelect }) => {
+  return (
+    <Button
+      variant="outline"
+      className="mr-2 mb-2 text-sm whitespace-normal h-auto py-1.5"
+      onClick={() => onSelect(message)}
     >
-      {/* Header */}
-      <div className="flex items-center justify-between p-3 border-b">
-        <div className="flex items-center space-x-2">
-          <MessageSquare className="h-5 w-5 text-primary" />
-          <h3 className="font-medium">AI Assistant</h3>
-        </div>
-        <div className="flex items-center space-x-1">
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            onClick={toggleExpanded}
-            className="h-8 w-8"
-          >
-            {isExpanded ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
-          </Button>
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            onClick={closeAssistant}
-            className="h-8 w-8"
-          >
-            <X className="h-4 w-4" />
-          </Button>
-        </div>
-      </div>
-      
-      {/* Context Selector */}
-      <div className="px-3 py-2 border-b">
-        <Select value={context} onValueChange={setContext}>
-          <SelectTrigger className="w-full">
-            <SelectValue placeholder="Select context" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="general">General Email Marketing</SelectItem>
-            <SelectItem value="templates">Email Templates</SelectItem>
-            <SelectItem value="analytics">Analytics & Metrics</SelectItem>
-            <SelectItem value="deliverability">Email Deliverability</SelectItem>
-            <SelectItem value="segmentation">List Segmentation</SelectItem>
-            <SelectItem value="compliance">Legal & Compliance</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-      
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-3 space-y-4">
-        {messages.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground">
-            <MessageSquare className="h-8 w-8 mb-2" />
-            <h4 className="text-sm font-medium mb-1">AI Email Marketing Assistant</h4>
-            <p className="text-xs max-w-[250px]">
-              Ask me anything about email marketing, templates, best practices, or optimization tips.
-            </p>
-          </div>
-        ) : (
-          Object.entries(messageGroups).map(([date, dateMessages]) => (
-            <div key={date} className="space-y-3">
-              <div className="flex justify-center">
-                <span className="text-xs px-2 py-1 bg-muted rounded-full text-muted-foreground">
-                  {date}
-                </span>
-              </div>
-              
-              {dateMessages.map((message, i) => (
-                <div
-                  key={i}
-                  className={`flex ${
-                    message.role === 'user' ? 'justify-end' : 'justify-start'
-                  }`}
-                >
-                  <div
-                    className={`max-w-[80%] rounded-lg px-3 py-2 ${
-                      message.role === 'user'
-                        ? 'bg-primary text-primary-foreground'
-                        : 'bg-muted'
-                    }`}
-                  >
-                    <div 
-                      className="text-sm"
-                      dangerouslySetInnerHTML={{ 
-                        __html: parseMessageContent(message.content) 
-                      }}
-                    />
-                    <div className="text-right mt-1">
-                      <span className="text-xs opacity-70">
-                        {message.timestamp && formatMessageTime(message.timestamp)}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ))
-        )}
-        
-        {isLoading && (
-          <div className="flex justify-start">
-            <div className="bg-muted max-w-[80%] rounded-lg px-3 py-2">
-              <div className="flex items-center space-x-2">
-                <Loader2 className="h-4 w-4 animate-spin" />
-                <span className="text-sm">Thinking...</span>
-              </div>
-            </div>
-          </div>
-        )}
-        
-        {/* Invisible element to scroll to */}
-        <div ref={messagesEndRef} />
-      </div>
-      
-      {/* Suggestions */}
-      {messages.length > 0 && !isLoading && (
-        <div className="px-3 py-2 border-t">
-          <div className="flex overflow-x-auto gap-2 pb-1 no-scrollbar">
-            {suggestions.map((suggestion, i) => (
-              <Button
-                key={i}
-                variant="outline"
-                size="sm"
-                className="whitespace-nowrap text-xs"
-                onClick={() => handleSuggestionClick(suggestion)}
-                disabled={isLoading}
-              >
-                {suggestion}
-              </Button>
-            ))}
-          </div>
-        </div>
-      )}
-      
-      {/* Input */}
-      <form onSubmit={handleSubmit} className="p-3 border-t flex items-end gap-2">
-        <div className="flex-1">
-          <Textarea
-            placeholder="Ask me anything about email marketing..."
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                handleSubmit(e);
-              }
-            }}
-            className="min-h-[60px] max-h-[120px]"
-            disabled={isLoading}
-          />
-        </div>
-        <div className="flex flex-col gap-2">
-          <Button 
-            type="submit" 
-            size="icon" 
-            disabled={!inputValue.trim() || isLoading}
-          >
-            <Send className="h-4 w-4" />
-          </Button>
-          
-          <Button
-            type="button"
-            variant="outline"
-            size="icon"
-            onClick={clearMessages}
-            disabled={messages.length === 0 || isLoading}
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
-        </div>
-      </form>
-    </div>
+      {message}
+    </Button>
   );
-}
+};
 
-/**
- * AI Assistant Button that triggers a sheet on mobile
- * and renders the assistant directly on larger screens
- */
-export function AIAssistantButton() {
-  const { toggleAssistant, isOpen } = useAIAssistant();
-  const [isMobile, setIsMobile] = useState(false);
-  
-  // Check if mobile on mount and when window resizes
-  useEffect(() => {
-    const checkIfMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    
-    checkIfMobile();
-    window.addEventListener('resize', checkIfMobile);
-    
-    return () => {
-      window.removeEventListener('resize', checkIfMobile);
-    };
-  }, []);
-  
-  if (isMobile) {
-    return (
-      <Sheet>
-        <SheetTrigger asChild>
-          <Button 
-            className="fixed bottom-4 right-4 h-12 w-12 rounded-full shadow-lg z-50"
-            size="icon"
-          >
-            <MessageSquare className="h-6 w-6" />
-          </Button>
-        </SheetTrigger>
-        <SheetContent side="bottom" className="h-[90vh] p-0">
-          <div className="h-full flex flex-col">
-            <SheetHeader className="px-4 py-3 border-b">
-              <SheetTitle>AI Assistant</SheetTitle>
-            </SheetHeader>
-            <div className="flex-1 overflow-y-auto">
-              <AIAssistantMobile />
-            </div>
-          </div>
-        </SheetContent>
-      </Sheet>
-    );
-  }
-  
-  return (
-    <>
-      <AIAssistant />
-      {!isOpen && (
-        <Button
-          onClick={toggleAssistant}
-          className="fixed bottom-4 right-4 h-12 w-12 rounded-full shadow-lg z-50"
-          size="icon"
-        >
-          <MessageSquare className="h-6 w-6" />
-        </Button>
-      )}
-    </>
-  );
-}
-
-/**
- * Mobile-optimized version of the AI Assistant
- * (stripped down for use in the sheet)
- */
-function AIAssistantMobile() {
-  const { 
-    messages, 
-    isLoading, 
+// Main AI Assistant component
+export const AIAssistant: React.FC = () => {
+  const {
+    isOpen,
+    toggleAssistant,
+    chatHistory,
+    sendMessage,
+    clearHistory,
+    isLoading,
     context,
-    sendMessage, 
-    setContext, 
-    clearMessages
+    setContext,
+    suggestedMessages,
+    minimized,
+    toggleMinimize,
   } = useAIAssistant();
   
-  // Local state
   const [inputValue, setInputValue] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   
-  // Scroll to bottom when messages change
+  // Auto-scroll to bottom when chat history updates
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+    if (messagesEndRef.current && isOpen && !minimized) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [chatHistory, isOpen, minimized]);
   
-  // Handle submit
+  // Auto-focus input when opening the assistant
+  useEffect(() => {
+    if (isOpen && !minimized && textareaRef.current) {
+      textareaRef.current.focus();
+    }
+  }, [isOpen, minimized]);
+  
+  // Handle form submission
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
     if (inputValue.trim() && !isLoading) {
-      sendMessage(inputValue);
+      sendMessage(inputValue.trim());
       setInputValue('');
     }
   };
   
-  // Handle suggestion click
-  const handleSuggestionClick = (suggestion: string) => {
-    if (!isLoading) {
-      sendMessage(suggestion);
+  // Handle key press in textarea
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSubmit(e);
     }
   };
   
-  // Message groups by date
-  const messageGroups = groupMessagesByDate(messages);
+  // Handle selecting a suggested message
+  const handleSuggestedMessageClick = (message: string) => {
+    sendMessage(message);
+  };
   
-  // Get suggestions based on context
-  const suggestions = getSuggestionsByContext(context);
+  // Handle context change
+  const handleContextChange = (value: string) => {
+    setContext(value);
+  };
+  
+  // If the assistant is not open, don't render anything
+  if (!isOpen) {
+    return null;
+  }
   
   return (
-    <div className="flex flex-col h-full">
-      {/* Context Selector */}
-      <div className="px-4 py-2 border-b">
-        <Select value={context} onValueChange={setContext}>
-          <SelectTrigger className="w-full">
-            <SelectValue placeholder="Select context" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="general">General Email Marketing</SelectItem>
-            <SelectItem value="templates">Email Templates</SelectItem>
-            <SelectItem value="analytics">Analytics & Metrics</SelectItem>
-            <SelectItem value="deliverability">Email Deliverability</SelectItem>
-            <SelectItem value="segmentation">List Segmentation</SelectItem>
-            <SelectItem value="compliance">Legal & Compliance</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-      
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {messages.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground">
-            <MessageSquare className="h-8 w-8 mb-2" />
-            <h4 className="text-sm font-medium mb-1">AI Email Marketing Assistant</h4>
-            <p className="text-xs max-w-[250px]">
-              Ask me anything about email marketing, templates, best practices, or optimization tips.
-            </p>
+    <div className="fixed bottom-4 right-4 z-50 flex flex-col shadow-lg rounded-lg">
+      <Card className={`w-[360px] ${minimized ? 'h-auto' : 'h-[500px]'} flex flex-col bg-card`}>
+        <CardHeader className="py-3 px-4 flex flex-row items-center justify-between space-y-0 border-b">
+          <div className="flex items-center">
+            <Bot className="h-5 w-5 mr-2" />
+            <CardTitle className="text-lg font-medium">AI Assistant</CardTitle>
+            {context !== 'general' && (
+              <Badge variant="outline" className="ml-2">
+                {context.replace('_', ' ')}
+              </Badge>
+            )}
           </div>
-        ) : (
-          Object.entries(messageGroups).map(([date, dateMessages]) => (
-            <div key={date} className="space-y-3">
-              <div className="flex justify-center">
-                <span className="text-xs px-2 py-1 bg-muted rounded-full text-muted-foreground">
-                  {date}
-                </span>
+          <div className="flex space-x-1">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={toggleMinimize}
+                  >
+                    {minimized ? <Maximize2 className="h-4 w-4" /> : <Minimize2 className="h-4 w-4" />}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{minimized ? 'Maximize' : 'Minimize'}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={toggleAssistant}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Close</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+        </CardHeader>
+        
+        {!minimized && (
+          <>
+            <CardContent className="flex-1 overflow-auto p-4 space-y-4">
+              <div className="flex justify-between items-center mb-2">
+                <Select value={context} onValueChange={handleContextChange}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select a topic" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="general">General Help</SelectItem>
+                    <SelectItem value="email_marketing">Email Marketing</SelectItem>
+                    <SelectItem value="template_design">Template Design</SelectItem>
+                    <SelectItem value="campaign_strategy">Campaign Strategy</SelectItem>
+                  </SelectContent>
+                </Select>
+                
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-8 w-8">
+                      <Menu className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={clearHistory}>
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Clear History
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
               
-              {dateMessages.map((message, i) => (
-                <div
-                  key={i}
-                  className={`flex ${
-                    message.role === 'user' ? 'justify-end' : 'justify-start'
-                  }`}
-                >
-                  <div
-                    className={`max-w-[80%] rounded-lg px-3 py-2 ${
-                      message.role === 'user'
-                        ? 'bg-primary text-primary-foreground'
-                        : 'bg-muted'
-                    }`}
-                  >
-                    <div 
-                      className="text-sm"
-                      dangerouslySetInnerHTML={{ 
-                        __html: parseMessageContent(message.content) 
-                      }}
-                    />
-                    <div className="text-right mt-1">
-                      <span className="text-xs opacity-70">
-                        {message.timestamp && formatMessageTime(message.timestamp)}
-                      </span>
+              <Separator className="my-2" />
+              
+              <div className="space-y-4">
+                {chatHistory.map((message, index) => (
+                  <Message
+                    key={index}
+                    content={message.content}
+                    isUser={message.role === 'user'}
+                    timestamp={new Date()}
+                  />
+                ))}
+                {isLoading && (
+                  <div className="flex justify-start mb-4">
+                    <div className="p-3 rounded-lg bg-muted text-muted-foreground rounded-tl-none">
+                      <Loader2 className="h-5 w-5 animate-spin" />
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          ))
-        )}
-        
-        {isLoading && (
-          <div className="flex justify-start">
-            <div className="bg-muted max-w-[80%] rounded-lg px-3 py-2">
-              <div className="flex items-center space-x-2">
-                <Loader2 className="h-4 w-4 animate-spin" />
-                <span className="text-sm">Thinking...</span>
+                )}
+                <div ref={messagesEndRef} />
               </div>
-            </div>
-          </div>
+              
+              {suggestedMessages.length > 0 && chatHistory.length <= 2 && (
+                <div className="mt-4">
+                  <p className="text-sm text-muted-foreground mb-2">Suggested questions:</p>
+                  <div className="flex flex-wrap">
+                    {suggestedMessages.map((msg, index) => (
+                      <SuggestedMessage
+                        key={index}
+                        message={msg}
+                        onSelect={handleSuggestedMessageClick}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+            </CardContent>
+            
+            <CardFooter className="p-3 border-t">
+              <form onSubmit={handleSubmit} className="flex w-full space-x-2">
+                <Textarea
+                  ref={textareaRef}
+                  placeholder="Type your message..."
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  onKeyDown={handleKeyPress}
+                  className="min-h-10 max-h-32 resize-none"
+                  disabled={isLoading}
+                />
+                <Button
+                  type="submit"
+                  size="icon"
+                  disabled={!inputValue.trim() || isLoading}
+                >
+                  {isLoading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Send className="h-4 w-4" />
+                  )}
+                </Button>
+              </form>
+            </CardFooter>
+          </>
         )}
-        
-        {/* Invisible element to scroll to */}
-        <div ref={messagesEndRef} />
-      </div>
-      
-      {/* Suggestions */}
-      {messages.length > 0 && !isLoading && (
-        <div className="px-4 py-2 border-t">
-          <div className="flex overflow-x-auto gap-2 pb-2 no-scrollbar">
-            {suggestions.map((suggestion, i) => (
-              <Button
-                key={i}
-                variant="outline"
-                size="sm"
-                className="whitespace-nowrap text-xs"
-                onClick={() => handleSuggestionClick(suggestion)}
-                disabled={isLoading}
-              >
-                {suggestion}
-              </Button>
-            ))}
-          </div>
-        </div>
-      )}
-      
-      {/* Controls and clear button */}
-      <div className="px-4 py-2 border-t flex justify-between items-center">
-        <Button
-          variant="ghost"
-          size="sm"
-          className="text-xs"
-          onClick={clearMessages}
-          disabled={messages.length === 0 || isLoading}
-        >
-          <Trash2 className="h-4 w-4 mr-1" />
-          Clear chat
-        </Button>
-        
-        {isLoading && (
-          <div className="flex items-center text-xs text-muted-foreground">
-            <Loader2 className="h-3 w-3 mr-1 animate-spin" />
-            <span>Processing...</span>
-          </div>
-        )}
-      </div>
-      
-      {/* Input */}
-      <form onSubmit={handleSubmit} className="p-4 border-t flex items-end gap-2">
-        <div className="flex-1">
-          <Textarea
-            placeholder="Ask me anything about email marketing..."
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                handleSubmit(e);
-              }
-            }}
-            className="min-h-[60px] resize-none"
-            disabled={isLoading}
-          />
-        </div>
-        <Button 
-          type="submit" 
-          size="icon" 
-          disabled={!inputValue.trim() || isLoading}
-        >
-          <Send className="h-4 w-4" />
-        </Button>
-      </form>
+      </Card>
     </div>
   );
-}
+};
+
+// Toggle button for opening the assistant
+export const AIAssistantButton: React.FC = () => {
+  const { toggleAssistant, isOpen } = useAIAssistant();
+  
+  return (
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            onClick={toggleAssistant}
+            variant="default"
+            size="icon"
+            className="fixed bottom-4 right-4 z-40 rounded-full h-12 w-12 shadow-lg"
+            aria-label="Open AI Assistant"
+            data-state={isOpen ? 'open' : 'closed'}
+          >
+            <Sparkles className="h-5 w-5" />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent side="left">
+          <p>AI Assistant</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+};

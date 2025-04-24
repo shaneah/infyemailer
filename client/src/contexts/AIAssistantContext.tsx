@@ -1,388 +1,213 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { apiRequest } from '@/lib/queryClient';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { addMessageToHistory, Message } from '@/utils/ai-assistant-utils';
+import { 
+  ChatMessage, 
+  sendChatMessage, 
+  formatTimestamp, 
+  getSuggestedMessages 
+} from '@/utils/ai-assistant-utils';
 
-// Types for the AI Assistant context
+// Create the context type
 interface AIAssistantContextType {
-  // State
   isOpen: boolean;
-  messages: Message[];
+  toggleAssistant: () => void;
+  chatHistory: ChatMessage[];
+  sendMessage: (message: string) => Promise<void>;
+  clearHistory: () => void;
   isLoading: boolean;
   context: string;
-  
-  // Actions
-  sendMessage: (message: string) => Promise<void>;
   setContext: (context: string) => void;
-  clearMessages: () => void;
-  toggleAssistant: () => void;
-  openAssistant: () => void;
-  closeAssistant: () => void;
+  suggestedMessages: string[];
+  minimized: boolean;
+  toggleMinimize: () => void;
+}
+
+// Create the context with a default value
+const AIAssistantContext = createContext<AIAssistantContextType | undefined>(undefined);
+
+// Local storage key for persisting chat history
+const CHAT_HISTORY_KEY = 'ai_assistant_chat_history';
+const CHAT_CONTEXT_KEY = 'ai_assistant_context';
+
+// Props for the context provider
+interface AIAssistantProviderProps {
+  children: React.ReactNode;
+}
+
+// Create the provider component
+export function AIAssistantProvider({ children }: AIAssistantProviderProps) {
+  // State for tracking if the assistant is open
+  const [isOpen, setIsOpen] = useState(false);
+  // State for tracking if the assistant is minimized
+  const [minimized, setMinimized] = useState(false);
+  // State for chat history
+  const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
+  // State for loading indicator
+  const [isLoading, setIsLoading] = useState(false);
+  // State for the assistant context
+  const [context, setContext] = useState<string>('general');
+  // State for suggested messages
+  const [suggestedMessages, setSuggestedMessages] = useState<string[]>(getSuggestedMessages('general'));
   
-  // Utility functions
-  generateEmailTemplate: (params: EmailTemplateParams) => Promise<string>;
-  analyzeSubjectLine: (subjectLine: string) => Promise<SubjectLineAnalysis>;
-  getEmailMarketingBestPractices: (topic?: string) => Promise<string[]>;
-  suggestEmailImprovements: (emailContent: string) => Promise<EmailImprovements>;
-}
-
-// Template generation parameters
-export interface EmailTemplateParams {
-  subject: string;
-  purpose: string;
-  audience: string;
-  tone?: string;
-  length?: 'short' | 'medium' | 'long';
-  includeCallToAction?: boolean;
-  specialInstructions?: string;
-}
-
-// Subject line analysis
-export interface SubjectLineAnalysis {
-  score: number;
-  feedback: string;
-  suggestions: string[];
-  strength: string;
-  weakness: string;
-}
-
-// Email improvements
-export interface EmailImprovements {
-  improvements: string[];
-  revisedContent: string;
-}
-
-// Create the context with default values
-export const AIAssistantContext = createContext<AIAssistantContextType>({
-  // Default state
-  isOpen: false,
-  messages: [],
-  isLoading: false,
-  context: 'general',
-  
-  // Default actions (no-ops)
-  sendMessage: async () => {},
-  setContext: () => {},
-  clearMessages: () => {},
-  toggleAssistant: () => {},
-  openAssistant: () => {},
-  closeAssistant: () => {},
-  
-  // Default utility functions
-  generateEmailTemplate: async () => '',
-  analyzeSubjectLine: async () => ({ 
-    score: 0, 
-    feedback: '', 
-    suggestions: [], 
-    strength: '', 
-    weakness: '' 
-  }),
-  getEmailMarketingBestPractices: async () => [],
-  suggestEmailImprovements: async () => ({ improvements: [], revisedContent: '' })
-});
-
-// Constants
-const STORAGE_KEY = 'aiAssistantMessages';
-const STORAGE_CONTEXT_KEY = 'aiAssistantContext';
-const MAX_MESSAGES = 50; // Limit to last 50 messages for performance
-
-// Provider component
-export const AIAssistantProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const { toast } = useToast();
   
-  // State
-  const [isOpen, setIsOpen] = useState<boolean>(false);
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [context, setContext] = useState<string>('general');
-  
-  // Load saved messages from localStorage on initial mount
+  // Load chat history from local storage on mount
   useEffect(() => {
     try {
-      const savedMessages = localStorage.getItem(STORAGE_KEY);
-      if (savedMessages) {
-        setMessages(JSON.parse(savedMessages));
+      const savedHistory = localStorage.getItem(CHAT_HISTORY_KEY);
+      if (savedHistory) {
+        setChatHistory(JSON.parse(savedHistory));
+      } else {
+        // Add welcome message if no history exists
+        setChatHistory([
+          {
+            role: 'assistant',
+            content: "👋 Hello! I'm your AI email marketing assistant. How can I help you today?"
+          }
+        ]);
       }
       
-      const savedContext = localStorage.getItem(STORAGE_CONTEXT_KEY);
+      const savedContext = localStorage.getItem(CHAT_CONTEXT_KEY);
       if (savedContext) {
         setContext(savedContext);
+        setSuggestedMessages(getSuggestedMessages(savedContext));
       }
     } catch (error) {
-      console.error('Error loading saved assistant messages:', error);
+      console.error('Error loading chat history from localStorage:', error);
     }
   }, []);
   
-  // Save messages to localStorage when they change
+  // Save chat history to local storage whenever it changes
   useEffect(() => {
     try {
-      // Only save if we have messages
-      if (messages.length > 0) {
-        // Limit to last MAX_MESSAGES for performance
-        const messagesToSave = messages.slice(-MAX_MESSAGES);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(messagesToSave));
-      }
+      localStorage.setItem(CHAT_HISTORY_KEY, JSON.stringify(chatHistory));
     } catch (error) {
-      console.error('Error saving assistant messages:', error);
+      console.error('Error saving chat history to localStorage:', error);
     }
-  }, [messages]);
+  }, [chatHistory]);
   
-  // Save context to localStorage when it changes
+  // Save context to local storage whenever it changes
   useEffect(() => {
     try {
-      localStorage.setItem(STORAGE_CONTEXT_KEY, context);
+      localStorage.setItem(CHAT_CONTEXT_KEY, context);
+      setSuggestedMessages(getSuggestedMessages(context));
     } catch (error) {
-      console.error('Error saving assistant context:', error);
+      console.error('Error saving chat context to localStorage:', error);
     }
   }, [context]);
   
-  // Open the assistant
-  const openAssistant = () => setIsOpen(true);
-  
-  // Close the assistant
-  const closeAssistant = () => setIsOpen(false);
-  
-  // Toggle the assistant
-  const toggleAssistant = () => setIsOpen(prev => !prev);
-  
-  // Clear all messages
-  const clearMessages = () => {
-    setMessages([]);
-    localStorage.removeItem(STORAGE_KEY);
+  // Function to toggle the assistant
+  const toggleAssistant = () => {
+    setIsOpen(prev => !prev);
+    if (minimized) {
+      setMinimized(false);
+    }
   };
   
-  // Set the conversation context
-  const updateContext = (newContext: string) => {
-    setContext(newContext);
+  // Function to toggle minimize state
+  const toggleMinimize = () => {
+    setMinimized(prev => !prev);
   };
   
-  // Send a message to the assistant
-  const sendMessage = async (message: string): Promise<void> => {
-    if (!message.trim()) return;
-    
-    // Add user message to state immediately
-    const updatedMessages = addMessageToHistory(messages, {
-      role: 'user',
-      content: message
-    });
-    setMessages(updatedMessages);
-    
-    // Set loading state
-    setIsLoading(true);
-    
+  // Function to send a message
+  const sendMessage = async (message: string) => {
     try {
-      // Get only the last 10 messages for context (to limit token usage)
-      const recentMessages = updatedMessages.slice(-10);
+      // Add user message to chat history
+      const userMessage: ChatMessage = {
+        role: 'user',
+        content: message
+      };
       
-      // Make API request
-      const response = await apiRequest('POST', '/api/assistant/chat', {
-        message,
-        context,
-        history: recentMessages
-      });
+      // Get formatted history for the API (excluding the current message)
+      const historyForAPI = chatHistory.map(({ role, content }) => ({ role, content }));
       
-      const data = await response.json();
+      // Update UI immediately with user message
+      setChatHistory(prev => [...prev, userMessage]);
       
-      if (response.ok) {
-        // Add assistant response to messages
-        setMessages(prevMessages => 
-          addMessageToHistory(prevMessages, {
-            role: 'assistant',
-            content: data.response || 'Sorry, I could not generate a response.'
-          })
-        );
-      } else {
-        // Handle error response
-        toast({
-          title: 'Error from AI Assistant',
-          description: data.error || 'Failed to get a response from the assistant.',
-          variant: 'destructive'
-        });
-        
-        // Add error message
-        setMessages(prevMessages => 
-          addMessageToHistory(prevMessages, {
-            role: 'assistant',
-            content: data.response || 'I encountered an error processing your request. Please try again.'
-          })
-        );
-      }
-    } catch (error) {
-      console.error('Error sending message to assistant:', error);
+      // Show loading indicator
+      setIsLoading(true);
       
-      // Add error message
-      setMessages(prevMessages => 
-        addMessageToHistory(prevMessages, {
+      // Send message to API
+      const response = await sendChatMessage(message, context, historyForAPI);
+      
+      // Update chat history with assistant response
+      setChatHistory(prev => [
+        ...prev,
+        {
           role: 'assistant',
-          content: 'I encountered a network error. Please check your connection and try again.'
-        })
-      );
-      
-      toast({
-        title: 'Connection Error',
-        description: 'Failed to reach the AI Assistant. Please check your connection.',
-        variant: 'destructive'
-      });
-    } finally {
-      // Clear loading state
-      setIsLoading(false);
-    }
-  };
-  
-  // Generate an email template
-  const generateEmailTemplate = async (params: EmailTemplateParams): Promise<string> => {
-    try {
-      setIsLoading(true);
-      
-      const response = await apiRequest('POST', '/api/assistant/generate-template', params);
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to generate template');
-      }
-      
-      return data.template;
+          content: response.message
+        }
+      ]);
     } catch (error) {
-      console.error('Error generating email template:', error);
+      console.error('Error sending message:', error);
+      
+      // Add error message to chat
+      setChatHistory(prev => [
+        ...prev,
+        {
+          role: 'assistant',
+          content: "I'm sorry, but I encountered an error. Please try again later."
+        }
+      ]);
+      
+      // Show error toast
       toast({
-        title: 'Template Generation Failed',
-        description: error instanceof Error ? error.message : 'Unknown error generating template',
+        title: 'Error',
+        description: 'Failed to get response from assistant.',
         variant: 'destructive'
       });
-      return '';
     } finally {
+      // Hide loading indicator
       setIsLoading(false);
     }
   };
   
-  // Analyze a subject line
-  const analyzeSubjectLine = async (subjectLine: string): Promise<SubjectLineAnalysis> => {
-    try {
-      setIsLoading(true);
-      
-      const response = await apiRequest('POST', '/api/assistant/analyze-subject', { subjectLine });
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to analyze subject line');
+  // Function to clear chat history
+  const clearHistory = () => {
+    // Keep only the welcome message
+    setChatHistory([
+      {
+        role: 'assistant',
+        content: "👋 Hello! I'm your AI email marketing assistant. How can I help you today?"
       }
-      
-      return data;
-    } catch (error) {
-      console.error('Error analyzing subject line:', error);
-      toast({
-        title: 'Subject Analysis Failed',
-        description: error instanceof Error ? error.message : 'Unknown error analyzing subject line',
-        variant: 'destructive'
-      });
-      return {
-        score: 0,
-        feedback: 'Analysis failed. Please try again.',
-        suggestions: [],
-        strength: '',
-        weakness: ''
-      };
-    } finally {
-      setIsLoading(false);
-    }
+    ]);
+    
+    toast({
+      title: 'Chat History Cleared',
+      description: 'Your conversation history has been reset.'
+    });
   };
   
-  // Get email marketing best practices
-  const getEmailMarketingBestPractices = async (topic?: string): Promise<string[]> => {
-    try {
-      setIsLoading(true);
-      
-      const url = topic 
-        ? `/api/assistant/best-practices?topic=${encodeURIComponent(topic)}`
-        : '/api/assistant/best-practices';
-      
-      const response = await apiRequest('GET', url);
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to get best practices');
-      }
-      
-      return data.bestPractices || [];
-    } catch (error) {
-      console.error('Error getting best practices:', error);
-      toast({
-        title: 'Failed to Get Best Practices',
-        description: error instanceof Error ? error.message : 'Unknown error getting best practices',
-        variant: 'destructive'
-      });
-      return [];
-    } finally {
-      setIsLoading(false);
-    }
-  };
-  
-  // Suggest improvements for an email
-  const suggestEmailImprovements = async (emailContent: string): Promise<EmailImprovements> => {
-    try {
-      setIsLoading(true);
-      
-      const response = await apiRequest('POST', '/api/assistant/improve-email', { emailContent });
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to suggest improvements');
-      }
-      
-      return data;
-    } catch (error) {
-      console.error('Error suggesting email improvements:', error);
-      toast({
-        title: 'Failed to Suggest Improvements',
-        description: error instanceof Error ? error.message : 'Unknown error suggesting improvements',
-        variant: 'destructive'
-      });
-      return {
-        improvements: [],
-        revisedContent: ''
-      };
-    } finally {
-      setIsLoading(false);
-    }
-  };
-  
-  // Create value object for the context
-  const value: AIAssistantContextType = {
-    // State
+  // Create the context value
+  const contextValue: AIAssistantContextType = {
     isOpen,
-    messages,
+    toggleAssistant,
+    chatHistory,
+    sendMessage,
+    clearHistory,
     isLoading,
     context,
-    
-    // Actions
-    sendMessage,
-    setContext: updateContext,
-    clearMessages,
-    toggleAssistant,
-    openAssistant,
-    closeAssistant,
-    
-    // Utility functions
-    generateEmailTemplate,
-    analyzeSubjectLine,
-    getEmailMarketingBestPractices,
-    suggestEmailImprovements
+    setContext,
+    suggestedMessages,
+    minimized,
+    toggleMinimize
   };
   
+  // Return the provider with the context value
   return (
-    <AIAssistantContext.Provider value={value}>
+    <AIAssistantContext.Provider value={contextValue}>
       {children}
     </AIAssistantContext.Provider>
   );
-};
+}
 
-// Custom hook for using the AI Assistant
-export const useAIAssistant = () => {
+// Create a custom hook for using the context
+export function useAIAssistant() {
   const context = useContext(AIAssistantContext);
   
-  if (!context) {
+  if (context === undefined) {
     throw new Error('useAIAssistant must be used within an AIAssistantProvider');
   }
   
   return context;
-};
+}

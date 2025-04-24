@@ -1,203 +1,233 @@
-/**
- * Message type for the AI assistant
- */
-export interface Message {
+import { apiRequest } from "../lib/queryClient";
+
+// Types for AI Assistant functionality
+export interface ChatMessage {
   role: 'user' | 'assistant' | 'system';
   content: string;
-  timestamp?: number;
 }
 
-/**
- * Helper function to add a message to the chat history
- * 
- * @param messages Current messages array
- * @param message New message to add
- * @returns Updated messages array
- */
-export function addMessageToHistory(messages: Message[], message: Message): Message[] {
-  // Add timestamp if not provided
-  const messageWithTimestamp = {
-    ...message,
-    timestamp: message.timestamp || Date.now()
-  };
-  
-  return [...messages, messageWithTimestamp];
+export interface ChatResponse {
+  message: string;
+  history: ChatMessage[];
 }
 
-/**
- * Format a timestamp into a readable time string
- * 
- * @param timestamp Timestamp in milliseconds
- * @returns Formatted time string (e.g., "2:30 PM")
- */
-export function formatMessageTime(timestamp: number): string {
-  const date = new Date(timestamp);
-  return date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+export interface SubjectLineAnalysis {
+  score: number;
+  feedback: string;
+  suggestions: string[];
+  strength: string;
+  weakness: string;
 }
 
-/**
- * Format a date into a readable date string
- * 
- * @param timestamp Timestamp in milliseconds
- * @returns Formatted date string (e.g., "Today", "Yesterday", or "Jan 1, 2023")
- */
-export function formatMessageDate(timestamp: number): string {
-  const date = new Date(timestamp);
-  const today = new Date();
-  const yesterday = new Date();
-  yesterday.setDate(yesterday.getDate() - 1);
-  
-  // Check if the date is today
-  if (date.toDateString() === today.toDateString()) {
-    return 'Today';
-  }
-  
-  // Check if the date is yesterday
-  if (date.toDateString() === yesterday.toDateString()) {
-    return 'Yesterday';
-  }
-  
-  // Otherwise, return the formatted date
-  return date.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' });
+export interface EmailImprovements {
+  improvements: string[];
+  revisedContent: string;
 }
 
-/**
- * Group messages by date
- * 
- * @param messages Array of messages
- * @returns Object with dates as keys and arrays of messages as values
- */
-export function groupMessagesByDate(messages: Message[]): Record<string, Message[]> {
-  return messages.reduce((acc: Record<string, Message[]>, message) => {
-    const timestamp = message.timestamp || Date.now();
-    const dateString = formatMessageDate(timestamp);
+export interface TemplateParams {
+  subject: string;
+  purpose: string;
+  audience: string;
+  tone?: string;
+  length?: 'short' | 'medium' | 'long';
+  includeCallToAction?: boolean;
+  specialInstructions?: string;
+}
+
+// Function to send a chat message to the AI assistant
+export async function sendChatMessage(
+  message: string,
+  context: string = 'general',
+  history: ChatMessage[] = []
+): Promise<ChatResponse> {
+  try {
+    const response = await apiRequest('POST', '/api/ai-assistant/chat', {
+      message,
+      context,
+      history
+    });
     
-    if (!acc[dateString]) {
-      acc[dateString] = [];
+    const data = await response.json();
+    
+    if (!response.ok) {
+      throw new Error(data.error || 'Failed to get assistant response');
     }
     
-    acc[dateString].push(message);
-    return acc;
-  }, {});
+    return data;
+  } catch (error) {
+    console.error('Error sending chat message:', error);
+    // Return a fallback response
+    return {
+      message: "I'm sorry, but I encountered an error processing your request. Please try again later.",
+      history: [
+        ...history,
+        { role: 'user', content: message },
+        { role: 'assistant', content: "I'm sorry, but I encountered an error processing your request. Please try again later." }
+      ]
+    };
+  }
 }
 
-/**
- * Get initial greeting message for the assistant
- * 
- * @returns Greeting message object
- */
-export function getInitialGreeting(): Message {
-  return {
-    role: 'assistant',
-    content: 'Hello! I\'m your AI email marketing assistant. How can I help you today?',
-    timestamp: Date.now()
-  };
+// Function to get email marketing best practices
+export async function getBestPractices(topic?: string): Promise<string[]> {
+  try {
+    const response = await apiRequest('POST', '/api/ai-assistant/best-practices', {
+      topic
+    });
+    
+    const data = await response.json();
+    
+    if (!response.ok) {
+      throw new Error(data.error || 'Failed to get best practices');
+    }
+    
+    return data.bestPractices || [];
+  } catch (error) {
+    console.error('Error getting best practices:', error);
+    // Return fallback best practices
+    return [
+      'Segment your email list for more targeted messaging',
+      'Use clear and compelling subject lines (30-50 characters)',
+      'Optimize for mobile devices with responsive design',
+      'Personalize content beyond just using recipient names',
+      'Test different send times to find optimal engagement',
+      'Include a clear call-to-action button with compelling text',
+      'Keep emails concise and focused on a single goal',
+      'Use alt text for images as many email clients block images by default'
+    ];
+  }
 }
 
-/**
- * Get suggestions based on context
- * 
- * @param context Current conversation context
- * @returns Array of suggestion strings
- */
-export function getSuggestionsByContext(context: string): string[] {
-  const suggestions: Record<string, string[]> = {
-    general: [
-      'How can I improve my email open rates?',
-      'What are the best days to send marketing emails?',
-      'Help me craft an engaging subject line'
-    ],
-    templates: [
-      'Create a product launch email template',
-      'Help me write a welcome email for new subscribers',
-      'What should I include in a re-engagement email?'
-    ],
-    analytics: [
-      'What metrics should I track for email campaigns?',
-      'What\'s a good click-through rate for my industry?',
-      'How can I improve my email conversion rate?'
-    ],
-    deliverability: [
-      'Why are my emails going to spam?',
-      'How can I improve my sender reputation?',
-      'What are DKIM and SPF records?'
-    ],
-    segmentation: [
-      'How should I segment my email list?',
-      'What are the best ways to personalize emails?',
-      'How often should I email different segments?'
-    ],
-    compliance: [
-      'What are the GDPR requirements for email marketing?',
-      'Do I need double opt-in for my email list?',
-      'What should I include in my email footer?'
-    ]
-  };
-  
-  return suggestions[context] || suggestions.general;
+// Function to analyze a subject line
+export async function analyzeSubjectLine(subjectLine: string): Promise<SubjectLineAnalysis> {
+  try {
+    const response = await apiRequest('POST', '/api/ai-assistant/analyze-subject', {
+      subjectLine
+    });
+    
+    const data = await response.json();
+    
+    if (!response.ok) {
+      throw new Error(data.error || 'Failed to analyze subject line');
+    }
+    
+    return data;
+  } catch (error) {
+    console.error('Error analyzing subject line:', error);
+    // Return a fallback analysis
+    return {
+      score: 7,
+      feedback: `Subject line "${subjectLine}" is of moderate effectiveness. Best practices suggest keeping subject lines between 30-50 characters.`,
+      suggestions: [
+        `${subjectLine} - Limited Time`,
+        `Don't Miss: ${subjectLine}`,
+        `[New] ${subjectLine}`
+      ],
+      strength: 'Clear and direct messaging',
+      weakness: 'Could be more personalized or create more urgency'
+    };
+  }
 }
 
-/**
- * Filter out sensitive or identifying information from a message
- * 
- * @param message Original message
- * @returns Sanitized message
- */
-export function sanitizeMessage(message: string): string {
-  // Mask email addresses
-  message = message.replace(/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)/gi, '[EMAIL]');
-  
-  // Mask phone numbers (various formats)
-  message = message.replace(/(\+\d{1,3}[\s-]?)?\(?\d{3}\)?[\s-]?\d{3}[\s-]?\d{4}/g, '[PHONE]');
-  
-  // Mask credit card numbers
-  message = message.replace(/\b(?:\d{4}[ -]?){3}\d{4}\b/g, '[CARD]');
-  
-  // Mask API keys (generic pattern for API keys)
-  message = message.replace(/[a-zA-Z0-9_-]{20,}/g, '[API_KEY]');
-  
-  return message;
+// Function to get suggestions for improving an email
+export async function suggestEmailImprovements(emailContent: string): Promise<EmailImprovements> {
+  try {
+    const response = await apiRequest('POST', '/api/ai-assistant/suggest-improvements', {
+      emailContent
+    });
+    
+    const data = await response.json();
+    
+    if (!response.ok) {
+      throw new Error(data.error || 'Failed to suggest improvements');
+    }
+    
+    return data;
+  } catch (error) {
+    console.error('Error getting email improvement suggestions:', error);
+    // Return fallback improvements
+    return {
+      improvements: [
+        'Consider adding a more compelling subject line',
+        'Break up large blocks of text into smaller paragraphs',
+        'Add a clear call-to-action button',
+        'Include social proof or testimonials',
+        'Personalize the greeting with recipient name'
+      ],
+      revisedContent: emailContent
+    };
+  }
 }
 
-/**
- * Check if AI service is likely available based on response status
- * 
- * @param status Status object from the AI service
- * @returns Boolean indicating if the service likely has valid credentials
- */
-export function isAIServiceConfigured(status: { 
-  openaiConfigured: boolean, 
-  mockProvided: boolean 
-}): boolean {
-  return status.openaiConfigured === true;
+// Function to generate an email template
+export async function generateEmailTemplate(params: TemplateParams): Promise<string> {
+  try {
+    const response = await apiRequest('POST', '/api/ai-assistant/generate-template', params);
+    
+    const data = await response.json();
+    
+    if (!response.ok) {
+      throw new Error(data.error || 'Failed to generate template');
+    }
+    
+    return data.template || '';
+  } catch (error) {
+    console.error('Error generating email template:', error);
+    // Return a simple fallback template
+    const ctaText = params.includeCallToAction !== false ? '\n\n[CTA Button: Learn More]' : '';
+    return `Subject: ${params.subject}
+    
+Hello {First_Name},
+
+We wanted to reach out to you about ${params.subject}. We understand that as ${params.audience}, you're looking for solutions that address ${params.purpose}.
+
+Our team has been working hard to create something that we believe will be valuable for you. We've taken into account the specific needs and challenges that ${params.audience} face when it comes to ${params.purpose}.
+
+We'd love to hear your thoughts on this!${ctaText}
+
+Best regards,
+The Team
+
+P.S. Feel free to reply to this email if you have any questions.`;
+  }
 }
 
-/**
- * Parse markdown content from the AI response
- * 
- * @param content Markdown content
- * @returns HTML content (safe to use with dangerouslySetInnerHTML)
- */
-export function parseMessageContent(content: string): string {
-  // This is a very basic implementation - in a real app, use a markdown parser like marked
-  
-  // Replace code blocks
-  content = content.replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>');
-  
-  // Replace inline code
-  content = content.replace(/`([^`]+)`/g, '<code>$1</code>');
-  
-  // Replace bold text
-  content = content.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
-  
-  // Replace italic text
-  content = content.replace(/\*([^*]+)\*/g, '<em>$1</em>');
-  
-  // Replace links
-  content = content.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
-  
-  // Replace line breaks
-  content = content.replace(/\n/g, '<br>');
-  
-  return content;
+// Helper function to format timestamp for chat messages
+export function formatTimestamp(date?: Date): string {
+  const messageDate = date || new Date();
+  return messageDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
+// Helper function to get suggested messages based on context
+export function getSuggestedMessages(context: string = 'general'): string[] {
+  switch (context) {
+    case 'email_marketing':
+      return [
+        'How can I improve my email open rates?',
+        'What are some effective subject line strategies?',
+        'How often should I send marketing emails?',
+        'What metrics should I track for my email campaigns?'
+      ];
+    case 'template_design':
+      return [
+        'What elements should every email template include?',
+        'How can I make my emails mobile-friendly?',
+        'What is the ideal width for an email template?',
+        'How can I improve my email visual hierarchy?'
+      ];
+    case 'campaign_strategy':
+      return [
+        'How should I segment my email list?',
+        'What is the best time to send marketing emails?',
+        'How can I create an effective welcome series?',
+        'How can I reduce unsubscribe rates?'
+      ];
+    default:
+      return [
+        'How can I improve my email marketing?',
+        'What are some email best practices?',
+        'How can I increase engagement in my campaigns?',
+        'What makes a good email subject line?'
+      ];
+  }
 }

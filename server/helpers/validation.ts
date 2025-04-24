@@ -1,20 +1,19 @@
-import { ZodSchema } from 'zod';
+import { ZodSchema, ZodError } from 'zod';
+import { fromZodError } from 'zod-validation-error';
 
 /**
- * Validate input data against a Zod schema
- * 
- * @param schema Zod schema to validate against
- * @param data Data to validate
- * @returns Validated data or error object
+ * Validates data against a Zod schema and returns either the validated data or an error object
+ * @param schema The Zod schema to validate against
+ * @param data The data to validate
+ * @returns Either the validated data or an object with an error message
  */
 export function validateSchema<T>(schema: ZodSchema, data: unknown): T | { error: string } {
   try {
-    const validatedData = schema.parse(data);
-    return validatedData as T;
+    return schema.parse(data) as T;
   } catch (error) {
-    if (error instanceof Error) {
-      return { error: error.message };
+    if (error instanceof ZodError) {
+      return { error: fromZodError(error).message };
     }
-    return { error: 'Validation failed' };
+    return { error: 'Invalid data format' };
   }
 }
