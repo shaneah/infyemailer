@@ -163,6 +163,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register user management routes
   app.use('/api', userManagementRoutes);
   
+  // AI Assistant endpoint
+  app.post('/api/assistant/chat', async (req: Request, res: Response) => {
+    try {
+      const { message, context, history } = req.body;
+      
+      if (!message) {
+        return res.status(400).json({ error: 'Message is required' });
+      }
+      
+      const assistantResponse = await getAssistantResponse({
+        message,
+        context: context || 'general',
+        history: history || []
+      });
+      
+      res.json(assistantResponse);
+    } catch (error) {
+      console.error('Error in AI assistant endpoint:', error);
+      res.status(500).json({ 
+        error: 'Failed to get assistant response',
+        response: 'I apologize, but I encountered an error processing your request. Please try again later.'
+      });
+    }
+  });
+  
   // A/B Testing endpoints
   app.get('/api/ab-testing/campaigns', async (req: Request, res: Response) => {
     try {

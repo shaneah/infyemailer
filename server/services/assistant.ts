@@ -1,100 +1,98 @@
 import OpenAI from 'openai';
-import { generateMockResponse } from './mockAssistant';
+import { getMockAssistantResponse } from './mockAssistant';
 
-// Get the API key from environment variables
-const apiKey = process.env.OPENAI_API_KEY;
+// the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+const MODEL = 'gpt-4o';
 
-// Determine whether to use mock implementation
-const useMockImplementation = !apiKey || process.env.USE_MOCK_ASSISTANT === 'true';
+let openai: OpenAI | null = null;
 
-// Log configuration
-console.log(`AI Assistant: Using ${useMockImplementation ? 'MOCK' : 'REAL'} implementation`);
+try {
+  openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+  });
+} catch (error) {
+  console.error('Failed to initialize OpenAI client:', error);
+}
 
-// Initialize the OpenAI client if we have an API key
-const openai = apiKey ? new OpenAI({ apiKey }) : null;
+export interface AssistantRequest {
+  message: string;
+  context?: string;
+  history?: Array<{ role: 'user' | 'assistant', content: string }>;
+}
 
-// Define the interface for message history
-interface Message {
-  role: 'user' | 'assistant' | 'system';
-  content: string;
+export interface AssistantResponse {
+  response: string;
+  source?: 'openai' | 'mock';
 }
 
 /**
- * Generates a response from the AI assistant based on the provided message and conversation history
- * 
- * @param message - The current user message
- * @param history - The conversation history
- * @returns Promise<string> - The AI assistant's response
+ * Get a response from the AI assistant
  */
-export async function getAssistantResponse(
-  message: string,
-  history: Message[] = []
-): Promise<string> {
-  // Use mock implementation if API key is not available or mock mode is enabled
-  if (useMockImplementation) {
-    console.log('Using mock assistant response generation');
-    return generateMockResponse(message);
-  }
-  
-  if (!apiKey || !openai) {
-    console.warn('OpenAI API key is not configured, falling back to mock implementation');
-    return generateMockResponse(message);
-  }
+export async function getAssistantResponse(request: AssistantRequest): Promise<AssistantResponse> {
+  const { message, context = 'general', history = [] } = request;
 
-  try {
-    console.log('Using real OpenAI for assistant response');
-    
-    // Create conversation messages including a system prompt for context
-    const messages: Message[] = [
-      {
-        role: 'system',
-        content: `You are an expert email marketing assistant for an email marketing platform called InfyMailer.
-        
-Your goal is to help marketers create better email campaigns, improve their metrics, and follow best practices.
-        
-Email marketing topics you can help with:
-- Subject line optimization
-- Email body content suggestions
-- A/B testing strategies
-- Email design best practices
-- Audience segmentation tips
-- Improving open rates and click-through rates
-- Email deliverability improvement
-- Campaign scheduling optimization
-- Personalization strategies
-- Compliance with email regulations (GDPR, CAN-SPAM, etc.)
-        
-Keep your answers helpful, concise, and actionable. Avoid overly technical jargon when possible.
-When appropriate, suggest specific actions the user can take in their email marketing platform.`
-      },
-      ...history,
-      {
-        role: 'user',
-        content: message
-      }
-    ];
-
+  // Try to use OpenAI if available
+  if (openai) {
     try {
-      // Call the OpenAI API
-      const completion = await openai.chat.completions.create({
-        model: 'gpt-4o', // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
-        messages: messages,
-        temperature: 0.7,
-        max_tokens: 1000
+      // Build system prompt based on context
+      let systemPrompt = 'You are a helpful AI assistant.';
+      
+      if (context === 'email_marketing') {
+        systemPrompt = `You are an AI email marketing assistant specialized in helping users create effective email campaigns.
+Your expertise includes:
+- Subject line optimization
+- Email content creation and improvement
+- Campaign strategy
+- A/B testing recommendations
+- Best practices for deliverability
+- Audience segmentation strategies
+- Email marketing metrics and analytics
+- Compliance with email regulations (like CAN-SPAM, GDPR)
+
+If asked about specifics about the platform the user is using, explain you can only provide general marketing advice, not platform-specific technical support.
+
+Keep responses concise, actionable, and focused on email marketing best practices. Always provide specific examples and practical tips.`;
+      }
+
+      // Prepare messages for the API
+      const messages = [
+        { role: 'system', content: systemPrompt },
+        ...history.map(msg => ({
+          role: msg.role,
+          content: msg.content
+        })),
+        { role: 'user', content: message }
+      ];
+
+      // Call OpenAI API
+      const response = await openai.chat.completions.create({
+        model: MODEL,
+        messages: messages as any, // Type assertion to satisfy TypeScript
+        max_tokens: 1000,
+        temperature: 0.7
       });
-      
-      // Extract and return the response
-      const response = completion.choices[0]?.message?.content || 'I apologize, but I couldn\'t generate a response at this time.';
-      
-      return response;
-    } catch (apiError) {
-      console.error('OpenAI API error:', apiError);
-      console.log('Falling back to mock implementation due to API error');
-      return generateMockResponse(message);
+
+      const aiResponse = response.choices[0]?.message?.content || 
+        "I'm sorry, I couldn't generate a response. Please try again.";
+
+      return {
+        response: aiResponse,
+        source: 'openai'
+      };
+    } catch (error) {
+      console.error('Error calling OpenAI API:', error);
+      // Fall back to mock response on error
+      return {
+        response: getMockAssistantResponse(message, context),
+        source: 'mock'
+      };
     }
-  } catch (error) {
-    console.error('Error in assistant service:', error);
-    // Fallback to mock implementation in case of any errors
-    return generateMockResponse(message);
   }
+
+  // Fall back to mock response if OpenAI is not available
+  console.warn('OpenAI API not available, using mock assistant responses');
+  return {
+    response: getMockAssistantResponse(message, context),
+    source: 'mock'
+  };
 }

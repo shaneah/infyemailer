@@ -260,7 +260,6 @@ function App() {
                 </main>
               </div>
               
-              <AIAssistant />
               <Toaster />
             </div>
           </AuthProvider>
