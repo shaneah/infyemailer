@@ -30,7 +30,10 @@ function setupDatabaseConnection() {
     
     // Create Neon PostgreSQL connection
     pool = new Pool({ 
-      connectionString: databaseUrl
+      connectionString: databaseUrl,
+      ssl: {
+        rejectUnauthorized: false // For compatibility with many PostgreSQL providers
+      }
     });
     
     // Extract only table schemas from the schema object, excluding relation definitions
