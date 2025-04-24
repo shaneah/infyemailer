@@ -2164,18 +2164,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { username, password } = validatedData;
       console.log(`Client login attempt for: ${username}`);
       
-      // Special case for client1/clientdemo during development
-      if (username === 'client1' && password === 'clientdemo') {
-        console.log('Processing hardcoded login for client1/clientdemo');
+      // Get the client user - use direct SQL for simplicity
+      console.log('Using direct SQL to find client user by username');
+      const usersByUsername = await db.execute(
+        sql`SELECT * FROM client_users WHERE username = ${username}`
+      );
+      
+      console.log(`SQL search results: ${usersByUsername ? usersByUsername.length : 0} users found`);
+      
+      if (usersByUsername && usersByUsername.length > 0) {
+        const user = usersByUsername[0];
+        console.log('Found user:', user);
         
-        // Get the hardcoded client user with direct SQL
-        const users = await db.execute(
-          sql`SELECT * FROM client_users WHERE username = 'client1'`
-        );
-        
-        if (users && users.length > 0) {
-          const user = users[0];
-          console.log('Found client1 user:', user);
+        // Check password - we've set it to plain text "clientdemo" for testing
+        if (username === 'client1' && password === 'clientdemo' || user.password === password) {
+          console.log('Password match successful');
           
           // Get the client data
           const clients = await db.execute(
@@ -2185,9 +2188,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           let client = null;
           if (clients && clients.length > 0) {
             client = clients[0];
-            console.log('Found client for client1:', client);
+            console.log('Found client:', client);
           } else {
-            console.log('Client not found for client1');
+            console.log('Client not found');
           }
           
           // Extract permissions from metadata if they exist
@@ -2199,6 +2202,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           // Don't send password back to the client
           const { password: _, ...userWithoutPassword } = user;
           
+          // Update last login time
+          await db.execute(
+            sql`UPDATE client_users SET last_login_at = NOW() WHERE id = ${user.id}`
+          );
+          
           const responseData = { 
             ...userWithoutPassword,
             permissions,
@@ -2209,7 +2217,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           
           console.log(`Sending client login response:`, responseData);
           return res.json(responseData);
+        } else {
+          console.log('Password mismatch');
         }
+      } else {
+        console.log(`No user found with username: ${username}`);
       }
       
       // Regular verification path using storage methods
