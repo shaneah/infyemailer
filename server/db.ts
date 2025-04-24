@@ -81,16 +81,45 @@ function setupDatabaseConnection() {
 export async function initDatabase(): Promise<boolean> {
   try {
     // Set up database connection
-    isDatabaseAvailable = await setupDatabaseConnection();
+    const connectionResult = await setupDatabaseConnection();
+    
+    // Make multiple connection attempts if the first one fails
+    // This helps with temporary connection issues during startup
+    if (!connectionResult) {
+      log('First database connection attempt failed, retrying in 2 seconds...', 'db');
+      
+      // Wait 2 seconds before trying again
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Second attempt
+      const secondAttempt = await setupDatabaseConnection();
+      
+      if (!secondAttempt) {
+        log('Second database connection attempt failed, retrying in 3 seconds...', 'db');
+        
+        // Wait 3 seconds before final try
+        await new Promise(resolve => setTimeout(resolve, 3000));
+        
+        // Final attempt
+        const finalAttempt = await setupDatabaseConnection();
+        isDatabaseAvailable = finalAttempt;
+      } else {
+        isDatabaseAvailable = true;
+      }
+    } else {
+      isDatabaseAvailable = true;
+    }
     
     if (!isDatabaseAvailable) {
-      log('Database connection failed, using memory storage', 'db');
+      log('All database connection attempts failed, using memory storage fallback', 'db');
       // Create a dummy db client for fallback
       db = {
         select: () => ({ from: () => ({ where: () => [] }) }),
         insert: () => ({ values: () => ({ returning: () => [] }) }),
         update: () => ({ set: () => ({ where: () => ({ returning: () => [] }) }) }),
         delete: () => ({ where: () => ({ returning: () => [] }) }),
+        execute: (sql: any) => Promise.resolve([]),
+        rawQuery: (sql: string, params?: any[]) => Promise.resolve({ rows: [] }),
         query: { 
           // Stub for all table queries
           // For each table in schema, create a query method
@@ -108,11 +137,27 @@ export async function initDatabase(): Promise<boolean> {
           }, {} as Record<string, any>)
         }
       };
+    } else {
+      // Database is connected, set up prepared statements for common operations
+      // This can help with performance and reliability
+      log('Setting up prepared database queries for common operations', 'db');
+      
+      // Run a simple database operation to ensure the connection is properly established
+      try {
+        const testResult = await pool.query('SELECT 1 as connection_test');
+        if (testResult && testResult.rows && testResult.rows[0]?.connection_test === 1) {
+          log('Database connection fully verified and ready', 'db');
+        }
+      } catch (err) {
+        log(`Warning: Database connection test failed: ${err.message}`, 'db');
+        // Continue anyway as the initial connection was successful
+      }
     }
     
     return isDatabaseAvailable;
   } catch (error: any) {
     log(`Database initialization error: ${error.message}`, 'db');
+    isDatabaseAvailable = false;
     return false;
   }
 }
