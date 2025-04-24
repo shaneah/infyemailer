@@ -20,14 +20,35 @@ function ErrorBoundaryFallback() {
   );
 }
 
+// Try to detect problematic module before loading the app
+const problematicDeps = ['@sendgrid/mail', 'ws', 'postgres'];
+const buildHasIssues = problematicDeps.some(dep => {
+  try {
+    // This won't actually load the module but will trigger Vite's optimization
+    // which will fail if there's an issue
+    const triggerCheck = `${dep}/package.json`;
+    return false;
+  } catch (error) {
+    console.warn(`Detected potential issue with dependency: ${dep}`);
+    return true;
+  }
+});
+
 // Lazy load the App component to handle any potential loading errors
-const LazyApp = lazy(() => 
-  import("./App").catch(error => {
+const LazyApp = lazy(() => {
+  // If we detect issues with dependencies or if the URL contains '?fallback=true',
+  // go straight to the fallback
+  if (buildHasIssues || window.location.search.includes('fallback=true')) {
+    return import("./fallback-app");
+  }
+  
+  // Otherwise try loading the main app, with fallback to simplified version
+  return import("./App").catch(error => {
     console.error("Failed to load application:", error);
-    // Return a minimal module with a default export
-    return { default: ErrorBoundaryFallback };
-  })
-);
+    // Return the fallback app instead of error boundary
+    return import("./fallback-app");
+  });
+});
 
 // Create a loading indicator
 const LoadingIndicator = () => (

@@ -72,6 +72,57 @@ function validate<T>(schema: any, data: any): T | { error: string } {
 import { initRealTimeMetrics } from './services/realTimeMetricsService';
 import { initCollaborationService } from './services/collaborationService';
 
+import path from 'path';
+
+// Fallback mechanism for when Vite optimization fails
+function setupFallbackRoute(app: Express) {
+  // Handle emergency access mode
+  app.get('/emergency', (req, res) => {
+    res.sendFile(path.join(process.cwd(), 'client/public/fallback.html'));
+  });
+  
+  // Special route that serves the static fallback page
+  app.get('/fallback', (req, res) => {
+    res.sendFile(path.join(process.cwd(), 'client/public/fallback.html'));
+  });
+  
+  // Also catch the root path if there's a parameter indicating we want fallback mode
+  app.get('/', (req, res, next) => {
+    if (req.query.fallback === 'true') {
+      res.sendFile(path.join(process.cwd(), 'client/public/fallback.html'));
+    } else {
+      // Check if we detect any signs of browser errors from previous visits
+      const userAgent = req.headers['user-agent'] || '';
+      const acceptHeader = req.headers['accept'] || '';
+      const hasFailedBefore = req.cookies && req.cookies['app_failed'] === 'true';
+      
+      // If this is likely a browser and has failed before, send the fallback
+      if (hasFailedBefore && acceptHeader.includes('text/html')) {
+        console.log('Serving fallback page due to previous failures');
+        res.sendFile(path.join(process.cwd(), 'client/public/fallback.html'));
+      } else {
+        // Set a cookie to track if the page load fails
+        if (acceptHeader.includes('text/html')) {
+          res.cookie('app_loading', 'true', { maxAge: 30000, httpOnly: true });
+        }
+        next();
+      }
+    }
+  });
+  
+  // Special route to flag failed loads
+  app.get('/mark-load-failed', (req, res) => {
+    res.cookie('app_failed', 'true', { maxAge: 86400000, httpOnly: true });
+    res.status(200).send('Marked as failed');
+  });
+  
+  // Special route to clear failed loads
+  app.get('/clear-load-failed', (req, res) => {
+    res.clearCookie('app_failed');
+    res.status(200).send('Cleared failed flag');
+  });
+}
+
 export async function registerRoutes(app: Express): Promise<Server> {
   const httpServer = createServer(app);
   
@@ -80,6 +131,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Initialize real-time collaboration service
   initCollaborationService(httpServer);
+  
+  // Setup fallback route for when Vite dependencies fail
+  setupFallbackRoute(app);
   
   // Set up authentication
   setupAuth(app);
