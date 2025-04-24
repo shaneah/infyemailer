@@ -2173,6 +2173,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ error: 'Invalid credentials (user not found)' });
       }
       
+      // Extract permissions from metadata if they exist
+      if (user.metadata && typeof user.metadata === 'object' && user.metadata.permissions) {
+        user.permissions = user.metadata.permissions;
+      }
+      
       console.log(`Client user found. Password format: ${user.password.includes('.') ? 'hashed' : 'plain'}`);
       console.log(`User metadata:`, user.metadata);
       
