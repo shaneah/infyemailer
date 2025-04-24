@@ -61,68 +61,98 @@ const userColors = [
 
 // Initialize WebSocket server for template collaboration
 export function initCollaborationService(httpServer: Server): void {
-  // Create WebSocket server with a different path than metrics
-  const wss = new WebSocketServer({ server: httpServer, path: '/collaboration' });
-  
-  // WebSocket connection handler
-  wss.on('connection', (ws, req) => {
-    const connectedUserId = req.url?.includes('userId=') 
-      ? new URLSearchParams(req.url.slice(req.url.indexOf('?'))).get('userId') 
-      : uuidv4();
+  try {
+    console.log('Initializing collaboration WebSocket service on path: /collaboration');
     
-    const templateId = req.url?.includes('templateId=')
-      ? new URLSearchParams(req.url.slice(req.url.indexOf('?'))).get('templateId')
-      : null;
+    // Create WebSocket server with a different path than metrics
+    const wss = new WebSocketServer({ 
+      server: httpServer, 
+      path: '/collaboration',
+      // Add more specific configuration
+      clientTracking: true, // Track connected clients
+      perMessageDeflate: false // Disable per-message deflate for simplicity
+    });
     
-    if (!templateId) {
-      ws.close(1008, 'Template ID is required');
-      return;
-    }
+    // Log server creation status
+    console.log('Collaboration WebSocket server created successfully');
     
-    console.log(`Collaboration: User ${connectedUserId} connected to template ${templateId}`);
+    // Add error handler for the WebSocket server
+    wss.on('error', (error) => {
+      console.error('Collaboration WebSocket server error:', error);
+    });
     
-    // Store the connection
-    clientConnections.set(connectedUserId as string, ws);
-    
-    // Get or create a room for this template
-    const roomId = `template_${templateId}`;
-    let room = collaborationRooms.get(roomId);
-    
-    if (!room) {
-      room = {
-        id: roomId,
-        templateId,
-        users: new Map(),
-        cursorPositions: new Map(),
-        changes: [],
-        lastActivity: Date.now()
-      };
-      collaborationRooms.set(roomId, room);
-    }
-    
-    // Handle incoming messages
-    ws.on('message', (message) => {
+    // WebSocket connection handler
+    wss.on('connection', (ws, req) => {
       try {
-        const data = JSON.parse(message.toString());
-        handleCollaborationMessage(data, connectedUserId as string, roomId);
+        const connectedUserId = req.url?.includes('userId=') 
+          ? new URLSearchParams(req.url.slice(req.url.indexOf('?'))).get('userId') 
+          : uuidv4();
+        
+        const templateId = req.url?.includes('templateId=')
+          ? new URLSearchParams(req.url.slice(req.url.indexOf('?'))).get('templateId')
+          : null;
+        
+        if (!templateId) {
+          ws.close(1008, 'Template ID is required');
+          return;
+        }
+        
+        console.log(`Collaboration: User ${connectedUserId} connected to template ${templateId}`);
+        
+        // Store the connection
+        clientConnections.set(connectedUserId as string, ws);
+        
+        // Get or create a room for this template
+        const roomId = `template_${templateId}`;
+        let room = collaborationRooms.get(roomId);
+        
+        if (!room) {
+          room = {
+            id: roomId,
+            templateId,
+            users: new Map(),
+            cursorPositions: new Map(),
+            changes: [],
+            lastActivity: Date.now()
+          };
+          collaborationRooms.set(roomId, room);
+        }
+        
+        // Handle incoming messages
+        ws.on('message', (message) => {
+          try {
+            const data = JSON.parse(message.toString());
+            handleCollaborationMessage(data, connectedUserId as string, roomId);
+          } catch (error) {
+            console.error('Error processing collaboration message:', error);
+          }
+        });
+        
+        // Handle disconnection
+        ws.on('close', () => {
+          console.log(`Collaboration: User ${connectedUserId} disconnected from template ${templateId}`);
+          removeUserFromRoom(connectedUserId as string, roomId);
+          clientConnections.delete(connectedUserId as string);
+        });
+        
+        // Send initial room state to the client
+        sendRoomState(connectedUserId as string, roomId);
       } catch (error) {
-        console.error('Error processing collaboration message:', error);
+        console.error('Error handling WebSocket connection:', error);
+        if (ws.readyState === WebSocket.OPEN) {
+          ws.close(1011, 'Server error occurred');
+        }
       }
     });
     
-    // Handle disconnection
-    ws.on('close', () => {
-      console.log(`Collaboration: User ${connectedUserId} disconnected from template ${templateId}`);
-      removeUserFromRoom(connectedUserId as string, roomId);
-      clientConnections.delete(connectedUserId as string);
-    });
+    // Clean up inactive rooms every 5 minutes
+    setInterval(cleanupInactiveRooms, 5 * 60 * 1000);
     
-    // Send initial room state to the client
-    sendRoomState(connectedUserId as string, roomId);
-  });
-  
-  // Clean up inactive rooms every 5 minutes
-  setInterval(cleanupInactiveRooms, 5 * 60 * 1000);
+    // Log successful initialization
+    console.log('Collaboration WebSocket service initialized successfully');
+  } catch (error) {
+    console.error('Failed to initialize collaboration WebSocket service:', error);
+  }
 }
 
 // Handle various message types from clients
