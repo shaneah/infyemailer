@@ -7,6 +7,7 @@ import Dashboard from "@/pages/Dashboard";
 import MainSidebar from "@/components/MainSidebar";
 import ClientSidebar from "@/components/ClientSidebar";
 import Navbar from "@/components/Navbar";
+import AIAssistant from "@/components/AIAssistant";
 import { useState, useEffect } from "react";
 import { AuthProvider } from "@/hooks/use-auth";
 import { ProtectedRoute } from "@/lib/protected-route";
@@ -88,6 +89,7 @@ function App() {
         <Route path="client-dashboard">
           <div className="bg-background min-h-screen">
             <ClientRoutes />
+            <AIAssistant />
             <Toaster />
           </div>
         </Route>
@@ -258,6 +260,7 @@ function App() {
                 </main>
               </div>
               
+              <AIAssistant />
               <Toaster />
             </div>
           </AuthProvider>
