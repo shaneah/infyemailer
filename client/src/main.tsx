@@ -64,3 +64,12 @@ createRoot(document.getElementById("root")!).render(
     <Toaster />
   </Suspense>
 );
+
+// Signal to the parent window that the app has loaded
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    if (typeof (window as any).appLoaded === 'function') {
+      (window as any).appLoaded();
+    }
+  }, 500);
+});
