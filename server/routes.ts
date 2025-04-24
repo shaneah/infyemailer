@@ -6,6 +6,7 @@ const storage = getStorage();
 import { isDatabaseAvailable, db } from "./db"; // Import db and check if database is available
 import { eq, desc } from "drizzle-orm"; // Import Drizzle operators
 import { generateSubjectLines, generateEmailTemplate, generateColorPalette } from "./services/openai";
+import { getAssistantResponse } from "./services/assistant";
 import { setupAuth, hashPassword, comparePasswords } from "./auth";
 import { EmailValidationService } from "./services/emailValidation";
 import { trackingService } from "./services/trackingService";
@@ -3037,6 +3038,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error('Error generating subject lines:', error);
       res.status(500).json({ 
         error: 'Failed to generate subject lines. Please ensure your OpenAI API key is valid.'
+      });
+    }
+  });
+  
+  // AI Assistant chat endpoint
+  app.post('/api/assistant/chat', async (req: Request, res: Response) => {
+    try {
+      const { message, history } = req.body;
+      
+      if (!message) {
+        return res.status(400).json({ 
+          error: 'Missing required parameter. Please provide a message.' 
+        });
+      }
+      
+      console.log('Processing AI Assistant request:', { 
+        messageLength: message.length,
+        historyLength: history ? history.length : 0
+      });
+      
+      const response = await getAssistantResponse(message, history);
+      
+      res.json({ response });
+    } catch (error) {
+      console.error('Error getting assistant response:', error);
+      res.status(500).json({ 
+        error: 'Failed to get response from AI assistant. Please ensure your OpenAI API key is valid.'
       });
     }
   });
