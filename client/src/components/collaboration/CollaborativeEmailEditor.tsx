@@ -14,6 +14,7 @@ interface CollaborativeEmailEditorProps {
   readOnly?: boolean;
   username?: string;
   avatar?: string;
+  userId?: string; // Make userId optional, will use a generated one by default
 }
 
 export function CollaborativeEmailEditor({

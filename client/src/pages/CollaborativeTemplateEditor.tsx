@@ -276,8 +276,7 @@ export default function CollaborativeTemplateEditor() {
               <TabsContent value="editor" className="m-0">
                 <div className="p-4">
                   <CollaborativeEmailEditor
-                    roomId={`template_${template.id}`}
-                    userId={userId}
+                    templateId={template.id}
                     username={username}
                     avatar={avatar}
                     initialTemplate={template.content}

@@ -34,6 +34,7 @@ import ClientManagement from "@/pages/ClientManagement";
 import AudiencePersonas from "@/pages/AudiencePersonas";
 import EmailPreview from "@/pages/EmailPreview";
 import ClientCollaboration from "@/pages/ClientCollaboration";
+import CollaborativeTemplateEditor from "@/pages/CollaborativeTemplateEditor";
 
 // Client portal pages
 import ClientLogin from "@/pages/ClientLogin";
@@ -249,6 +250,8 @@ function App() {
                     <ProtectedRoute path="email-preview/:id" component={EmailPreview} />
                     <ProtectedRoute path="email-performance-dashboard" component={EmailPerformanceDashboard} />
                     <ProtectedRoute path="client-collaboration" component={ClientCollaboration} />
+                    <ProtectedRoute path="collaborative-template-editor" component={CollaborativeTemplateEditor} />
+                    <ProtectedRoute path="collaborative-template-editor/:id" component={CollaborativeTemplateEditor} />
 
                     <Route component={NotFound} />
                   </Switch>
