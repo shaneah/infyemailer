@@ -55,6 +55,75 @@ export function useCollaboration({
   const reconnectTimeoutRef = useRef<number | null>(null);
   const pingIntervalRef = useRef<number | null>(null);
   
+  // Initialize onTemplateChange callback reference
+  const [onTemplateChange, setOnTemplateChange] = useState<
+    ((user: CollaborationUser, change: TemplateChange) => void) | null
+  >(null);
+  
+  // Send a message to the server
+  const sendMessage = useCallback((data: any) => {
+    if (socketRef.current?.readyState === WebSocket.OPEN) {
+      socketRef.current.send(JSON.stringify(data));
+    } else {
+      console.warn('Cannot send message - WebSocket is not connected');
+    }
+  }, []);
+  
+  // Handle incoming messages
+  const handleMessage = useCallback((message: any) => {
+    switch (message.type) {
+      case 'room_state':
+        // Update users and cursor positions with current room state
+        setUsers(message.data.users || []);
+        
+        // Format cursor positions as a record for easier lookup
+        const positionMap: Record<string, CursorPosition> = {};
+        (message.data.cursorPositions || []).forEach((pos: CursorPosition) => {
+          positionMap[pos.userId] = pos;
+        });
+        setCursorPositions(positionMap);
+        break;
+        
+      case 'user_list':
+        // Update the list of users
+        setUsers(message.data || []);
+        break;
+        
+      case 'cursor_update':
+        // Update a specific user's cursor position
+        const cursorData = message.data;
+        if (cursorData && cursorData.user) {
+          setCursorPositions(prev => ({
+            ...prev,
+            [cursorData.user.id]: {
+              userId: cursorData.user.id,
+              sectionId: cursorData.sectionId,
+              elementId: cursorData.elementId,
+              position: cursorData.position,
+              selection: cursorData.selection,
+              timestamp: cursorData.timestamp || Date.now()
+            }
+          }));
+        }
+        break;
+        
+      case 'template_change':
+        // Notify about changes to the template
+        if (message.data && message.data.user && message.data.changeData) {
+          const { user, changeData } = message.data;
+          
+          // Apply the change to local template state if callback is provided
+          if (onTemplateChange) {
+            onTemplateChange(user, changeData);
+          }
+        }
+        break;
+        
+      default:
+        console.log('Unhandled message type:', message.type);
+    }
+  }, [onTemplateChange]);
+  
   // Connect to WebSocket server
   const connect = useCallback(() => {
     if (socketRef.current?.readyState === WebSocket.OPEN) {
@@ -146,72 +215,7 @@ export function useCollaboration({
         }, 3000) as unknown as number; // 3 seconds delay before reconnecting
       }
     }
-  }, [templateId, userId, username, avatar, isReconnecting, toast]);
-  
-  // Handle incoming messages
-  const handleMessage = useCallback((message: any) => {
-    switch (message.type) {
-      case 'room_state':
-        // Update users and cursor positions with current room state
-        setUsers(message.data.users || []);
-        
-        // Format cursor positions as a record for easier lookup
-        const positionMap: Record<string, CursorPosition> = {};
-        (message.data.cursorPositions || []).forEach((pos: CursorPosition) => {
-          positionMap[pos.userId] = pos;
-        });
-        setCursorPositions(positionMap);
-        break;
-        
-      case 'user_list':
-        // Update the list of users
-        setUsers(message.data || []);
-        break;
-        
-      case 'cursor_update':
-        // Update a specific user's cursor position
-        const cursorData = message.data;
-        if (cursorData && cursorData.user) {
-          setCursorPositions(prev => ({
-            ...prev,
-            [cursorData.user.id]: {
-              userId: cursorData.user.id,
-              sectionId: cursorData.sectionId,
-              elementId: cursorData.elementId,
-              position: cursorData.position,
-              selection: cursorData.selection,
-              timestamp: cursorData.timestamp || Date.now()
-            }
-          }));
-        }
-        break;
-        
-      case 'template_change':
-        // Notify about changes to the template
-        if (message.data && message.data.user && message.data.changeData) {
-          const { user, changeData } = message.data;
-          
-          // This is where you'd apply the change to your local template state
-          // You'll need to pass a callback function from your component to handle this
-          if (onTemplateChange) {
-            onTemplateChange(user, changeData);
-          }
-        }
-        break;
-        
-      default:
-        console.log('Unhandled message type:', message.type);
-    }
-  }, []);
-  
-  // Send a message to the server
-  const sendMessage = useCallback((data: any) => {
-    if (socketRef.current?.readyState === WebSocket.OPEN) {
-      socketRef.current.send(JSON.stringify(data));
-    } else {
-      console.warn('Cannot send message - WebSocket is not connected');
-    }
-  }, []);
+  }, [templateId, userId, username, avatar, isReconnecting, toast, sendMessage, handleMessage]);
   
   // Update cursor position
   const updateCursorPosition = useCallback((data: {
@@ -239,11 +243,6 @@ export function useCollaboration({
       data: changeData
     });
   }, [sendMessage]);
-  
-  // Initialize onTemplateChange callback reference
-  const [onTemplateChange, setOnTemplateChange] = useState<
-    ((user: CollaborationUser, change: TemplateChange) => void) | null
-  >(null);
   
   // Initialize connection on component mount
   useEffect(() => {
