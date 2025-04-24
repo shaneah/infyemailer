@@ -15,12 +15,28 @@ interface MessageType {
 const AIAssistant: React.FC = () => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [messages, setMessages] = useState<MessageType[]>([
-    { 
+  // Load previous messages from localStorage if available
+  const [messages, setMessages] = useState<MessageType[]>(() => {
+    const savedMessages = localStorage.getItem('assistant_messages');
+    if (savedMessages) {
+      try {
+        return JSON.parse(savedMessages);
+      } catch (e) {
+        console.error('Failed to parse saved messages:', e);
+      }
+    }
+    
+    // Default initial message
+    return [{ 
       role: 'assistant', 
       content: 'Hi there! I\'m your email marketing assistant. How can I help you today? I can provide tips on crafting effective subject lines, suggest campaign ideas, help with email content, or answer questions about marketing best practices.' 
-    }
-  ]);
+    }];
+  });
+  
+  // Save messages to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('assistant_messages', JSON.stringify(messages));
+  }, [messages]);
   const [inputValue, setInputValue] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toggleAssistant } = useAIAssistant();
@@ -46,6 +62,11 @@ const AIAssistant: React.FC = () => {
     setIsLoading(true);
 
     try {
+      // Get previous messages to provide context (last 6 messages for context)
+      const conversationHistory = messages
+        .slice(-6)
+        .map(({ role, content }) => ({ role, content }));
+        
       const response = await fetch('/api/assistant/chat', {
         method: 'POST',
         headers: {
@@ -53,7 +74,8 @@ const AIAssistant: React.FC = () => {
         },
         body: JSON.stringify({ 
           message: userMessage.content,
-          context: 'email_marketing' 
+          context: 'email_marketing',
+          history: conversationHistory
         }),
       });
 
@@ -114,8 +136,39 @@ const AIAssistant: React.FC = () => {
               <Button 
                 variant="ghost" 
                 size="icon" 
+                className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground" 
+                onClick={() => {
+                  if (confirm('Are you sure you want to clear the conversation history?')) {
+                    setMessages([{ 
+                      role: 'assistant', 
+                      content: 'Conversation history cleared. How can I help you today?' 
+                    }]);
+                  }
+                }}
+                title="Clear conversation"
+              >
+                <svg 
+                  xmlns="http://www.w3.org/2000/svg" 
+                  width="16" 
+                  height="16" 
+                  viewBox="0 0 24 24" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  strokeWidth="2" 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round"
+                >
+                  <path d="M3 6h18"></path>
+                  <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                  <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                </svg>
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="icon" 
                 className="h-8 w-8 p-0" 
                 onClick={toggleExpand}
+                title="Minimize"
               >
                 <ChevronDown className="h-4 w-4" />
               </Button>
@@ -124,6 +177,7 @@ const AIAssistant: React.FC = () => {
                 size="icon" 
                 className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground" 
                 onClick={toggleAssistant}
+                title="Close"
               >
                 <X className="h-4 w-4" />
               </Button>
