@@ -731,7 +731,8 @@ export const templateRecommendationsRelations = defineRelations(templateRecommen
   client: { relationName: "rec_to_client", fields: [templateRecommendations.clientId], references: [clients.id] }
 });
 
-// Audience Persona Builder - Personas
+// REMOVED: Audience Persona Builder - Personas
+// Schema definitions kept for database compatibility but feature removed from UI
 export const audiencePersonas = pgTable("audience_personas", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
@@ -746,6 +747,7 @@ export const audiencePersonas = pgTable("audience_personas", {
   traits: json("traits").default({})
 });
 
+// REMOVED: Schema removed from UI but kept for DB compatibility
 export const insertAudiencePersonaSchema = createInsertSchema(audiencePersonas).pick({
   name: true,
   description: true,
@@ -760,7 +762,7 @@ export const insertAudiencePersonaSchema = createInsertSchema(audiencePersonas).
 export type InsertAudiencePersona = z.infer<typeof insertAudiencePersonaSchema>;
 export type AudiencePersona = typeof audiencePersonas.$inferSelect;
 
-// Audience Segments
+// REMOVED: Audience Segments
 export const audienceSegments = pgTable("audience_segments", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
@@ -774,6 +776,7 @@ export const audienceSegments = pgTable("audience_segments", {
   metadata: json("metadata")
 });
 
+// REMOVED: Schema removed from UI but kept for DB compatibility
 export const insertAudienceSegmentSchema = createInsertSchema(audienceSegments).pick({
   name: true,
   description: true,
@@ -787,7 +790,7 @@ export const insertAudienceSegmentSchema = createInsertSchema(audienceSegments).
 export type InsertAudienceSegment = z.infer<typeof insertAudienceSegmentSchema>;
 export type AudienceSegment = typeof audienceSegments.$inferSelect;
 
-// Persona Demographics
+// REMOVED: Persona Demographics
 export const personaDemographics = pgTable("persona_demographics", {
   id: serial("id").primaryKey(),
   personaId: integer("persona_id").notNull().references(() => audiencePersonas.id),
@@ -801,6 +804,7 @@ export const personaDemographics = pgTable("persona_demographics", {
   metadata: json("metadata")
 });
 
+// REMOVED: Schema removed from UI but kept for DB compatibility
 export const insertPersonaDemographicSchema = createInsertSchema(personaDemographics).pick({
   personaId: true,
   ageRange: true,
@@ -816,7 +820,7 @@ export const insertPersonaDemographicSchema = createInsertSchema(personaDemograp
 export type InsertPersonaDemographic = z.infer<typeof insertPersonaDemographicSchema>;
 export type PersonaDemographic = typeof personaDemographics.$inferSelect;
 
-// Persona Behaviors
+// REMOVED: Persona Behaviors
 export const personaBehaviors = pgTable("persona_behaviors", {
   id: serial("id").primaryKey(),
   personaId: integer("persona_id").notNull().references(() => audiencePersonas.id),
