@@ -92,22 +92,8 @@ function setupFallbackRoute(app: Express) {
     if (req.query.fallback === 'true') {
       res.sendFile(path.join(process.cwd(), 'client/public/fallback.html'));
     } else {
-      // Check if we detect any signs of browser errors from previous visits
-      const userAgent = req.headers['user-agent'] || '';
-      const acceptHeader = req.headers['accept'] || '';
-      const hasFailedBefore = req.cookies && req.cookies['app_failed'] === 'true';
-      
-      // If this is likely a browser and has failed before, send the fallback
-      if (hasFailedBefore && acceptHeader.includes('text/html')) {
-        console.log('Serving fallback page due to previous failures');
-        res.sendFile(path.join(process.cwd(), 'client/public/fallback.html'));
-      } else {
-        // Set a cookie to track if the page load fails
-        if (acceptHeader.includes('text/html')) {
-          res.cookie('app_loading', 'true', { maxAge: 30000, httpOnly: true });
-        }
-        next();
-      }
+      // Always use the main application mode, prevent simplified mode
+      next();
     }
   });
   
@@ -153,6 +139,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Register health check routes
   registerHealthRoutes(app);
+  
+  // Add a special route to check AI Assistant status
+  app.get('/api/assistant/status', (req, res) => {
+    res.json({
+      status: 'active',
+      implementation: process.env.OPENAI_API_KEY ? 'OpenAI with fallback' : 'Mock only',
+      mockProvided: true,
+      openaiConfigured: !!process.env.OPENAI_API_KEY
+    });
+  });
   
   // Register email settings routes
   registerEmailSettingsRoutes(app);
