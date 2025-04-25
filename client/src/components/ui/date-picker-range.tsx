@@ -13,19 +13,17 @@ import {
 } from "@/components/ui/popover";
 
 interface DatePickerRangeProps {
+  date: DateRange | undefined;
+  setDate: (date: DateRange | undefined) => void;
   className?: string;
-  dateRange: DateRange | undefined;
-  onDateRangeChange: (range: DateRange | undefined) => void;
-  align?: "start" | "center" | "end";
-  showComparisonText?: boolean;
+  showText?: boolean;
 }
 
 export function DatePickerRange({
+  date,
+  setDate,
   className,
-  dateRange,
-  onDateRangeChange,
-  align = "start",
-  showComparisonText = false,
+  showText = true,
 }: DatePickerRangeProps) {
   return (
     <div className={cn("grid gap-2", className)}>
@@ -35,37 +33,32 @@ export function DatePickerRange({
             id="date"
             variant={"outline"}
             className={cn(
-              "flex w-full items-center justify-start border-muted-foreground/20 px-3 text-left font-normal",
-              !dateRange && "text-muted-foreground"
+              "w-auto min-w-[240px] justify-start text-left font-normal",
+              !date && "text-muted-foreground"
             )}
           >
             <CalendarIcon className="mr-2 h-4 w-4" />
-            {dateRange?.from ? (
-              dateRange.to ? (
+            {date?.from ? (
+              date.to ? (
                 <>
-                  {format(dateRange.from, "LLL dd, y")} -{" "}
-                  {format(dateRange.to, "LLL dd, y")}
-                  {showComparisonText && (
-                    <span className="ml-2 text-xs text-muted-foreground">
-                      (vs. previous period)
-                    </span>
-                  )}
+                  {showText && <span className="hidden md:inline-block mr-1">Date range:</span>}
+                  {format(date.from, "LLL dd, y")} - {format(date.to, "LLL dd, y")}
                 </>
               ) : (
-                format(dateRange.from, "LLL dd, y")
+                format(date.from, "LLL dd, y")
               )
             ) : (
-              <span>Select date range</span>
+              <span>Pick a date</span>
             )}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-0" align={align}>
+        <PopoverContent className="w-auto p-0" align="start">
           <Calendar
             initialFocus
             mode="range"
-            defaultMonth={dateRange?.from}
-            selected={dateRange}
-            onSelect={onDateRangeChange}
+            defaultMonth={date?.from}
+            selected={date}
+            onSelect={setDate}
             numberOfMonths={2}
           />
         </PopoverContent>

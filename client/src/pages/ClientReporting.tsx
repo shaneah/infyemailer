@@ -23,7 +23,7 @@ import {
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { DatePickerWithRange } from '@/components/ui/date-picker-range';
+import { DatePickerRange } from '@/components/ui/date-picker-range';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
@@ -125,7 +125,9 @@ const ClientReporting = () => {
     queryKey: ['/api/email-performance/metrics', date?.from?.toISOString(), date?.to?.toISOString()],
     queryFn: async () => {
       try {
-        const response = await fetch(`/api/email-performance/metrics?from=${date?.from?.toISOString()}&to=${date?.to?.toISOString()}`);
+        const response = await fetch(`/api/email-performance/metrics?from=${date?.from?.toISOString()}&to=${date?.to?.toISOString()}`, {
+          credentials: 'include'
+        });
         if (!response.ok) throw new Error(`Failed to fetch metrics: ${response.status}`);
         return response.json();
       } catch (error) {
@@ -146,7 +148,9 @@ const ClientReporting = () => {
     queryKey: ['/api/email-performance/charts', date?.from?.toISOString(), date?.to?.toISOString()],
     queryFn: async () => {
       try {
-        const response = await fetch(`/api/email-performance/charts?from=${date?.from?.toISOString()}&to=${date?.to?.toISOString()}`);
+        const response = await fetch(`/api/email-performance/charts?from=${date?.from?.toISOString()}&to=${date?.to?.toISOString()}`, {
+          credentials: 'include'
+        });
         if (!response.ok) throw new Error(`Failed to fetch chart data: ${response.status}`);
         return response.json();
       } catch (error) {
@@ -164,7 +168,9 @@ const ClientReporting = () => {
     queryKey: ['/api/email-performance/top-performers', date?.from?.toISOString(), date?.to?.toISOString()],
     queryFn: async () => {
       try {
-        const response = await fetch(`/api/email-performance/top-performers?from=${date?.from?.toISOString()}&to=${date?.to?.toISOString()}`);
+        const response = await fetch(`/api/email-performance/top-performers?from=${date?.from?.toISOString()}&to=${date?.to?.toISOString()}`, {
+          credentials: 'include'
+        });
         if (!response.ok) throw new Error(`Failed to fetch top performers: ${response.status}`);
         return response.json();
       } catch (error) {
@@ -414,7 +420,7 @@ const ClientReporting = () => {
             </Button>
           </div>
           
-          <DatePickerWithRange 
+          <DatePickerRange 
             date={date} 
             setDate={setDate} 
           />
