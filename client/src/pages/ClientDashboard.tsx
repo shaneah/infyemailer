@@ -39,29 +39,62 @@ export default function ClientDashboard() {
   const clientUser = getClientUser();
 
   useEffect(() => {
-    // Moved getClientUser inside the effect to avoid infinite loop
-    const currentClientUser = getClientUser();
-    
-    // If no client user is logged in, redirect to client login
-    if (!currentClientUser) {
-      toast({
-        title: "Access denied",
-        description: "Please log in to access your dashboard",
-        variant: "destructive"
-      });
-      setLocation('/client-login');
-      return;
-    }
-
-    // Fetch client data (campaigns, stats, etc.)
-    const fetchClientData = async () => {
+    // First verify server-side session
+    const verifySession = async () => {
       try {
         setLoading(true);
-        // Simulated data - in a real app, this would fetch from the API
-        // const response = await fetch(`/api/client-dashboard/${currentClientUser.clientId}`);
-        // const data = await response.json();
         
-        // For now, using mock data based on the logged-in client
+        // Call server to verify session
+        const response = await fetch('/api/client/verify-session', {
+          credentials: 'include' // Important for session cookies
+        });
+        
+        if (!response.ok) {
+          // Session is invalid, redirect to login
+          toast({
+            title: "Session expired",
+            description: "Please log in again to continue",
+            variant: "destructive"
+          });
+          setLocation('/client-login');
+          return false;
+        }
+        
+        const data = await response.json();
+        return data.authenticated;
+      } catch (error) {
+        console.error("Session verification error:", error);
+        toast({
+          title: "Authentication error",
+          description: "Please log in again to continue",
+          variant: "destructive"
+        });
+        setLocation('/client-login');
+        return false;
+      }
+    };
+    
+    // Fetch client data after session verification
+    const fetchClientData = async () => {
+      // First verify session
+      const isAuthenticated = await verifySession();
+      if (!isAuthenticated) return;
+      
+      try {
+        // Get local client data from storage
+        const currentClientUser = getClientUser();
+        
+        if (!currentClientUser) {
+          toast({
+            title: "Access denied",
+            description: "Please log in to access your dashboard",
+            variant: "destructive"
+          });
+          setLocation('/client-login');
+          return;
+        }
+        
+        // Use client data from storage (in a real app, would fetch from API)
         setClientData({
           clientName: currentClientUser.clientName,
           clientCompany: currentClientUser.clientCompany,
@@ -107,18 +140,37 @@ export default function ClientDashboard() {
     // removeClientUser from dependencies to avoid infinite loop
   }, [setLocation, toast]);
 
-  const handleLogout = () => {
-    // Clear session storage and localStorage
-    sessionStorage.removeItem('clientUser');
-    localStorage.removeItem('clientUser');
-    
-    toast({
-      title: "Logged out",
-      description: "You have been successfully logged out"
-    });
-    
-    // Redirect to login page
-    setLocation('/client-login');
+  const handleLogout = async () => {
+    try {
+      // Call the server-side logout endpoint
+      const response = await fetch('/api/client-logout', {
+        method: 'POST',
+        credentials: 'include'
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to logout properly');
+      }
+      
+      // Also clear client-side storage
+      sessionStorage.removeItem('clientUser');
+      localStorage.removeItem('clientUser');
+      
+      toast({
+        title: "Logged out",
+        description: "You have been successfully logged out"
+      });
+      
+      // Redirect to login page
+      setLocation('/client-login');
+    } catch (error) {
+      console.error('Logout error:', error);
+      
+      // Even if server logout fails, clear client-side storage and redirect
+      sessionStorage.removeItem('clientUser');
+      localStorage.removeItem('clientUser');
+      setLocation('/client-login');
+    }
   };
 
   // Generate animated particles for background effect
