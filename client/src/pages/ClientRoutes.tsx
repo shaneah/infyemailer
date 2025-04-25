@@ -14,6 +14,7 @@ import ClientContacts from '@/pages/ClientContacts';
 import BasicTemplateBuilder from '@/pages/BasicTemplateBuilder';
 import ClientEmailPerformance from '@/pages/ClientEmailPerformance';
 import ClientABTestingAdvanced from '@/pages/ClientABTestingAdvanced';
+import ClientABTestingNew from '@/pages/ClientABTestingNew';
 import ClientSecurity from '@/pages/ClientSecurity';
 import ClientBilling from '@/pages/ClientBilling';
 import ClientSettings from '@/pages/ClientSettings';
