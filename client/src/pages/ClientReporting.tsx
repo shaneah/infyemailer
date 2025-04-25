@@ -49,9 +49,20 @@ const ClientReporting = () => {
   const { data: metrics, isLoading: metricsLoading } = useQuery({
     queryKey: ['/api/email-performance/metrics', date?.from?.toISOString(), date?.to?.toISOString()],
     queryFn: async () => {
-      const response = await fetch(`/api/email-performance/metrics?from=${date?.from?.toISOString()}&to=${date?.to?.toISOString()}`);
-      if (!response.ok) throw new Error('Failed to fetch metrics');
-      return response.json();
+      try {
+        const response = await fetch(`/api/email-performance/metrics?from=${date?.from?.toISOString()}&to=${date?.to?.toISOString()}`);
+        if (!response.ok) throw new Error(`Failed to fetch metrics: ${response.status}`);
+        return response.json();
+      } catch (error) {
+        console.error('Error fetching metrics:', error);
+        return {
+          openRate: { value: 0, change: 0 },
+          clickRate: { value: 0, change: 0 },
+          bounceRate: { value: 0, change: 0 },
+          deliverability: { value: 0, change: 0 },
+          unsubscribeRate: { value: 0, change: 0 }
+        };
+      }
     },
   });
 
@@ -59,9 +70,17 @@ const ClientReporting = () => {
   const { data: chartData, isLoading: chartLoading } = useQuery({
     queryKey: ['/api/email-performance/charts', date?.from?.toISOString(), date?.to?.toISOString()],
     queryFn: async () => {
-      const response = await fetch(`/api/email-performance/charts?from=${date?.from?.toISOString()}&to=${date?.to?.toISOString()}`);
-      if (!response.ok) throw new Error('Failed to fetch chart data');
-      return response.json();
+      try {
+        const response = await fetch(`/api/email-performance/charts?from=${date?.from?.toISOString()}&to=${date?.to?.toISOString()}`);
+        if (!response.ok) throw new Error(`Failed to fetch chart data: ${response.status}`);
+        return response.json();
+      } catch (error) {
+        console.error('Error fetching chart data:', error);
+        return {
+          weeklyPerformance: [],
+          monthlyTrends: []
+        };
+      }
     },
   });
 
@@ -69,9 +88,18 @@ const ClientReporting = () => {
   const { data: topPerformers, isLoading: topPerformersLoading } = useQuery({
     queryKey: ['/api/email-performance/top-performers', date?.from?.toISOString(), date?.to?.toISOString()],
     queryFn: async () => {
-      const response = await fetch(`/api/email-performance/top-performers?from=${date?.from?.toISOString()}&to=${date?.to?.toISOString()}`);
-      if (!response.ok) throw new Error('Failed to fetch top performers');
-      return response.json();
+      try {
+        const response = await fetch(`/api/email-performance/top-performers?from=${date?.from?.toISOString()}&to=${date?.to?.toISOString()}`);
+        if (!response.ok) throw new Error(`Failed to fetch top performers: ${response.status}`);
+        return response.json();
+      } catch (error) {
+        console.error('Error fetching top performers:', error);
+        return {
+          subjects: [],
+          campaigns: [],
+          templates: []
+        };
+      }
     },
   });
 
@@ -79,9 +107,27 @@ const ClientReporting = () => {
   const { data: audience, isLoading: audienceLoading } = useQuery({
     queryKey: ['/api/audience/overview', date?.from?.toISOString(), date?.to?.toISOString()],
     queryFn: async () => {
-      const response = await fetch(`/api/audience/overview?from=${date?.from?.toISOString()}&to=${date?.to?.toISOString()}`);
-      if (!response.ok) throw new Error('Failed to fetch audience data');
-      return response.json();
+      try {
+        const response = await fetch(`/api/audience/overview?from=${date?.from?.toISOString()}&to=${date?.to?.toISOString()}`);
+        if (!response.ok) throw new Error(`Failed to fetch audience data: ${response.status}`);
+        return response.json();
+      } catch (error) {
+        console.error('Error fetching audience data:', error);
+        return {
+          total: 0,
+          active: 0,
+          new: 0,
+          demographics: {
+            age: [],
+            gender: [],
+            location: []
+          },
+          engagement: {
+            frequency: [],
+            timeOfDay: []
+          }
+        };
+      }
     },
   });
 
@@ -89,9 +135,14 @@ const ClientReporting = () => {
   const { data: campaigns, isLoading: campaignsLoading } = useQuery({
     queryKey: ['/api/campaigns/metrics', date?.from?.toISOString(), date?.to?.toISOString()],
     queryFn: async () => {
-      const response = await fetch(`/api/campaigns/metrics?from=${date?.from?.toISOString()}&to=${date?.to?.toISOString()}`);
-      if (!response.ok) throw new Error('Failed to fetch campaign metrics');
-      return response.json();
+      try {
+        const response = await fetch(`/api/campaigns/metrics?from=${date?.from?.toISOString()}&to=${date?.to?.toISOString()}`);
+        if (!response.ok) throw new Error(`Failed to fetch campaign metrics: ${response.status}`);
+        return response.json();
+      } catch (error) {
+        console.error('Error fetching campaign metrics:', error);
+        return [];
+      }
     },
   });
 
