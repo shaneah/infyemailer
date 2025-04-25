@@ -2862,7 +2862,10 @@ export default function ClientRoutes() {
         
         if (response.ok) {
           const data = await response.json();
-          if (data.authenticated && data.user) {
+          console.log('Session verification response:', data);
+          
+          // Check for both old and new response formats for compatibility
+          if ((data.verified || data.authenticated) && data.user) {
             // Update client user data from server
             setClientUser(data.user);
             
