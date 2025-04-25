@@ -1434,7 +1434,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ error: 'Failed to create client template' });
     }
   });
-  });
   
   // Import ZIP template
   app.post('/api/templates/import-zip', async (req: Request, res: Response) => {
