@@ -2982,7 +2982,24 @@ export default function ClientRoutes() {
           </Route>
           <Route path="/client-reporting">
             {/* Temporarily redirect to dashboard since reporting feature is being developed */}
-            <Redirect to="/client-dashboard" />
+            <div className="p-8">
+              <h1 className="text-2xl font-bold mb-4">Reporting Dashboard</h1>
+              <p className="text-gray-500 mb-8">The comprehensive reporting dashboard is currently under development.</p>
+              <div className="flex flex-col items-center justify-center p-12 bg-gray-50 rounded-lg border border-gray-100">
+                <BarChart3 className="h-16 w-16 text-primary mb-4" />
+                <h2 className="text-xl font-semibold mb-2">Coming Soon</h2>
+                <p className="text-gray-600 text-center mb-6 max-w-md">
+                  Our team is currently working on building a powerful reporting dashboard with comprehensive analytics.
+                  This feature will be available in the next update.
+                </p>
+                <button 
+                  onClick={() => window.location.href = '/client-dashboard'} 
+                  className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90"
+                >
+                  Return to Dashboard
+                </button>
+              </div>
+            </div>
           </Route>
           <Route>
             <NotFound />
