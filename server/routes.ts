@@ -2118,27 +2118,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Client session verification endpoint
-  app.get('/api/client/verify-session', async (req: Request, res: Response) => {
-    // Check if client is authenticated via session
-    if (req.session && req.session.clientUser) {
-      console.log('Client session verified for:', req.session.clientUser.username);
-      
-      // Return client user data without sensitive info
-      const { clientUser } = req.session;
-      
-      return res.json({
-        authenticated: true,
-        user: clientUser
-      });
-    }
-    
-    console.log('Client session verification failed - no session found');
-    return res.status(401).json({ 
-      authenticated: false,
-      message: 'Not authenticated' 
-    });
-  });
+  // Client session verification endpoint is already defined above
   
   app.get('/api/users', async (req: Request, res: Response) => {
     try {
