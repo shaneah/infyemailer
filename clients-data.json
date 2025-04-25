@@ -16,7 +16,7 @@
       "contactPreference": "email"
     },
     "id": 1,
-    "createdAt": "2025-04-25T00:09:28.343Z",
+    "createdAt": "2025-04-25T00:15:24.161Z",
     "lastCampaignAt": null
   },
   {
@@ -36,7 +36,7 @@
       "contactPreference": "phone"
     },
     "id": 2,
-    "createdAt": "2025-04-25T00:09:28.343Z",
+    "createdAt": "2025-04-25T00:15:24.162Z",
     "lastCampaignAt": null
   },
   {
@@ -56,7 +56,7 @@
       "contactPreference": "email"
     },
     "id": 3,
-    "createdAt": "2025-04-25T00:09:28.344Z",
+    "createdAt": "2025-04-25T00:15:24.162Z",
     "lastCampaignAt": null
   }
 ]
