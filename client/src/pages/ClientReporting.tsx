@@ -189,7 +189,9 @@ const ClientReporting = () => {
     queryKey: ['/api/audience/overview', date?.from?.toISOString(), date?.to?.toISOString()],
     queryFn: async () => {
       try {
-        const response = await fetch(`/api/audience/overview?from=${date?.from?.toISOString()}&to=${date?.to?.toISOString()}`);
+        const response = await fetch(`/api/audience/overview?from=${date?.from?.toISOString()}&to=${date?.to?.toISOString()}`, {
+          credentials: 'include'
+        });
         if (!response.ok) throw new Error(`Failed to fetch audience data: ${response.status}`);
         return response.json();
       } catch (error) {
@@ -217,7 +219,9 @@ const ClientReporting = () => {
     queryKey: ['/api/campaigns/metrics', date?.from?.toISOString(), date?.to?.toISOString()],
     queryFn: async () => {
       try {
-        const response = await fetch(`/api/campaigns/metrics?from=${date?.from?.toISOString()}&to=${date?.to?.toISOString()}`);
+        const response = await fetch(`/api/campaigns/metrics?from=${date?.from?.toISOString()}&to=${date?.to?.toISOString()}`, {
+          credentials: 'include'
+        });
         if (!response.ok) throw new Error(`Failed to fetch campaign metrics: ${response.status}`);
         return response.json();
       } catch (error) {
