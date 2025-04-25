@@ -15,6 +15,7 @@ import BasicTemplateBuilder from '@/pages/BasicTemplateBuilder';
 import ClientEmailPerformance from '@/pages/ClientEmailPerformance';
 import ClientABTestingAdvanced from '@/pages/ClientABTestingAdvanced';
 import ClientABTestingNew from '@/pages/ClientABTestingNew';
+import ClientReporting from '@/pages/ClientReporting';
 import ClientSecurity from '@/pages/ClientSecurity';
 import ClientBilling from '@/pages/ClientBilling';
 import ClientSettings from '@/pages/ClientSettings';
@@ -2919,6 +2920,9 @@ export default function ClientRoutes() {
           </Route>
           <Route path="/client-billing">
             <ClientBilling />
+          </Route>
+          <Route path="/client-reporting">
+            <ClientReporting />
           </Route>
           <Route>
             <NotFound />
