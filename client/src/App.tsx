@@ -41,6 +41,7 @@ import CollaborativeTemplateEditor from "@/pages/CollaborativeTemplateEditor";
 // Client portal pages
 import ClientLogin from "@/pages/ClientLogin";
 import SimpleClientLogin from "@/pages/SimpleClientLogin";
+import SimpleClientLoginV2 from "@/pages/SimpleClientLoginV2";
 import AdvancedClientLogin from "@/pages/AdvancedClientLogin";
 import ClientDashboard from "@/pages/ClientDashboard";
 import ClientRoutes from "@/pages/ClientRoutes";
@@ -84,7 +85,7 @@ function App() {
         {/* Client Portal Routes */}
         <Route path="client-login">
           <div className="min-h-screen">
-            <AdvancedClientLogin />
+            <SimpleClientLoginV2 />
             <Toaster />
           </div>
         </Route>
