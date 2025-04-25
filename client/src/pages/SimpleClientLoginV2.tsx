@@ -74,28 +74,26 @@ const SimpleClientLoginV2: React.FC = () => {
       return;
     }
     
-    // Demo login check
-    if (username !== 'client1' || password !== 'clientdemo') {
-      setError('Invalid credentials. For demo, use: client1 / clientdemo');
-      setTimeout(() => setError(''), 3000);
-      return;
-    }
-    
     setIsLoading(true);
     setError('');
     
-    // Simulate login process
-    setTimeout(() => {
-      // Save user session
-      const userData = {
-        id: 1,
-        username: 'client1',
-        name: 'Demo Client',
-        company: 'InfyTech Solutions',
-        role: 'client',
-        sessionId: 'sess_' + Math.random().toString(36).slice(2),
-        lastLoginAt: new Date().toISOString(),
-      };
+    try {
+      // Call the actual API endpoint
+      const response = await fetch('/api/client-login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, password }),
+        credentials: 'include' // Important for cookies/session
+      });
+      
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Invalid credentials. For demo, use: client1 / clientdemo');
+      }
+      
+      const userData = await response.json();
       
       // Store based on remember me
       if (rememberMe) {
@@ -106,7 +104,10 @@ const SimpleClientLoginV2: React.FC = () => {
       
       // Redirect to dashboard
       window.location.href = '/client-dashboard';
-    }, 1000);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Login failed. Please try again.');
+      setIsLoading(false);
+    }
   };
 
   return (
