@@ -45,7 +45,7 @@ const ClientReporting = () => {
       try {
         // The reporting page is not fully implemented yet, so we'll redirect to dashboard for now
         console.log('Reporting page is under development - redirecting to dashboard');
-        navigate('/client-dashboard');
+        window.location.href = '/client-dashboard';
         return;
         
         // The rest of this code is intentionally unreachable until reporting is ready
