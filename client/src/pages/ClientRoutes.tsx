@@ -2906,10 +2906,10 @@ export default function ClientRoutes() {
             <ClientEmailValidation />
           </Route>
           <Route path="/client-ab-testing/:id">
-            <ClientABTestingAdvanced />
+            <ClientABTestingNew />
           </Route>
           <Route path="/client-ab-testing">
-            <ClientABTestingAdvanced />
+            <ClientABTestingNew />
           </Route>
           <Route path="/client-settings">
             <ClientSettings />

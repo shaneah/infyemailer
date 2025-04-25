@@ -140,7 +140,14 @@ const ClientABTestingNew = () => {
   // Calculate performance metrics for a variant
   const calculatePerformanceMetrics = (analytics: VariantAnalytic[]) => {
     if (!analytics || analytics.length === 0) {
-      return { openRate: 0, clickRate: 0, bounceRate: 0, unsubscribeRate: 0, conversionRate: 0 };
+      return { 
+        openRate: 0, 
+        clickRate: 0, 
+        clickThroughRate: 0,
+        bounceRate: 0, 
+        unsubscribeRate: 0, 
+        totals: { recipients: 0, opens: 0, clicks: 0, bounces: 0, unsubscribes: 0 } 
+      };
     }
     
     const totals = analytics.reduce((acc, curr) => {
@@ -319,7 +326,7 @@ const ClientABTestingNew = () => {
                             </div>
                             <p className="text-xl font-bold pl-6">
                               {formatNumber(variantMetrics.reduce((sum, { metrics }) => 
-                                sum + metrics.totals.recipients, 0))}
+                                sum + (metrics.totals?.recipients || 0), 0))}
                             </p>
                           </div>
                           
@@ -411,9 +418,11 @@ const ClientABTestingNew = () => {
                       <h4 className="text-sm font-medium">Subject Line Impact</h4>
                       <p className="text-sm text-gray-600 mt-1">
                         {winningVariantId ? (
-                          `"${variants.find(v => v.id === winningVariantId)?.subject}" 
-                          performed better, suggesting ${variants.find(v => v.id === winningVariantId)?.subject.length < 50 ? 'shorter' : 'more detailed'} 
-                          subject lines resonate with your audience.`
+                          (() => {
+                            const winningVariant = variants.find(v => v.id === winningVariantId);
+                            const subject = winningVariant?.subject || '';
+                            return `"${subject}" performed better, suggesting ${subject.length < 50 ? 'shorter' : 'more detailed'} subject lines resonate with your audience.`;
+                          })()
                         ) : (
                           'Try testing different subject line lengths and styles to see what resonates with your audience.'
                         )}
@@ -429,8 +438,11 @@ const ClientABTestingNew = () => {
                       <h4 className="text-sm font-medium">Engagement Patterns</h4>
                       <p className="text-sm text-gray-600 mt-1">
                         {winningVariantId ? (
-                          `${variants.find(v => v.id === winningVariantId)?.name} showed higher engagement. 
-                          Consider using similar messaging in future campaigns.`
+                          (() => {
+                            const winningVariant = variants.find(v => v.id === winningVariantId);
+                            const name = winningVariant?.name || 'Winning variant';
+                            return `${name} showed higher engagement. Consider using similar messaging in future campaigns.`;
+                          })()
                         ) : (
                           'Track which content elements receive the most clicks to optimize future emails.'
                         )}
@@ -551,12 +563,12 @@ const ClientABTestingNew = () => {
                                   )}
                                 </div>
                               </td>
-                              <td className="text-center px-4 py-3">{formatNumber(metrics.totals.recipients)}</td>
-                              <td className="text-center px-4 py-3">{formatNumber(metrics.totals.opens)}</td>
+                              <td className="text-center px-4 py-3">{formatNumber(metrics.totals?.recipients || 0)}</td>
+                              <td className="text-center px-4 py-3">{formatNumber(metrics.totals?.opens || 0)}</td>
                               <td className={`text-center px-4 py-3 ${getPerformanceColorClass(metrics.openRate)}`}>
                                 {formatPercent(metrics.openRate)}
                               </td>
-                              <td className="text-center px-4 py-3">{formatNumber(metrics.totals.clicks)}</td>
+                              <td className="text-center px-4 py-3">{formatNumber(metrics.totals?.clicks || 0)}</td>
                               <td className={`text-center px-4 py-3 ${getPerformanceColorClass(metrics.clickRate)}`}>
                                 {formatPercent(metrics.clickRate)}
                               </td>
