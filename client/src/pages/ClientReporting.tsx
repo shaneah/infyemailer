@@ -39,11 +39,16 @@ const ClientReporting = () => {
   const [, navigate] = useLocation();
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   
-  // Check authentication on component mount
+  // THIS IS A TEMPORARY SOLUTION: Always redirect to dashboard since the reporting feature is under development
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        // Check if user is authenticated by sessionStorage or localStorage first
+        // The reporting page is not fully implemented yet, so we'll redirect to dashboard for now
+        console.log('Reporting page is under development - redirecting to dashboard');
+        navigate('/client-dashboard');
+        return;
+        
+        // The rest of this code is intentionally unreachable until reporting is ready
         const clientUserStr = sessionStorage.getItem('clientUser') || localStorage.getItem('clientUser');
         
         if (clientUserStr) {
@@ -253,7 +258,23 @@ const ClientReporting = () => {
     });
   };
 
-  const MetricCard = ({ title, value, change, icon: Icon, color = "blue", isLoading = false }) => (
+  interface MetricCardProps {
+    title: string;
+    value: string | number; 
+    change?: string | number;
+    icon: React.ElementType; 
+    color?: string;
+    isLoading?: boolean;
+  }
+  
+  const MetricCard = ({ 
+    title, 
+    value, 
+    change, 
+    icon: Icon, 
+    color = "blue", 
+    isLoading = false 
+  }: MetricCardProps) => (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium">
@@ -279,7 +300,19 @@ const ClientReporting = () => {
     </Card>
   );
 
-  const CampaignRow = ({ campaign, isLoading = false }) => {
+  interface CampaignRowProps {
+    campaign: {
+      name: string;
+      sentDate: string;
+      recipients: number;
+      openRate: number;
+      clickRate: number;
+      unsubscribes: number;
+    };
+    isLoading?: boolean;
+  }
+
+  const CampaignRow = ({ campaign, isLoading = false }: CampaignRowProps) => {
     if (isLoading) {
       return (
         <tr className="border-b border-gray-100 last:border-none">
@@ -329,7 +362,17 @@ const ClientReporting = () => {
     );
   };
 
-  const TopPerformerCard = ({ item, type, isLoading = false }) => {
+  interface TopPerformerCardProps {
+    item: {
+      name?: string;
+      rate?: number;
+      [key: string]: any;
+    };
+    type: 'subject' | 'campaign' | 'template';
+    isLoading?: boolean;
+  }
+  
+  const TopPerformerCard = ({ item, type, isLoading = false }: TopPerformerCardProps) => {
     if (isLoading) {
       return (
         <div className="flex items-center space-x-4 py-3 border-b border-gray-100 last:border-none">
