@@ -2255,6 +2255,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
             if (req.session) {
               req.session.clientUser = responseData;
               console.log('Client1 user stored in session');
+              
+              // Save the session explicitly to ensure it's persisted immediately
+              req.session.save((err) => {
+                if (err) {
+                  console.error('Error saving session:', err);
+                } else {
+                  console.log('Session saved successfully for client user');
+                }
+              });
             }
             
             console.log(`Sending client1 login response:`, responseData);
@@ -2286,6 +2295,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
             if (req.session) {
               req.session.clientUser = mockClientUser;
               console.log('Mock client1 user stored in session');
+              
+              // Save the session explicitly to ensure it's persisted immediately
+              req.session.save((err) => {
+                if (err) {
+                  console.error('Error saving session for mock user:', err);
+                } else {
+                  console.log('Session saved successfully for mock client user');
+                }
+              });
             }
             
             console.log(`Sending mock client1 login response:`, mockClientUser);
@@ -2314,6 +2332,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
             clientCompany: 'Demo Company',
             lastLogin: new Date().toISOString()
           };
+          
+          // Store in session
+          if (req.session) {
+            req.session.clientUser = mockClientUser;
+            console.log('Fallback mock client1 user stored in session');
+            
+            // Save the session explicitly to ensure it's persisted immediately
+            req.session.save((err) => {
+              if (err) {
+                console.error('Error saving session for fallback mock user:', err);
+              } else {
+                console.log('Session saved successfully for fallback mock client user');
+              }
+            });
+          }
           
           console.log(`Sending mock client1 login response:`, mockClientUser);
           return res.json(mockClientUser);
@@ -2361,6 +2394,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (req.session) {
         req.session.clientUser = responseData;
         console.log('Client user stored in session:', req.session.clientUser.id);
+        
+        // Save the session explicitly to ensure it's persisted immediately
+        req.session.save((err) => {
+          if (err) {
+            console.error('Error saving session for regular client user:', err);
+          } else {
+            console.log('Session saved successfully for regular client user');
+          }
+        });
       }
       
       console.log(`Sending client login response:`, responseData);
