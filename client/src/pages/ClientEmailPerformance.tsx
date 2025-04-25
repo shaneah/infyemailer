@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { 
   Card, 
@@ -29,6 +29,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
+import { Loader2 } from 'lucide-react';
 
 // Sample data for now - will be replaced with API data
 const emailPerformanceData = [
@@ -139,6 +140,13 @@ const MetricCard: React.FC<MetricCardProps> = ({
 const ClientEmailPerformance: React.FC = () => {
   const [timeframe, setTimeframe] = useState('7days');
   const [campaignFilter, setCampaignFilter] = useState('all');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [data, setData] = useState<{ 
+    metrics: EmailMetrics, 
+    charts: ChartData,
+    realtime: RealtimeActivity[]
+  } | null>(null);
   
   // Get client info from sessionStorage as that's where ClientSidebar stores it
   const clientInfo = useMemo(() => {
@@ -151,7 +159,7 @@ const ClientEmailPerformance: React.FC = () => {
     }
   }, []);
 
-  // Sample fallback metrics data
+  // Safe sample fallback metrics data - used when API calls fail
   const fallbackMetricsData: EmailMetrics = {
     openRate: { value: 24.8, industryAvg: 21.5, trend: 'up', trendValue: '3.2%' },
     clickRate: { value: 3.6, industryAvg: 2.7, trend: 'up', trendValue: '0.9%' },
@@ -163,7 +171,7 @@ const ClientEmailPerformance: React.FC = () => {
     unsubscribes: 38
   };
 
-  // Sample fallback chart data
+  // Safe fallback chart data
   const fallbackChartData: ChartData = {
     weeklyPerformance: emailPerformanceData,
     deviceBreakdown: engagementByDevice,
@@ -244,7 +252,7 @@ const ClientEmailPerformance: React.FC = () => {
     ]
   };
 
-  // Sample fallback realtime data
+  // Safe fallback realtime data
   const fallbackRealtimeData: RealtimeActivity[] = [
     { time: '2 mins ago', type: 'Open', email: 'newsletter@company.com', user: 'j.smith@example.com' },
     { time: '5 mins ago', type: 'Click', email: 'offers@company.com', user: 'a.johnson@example.com' },
@@ -255,74 +263,78 @@ const ClientEmailPerformance: React.FC = () => {
     { time: '18 mins ago', type: 'Open', email: 'offers@company.com', user: 't.miller@example.com' }
   ];
 
-  // Using React Query to fetch metrics data with fallback
-  const { data: metricsData, isLoading: isLoadingMetrics } = useQuery<EmailMetrics>({
-    queryKey: ['/api/email-performance/metrics', timeframe, campaignFilter],
-    queryFn: async () => {
+  // Use useEffect to fetch data safely
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      setError(null);
+      
       try {
+        // Set up common URL params
         const clientId = clientInfo?.clientId;
-        const res = await fetch(`/api/email-performance/metrics?timeframe=${timeframe}&campaignFilter=${campaignFilter}${clientId ? `&clientId=${clientId}` : ''}`);
-        if (!res.ok) {
-          throw new Error('Failed to fetch metrics data');
-        }
-        return await res.json();
-      } catch (error) {
-        console.error('Error fetching metrics:', error);
-        return fallbackMetricsData;
+        const clientIdParam = clientId ? `&clientId=${clientId}` : '';
+        
+        // Fetch metrics data
+        const metricsRes = await fetch(`/api/email-performance/metrics?timeframe=${timeframe}&campaignFilter=${campaignFilter}${clientIdParam}`);
+        const metrics = metricsRes.ok ? await metricsRes.json() : fallbackMetricsData;
+        
+        // Fetch chart data
+        const chartsRes = await fetch(`/api/email-performance/charts?timeframe=${timeframe}&campaignFilter=${campaignFilter}${clientIdParam}`);
+        const charts = chartsRes.ok ? await chartsRes.json() : fallbackChartData;
+        
+        // Fetch realtime data
+        const realtimeRes = await fetch(`/api/email-performance/realtime${clientId ? `?clientId=${clientId}` : ''}`);
+        const realtime = realtimeRes.ok ? await realtimeRes.json() : fallbackRealtimeData;
+        
+        // Set all data together
+        setData({
+          metrics,
+          charts,
+          realtime
+        });
+      } catch (err) {
+        console.error('Error fetching email performance data:', err);
+        setError('Failed to load email performance data. Please try again later.');
+        
+        // Set fallback data if fetch fails
+        setData({
+          metrics: fallbackMetricsData,
+          charts: fallbackChartData,
+          realtime: fallbackRealtimeData
+        });
+      } finally {
+        setLoading(false);
       }
-    },
-    retry: 3,
-    refetchOnWindowFocus: false,
-    staleTime: 60000, // 1 minute
-    gcTime: 300000, // 5 minutes
-  });
-  
-  // Using React Query to fetch chart data with fallback
-  const { data: chartData, isLoading: isLoadingCharts } = useQuery<ChartData>({
-    queryKey: ['/api/email-performance/charts', timeframe, campaignFilter],
-    queryFn: async () => {
-      try {
-        const clientId = clientInfo?.clientId;
-        const res = await fetch(`/api/email-performance/charts?timeframe=${timeframe}&campaignFilter=${campaignFilter}${clientId ? `&clientId=${clientId}` : ''}`);
-        if (!res.ok) {
-          throw new Error('Failed to fetch chart data');
+    };
+    
+    fetchData();
+    
+    // Set up interval to fetch realtime data
+    const interval = setInterval(() => {
+      const fetchRealtimeOnly = async () => {
+        try {
+          const clientId = clientInfo?.clientId;
+          const realtimeRes = await fetch(`/api/email-performance/realtime${clientId ? `?clientId=${clientId}` : ''}`);
+          
+          if (realtimeRes.ok) {
+            const newRealtimeData = await realtimeRes.json();
+            setData(prevData => prevData ? {
+              ...prevData,
+              realtime: newRealtimeData
+            } : null);
+          }
+        } catch (err) {
+          console.error('Error refreshing realtime data:', err);
         }
-        return await res.json();
-      } catch (error) {
-        console.error('Error fetching chart data:', error);
-        return fallbackChartData;
-      }
-    },
-    retry: 3,
-    refetchOnWindowFocus: false,
-    staleTime: 60000, // 1 minute 
-    gcTime: 300000, // 5 minutes
-  });
+      };
+      
+      fetchRealtimeOnly();
+    }, 30000);
+    
+    return () => clearInterval(interval);
+  }, [timeframe, campaignFilter, clientInfo]);
   
-  // Using React Query to fetch real-time activity with fallback
-  const { data: realtimeData } = useQuery<RealtimeActivity[]>({
-    queryKey: ['/api/email-performance/realtime'],
-    queryFn: async () => {
-      try {
-        const clientId = clientInfo?.clientId;
-        const res = await fetch(`/api/email-performance/realtime${clientId ? `?clientId=${clientId}` : ''}`);
-        if (!res.ok) {
-          throw new Error('Failed to fetch realtime data');
-        }
-        return await res.json();
-      } catch (error) {
-        console.error('Error fetching realtime data:', error);
-        return fallbackRealtimeData;
-      }
-    },
-    refetchInterval: 30000, // Refetch every 30 seconds
-    retry: 3,
-    refetchOnWindowFocus: false,
-    staleTime: 30000, // 30 seconds
-    gcTime: 300000, // 5 minutes
-  });
-  
-  // Sample campaign data
+  // Sample campaign data for filter
   const campaigns = [
     { id: 1, name: 'Summer Sale Campaign' },
     { id: 2, name: 'Product Launch' },
@@ -330,6 +342,58 @@ const ClientEmailPerformance: React.FC = () => {
     { id: 4, name: 'Customer Re-engagement' },
   ];
   
+  // Loading state
+  if (loading) {
+    return (
+      <div className="container mx-auto py-6">
+        <div className="flex justify-between items-center mb-6">
+          <div>
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">
+              Email Performance Dashboard
+            </h1>
+            <p className="text-gray-500">Track and analyze your email campaign metrics</p>
+          </div>
+        </div>
+        
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="text-center">
+            <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-primary" />
+            <p className="text-lg font-medium">Loading performance data...</p>
+            <p className="text-sm text-muted-foreground">This may take a moment</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  
+  // Error state
+  if (error) {
+    return (
+      <div className="container mx-auto py-6">
+        <div className="flex justify-between items-center mb-6">
+          <div>
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">
+              Email Performance Dashboard
+            </h1>
+            <p className="text-gray-500">Track and analyze your email campaign metrics</p>
+          </div>
+        </div>
+        
+        <div className="bg-destructive/10 border border-destructive rounded-lg p-6 mb-6 text-center">
+          <h3 className="text-xl font-medium text-destructive mb-2">Error Loading Data</h3>
+          <p className="mb-4">{error}</p>
+          <Button onClick={() => window.location.reload()} variant="outline">Retry</Button>
+        </div>
+      </div>
+    );
+  }
+  
+  // Extract the data safely
+  const metricsData = data?.metrics;
+  const chartData = data?.charts;
+  const realtimeData = data?.realtime;
+  
+  // Main content when data is loaded
   return (
     <div className="container mx-auto py-6">
       <div className="flex justify-between items-center mb-6">
@@ -373,31 +437,31 @@ const ClientEmailPerformance: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <MetricCard 
           title="Open Rate" 
-          value={metricsData && metricsData.openRate ? `${metricsData.openRate.value.toFixed(1)}%` : "24.8%"} 
-          subValue={metricsData && metricsData.openRate ? `Industry avg: ${metricsData.openRate.industryAvg.toFixed(1)}%` : "Industry avg: 21.5%"} 
-          trend={metricsData && metricsData.openRate ? metricsData.openRate.trend as 'up' | 'down' | 'neutral' : "up"} 
-          trendValue={metricsData && metricsData.openRate ? metricsData.openRate.trendValue : "3.2%"}
+          value={metricsData?.openRate?.value ? `${metricsData.openRate.value.toFixed(1)}%` : "24.8%"} 
+          subValue={metricsData?.openRate?.industryAvg ? `Industry avg: ${metricsData.openRate.industryAvg.toFixed(1)}%` : "Industry avg: 21.5%"} 
+          trend={metricsData?.openRate?.trend ? metricsData.openRate.trend as 'up' | 'down' | 'neutral' : "up"} 
+          trendValue={metricsData?.openRate?.trendValue ? metricsData.openRate.trendValue : "3.2%"}
         />
         <MetricCard 
           title="Click Rate" 
-          value={metricsData && metricsData.clickRate ? `${metricsData.clickRate.value.toFixed(1)}%` : "3.6%"} 
-          subValue={metricsData && metricsData.clickRate ? `Industry avg: ${metricsData.clickRate.industryAvg.toFixed(1)}%` : "Industry avg: 2.7%"} 
-          trend={metricsData && metricsData.clickRate ? metricsData.clickRate.trend as 'up' | 'down' | 'neutral' : "up"} 
-          trendValue={metricsData && metricsData.clickRate ? metricsData.clickRate.trendValue : "0.9%"}
+          value={metricsData?.clickRate?.value ? `${metricsData.clickRate.value.toFixed(1)}%` : "3.6%"} 
+          subValue={metricsData?.clickRate?.industryAvg ? `Industry avg: ${metricsData.clickRate.industryAvg.toFixed(1)}%` : "Industry avg: 2.7%"} 
+          trend={metricsData?.clickRate?.trend ? metricsData.clickRate.trend as 'up' | 'down' | 'neutral' : "up"} 
+          trendValue={metricsData?.clickRate?.trendValue ? metricsData.clickRate.trendValue : "0.9%"}
         />
         <MetricCard 
           title="Conversion Rate" 
-          value={metricsData && metricsData.conversionRate ? `${metricsData.conversionRate.value.toFixed(1)}%` : "1.2%"} 
-          subValue={metricsData && metricsData.conversionRate ? `Goal: ${metricsData.conversionRate.goal.toFixed(1)}%` : "Goal: 1.5%"} 
-          trend={metricsData && metricsData.conversionRate ? metricsData.conversionRate.trend as 'up' | 'down' | 'neutral' : "down"} 
-          trendValue={metricsData && metricsData.conversionRate ? metricsData.conversionRate.trendValue : "0.3%"}
+          value={metricsData?.conversionRate?.value ? `${metricsData.conversionRate.value.toFixed(1)}%` : "1.2%"} 
+          subValue={metricsData?.conversionRate?.goal ? `Goal: ${metricsData.conversionRate.goal.toFixed(1)}%` : "Goal: 1.5%"} 
+          trend={metricsData?.conversionRate?.trend ? metricsData.conversionRate.trend as 'up' | 'down' | 'neutral' : "down"} 
+          trendValue={metricsData?.conversionRate?.trendValue ? metricsData.conversionRate.trendValue : "0.3%"}
         />
         <MetricCard 
           title="Bounce Rate" 
-          value={metricsData && metricsData.bounceRate ? `${metricsData.bounceRate.value.toFixed(1)}%` : "0.8%"} 
-          subValue={metricsData && metricsData.bounceRate ? `Industry avg: ${metricsData.bounceRate.industryAvg.toFixed(1)}%` : "Industry avg: 1.2%"} 
-          trend={metricsData && metricsData.bounceRate ? metricsData.bounceRate.trend as 'up' | 'down' | 'neutral' : "up"} 
-          trendValue={metricsData && metricsData.bounceRate ? metricsData.bounceRate.trendValue : "0.4%"}
+          value={metricsData?.bounceRate?.value ? `${metricsData.bounceRate.value.toFixed(1)}%` : "0.8%"} 
+          subValue={metricsData?.bounceRate?.industryAvg ? `Industry avg: ${metricsData.bounceRate.industryAvg.toFixed(1)}%` : "Industry avg: 1.2%"} 
+          trend={metricsData?.bounceRate?.trend ? metricsData.bounceRate.trend as 'up' | 'down' | 'neutral' : "up"} 
+          trendValue={metricsData?.bounceRate?.trendValue ? metricsData.bounceRate.trendValue : "0.4%"}
         />
       </div>
       
@@ -405,25 +469,25 @@ const ClientEmailPerformance: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <MetricCard 
           title="Total Sent" 
-          value={metricsData && typeof metricsData.totalSent === 'number' ? metricsData.totalSent.toLocaleString() : "42,857"} 
+          value={typeof metricsData?.totalSent === 'number' ? metricsData.totalSent.toLocaleString() : "42,857"} 
           subValue={`Last ${timeframe === '7days' ? '7 days' : timeframe === '30days' ? '30 days' : timeframe === '90days' ? '90 days' : timeframe}`}
         />
         <MetricCard 
           title="Total Opens" 
-          value={metricsData && typeof metricsData.totalOpens === 'number' ? metricsData.totalOpens.toLocaleString() : "10,628"} 
-          subValue={metricsData && typeof metricsData.totalOpens === 'number' && typeof metricsData.totalSent === 'number' ? 
+          value={typeof metricsData?.totalOpens === 'number' ? metricsData.totalOpens.toLocaleString() : "10,628"} 
+          subValue={typeof metricsData?.totalOpens === 'number' && typeof metricsData?.totalSent === 'number' ? 
             `${(metricsData.totalOpens / metricsData.totalSent * 100).toFixed(1)}% of sent` : "24.8% of sent"}
         />
         <MetricCard 
           title="Total Clicks" 
-          value={metricsData && typeof metricsData.totalClicks === 'number' ? metricsData.totalClicks.toLocaleString() : "1,543"} 
-          subValue={metricsData && typeof metricsData.totalClicks === 'number' && typeof metricsData.totalSent === 'number' ? 
+          value={typeof metricsData?.totalClicks === 'number' ? metricsData.totalClicks.toLocaleString() : "1,543"} 
+          subValue={typeof metricsData?.totalClicks === 'number' && typeof metricsData?.totalSent === 'number' ? 
             `${(metricsData.totalClicks / metricsData.totalSent * 100).toFixed(1)}% of sent` : "3.6% of sent"}
         />
         <MetricCard 
           title="Unsubscribes" 
-          value={metricsData && typeof metricsData.unsubscribes === 'number' ? metricsData.unsubscribes.toLocaleString() : "38"} 
-          subValue={metricsData && typeof metricsData.unsubscribes === 'number' && typeof metricsData.totalSent === 'number' ? 
+          value={typeof metricsData?.unsubscribes === 'number' ? metricsData.unsubscribes.toLocaleString() : "38"} 
+          subValue={typeof metricsData?.unsubscribes === 'number' && typeof metricsData?.totalSent === 'number' ? 
             `${(metricsData.unsubscribes / metricsData.totalSent * 100).toFixed(2)}% of sent` : "0.09% of sent"}
         />
       </div>
