@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
-import { Shield, EyeOff, Eye, Lock, User, ChevronRight } from 'lucide-react';
+import { Shield, EyeOff, Eye, Lock, User, ChevronRight, Coffee, Sun, Moon, Sunset } from 'lucide-react';
 import LogoColor from '@assets/Logo-white.png';
 
 const SimpleClientLoginV2: React.FC = () => {
@@ -10,10 +10,59 @@ const SimpleClientLoginV2: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   
+  // Welcome message state
+  const [welcomeMessage, setWelcomeMessage] = useState('');
+  const [welcomeIcon, setWelcomeIcon] = useState<React.ReactNode>(null);
+  const [lastUsername, setLastUsername] = useState<string | null>(null);
+  
   // Auth state
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [, setLocation] = useLocation();
+  
+  // Set welcome message based on time of day and check for returning user
+  useEffect(() => {
+    // Check for previous login
+    const savedUserData = localStorage.getItem('clientUser');
+    let userName = '';
+    
+    if (savedUserData) {
+      try {
+        const userData = JSON.parse(savedUserData);
+        if (userData && userData.name) {
+          userName = userData.name.split(' ')[0]; // Get first name
+          setLastUsername(userData.username);
+          setUsername(userData.username); // Auto-fill username for returning users
+        }
+      } catch (e) {
+        console.error('Error parsing saved user data');
+      }
+    }
+    
+    const hour = new Date().getHours();
+    let timeMessage = '';
+    
+    if (hour >= 5 && hour < 12) {
+      timeMessage = 'Good morning';
+      setWelcomeIcon(<Coffee className="h-5 w-5 text-amber-500" />);
+    } else if (hour >= 12 && hour < 17) {
+      timeMessage = 'Good afternoon';
+      setWelcomeIcon(<Sun className="h-5 w-5 text-amber-500" />);
+    } else if (hour >= 17 && hour < 21) {
+      timeMessage = 'Good evening';
+      setWelcomeIcon(<Sunset className="h-5 w-5 text-amber-500" />);
+    } else {
+      timeMessage = 'Good night';
+      setWelcomeIcon(<Moon className="h-5 w-5 text-blue-500" />);
+    }
+    
+    // Personalize message if we have user data
+    if (userName) {
+      setWelcomeMessage(`${timeMessage}, ${userName}! Welcome back.`);
+    } else {
+      setWelcomeMessage(`${timeMessage}!`);
+    }
+  }, []);
 
   // Handle login
   const handleSubmit = async (e: React.FormEvent) => {
@@ -70,8 +119,15 @@ const SimpleClientLoginV2: React.FC = () => {
             <img 
               src={LogoColor} 
               alt="InfyMailer" 
-              className="h-10 mb-8" 
+              className="h-10 mb-6" 
             />
+            
+            {/* Dynamic welcome message */}
+            <div className="flex items-center space-x-2 mb-3 bg-blue-50 px-4 py-3 rounded-lg border border-blue-100">
+              {welcomeIcon}
+              <span className="font-medium text-blue-800">{welcomeMessage}</span>
+            </div>
+            
             <h1 className="text-2xl font-bold text-gray-800 mb-2">
               Client Portal
             </h1>
@@ -106,9 +162,16 @@ const SimpleClientLoginV2: React.FC = () => {
                   type="text"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className={`block w-full pl-10 pr-3 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                    lastUsername ? 'border-blue-300 bg-blue-50' : 'border-gray-300'
+                  }`}
                   placeholder="Enter your username"
                 />
+                {lastUsername && (
+                  <div className="mt-1 text-xs text-blue-600">
+                    Welcome back, we've filled your username for faster login.
+                  </div>
+                )}
               </div>
             </div>
 
