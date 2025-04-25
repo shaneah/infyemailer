@@ -121,7 +121,11 @@ const SimpleClientLoginV2: React.FC = () => {
       
       // Redirect to dashboard
       console.log('Login successful, redirecting to dashboard');
-      window.location.href = '/client-dashboard';
+      
+      // Force a small delay to ensure session is properly saved on server
+      setTimeout(() => {
+        window.location.href = '/client-dashboard';
+      }, 300);
     } catch (err) {
       console.error('Login error:', err);
       setError(err instanceof Error ? err.message : 'Login failed. Please try again.');
