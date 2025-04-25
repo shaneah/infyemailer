@@ -364,6 +364,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const campaigns = await storage.getCampaigns();
       console.log(`Retrieved ${campaigns.length} campaigns from storage`);
       
+      // If database is active but there are no campaigns, return empty array
+      // This ensures we don't show sample data when the database is cleared
+      if (isDatabaseAvailable && campaigns.length === 0) {
+        return res.json([]);
+      }
+      
       // Create an array to store the formatted campaigns
       const formattedCampaigns = [];
       

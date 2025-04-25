@@ -42,8 +42,21 @@ export class DbStorage implements IStorage {
 
   async getClients() {
     try {
-      const clients = await db.select().from(schema.clients).orderBy(desc(schema.clients.createdAt));
-      return clients;
+      // Use a more specific query to avoid the missing column error
+      const clients = await db.execute(
+        `SELECT 
+          id, name, email, company, status, industry, 
+          created_at AS "createdAt", 
+          total_spend AS "totalSpend", 
+          email_credits AS "emailCredits", 
+          email_credits_purchased AS "emailCreditsPurchased", 
+          email_credits_used AS "emailCreditsUsed",
+          last_campaign_at AS "lastCampaignAt",
+          avatar, metadata
+        FROM clients
+        ORDER BY created_at DESC`
+      );
+      return clients.rows;
     } catch (error) {
       console.error('Error getting clients:', error);
       return [];
