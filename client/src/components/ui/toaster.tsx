@@ -14,6 +14,8 @@ export function Toaster() {
   return (
     <ToastProvider>
       {toasts.map(function ({ id, title, description, action, ...props }) {
+        if (!id) return null; // Skip toast if id is missing
+        
         return (
           <Toast key={id} {...props}>
             <div className="grid gap-1">

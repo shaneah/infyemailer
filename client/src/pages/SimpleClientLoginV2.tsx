@@ -78,6 +78,8 @@ const SimpleClientLoginV2: React.FC = () => {
     setError('');
     
     try {
+      console.log('Attempting client login with username:', username);
+      
       // Call the actual API endpoint
       const response = await fetch('/api/client-login', {
         method: 'POST',
@@ -88,23 +90,40 @@ const SimpleClientLoginV2: React.FC = () => {
         credentials: 'include' // Important for cookies/session
       });
       
+      console.log('Login response status:', response.status);
+      
+      const data = await response.json();
+      console.log('Login response data:', data);
+      
       if (!response.ok) {
-        const data = await response.json();
         throw new Error(data.error || 'Invalid credentials. For demo, use: client1 / clientdemo');
       }
       
-      const userData = await response.json();
-      
       // Store based on remember me
       if (rememberMe) {
-        localStorage.setItem('clientUser', JSON.stringify(userData));
+        localStorage.setItem('clientUser', JSON.stringify(data));
       } else {
-        sessionStorage.setItem('clientUser', JSON.stringify(userData));
+        sessionStorage.setItem('clientUser', JSON.stringify(data));
+      }
+      
+      // Immediately verify the session was created
+      try {
+        const verifyResponse = await fetch('/api/client/verify-session', {
+          credentials: 'include' // Important for cookies/session
+        });
+        
+        console.log('Session verification response:', verifyResponse.status);
+        const verifyData = await verifyResponse.json();
+        console.log('Session verification data:', verifyData);
+      } catch (verifyErr) {
+        console.error('Session verification failed:', verifyErr);
       }
       
       // Redirect to dashboard
+      console.log('Login successful, redirecting to dashboard');
       window.location.href = '/client-dashboard';
     } catch (err) {
+      console.error('Login error:', err);
       setError(err instanceof Error ? err.message : 'Login failed. Please try again.');
       setIsLoading(false);
     }
