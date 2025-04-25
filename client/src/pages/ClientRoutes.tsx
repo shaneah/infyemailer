@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import ClientSidebar from '@/components/ClientSidebar';
 import ClientDashboard from '@/pages/ClientDashboard';
 import { useToast } from '@/hooks/use-toast';
-import { Switch, Route, useLocation } from 'wouter';
+import { Switch, Route, useLocation, Redirect } from 'wouter';
 import NotFound from '@/pages/not-found';
 import { Mail, BarChart3, Activity, Globe } from 'lucide-react';
 import CreateCampaignModal from '@/modals/CreateCampaignModal';
@@ -2981,7 +2981,8 @@ export default function ClientRoutes() {
             <ClientBilling />
           </Route>
           <Route path="/client-reporting">
-            <ClientReporting />
+            {/* Temporarily redirect to dashboard since reporting feature is being developed */}
+            <Redirect to="/client-dashboard" />
           </Route>
           <Route>
             <NotFound />
