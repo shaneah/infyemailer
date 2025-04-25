@@ -6,216 +6,170 @@ import {
   Fingerprint, Sparkles, CheckCircle2, BellRing, LineChart, 
   BarChart, Database, Users, Zap, Globe, Key, Scan, Cpu, 
   LucideIcon, BarChart4, Award, ServerCog, Wifi, QrCode, 
-  CircleUser, ShieldCheck, PanelRight, Layers
+  CircleUser, ShieldCheck, PanelRight, Layers, Brain, 
+  BrainCircuit, Bot, AlertCircle, Radar, Waypoints, 
+  X, LockKeyhole, BadgeCheck, PowerOff, Network, Activity,
+  ListChecks, Blocks
 } from 'lucide-react';
 
-// Define a TypeScripts type for the animated glitch text effects
-type GlitchTextProps = {
-  text: string;
-  className?: string;
-};
+interface Neural3DPoint {
+  x: number;
+  y: number;
+  z: number;
+  vx: number;
+  vy: number;
+  vz: number;
+  connections: number[];
+  pulse: number;
+  size: number;
+  color: string;
+}
 
-type AnimatedCounterProps = {
-  endValue: number;
-  label: string;
-  duration?: number;
-  icon: React.ReactNode;
-};
+interface AuthSession {
+  id: string;
+  createdAt: Date;
+  expiresAt: Date;
+  device: string;
+  active: boolean;
+}
 
-// Animated Glitch Text Component for cyberpunk effect
-const GlitchText: React.FC<GlitchTextProps> = ({ text, className = "" }) => {
+// Futuristic text flicker effect
+const FlickerText: React.FC<{text: string; className?: string}> = ({text, className = ''}) => {
   return (
-    <div className={`relative inline-block ${className}`}>
-      <span className="relative inline-block">
-        <span className="inline-block text-white">{text}</span>
-        <span className="absolute left-0 top-0 w-full h-full flex overflow-hidden opacity-70">
-          <span className="animate-glitch-1 text-[#d4af37] inline-block absolute left-[calc(-100%)] top-0 w-full h-full">
-            {text}
-          </span>
-        </span>
-        <span className="absolute left-0 top-0 w-full h-full flex overflow-hidden opacity-70">
-          <span className="animate-glitch-2 text-[#4f8dff] inline-block absolute left-[calc(100%)] top-0 w-full h-full">
-            {text}
-          </span>
+    <span className={`relative group ${className}`}>
+      <span className="absolute top-0 left-0 w-full h-full hidden group-hover:inline">
+        <span className="animate-flicker-1 text-[#66e4ff] absolute">
+          {text}
         </span>
       </span>
+      {text}
+    </span>
+  );
+};
+
+// Holographic display effect
+const HolographicText: React.FC<{
+  text: string;
+  className?: string;
+  variant?: 'success' | 'warning' | 'info' | 'error';
+}> = ({text, className = '', variant = 'info'}) => {
+  const colorMap = {
+    success: 'text-emerald-400',
+    warning: 'text-amber-400',
+    info: 'text-blue-400',
+    error: 'text-red-400'
+  };
+  
+  return (
+    <div className={`relative font-mono tracking-wider ${colorMap[variant]} ${className}`}>
+      <div className="absolute inset-0 blur-[1px] opacity-70">{text}</div>
+      <div className="absolute inset-0 blur-[2px] opacity-50">{text}</div>
+      <div className="relative">{text}</div>
     </div>
   );
 };
 
-// Animated counter component for dashboard stats
-const AnimatedCounter: React.FC<AnimatedCounterProps> = ({ endValue, label, duration = 2000, icon }) => {
-  const [count, setCount] = useState(0);
-  const countRef = useRef<HTMLSpanElement>(null);
+// Neural nodes connection component for ultra-modern 3D background
+const NeuralNodesBackground: React.FC = () => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
+  const nodesRef = useRef<Neural3DPoint[]>([]);
+  const animationRef = useRef<number>(0);
+  const mousePos = useRef({ x: 0, y: 0 });
   
+  // Initialize canvas and handle resizing
   useEffect(() => {
-    let startTime: number;
-    let animationFrameId: number;
-    
-    const updateCount = (timestamp: number) => {
-      if (!startTime) startTime = timestamp;
-      const progress = timestamp - startTime;
-      const percentage = Math.min(progress / duration, 1);
-      
-      // Easing function for a smooth deceleration
-      const easeOutQuart = 1 - Math.pow(1 - percentage, 4);
-      const currentValue = Math.floor(easeOutQuart * endValue);
-      
-      setCount(currentValue);
-      
-      if (percentage < 1) {
-        animationFrameId = requestAnimationFrame(updateCount);
+    const handleResize = () => {
+      if (canvasRef.current) {
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+        canvasRef.current.width = width;
+        canvasRef.current.height = height;
+        setDimensions({ width, height });
       }
     };
     
-    animationFrameId = requestAnimationFrame(updateCount);
-    
-    return () => {
-      cancelAnimationFrame(animationFrameId);
-    };
-  }, [endValue, duration]);
-  
-  return (
-    <div className="flex items-start space-x-3">
-      <div className="p-2 bg-gradient-to-br from-[#d4af37]/20 to-blue-600/20 rounded-lg border border-white/10 backdrop-blur-sm">
-        {icon}
-      </div>
-      <div>
-        <div className="flex items-baseline gap-1">
-          <span 
-            ref={countRef} 
-            className="font-bold text-xl text-white"
-          >
-            {count.toLocaleString()}
-          </span>
-          <span className="text-xs text-blue-300">+</span>
-        </div>
-        <p className="text-sm text-white/60">{label}</p>
-      </div>
-    </div>
-  );
-};
-
-// Animated glowing border component
-const GlowingBorder: React.FC<{children: React.ReactNode}> = ({ children }) => {
-  return (
-    <div className="relative group">
-      <div className="absolute -inset-0.5 bg-gradient-to-r from-[#d4af37] via-blue-500 to-[#d4af37] rounded-lg blur opacity-30 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-gradient-x"></div>
-      <div className="relative">
-        {children}
-      </div>
-    </div>
-  );
-};
-
-// Feature badge component
-const FeatureBadge = ({ icon, text }: { icon: React.ReactNode, text: string }) => (
-  <div className="flex items-center space-x-2 bg-white/5 backdrop-blur-sm p-2 rounded-lg border border-white/5">
-    {icon}
-    <span className="text-xs font-medium">{text}</span>
-  </div>
-);
-
-// Login form main component
-const SimpleClientLogin = () => {
-  // State management
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
-  const [biometricAuth, setBiometricAuth] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState(false);
-  const [loginStep, setLoginStep] = useState<'credentials'|'verification'|'complete'>('credentials');
-  const [verificationProgress, setVerificationProgress] = useState(0);
-  const [, setLocation] = useLocation();
-  const [currentTime, setCurrentTime] = useState(new Date());
-  const [securityStatus, setSecurityStatus] = useState<'secure'|'scanning'|'warning'>('secure');
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const backgroundItemsRef = useRef<HTMLDivElement>(null);
-  
-  // Stats counters for visual effect
-  const stats = [
-    { icon: <Users className="h-5 w-5 text-blue-300" />, value: 24897, label: "Active Users" },
-    { icon: <Globe className="h-5 w-5 text-[#d4af37]" />, value: 187, label: "Countries Served" },
-    { icon: <BarChart4 className="h-5 w-5 text-green-300" />, value: 99.98, label: "Uptime %" },
-    { icon: <Shield className="h-5 w-5 text-purple-300" />, value: 100, label: "Security Score" }
-  ];
-  
-  // Security features list
-  const securityFeatures = [
-    { icon: <ShieldCheck size={14} />, text: "Biometric Auth" },
-    { icon: <ServerCog size={14} />, text: "256-bit Encryption" },
-    { icon: <Wifi size={14} />, text: "Secure Socket Layer" },
-    { icon: <Lock size={14} />, text: "Password Hashing" }
-  ];
-  
-  // Features for right panel
-  const marketingFeatures = [
-    { 
-      icon: <LineChart className="h-5 w-5 text-[#d4af37]" />, 
-      title: "AI Analytics Dashboard", 
-      description: "Real-time performance tracking with predictive insights powered by machine learning algorithms." 
-    },
-    { 
-      icon: <Cpu className="h-5 w-5 text-blue-400" />, 
-      title: "Smart Content Generation", 
-      description: "Automated email content creation with AI to maximize engagement and conversion rates." 
-    },
-    { 
-      icon: <Layers className="h-5 w-5 text-green-400" />, 
-      title: "Multi-channel Campaigns", 
-      description: "Seamlessly manage email, SMS, and social media campaigns from a single interface." 
-    }
-  ];
-
-  // For animation timing
-  const loginTimeout = useRef<NodeJS.Timeout>();
-  const verificationInterval = useRef<NodeJS.Timeout>();
-  
-  // Clear any existing session storage on login page load
-  useEffect(() => {
-    // Clear existing user data
-    sessionStorage.removeItem('clientUser');
-    localStorage.removeItem('clientUser');
-    
-    // Update time
-    const timer = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 1000);
-    
-    return () => clearInterval(timer);
-  }, []);
-
-  // Initialize 3D background effect
-  useEffect(() => {
-    if (!backgroundItemsRef.current) return;
-    
-    const container = backgroundItemsRef.current;
-    const items = container.querySelectorAll('.bg-item');
+    window.addEventListener('resize', handleResize);
+    handleResize();
     
     const handleMouseMove = (e: MouseEvent) => {
-      const x = e.clientX / window.innerWidth;
-      const y = e.clientY / window.innerHeight;
-      
-      items.forEach((item: Element, index) => {
-        const depth = 0.05 + (index * 0.01); // Different depths for parallax effect
-        const translateX = (x - 0.5) * depth * 100;
-        const translateY = (y - 0.5) * depth * 100;
-        
-        (item as HTMLElement).style.transform = `translate3d(${translateX}px, ${translateY}px, 0) rotate(${translateX * 0.02}deg)`;
-      });
+      mousePos.current = { 
+        x: e.clientX / window.innerWidth, 
+        y: e.clientY / window.innerHeight 
+      };
     };
     
     window.addEventListener('mousemove', handleMouseMove);
     
     return () => {
+      window.removeEventListener('resize', handleResize);
       window.removeEventListener('mousemove', handleMouseMove);
     };
   }, []);
-
-  // Initialize canvas and animation for futuristic background
+  
+  // Initialize nodes
+  useEffect(() => {
+    if (!dimensions.width || !dimensions.height) return;
+    
+    const NODE_COUNT = 70;
+    const points: Neural3DPoint[] = [];
+    
+    // Color palette for nodes
+    const colors = [
+      'rgba(212, 175, 55, 0.8)',   // Gold
+      'rgba(30, 144, 255, 0.8)',    // Blue
+      'rgba(173, 216, 230, 0.8)',   // Light Blue
+      'rgba(255, 255, 255, 0.7)',   // White
+    ];
+    
+    // Create nodes
+    for (let i = 0; i < NODE_COUNT; i++) {
+      points.push({
+        x: Math.random() * dimensions.width,
+        y: Math.random() * dimensions.height,
+        z: Math.random() * 500 - 250,
+        vx: Math.random() * 0.5 - 0.25,
+        vy: Math.random() * 0.5 - 0.25,
+        vz: Math.random() * 0.5 - 0.25,
+        connections: [],
+        pulse: Math.random(),
+        size: Math.random() * 2 + 1,
+        color: colors[Math.floor(Math.random() * colors.length)]
+      });
+    }
+    
+    // Create connections
+    points.forEach((point, i) => {
+      const connectionCount = Math.floor(Math.random() * 3) + 1;
+      for (let j = 0; j < connectionCount; j++) {
+        // Find a closest neighbor that isn't already connected
+        let closestDist = Infinity;
+        let closestIdx = -1;
+        
+        for (let k = 0; k < points.length; k++) {
+          if (i === k || point.connections.includes(k)) continue;
+          
+          const dx = point.x - points[k].x;
+          const dy = point.y - points[k].y;
+          const dz = point.z - points[k].z;
+          const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
+          
+          if (dist < closestDist) {
+            closestDist = dist;
+            closestIdx = k;
+          }
+        }
+        
+        if (closestIdx !== -1) {
+          point.connections.push(closestIdx);
+        }
+      }
+    });
+    
+    nodesRef.current = points;
+  }, [dimensions]);
+  
+  // Animation logic
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -223,755 +177,1105 @@ const SimpleClientLogin = () => {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
     
-    // Set canvas dimensions to match parent container
-    const resizeCanvas = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+    // Helper to get 3D point projected to 2D with perspective
+    const project = (x: number, y: number, z: number) => {
+      const fov = 250;
+      const viewZ = 1000;
+      const scale = fov / (viewZ + z);
+      return {
+        x: x * scale + dimensions.width / 2,
+        y: y * scale + dimensions.height / 2,
+        scale
+      };
     };
     
-    window.addEventListener('resize', resizeCanvas);
-    resizeCanvas();
-    
-    // Create grid pattern for cyberpunk effect
-    const drawGrid = () => {
-      const gridSize = 30;
-      const gridColor = 'rgba(65, 105, 225, 0.1)';
+    const render = () => {
+      ctx.clearRect(0, 0, dimensions.width, dimensions.height);
       
-      ctx.strokeStyle = gridColor;
+      // Background gradient
+      const gradient = ctx.createLinearGradient(0, 0, 0, dimensions.height);
+      gradient.addColorStop(0, 'rgba(5, 15, 36, 0.95)');
+      gradient.addColorStop(0.5, 'rgba(10, 25, 60, 0.95)');
+      gradient.addColorStop(1, 'rgba(15, 35, 75, 0.95)');
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, dimensions.width, dimensions.height);
+      
+      // Draw grid
+      ctx.strokeStyle = 'rgba(50, 130, 240, 0.08)';
       ctx.lineWidth = 0.5;
       
-      // Horizontal lines
-      for (let y = 0; y < canvas.height; y += gridSize) {
+      // Horizontal grid
+      for (let y = 0; y < dimensions.height; y += 40) {
         ctx.beginPath();
         ctx.moveTo(0, y);
-        ctx.lineTo(canvas.width, y);
+        ctx.lineTo(dimensions.width, y);
         ctx.stroke();
       }
       
-      // Vertical lines
-      for (let x = 0; x < canvas.width; x += gridSize) {
+      // Vertical grid
+      for (let x = 0; x < dimensions.width; x += 40) {
         ctx.beginPath();
         ctx.moveTo(x, 0);
-        ctx.lineTo(x, canvas.height);
+        ctx.lineTo(x, dimensions.height);
         ctx.stroke();
       }
-    };
-    
-    // Create futuristic circuit effect
-    const drawCircuitLines = (timestamp: number) => {
-      interface CircuitNode {
-        x: number;
-        y: number;
-        connections: number;
-        pulse: number;
-      }
       
-      const circuitNodes: CircuitNode[] = [];
-      const nodeCount = 15;
+      // Interactive cursor effect
+      const mouseX = mousePos.current.x * dimensions.width;
+      const mouseY = mousePos.current.y * dimensions.height;
       
-      // Create nodes spread across the canvas
-      for (let i = 0; i < nodeCount; i++) {
-        circuitNodes.push({
-          x: Math.random() * canvas.width,
-          y: Math.random() * canvas.height,
-          connections: Math.floor(Math.random() * 3) + 1,
-          pulse: Math.random() * 1000
-        });
-      }
+      // Ripple effect around cursor
+      ctx.beginPath();
+      const now = Date.now() / 1000;
+      ctx.arc(mouseX, mouseY, 50 + Math.sin(now * 2) * 10, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(212, 175, 55, 0.2)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
       
-      // Draw connections between nodes
-      ctx.lineWidth = 0.8;
+      ctx.beginPath();
+      ctx.arc(mouseX, mouseY, 80 + Math.sin(now * 2 + 1) * 15, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(212, 175, 55, 0.1)';
+      ctx.lineWidth = 0.5;
+      ctx.stroke();
       
-      circuitNodes.forEach((node, index) => {
-        for (let i = 0; i < node.connections; i++) {
-          const target = circuitNodes[(index + i + 1) % nodeCount];
+      // Update and draw neural nodes
+      const points = nodesRef.current;
+      const timestamp = Date.now() / 1000;
+      
+      // Update positions
+      points.forEach(point => {
+        // Movement with bounds check
+        point.x += point.vx;
+        point.y += point.vy;
+        point.z += point.vz;
+        
+        // Bounce off boundaries
+        if (point.x < 0 || point.x > dimensions.width) point.vx *= -1;
+        if (point.y < 0 || point.y > dimensions.height) point.vy *= -1;
+        if (point.z < -250 || point.z > 250) point.vz *= -1;
+        
+        // Mouse influence - attract points
+        const dx = mouseX - point.x;
+        const dy = mouseY - point.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        
+        if (dist < 200) {
+          const influence = (200 - dist) / 10000;
+          point.vx += dx * influence;
+          point.vy += dy * influence;
           
-          // Calculate pulse animation (based on time)
-          const pulseOffset = (timestamp + node.pulse) % 3000 / 3000;
-          const pulsePosition = pulseOffset * 1.0; // Position of pulse along the line
+          // Limit velocity
+          const maxVel = 2;
+          const vel = Math.sqrt(point.vx * point.vx + point.vy * point.vy);
+          if (vel > maxVel) {
+            point.vx = (point.vx / vel) * maxVel;
+            point.vy = (point.vy / vel) * maxVel;
+          }
+        }
+      });
+      
+      // Sort by z for proper rendering (back to front)
+      const sortedPoints = [...points].sort((a, b) => a.z - b.z);
+      
+      // Draw connections
+      sortedPoints.forEach(point => {
+        point.connections.forEach(idx => {
+          const target = points[idx];
+          const p1 = project(point.x - dimensions.width / 2, point.y - dimensions.height / 2, point.z);
+          const p2 = project(target.x - dimensions.width / 2, target.y - dimensions.height / 2, target.z);
           
-          // Draw the line
+          // Draw line with pulsing effect
+          const pulseOffset = (timestamp + point.pulse) % 2;
+          const pulseAlpha = Math.max(0.05, Math.min(0.3, 0.3 - pulseOffset * 0.15));
+          
+          // Gradient for connection
+          const gradient = ctx.createLinearGradient(p1.x, p1.y, p2.x, p2.y);
+          gradient.addColorStop(0, point.color.replace('0.8', String(pulseAlpha)));
+          gradient.addColorStop(1, target.color.replace('0.8', String(pulseAlpha)));
+          
           ctx.beginPath();
-          ctx.moveTo(node.x, node.y);
-          ctx.lineTo(target.x, target.y);
-          
-          const gradient = ctx.createLinearGradient(node.x, node.y, target.x, target.y);
-          gradient.addColorStop(0, 'rgba(65, 105, 225, 0.2)');
-          gradient.addColorStop(0.5, 'rgba(65, 105, 225, 0.1)');
-          gradient.addColorStop(1, 'rgba(65, 105, 225, 0.2)');
-          
+          ctx.moveTo(p1.x, p1.y);
+          ctx.lineTo(p2.x, p2.y);
           ctx.strokeStyle = gradient;
+          ctx.lineWidth = 0.8 * Math.min(p1.scale, p2.scale);
           ctx.stroke();
           
-          // Draw pulse effect
-          const pulseX = node.x + (target.x - node.x) * pulsePosition;
-          const pulseY = node.y + (target.y - node.y) * pulsePosition;
-          
-          ctx.beginPath();
-          ctx.arc(pulseX, pulseY, 2, 0, Math.PI * 2);
-          ctx.fillStyle = 'rgba(212, 175, 55, 0.8)';
-          ctx.fill();
-        }
+          // Draw pulse moving along connection
+          if (pulseOffset < 1) {
+            const pulsePos = pulseOffset;
+            const pulseX = p1.x + (p2.x - p1.x) * pulsePos;
+            const pulseY = p1.y + (p2.y - p1.y) * pulsePos;
+            
+            ctx.beginPath();
+            ctx.arc(pulseX, pulseY, 1.5 * Math.min(p1.scale, p2.scale), 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(212, 175, 55, 0.8)';
+            ctx.fill();
+          }
+        });
+      });
+      
+      // Draw nodes
+      sortedPoints.forEach(point => {
+        const p = project(point.x - dimensions.width / 2, point.y - dimensions.height / 2, point.z);
+        const size = point.size * p.scale;
         
-        // Draw node
         ctx.beginPath();
-        ctx.arc(node.x, node.y, 2, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(65, 105, 225, 0.5)';
+        ctx.arc(p.x, p.y, size, 0, Math.PI * 2);
+        ctx.fillStyle = point.color;
+        ctx.fill();
+        
+        // Glow effect
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, size * 2, 0, Math.PI * 2);
+        const glow = ctx.createRadialGradient(p.x, p.y, size, p.x, p.y, size * 2);
+        glow.addColorStop(0, point.color.replace('0.8', '0.3'));
+        glow.addColorStop(1, point.color.replace('0.8', '0'));
+        ctx.fillStyle = glow;
         ctx.fill();
       });
+      
+      animationRef.current = requestAnimationFrame(render);
     };
     
-    // Animation loop
-    let animationFrameId: number;
-    
-    const render = (timestamp: number) => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      
-      // Draw the grid
-      drawGrid();
-      
-      // Draw futuristic circuit effect
-      drawCircuitLines(timestamp);
-      
-      // Draw gradient overlay
-      const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-      gradient.addColorStop(0, 'rgba(10, 25, 41, 0.9)');
-      gradient.addColorStop(0.5, 'rgba(17, 43, 74, 0.7)');
-      gradient.addColorStop(1, 'rgba(26, 58, 95, 0.9)');
-      
-      ctx.fillStyle = gradient;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      
-      animationFrameId = window.requestAnimationFrame(render);
-    };
-    
-    animationFrameId = window.requestAnimationFrame(render);
+    animationRef.current = requestAnimationFrame(render);
     
     return () => {
-      window.cancelAnimationFrame(animationFrameId);
-      window.removeEventListener('resize', resizeCanvas);
+      cancelAnimationFrame(animationRef.current);
     };
-  }, []);
-
-  // Handle the login verification progress
-  useEffect(() => {
-    if (loginStep === 'verification') {
-      verificationInterval.current = setInterval(() => {
-        setVerificationProgress(prev => {
-          const newValue = prev + 4; // Increment by 4% each time
-          if (newValue >= 100) {
-            clearInterval(verificationInterval.current);
-            setLoginStep('complete');
-            return 100;
-          }
-          return newValue;
-        });
-      }, 120);
-    }
-    
-    return () => {
-      if (verificationInterval.current) {
-        clearInterval(verificationInterval.current);
-      }
-    };
-  }, [loginStep]);
-
-  // Handle successful login completion
-  useEffect(() => {
-    if (loginStep === 'complete') {
-      loginTimeout.current = setTimeout(() => {
-        window.location.href = '/client-dashboard';
-      }, 1500);
-    }
-    
-    return () => {
-      if (loginTimeout.current) {
-        clearTimeout(loginTimeout.current);
-      }
-    };
-  }, [loginStep]);
-
-  // Login form submission handler
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    // Demo login with hardcoded credentials
-    if (username === 'client1' && password === 'clientdemo') {
-      setIsLoading(true);
-      setSuccess(true);
-      setSecurityStatus('scanning');
-      
-      // Create a mock client user object with enhanced data
-      const clientUser = {
-        id: 1,
-        username: 'client1',
-        name: 'Demo Client',
-        company: 'My Company',
-        email: 'client1@example.com',
-        role: 'client',
-        permissions: ['view_campaigns', 'edit_campaigns', 'view_contacts', 'edit_contacts'],
-        lastLoginAt: new Date().toISOString(),
-        sessionId: `sess_${Math.random().toString(36).slice(2)}`,
-        verificationLevel: 'high'
-      };
-      
-      // Save the client user data to storage based on remember me option
-      if (rememberMe) {
-        localStorage.setItem('clientUser', JSON.stringify(clientUser));
-      } else {
-        sessionStorage.setItem('clientUser', JSON.stringify(clientUser));
-      }
-      
-      // Initiate multi-step login process - first credentials then verification
-      setTimeout(() => {
-        setLoginStep('verification');
-        setIsLoading(false);
-      }, 1500);
-      
-      return;
-    }
-    
-    try {
-      setIsLoading(true);
-      setError('');
-      setSecurityStatus('scanning');
-      
-      const response = await fetch('/api/client-login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          username,
-          password,
-          device: navigator.userAgent,
-          remember: rememberMe,
-          biometric: biometricAuth
-        }),
-      });
-      
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.message || 'Login failed');
-      }
-      
-      // Login successful through API
-      setSuccess(true);
-      
-      // Extract user data from response
-      const userData = await response.json();
-      
-      // Create a client user object with necessary data
-      const clientUser = {
-        id: userData.id || 1,
-        username: userData.username || username,
-        name: userData.name || `${userData.firstName || ''} ${userData.lastName || ''}`.trim() || 'API Client',
-        company: userData.company || 'API Client Company',
-        email: userData.email || `${username}@example.com`,
-        role: userData.role || 'client',
-        permissions: userData.permissions || ['view_campaigns', 'edit_campaigns', 'view_contacts', 'edit_contacts'],
-        lastLoginAt: new Date().toISOString(),
-        sessionId: `sess_${Math.random().toString(36).slice(2)}`,
-        verificationLevel: 'high'
-      };
-      
-      // Save the client user data to storage based on remember me option
-      if (rememberMe) {
-        localStorage.setItem('clientUser', JSON.stringify(clientUser));
-      } else {
-        sessionStorage.setItem('clientUser', JSON.stringify(clientUser));
-      }
-      
-      // Initiate multi-step login process
-      setTimeout(() => {
-        setLoginStep('verification');
-        setIsLoading(false);
-      }, 1500);
-      
-    } catch (err: any) {
-      setError(err.message || 'Failed to login. Please try again.');
-      setSuccess(false);
-      setSecurityStatus('warning');
-      setIsLoading(false);
-    }
-  };
-
-  // Render different content based on login step
-  const renderLoginStep = () => {
-    switch (loginStep) {
-      case 'credentials':
-        return (
-          <div className="space-y-5">
-            <div className="space-y-1">
-              <label htmlFor="username" className="flex items-center justify-between">
-                <span className="text-white/90 font-medium text-sm flex items-center">
-                  <CircleUser className="h-3.5 w-3.5 mr-2 text-[#d4af37]" /> 
-                  Username
-                </span>
-                <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-200 animate-pulse">
-                  <span className="inline-block h-1.5 w-1.5 rounded-full bg-blue-400 mr-1"></span>
-                  Active session
-                </span>
-              </label>
-              <GlowingBorder>
-                <div className="relative flex items-center bg-black/30 backdrop-blur-sm border border-white/10 rounded-lg overflow-hidden focus-within:border-[#d4af37] transition-all duration-300">
-                  <div className="h-full aspect-square flex items-center justify-center bg-gradient-to-br from-[#d4af37]/20 to-blue-600/20 p-3 border-r border-white/5">
-                    <Fingerprint className="h-5 w-5 text-white" />
-                  </div>
-                  <input
-                    id="username"
-                    name="username"
-                    type="text"
-                    required
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    className="block w-full py-3 px-4 bg-transparent border-0 focus:outline-none focus:ring-0 text-white placeholder:text-white/40"
-                    placeholder="Enter client username"
-                    autoComplete="username"
-                  />
-                  {username && (
-                    <div className="pr-3">
-                      <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse"></div>
-                    </div>
-                  )}
-                </div>
-              </GlowingBorder>
-            </div>
-            
-            <div className="space-y-1">
-              <label htmlFor="password" className="flex items-center justify-between">
-                <span className="text-white/90 font-medium text-sm flex items-center">
-                  <Key className="h-3.5 w-3.5 mr-2 text-[#d4af37]" /> 
-                  Password
-                </span>
-                <span className="text-[10px] px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-200">
-                  <span className="inline-block h-1.5 w-1.5 rounded-full bg-green-400 mr-1"></span>
-                  Secure
-                </span>
-              </label>
-              <GlowingBorder>
-                <div className="relative flex items-center bg-black/30 backdrop-blur-sm border border-white/10 rounded-lg overflow-hidden focus-within:border-[#d4af37] transition-all duration-300">
-                  <div className="h-full aspect-square flex items-center justify-center bg-gradient-to-br from-[#d4af37]/20 to-indigo-600/20 p-3 border-r border-white/5">
-                    <Lock className="h-5 w-5 text-white" />
-                  </div>
-                  <input
-                    id="password"
-                    name="password"
-                    type={showPassword ? "text" : "password"}
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="block w-full py-3 px-4 bg-transparent border-0 focus:outline-none focus:ring-0 text-white placeholder:text-white/40"
-                    placeholder="••••••••••"
-                    autoComplete="current-password"
-                  />
-                  <button 
-                    type="button"
-                    className="pr-4 text-white/60 hover:text-[#d4af37] transition-colors"
-                    onClick={() => setShowPassword(!showPassword)}
-                    tabIndex={-1}
-                  >
-                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                  </button>
-                </div>
-              </GlowingBorder>
-            </div>
-            
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <div 
-                  className={`w-4 h-4 rounded border cursor-pointer flex items-center justify-center transition-colors ${rememberMe ? 'bg-[#d4af37] border-[#d4af37]' : 'border-white/30 bg-white/5'}`}
-                  onClick={() => setRememberMe(!rememberMe)}
-                >
-                  {rememberMe && <CheckCircle2 className="h-3 w-3 text-black" />}
-                </div>
-                <label htmlFor="remember-me" className="text-sm text-white/70 cursor-pointer" onClick={() => setRememberMe(!rememberMe)}>
-                  Remember me
-                </label>
-              </div>
-              <div>
-                <a href="#" className="text-sm text-[#d4af37] hover:text-[#d4af37]/80 transition-colors">
-                  Forgot password?
-                </a>
-              </div>
-            </div>
-            
-            <div>
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="w-full py-3 px-4 bg-gradient-to-r from-[#d4af37] to-[#d4af37]/80 hover:from-[#d4af37]/90 hover:to-[#d4af37] text-black font-medium rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 relative overflow-hidden group"
-              >
-                <span className="absolute inset-0 w-0 bg-white/20 transition-all duration-500 ease-out group-hover:w-full"></span>
-                <div className="relative flex items-center justify-center">
-                  {isLoading ? (
-                    <>
-                      <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      <span>Authenticating</span>
-                    </>
-                  ) : (
-                    <>
-                      <Shield className="mr-2 h-5 w-5" />
-                      <span>Secure Sign In</span>
-                    </>
-                  )}
-                </div>
-              </button>
-            </div>
-            
-            <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
-              <div 
-                className={`flex-1 p-3 rounded-lg cursor-pointer transition-all duration-300 ${biometricAuth ? 'bg-gradient-to-r from-[#d4af37]/30 to-blue-600/30 border border-[#d4af37]/50' : 'bg-white/5 border border-white/10'}`}
-                onClick={() => setBiometricAuth(!biometricAuth)}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <Scan className={`h-4 w-4 ${biometricAuth ? 'text-[#d4af37]' : 'text-white/60'}`} />
-                    <span className={`text-xs font-medium ${biometricAuth ? 'text-white' : 'text-white/60'}`}>
-                      Biometric Auth
-                    </span>
-                  </div>
-                  {biometricAuth && (
-                    <div className="h-2 w-2 rounded-full bg-[#d4af37] animate-pulse"></div>
-                  )}
-                </div>
-              </div>
-              <div 
-                className="flex-1 p-3 bg-white/5 rounded-lg border border-white/10 cursor-pointer hover:bg-white/10 transition-all duration-300"
-                onClick={() => {}}
-              >
-                <div className="flex items-center space-x-2">
-                  <QrCode className="h-4 w-4 text-white/60" />
-                  <span className="text-xs font-medium text-white/60">
-                    QR Code Login
-                  </span>
-                </div>
-              </div>
-            </div>
-            
-            <div className="bg-gradient-to-r from-blue-900/30 via-[#0a1929]/80 to-blue-900/30 backdrop-blur-sm rounded-xl p-4 text-sm text-white/90 border border-white/5">
-              <div className="flex items-center space-x-2 mb-2">
-                <BellRing className="h-4 w-4 text-[#d4af37]" />
-                <p className="font-medium">For demonstration access:</p>
-              </div>
-              <div className="pl-6 text-sm">
-                <p>Username: <span className="font-mono bg-white/10 px-1.5 py-0.5 rounded text-[#d4af37]">client1</span></p>
-                <p>Password: <span className="font-mono bg-white/10 px-1.5 py-0.5 rounded text-[#d4af37]">clientdemo</span></p>
-              </div>
-            </div>
-          </div>
-        );
-        
-      case 'verification':
-        return (
-          <div className="space-y-6 py-6">
-            <div className="text-center">
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r from-blue-600/20 to-[#d4af37]/20 border border-white/10 mb-4">
-                <Scan className="h-8 w-8 text-[#d4af37] animate-pulse" />
-              </div>
-              <h3 className="text-xl font-bold text-white mb-2">Security Verification</h3>
-              <p className="text-white/60 text-sm">Authenticating and setting up your secure session...</p>
-            </div>
-            
-            <div className="space-y-4">
-              <div className="relative h-2 bg-gray-700/50 rounded-full overflow-hidden">
-                <div 
-                  className="absolute top-0 left-0 h-full bg-gradient-to-r from-[#d4af37] to-blue-500 rounded-full"
-                  style={{ width: `${verificationProgress}%` }}
-                ></div>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-3">
-                <div className={`p-3 rounded-lg border ${verificationProgress >= 30 ? 'bg-green-500/10 border-green-500/30' : 'bg-gray-500/10 border-gray-500/30'} transition-colors duration-500`}>
-                  <div className="flex items-center space-x-2">
-                    <Shield className="h-4 w-4 text-green-400" />
-                    <span className="text-xs font-medium text-white/80">Identity Verified</span>
-                  </div>
-                </div>
-                
-                <div className={`p-3 rounded-lg border ${verificationProgress >= 60 ? 'bg-green-500/10 border-green-500/30' : 'bg-gray-500/10 border-gray-500/30'} transition-colors duration-500`}>
-                  <div className="flex items-center space-x-2">
-                    <Lock className="h-4 w-4 text-green-400" />
-                    <span className="text-xs font-medium text-white/80">Session Secured</span>
-                  </div>
-                </div>
-                
-                <div className={`p-3 rounded-lg border ${verificationProgress >= 80 ? 'bg-green-500/10 border-green-500/30' : 'bg-gray-500/10 border-gray-500/30'} transition-colors duration-500`}>
-                  <div className="flex items-center space-x-2">
-                    <Key className="h-4 w-4 text-green-400" />
-                    <span className="text-xs font-medium text-white/80">Access Granted</span>
-                  </div>
-                </div>
-                
-                <div className={`p-3 rounded-lg border ${verificationProgress >= 100 ? 'bg-green-500/10 border-green-500/30' : 'bg-gray-500/10 border-gray-500/30'} transition-colors duration-500`}>
-                  <div className="flex items-center space-x-2">
-                    <CheckCircle2 className="h-4 w-4 text-green-400" />
-                    <span className="text-xs font-medium text-white/80">Ready</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="text-center text-white/60 text-xs">
-              <p>Security protocol: <span className="text-[#d4af37]">Enhanced</span></p>
-              <p>User: <span className="text-white">{username}</span> • Location: <span className="text-white">Secured</span></p>
-            </div>
-          </div>
-        );
-        
-      case 'complete':
-        return (
-          <div className="space-y-6 py-8">
-            <div className="text-center">
-              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-r from-green-500/20 to-[#d4af37]/20 border border-green-500/30 mb-4">
-                <CheckCircle2 className="h-10 w-10 text-green-400" />
-              </div>
-              <GlitchText text="Authentication Complete" className="text-xl font-bold mb-2" />
-              <p className="text-white/60 text-sm">Redirecting to your dashboard...</p>
-            </div>
-            
-            <div className="text-center">
-              <div className="inline-block px-4 py-2 rounded-full bg-[#d4af37]/10 border border-[#d4af37]/30 text-[#d4af37] text-sm font-medium animate-pulse">
-                Dashboard loading...
-              </div>
-            </div>
-          </div>
-        );
-    }
-  };
-
+  }, [dimensions]);
+  
   return (
-    <div className="min-h-screen w-full relative text-white flex justify-center items-center overflow-hidden">
-      {/* Canvas background */}
-      <canvas ref={canvasRef} className="absolute top-0 left-0 w-full h-full -z-10" />
-      
-      {/* 3D background elements */}
-      <div ref={backgroundItemsRef} className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="bg-item absolute top-[10%] left-[5%] w-40 h-40 rounded-full bg-blue-500/5 blur-3xl"></div>
-        <div className="bg-item absolute bottom-[15%] right-[10%] w-60 h-60 rounded-full bg-[#d4af37]/5 blur-3xl"></div>
-        <div className="bg-item absolute top-[40%] right-[15%] w-40 h-40 rounded-full bg-indigo-500/5 blur-3xl"></div>
-        <div className="bg-item absolute bottom-[30%] left-[20%] w-40 h-40 rounded-full bg-blue-500/5 blur-3xl"></div>
-      </div>
-      
-      {/* Error notification */}
-      {error && (
-        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-red-600/90 backdrop-blur-sm text-white px-6 py-3 rounded-xl shadow-xl z-50 flex items-center space-x-2 animate-fade-in-down border border-red-500/30">
-          <div className="bg-red-500/30 p-2 rounded-full">
-            <Shield className="h-5 w-5" />
-          </div>
-          <div>
-            <p className="font-medium">Authentication Error</p>
-            <p className="text-xs opacity-80">{error}</p>
-          </div>
-        </div>
-      )}
-      
-      {/* Success notification */}
-      {success && loginStep === 'complete' && (
-        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-emerald-600/90 backdrop-blur-sm text-white px-6 py-3 rounded-xl shadow-xl z-50 flex items-center space-x-2 animate-fade-in-down border border-emerald-500/30">
-          <div className="bg-emerald-500/30 p-2 rounded-full">
-            <CheckCircle2 className="h-5 w-5" />
-          </div>
-          <div>
-            <p className="font-medium">Authentication Successful</p>
-            <p className="text-xs opacity-80">Preparing your dashboard...</p>
-          </div>
-        </div>
-      )}
+    <canvas ref={canvasRef} className="absolute inset-0 -z-10" />
+  );
+};
 
-      {/* Status Bar */}
-      <div className="fixed top-0 left-0 right-0 bg-black/50 backdrop-blur-md border-b border-white/5 px-4 py-2 z-20">
-        <div className="flex items-center justify-between max-w-7xl mx-auto">
-          <div className="flex items-center space-x-4">
-            <img src={LogoColor} alt="InfyMailer Logo" className="h-8" />
-            <div className="hidden md:block h-4 w-px bg-white/20"></div>
-            <div className="hidden md:flex items-center space-x-1">
-              <span className="text-xs text-white/60">System Status:</span>
-              <span className="text-xs text-green-400 font-medium flex items-center">
-                <span className="inline-block h-1.5 w-1.5 rounded-full bg-green-500 mr-1 animate-pulse"></span>
-                Online
-              </span>
-            </div>
-          </div>
-          
-          <div className="flex items-center space-x-4">
-            <div className="hidden md:block">
-              <div className="flex items-center bg-white/5 rounded-full px-3 py-1">
-                <span className="text-xs text-white/60 mr-2">{currentTime.toLocaleTimeString()}</span>
-                <span className={`inline-block h-2 w-2 rounded-full ${securityStatus === 'secure' ? 'bg-green-500' : securityStatus === 'scanning' ? 'bg-blue-500 animate-pulse' : 'bg-red-500 animate-pulse'}`}></span>
-              </div>
-            </div>
-            
-            <div className="flex space-x-1">
-              {securityFeatures.map((feature, index) => (
-                <FeatureBadge key={index} icon={feature.icon} text={feature.text} />
-              ))}
-            </div>
-          </div>
-        </div>
+// Animated counter with easing and value formatting
+const AnimatedCounter: React.FC<{
+  value: number;
+  label: string;
+  icon: React.ReactNode;
+  prefix?: string;
+  suffix?: string;
+  duration?: number;
+  decimals?: number;
+}> = ({ value, label, icon, prefix = '', suffix = '', duration = 2500, decimals = 0 }) => {
+  const [count, setCount] = useState(0);
+  const countRef = useRef(0);
+  const startTimeRef = useRef<number | null>(null);
+  
+  useEffect(() => {
+    let rafId: number;
+    
+    const animate = (timestamp: number) => {
+      if (startTimeRef.current === null) {
+        startTimeRef.current = timestamp;
+      }
+      
+      const progress = timestamp - startTimeRef.current;
+      const percentage = Math.min(progress / duration, 1);
+      
+      // Ease out cubic
+      const easedProgress = 1 - Math.pow(1 - percentage, 3);
+      
+      countRef.current = easedProgress * value;
+      setCount(countRef.current);
+      
+      if (percentage < 1) {
+        rafId = requestAnimationFrame(animate);
+      }
+    };
+    
+    rafId = requestAnimationFrame(animate);
+    
+    return () => cancelAnimationFrame(rafId);
+  }, [value, duration]);
+  
+  // Format number with commas and proper decimals
+  const formatNumber = (num: number) => {
+    return prefix + num.toLocaleString('en-US', {
+      minimumFractionDigits: decimals,
+      maximumFractionDigits: decimals
+    }) + suffix;
+  };
+  
+  return (
+    <div className="bg-black/20 backdrop-blur-md border border-white/10 rounded-xl p-3 flex items-center space-x-3 transition-all hover:border-[#d4af37]/30 hover:bg-black/30">
+      <div className="p-2 bg-gradient-to-br from-black/40 to-black/10 border border-white/10 rounded-lg flex-shrink-0">
+        {icon}
       </div>
-
-      <div className="container max-w-7xl mx-auto z-10 px-4 py-20 grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
-        {/* Left Panel - Login Form */}
-        <div className="backdrop-blur-lg bg-black/20 p-8 rounded-2xl border border-white/10 shadow-2xl relative overflow-hidden">
-          {/* Decorative elements */}
-          <div className="absolute -top-40 -left-40 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl"></div>
-          <div className="absolute -bottom-40 -right-40 w-80 h-80 bg-[#d4af37]/10 rounded-full blur-3xl"></div>
-          
-          <div className="relative">
-            <div className="flex flex-col items-center mb-6">
-              <div className="flex items-center mb-4">
-                <GlitchText 
-                  text="ENTERPRISE" 
-                  className="text-xl font-bold tracking-wider mr-2 bg-clip-text text-transparent bg-gradient-to-r from-[#d4af37] to-blue-400"
-                />
-                <div className="h-6 w-px bg-white/20 mx-2"></div>
-                <span className="text-xl font-bold text-white/80">CLIENT PORTAL</span>
-              </div>
-              
-              <div className="w-32 h-1 bg-gradient-to-r from-transparent via-[#d4af37]/70 to-transparent my-3"></div>
-              
-              <div className="flex space-x-2 mb-2">
-                {Array.from({length: 4}).map((_, i) => (
-                  <div key={i} className={`h-1 w-1 rounded-full ${i === 0 ? 'bg-[#d4af37]' : 'bg-white/30'}`}></div>
-                ))}
-              </div>
-              
-              <p className="text-sm text-white/70 text-center max-w-xs">
-                Access your secure dashboard with enterprise-grade tools and AI-powered analytics
-              </p>
-            </div>
-            
-            <form className="space-y-6" onSubmit={handleSubmit}>
-              {renderLoginStep()}
-            </form>
-            
-            {loginStep === 'credentials' && (
-              <div className="mt-6 text-center">
-                <a 
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setLocation('auth');
-                  }}
-                  className="inline-flex items-center text-sm text-[#d4af37] hover:text-white/90 transition-colors duration-200 bg-gradient-to-r from-[#0a1929]/80 to-black/0 hover:from-[#0a1929] px-4 py-2 rounded-full"
-                >
-                  <span>Administrator Login</span>
-                  <ChevronRight className="ml-1 h-4 w-4" />
-                </a>
-              </div>
-            )}
-          </div>
+      <div>
+        <div className="text-xl font-mono font-bold text-white">
+          {formatNumber(Math.floor(count))}
+          {decimals > 0 && (
+            <span className="text-[#d4af37]">
+              {formatNumber(count).split('.')[1]?.substring(0, decimals)}
+            </span>
+          )}
         </div>
-        
-        {/* Right Panel - Information and Features */}
-        <div className="backdrop-blur-lg bg-black/20 rounded-2xl border border-white/10 shadow-2xl p-8 relative overflow-hidden hidden lg:block">
-          {/* Decorative elements */}
-          <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl"></div>
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-[#d4af37]/10 rounded-full blur-3xl"></div>
-          
-          <div className="relative h-full flex flex-col justify-between">
-            <div>
-              <div className="inline-block px-3 py-1 bg-[#d4af37]/20 backdrop-blur-sm rounded-full text-xs font-medium text-[#d4af37] mb-6 border border-[#d4af37]/20">
-                NEXTGEN MARKETING PLATFORM
-              </div>
-              
-              <h2 className="text-4xl font-bold mb-6 leading-tight">
-                Your <GlitchText text="AI-powered" className="text-[#d4af37]" /> <br />
-                marketing command center
-              </h2>
-              
-              <p className="text-white/70 mb-8 max-w-lg">
-                Access an integrated suite of cutting-edge tools designed to accelerate your 
-                marketing performance with artificial intelligence, real-time analytics, 
-                and enterprise security.
-              </p>
-              
-              <div className="grid grid-cols-1 gap-6 mb-8">
-                {marketingFeatures.map((feature, index) => (
-                  <div 
-                    key={index} 
-                    className="group flex items-start space-x-4 bg-black/20 backdrop-blur-sm p-4 rounded-xl border border-white/5 hover:border-[#d4af37]/30 transition-colors cursor-pointer"
-                  >
-                    <div className="p-3 bg-gradient-to-br from-[#d4af37]/10 to-blue-600/10 group-hover:from-[#d4af37]/20 group-hover:to-blue-600/20 rounded-lg border border-white/10 group-hover:border-white/20 transition-colors">
-                      {feature.icon}
-                    </div>
-                    <div>
-                      <p className="font-medium text-white group-hover:text-[#d4af37] transition-colors">{feature.title}</p>
-                      <p className="text-sm text-white/60">{feature.description}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4">
-                {stats.map((stat, index) => (
-                  <AnimatedCounter 
-                    key={index}
-                    endValue={stat.value}
-                    label={stat.label}
-                    icon={stat.icon}
-                  />
-                ))}
-              </div>
-            </div>
-            
-            <div className="mt-10">
-              <div className="flex flex-col md:flex-row items-center justify-between bg-gradient-to-r from-[#0a1929]/80 to-[#0a1929]/30 backdrop-blur-sm rounded-xl p-4 border border-white/10">
-                <div className="flex items-center space-x-4 mb-4 md:mb-0">
-                  <div className="p-2 bg-[#d4af37]/20 rounded-lg">
-                    <Scan className="h-6 w-6 text-[#d4af37]" />
-                  </div>
-                  <div>
-                    <p className="font-medium">Advanced security protocols active</p>
-                    <p className="text-xs text-white/60">Your data is protected with multiple layers of encryption</p>
-                  </div>
-                </div>
-                <button className="px-4 py-2 bg-[#d4af37]/20 hover:bg-[#d4af37]/30 border border-[#d4af37]/30 rounded-lg text-sm font-medium text-[#d4af37] transition-colors">
-                  Security Details
-                </button>
-              </div>
-              
-              <p className="text-white/40 text-xs mt-6 text-center">
-                &copy; {new Date().getFullYear()} InfyMailer Enterprise. <span className="text-[#d4af37]/70 px-1">ISO 27001 Certified</span>
-              </p>
-            </div>
-          </div>
+        <div className="text-xs text-white/60">{label}</div>
+      </div>
+    </div>
+  );
+};
+
+// Radar scanning effect component
+const RadarScan: React.FC<{className?: string}> = ({className = ''}) => {
+  return (
+    <div className={`relative w-32 h-32 ${className}`}>
+      <div className="absolute inset-0 rounded-full border border-[#d4af37]/30"></div>
+      <div className="absolute inset-0 rounded-full border border-[#d4af37]/20"></div>
+      <div className="absolute inset-[2px] rounded-full border border-[#d4af37]/10"></div>
+      <div className="absolute left-1/2 top-1/2 w-1 h-1 rounded-full bg-[#d4af37]"></div>
+      <div className="absolute left-1/2 top-1/2 w-[2px] h-[2px] rounded-full bg-[#d4af37]"></div>
+      
+      {/* Radar scan animation */}
+      <div className="absolute left-1/2 top-1/2 w-full h-full -translate-x-1/2 -translate-y-1/2 origin-center">
+        <div className="absolute left-1/2 top-1/2 w-[1px] h-1/2 bg-gradient-to-t from-[#d4af37] to-transparent -translate-x-1/2 origin-bottom animate-radar-scan"></div>
+      </div>
+      
+      {/* Concentric circles pulse */}
+      <div className="absolute inset-0 rounded-full border border-[#d4af37]/30 animate-ping-slow"></div>
+      <div className="absolute inset-[15%] rounded-full border border-[#d4af37]/20 animate-ping-slow delay-300"></div>
+      <div className="absolute inset-[30%] rounded-full border border-[#d4af37]/10 animate-ping-slow delay-600"></div>
+    </div>
+  );
+};
+
+// Terminal-like appearance component
+const SecurityTerminal: React.FC<{
+  title: string;
+  lines: {text: string; type?: 'command' | 'response' | 'error' | 'success'}[];
+  className?: string;
+}> = ({title, lines, className = ''}) => {
+  return (
+    <div className={`bg-black/50 backdrop-blur-sm border border-gray-700/50 rounded-lg p-2 font-mono text-xs ${className}`}>
+      <div className="flex items-center justify-between border-b border-gray-700/50 pb-1 mb-2">
+        <div className="text-white/80">{title}</div>
+        <div className="flex space-x-1">
+          <div className="w-2 h-2 rounded-full bg-red-500/70"></div>
+          <div className="w-2 h-2 rounded-full bg-yellow-500/70"></div>
+          <div className="w-2 h-2 rounded-full bg-green-500/70"></div>
         </div>
       </div>
       
-      {/* Bottom status bar */}
-      <div className="fixed bottom-0 left-0 right-0 bg-black/50 backdrop-blur-md border-t border-white/5 px-4 py-2 z-20">
-        <div className="flex items-center justify-between max-w-7xl mx-auto">
-          <div className="flex items-center space-x-3">
-            <div className="flex items-center space-x-1">
-              <div className="h-2 w-2 rounded-full bg-green-500"></div>
-              <span className="text-xs text-white/60">Secure Connection</span>
-            </div>
-            <div className="h-3 w-px bg-white/20"></div>
-            <span className="text-xs text-white/60">TLS 1.3</span>
-          </div>
+      <div className="space-y-1">
+        {lines.map((line, i) => {
+          let textColor = 'text-white/80';
+          let prefix = '';
           
-          <div className="hidden md:flex items-center space-x-3">
-            <div className="text-xs text-white/60">
-              Authentication Server: <span className="text-white/80">Online</span>
-            </div>
-            <div className="h-3 w-px bg-white/20"></div>
-            <div className="text-xs text-white/60">
-              API Version: <span className="text-white/80">4.2.1</span>
-            </div>
-          </div>
+          switch(line.type) {
+            case 'command':
+              textColor = 'text-green-400';
+              prefix = '$ ';
+              break;
+            case 'error':
+              textColor = 'text-red-400';
+              prefix = '[ERR] ';
+              break;
+            case 'success':
+              textColor = 'text-green-400';
+              prefix = '[OK] ';
+              break;
+            default:
+              textColor = 'text-white/80';
+          }
           
-          <div className="text-xs text-white/60">
-            <span className="text-[#d4af37]">AI Assistant</span> is available
-          </div>
+          return (
+            <div key={i} className={`${textColor} font-mono`}>
+              {prefix}{line.text}
+            </div>
+          );
+        })}
+        <div className="text-green-400 flex items-center">
+          $ <span className="ml-1 w-2 h-4 bg-green-400 animate-cursor"></span>
         </div>
       </div>
     </div>
   );
 };
+
+// Main login component with futuristic UI
+const SimpleClientLogin = () => {
+  // Form state and authentication state management
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
+  const [authMethod, setAuthMethod] = useState<'credentials'|'biometric'|'token'>('credentials');
+  const [isAuthenticating, setIsAuthenticating] = useState(false);
+  const [error, setError] = useState('');
+  const [systemState, setSystemState] = useState<'initializing'|'ready'|'processing'|'error'|'success'>('initializing');
+  const [verificationStage, setVerificationStage] = useState(0); // 0-100 progress percentage
+  const [, setLocation] = useLocation();
+
+  // Environment state values for immersive experience
+  const [securityLevel, setSecurityLevel] = useState<'standard'|'enhanced'|'maximum'>('standard');
+  const [activeUserCount, setActiveUserCount] = useState(24897);
+  const [loginStats, setLoginStats] = useState({
+    dailyLogins: 1254,
+    failedAttempts: 23,
+    averageLoginTime: 1.7 // in seconds
+  });
+  const [networkLatency, setNetworkLatency] = useState(37); // in ms
+  const [lastScan, setLastScan] = useState(new Date());
+  const [userActiveSessions, setUserActiveSessions] = useState<AuthSession[]>([
+    {
+      id: 'sess_' + Math.random().toString(36).slice(2),
+      createdAt: new Date(Date.now() - 86400000), // 1 day ago
+      expiresAt: new Date(Date.now() + 86400000), // 1 day from now
+      device: 'Safari / macOS',
+      active: true
+    }
+  ]);
+
+  // Refs for animations and intervals
+  const scanIntervalRef = useRef<NodeJS.Timeout>();
+  const verificationTimeoutRef = useRef<NodeJS.Timeout>();
+  const loadingRef = useRef<HTMLDivElement>(null);
+  const terminalLinesRef = useRef([
+    { text: 'Initializing security protocol', type: 'command' },
+    { text: 'Environment checks completed', type: 'success' },
+    { text: 'Establishing secure connection', type: 'command' },
+    { text: 'TLS 1.3 handshake successful', type: 'success' },
+    { text: 'Server fingerprint verified', type: 'success' },
+  ]);
+  
+  // System initialization
+  useEffect(() => {
+    // System startup animation sequence
+    const initTimer = setTimeout(() => {
+      setSystemState('ready');
+    }, 2000);
+    
+    // Set up simulated periodic security scans
+    scanIntervalRef.current = setInterval(() => {
+      setLastScan(new Date());
+      setNetworkLatency(35 + Math.floor(Math.random() * 10));
+    }, 5000);
+    
+    // Clear session storage
+    sessionStorage.removeItem('clientUser');
+    localStorage.removeItem('clientUser');
+    
+    return () => {
+      clearTimeout(initTimer);
+      if (scanIntervalRef.current) clearInterval(scanIntervalRef.current);
+    };
+  }, []);
+  
+  // Authentication process simulation
+  const handleAuthentication = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Demo validation
+    if (username !== 'client1' || password !== 'clientdemo') {
+      setError('Invalid credentials. For demo, use: client1 / clientdemo');
+      setSystemState('error');
+      setTimeout(() => setSystemState('ready'), 2000);
+      return;
+    }
+    
+    // Begin authentication sequence
+    setIsAuthenticating(true);
+    setSystemState('processing');
+    setError('');
+    
+    // Add authentication attempt to terminal
+    terminalLinesRef.current = [
+      ...terminalLinesRef.current,
+      { text: `Authenticating user: ${username}`, type: 'command' },
+      { text: 'Validating credentials...', type: 'command' }
+    ];
+    
+    // Verification progress animation
+    setVerificationStage(0);
+    let stage = 0;
+    
+    verificationTimeoutRef.current = setInterval(() => {
+      stage += 5;
+      setVerificationStage(stage);
+      
+      // Add progress updates to the terminal
+      if (stage === 25) {
+        terminalLinesRef.current = [
+          ...terminalLinesRef.current,
+          { text: 'Identity confirmed', type: 'success' }
+        ];
+      }
+      
+      if (stage === 50) {
+        terminalLinesRef.current = [
+          ...terminalLinesRef.current,
+          { text: 'Generating secure session token', type: 'command' }
+        ];
+      }
+      
+      if (stage === 75) {
+        terminalLinesRef.current = [
+          ...terminalLinesRef.current,
+          { text: 'Session established successfully', type: 'success' }
+        ];
+      }
+      
+      if (stage >= 100) {
+        clearInterval(verificationTimeoutRef.current);
+        setSystemState('success');
+        terminalLinesRef.current = [
+          ...terminalLinesRef.current,
+          { text: 'Access granted. Welcome!', type: 'success' }
+        ];
+        
+        // Create user session
+        const sessionId = 'sess_' + Math.random().toString(36).slice(2);
+        const clientUser = {
+          id: 1,
+          username: 'client1',
+          name: 'Demo Client',
+          company: 'InfyTech Solutions',
+          email: 'client1@example.com',
+          role: 'client',
+          permissions: ['view_campaigns', 'edit_campaigns', 'view_contacts', 'edit_contacts'],
+          lastLoginAt: new Date().toISOString(),
+          sessionId,
+          securityLevel: securityLevel
+        };
+        
+        // Store user data
+        if (rememberMe) {
+          localStorage.setItem('clientUser', JSON.stringify(clientUser));
+        } else {
+          sessionStorage.setItem('clientUser', JSON.stringify(clientUser));
+        }
+        
+        // Add current session to active sessions list
+        setUserActiveSessions([
+          {
+            id: sessionId,
+            createdAt: new Date(),
+            expiresAt: new Date(Date.now() + 86400000),
+            device: navigator.userAgent,
+            active: true
+          },
+          ...userActiveSessions
+        ]);
+        
+        // Redirect after successful login
+        setTimeout(() => {
+          window.location.href = '/client-dashboard';
+        }, 2000);
+      }
+    }, 70);
+  };
+
+  // Toggle security level setting
+  const toggleSecurityLevel = () => {
+    if (securityLevel === 'standard') setSecurityLevel('enhanced');
+    else if (securityLevel === 'enhanced') setSecurityLevel('maximum');
+    else setSecurityLevel('standard');
+  };
+  
+  // System status indicators
+  const statusIndicators = [
+    { name: 'Authentication', status: systemState === 'error' ? 'error' : 'active' },
+    { name: 'Encryption', status: 'active' },
+    { name: 'Network', status: networkLatency > 80 ? 'warning' : 'active' },
+    { name: 'Database', status: 'active' }
+  ];
+  
+  // Feature metrics shown as stats
+  const metrics = [
+    { 
+      icon: <Users className="h-5 w-5 text-[#66e4ff]" />, 
+      value: activeUserCount,
+      label: "Active Users",
+      suffix: "+"
+    },
+    { 
+      icon: <Globe className="h-5 w-5 text-[#d4af37]" />, 
+      value: 187,
+      label: "Global Regions"
+    },
+    { 
+      icon: <Activity className="h-5 w-5 text-green-400" />, 
+      value: 99.998, 
+      label: "Uptime",
+      suffix: "%",
+      decimals: 3
+    },
+    { 
+      icon: <Network className="h-5 w-5 text-purple-400" />, 
+      value: 76242,
+      label: "Campaigns Delivered"
+    }
+  ];
+  
+  // Animated security features with different appearance based on security level
+  const securityFeatures = [
+    { 
+      name: "Biometric Authentication", 
+      icon: <FingerPrint className="h-5 w-5" />,
+      level: 'enhanced'
+    },
+    {
+      name: "Quantum-Resistant Encryption",
+      icon: <LockKeyhole className="h-5 w-5" />,
+      level: 'maximum'
+    },
+    {
+      name: "Multi-Factor Verification",
+      icon: <ListChecks className="h-5 w-5" />,
+      level: 'standard'
+    },
+    {
+      name: "Neural Network Monitoring",
+      icon: <BrainCircuit className="h-5 w-5" />,
+      level: 'enhanced'
+    }
+  ];
+  
+  // Platform capabilities showcased in the right panel
+  const platformCapabilities = [
+    {
+      title: "Neural AI Analysis",
+      description: "Advanced pattern recognition and predictive analytics powered by our proprietary neural network.",
+      icon: <Brain className="h-6 w-6 text-[#66e4ff]" />
+    },
+    {
+      title: "Quantum-Grade Security",
+      description: "Enterprise-level protection with post-quantum cryptographic algorithms and multi-layered verification.",
+      icon: <ShieldCheck className="h-6 w-6 text-[#d4af37]" />
+    },
+    {
+      title: "Distributed Processing",
+      description: "Seamless integration with global edge computing networks for millisecond response times worldwide.",
+      icon: <Blocks className="h-6 w-6 text-green-400" />
+    }
+  ];
+  
+  // Current time display
+  const [currentTime, setCurrentTime] = useState(new Date());
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+  
+  // Render the sleek, ultra-modern login interface
+  return (
+    <div className="min-h-screen w-full relative text-white">
+      {/* Dynamic neural network background */}
+      <NeuralNodesBackground />
+      
+      {/* Top system status bar */}
+      <header className="fixed top-0 left-0 right-0 z-30 bg-black/40 backdrop-blur-md border-b border-white/10">
+        <div className="max-w-screen-2xl mx-auto px-4 py-2">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-6">
+              <img src={LogoColor} alt="InfyMailer" className="h-8 drop-shadow-glow" />
+              
+              <div className="hidden md:flex items-center h-5 px-3 rounded-full bg-black/30 border border-white/10 text-xs">
+                <span className="text-white/60 mr-2">System:</span>
+                <div className="flex items-center">
+                  <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-500 mr-1.5 animate-pulse"></span>
+                  <span className="text-emerald-400">Operational</span>
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex items-center space-x-4">
+              <div className="hidden md:flex items-center space-x-4">
+                {statusIndicators.map((indicator, idx) => (
+                  <div key={idx} className="flex items-center space-x-1.5 text-xs">
+                    <span className={`inline-block h-1.5 w-1.5 rounded-full ${
+                      indicator.status === 'active' ? 'bg-emerald-500 animate-pulse' : 
+                      indicator.status === 'warning' ? 'bg-amber-500 animate-pulse' : 
+                      'bg-red-500 animate-pulse'
+                    }`}></span>
+                    <span className="text-white/60">{indicator.name}</span>
+                  </div>
+                ))}
+              </div>
+              
+              <div className="flex items-center space-x-2 text-xs bg-black/20 px-3 py-1 rounded-full border border-white/10">
+                <span className="text-white/60">{currentTime.toLocaleTimeString()}</span>
+                <span className="inline-block h-1 w-1 rounded-full bg-white/30"></span>
+                <HolographicText text={networkLatency + 'ms'} variant="info" className="text-xs" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+      
+      {/* Error notification */}
+      {error && (
+        <div className="fixed top-16 left-1/2 transform -translate-x-1/2 z-40 bg-black/50 backdrop-blur-md border border-red-500/50 text-white rounded-lg shadow-xl px-4 py-3 flex items-center space-x-3 animate-slide-in-down">
+          <div className="p-1.5 bg-red-500/20 rounded-full">
+            <AlertCircle className="h-5 w-5 text-red-500" />
+          </div>
+          <div>
+            <div className="font-semibold text-sm flex items-center">
+              <HolographicText text="Access Denied" variant="error" />
+            </div>
+            <p className="text-xs text-white/70 max-w-md">{error}</p>
+          </div>
+          <button 
+            onClick={() => setError('')}
+            className="ml-auto p-1 hover:bg-white/10 rounded-full"
+          >
+            <X className="h-4 w-4 text-white/60" />
+          </button>
+        </div>
+      )}
+      
+      {/* Main content area */}
+      <main className="pt-20 pb-16">
+        <div className="max-w-screen-xl mx-auto px-4 py-10 grid grid-cols-1 lg:grid-cols-5 gap-6">
+          {/* Left panel - Login form */}
+          <div className="lg:col-span-2">
+            <div className="bg-black/30 backdrop-blur-md border border-white/10 rounded-xl overflow-hidden shadow-xl">
+              {/* Header area with security level */}
+              <div className="relative p-6 border-b border-white/10 flex items-center justify-between">
+                <div>
+                  <h1 className="text-xl font-bold">
+                    <FlickerText text="Enterprise Client Portal" className="tracking-wide" />
+                  </h1>
+                  <p className="text-white/60 text-sm mt-1">Secure identification required</p>
+                </div>
+                
+                <button 
+                  onClick={toggleSecurityLevel}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all duration-300 flex items-center space-x-1.5 ${
+                    securityLevel === 'standard' ? 'border-blue-500/50 bg-blue-500/10 text-blue-400' :
+                    securityLevel === 'enhanced' ? 'border-amber-500/50 bg-amber-500/10 text-amber-400' :
+                    'border-purple-500/50 bg-purple-500/10 text-purple-400'
+                  }`}
+                >
+                  <span className={`inline-block h-1.5 w-1.5 rounded-full ${
+                    securityLevel === 'standard' ? 'bg-blue-500' :
+                    securityLevel === 'enhanced' ? 'bg-amber-500' :
+                    'bg-purple-500'
+                  } animate-pulse`}></span>
+                  <span>
+                    {securityLevel === 'standard' ? 'Standard Security' :
+                     securityLevel === 'enhanced' ? 'Enhanced Security' :
+                     'Maximum Security'}
+                  </span>
+                </button>
+              </div>
+              
+              {/* Authentication options */}
+              <div className="p-6">
+                <div className="flex items-center space-x-2 mb-6">
+                  {['credentials', 'biometric', 'token'].map((method) => (
+                    <button
+                      key={method}
+                      onClick={() => setAuthMethod(method as any)}
+                      className={`flex-1 px-4 py-2 text-sm rounded-lg border transition-all ${
+                        authMethod === method 
+                          ? 'bg-[#d4af37]/20 border-[#d4af37]/40 text-[#d4af37]' 
+                          : 'bg-black/20 border-white/10 text-white/60 hover:bg-black/30'
+                      }`}
+                    >
+                      {method === 'credentials' && 'Password'}
+                      {method === 'biometric' && 'Biometric'}
+                      {method === 'token' && 'Security Key'}
+                    </button>
+                  ))}
+                </div>
+                
+                {/* Conditional content based on authentication status */}
+                {isAuthenticating ? (
+                  <div className="p-4 space-y-6">
+                    <div className="flex flex-col items-center text-center">
+                      <RadarScan className="mb-6" />
+                      <h3 className="text-lg font-semibold mb-2">
+                        <HolographicText 
+                          text={systemState === 'success' ? 'Authentication Complete' : 'Verifying Identity'} 
+                          variant={systemState === 'success' ? 'success' : 'info'}
+                        />
+                      </h3>
+                      <p className="text-white/60 text-sm max-w-xs">
+                        {systemState === 'success' 
+                          ? 'Access granted. Preparing secure session...' 
+                          : 'Advanced security checks in progress. Please stand by...'}
+                      </p>
+                    </div>
+                    
+                    {/* Progress indicator */}
+                    <div className="space-y-3">
+                      <div className="w-full bg-black/30 h-1.5 rounded-full overflow-hidden">
+                        <div 
+                          className="h-full bg-gradient-to-r from-[#d4af37] to-[#66e4ff] rounded-full transition-all duration-300"
+                          style={{ width: `${verificationStage}%` }}
+                        ></div>
+                      </div>
+                      
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                        <div className={`text-xs p-2 rounded border ${verificationStage >= 25 ? 'border-green-500/30 bg-green-500/10' : 'border-white/10 bg-black/20'}`}>
+                          <div className="flex items-center h-full">
+                            <Shield className="w-3.5 h-3.5 mr-1.5 text-green-400 opacity-80" />
+                            <span className={verificationStage >= 25 ? 'text-green-400' : 'text-white/40'}>Identity</span>
+                          </div>
+                        </div>
+                        
+                        <div className={`text-xs p-2 rounded border ${verificationStage >= 50 ? 'border-green-500/30 bg-green-500/10' : 'border-white/10 bg-black/20'}`}>
+                          <div className="flex items-center h-full">
+                            <Key className="w-3.5 h-3.5 mr-1.5 text-green-400 opacity-80" />
+                            <span className={verificationStage >= 50 ? 'text-green-400' : 'text-white/40'}>Session</span>
+                          </div>
+                        </div>
+                        
+                        <div className={`text-xs p-2 rounded border ${verificationStage >= 75 ? 'border-green-500/30 bg-green-500/10' : 'border-white/10 bg-black/20'}`}>
+                          <div className="flex items-center h-full">
+                            <LockKeyhole className="w-3.5 h-3.5 mr-1.5 text-green-400 opacity-80" />
+                            <span className={verificationStage >= 75 ? 'text-green-400' : 'text-white/40'}>Encryption</span>
+                          </div>
+                        </div>
+                        
+                        <div className={`text-xs p-2 rounded border ${verificationStage >= 100 ? 'border-green-500/30 bg-green-500/10' : 'border-white/10 bg-black/20'}`}>
+                          <div className="flex items-center h-full">
+                            <BadgeCheck className="w-3.5 h-3.5 mr-1.5 text-green-400 opacity-80" />
+                            <span className={verificationStage >= 100 ? 'text-green-400' : 'text-white/40'}>Access</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Security terminal */}
+                    <SecurityTerminal 
+                      title="Security Protocol" 
+                      lines={terminalLinesRef.current}
+                    />
+                  </div>
+                ) : (
+                  <div>
+                    {/* Authentication form */}
+                    <form onSubmit={handleAuthentication} className="space-y-5">
+                      {authMethod === 'credentials' && (
+                        <>
+                          <div className="space-y-1.5">
+                            <label htmlFor="username" className="flex items-center justify-between text-sm">
+                              <span className="text-white/70 font-medium flex items-center">
+                                <CircleUser className="h-3.5 w-3.5 mr-2 text-[#d4af37]" /> 
+                                Username
+                              </span>
+                              <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#66e4ff]/10 text-[#66e4ff] font-mono">
+                                Required
+                              </span>
+                            </label>
+                            
+                            <div className="relative bg-black/40 border border-white/10 rounded-lg overflow-hidden focus-within:border-[#d4af37]/50 focus-within:ring-1 focus-within:ring-[#d4af37]/20 transition-all duration-300">
+                              <div className="h-full aspect-square flex items-center justify-center bg-gradient-to-br from-white/5 to-transparent p-3 border-r border-white/5">
+                                <Fingerprint className="h-5 w-5 text-[#d4af37]" />
+                              </div>
+                              <input
+                                id="username"
+                                name="username"
+                                type="text"
+                                required
+                                value={username}
+                                onChange={(e) => setUsername(e.target.value)}
+                                className="block w-full py-3 px-4 bg-transparent border-0 text-white placeholder:text-white/30 focus:ring-0"
+                                placeholder="Enter your username"
+                                autoComplete="username"
+                              />
+                              {username && (
+                                <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                                  <div className="h-2 w-2 rounded-full bg-[#d4af37] animate-ping"></div>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                          
+                          <div className="space-y-1.5">
+                            <label htmlFor="password" className="flex items-center justify-between text-sm">
+                              <span className="text-white/70 font-medium flex items-center">
+                                <Key className="h-3.5 w-3.5 mr-2 text-[#d4af37]" /> 
+                                Password
+                              </span>
+                              <span className="text-[10px] px-2 py-0.5 rounded-full bg-green-500/10 text-green-400 font-mono">
+                                Secured
+                              </span>
+                            </label>
+                            
+                            <div className="relative bg-black/40 border border-white/10 rounded-lg overflow-hidden focus-within:border-[#d4af37]/50 focus-within:ring-1 focus-within:ring-[#d4af37]/20 transition-all duration-300">
+                              <div className="h-full aspect-square flex items-center justify-center bg-gradient-to-br from-white/5 to-transparent p-3 border-r border-white/5">
+                                <Lock className="h-5 w-5 text-[#d4af37]" />
+                              </div>
+                              <input
+                                id="password"
+                                name="password"
+                                type={showPassword ? "text" : "password"}
+                                required
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                className="block w-full py-3 px-4 bg-transparent border-0 text-white placeholder:text-white/30 focus:ring-0"
+                                placeholder="••••••••••"
+                                autoComplete="current-password"
+                              />
+                              <button 
+                                type="button"
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/70 transition-colors"
+                                onClick={() => setShowPassword(!showPassword)}
+                              >
+                                {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                              </button>
+                            </div>
+                          </div>
+                          
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-2">
+                              <div 
+                                onClick={() => setRememberMe(!rememberMe)}
+                                className={`w-4 h-4 rounded border cursor-pointer flex items-center justify-center transition-all ${
+                                  rememberMe ? 'bg-[#d4af37] border-[#d4af37]' : 'border-white/30 bg-black/30'
+                                }`}
+                              >
+                                {rememberMe && <CheckCircle2 className="h-3 w-3 text-black" />}
+                              </div>
+                              <span 
+                                className="text-sm text-white/60 cursor-pointer"
+                                onClick={() => setRememberMe(!rememberMe)}
+                              >
+                                Remember session
+                              </span>
+                            </div>
+                            <a href="#" className="text-sm text-[#66e4ff] hover:text-[#66e4ff]/80 transition-colors">
+                              Reset password
+                            </a>
+                          </div>
+                        </>
+                      )}
+                      
+                      {authMethod === 'biometric' && (
+                        <div className="p-6 flex flex-col items-center justify-center space-y-4">
+                          <div className="w-24 h-24 rounded-full border-2 border-[#d4af37] flex items-center justify-center relative">
+                            <Fingerprint className="h-14 w-14 text-[#d4af37]" />
+                            <div className="absolute inset-0 border-2 border-[#d4af37]/30 rounded-full animate-ping-slow"></div>
+                          </div>
+                          <p className="text-white/70 text-center">
+                            Touch fingerprint sensor<br/>to authenticate
+                          </p>
+                          <p className="text-white/40 text-xs text-center">
+                            This is a demo. Use password authentication instead.
+                          </p>
+                        </div>
+                      )}
+                      
+                      {authMethod === 'token' && (
+                        <div className="p-6 flex flex-col items-center justify-center space-y-4">
+                          <div className="p-4 border border-white/20 rounded-lg bg-black/30">
+                            <QrCode className="h-24 w-24 text-[#d4af37]" />
+                          </div>
+                          <p className="text-white/70 text-center">
+                            Scan this code with your<br/>security key device
+                          </p>
+                          <p className="text-white/40 text-xs text-center">
+                            This is a demo. Use password authentication instead.
+                          </p>
+                        </div>
+                      )}
+                      
+                      <div>
+                        <button
+                          type="submit"
+                          disabled={isAuthenticating || (authMethod === 'credentials' && (!username || !password))}
+                          className="w-full py-3 px-4 bg-[#d4af37] hover:bg-[#d4af37]/90 text-black font-medium rounded-lg shadow-lg transition-all relative overflow-hidden disabled:opacity-70 disabled:cursor-not-allowed"
+                        >
+                          <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full hover:animate-shimmer"></span>
+                          <span className="relative flex items-center justify-center">
+                            {systemState === 'initializing' ? (
+                              <><PowerOff className="mr-2 h-5 w-5" /> Initializing System</>
+                            ) : (
+                              <><Shield className="mr-2 h-5 w-5" /> Authenticate</>
+                            )}
+                          </span>
+                        </button>
+                      </div>
+                      
+                      {/* Demo credentials info */}
+                      <div className="bg-black/30 backdrop-blur-sm rounded-lg p-4 text-sm border border-white/10">
+                        <div className="flex items-center space-x-2 mb-2">
+                          <BellRing className="h-4 w-4 text-[#d4af37]" />
+                          <p className="font-medium text-white/80">Demo Access:</p>
+                        </div>
+                        <div className="grid grid-cols-2 gap-2 pl-6">
+                          <div>
+                            <p className="text-xs text-white/60">Username:</p>
+                            <p className="font-mono text-[#d4af37] text-sm">client1</p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-white/60">Password:</p>
+                            <p className="font-mono text-[#d4af37] text-sm">clientdemo</p>
+                          </div>
+                        </div>
+                      </div>
+                    </form>
+                  </div>
+                )}
+              </div>
+              
+              {/* Footer with active security features */}
+              <div className="border-t border-white/10 p-4">
+                <div className="flex flex-wrap items-center gap-2">
+                  {securityFeatures
+                    .filter(feature => {
+                      if (securityLevel === 'standard') return feature.level === 'standard';
+                      if (securityLevel === 'enhanced') return ['standard', 'enhanced'].includes(feature.level);
+                      return true; // all features for maximum
+                    })
+                    .map((feature, idx) => (
+                      <div 
+                        key={idx} 
+                        className="px-2 py-1 bg-black/30 rounded-md border border-white/10 text-xs flex items-center space-x-1.5"
+                      >
+                        <span className="text-[#d4af37]">{feature.icon}</span>
+                        <span className="text-white/70">{feature.name}</span>
+                      </div>
+                    ))
+                  }
+                </div>
+              </div>
+            </div>
+            
+            {/* Help and administrator link */}
+            <div className="mt-4 flex justify-center">
+              <a 
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setLocation('auth');
+                }}
+                className="flex items-center text-sm text-[#d4af37] hover:text-white/90 transition-colors px-4 py-2 rounded-full hover:bg-white/5"
+              >
+                <span>Administrator Access</span>
+                <ChevronRight className="ml-1 h-4 w-4" />
+              </a>
+            </div>
+          </div>
+          
+          {/* Right panel - Platform capabilities and metrics */}
+          <div className="lg:col-span-3 hidden lg:block space-y-6">
+            {/* Platform Capabilities */}
+            <div className="bg-black/30 backdrop-blur-md border border-white/10 rounded-xl p-6 shadow-xl">
+              <div className="mb-6">
+                <div className="inline-flex items-center px-3 py-1 bg-[#d4af37]/10 rounded-full text-xs font-medium text-[#d4af37] mb-3 border border-[#d4af37]/20">
+                  ENTERPRISE PLATFORM
+                </div>
+                <h2 className="text-3xl font-bold bg-gradient-to-r from-white via-[#66e4ff] to-white bg-clip-text text-transparent">
+                  <FlickerText text="Next-Generation Marketing Intelligence" />
+                </h2>
+                <p className="text-white/70 mt-3 max-w-xl">
+                  Access real-time campaign metrics, predictive analytics, and AI-powered insights through our secure enterprise portal. Advanced security protocols protect your marketing data at all times.
+                </p>
+              </div>
+              
+              <div className="grid grid-cols-1 gap-4">
+                {platformCapabilities.map((capability, idx) => (
+                  <div 
+                    key={idx}
+                    className="flex items-start space-x-4 p-4 bg-black/20 rounded-xl border border-white/5 hover:border-white/10 transition-all group"
+                  >
+                    <div className="p-3 bg-black/30 rounded-lg border border-white/10 group-hover:border-white/20 transition-all">
+                      {capability.icon}
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-white group-hover:text-[#66e4ff] transition-colors">
+                        {capability.title}
+                      </h3>
+                      <p className="text-white/60 text-sm mt-1">
+                        {capability.description}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            
+            {/* Performance Metrics and Active Sessions */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Metrics */}
+              <div className="bg-black/30 backdrop-blur-md border border-white/10 rounded-xl p-6 shadow-xl">
+                <h3 className="text-lg font-bold mb-4 flex items-center">
+                  <BarChart className="h-5 w-5 mr-2 text-[#66e4ff]" />
+                  Platform Metrics
+                </h3>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  {metrics.map((metric, idx) => (
+                    <AnimatedCounter
+                      key={idx}
+                      value={metric.value}
+                      label={metric.label}
+                      icon={metric.icon}
+                      prefix={metric.prefix}
+                      suffix={metric.suffix}
+                      decimals={metric.decimals}
+                    />
+                  ))}
+                </div>
+              </div>
+              
+              {/* Active Sessions */}
+              <div className="bg-black/30 backdrop-blur-md border border-white/10 rounded-xl p-6 shadow-xl">
+                <h3 className="text-lg font-bold mb-4 flex items-center">
+                  <Waypoints className="h-5 w-5 mr-2 text-[#d4af37]" />
+                  Active Sessions
+                </h3>
+                
+                <div className="space-y-3">
+                  {userActiveSessions.map((session, idx) => (
+                    <div key={idx} className="flex items-center justify-between p-3 bg-black/30 rounded-lg border border-white/10">
+                      <div className="flex items-center space-x-3">
+                        <div className="p-1.5 bg-white/5 rounded-full">
+                          <Fingerprint className="h-4 w-4 text-[#d4af37]" />
+                        </div>
+                        <div>
+                          <p className="text-xs text-white/80 font-mono">{session.id}</p>
+                          <p className="text-[10px] text-white/50">{session.device}</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] ${session.active ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'}`}>
+                          {session.active ? 'Active' : 'Expired'}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+      
+      {/* Bottom status bar */}
+      <footer className="fixed bottom-0 left-0 right-0 z-30 bg-black/40 backdrop-blur-md border-t border-white/10 text-xs">
+        <div className="max-w-screen-2xl mx-auto px-4 py-2">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-1">
+                <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                <span className="text-white/60">TLS 1.3 Secure Connection</span>
+              </div>
+              <div className="hidden md:block h-3 w-px bg-white/20"></div>
+              <div className="hidden md:flex text-white/60 items-center">
+                <span className="text-[#66e4ff]">Last scan:</span>
+                <span className="ml-1 font-mono">{lastScan.toLocaleTimeString()}</span>
+              </div>
+            </div>
+            
+            <div className="flex items-center space-x-3 text-white/60">
+              <span className="font-mono">v4.2.1-enterprise</span>
+              <div className="h-3 w-px bg-white/20"></div>
+              <span>&copy; {new Date().getFullYear()} InfyMailer</span>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+};
+
+export default SimpleClientLogin;
 
 export default SimpleClientLogin;
