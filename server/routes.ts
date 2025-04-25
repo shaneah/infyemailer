@@ -2024,6 +2024,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Client session verification endpoint
+  app.get('/api/client/verify-session', async (req: Request, res: Response) => {
+    try {
+      // Check if client is authenticated in session
+      if (req.session && req.session.clientUser) {
+        // Return the client user info without sensitive data
+        return res.status(200).json({ 
+          verified: true, 
+          user: req.session.clientUser 
+        });
+      }
+      
+      // If no session found
+      return res.status(401).json({ 
+        verified: false, 
+        message: 'No active client session found' 
+      });
+    } catch (error) {
+      console.error('Client session verification error:', error);
+      return res.status(500).json({ 
+        verified: false, 
+        message: 'Error verifying client session' 
+      });
+    }
+  });
+
   app.post('/api/login', async (req: Request, res: Response) => {
     const validatedData = validate(userLoginSchema, req.body);
     if ('error' in validatedData) {
@@ -2038,8 +2064,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ error: 'Invalid credentials' });
       }
       
-      // Store user in session (you'd use req.session.user in a real app)
-      // For now, we'll just return the user without the password
+      // Store user in session
+      if (req.session) {
+        req.session.user = user;
+      }
+      
+      // Return the user without the password
       const { password: _, ...userWithoutPassword } = user;
       
       res.json({ 
@@ -2171,6 +2201,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
               lastLogin: new Date().toISOString() 
             };
             
+            // Store client user data in session
+            if (req.session) {
+              req.session.clientUser = responseData;
+              console.log('Client1 user stored in session');
+            }
+            
             console.log(`Sending client1 login response:`, responseData);
             return res.json(responseData);
           } else {
@@ -2195,6 +2231,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
               clientCompany: 'Demo Company',
               lastLogin: new Date().toISOString()
             };
+            
+            // Store in session
+            if (req.session) {
+              req.session.clientUser = mockClientUser;
+              console.log('Mock client1 user stored in session');
+            }
             
             console.log(`Sending mock client1 login response:`, mockClientUser);
             return res.json(mockClientUser);
@@ -2264,6 +2306,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         clientCompany: client.company,
         lastLogin: new Date().toISOString() 
       };
+      
+      // Store client user data in session
+      if (req.session) {
+        req.session.clientUser = responseData;
+        console.log('Client user stored in session:', req.session.clientUser.id);
+      }
       
       console.log(`Sending client login response:`, responseData);
       res.json(responseData);

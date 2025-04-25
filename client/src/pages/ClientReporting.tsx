@@ -44,28 +44,64 @@ const ClientReporting = () => {
     const checkAuth = async () => {
       try {
         // Check if user is authenticated by sessionStorage or localStorage first
-        const clientUser = sessionStorage.getItem('clientUser') || localStorage.getItem('clientUser');
+        const clientUserStr = sessionStorage.getItem('clientUser') || localStorage.getItem('clientUser');
         
-        if (clientUser) {
-          setIsAuthenticated(true);
-        } else {
-          // Make a request to check authentication
-          const response = await fetch('/api/user', {
-            credentials: 'include'
+        if (clientUserStr) {
+          try {
+            // Validate that the client user data is properly formatted
+            const clientUser = JSON.parse(clientUserStr);
+            if (clientUser && clientUser.id) {
+              console.log('Client user authenticated from storage:', clientUser.id);
+              setIsAuthenticated(true);
+              return;
+            }
+          } catch (parseError) {
+            console.error('Error parsing client user data:', parseError);
+            // Continue to server validation if client data is invalid
+          }
+        }
+        
+        // Try client-specific endpoint
+        try {
+          const clientResponse = await fetch('/api/client/verify-session', {
+            credentials: 'include',
+            headers: {
+              'Content-Type': 'application/json'
+            }
           });
           
-          if (response.ok) {
+          if (clientResponse.ok) {
+            console.log('Client session verified via API');
+            setIsAuthenticated(true);
+            return;
+          }
+        } catch (clientApiError) {
+          console.warn('Client API verification failed, trying fallback:', clientApiError);
+        }
+            
+        // Fallback to general user endpoint
+        const response = await fetch('/api/user', {
+          credentials: 'include'
+        });
+        
+        if (response.ok) {
+          const userData = await response.json();
+          if (userData && userData.role === 'client') {
+            console.log('Authenticated via /api/user as client');
             setIsAuthenticated(true);
           } else {
+            console.warn('User authenticated but not as client');
             setIsAuthenticated(false);
-            // Redirect to login page
             navigate('/client-login');
           }
+        } else {
+          console.warn('Authentication failed - redirecting to login');
+          setIsAuthenticated(false);
+          navigate('/client-login');
         }
       } catch (error) {
         console.error('Auth check error:', error);
         setIsAuthenticated(false);
-        // Redirect to login page
         navigate('/client-login');
       }
     };
