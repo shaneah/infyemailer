@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { addDays, subDays } from 'date-fns';
 import { DateRange } from 'react-day-picker';
+import { useLocation } from 'wouter';
 import { 
   BarChart3, 
   Users, 
@@ -17,7 +18,8 @@ import {
   RefreshCcw,
   Download,
   Filter,
-  Search
+  Search,
+  Loader2
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -34,6 +36,43 @@ import {
 } from '@/components/ui/select';
 
 const ClientReporting = () => {
+  const [, navigate] = useLocation();
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  
+  // Check authentication on component mount
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        // Check if user is authenticated by sessionStorage or localStorage first
+        const clientUser = sessionStorage.getItem('clientUser') || localStorage.getItem('clientUser');
+        
+        if (clientUser) {
+          setIsAuthenticated(true);
+        } else {
+          // Make a request to check authentication
+          const response = await fetch('/api/user', {
+            credentials: 'include'
+          });
+          
+          if (response.ok) {
+            setIsAuthenticated(true);
+          } else {
+            setIsAuthenticated(false);
+            // Redirect to login page
+            navigate('/client-login');
+          }
+        }
+      } catch (error) {
+        console.error('Auth check error:', error);
+        setIsAuthenticated(false);
+        // Redirect to login page
+        navigate('/client-login');
+      }
+    };
+    
+    checkAuth();
+  }, [navigate]);
+
   // Date range state
   const [date, setDate] = useState<DateRange | undefined>({
     from: subDays(new Date(), 30),
@@ -288,6 +327,23 @@ const ClientReporting = () => {
       </div>
     );
   };
+
+  // Show loading state while checking authentication
+  if (isAuthenticated === null) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <p className="text-gray-500">Verifying your session...</p>
+        </div>
+      </div>
+    );
+  }
+  
+  // If not authenticated, return null (redirect is happening in useEffect)
+  if (isAuthenticated === false) {
+    return null;
+  }
 
   return (
     <div className="container mx-auto p-6 max-w-7xl">
