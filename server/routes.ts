@@ -2083,11 +2083,61 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   app.post('/api/logout', (req: Request, res: Response) => {
-    // In a real app with sessions, you would clear the session here
-    // req.session.destroy();
+    // Clear the session
+    if (req.session) {
+      req.session.destroy((err) => {
+        if (err) {
+          console.error('Session destruction error:', err);
+          return res.status(500).json({ success: false, message: 'Error ending session' });
+        }
+        
+        console.log('User session destroyed successfully');
+        res.status(200).json({ success: true, message: 'Logged out successfully' });
+      });
+    } else {
+      console.log('No session to destroy');
+      res.status(200).json({ success: true, message: 'Logged out successfully' });
+    }
+  });
+  
+  app.post('/api/client-logout', (req: Request, res: Response) => {
+    // Clear the client session
+    if (req.session) {
+      req.session.destroy((err) => {
+        if (err) {
+          console.error('Client session destruction error:', err);
+          return res.status(500).json({ success: false, message: 'Error ending client session' });
+        }
+        
+        console.log('Client user session destroyed successfully');
+        res.status(200).json({ success: true, message: 'Client logged out successfully' });
+      });
+    } else {
+      console.log('No client session to destroy');
+      res.status(200).json({ success: true, message: 'Client logged out successfully' });
+    }
+  });
+  
+  // Client session verification endpoint
+  app.get('/api/client/verify-session', async (req: Request, res: Response) => {
+    // Check if client is authenticated via session
+    if (req.session && req.session.clientUser) {
+      console.log('Client session verified for:', req.session.clientUser.username);
+      
+      // Return client user data without sensitive info
+      const { clientUser } = req.session;
+      
+      return res.json({
+        authenticated: true,
+        user: clientUser
+      });
+    }
     
-    console.log('User logged out');
-    res.status(200).json({ success: true, message: 'Logged out successfully' });
+    console.log('Client session verification failed - no session found');
+    return res.status(401).json({ 
+      authenticated: false,
+      message: 'Not authenticated' 
+    });
   });
   
   app.get('/api/users', async (req: Request, res: Response) => {
