@@ -2179,9 +2179,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (username === 'client1' && password === 'clientdemo') {
         console.log('Using special hardcoded login for client1/clientdemo');
         
-        // Try using regular SQL query first
+        // Try using proper db.execute method instead of query
         try {
-          const result = await db.query(`
+          const result = await db.execute(`
             SELECT * FROM client_users WHERE username = 'client1'
           `);
           
@@ -2192,7 +2192,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             console.log('Found client1 user with direct SQL query:', user);
             
             // Get client info
-            const clientResult = await db.query(`
+            const clientResult = await db.execute(`
               SELECT * FROM clients WHERE id = $1
             `, [user.client_id]);
             
@@ -2212,7 +2212,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             const { password: _, ...userWithoutPassword } = user;
             
             // Update last login time
-            await db.query(`
+            await db.execute(`
               UPDATE client_users SET last_login_at = NOW() WHERE id = $1
             `, [user.id]);
             
