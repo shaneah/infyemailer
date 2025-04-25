@@ -1,1238 +1,719 @@
-import React, { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useLocation } from 'wouter';
+import { addDays, subDays } from 'date-fns';
+import { DateRange } from 'react-day-picker';
 import { 
-  BarChart2, 
-  PieChart, 
-  LineChart, 
-  TrendingUp, 
-  Calendar, 
+  BarChart3, 
   Users, 
-  Mail, 
-  MousePointer, 
-  AlertCircle, 
-  ArrowRight, 
+  Goal, 
+  TrendingUp, 
+  LineChart, 
+  ArrowUpRight,
+  ArrowDownRight,
+  Calendar,
+  Award,
+  Mail,
+  LayoutTemplate,
+  RefreshCcw,
   Download,
-  FileText,
-  Filter
+  Filter,
+  Search
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DatePickerWithRange } from '@/components/ui/date-picker-range';
-import { Separator } from '@/components/ui/separator';
-import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Input } from '@/components/ui/input';
+import { Progress } from '@/components/ui/progress';
 import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Skeleton } from '@/components/ui/skeleton';
-
-// Define types for our data
-interface PerformanceMetrics {
-  openRate: { value: number; change: number };
-  clickRate: { value: number; change: number };
-  bounceRate: { value: number; change: number };
-  unsubscribeRate: { value: number; change: number };
-  deliverability: { value: number; change: number };
-}
-
-interface TimeSeriesData {
-  weeklyPerformance: { day: string; opens: number; clicks: number; unsubscribes: number }[];
-  monthlyTrends: { month: string; campaigns: number; opens: number; engagementScore: number }[];
-}
-
-interface RealtimeEvent {
-  time: string;
-  type: string;
-  campaign: string;
-  email?: string;
-  location?: string;
-  device?: string;
-}
-
-interface TopPerformer {
-  type: string;
-  name: string;
-  rate: number;
-  total: number;
-}
-
-interface AudienceOverview {
-  total: number;
-  active: number;
-  new: number;
-  demographics: { 
-    age: { label: string; value: number }[]; 
-    gender: { label: string; value: number }[];
-    location: { label: string; value: number }[];
-  };
-  engagement: { 
-    frequency: { label: string; value: number }[];
-    timeOfDay: { label: string; value: number }[];
-  };
-}
-
-interface CampaignMetrics {
-  id: number;
-  name: string;
-  sentDate: string;
-  recipients: number;
-  opens: number;
-  openRate: number;
-  clicks: number;
-  clickRate: number;
-  bounces: number;
-  unsubscribes: number;
-}
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 const ClientReporting = () => {
-  const [dateRange, setDateRange] = useState<{ from: Date; to: Date } | undefined>(undefined);
-  const [reportType, setReportType] = useState('campaigns');
-  const [_, setLocation] = useLocation();
-  
-  // Fetch performance metrics
-  const { 
-    data: metrics,
-    isLoading: isLoadingMetrics
-  } = useQuery<PerformanceMetrics>({
-    queryKey: ['/api/email-performance/metrics'],
-    refetchOnWindowFocus: false,
+  // Date range state
+  const [date, setDate] = useState<DateRange | undefined>({
+    from: subDays(new Date(), 30),
+    to: new Date(),
   });
-  
-  // Fetch time series data for charts
-  const {
-    data: chartData,
-    isLoading: isLoadingCharts
-  } = useQuery<TimeSeriesData>({
-    queryKey: ['/api/email-performance/charts'],
-    refetchOnWindowFocus: false,
+
+  // States for active tab and filter
+  const [activeTab, setActiveTab] = useState('overview');
+  const [showFilters, setShowFilters] = useState(false);
+  const [campaignFilter, setCampaignFilter] = useState('all');
+
+  // Query for key metrics
+  const { data: metrics, isLoading: metricsLoading } = useQuery({
+    queryKey: ['/api/email-performance/metrics', date?.from?.toISOString(), date?.to?.toISOString()],
+    queryFn: async () => {
+      const response = await fetch(`/api/email-performance/metrics?from=${date?.from?.toISOString()}&to=${date?.to?.toISOString()}`);
+      if (!response.ok) throw new Error('Failed to fetch metrics');
+      return response.json();
+    },
   });
-  
-  // Fetch realtime events
-  const {
-    data: realtimeEvents,
-    isLoading: isLoadingRealtime
-  } = useQuery<RealtimeEvent[]>({
-    queryKey: ['/api/email-performance/realtime'],
-    refetchOnWindowFocus: false,
-    refetchInterval: 30000 // Refresh every 30 seconds
+
+  // Query for chart data
+  const { data: chartData, isLoading: chartLoading } = useQuery({
+    queryKey: ['/api/email-performance/charts', date?.from?.toISOString(), date?.to?.toISOString()],
+    queryFn: async () => {
+      const response = await fetch(`/api/email-performance/charts?from=${date?.from?.toISOString()}&to=${date?.to?.toISOString()}`);
+      if (!response.ok) throw new Error('Failed to fetch chart data');
+      return response.json();
+    },
   });
-  
-  // Fetch top performers
-  const {
-    data: topPerformers,
-    isLoading: isLoadingTopPerformers
-  } = useQuery<{ subjects: TopPerformer[]; campaigns: TopPerformer[]; templates: TopPerformer[] }>({
-    queryKey: ['/api/email-performance/top-performers'],
-    refetchOnWindowFocus: false,
+
+  // Query for top performers
+  const { data: topPerformers, isLoading: topPerformersLoading } = useQuery({
+    queryKey: ['/api/email-performance/top-performers', date?.from?.toISOString(), date?.to?.toISOString()],
+    queryFn: async () => {
+      const response = await fetch(`/api/email-performance/top-performers?from=${date?.from?.toISOString()}&to=${date?.to?.toISOString()}`);
+      if (!response.ok) throw new Error('Failed to fetch top performers');
+      return response.json();
+    },
   });
-  
-  // Fetch audience overview
-  const {
-    data: audienceData,
-    isLoading: isLoadingAudience
-  } = useQuery<AudienceOverview>({
-    queryKey: ['/api/audience/overview'],
-    refetchOnWindowFocus: false,
+
+  // Query for audience overview
+  const { data: audience, isLoading: audienceLoading } = useQuery({
+    queryKey: ['/api/audience/overview', date?.from?.toISOString(), date?.to?.toISOString()],
+    queryFn: async () => {
+      const response = await fetch(`/api/audience/overview?from=${date?.from?.toISOString()}&to=${date?.to?.toISOString()}`);
+      if (!response.ok) throw new Error('Failed to fetch audience data');
+      return response.json();
+    },
   });
-  
-  // Fetch campaign metrics
-  const {
-    data: campaignMetrics,
-    isLoading: isLoadingCampaigns
-  } = useQuery<CampaignMetrics[]>({
-    queryKey: ['/api/campaigns/metrics'],
-    refetchOnWindowFocus: false,
+
+  // Query for campaign metrics
+  const { data: campaigns, isLoading: campaignsLoading } = useQuery({
+    queryKey: ['/api/campaigns/metrics', date?.from?.toISOString(), date?.to?.toISOString()],
+    queryFn: async () => {
+      const response = await fetch(`/api/campaigns/metrics?from=${date?.from?.toISOString()}&to=${date?.to?.toISOString()}`);
+      if (!response.ok) throw new Error('Failed to fetch campaign metrics');
+      return response.json();
+    },
   });
-  
-  // Format large numbers for display
-  const formatNumber = (num: number) => {
-    return new Intl.NumberFormat().format(num);
-  };
-  
-  // Format percentage for display
-  const formatPercent = (value: number) => {
-    return value.toFixed(1) + '%';
-  };
-  
-  // Determine color based on performance
-  const getPerformanceColor = (value: number, isHigherBetter = true, threshold = 5) => {
-    if (isHigherBetter) {
-      if (value > threshold) return 'text-green-600';
-      if (value < -threshold) return 'text-red-600';
-      return 'text-amber-600';
-    } else {
-      if (value < -threshold) return 'text-green-600';
-      if (value > threshold) return 'text-red-600';
-      return 'text-amber-600';
-    }
-  };
-  
-  // Format date for consistent display
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString(undefined, { 
-      year: 'numeric', 
-      month: 'short', 
-      day: 'numeric' 
+
+  // Quick date range setters
+  const setLastWeek = () => {
+    setDate({
+      from: subDays(new Date(), 7),
+      to: new Date(),
     });
   };
-  
-  // Generate dummy chart data for demonstration
-  const generateChartData = () => {
-    if (chartData?.weeklyPerformance) {
-      return chartData.weeklyPerformance.map(day => ({
-        day: day.day,
-        opens: day.opens,
-        clicks: day.clicks
-      }));
-    }
-    return [];
+
+  const setLastMonth = () => {
+    setDate({
+      from: subDays(new Date(), 30),
+      to: new Date(),
+    });
   };
 
-  // Download report (dummy function - would connect to real export in production)
-  const downloadReport = () => {
-    alert('Report download functionality would be implemented here in production.');
+  const setLastQuarter = () => {
+    setDate({
+      from: subDays(new Date(), 90),
+      to: new Date(),
+    });
   };
-  
-  return (
-    <div className="p-8">
-      <div className="flex items-center gap-3 mb-8">
-        <div className="bg-primary/10 p-2 rounded-full">
-          <BarChart2 className="h-6 w-6 text-primary" />
+
+  const MetricCard = ({ title, value, change, icon: Icon, color = "blue", isLoading = false }) => (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardTitle className="text-sm font-medium">
+          {title}
+        </CardTitle>
+        <Icon className={`h-4 w-4 text-${color}-500`} />
+      </CardHeader>
+      <CardContent>
+        {isLoading ? (
+          <div className="h-9 w-24 bg-gray-200 animate-pulse rounded"></div>
+        ) : (
+          <>
+            <div className="text-2xl font-bold">{value}%</div>
+            {change && (
+              <p className={`text-xs ${change.value > 0 ? 'text-green-500' : 'text-red-500'} flex items-center mt-1`}>
+                {change.value > 0 ? <ArrowUpRight className="h-3 w-3 mr-1" /> : <ArrowDownRight className="h-3 w-3 mr-1" />}
+                {change.value > 0 ? '+' : ''}{change.value}% from previous period
+              </p>
+            )}
+          </>
+        )}
+      </CardContent>
+    </Card>
+  );
+
+  const CampaignRow = ({ campaign, isLoading = false }) => {
+    if (isLoading) {
+      return (
+        <tr className="border-b border-gray-100 last:border-none">
+          <td className="py-3 px-2">
+            <div className="h-5 bg-gray-200 rounded w-32 animate-pulse"></div>
+          </td>
+          <td className="py-3 px-2">
+            <div className="h-5 bg-gray-200 rounded w-20 animate-pulse"></div>
+          </td>
+          <td className="py-3 px-2">
+            <div className="h-5 bg-gray-200 rounded w-16 animate-pulse"></div>
+          </td>
+          <td className="py-3 px-2">
+            <div className="h-5 bg-gray-200 rounded w-16 animate-pulse"></div>
+          </td>
+          <td className="py-3 px-2">
+            <div className="h-5 bg-gray-200 rounded w-16 animate-pulse"></div>
+          </td>
+          <td className="py-3 px-2">
+            <div className="h-5 bg-gray-200 rounded w-16 animate-pulse"></div>
+          </td>
+        </tr>
+      );
+    }
+
+    return (
+      <tr className="border-b border-gray-100 last:border-none hover:bg-gray-50">
+        <td className="py-3 px-2 font-medium">{campaign.name}</td>
+        <td className="py-3 px-2 text-gray-600">{campaign.sentDate}</td>
+        <td className="py-3 px-2 text-gray-600">{campaign.recipients.toLocaleString()}</td>
+        <td className="py-3 px-2">
+          <div className="flex items-center">
+            <span className={`font-medium ${campaign.openRate > 25 ? 'text-green-500' : campaign.openRate > 15 ? 'text-amber-500' : 'text-gray-600'}`}>
+              {campaign.openRate.toFixed(1)}%
+            </span>
+          </div>
+        </td>
+        <td className="py-3 px-2">
+          <div className="flex items-center">
+            <span className={`font-medium ${campaign.clickRate > 4 ? 'text-green-500' : campaign.clickRate > 2 ? 'text-amber-500' : 'text-gray-600'}`}>
+              {campaign.clickRate.toFixed(1)}%
+            </span>
+          </div>
+        </td>
+        <td className="py-3 px-2 text-gray-600">{campaign.unsubscribes}</td>
+      </tr>
+    );
+  };
+
+  const TopPerformerCard = ({ item, type, isLoading = false }) => {
+    if (isLoading) {
+      return (
+        <div className="flex items-center space-x-4 py-3 border-b border-gray-100 last:border-none">
+          <div className="h-10 w-10 rounded-full bg-gray-200 animate-pulse"></div>
+          <div className="flex-1 space-y-2">
+            <div className="h-4 bg-gray-200 rounded w-40 animate-pulse"></div>
+            <div className="h-3 bg-gray-200 rounded w-20 animate-pulse"></div>
+          </div>
+          <div className="h-6 bg-gray-200 rounded w-16 animate-pulse"></div>
         </div>
-        <div>
-          <h1 className="text-2xl font-bold">Reporting Dashboard</h1>
-          <p className="text-gray-500 text-sm">
-            Comprehensive analytics and reporting for all your email marketing activities
+      );
+    }
+
+    return (
+      <div className="flex items-center space-x-4 py-3 border-b border-gray-100 last:border-none">
+        <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white ${
+          type === 'subject' ? 'bg-purple-500' :
+          type === 'campaign' ? 'bg-blue-500' : 'bg-teal-500'
+        }`}>
+          {type === 'subject' ? 
+            <Mail size={18} /> : 
+            type === 'campaign' ? 
+              <Mail size={18} /> : 
+              <LayoutTemplate size={18} />
+          }
+        </div>
+        <div className="flex-1">
+          <p className="font-medium text-sm line-clamp-1">{item.name}</p>
+          <p className="text-xs text-gray-500">
+            {type === 'subject' ? 'Subject Line' : 
+             type === 'campaign' ? 'Campaign' : 'Template'}
           </p>
         </div>
-      </div>
-      
-      {/* Filters and Controls */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 bg-white p-4 rounded-lg border shadow-sm">
-        <div className="flex flex-col sm:flex-row items-center gap-4">
-          <div className="w-full sm:w-auto">
-            <Select defaultValue="last30days" onValueChange={(value) => console.log(value)}>
-              <SelectTrigger className="w-full sm:w-[200px]">
-                <SelectValue placeholder="Select time period" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="last7days">Last 7 days</SelectItem>
-                <SelectItem value="last30days">Last 30 days</SelectItem>
-                <SelectItem value="last90days">Last 90 days</SelectItem>
-                <SelectItem value="custom">Custom range</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          
-          <div className="w-full sm:w-auto">
-            <DatePickerWithRange date={dateRange} setDate={setDateRange} />
-          </div>
-          
-          <div className="w-full sm:w-auto">
-            <Select defaultValue="all" onValueChange={(value) => console.log(value)}>
-              <SelectTrigger className="w-full sm:w-[180px]">
-                <SelectValue placeholder="All campaigns" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All campaigns</SelectItem>
-                <SelectItem value="active">Active campaigns</SelectItem>
-                <SelectItem value="completed">Completed campaigns</SelectItem>
-                <SelectItem value="draft">Draft campaigns</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-        
-        <div className="flex items-center gap-2">
-          <Button variant="outline" className="flex items-center gap-2">
-            <Filter className="h-4 w-4" />
-            <span>More filters</span>
-          </Button>
-          <Button variant="outline" className="flex items-center gap-2" onClick={downloadReport}>
-            <Download className="h-4 w-4" />
-            <span>Export</span>
-          </Button>
+        <div className={`text-sm font-medium ${
+          type === 'subject' || type === 'campaign' ? 
+            (item.rate > 25 ? 'text-green-500' : 'text-amber-500') :
+            (item.rate > 3 ? 'text-green-500' : 'text-amber-500')
+        }`}>
+          {item.rate}%
         </div>
       </div>
-      
-      {/* Key Metrics Section */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
-        {/* Open Rate Card */}
-        <Card>
-          <CardContent className="p-4">
-            {isLoadingMetrics ? (
-              <div className="space-y-2">
-                <Skeleton className="h-4 w-20" />
-                <Skeleton className="h-8 w-28" />
-                <Skeleton className="h-4 w-24" />
-              </div>
-            ) : (
-              <>
-                <div className="flex items-center gap-2 mb-2">
-                  <Mail className="h-4 w-4 text-blue-600" />
-                  <span className="text-sm text-gray-500">Open Rate</span>
-                </div>
-                <div className="text-2xl font-bold mb-1">
-                  {formatPercent(metrics?.openRate.value || 0)}
-                </div>
-                <div className={`text-xs flex items-center ${getPerformanceColor(metrics?.openRate.change || 0)}`}>
-                  {metrics?.openRate.change && metrics.openRate.change > 0 ? (
-                    <TrendingUp className="h-3 w-3 mr-1" />
-                  ) : (
-                    <TrendingUp className="h-3 w-3 mr-1 rotate-180" />
-                  )}
-                  <span>
-                    {metrics?.openRate.change && metrics.openRate.change > 0 ? '+' : ''}
-                    {formatPercent(metrics?.openRate.change || 0)} vs. previous
-                  </span>
-                </div>
-              </>
-            )}
-          </CardContent>
-        </Card>
+    );
+  };
+
+  return (
+    <div className="container mx-auto p-6 max-w-7xl">
+      <div className="flex justify-between items-center mb-6">
+        <div>
+          <h1 className="text-3xl font-bold">Reporting</h1>
+          <p className="text-gray-500 mt-1">Comprehensive analytics and performance metrics</p>
+        </div>
         
-        {/* Click Rate Card */}
-        <Card>
-          <CardContent className="p-4">
-            {isLoadingMetrics ? (
-              <div className="space-y-2">
-                <Skeleton className="h-4 w-20" />
-                <Skeleton className="h-8 w-28" />
-                <Skeleton className="h-4 w-24" />
-              </div>
-            ) : (
-              <>
-                <div className="flex items-center gap-2 mb-2">
-                  <MousePointer className="h-4 w-4 text-indigo-600" />
-                  <span className="text-sm text-gray-500">Click Rate</span>
-                </div>
-                <div className="text-2xl font-bold mb-1">
-                  {formatPercent(metrics?.clickRate.value || 0)}
-                </div>
-                <div className={`text-xs flex items-center ${getPerformanceColor(metrics?.clickRate.change || 0)}`}>
-                  {metrics?.clickRate.change && metrics.clickRate.change > 0 ? (
-                    <TrendingUp className="h-3 w-3 mr-1" />
-                  ) : (
-                    <TrendingUp className="h-3 w-3 mr-1 rotate-180" />
-                  )}
-                  <span>
-                    {metrics?.clickRate.change && metrics.clickRate.change > 0 ? '+' : ''}
-                    {formatPercent(metrics?.clickRate.change || 0)} vs. previous
-                  </span>
-                </div>
-              </>
-            )}
-          </CardContent>
-        </Card>
-        
-        {/* Bounce Rate Card */}
-        <Card>
-          <CardContent className="p-4">
-            {isLoadingMetrics ? (
-              <div className="space-y-2">
-                <Skeleton className="h-4 w-20" />
-                <Skeleton className="h-8 w-28" />
-                <Skeleton className="h-4 w-24" />
-              </div>
-            ) : (
-              <>
-                <div className="flex items-center gap-2 mb-2">
-                  <AlertCircle className="h-4 w-4 text-orange-600" />
-                  <span className="text-sm text-gray-500">Bounce Rate</span>
-                </div>
-                <div className="text-2xl font-bold mb-1">
-                  {formatPercent(metrics?.bounceRate.value || 0)}
-                </div>
-                <div className={`text-xs flex items-center ${getPerformanceColor(metrics?.bounceRate.change || 0, false)}`}>
-                  {metrics?.bounceRate.change && metrics.bounceRate.change < 0 ? (
-                    <TrendingUp className="h-3 w-3 mr-1" />
-                  ) : (
-                    <TrendingUp className="h-3 w-3 mr-1 rotate-180" />
-                  )}
-                  <span>
-                    {metrics?.bounceRate.change && metrics.bounceRate.change > 0 ? '+' : ''}
-                    {formatPercent(metrics?.bounceRate.change || 0)} vs. previous
-                  </span>
-                </div>
-              </>
-            )}
-          </CardContent>
-        </Card>
-        
-        {/* Deliverability Card */}
-        <Card>
-          <CardContent className="p-4">
-            {isLoadingMetrics ? (
-              <div className="space-y-2">
-                <Skeleton className="h-4 w-20" />
-                <Skeleton className="h-8 w-28" />
-                <Skeleton className="h-4 w-24" />
-              </div>
-            ) : (
-              <>
-                <div className="flex items-center gap-2 mb-2">
-                  <FileText className="h-4 w-4 text-green-600" />
-                  <span className="text-sm text-gray-500">Deliverability</span>
-                </div>
-                <div className="text-2xl font-bold mb-1">
-                  {formatPercent(metrics?.deliverability.value || 0)}
-                </div>
-                <div className={`text-xs flex items-center ${getPerformanceColor(metrics?.deliverability.change || 0)}`}>
-                  {metrics?.deliverability.change && metrics.deliverability.change > 0 ? (
-                    <TrendingUp className="h-3 w-3 mr-1" />
-                  ) : (
-                    <TrendingUp className="h-3 w-3 mr-1 rotate-180" />
-                  )}
-                  <span>
-                    {metrics?.deliverability.change && metrics.deliverability.change > 0 ? '+' : ''}
-                    {formatPercent(metrics?.deliverability.change || 0)} vs. previous
-                  </span>
-                </div>
-              </>
-            )}
-          </CardContent>
-        </Card>
-        
-        {/* Unsubscribe Rate Card */}
-        <Card>
-          <CardContent className="p-4">
-            {isLoadingMetrics ? (
-              <div className="space-y-2">
-                <Skeleton className="h-4 w-20" />
-                <Skeleton className="h-8 w-28" />
-                <Skeleton className="h-4 w-24" />
-              </div>
-            ) : (
-              <>
-                <div className="flex items-center gap-2 mb-2">
-                  <Users className="h-4 w-4 text-purple-600" />
-                  <span className="text-sm text-gray-500">Unsubscribe Rate</span>
-                </div>
-                <div className="text-2xl font-bold mb-1">
-                  {formatPercent(metrics?.unsubscribeRate.value || 0)}
-                </div>
-                <div className={`text-xs flex items-center ${getPerformanceColor(metrics?.unsubscribeRate.change || 0, false)}`}>
-                  {metrics?.unsubscribeRate.change && metrics.unsubscribeRate.change < 0 ? (
-                    <TrendingUp className="h-3 w-3 mr-1" />
-                  ) : (
-                    <TrendingUp className="h-3 w-3 mr-1 rotate-180" />
-                  )}
-                  <span>
-                    {metrics?.unsubscribeRate.change && metrics.unsubscribeRate.change > 0 ? '+' : ''}
-                    {formatPercent(metrics?.unsubscribeRate.change || 0)} vs. previous
-                  </span>
-                </div>
-              </>
-            )}
-          </CardContent>
-        </Card>
+        <div className="flex items-center space-x-2">
+          <div className="flex space-x-1">
+            <Button 
+              variant="outline" size="sm" 
+              onClick={setLastWeek}
+              className={`text-xs ${date?.from && date.from.getTime() === subDays(new Date(), 7).getTime() ? 'bg-primary/10' : ''}`}
+            >
+              7d
+            </Button>
+            <Button 
+              variant="outline" size="sm" 
+              onClick={setLastMonth}
+              className={`text-xs ${date?.from && date.from.getTime() === subDays(new Date(), 30).getTime() ? 'bg-primary/10' : ''}`}
+            >
+              30d
+            </Button>
+            <Button 
+              variant="outline" size="sm" 
+              onClick={setLastQuarter}
+              className={`text-xs ${date?.from && date.from.getTime() === subDays(new Date(), 90).getTime() ? 'bg-primary/10' : ''}`}
+            >
+              90d
+            </Button>
+          </div>
+          
+          <DatePickerWithRange 
+            date={date} 
+            setDate={setDate} 
+          />
+          
+          <Button variant="outline" size="icon" onClick={() => setShowFilters(!showFilters)}>
+            <Filter size={18} />
+          </Button>
+          
+          <Button variant="outline" size="icon">
+            <Download size={18} />
+          </Button>
+        </div>
       </div>
       
-      {/* Main Reporting Tabs */}
-      <Tabs defaultValue="overview" className="mb-6">
-        <TabsList className="grid w-full sm:w-auto grid-cols-4 sm:grid-cols-none sm:inline-flex mb-6">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="campaigns">Campaigns</TabsTrigger>
-          <TabsTrigger value="audience">Audience</TabsTrigger>
-          <TabsTrigger value="exports">Export Reports</TabsTrigger>
-        </TabsList>
-        
-        {/* Overview Tab Content */}
-        <TabsContent value="overview" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Performance Trends Chart */}
-            <Card className="lg:col-span-2">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg">Email Performance Trends</CardTitle>
-                <CardDescription>
-                  Open and click rates over time
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {isLoadingCharts ? (
-                  <div className="space-y-2">
-                    <Skeleton className="h-[250px] w-full" />
-                  </div>
-                ) : (
-                  <div className="h-[250px] w-full flex flex-col items-center justify-center">
-                    {/* This would be a real chart in production */}
-                    <LineChart className="h-16 w-16 text-gray-300 mb-4" />
-                    <p className="text-sm text-gray-500">
-                      Performance chart would be rendered here with opens and clicks over time
-                    </p>
-                    <div className="flex items-center gap-4 mt-4">
-                      <div className="flex items-center gap-2">
-                        <div className="h-3 w-3 rounded-full bg-blue-500"></div>
-                        <span className="text-xs text-gray-500">Opens</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="h-3 w-3 rounded-full bg-indigo-500"></div>
-                        <span className="text-xs text-gray-500">Clicks</span>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-            
-            {/* Realtime Activity Feed */}
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg">Realtime Activity</CardTitle>
-                <CardDescription>
-                  Latest subscriber interactions
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {isLoadingRealtime ? (
-                  <div className="space-y-3">
-                    {[...Array(5)].map((_, i) => (
-                      <div key={i} className="flex gap-3">
-                        <Skeleton className="h-8 w-8 rounded-full" />
-                        <div className="space-y-1 flex-1">
-                          <Skeleton className="h-4 w-full" />
-                          <Skeleton className="h-3 w-24" />
-                        </div>
-                      </div>
+      {showFilters && (
+        <Card className="mb-6">
+          <CardContent className="pt-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className="text-sm font-medium mb-1 block">Campaign</label>
+                <Select value={campaignFilter} onValueChange={setCampaignFilter}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="All campaigns" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All campaigns</SelectItem>
+                    {campaigns?.map(c => (
+                      <SelectItem key={c.id} value={c.id.toString()}>{c.name}</SelectItem>
                     ))}
-                  </div>
-                ) : (
-                  <div className="space-y-4 max-h-[250px] overflow-y-auto pr-2">
-                    {realtimeEvents?.map((event, index) => (
-                      <div key={index} className="flex items-start gap-3 text-sm">
-                        <div className={`p-2 rounded-full bg-gray-100 ${
-                          event.type === 'open' ? 'text-blue-600' :
-                          event.type === 'click' ? 'text-indigo-600' :
-                          event.type === 'unsubscribe' ? 'text-red-600' :
-                          'text-gray-600'
-                        }`}>
-                          {event.type === 'open' ? <Mail className="h-4 w-4" /> :
-                           event.type === 'click' ? <MousePointer className="h-4 w-4" /> :
-                           event.type === 'unsubscribe' ? <Users className="h-4 w-4" /> :
-                           <Calendar className="h-4 w-4" />}
-                        </div>
-                        <div>
-                          <p className="font-medium">
-                            {event.type === 'open' ? 'Email opened' :
-                             event.type === 'click' ? 'Link clicked' :
-                             event.type === 'unsubscribe' ? 'Unsubscribed' :
-                             'Other activity'}
-                          </p>
-                          <p className="text-xs text-gray-500">
-                            {event.email || 'Anonymous user'} • {event.campaign}
-                          </p>
-                          {event.location && (
-                            <p className="text-xs text-gray-400 mt-1">
-                              {event.device} • {event.location} • {event.time}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                    
-                    {(!realtimeEvents || realtimeEvents.length === 0) && (
-                      <div className="text-center py-4">
-                        <p className="text-sm text-gray-500">No recent activity</p>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </div>
-          
-          {/* Top Performers Section */}
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg">Top Performers</CardTitle>
-              <CardDescription>
-                Best performing campaigns, subject lines, and content
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {isLoadingTopPerformers ? (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {[...Array(3)].map((_, i) => (
-                    <div key={i} className="space-y-3">
-                      <Skeleton className="h-5 w-32" />
-                      {[...Array(3)].map((_, j) => (
-                        <div key={j} className="space-y-1">
-                          <Skeleton className="h-4 w-full" />
-                          <Skeleton className="h-3 w-24" />
-                        </div>
-                      ))}
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {/* Top Subject Lines */}
-                  <div>
-                    <h3 className="text-sm font-medium mb-4 flex items-center">
-                      <Mail className="h-4 w-4 mr-2 text-blue-600" />
-                      Top Subject Lines
-                    </h3>
-                    <div className="space-y-4">
-                      {topPerformers?.subjects.slice(0, 3).map((subject, index) => (
-                        <div key={index} className="space-y-1">
-                          <div className="flex justify-between text-sm">
-                            <div className="font-medium truncate pr-4 flex-1" title={subject.name}>
-                              {index + 1}. {subject.name}
-                            </div>
-                            <div className="text-green-600 font-medium">
-                              {formatPercent(subject.rate)}
-                            </div>
-                          </div>
-                          <Progress value={subject.rate} max={100} className="h-1" />
-                          <p className="text-xs text-gray-500">{formatNumber(subject.total)} opens</p>
-                        </div>
-                      ))}
-                      
-                      {(!topPerformers?.subjects || topPerformers.subjects.length === 0) && (
-                        <div className="text-center py-4">
-                          <p className="text-sm text-gray-500">No data available</p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                  
-                  {/* Top Campaigns */}
-                  <div>
-                    <h3 className="text-sm font-medium mb-4 flex items-center">
-                      <LineChart className="h-4 w-4 mr-2 text-purple-600" />
-                      Top Campaigns
-                    </h3>
-                    <div className="space-y-4">
-                      {topPerformers?.campaigns.slice(0, 3).map((campaign, index) => (
-                        <div key={index} className="space-y-1">
-                          <div className="flex justify-between text-sm">
-                            <div className="font-medium truncate pr-4 flex-1" title={campaign.name}>
-                              {index + 1}. {campaign.name}
-                            </div>
-                            <div className="text-green-600 font-medium">
-                              {formatPercent(campaign.rate)}
-                            </div>
-                          </div>
-                          <Progress value={campaign.rate} max={100} className="h-1" />
-                          <p className="text-xs text-gray-500">{formatNumber(campaign.total)} engagements</p>
-                        </div>
-                      ))}
-                      
-                      {(!topPerformers?.campaigns || topPerformers.campaigns.length === 0) && (
-                        <div className="text-center py-4">
-                          <p className="text-sm text-gray-500">No data available</p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                  
-                  {/* Top Templates */}
-                  <div>
-                    <h3 className="text-sm font-medium mb-4 flex items-center">
-                      <FileText className="h-4 w-4 mr-2 text-indigo-600" />
-                      Top Templates
-                    </h3>
-                    <div className="space-y-4">
-                      {topPerformers?.templates.slice(0, 3).map((template, index) => (
-                        <div key={index} className="space-y-1">
-                          <div className="flex justify-between text-sm">
-                            <div className="font-medium truncate pr-4 flex-1" title={template.name}>
-                              {index + 1}. {template.name}
-                            </div>
-                            <div className="text-green-600 font-medium">
-                              {formatPercent(template.rate)}
-                            </div>
-                          </div>
-                          <Progress value={template.rate} max={100} className="h-1" />
-                          <p className="text-xs text-gray-500">{formatNumber(template.total)} clicks</p>
-                        </div>
-                      ))}
-                      
-                      {(!topPerformers?.templates || topPerformers.templates.length === 0) && (
-                        <div className="text-center py-4">
-                          <p className="text-sm text-gray-500">No data available</p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-        
-        {/* Campaigns Tab Content */}
-        <TabsContent value="campaigns" className="space-y-6">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg">Campaign Performance</CardTitle>
-              <CardDescription>
-                Detailed metrics for all your email campaigns
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {isLoadingCampaigns ? (
-                <>
-                  <Skeleton className="h-8 w-full mb-4" />
-                  <div className="space-y-2">
-                    {[...Array(5)].map((_, i) => (
-                      <Skeleton key={i} className="h-12 w-full" />
-                    ))}
-                  </div>
-                </>
-              ) : (
-                <div className="overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="w-[250px]">Campaign Name</TableHead>
-                        <TableHead className="text-center">Sent Date</TableHead>
-                        <TableHead className="text-center">Recipients</TableHead>
-                        <TableHead className="text-center">Opens</TableHead>
-                        <TableHead className="text-center">Open Rate</TableHead>
-                        <TableHead className="text-center">Clicks</TableHead>
-                        <TableHead className="text-center">Click Rate</TableHead>
-                        <TableHead className="text-center">Bounces</TableHead>
-                        <TableHead className="text-center">Unsubscribes</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {campaignMetrics?.map((campaign) => (
-                        <TableRow key={campaign.id}>
-                          <TableCell className="font-medium">
-                            <Button variant="link" className="p-0 h-auto font-medium justify-start">
-                              {campaign.name}
-                            </Button>
-                          </TableCell>
-                          <TableCell className="text-center">{formatDate(campaign.sentDate)}</TableCell>
-                          <TableCell className="text-center">{formatNumber(campaign.recipients)}</TableCell>
-                          <TableCell className="text-center">{formatNumber(campaign.opens)}</TableCell>
-                          <TableCell className="text-center font-medium">
-                            <span className={campaign.openRate >= 20 ? 'text-green-600' : 
-                                          campaign.openRate >= 15 ? 'text-emerald-600' :
-                                          campaign.openRate >= 10 ? 'text-amber-600' : 'text-gray-600'}>
-                              {formatPercent(campaign.openRate)}
-                            </span>
-                          </TableCell>
-                          <TableCell className="text-center">{formatNumber(campaign.clicks)}</TableCell>
-                          <TableCell className="text-center font-medium">
-                            <span className={campaign.clickRate >= 4 ? 'text-green-600' : 
-                                          campaign.clickRate >= 2.5 ? 'text-emerald-600' :
-                                          campaign.clickRate >= 1 ? 'text-amber-600' : 'text-gray-600'}>
-                              {formatPercent(campaign.clickRate)}
-                            </span>
-                          </TableCell>
-                          <TableCell className="text-center">
-                            <span className={campaign.bounces / campaign.recipients * 100 <= 1 ? 'text-green-600' : 
-                                          campaign.bounces / campaign.recipients * 100 <= 3 ? 'text-amber-600' : 
-                                          'text-red-600'}>
-                              {formatNumber(campaign.bounces)}
-                            </span>
-                          </TableCell>
-                          <TableCell className="text-center">
-                            <span className={campaign.unsubscribes / campaign.recipients * 100 <= 0.1 ? 'text-green-600' : 
-                                          campaign.unsubscribes / campaign.recipients * 100 <= 0.5 ? 'text-amber-600' : 
-                                          'text-red-600'}>
-                              {formatNumber(campaign.unsubscribes)}
-                            </span>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                      
-                      {(!campaignMetrics || campaignMetrics.length === 0) && (
-                        <TableRow>
-                          <TableCell colSpan={9} className="text-center py-6">
-                            <div className="flex flex-col items-center justify-center">
-                              <BarChart2 className="h-12 w-12 text-gray-300 mb-2" />
-                              <p className="text-gray-500">No campaign data available</p>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      )}
-                    </TableBody>
-                  </Table>
-                </div>
-              )}
-            </CardContent>
-            <CardFooter className="border-t pt-4 flex justify-between">
-              <div className="text-sm text-gray-500">
-                Showing {campaignMetrics?.length || 0} campaigns
-              </div>
-              <Button variant="outline" size="sm" className="flex items-center gap-1">
-                <span>View all campaigns</span>
-                <ArrowRight className="h-4 w-4" />
-              </Button>
-            </CardFooter>
-          </Card>
-          
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg">A/B Test Results</CardTitle>
-                <CardDescription>
-                  Performance comparison of A/B test campaigns
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {isLoadingCampaigns ? (
-                  <div className="space-y-3">
-                    {[...Array(3)].map((_, i) => (
-                      <Skeleton key={i} className="h-24 w-full" />
-                    ))}
-                  </div>
-                ) : (
-                  <div className="divide-y">
-                    <div className="py-4">
-                      <div className="flex justify-between items-center mb-3">
-                        <h4 className="font-medium text-sm">Subject Line Testing</h4>
-                        <Badge variant="outline">Completed</Badge>
-                      </div>
-                      <div className="space-y-3">
-                        <div>
-                          <div className="flex justify-between text-xs text-gray-500 mb-1">
-                            <span>Variant A: "Spring Sale: 25% Off All Products"</span>
-                            <span className="text-green-600 font-medium">Winner</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Progress value={24.8} max={100} className="h-2 flex-1" />
-                            <span className="text-xs font-medium">24.8%</span>
-                          </div>
-                        </div>
-                        <div>
-                          <div className="flex justify-between text-xs text-gray-500 mb-1">
-                            <span>Variant B: "Last Chance: Spring Discounts Inside"</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Progress value={19.2} max={100} className="h-2 flex-1" />
-                            <span className="text-xs font-medium">19.2%</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="py-4">
-                      <div className="flex justify-between items-center mb-3">
-                        <h4 className="font-medium text-sm">Call-to-Action Testing</h4>
-                        <Badge variant="outline">Active</Badge>
-                      </div>
-                      <div className="space-y-3">
-                        <div>
-                          <div className="flex justify-between text-xs text-gray-500 mb-1">
-                            <span>Variant A: "Shop Now"</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Progress value={3.2} max={10} className="h-2 flex-1" />
-                            <span className="text-xs font-medium">3.2%</span>
-                          </div>
-                        </div>
-                        <div>
-                          <div className="flex justify-between text-xs text-gray-500 mb-1">
-                            <span>Variant B: "See Exclusive Deals"</span>
-                            <span className="text-blue-600 font-medium">Leading</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Progress value={4.5} max={10} className="h-2 flex-1" />
-                            <span className="text-xs font-medium">4.5%</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </CardContent>
-              <CardFooter className="border-t pt-4 flex justify-end">
-                <Button size="sm" onClick={() => setLocation('/client-ab-testing')}>
-                  View all A/B tests
-                </Button>
-              </CardFooter>
-            </Card>
-            
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg">Campaign Engagement</CardTitle>
-                <CardDescription>
-                  Link click distribution and content engagement
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {isLoadingCampaigns ? (
-                  <div className="space-y-3">
-                    <Skeleton className="h-[200px] w-full" />
-                    <div className="space-y-2">
-                      {[...Array(3)].map((_, i) => (
-                        <Skeleton key={i} className="h-6 w-full" />
-                      ))}
-                    </div>
-                  </div>
-                ) : (
-                  <>
-                    <div className="h-[180px] w-full flex flex-col items-center justify-center mb-4">
-                      {/* This would be a real chart in production */}
-                      <PieChart className="h-16 w-16 text-gray-300 mb-3" />
-                      <p className="text-sm text-gray-500 mb-2">
-                        Link click distribution by content type
-                      </p>
-                      <div className="flex flex-wrap justify-center gap-3">
-                        <Badge variant="outline" className="flex items-center gap-1">
-                          <div className="h-2 w-2 rounded-full bg-blue-500"></div>
-                          Product links (45%)
-                        </Badge>
-                        <Badge variant="outline" className="flex items-center gap-1">
-                          <div className="h-2 w-2 rounded-full bg-purple-500"></div>
-                          CTA buttons (30%)
-                        </Badge>
-                        <Badge variant="outline" className="flex items-center gap-1">
-                          <div className="h-2 w-2 rounded-full bg-green-500"></div>
-                          Content links (20%)
-                        </Badge>
-                        <Badge variant="outline" className="flex items-center gap-1">
-                          <div className="h-2 w-2 rounded-full bg-gray-500"></div>
-                          Other (5%)
-                        </Badge>
-                      </div>
-                    </div>
-                    
-                    <div className="space-y-3">
-                      <div className="text-sm font-medium mb-2">Top clicked links</div>
-                      <div className="text-sm space-y-2">
-                        <div className="flex justify-between items-center py-1 border-b">
-                          <span className="flex-1 truncate">Shop New Arrivals</span>
-                          <span className="text-green-600 font-medium">12.4%</span>
-                        </div>
-                        <div className="flex justify-between items-center py-1 border-b">
-                          <span className="flex-1 truncate">Spring Collection 2025</span>
-                          <span className="text-green-600 font-medium">8.7%</span>
-                        </div>
-                        <div className="flex justify-between items-center py-1 border-b">
-                          <span className="flex-1 truncate">Limited Time Offer</span>
-                          <span className="text-green-600 font-medium">6.2%</span>
-                        </div>
-                      </div>
-                    </div>
-                  </>
-                )}
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-        
-        {/* Audience Tab Content */}
-        <TabsContent value="audience" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg">Audience Overview</CardTitle>
-                <CardDescription>
-                  Subscriber statistics and growth
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {isLoadingAudience ? (
-                  <div className="space-y-3">
-                    {[...Array(3)].map((_, i) => (
-                      <div key={i} className="space-y-1">
-                        <Skeleton className="h-4 w-24" />
-                        <Skeleton className="h-8 w-full" />
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="space-y-6">
-                    <div>
-                      <div className="flex justify-between items-center mb-2">
-                        <span className="text-sm text-gray-500">Total Subscribers</span>
-                        <span className="text-xs text-green-600">+5% this month</span>
-                      </div>
-                      <div className="text-3xl font-bold">
-                        {formatNumber(audienceData?.total || 0)}
-                      </div>
-                    </div>
-                    
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <div className="text-sm text-gray-500 mb-1">Active</div>
-                        <div className="text-xl font-medium">
-                          {formatNumber(audienceData?.active || 0)}
-                          <span className="text-sm text-gray-500 ml-1">
-                            ({formatPercent((audienceData?.active || 0) / (audienceData?.total || 1) * 100)})
-                          </span>
-                        </div>
-                      </div>
-                      
-                      <div>
-                        <div className="text-sm text-gray-500 mb-1">New This Month</div>
-                        <div className="text-xl font-medium">
-                          {formatNumber(audienceData?.new || 0)}
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <div className="text-sm font-medium mb-2">Subscriber Growth</div>
-                      <div className="h-[120px] w-full flex flex-col items-center justify-center">
-                        {/* This would be a real chart in production */}
-                        <LineChart className="h-12 w-12 text-gray-300 mb-2" />
-                        <p className="text-xs text-gray-500">
-                          Growth trend would be displayed here
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg">Demographics</CardTitle>
-                <CardDescription>
-                  Subscriber demographic breakdown
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {isLoadingAudience ? (
-                  <div className="space-y-4">
-                    <Skeleton className="h-4 w-24" />
-                    <Skeleton className="h-[150px] w-full" />
-                    <Skeleton className="h-4 w-24" />
-                    <Skeleton className="h-[100px] w-full" />
-                  </div>
-                ) : (
-                  <div className="space-y-5">
-                    <div>
-                      <div className="text-sm font-medium mb-3">Age Distribution</div>
-                      <div className="space-y-2">
-                        {audienceData?.demographics.age.map((item, index) => (
-                          <div key={index} className="space-y-1">
-                            <div className="flex justify-between text-xs">
-                              <span>{item.label}</span>
-                              <span>{formatPercent(item.value)}%</span>
-                            </div>
-                            <Progress value={item.value} max={100} className="h-1.5" />
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                    
-                    <Separator />
-                    
-                    <div>
-                      <div className="text-sm font-medium mb-3">Top Locations</div>
-                      <div className="space-y-2">
-                        {audienceData?.demographics.location.slice(0, 3).map((item, index) => (
-                          <div key={index} className="flex justify-between items-center">
-                            <span className="text-sm">{item.label}</span>
-                            <Badge variant="outline">{formatPercent(item.value)}%</Badge>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg">Engagement Patterns</CardTitle>
-                <CardDescription>
-                  When and how subscribers engage
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {isLoadingAudience ? (
-                  <div className="space-y-4">
-                    <Skeleton className="h-4 w-32" />
-                    <Skeleton className="h-[100px] w-full" />
-                    <Skeleton className="h-4 w-32" />
-                    <Skeleton className="h-[100px] w-full" />
-                  </div>
-                ) : (
-                  <div className="space-y-6">
-                    <div>
-                      <div className="text-sm font-medium mb-3">Best Time to Send</div>
-                      <div className="h-[100px] w-full flex flex-col items-center justify-center mb-2">
-                        {/* This would be a real chart in production */}
-                        <BarChart2 className="h-12 w-12 text-gray-300 mb-2" />
-                        <div className="text-sm">
-                          <span className="font-medium text-green-600">Tuesday-Thursday</span>
-                          <span className="text-gray-500 mx-1">•</span>
-                          <span className="font-medium text-green-600">9am-11am</span>
-                        </div>
-                      </div>
-                      <p className="text-xs text-gray-500 text-center">
-                        Based on historical open rates and engagement
-                      </p>
-                    </div>
-                    
-                    <Separator />
-                    
-                    <div>
-                      <div className="text-sm font-medium mb-3">Device Usage</div>
-                      <div className="space-y-2">
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm">Mobile</span>
-                          <Badge variant="outline">68%</Badge>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm">Desktop</span>
-                          <Badge variant="outline">24%</Badge>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm">Tablet</span>
-                          <Badge variant="outline">8%</Badge>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-        
-        {/* Exports Tab Content */}
-        <TabsContent value="exports" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Export Reports</CardTitle>
-              <CardDescription>
-                Generate and download detailed reports
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="border rounded-lg p-4 hover:border-primary/30 hover:bg-primary/5 transition-colors">
-                  <div className="flex flex-col items-center text-center space-y-2 mb-4">
-                    <div className="p-3 bg-primary/10 rounded-full">
-                      <BarChart2 className="h-6 w-6 text-primary" />
-                    </div>
-                    <h3 className="font-medium">Campaign Performance</h3>
-                    <p className="text-sm text-gray-500">
-                      Detailed metrics and analytics for all campaigns
-                    </p>
-                  </div>
-                  <div className="space-y-2">
-                    <div className="flex items-center">
-                      <input type="radio" id="camp-all" name="camp-report" className="mr-2" defaultChecked />
-                      <label htmlFor="camp-all" className="text-sm">All campaigns</label>
-                    </div>
-                    <div className="flex items-center">
-                      <input type="radio" id="camp-select" name="camp-report" className="mr-2" />
-                      <label htmlFor="camp-select" className="text-sm">Selected campaigns</label>
-                    </div>
-                    <div className="flex items-center">
-                      <input type="radio" id="camp-date" name="camp-report" className="mr-2" />
-                      <label htmlFor="camp-date" className="text-sm">Date range</label>
-                    </div>
-                  </div>
-                  <Button className="w-full mt-4" onClick={downloadReport}>
-                    <Download className="h-4 w-4 mr-2" />
-                    Export Report
-                  </Button>
-                </div>
-                
-                <div className="border rounded-lg p-4 hover:border-primary/30 hover:bg-primary/5 transition-colors">
-                  <div className="flex flex-col items-center text-center space-y-2 mb-4">
-                    <div className="p-3 bg-primary/10 rounded-full">
-                      <Users className="h-6 w-6 text-primary" />
-                    </div>
-                    <h3 className="font-medium">Audience Report</h3>
-                    <p className="text-sm text-gray-500">
-                      Subscriber growth, demographics and engagement data
-                    </p>
-                  </div>
-                  <div className="space-y-2">
-                    <div className="flex items-center">
-                      <input type="radio" id="aud-overview" name="aud-report" className="mr-2" defaultChecked />
-                      <label htmlFor="aud-overview" className="text-sm">Overview</label>
-                    </div>
-                    <div className="flex items-center">
-                      <input type="radio" id="aud-demo" name="aud-report" className="mr-2" />
-                      <label htmlFor="aud-demo" className="text-sm">Demographics</label>
-                    </div>
-                    <div className="flex items-center">
-                      <input type="radio" id="aud-eng" name="aud-report" className="mr-2" />
-                      <label htmlFor="aud-eng" className="text-sm">Engagement</label>
-                    </div>
-                  </div>
-                  <Button className="w-full mt-4" onClick={downloadReport}>
-                    <Download className="h-4 w-4 mr-2" />
-                    Export Report
-                  </Button>
-                </div>
-                
-                <div className="border rounded-lg p-4 hover:border-primary/30 hover:bg-primary/5 transition-colors">
-                  <div className="flex flex-col items-center text-center space-y-2 mb-4">
-                    <div className="p-3 bg-primary/10 rounded-full">
-                      <LineChart className="h-6 w-6 text-primary" />
-                    </div>
-                    <h3 className="font-medium">Growth & Trends</h3>
-                    <p className="text-sm text-gray-500">
-                      Long-term performance trends and growth analytics
-                    </p>
-                  </div>
-                  <div className="space-y-2">
-                    <div className="flex items-center">
-                      <input type="radio" id="trend-month" name="trend-report" className="mr-2" defaultChecked />
-                      <label htmlFor="trend-month" className="text-sm">Monthly</label>
-                    </div>
-                    <div className="flex items-center">
-                      <input type="radio" id="trend-quarter" name="trend-report" className="mr-2" />
-                      <label htmlFor="trend-quarter" className="text-sm">Quarterly</label>
-                    </div>
-                    <div className="flex items-center">
-                      <input type="radio" id="trend-annual" name="trend-report" className="mr-2" />
-                      <label htmlFor="trend-annual" className="text-sm">Annual</label>
-                    </div>
-                  </div>
-                  <Button className="w-full mt-4" onClick={downloadReport}>
-                    <Download className="h-4 w-4 mr-2" />
-                    Export Report
-                  </Button>
-                </div>
+                  </SelectContent>
+                </Select>
               </div>
               
-              <div className="mt-8 border-t pt-6">
-                <h3 className="text-sm font-medium mb-4">Scheduled Reports</h3>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between border-b pb-3">
-                    <div>
-                      <div className="font-medium">Weekly Performance Summary</div>
-                      <div className="text-sm text-gray-500">Sent every Monday at 9:00 AM</div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline" className="cursor-pointer">Edit</Badge>
-                      <Badge variant="outline" className="cursor-pointer">Delete</Badge>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center justify-between border-b pb-3">
-                    <div>
-                      <div className="font-medium">Monthly Audience Report</div>
-                      <div className="text-sm text-gray-500">Sent on the 1st of every month</div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline" className="cursor-pointer">Edit</Badge>
-                      <Badge variant="outline" className="cursor-pointer">Delete</Badge>
-                    </div>
-                  </div>
+              <div>
+                <label className="text-sm font-medium mb-1 block">Status</label>
+                <Select defaultValue="all">
+                  <SelectTrigger>
+                    <SelectValue placeholder="All statuses" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All statuses</SelectItem>
+                    <SelectItem value="sent">Sent</SelectItem>
+                    <SelectItem value="scheduled">Scheduled</SelectItem>
+                    <SelectItem value="draft">Draft</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div>
+                <label className="text-sm font-medium mb-1 block">Search</label>
+                <div className="relative">
+                  <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
+                  <Input placeholder="Search by name..." className="pl-8" />
                 </div>
-                
-                <Button variant="outline" className="mt-6">
-                  Schedule New Report
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+      
+      <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <TabsList className="grid w-full grid-cols-4 mb-6">
+          <TabsTrigger value="overview">
+            <BarChart3 className="h-4 w-4 mr-2" />
+            Overview
+          </TabsTrigger>
+          <TabsTrigger value="campaigns">
+            <Mail className="h-4 w-4 mr-2" />
+            Campaigns
+          </TabsTrigger>
+          <TabsTrigger value="audience">
+            <Users className="h-4 w-4 mr-2" />
+            Audience
+          </TabsTrigger>
+          <TabsTrigger value="performance">
+            <TrendingUp className="h-4 w-4 mr-2" />
+            Performance
+          </TabsTrigger>
+        </TabsList>
+
+        {/* Overview Tab */}
+        <TabsContent value="overview" className="space-y-6">
+          {/* Key Metrics */}
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <MetricCard 
+              title="Open Rate" 
+              value={metrics?.openRate.value} 
+              change={metrics ? { value: metrics.openRate.change } : null} 
+              icon={Goal} 
+              color="blue"
+              isLoading={metricsLoading} 
+            />
+            <MetricCard 
+              title="Click Rate" 
+              value={metrics?.clickRate.value} 
+              change={metrics ? { value: metrics.clickRate.change } : null} 
+              icon={TrendingUp} 
+              color="green"
+              isLoading={metricsLoading} 
+            />
+            <MetricCard 
+              title="Bounce Rate" 
+              value={metrics?.bounceRate.value} 
+              change={metrics ? { value: metrics.bounceRate.change } : null} 
+              icon={TrendingUp} 
+              color="red"
+              isLoading={metricsLoading} 
+            />
+            <MetricCard 
+              title="Deliverability" 
+              value={metrics?.deliverability.value} 
+              change={metrics ? { value: metrics.deliverability.change } : null} 
+              icon={Award} 
+              color="purple"
+              isLoading={metricsLoading} 
+            />
+          </div>
+
+          {/* Charts Row */}
+          <div className="grid gap-4 md:grid-cols-2">
+            <Card className="col-span-1">
+              <CardHeader>
+                <CardTitle>Weekly Performance</CardTitle>
+                <CardDescription>Opens and clicks by day of week</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {chartLoading ? (
+                  <div className="h-64 w-full bg-gray-100 animate-pulse rounded"></div>
+                ) : (
+                  <div className="h-64">
+                    {/* This would be your chart component */}
+                    <div className="h-full flex items-center justify-center bg-gray-50 rounded border border-gray-100">
+                      <p className="text-gray-500">Weekly performance chart would render here</p>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card className="col-span-1">
+              <CardHeader>
+                <CardTitle>Monthly Trends</CardTitle>
+                <CardDescription>Engagement over the last 6 months</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {chartLoading ? (
+                  <div className="h-64 w-full bg-gray-100 animate-pulse rounded"></div>
+                ) : (
+                  <div className="h-64">
+                    {/* This would be your chart component */}
+                    <div className="h-full flex items-center justify-center bg-gray-50 rounded border border-gray-100">
+                      <p className="text-gray-500">Monthly trends chart would render here</p>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Top Performers */}
+          <div className="grid gap-4 md:grid-cols-3">
+            <Card>
+              <CardHeader>
+                <CardTitle>Top Subject Lines</CardTitle>
+                <CardDescription>Best performing email subjects</CardDescription>
+              </CardHeader>
+              <CardContent className="p-0">
+                <div className="px-6">
+                  {topPerformersLoading ? (
+                    Array(5).fill(0).map((_, i) => (
+                      <TopPerformerCard key={i} item={{}} type="subject" isLoading={true} />
+                    ))
+                  ) : (
+                    topPerformers?.subjects?.slice(0, 5).map((subject, i) => (
+                      <TopPerformerCard key={i} item={subject} type="subject" />
+                    ))
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Top Campaigns</CardTitle>
+                <CardDescription>Highest engagement campaigns</CardDescription>
+              </CardHeader>
+              <CardContent className="p-0">
+                <div className="px-6">
+                  {topPerformersLoading ? (
+                    Array(5).fill(0).map((_, i) => (
+                      <TopPerformerCard key={i} item={{}} type="campaign" isLoading={true} />
+                    ))
+                  ) : (
+                    topPerformers?.campaigns?.slice(0, 5).map((campaign, i) => (
+                      <TopPerformerCard key={i} item={campaign} type="campaign" />
+                    ))
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Top Templates</CardTitle>
+                <CardDescription>Best performing email designs</CardDescription>
+              </CardHeader>
+              <CardContent className="p-0">
+                <div className="px-6">
+                  {topPerformersLoading ? (
+                    Array(5).fill(0).map((_, i) => (
+                      <TopPerformerCard key={i} item={{}} type="template" isLoading={true} />
+                    ))
+                  ) : (
+                    topPerformers?.templates?.slice(0, 5).map((template, i) => (
+                      <TopPerformerCard key={i} item={template} type="template" />
+                    ))
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        {/* Campaigns Tab */}
+        <TabsContent value="campaigns" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <div className="flex justify-between items-center">
+                <div>
+                  <CardTitle>Campaign Performance</CardTitle>
+                  <CardDescription>Detailed metrics for all campaigns</CardDescription>
+                </div>
+                <Button variant="outline" size="sm" className="gap-1">
+                  <RefreshCcw size={14} />
+                  Refresh
                 </Button>
               </div>
+            </CardHeader>
+            <CardContent>
+              <div className="rounded-md border overflow-hidden">
+                <table className="min-w-full divide-y divide-gray-200 text-sm">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th scope="col" className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Campaign</th>
+                      <th scope="col" className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sent Date</th>
+                      <th scope="col" className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Recipients</th>
+                      <th scope="col" className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Open Rate</th>
+                      <th scope="col" className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Click Rate</th>
+                      <th scope="col" className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unsubscribes</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {campaignsLoading ? (
+                      Array(6).fill(0).map((_, i) => (
+                        <CampaignRow key={i} campaign={{}} isLoading={true} />
+                      ))
+                    ) : (
+                      campaigns?.map((campaign, i) => (
+                        <CampaignRow key={i} campaign={campaign} />
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Audience Tab */}
+        <TabsContent value="audience" className="space-y-6">
+          <div className="grid gap-4 md:grid-cols-3">
+            <Card>
+              <CardHeader>
+                <CardTitle>Audience Overview</CardTitle>
+                <CardDescription>Subscriber stats and growth</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {audienceLoading ? (
+                  <div className="space-y-4">
+                    <div className="h-16 bg-gray-100 animate-pulse rounded"></div>
+                    <div className="h-16 bg-gray-100 animate-pulse rounded"></div>
+                    <div className="h-16 bg-gray-100 animate-pulse rounded"></div>
+                  </div>
+                ) : (
+                  <div className="space-y-6">
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <span className="text-sm text-gray-500">Total Subscribers</span>
+                        <span className="text-sm font-medium">{audience?.total?.toLocaleString()}</span>
+                      </div>
+                      <Progress value={100} className="h-2" />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <span className="text-sm text-gray-500">Active Subscribers</span>
+                        <span className="text-sm font-medium">{audience?.active?.toLocaleString()} ({((audience?.active / audience?.total) * 100).toFixed(1)}%)</span>
+                      </div>
+                      <Progress value={(audience?.active / audience?.total) * 100} className="h-2" />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <span className="text-sm text-gray-500">New This Month</span>
+                        <span className="text-sm font-medium">{audience?.new?.toLocaleString()} ({((audience?.new / audience?.total) * 100).toFixed(1)}%)</span>
+                      </div>
+                      <Progress value={(audience?.new / audience?.total) * 100} className="h-2" />
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Demographics</CardTitle>
+                <CardDescription>Subscriber demographics</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {audienceLoading ? (
+                  <div className="space-y-4">
+                    <div className="h-24 bg-gray-100 animate-pulse rounded"></div>
+                    <div className="h-24 bg-gray-100 animate-pulse rounded"></div>
+                  </div>
+                ) : (
+                  <div className="space-y-6">
+                    <div>
+                      <h4 className="text-sm font-medium mb-2">Age Groups</h4>
+                      <div className="space-y-2">
+                        {audience?.demographics?.age.map((item, i) => (
+                          <div key={i} className="space-y-1">
+                            <div className="flex justify-between text-sm">
+                              <span>{item.label}</span>
+                              <span>{item.value}%</span>
+                            </div>
+                            <Progress value={item.value} className="h-1.5" />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <h4 className="text-sm font-medium mb-2">Gender</h4>
+                      <div className="space-y-2">
+                        {audience?.demographics?.gender.map((item, i) => (
+                          <div key={i} className="space-y-1">
+                            <div className="flex justify-between text-sm">
+                              <span>{item.label}</span>
+                              <span>{item.value}%</span>
+                            </div>
+                            <Progress value={item.value} className="h-1.5" />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <h4 className="text-sm font-medium mb-2">Location</h4>
+                      <div className="space-y-2">
+                        {audience?.demographics?.location.map((item, i) => (
+                          <div key={i} className="space-y-1">
+                            <div className="flex justify-between text-sm">
+                              <span>{item.label}</span>
+                              <span>{item.value}%</span>
+                            </div>
+                            <Progress value={item.value} className="h-1.5" />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Engagement Patterns</CardTitle>
+                <CardDescription>When subscribers engage with your content</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {audienceLoading ? (
+                  <div className="space-y-4">
+                    <div className="h-24 bg-gray-100 animate-pulse rounded"></div>
+                    <div className="h-24 bg-gray-100 animate-pulse rounded"></div>
+                  </div>
+                ) : (
+                  <div className="space-y-6">
+                    <div>
+                      <h4 className="text-sm font-medium mb-2">Engagement Frequency</h4>
+                      <div className="space-y-2">
+                        {audience?.engagement?.frequency.map((item, i) => (
+                          <div key={i} className="space-y-1">
+                            <div className="flex justify-between text-sm">
+                              <span>{item.label}</span>
+                              <span>{item.value}%</span>
+                            </div>
+                            <Progress value={item.value} className="h-1.5" />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <h4 className="text-sm font-medium mb-2">Time of Day</h4>
+                      <div className="space-y-2">
+                        {audience?.engagement?.timeOfDay.map((item, i) => (
+                          <div key={i} className="space-y-1">
+                            <div className="flex justify-between text-sm">
+                              <span>{item.label}</span>
+                              <span>{item.value}%</span>
+                            </div>
+                            <Progress value={item.value} className="h-1.5" />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        {/* Performance Tab */}
+        <TabsContent value="performance" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Performance Metrics</CardTitle>
+              <CardDescription>Detailed analytics by date range</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {chartLoading ? (
+                <div className="h-80 w-full bg-gray-100 animate-pulse rounded"></div>
+              ) : (
+                <div className="h-80">
+                  {/* This would be your chart component */}
+                  <div className="h-full flex items-center justify-center bg-gray-50 rounded border border-gray-100">
+                    <p className="text-gray-500">Performance metrics chart would render here</p>
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>

@@ -15,6 +15,7 @@ import { z } from "zod";
 import fileUpload, { UploadedFile } from "express-fileupload";
 import heatMapsRoutes from "./routes/heat-maps";
 import userManagementRoutes from "./routes/user-management";
+import reportingRoutes from "./routes/reporting-routes";
 import { emailService } from "./services/EmailService";
 import { defaultEmailSettings } from "./routes/emailSettings";
 import { registerAIAssistantRoutes } from "./routes/ai-assistant-routes";
@@ -167,6 +168,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Register user management routes
   app.use('/api', userManagementRoutes);
+  
+  // Register reporting routes
+  app.use('/', reportingRoutes);
   
   // AI Assistant endpoint
   app.post('/api/assistant/chat', async (req: Request, res: Response) => {
