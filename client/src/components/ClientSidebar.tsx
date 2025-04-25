@@ -88,8 +88,8 @@ const ClientSidebar = ({ open, setOpen }: SidebarProps) => {
 
   const handleLogout = async () => {
     try {
-      // Call logout API endpoint
-      const response = await fetch('/api/logout', {
+      // Call client-specific logout API endpoint
+      const response = await fetch('/api/client-logout', {
         method: 'POST',
         credentials: 'include',
         headers: {

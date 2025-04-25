@@ -2827,6 +2827,7 @@ const ClientABTesting = () => (
 export default function ClientRoutes() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [clientUser, setClientUser] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [location, setLocation] = useLocation();
   const { toast } = useToast();
   
@@ -2837,37 +2838,92 @@ export default function ClientRoutes() {
   const [showCreateTemplateModal, setShowCreateTemplateModal] = useState(false);
   
   useEffect(() => {
-    // Check for client user in session storage
+    // First check client user in session storage for quick load
     const sessionUser = sessionStorage.getItem('clientUser');
-    if (!sessionUser) {
-      toast({
-        title: "Authentication required",
-        description: "Please login to access the client portal",
-        variant: "destructive"
-      });
-      setLocation('/client-login');
-      return;
+    let userData = null;
+    
+    if (sessionUser) {
+      try {
+        userData = JSON.parse(sessionUser);
+        setClientUser(userData);
+      } catch (error) {
+        console.error('Error parsing client user from session storage:', error);
+        sessionStorage.removeItem('clientUser');
+      }
     }
     
-    try {
-      const userData = JSON.parse(sessionUser);
-      setClientUser(userData);
-    } catch (error) {
-      console.error('Error parsing client user from session storage:', error);
-      sessionStorage.removeItem('clientUser');
-      toast({
-        title: "Session error",
-        description: "Please login again",
-        variant: "destructive"
-      });
-      setLocation('/client-login');
+    // Always verify session with server regardless of local session storage
+    async function verifySession() {
+      try {
+        setIsLoading(true);
+        const response = await fetch('/api/client/verify-session', {
+          credentials: 'include' // Important for cookies/session
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          if (data.authenticated && data.user) {
+            // Update client user data from server
+            setClientUser(data.user);
+            
+            // Update session storage with latest data
+            sessionStorage.setItem('clientUser', JSON.stringify(data.user));
+            
+            console.log('Client session verified successfully');
+          } else {
+            throw new Error('Session verification failed');
+          }
+        } else {
+          throw new Error('Session verification failed');
+        }
+      } catch (error) {
+        console.error('Session verification error:', error);
+        // Clear invalid session data
+        sessionStorage.removeItem('clientUser');
+        setClientUser(null);
+        
+        toast({
+          title: "Authentication required",
+          description: "Please login to access the client portal",
+          variant: "destructive"
+        });
+        
+        setLocation('/client-login');
+      } finally {
+        setIsLoading(false);
+      }
     }
+    
+    verifySession();
   }, [setLocation, toast]);
   
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500 mb-4"></div>
+        <p className="text-gray-500 text-sm">Verifying your session...</p>
+      </div>
+    );
+  }
+  
   if (!clientUser) {
-    return <div className="flex items-center justify-center h-screen">
-      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-500"></div>
-    </div>;
+    return (
+      <div className="flex flex-col items-center justify-center h-screen">
+        <div className="text-red-500 mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+        </div>
+        <p className="text-xl font-medium mb-2">Session Expired</p>
+        <p className="text-gray-500 mb-4">Your session has expired or is invalid</p>
+        <button 
+          onClick={() => setLocation('/client-login')}
+          className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-all"
+        >
+          Return to Login
+        </button>
+      </div>
+    );
   }
   
   return (

@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { randomInt } from 'crypto';
-import { isClientAuthenticated, hasPermission } from '../helpers/auth-helpers';
+import { isClientAuthenticated, authorize } from '../helpers/auth-helpers';
 
 // Initialize router
 const router = Router();

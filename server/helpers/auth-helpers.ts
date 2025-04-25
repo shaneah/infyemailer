@@ -1,10 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
 
 /**
- * Middleware to check if a user is authenticated
+ * Authentication middleware for admin users
+ * Verifies that the user is authenticated and has admin access
  */
 export function isAuthenticated(req: Request, res: Response, next: NextFunction) {
-  if (req.session && req.session.user) {
+  if (req.isAuthenticated()) {
     return next();
   }
   
@@ -12,97 +13,68 @@ export function isAuthenticated(req: Request, res: Response, next: NextFunction)
 }
 
 /**
- * Middleware to check if a client user is authenticated
+ * Authentication middleware for client users
+ * Verifies that the client user is authenticated
  */
 export function isClientAuthenticated(req: Request, res: Response, next: NextFunction) {
+  // Check if client is authenticated via session
   if (req.session && req.session.clientUser) {
     return next();
   }
   
-  return res.status(401).json({ message: 'Client not authenticated' });
+  return res.status(401).json({ message: 'Not authenticated as client' });
 }
 
 /**
- * Middleware to check if the logged in user is an admin
+ * Authorization middleware for checking specific client permissions
+ * Usage: authorize('campaigns', 'contacts')
+ * @param permissions - List of permission keys to check for
  */
-export function isAdmin(req: Request, res: Response, next: NextFunction) {
-  if (req.session && req.session.user && req.session.user.role === 'admin') {
-    return next();
-  }
-  
-  return res.status(403).json({ message: 'Unauthorized. Admin access required.' });
-}
-
-/**
- * Middleware to validate if a client user has specific permissions
- */
-export function hasPermission(permission: string) {
+export function authorize(...permissions: string[]) {
   return (req: Request, res: Response, next: NextFunction) => {
     if (!req.session || !req.session.clientUser) {
-      return res.status(401).json({ message: 'Client not authenticated' });
+      return res.status(401).json({ message: 'Not authenticated as client' });
     }
     
     const clientUser = req.session.clientUser;
     
-    // Check if user has needed permission
-    if (clientUser.permissions && clientUser.permissions[permission]) {
+    // If no permissions are provided, just check for authenticated client
+    if (permissions.length === 0) {
       return next();
     }
     
+    // Check if client has all required permissions
+    if (clientUser.permissions) {
+      const hasAllPermissions = permissions.every(permission => 
+        clientUser.permissions[permission] === true
+      );
+      
+      if (hasAllPermissions) {
+        return next();
+      }
+    }
+    
     return res.status(403).json({ 
-      message: `Unauthorized. Missing required permission: ${permission}` 
+      message: 'Unauthorized access',
+      requiredPermissions: permissions
     });
   };
 }
 
 /**
- * Create validation decorator for client permissions
+ * Create a client-specific context for authenticated requests
+ * @param req - Express request
+ * @returns Client context object with session data
  */
-export function requireClientPermission(permission: string) {
-  return function(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
-    const originalMethod = descriptor.value;
-    
-    descriptor.value = function(req: Request, res: Response, next: NextFunction) {
-      if (!req.session || !req.session.clientUser) {
-        return res.status(401).json({ message: 'Client not authenticated' });
-      }
-      
-      const clientUser = req.session.clientUser;
-      
-      // Check if user has needed permission
-      if (clientUser.permissions && clientUser.permissions[permission]) {
-        return originalMethod.apply(this, [req, res, next]);
-      }
-      
-      return res.status(403).json({ 
-        message: `Unauthorized. Missing required permission: ${permission}` 
-      });
-    };
-    
-    return descriptor;
-  };
-}
-
-/**
- * Helper to get current authenticated user
- */
-export function getCurrentUser(req: Request) {
-  return req.session && req.session.user ? req.session.user : null;
-}
-
-/**
- * Helper to get current authenticated client user
- */
-export function getCurrentClientUser(req: Request) {
-  return req.session && req.session.clientUser ? req.session.clientUser : null;
-}
-
-/**
- * Extend Request interface to include custom session properties
- */
-declare module 'express-session' {
-  interface SessionData {
-    user?: any;
-    clientUser?: any;
+export function getClientContext(req: Request) {
+  if (!req.session || !req.session.clientUser) {
+    return null;
   }
+  
+  return {
+    clientUser: req.session.clientUser,
+    clientId: req.session.clientUser.clientId || req.session.clientUser.id,
+    permissions: req.session.clientUser.permissions || {},
+    authenticated: true
+  };
 }
