@@ -61,7 +61,8 @@ export default function ClientDashboard() {
         }
         
         const data = await response.json();
-        return data.authenticated;
+        console.log("Session verification response:", data);
+        return data.verified;
       } catch (error) {
         console.error("Session verification error:", error);
         toast({
@@ -222,9 +223,10 @@ export default function ClientDashboard() {
 
   return (
     <WidgetsProvider>
-      <div className="flex flex-col overflow-hidden min-h-screen bg-white">
-        {/* Main Content */}
-        <div className="flex-1 flex flex-col overflow-hidden relative z-10">
+      <div className="flex min-h-screen bg-white">
+        <ClientSidebar onLogout={handleLogout} isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+        
+        <div className="flex-1 flex flex-col overflow-hidden">
           {/* Header */}
           <header className="relative z-20 flex items-center justify-between p-4 bg-white border-b border-gray-200">
             <div className="flex items-center">
