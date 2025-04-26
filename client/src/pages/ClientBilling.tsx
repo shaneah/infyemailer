@@ -10,7 +10,15 @@ import {
   ArrowUpRight,
   AlertCircle,
   CheckCircle,
-  HelpCircle
+  HelpCircle,
+  Wallet,
+  BarChart4,
+  History,
+  Package,
+  ChevronRight,
+  Sparkles,
+  DollarSign,
+  Zap
 } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Progress } from "@/components/ui/progress";
@@ -20,6 +28,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
+import { motion } from 'framer-motion';
 import AnimatedCreditProgressBar from '@/components/AnimatedCreditProgressBar';
 import PlanCreditsBubbles from '@/components/PlanCreditsBubbles';
 
@@ -179,42 +188,151 @@ const ClientBilling = () => {
       
       <Tabs defaultValue="summary" className="w-full">
         <TabsList className="grid w-full grid-cols-3 mb-8">
-          <TabsTrigger value="summary">Account Summary</TabsTrigger>
-          <TabsTrigger value="history">Billing History</TabsTrigger>
-          <TabsTrigger value="plans">Subscription Plans</TabsTrigger>
+          <TabsTrigger value="summary">
+            <Wallet className="h-4 w-4 mr-2" />
+            Account Summary
+          </TabsTrigger>
+          <TabsTrigger value="history">
+            <History className="h-4 w-4 mr-2" />
+            Billing History
+          </TabsTrigger>
+          <TabsTrigger value="plans">
+            <Package className="h-4 w-4 mr-2" />
+            Subscription Plans
+          </TabsTrigger>
         </TabsList>
         
         <TabsContent value="summary">
+          {/* Summary Stats Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+              className="bg-gradient-to-br from-purple-50 to-indigo-50 p-6 rounded-xl shadow-sm border border-purple-100"
+            >
+              <div className="flex justify-between items-start mb-4">
+                <div className="p-2 bg-purple-100 rounded-lg">
+                  <BarChart4 className="h-5 w-5 text-purple-700" />
+                </div>
+                <span className="text-xs font-medium text-purple-700 bg-purple-100 px-2 py-1 rounded-full">
+                  Monthly
+                </span>
+              </div>
+              <h3 className="text-2xl font-bold text-purple-900">${currentPlan.monthlyCost}</h3>
+              <p className="text-sm text-purple-600">{currentPlan.name} Plan</p>
+              <div className="flex items-center mt-3 text-xs text-purple-600">
+                <Calendar className="h-3 w-3 mr-1" />
+                <span>Next billing: {currentPlan.nextBillingDate}</span>
+              </div>
+            </motion.div>
+            
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: 0.1 }}
+              className="bg-gradient-to-br from-blue-50 to-cyan-50 p-6 rounded-xl shadow-sm border border-blue-100"
+            >
+              <div className="flex justify-between items-start mb-4">
+                <div className="p-2 bg-blue-100 rounded-lg">
+                  <Sparkles className="h-5 w-5 text-blue-700" />
+                </div>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <span className="text-xs font-medium text-blue-700 bg-blue-100 px-2 py-1 rounded-full flex items-center">
+                        <HelpCircle className="h-3 w-3 mr-1" />
+                        Info
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent side="top">
+                      <p className="w-64 text-xs">Credits reset on your billing date. Unused credits do not roll over to the next month.</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+              <h3 className="text-2xl font-bold text-blue-900">{currentPlan.creditsRemaining.toLocaleString()}</h3>
+              <p className="text-sm text-blue-600">Credits Remaining</p>
+              <div className="flex items-center mt-3 text-xs text-blue-600">
+                <span>{Math.round((currentPlan.creditsRemaining / currentPlan.includedCredits) * 100)}% of monthly allocation</span>
+              </div>
+            </motion.div>
+            
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: 0.2 }}
+              className="bg-gradient-to-br from-green-50 to-emerald-50 p-6 rounded-xl shadow-sm border border-green-100"
+            >
+              <div className="flex justify-between items-start mb-4">
+                <div className="p-2 bg-green-100 rounded-lg">
+                  <Zap className="h-5 w-5 text-green-700" />
+                </div>
+                <span className="text-xs font-medium text-green-700 bg-green-100 px-2 py-1 rounded-full">
+                  This Month
+                </span>
+              </div>
+              <h3 className="text-2xl font-bold text-green-900">{currentPlan.emailsSent.toLocaleString()}</h3>
+              <p className="text-sm text-green-600">Emails Sent</p>
+              <div className="flex items-center mt-3 text-xs text-green-600">
+                <span>{Math.round((currentPlan.emailsSent / currentPlan.includedCredits) * 100)}% of your monthly limit</span>
+              </div>
+            </motion.div>
+          </div>
+          
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2 space-y-6">
+            <motion.div 
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.3, delay: 0.3 }}
+              className="lg:col-span-2 space-y-6"
+            >
               <Card>
-                <CardHeader>
-                  <CardTitle>Current Plan</CardTitle>
-                  <CardDescription>
-                    Your subscription details and upcoming billing information
-                  </CardDescription>
+                <CardHeader className="pb-3">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <CardTitle className="text-xl flex items-center">
+                        <Package className="h-5 w-5 mr-2 text-purple-600" />
+                        Current Plan
+                      </CardTitle>
+                      <CardDescription>
+                        Your subscription details and usage information
+                      </CardDescription>
+                    </div>
+                    <Button variant="outline" size="sm" className="text-sm" onClick={() => setShowUpgradeDialog(true)}>
+                      <ArrowUpRight className="h-3.5 w-3.5 mr-1" />
+                      Upgrade
+                    </Button>
+                  </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="flex flex-col md:flex-row md:justify-between md:items-center p-4 bg-purple-50 rounded-lg mb-6">
-                    <div>
-                      <h3 className="text-lg font-semibold text-purple-800">{currentPlan.name} Plan</h3>
-                      <p className="text-purple-700">${currentPlan.monthlyCost}/month</p>
-                    </div>
-                    <div className="mt-2 md:mt-0 flex items-center gap-1">
-                      <Calendar className="h-4 w-4 text-purple-600 mr-1" />
-                      <span className="text-sm text-purple-700">Next billing: {currentPlan.nextBillingDate}</span>
+                  <div className="p-4 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg mb-6 border border-purple-100">
+                    <div className="flex flex-col md:flex-row md:justify-between md:items-center">
+                      <div className="flex items-center">
+                        <div className="h-10 w-10 bg-purple-200 rounded-full flex items-center justify-center mr-3">
+                          <span className="text-purple-800 font-bold">{currentPlan.name.charAt(0)}</span>
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-semibold text-purple-800">{currentPlan.name} Plan</h3>
+                          <p className="text-purple-700 text-sm">${currentPlan.monthlyCost}/month</p>
+                        </div>
+                      </div>
+                      <div className="mt-3 md:mt-0 flex items-center gap-2 bg-white/50 px-3 py-1.5 rounded-full text-sm text-purple-700">
+                        <Calendar className="h-4 w-4 text-purple-600" />
+                        <span>Renews on {currentPlan.nextBillingDate}</span>
+                      </div>
                     </div>
                   </div>
                   
                   <div className="space-y-6">
-                    <div>
-                      <div className="flex justify-between items-center mb-2">
+                    <div className="bg-gray-50 p-4 rounded-lg">
+                      <div className="flex justify-between items-center mb-3">
                         <div className="flex items-center gap-1">
-                          <h4 className="font-medium">Email Credits Used</h4>
+                          <h4 className="font-medium text-gray-800">Email Credits Usage</h4>
                           <TooltipProvider>
                             <Tooltip>
                               <TooltipTrigger>
-                                <HelpCircle className="h-4 w-4 text-muted-foreground" />
+                                <HelpCircle className="h-4 w-4 text-gray-400" />
                               </TooltipTrigger>
                               <TooltipContent>
                                 <p className="w-80 text-xs">Credits are consumed when you send emails. One credit equals one email sent. Your current plan includes {currentPlan.includedCredits.toLocaleString()} credits per month.</p>
@@ -222,7 +340,7 @@ const ClientBilling = () => {
                             </Tooltip>
                           </TooltipProvider>
                         </div>
-                        <span className="text-sm text-muted-foreground">
+                        <span className="text-sm font-medium text-gray-600">
                           {currentPlan.emailsSent.toLocaleString()} / {currentPlan.includedCredits.toLocaleString()}
                         </span>
                       </div>
@@ -233,17 +351,23 @@ const ClientBilling = () => {
                         showEmojis={true}
                         className="mb-2"
                       />
-                      <div className="text-xs text-purple-600 font-medium">
-                        {currentPlan.creditsRemaining.toLocaleString()} credits remaining this billing cycle
+                      <div className="flex justify-between items-center text-xs mt-3">
+                        <span className="text-purple-700 font-medium">
+                          {currentPlan.creditsRemaining.toLocaleString()} credits remaining
+                        </span>
+                        <Button variant="link" size="sm" className="h-6 p-0 text-xs text-purple-700" onClick={() => setPurchaseCreditsDialog(true)}>
+                          <PlusCircle className="h-3 w-3 mr-1" />
+                          Add Credits
+                        </Button>
                       </div>
                     </div>
                   </div>
                 </CardContent>
-                <CardFooter className="flex flex-col sm:flex-row gap-3">
+                <CardFooter className="flex flex-col sm:flex-row gap-3 pt-2">
                   <Dialog open={purchaseCreditsDialog} onOpenChange={setPurchaseCreditsDialog}>
                     <DialogTrigger asChild>
                       <Button variant="outline" className="w-full sm:w-auto">
-                        <PlusCircle className="mr-2 h-4 w-4" />
+                        <DollarSign className="mr-2 h-4 w-4" />
                         Purchase Additional Credits
                       </Button>
                     </DialogTrigger>
@@ -409,9 +533,65 @@ const ClientBilling = () => {
                   </Button>
                 </CardContent>
               </Card>
-            </div>
+            </motion.div>
             
-            <div className="space-y-6">
+            <motion.div 
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.3, delay: 0.4 }}
+              className="space-y-6"
+            >
+              <Card className="overflow-hidden border-blue-100 mb-6">
+                <CardHeader className="pb-0 pt-6">
+                  <CardTitle className="text-center text-blue-800">Monthly Credits</CardTitle>
+                </CardHeader>
+                <CardContent className="p-4">
+                  <PlanCreditsBubbles credits={currentPlan.includedCredits} isActive={true} className="mb-2" />
+                  <div className="text-center mt-2 text-sm text-blue-600">
+                    Included with your {currentPlan.name} plan
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card className="bg-gradient-to-br from-purple-50 to-fuchsia-50 border-purple-100">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-lg flex items-center text-purple-800">
+                    <Sparkles className="h-4 w-4 mr-2 text-purple-700" />
+                    Need More Credits?
+                  </CardTitle>
+                  <CardDescription className="text-purple-700">
+                    Purchase additional email credits anytime
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-5">
+                  <p className="text-sm text-purple-700">
+                    Additional credits never expire and are used after your monthly allocation is consumed.
+                  </p>
+                  
+                  <div className="space-y-2 bg-white/60 p-3 rounded-lg">
+                    {creditOptions.map((option) => (
+                      <div 
+                        key={option.amount} 
+                        className="flex justify-between items-center py-2 border-b border-purple-100"
+                      >
+                        <span className="font-medium text-purple-900">{parseInt(option.amount).toLocaleString()} Credits</span>
+                        <span className="text-sm font-semibold bg-purple-100 px-2 py-1 rounded-full text-purple-800">
+                          ${option.price}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+                <CardFooter>
+                  <Button className="w-full bg-purple-700 hover:bg-purple-800" 
+                    onClick={() => setPurchaseCreditsDialog(true)}
+                  >
+                    <PlusCircle className="mr-2 h-4 w-4" />
+                    Buy Additional Credits
+                  </Button>
+                </CardFooter>
+              </Card>
+              
               <Card>
                 <CardHeader>
                   <CardTitle>Need Help?</CardTitle>
@@ -455,138 +635,162 @@ const ClientBilling = () => {
                   </Button>
                 </CardContent>
               </Card>
-            </div>
+            </motion.div>
           </div>
         </TabsContent>
         
         <TabsContent value="history">
-          <Card>
-            <CardHeader>
-              <CardTitle>Billing History</CardTitle>
-              <CardDescription>
-                View and download your past invoices and receipts
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="rounded-md border overflow-hidden">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="bg-muted/50">
-                      <th className="py-3 px-4 text-left font-medium">Invoice</th>
-                      <th className="py-3 px-4 text-left font-medium">Date</th>
-                      <th className="py-3 px-4 text-left font-medium">Description</th>
-                      <th className="py-3 px-4 text-right font-medium">Amount</th>
-                      <th className="py-3 px-4 text-left font-medium">Status</th>
-                      <th className="py-3 px-4 text-center font-medium">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {billingHistory.map((invoice, index) => (
-                      <tr key={invoice.id} className={`border-t ${index % 2 === 0 ? 'bg-white' : 'bg-muted/20'}`}>
-                        <td className="py-3 px-4 font-medium">{invoice.id}</td>
-                        <td className="py-3 px-4">{invoice.date}</td>
-                        <td className="py-3 px-4">{invoice.description}</td>
-                        <td className="py-3 px-4 text-right">${invoice.amount}</td>
-                        <td className="py-3 px-4">
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            invoice.status === 'Paid' 
-                              ? 'bg-green-100 text-green-800' 
-                              : invoice.status === 'Pending' 
-                                ? 'bg-yellow-100 text-yellow-800' 
-                                : 'bg-red-100 text-red-800'
-                          }`}>
-                            {invoice.status}
-                          </span>
-                        </td>
-                        <td className="py-3 px-4 text-center">
-                          <Button variant="ghost" size="icon">
-                            <Download className="h-4 w-4" />
-                          </Button>
-                        </td>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <Card>
+              <CardHeader className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
+                <div>
+                  <CardTitle className="flex items-center">
+                    <History className="h-5 w-5 mr-2 text-purple-600" />
+                    Billing History
+                  </CardTitle>
+                  <CardDescription>
+                    View and download your past invoices and receipts
+                  </CardDescription>
+                </div>
+                <div className="flex justify-end">
+                  <Button variant="outline" size="sm">
+                    <Download className="mr-2 h-4 w-4" />
+                    Download All
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="rounded-lg border overflow-hidden">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="bg-muted/50">
+                        <th className="py-3 px-4 text-left font-medium">Invoice</th>
+                        <th className="py-3 px-4 text-left font-medium">Date</th>
+                        <th className="py-3 px-4 text-left font-medium">Description</th>
+                        <th className="py-3 px-4 text-right font-medium">Amount</th>
+                        <th className="py-3 px-4 text-left font-medium">Status</th>
+                        <th className="py-3 px-4 text-center font-medium">Action</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </CardContent>
-            <CardFooter>
-              <Button variant="outline" className="ml-auto">
-                <Download className="mr-2 h-4 w-4" />
-                Download All Invoices
-              </Button>
-            </CardFooter>
-          </Card>
+                    </thead>
+                    <tbody>
+                      {billingHistory.map((invoice, index) => (
+                        <tr key={invoice.id} className={`border-t ${index % 2 === 0 ? 'bg-white' : 'bg-muted/20'}`}>
+                          <td className="py-3 px-4 font-medium">{invoice.id}</td>
+                          <td className="py-3 px-4">{invoice.date}</td>
+                          <td className="py-3 px-4">{invoice.description}</td>
+                          <td className="py-3 px-4 text-right">${invoice.amount}</td>
+                          <td className="py-3 px-4">
+                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                              invoice.status === 'Paid' 
+                                ? 'bg-green-100 text-green-800' 
+                                : invoice.status === 'Pending' 
+                                  ? 'bg-yellow-100 text-yellow-800' 
+                                  : 'bg-red-100 text-red-800'
+                            }`}>
+                              {invoice.status}
+                            </span>
+                          </td>
+                          <td className="py-3 px-4 text-center">
+                            <Button variant="ghost" size="icon" className="h-8 w-8">
+                              <Download className="h-4 w-4" />
+                            </Button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
         </TabsContent>
         
         <TabsContent value="plans">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {planOptions.map((plan) => (
-              <Card key={plan.name} className={plan.current ? 'border-purple-400 shadow-md' : ''}>
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle>{plan.name}</CardTitle>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {planOptions.map((plan, index) => (
+                <motion.div
+                  key={plan.name}
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: index * 0.1 }}
+                >
+                  <Card className={`h-full flex flex-col ${plan.current ? 'border-purple-400 shadow-md relative' : ''}`}>
                     {plan.current && (
-                      <span className="text-xs font-medium bg-purple-100 text-purple-800 px-2 py-1 rounded-full">
-                        Current Plan
-                      </span>
+                      <div className="absolute -top-3 left-0 right-0 flex justify-center">
+                        <span className="bg-purple-700 text-white text-xs font-bold px-3 py-1 rounded-full">
+                          Current Plan
+                        </span>
+                      </div>
                     )}
-                  </div>
-                  <CardDescription>
-                    <div className="mt-2">
-                      <span className="text-2xl font-bold">${plan.monthlyCost}</span>
-                      <span className="text-muted-foreground">/month</span>
-                    </div>
-                  </CardDescription>
-                </CardHeader>
-                <PlanCreditsBubbles 
-                  credits={plan.includedCredits} 
-                  isActive={plan.current} 
-                  className="mx-4 mt-2"
-                />
-                <CardContent className="space-y-4">
-                  <div>
-                    <p className="text-sm font-medium mb-2">Includes:</p>
-                    <ul className="space-y-2">
-                      {plan.features.map((feature, index) => (
-                        <li key={index} className="flex items-start text-sm">
-                          <CheckCircle className="h-4 w-4 text-green-600 mr-2 mt-0.5" />
-                          <span>{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </CardContent>
-                <CardFooter>
-                  {plan.current ? (
-                    <Button variant="outline" className="w-full" disabled>
-                      Current Plan
-                    </Button>
-                  ) : (
-                    <Button 
-                      className="w-full" 
-                      variant={plan.name === "Enterprise" ? "default" : "outline"}
-                      onClick={() => setShowUpgradeDialog(true)}
-                    >
-                      {plan.name === "Starter" ? "Downgrade" : "Upgrade"}
-                    </Button>
-                  )}
-                </CardFooter>
-              </Card>
-            ))}
-          </div>
-          
-          <div className="mt-8">
-            <Alert variant="default" className="bg-blue-50 border-blue-200">
-              <AlertCircle className="h-4 w-4 text-blue-600" />
-              <AlertTitle>Custom Plans Available</AlertTitle>
-              <AlertDescription>
-                Need a custom solution? If you have specific requirements or need higher email volumes, contact our sales team for a tailored plan.
-                <Button variant="link" className="p-0 h-auto text-blue-600 hover:text-blue-800">
-                  Contact Sales →
-                </Button>
-              </AlertDescription>
-            </Alert>
-          </div>
+                    <CardHeader className={plan.current ? 'pt-7' : ''}>
+                      <CardTitle>{plan.name}</CardTitle>
+                      <CardDescription>
+                        <div className="mt-2">
+                          <span className="text-2xl font-bold">${plan.monthlyCost}</span>
+                          <span className="text-muted-foreground">/month</span>
+                        </div>
+                      </CardDescription>
+                    </CardHeader>
+                    <PlanCreditsBubbles 
+                      credits={plan.includedCredits} 
+                      isActive={plan.current} 
+                      className="mx-4 mt-2"
+                    />
+                    <CardContent className="space-y-4 flex-grow">
+                      <div>
+                        <p className="text-sm font-medium mb-2">Includes:</p>
+                        <ul className="space-y-2">
+                          {plan.features.map((feature, index) => (
+                            <li key={index} className="flex items-start text-sm">
+                              <CheckCircle className="h-4 w-4 text-green-600 mr-2 mt-0.5" />
+                              <span>{feature}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </CardContent>
+                    <CardFooter>
+                      {plan.current ? (
+                        <Button variant="outline" className="w-full" disabled>
+                          Current Plan
+                        </Button>
+                      ) : (
+                        <Button 
+                          className={`w-full ${plan.name === "Enterprise" ? "bg-purple-700 hover:bg-purple-800" : "variant-outline"}`}
+                          variant={plan.name === "Enterprise" ? "default" : "outline"}
+                          onClick={() => setShowUpgradeDialog(true)}
+                        >
+                          {plan.name === "Starter" ? "Downgrade" : "Upgrade"}
+                        </Button>
+                      )}
+                    </CardFooter>
+                  </Card>
+                </motion.div>
+              ))}
+            </div>
+            
+            <div className="mt-8">
+              <Alert variant="default" className="bg-blue-50 border-blue-200">
+                <AlertCircle className="h-4 w-4 text-blue-600" />
+                <AlertTitle>Custom Plans Available</AlertTitle>
+                <AlertDescription>
+                  Need a custom solution? If you have specific requirements or need higher email volumes, contact our sales team for a tailored plan.
+                  <Button variant="link" className="p-0 h-auto text-blue-600 hover:text-blue-800">
+                    Contact Sales →
+                  </Button>
+                </AlertDescription>
+              </Alert>
+            </div>
+          </motion.div>
         </TabsContent>
       </Tabs>
     </div>
