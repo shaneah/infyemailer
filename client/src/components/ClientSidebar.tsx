@@ -8,8 +8,9 @@ import {
 import LogoWhite from '../assets/Logo-white.png';
 
 interface SidebarProps {
-  open: boolean;
-  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  isOpen?: boolean;
+  onClose?: () => void;
+  onLogout?: () => void;
 }
 
 const MenuItem = ({ href, icon: Icon, label, active }: { 
@@ -67,7 +68,7 @@ const MenuSection = ({ title, children }: { title: string; children: React.React
   );
 };
 
-const ClientSidebar = ({ open, setOpen }: SidebarProps) => {
+const ClientSidebar = ({ isOpen = false, onClose, onLogout }: SidebarProps) => {
   const [location] = useLocation();
   const [clientName, setClientName] = useState<string>("My Company");
   
@@ -86,39 +87,46 @@ const ClientSidebar = ({ open, setOpen }: SidebarProps) => {
     }
   }, []);
 
+  // Use the provided onLogout callback or fallback to the internal implementation
   const handleLogout = async () => {
-    try {
-      // Call client-specific logout API endpoint
-      const response = await fetch('/api/client-logout', {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
-      
-      if (response.ok) {
-        // Clear all storage
-        sessionStorage.clear();
-        localStorage.clear();
+    if (onLogout) {
+      // Use the provided logout handler from props
+      onLogout();
+    } else {
+      try {
+        // Fallback to internal implementation if no onLogout provided
+        // Call client-specific logout API endpoint
+        const response = await fetch('/api/client-logout', {
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
         
-        // Redirect to client login page
-        window.location.href = '/client-login';
-      } else {
-        console.error('Logout failed:', response.status);
+        if (response.ok) {
+          // Clear all storage
+          sessionStorage.clear();
+          localStorage.clear();
+          
+          // Redirect to client login page
+          window.location.href = '/client-login';
+        } else {
+          console.error('Logout failed:', response.status);
+          
+          // Fallback - still try to clear session and redirect
+          sessionStorage.clear();
+          localStorage.clear();
+          window.location.href = '/client-login';
+        }
+      } catch (error) {
+        console.error('Error during logout:', error);
         
         // Fallback - still try to clear session and redirect
         sessionStorage.clear();
         localStorage.clear();
         window.location.href = '/client-login';
       }
-    } catch (error) {
-      console.error('Error during logout:', error);
-      
-      // Fallback - still try to clear session and redirect
-      sessionStorage.clear();
-      localStorage.clear();
-      window.location.href = '/client-login';
     }
   };
 
@@ -127,17 +135,17 @@ const ClientSidebar = ({ open, setOpen }: SidebarProps) => {
       {/* Mobile overlay */}
       <div 
         className={`fixed inset-0 z-40 bg-black transition-opacity duration-300 ease-in-out lg:hidden ${
-          open ? 'opacity-50' : 'opacity-0 pointer-events-none'
+          isOpen ? 'opacity-50' : 'opacity-0 pointer-events-none'
         }`}
-        onClick={() => setOpen(false)}
+        onClick={() => onClose && onClose()}
       ></div>
       
       {/* Mobile menu button */}
       <button
-        onClick={() => setOpen(!open)}
+        onClick={() => onClose && onClose()}
         className="fixed top-4 left-4 z-50 lg:hidden flex items-center justify-center w-10 h-10 rounded-md bg-blue-900 text-white shadow-md transition-all duration-150 hover:bg-blue-800 hover:shadow-lg active:scale-95"
       >
-        {open ? (
+        {isOpen ? (
           <X size={20} className="transition-all duration-200 animate-in fade-in rotate-in" />
         ) : (
           <Menu size={20} className="transition-all duration-200 animate-in fade-in" />
@@ -147,7 +155,7 @@ const ClientSidebar = ({ open, setOpen }: SidebarProps) => {
       {/* Sidebar */}
       <aside 
         className={`fixed inset-y-0 left-0 z-40 w-64 transform transition-all duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-auto lg:z-auto ${
-          open ? 'translate-x-0 opacity-100 shadow-xl' : '-translate-x-full opacity-95 shadow-md'
+          isOpen ? 'translate-x-0 opacity-100 shadow-xl' : '-translate-x-full opacity-95 shadow-md'
         } h-full bg-gradient-to-b from-blue-950 to-blue-900 text-white flex flex-col flex-shrink-0`}
       >
         {/* App name and client name header */}
