@@ -2931,12 +2931,16 @@ export default function ClientRoutes() {
   
   return (
     <div className="flex h-screen bg-background">
-      <ClientSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      <ClientSidebar 
+        isOpen={sidebarOpen} 
+        onClose={() => setSidebarOpen(false)} 
+        onLogout={handleLogout} 
+      />
       
       <main className="flex-1 overflow-auto">
         <Switch>
           <Route path="/client-dashboard">
-            <ClientDashboard />
+            <ClientDashboard onOpenSidebar={() => setSidebarOpen(true)} />
           </Route>
           <Route path="/client-campaigns">
             <ClientCampaigns onCreateCampaign={() => setShowCreateCampaignModal(true)} />

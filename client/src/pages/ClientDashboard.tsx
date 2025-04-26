@@ -10,9 +10,10 @@ import { Widget, WidgetsProvider, defaultWidgets } from "@/hooks/useWidgets";
 
 type ClientDashboardProps = {
   clientId?: string;
+  onOpenSidebar?: () => void;
 };
 
-export default function ClientDashboard() {
+export default function ClientDashboard({ onOpenSidebar }: ClientDashboardProps) {
   const [location, setLocation] = useLocation();
   const { toast } = useToast();
   const [clientData, setClientData] = useState<any>(null);
@@ -231,7 +232,7 @@ export default function ClientDashboard() {
                 variant="ghost" 
                 size="lg"
                 className="lg:hidden text-gray-700 hover:bg-gray-100 mr-2"
-                onClick={() => setSidebarOpen(true)}
+                onClick={() => onOpenSidebar ? onOpenSidebar() : null}
               >
                 <Menu size={24} />
               </Button>
