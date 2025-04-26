@@ -182,12 +182,14 @@ const ClientSidebar = ({ open, setOpen }: SidebarProps) => {
               label="Email Performance" 
               active={location === '/client-email-performance'} 
             />
+            {/* Temporarily removed until the reporting feature is fully implemented
             <MenuItem 
               href="/client-reporting" 
               icon={Activity} 
               label="Reporting" 
               active={location === '/client-reporting'} 
             />
+            */}
           </MenuSection>
           
           <MenuSection title="Campaigns">
