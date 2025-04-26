@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { useLocation } from "wouter";
 import { Menu } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import ClientSidebar from "@/components/ClientSidebar";
 import DashboardWidgets from "@/components/widgets/DashboardWidgets";
 import WidgetManager from "@/components/widgets/WidgetManager";
 import { Widget, WidgetsProvider, defaultWidgets } from "@/hooks/useWidgets";
@@ -224,8 +223,6 @@ export default function ClientDashboard() {
   return (
     <WidgetsProvider>
       <div className="flex min-h-screen bg-white">
-        <ClientSidebar onLogout={handleLogout} isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-        
         <div className="flex-1 flex flex-col overflow-hidden">
           {/* Header */}
           <header className="relative z-20 flex items-center justify-between p-4 bg-white border-b border-gray-200">

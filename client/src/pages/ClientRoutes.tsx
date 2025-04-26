@@ -2931,7 +2931,7 @@ export default function ClientRoutes() {
   
   return (
     <div className="flex h-screen bg-background">
-      <ClientSidebar open={sidebarOpen} setOpen={setSidebarOpen} />
+      <ClientSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       
       <main className="flex-1 overflow-auto">
         <Switch>
