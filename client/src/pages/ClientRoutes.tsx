@@ -2837,6 +2837,36 @@ export default function ClientRoutes() {
   const [showCreateListModal, setShowCreateListModal] = useState(false);
   const [showCreateTemplateModal, setShowCreateTemplateModal] = useState(false);
   
+  // Handle client logout
+  const handleLogout = async () => {
+    try {
+      // Call the server-side logout endpoint
+      const response = await fetch('/api/client-logout', {
+        method: 'POST',
+        credentials: 'include'
+      });
+      
+      // Clear client-side storage regardless of response
+      sessionStorage.removeItem('clientUser');
+      localStorage.removeItem('clientUser');
+      
+      toast({
+        title: "Logged out",
+        description: "You have been successfully logged out"
+      });
+      
+      // Redirect to login page
+      setLocation('/client-login');
+    } catch (error) {
+      console.error('Logout error:', error);
+      
+      // Even if server logout fails, clear client-side storage and redirect
+      sessionStorage.removeItem('clientUser');
+      localStorage.removeItem('clientUser');
+      setLocation('/client-login');
+    }
+  };
+  
   useEffect(() => {
     // First check client user in session storage for quick load
     const sessionUser = sessionStorage.getItem('clientUser');
