@@ -41,10 +41,12 @@ export async function sendChatMessage(
   history: ChatMessage[] = []
 ): Promise<ChatResponse> {
   try {
-    const response = await apiRequest('POST', '/api/ai-assistant/chat', {
-      message,
-      context,
-      history
+    const response = await apiRequest('POST', '/api/ai/chat', {
+      messages: [
+        ...history,
+        { role: 'user', content: message }
+      ],
+      systemPrompt: `You are an email marketing assistant helping with ${context} tasks. Be concise and helpful.`
     });
     
     const data = await response.json();
@@ -71,7 +73,7 @@ export async function sendChatMessage(
 // Function to get email marketing best practices
 export async function getBestPractices(topic?: string): Promise<string[]> {
   try {
-    const response = await apiRequest('POST', '/api/ai-assistant/best-practices', {
+    const response = await apiRequest('POST', '/api/ai/best-practices', {
       topic
     });
     
@@ -101,7 +103,7 @@ export async function getBestPractices(topic?: string): Promise<string[]> {
 // Function to analyze a subject line
 export async function analyzeSubjectLine(subjectLine: string): Promise<SubjectLineAnalysis> {
   try {
-    const response = await apiRequest('POST', '/api/ai-assistant/analyze-subject', {
+    const response = await apiRequest('POST', '/api/ai/analyze-subject', {
       subjectLine
     });
     
@@ -132,7 +134,7 @@ export async function analyzeSubjectLine(subjectLine: string): Promise<SubjectLi
 // Function to get suggestions for improving an email
 export async function suggestEmailImprovements(emailContent: string): Promise<EmailImprovements> {
   try {
-    const response = await apiRequest('POST', '/api/ai-assistant/suggest-improvements', {
+    const response = await apiRequest('POST', '/api/ai/improve-email', {
       emailContent
     });
     
@@ -162,7 +164,7 @@ export async function suggestEmailImprovements(emailContent: string): Promise<Em
 // Function to generate an email template
 export async function generateEmailTemplate(params: TemplateParams): Promise<string> {
   try {
-    const response = await apiRequest('POST', '/api/ai-assistant/generate-template', params);
+    const response = await apiRequest('POST', '/api/ai/generate-template', params);
     
     const data = await response.json();
     
