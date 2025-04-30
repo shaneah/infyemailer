@@ -143,16 +143,39 @@ const EmailPerformance: React.FC = () => {
   // Using React Query to fetch metrics data
   const { data: metricsData, isLoading: isLoadingMetrics } = useQuery<EmailMetrics>({
     queryKey: ['/api/email-performance/metrics', timeframe, campaignFilter],
+    queryFn: async () => {
+      console.log(`Fetching metrics with timeframe=${timeframe}, campaignFilter=${campaignFilter}`);
+      const response = await fetch(`/api/email-performance/metrics?timeframe=${timeframe}&campaign=${campaignFilter}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch metrics data');
+      }
+      return await response.json();
+    }
   });
   
   // Using React Query to fetch chart data
   const { data: chartData, isLoading: isLoadingCharts } = useQuery<ChartData>({
     queryKey: ['/api/email-performance/charts', timeframe, campaignFilter],
+    queryFn: async () => {
+      console.log(`Fetching charts with timeframe=${timeframe}, campaignFilter=${campaignFilter}`);
+      const response = await fetch(`/api/email-performance/charts?timeframe=${timeframe}&campaign=${campaignFilter}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch chart data');
+      }
+      return await response.json();
+    }
   });
   
   // Using React Query to fetch real-time activity
   const { data: realtimeData } = useQuery<RealtimeActivity[]>({
     queryKey: ['/api/email-performance/realtime'],
+    queryFn: async () => {
+      const response = await fetch('/api/email-performance/realtime');
+      if (!response.ok) {
+        throw new Error('Failed to fetch real-time activity data');
+      }
+      return await response.json();
+    },
     refetchInterval: 30000, // Refetch every 30 seconds
   });
   
@@ -888,7 +911,16 @@ const EmailPerformance: React.FC = () => {
             ))}
           </div>
           <div className="mt-4 text-center">
-            <Button variant="outline">View All Activity</Button>
+            <Button 
+              variant="outline"
+              onClick={() => {
+                console.log("View All Activity clicked");
+                // Navigate to activity detail page or open a modal
+                window.location.href = `/email-activity?timeframe=${timeframe}&campaign=${campaignFilter}`;
+              }}
+            >
+              View All Activity
+            </Button>
           </div>
         </CardContent>
       </Card>
