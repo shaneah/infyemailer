@@ -35,6 +35,8 @@ import path from "path";
 import OpenAI from "openai";
 import AdmZip from "adm-zip";
 import { setupAuth } from "./auth";
+import { registerEmailProviderRoutes } from "./routes/emailProviders";
+import { registerEmailSettingsRoutes } from "./routes/emailSettings";
 
 // Helper function to validate data against schema and return typed result
 function validate<T>(schema: any, data: any): { data: T } | { error: string } {
@@ -62,9 +64,15 @@ const insertEmailSchema = createInsertSchema(emails).omit({ id: true });
 const insertCampaignVariantSchema = createInsertSchema(campaignVariants).omit({ id: true });
 const insertVariantAnalyticsSchema = createInsertSchema(variantAnalytics).omit({ id: true });
 
-export function registerRoutes(app: Express): Server {
+export async function registerRoutes(app: Express): Promise<Server> {
   // Setup auth routes
   setupAuth(app);
+  
+  // Register email provider routes
+  await registerEmailProviderRoutes(app);
+  
+  // Register email settings routes
+  registerEmailSettingsRoutes(app);
 
   // API Routes
   app.get('/api', (req: Request, res: Response) => {
