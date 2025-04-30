@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from "@/lib/queryClient";
+import { safeJsonParse } from "@/lib/safeJsonParse";
 import { Check, X, Edit, Trash, AlertTriangle, Loader2, Plus, Send, Key, Info, CheckCircle, Settings, Save } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -112,9 +113,7 @@ function EmailProviders() {
     queryFn: async () => {
       try {
         const response = await apiRequest('GET', '/api/email-providers');
-        const data = await response.json();
-        console.log('Email providers data:', data);
-        return data;
+        return await safeJsonParse<EmailProvider[]>(response, 'email providers');
       } catch (error) {
         console.error('Error fetching email providers:', error);
         throw error;
@@ -129,8 +128,13 @@ function EmailProviders() {
   } = useQuery<AvailableProvider[]>({
     queryKey: ['/api/email-providers/available'],
     queryFn: async () => {
-      const response = await apiRequest('GET', '/api/email-providers/available');
-      return response.json();
+      try {
+        const response = await apiRequest('GET', '/api/email-providers/available');
+        return await safeJsonParse<AvailableProvider[]>(response, 'available providers');
+      } catch (error) {
+        console.error('Error fetching available providers:', error);
+        throw error;
+      }
     }
   });
   
@@ -142,8 +146,14 @@ function EmailProviders() {
     queryKey: ['/api/email-providers/requirements', newProviderType],
     queryFn: async () => {
       if (!newProviderType) return [];
-      const response = await apiRequest('GET', `/api/email-providers/requirements/${newProviderType}`);
-      return response.json();
+      
+      try {
+        const response = await apiRequest('GET', `/api/email-providers/requirements/${newProviderType}`);
+        return await safeJsonParse<AuthRequirement[]>(response, 'auth requirements'); 
+      } catch (error) {
+        console.error('Error fetching auth requirements:', error);
+        throw error;
+      }
     },
     enabled: !!newProviderType
   });
