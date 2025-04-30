@@ -427,9 +427,24 @@ export default function Contacts() {
   // Export contacts mutation
   const exportContactsMutation = useMutation({
     mutationFn: async (format: string) => {
-      return apiRequest("GET", `/api/contacts/export?format=${format}`);
+      const response = await apiRequest("GET", `/api/contacts/export?format=${format}`);
+      // Parse the JSON response
+      return response.json();
     },
     onSuccess: (data: any) => {
+      console.log("Export data received:", data);
+      
+      // Check if data.content is empty
+      if (!data.content || data.count === 0) {
+        toast({
+          title: "Export notice",
+          description: "No contacts available to export.",
+          variant: "default",
+        });
+        setExportDialogOpen(false);
+        return;
+      }
+      
       // Create and download file
       const blob = new Blob([data.content], { type: getContentType(exportFormat) });
       const url = window.URL.createObjectURL(blob);
@@ -448,6 +463,7 @@ export default function Contacts() {
       });
     },
     onError: (error: any) => {
+      console.error("Export error:", error);
       toast({
         title: "Export failed",
         description: `Failed to export contacts: ${error.message}`,

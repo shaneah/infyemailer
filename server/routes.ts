@@ -867,12 +867,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     const listId = req.query.listId ? parseInt(req.query.listId as string, 10) : undefined;
     
     try {
+      console.log(`Export contacts request: format=${format}, listId=${listId || 'all'}`);
+      
       // Get contacts, possibly filtered by list
       const contacts = listId 
         ? await storage.getContactsByList(listId)
         : await storage.getContacts();
-        
+      
+      console.log(`Found ${contacts.length} contacts to export`);
+      
+      // If no contacts, send an empty result with count=0
+      if (!contacts || contacts.length === 0) {
+        return res.status(200).json({ 
+          content: format === 'json' ? '[]' : '',
+          count: 0
+        });
+      }
+      
       let content = '';
+      
+      // Inspect first contact to check structure
+      console.log('First contact structure:', JSON.stringify(contacts[0]));
       
       // Format according to requested format
       if (format === 'json') {
@@ -882,19 +897,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
         content = 'Email,Name,Status,Added On\n';
         // CSV rows
         contacts.forEach(contact => {
-          // Get name with fallback to email username if name is undefined or empty
-          const name = contact.name || (contact.email ? contact.email.split('@')[0] : '');
-          // Get status properly accounting for object format or string format
-          const status = typeof contact.status === 'object' ? contact.status.label || '' : contact.status || '';
-          // Format date properly or use empty string if undefined
-          const createdDate = contact.createdAt ? new Date(contact.createdAt).toLocaleDateString() : '';
+          // Get email safely
+          const email = contact.email || '';
           
-          content += `${contact.email},${name},${status},${createdDate}\n`;
+          // Get name with multi-level fallback
+          let name = '';
+          if (contact.name) {
+            name = contact.name;
+          } else if (contact.email) {
+            name = contact.email.split('@')[0];
+          }
+          
+          // Get status properly accounting for different status formats
+          let status = '';
+          if (typeof contact.status === 'object' && contact.status) {
+            status = contact.status.label || contact.status.value || '';
+          } else if (typeof contact.status === 'string') {
+            status = contact.status;
+          }
+          
+          // Format date properly or use empty string if undefined
+          const createdDate = contact.createdAt 
+            ? new Date(contact.createdAt).toLocaleDateString() 
+            : '';
+          
+          content += `${email},${name},${status},${createdDate}\n`;
         });
       } else {
         // Plain text - one email per line
-        content = contacts.map(contact => contact.email).join('\n');
+        content = contacts.map(contact => contact.email || '').filter(email => email).join('\n');
       }
+      
+      console.log(`Export complete, sending ${contacts.length} contacts in ${format} format`);
       
       res.status(200).json({ 
         content,
