@@ -915,11 +915,13 @@ const ClientManagement = () => {
                     <div className="space-y-3">
                       <h3 className="font-semibold text-sm text-gray-500">QUICK ACTIONS</h3>
                       <div className="space-y-2">
-                        <Link href={`/email-performance?clientId=${selectedClient.id}`} passHref>
-                          <Button className="w-full justify-start" variant="outline">
-                            <BarChart4 className="mr-2 h-4 w-4" /> View Campaign Analytics
-                          </Button>
-                        </Link>
+                        <Button 
+                          className="w-full justify-start" 
+                          variant="outline"
+                          onClick={() => window.location.href = `/email-performance?clientId=${selectedClient.id}`}
+                        >
+                          <BarChart4 className="mr-2 h-4 w-4" /> View Campaign Analytics
+                        </Button>
                         <Button 
                           className="w-full justify-start" 
                           variant="outline"
