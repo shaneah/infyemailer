@@ -534,7 +534,15 @@ const MessageBubble: React.FC<{ message: Message; isAdmin: boolean }> = ({ messa
   const isSentByAdmin = message.senderType === 'admin';
   
   return (
-    <div className={`flex ${isSentByAdmin ? 'justify-end' : 'justify-start'} mb-4`}>
+    <div 
+      className={`flex ${isSentByAdmin ? 'justify-end' : 'justify-start'} mb-4 ${!message.isRead && !isSentByAdmin ? 'cursor-pointer' : ''}`}
+      onClick={() => {
+        // If message is from client and unread, mark as read
+        if (!isSentByAdmin && !message.isRead) {
+          handleMarkMessageAsRead(message.id);
+        }
+      }}
+    >
       {!isSentByAdmin && (
         <Avatar className="h-8 w-8 mr-2 mt-1">
           <AvatarImage src={message.senderAvatar} alt={message.senderName} />
@@ -545,7 +553,9 @@ const MessageBubble: React.FC<{ message: Message; isAdmin: boolean }> = ({ messa
         <div className={`rounded-lg p-3 ${
           isSentByAdmin 
             ? 'bg-blue-500 text-white' 
-            : 'bg-white border border-slate-200 text-slate-800'
+            : !message.isRead 
+              ? 'bg-blue-50 border border-blue-200 text-slate-800 hover:bg-blue-100 transition-colors'
+              : 'bg-white border border-slate-200 text-slate-800'
         }`}>
           <p className="text-sm">{message.content}</p>
           {message.attachments && message.attachments.length > 0 && (
@@ -571,6 +581,9 @@ const MessageBubble: React.FC<{ message: Message; isAdmin: boolean }> = ({ messa
         </div>
         <div className={`text-xs text-slate-500 mt-1 ${isSentByAdmin ? 'text-right' : 'text-left'}`}>
           {formatTime(message.timestamp)}
+          {!message.isRead && !isSentByAdmin && (
+            <span className="ml-2 inline-block w-2 h-2 bg-blue-500 rounded-full"></span>
+          )}
         </div>
       </div>
       {isSentByAdmin && (
