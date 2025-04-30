@@ -1,30 +1,5 @@
 [
   {
-    "name": "Monthly Newsletter",
-    "subject": "May Newsletter",
-    "previewText": "Check out our latest updates",
-    "senderName": "Your Company",
-    "replyToEmail": "info@example.com",
-    "content": "<h1>Monthly Newsletter</h1><p>Here are our latest updates...</p>",
-    "status": "sent",
-    "scheduledAt": "2023-05-15T09:00:00.000Z",
-    "metadata": {
-      "icon": {
-        "name": "envelope-fill",
-        "color": "primary"
-      },
-      "subtitle": "May 2023",
-      "recipients": 12483,
-      "openRate": 46.2,
-      "clickRate": 21.8,
-      "date": "May 15, 2023"
-    },
-    "id": 1,
-    "sentAt": null,
-    "createdAt": "2025-04-30T20:37:12.234Z",
-    "updatedAt": "2025-04-30T20:37:12.234Z"
-  },
-  {
     "name": "Subject Line Testing",
     "subject": "A/B Test: Subject Line Variations",
     "previewText": "Testing different subject lines",

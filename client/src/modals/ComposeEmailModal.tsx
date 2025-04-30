@@ -26,7 +26,6 @@ import {
   Smartphone, 
   Laptop, 
   Users, 
-  Plus, 
   SaveIcon,
   Heading,
   Type,
@@ -95,229 +94,121 @@ const ComposeEmailModal = ({ onClose }: ComposeEmailModalProps) => {
           </DialogDescription>
         </DialogHeader>
         
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)}>
-            <Tabs defaultValue="compose" className="w-full">
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="compose" onClick={() => setActiveTab("compose")}>Compose</TabsTrigger>
-                <TabsTrigger value="design" onClick={() => setActiveTab("design")}>Design</TabsTrigger>
-                <TabsTrigger value="preview" onClick={() => setActiveTab("preview")}>Preview</TabsTrigger>
-              </TabsList>
-              
-              {/* Compose Tab */}
-              <TabsContent value="compose" className="space-y-4 py-4">
-                <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-                  <div className="md:col-span-8 space-y-4">
-                    <Card>
-                      <CardHeader className="pb-2">
-                        <CardTitle className="text-lg">Email Details</CardTitle>
-                      </CardHeader>
-                      <CardContent className="space-y-4">
-                        <FormField
-                          control={form.control}
-                          name="to"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>To</FormLabel>
-                              <div className="flex space-x-2">
-                                <FormControl>
-                                  <Input 
-                                    {...field} 
-                                    placeholder="Select recipients" 
-                                  />
-                                </FormControl>
-                                <Button variant="outline" size="icon" type="button">
-                                  <Users className="h-4 w-4" />
-                                </Button>
-                              </div>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        
-                        <FormField
-                          control={form.control}
-                          name="subject"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Subject</FormLabel>
-                              <FormControl>
-                                <Input 
-                                  {...field}
-                                  placeholder="Email subject" 
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        
-                        <FormField
-                          control={form.control}
-                          name="content"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Content</FormLabel>
-                              <div className="flex items-center space-x-1 mb-2">
-                                <Button variant="outline" size="sm" type="button">
-                                  <Bold className="h-4 w-4" />
-                                </Button>
-                                <Button variant="outline" size="sm" type="button">
-                                  <Italic className="h-4 w-4" />
-                                </Button>
-                                <Button variant="outline" size="sm" type="button">
-                                  <Underline className="h-4 w-4" />
-                                </Button>
-                                <Button variant="outline" size="sm" type="button">
-                                  <List className="h-4 w-4" />
-                                </Button>
-                                <Button variant="outline" size="sm" type="button">
-                                  <ListOrdered className="h-4 w-4" />
-                                </Button>
-                                <Button variant="outline" size="sm" type="button">
-                                  <Link className="h-4 w-4" />
-                                </Button>
-                                <Button variant="outline" size="sm" type="button">
-                                  <Image className="h-4 w-4" />
-                                </Button>
-                                <Button variant="outline" size="sm" type="button">
-                                  <Code className="h-4 w-4" />
-                                </Button>
-                              </div>
-                              <FormControl>
-                                <Textarea 
-                                  {...field}
-                                  className="min-h-[200px]" 
-                                  placeholder="Write your email content here..."
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </CardContent>
-                    </Card>
-                  </div>
-                  
-                  <div className="md:col-span-4 space-y-4">
-                    <Card>
-                      <CardHeader className="pb-2">
-                        <CardTitle className="text-lg">Preview</CardTitle>
-                      </CardHeader>
-                      <CardContent className="h-[200px] flex items-center justify-center bg-slate-50 rounded-md border">
-                        <div className="text-center p-4">
-                          <p className="text-sm text-gray-500">
-                            {form.watch("content") ? form.watch("content") : "Preview will appear here"}
-                          </p>
-                        </div>
-                      </CardContent>
-                      <CardFooter className="flex justify-center pt-2 pb-3">
-                        <div className="flex gap-2">
-                          <Button 
-                            variant={activeDevice === 'tablet' ? 'default' : 'outline'} 
-                            size="sm" 
-                            onClick={() => setActiveDevice('tablet')}
-                          >
-                            <Tablet className="h-4 w-4" />
-                          </Button>
-                          <Button 
-                            variant={activeDevice === 'phone' ? 'default' : 'outline'} 
-                            size="sm" 
-                            onClick={() => setActiveDevice('phone')}
-                          >
-                            <Smartphone className="h-4 w-4" />
-                          </Button>
-                          <Button 
-                            variant={activeDevice === 'laptop' ? 'default' : 'outline'} 
-                            size="sm" 
-                            onClick={() => setActiveDevice('laptop')}
-                          >
-                            <Laptop className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </CardFooter>
-                    </Card>
-                    
-                    <Card>
-                      <CardHeader className="pb-2">
-                        <CardTitle className="text-lg">Content Blocks</CardTitle>
-                        <CardDescription>Drag and drop elements</CardDescription>
-                      </CardHeader>
-                      <CardContent className="space-y-2">
-                        <Button variant="outline" className="w-full justify-start">
-                          <Heading className="h-4 w-4 mr-2" />
-                          <span>Header</span>
-                        </Button>
-                        <Button variant="outline" className="w-full justify-start">
-                          <Type className="h-4 w-4 mr-2" />
-                          <span>Text</span>
-                        </Button>
-                        <Button variant="outline" className="w-full justify-start">
-                          <Image className="h-4 w-4 mr-2" />
-                          <span>Image</span>
-                        </Button>
-                        <Button variant="outline" className="w-full justify-start">
-                          <Columns className="h-4 w-4 mr-2" />
-                          <span>Button</span>
-                        </Button>
-                        <Button variant="outline" className="w-full justify-start">
-                          <SeparatorHorizontal className="h-4 w-4 mr-2" />
-                          <span>Divider</span>
-                        </Button>
-                        <Button variant="outline" className="w-full justify-start">
-                          <Space className="h-4 w-4 mr-2" />
-                          <span>Spacer</span>
-                        </Button>
-                        <Button variant="outline" className="w-full justify-start">
-                          <Share className="h-4 w-4 mr-2" />
-                          <span>Social</span>
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  </div>
-                </div>
-              </TabsContent>
-              
-              {/* Design Tab */}
-              <TabsContent value="design" className="space-y-4 py-4">
+        <Tabs defaultValue="compose" className="w-full">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="compose" onClick={() => setActiveTab("compose")}>Compose</TabsTrigger>
+            <TabsTrigger value="design" onClick={() => setActiveTab("design")}>Design</TabsTrigger>
+            <TabsTrigger value="preview" onClick={() => setActiveTab("preview")}>Preview</TabsTrigger>
+          </TabsList>
+            
+          {/* Compose Tab */}
+          <TabsContent value="compose" className="space-y-4 py-4">
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+              <div className="md:col-span-8 space-y-4">
                 <Card>
-                  <CardHeader>
-                    <CardTitle>Email Design</CardTitle>
-                    <CardDescription>Customize the design and appearance of your email</CardDescription>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-lg">Email Details</CardTitle>
                   </CardHeader>
-                  <CardContent className="min-h-[400px] flex items-center justify-center">
-                    <div className="text-center">
-                      <p className="text-muted-foreground mb-4">Design tools will appear here in the next version</p>
-                      <Button variant="outline" onClick={() => setActiveTab("compose")}>
-                        Back to Compose
-                      </Button>
-                    </div>
+                  <CardContent className="space-y-4">
+                    <FormField
+                      control={form.control}
+                      name="to"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>To</FormLabel>
+                          <div className="flex space-x-2">
+                            <FormControl>
+                              <Input 
+                                {...field} 
+                                placeholder="Select recipients" 
+                              />
+                            </FormControl>
+                            <Button variant="outline" size="icon" type="button">
+                              <Users className="h-4 w-4" />
+                            </Button>
+                          </div>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="subject"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Subject</FormLabel>
+                          <FormControl>
+                            <Input 
+                              {...field}
+                              placeholder="Email subject" 
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="content"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Content</FormLabel>
+                          <div className="flex items-center space-x-1 mb-2">
+                            <Button variant="outline" size="sm" type="button">
+                              <Bold className="h-4 w-4" />
+                            </Button>
+                            <Button variant="outline" size="sm" type="button">
+                              <Italic className="h-4 w-4" />
+                            </Button>
+                            <Button variant="outline" size="sm" type="button">
+                              <Underline className="h-4 w-4" />
+                            </Button>
+                            <Button variant="outline" size="sm" type="button">
+                              <List className="h-4 w-4" />
+                            </Button>
+                            <Button variant="outline" size="sm" type="button">
+                              <ListOrdered className="h-4 w-4" />
+                            </Button>
+                            <Button variant="outline" size="sm" type="button">
+                              <Link className="h-4 w-4" />
+                            </Button>
+                            <Button variant="outline" size="sm" type="button">
+                              <Image className="h-4 w-4" />
+                            </Button>
+                            <Button variant="outline" size="sm" type="button">
+                              <Code className="h-4 w-4" />
+                            </Button>
+                          </div>
+                          <FormControl>
+                            <Textarea 
+                              {...field}
+                              className="min-h-[200px]" 
+                              placeholder="Write your email content here..."
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                   </CardContent>
                 </Card>
-              </TabsContent>
+              </div>
               
-              {/* Preview Tab */}
-              <TabsContent value="preview" className="space-y-4 py-4">
+              <div className="md:col-span-4 space-y-4">
                 <Card>
-                  <CardHeader>
-                    <CardTitle>Email Preview</CardTitle>
-                    <CardDescription>Preview how your email will appear to recipients</CardDescription>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-lg">Preview</CardTitle>
                   </CardHeader>
-                  <CardContent className="min-h-[400px] flex items-center justify-center border-t">
-                    <div className="text-center max-w-md mx-auto p-6">
-                      <div className="mb-4 p-4 border rounded-lg">
-                        <p className="font-semibold">{form.watch("subject") || "No Subject"}</p>
-                        <hr className="my-2" />
-                        <p className="text-sm whitespace-pre-wrap break-words">
-                          {form.watch("content") || "No content added yet. Return to the Compose tab to add content."}
-                        </p>
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        Sending to: {form.watch("to") || "No recipients specified"}
-                      </div>
+                  <CardContent className="h-[200px] flex items-center justify-center bg-slate-50 rounded-md border">
+                    <div className="text-center p-4">
+                      <p className="text-sm text-gray-500">
+                        {form.watch("content") ? form.watch("content") : "Preview will appear here"}
+                      </p>
                     </div>
                   </CardContent>
-                  <CardFooter className="flex justify-center pt-2 pb-3 border-t">
+                  <CardFooter className="flex justify-center pt-2 pb-3">
                     <div className="flex gap-2">
                       <Button 
                         variant={activeDevice === 'tablet' ? 'default' : 'outline'} 
@@ -343,10 +234,114 @@ const ComposeEmailModal = ({ onClose }: ComposeEmailModalProps) => {
                     </div>
                   </CardFooter>
                 </Card>
-              </TabsContent>
-            </Tabs>
-          </form>
-        </Form>
+                
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-lg">Content Blocks</CardTitle>
+                    <CardDescription>Drag and drop elements</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-2">
+                    <Button variant="outline" className="w-full justify-start">
+                      <Heading className="h-4 w-4 mr-2" />
+                      <span>Header</span>
+                    </Button>
+                    <Button variant="outline" className="w-full justify-start">
+                      <Type className="h-4 w-4 mr-2" />
+                      <span>Text</span>
+                    </Button>
+                    <Button variant="outline" className="w-full justify-start">
+                      <Image className="h-4 w-4 mr-2" />
+                      <span>Image</span>
+                    </Button>
+                    <Button variant="outline" className="w-full justify-start">
+                      <Columns className="h-4 w-4 mr-2" />
+                      <span>Button</span>
+                    </Button>
+                    <Button variant="outline" className="w-full justify-start">
+                      <SeparatorHorizontal className="h-4 w-4 mr-2" />
+                      <span>Divider</span>
+                    </Button>
+                    <Button variant="outline" className="w-full justify-start">
+                      <Space className="h-4 w-4 mr-2" />
+                      <span>Spacer</span>
+                    </Button>
+                    <Button variant="outline" className="w-full justify-start">
+                      <Share className="h-4 w-4 mr-2" />
+                      <span>Social</span>
+                    </Button>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          </TabsContent>
+          
+          {/* Design Tab */}
+          <TabsContent value="design" className="space-y-4 py-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Email Design</CardTitle>
+                <CardDescription>Customize the design and appearance of your email</CardDescription>
+              </CardHeader>
+              <CardContent className="min-h-[400px] flex items-center justify-center">
+                <div className="text-center">
+                  <p className="text-muted-foreground mb-4">Design tools will appear here in the next version</p>
+                  <Button variant="outline" onClick={() => setActiveTab("compose")}>
+                    Back to Compose
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+          
+          {/* Preview Tab */}
+          <TabsContent value="preview" className="space-y-4 py-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Email Preview</CardTitle>
+                <CardDescription>Preview how your email will appear to recipients</CardDescription>
+              </CardHeader>
+              <CardContent className="min-h-[400px] flex items-center justify-center border-t">
+                <div className="text-center max-w-md mx-auto p-6">
+                  <div className="mb-4 p-4 border rounded-lg">
+                    <p className="font-semibold">{form.watch("subject") || "No Subject"}</p>
+                    <hr className="my-2" />
+                    <p className="text-sm whitespace-pre-wrap break-words">
+                      {form.watch("content") || "No content added yet. Return to the Compose tab to add content."}
+                    </p>
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    Sending to: {form.watch("to") || "No recipients specified"}
+                  </div>
+                </div>
+              </CardContent>
+              <CardFooter className="flex justify-center pt-2 pb-3 border-t">
+                <div className="flex gap-2">
+                  <Button 
+                    variant={activeDevice === 'tablet' ? 'default' : 'outline'} 
+                    size="sm" 
+                    onClick={() => setActiveDevice('tablet')}
+                  >
+                    <Tablet className="h-4 w-4" />
+                  </Button>
+                  <Button 
+                    variant={activeDevice === 'phone' ? 'default' : 'outline'} 
+                    size="sm" 
+                    onClick={() => setActiveDevice('phone')}
+                  >
+                    <Smartphone className="h-4 w-4" />
+                  </Button>
+                  <Button 
+                    variant={activeDevice === 'laptop' ? 'default' : 'outline'} 
+                    size="sm" 
+                    onClick={() => setActiveDevice('laptop')}
+                  >
+                    <Laptop className="h-4 w-4" />
+                  </Button>
+                </div>
+              </CardFooter>
+            </Card>
+          </TabsContent>
+        </Tabs>
         
         <DialogFooter className="flex justify-between">
           <div>
