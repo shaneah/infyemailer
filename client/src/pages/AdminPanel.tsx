@@ -568,21 +568,63 @@ export default function AdminPanel() {
                               <h4 className="font-medium">Two-Factor Authentication</h4>
                               <p className="text-sm text-gray-500">Require 2FA for all admin accounts</p>
                             </div>
-                            <Button variant="outline" size="sm">Configure</Button>
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => {
+                                toast({
+                                  title: "Two-Factor Authentication",
+                                  description: "Opening two-factor authentication configuration",
+                                  variant: "default",
+                                });
+                                // Future implementation: Open 2FA configuration dialog
+                                setActiveTab("2fa-config");
+                              }}
+                            >
+                              Configure
+                            </Button>
                           </div>
                           <div className="flex items-center justify-between">
                             <div>
                               <h4 className="font-medium">Password Policy</h4>
                               <p className="text-sm text-gray-500">Minimum requirements and expiry</p>
                             </div>
-                            <Button variant="outline" size="sm">Configure</Button>
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => {
+                                toast({
+                                  title: "Password Policy",
+                                  description: "Opening password policy configuration",
+                                  variant: "default",
+                                });
+                                // Future implementation: Open password policy dialog
+                                setActiveTab("password-policy");
+                              }}
+                            >
+                              Configure
+                            </Button>
                           </div>
                           <div className="flex items-center justify-between">
                             <div>
                               <h4 className="font-medium">Single Sign-On</h4>
                               <p className="text-sm text-gray-500">Configure SAML & OAuth providers</p>
                             </div>
-                            <Button variant="outline" size="sm">Configure</Button>
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => {
+                                toast({
+                                  title: "Single Sign-On",
+                                  description: "Opening SSO provider configuration",
+                                  variant: "default",
+                                });
+                                // Future implementation: Open SSO configuration dialog
+                                setActiveTab("sso-config");
+                              }}
+                            >
+                              Configure
+                            </Button>
                           </div>
                         </div>
                       </CardContent>
@@ -599,21 +641,63 @@ export default function AdminPanel() {
                               <h4 className="font-medium">API Rate Limiting</h4>
                               <p className="text-sm text-gray-500">Prevent abuse by limiting requests</p>
                             </div>
-                            <Button variant="outline" size="sm">Configure</Button>
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => {
+                                toast({
+                                  title: "API Rate Limiting",
+                                  description: "Opening API rate limiting configuration",
+                                  variant: "default",
+                                });
+                                // Future implementation: Open rate limiting configuration dialog
+                                setActiveTab("rate-limiting");
+                              }}
+                            >
+                              Configure
+                            </Button>
                           </div>
                           <div className="flex items-center justify-between">
                             <div>
                               <h4 className="font-medium">IP Whitelisting</h4>
                               <p className="text-sm text-gray-500">Restrict API access by IP address</p>
                             </div>
-                            <Button variant="outline" size="sm">Configure</Button>
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => {
+                                toast({
+                                  title: "IP Whitelisting",
+                                  description: "Opening IP whitelist configuration",
+                                  variant: "default",
+                                });
+                                // Future implementation: Open IP whitelist dialog
+                                setActiveTab("ip-whitelist");
+                              }}
+                            >
+                              Configure
+                            </Button>
                           </div>
                           <div className="flex items-center justify-between">
                             <div>
                               <h4 className="font-medium">API Key Management</h4>
                               <p className="text-sm text-gray-500">Rotate and revoke API credentials</p>
                             </div>
-                            <Button variant="outline" size="sm">Configure</Button>
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => {
+                                toast({
+                                  title: "API Key Management",
+                                  description: "Opening API key management interface",
+                                  variant: "default",
+                                });
+                                // Future implementation: Open API key management dialog
+                                setActiveTab("api-keys");
+                              }}
+                            >
+                              Configure
+                            </Button>
                           </div>
                         </div>
                       </CardContent>
