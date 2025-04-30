@@ -708,6 +708,7 @@ export default function ClientCollaboration() {
   const [clientSearchQuery, setClientSearchQuery] = useState('');
   const [sharedResources, setSharedResources] = useState<SharedResource[]>([]);
   const [collaborationRequests, setCollaborationRequests] = useState<CollaborationRequest[]>([]);
+  const [isAddClientDialogOpen, setIsAddClientDialogOpen] = useState(false);
   const { toast } = useToast();
   const [, setLocation] = useLocation();
 
@@ -808,7 +809,11 @@ export default function ClientCollaboration() {
             <CardHeader className="pb-2">
               <div className="flex justify-between items-center mb-2">
                 <CardTitle className="text-lg font-semibold">Clients</CardTitle>
-                <Button size="sm" className="h-8 gap-1">
+                <Button 
+                  size="sm" 
+                  className="h-8 gap-1"
+                  onClick={() => setIsAddClientDialogOpen(true)}
+                >
                   <UserPlus size={14} />
                   Add
                 </Button>
