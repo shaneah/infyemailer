@@ -11,6 +11,8 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Checkbox } from "@/components/ui/checkbox";
 import { 
   AlertCircle, 
   CheckCircle, 
@@ -28,7 +30,9 @@ import {
   Share2, 
   Clock, 
   TrendingUp,
-  Loader2
+  Loader2,
+  Plus,
+  X
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -1541,6 +1545,267 @@ export default function AdminPanel() {
           </div>
         </TabsContent>
       </Tabs>
+
+      {/* Configuration Dialog */}
+      <Dialog open={configDialogOpen} onOpenChange={setConfigDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>
+              {configType === "2fa" && "Two-Factor Authentication"}
+              {configType === "password-policy" && "Password Policy Configuration"}
+              {configType === "sso" && "Single Sign-On Providers"}
+              {configType === "rate-limiting" && "API Rate Limiting"}
+              {configType === "ip-whitelist" && "IP Whitelisting"}
+              {configType === "api-keys" && "API Key Management"}
+            </DialogTitle>
+            <DialogDescription>
+              {configType === "2fa" && "Configure two-factor authentication settings for admin accounts."}
+              {configType === "password-policy" && "Set password requirements and expiration policies."}
+              {configType === "sso" && "Configure SAML and OAuth identity providers."}
+              {configType === "rate-limiting" && "Set API request limits to prevent abuse."}
+              {configType === "ip-whitelist" && "Restrict API access to trusted IP addresses."}
+              {configType === "api-keys" && "Manage API credentials for external integrations."}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="p-4 border rounded-md bg-secondary/20">
+            <div className="flex items-center space-x-2 text-amber-600">
+              <AlertCircle className="h-5 w-5" />
+              <p className="text-sm font-medium">This feature is coming soon</p>
+            </div>
+            <p className="mt-2 text-sm text-muted-foreground">
+              We're currently developing this functionality. Settings made here will be saved but not yet applied to the system.
+            </p>
+          </div>
+          
+          {configType === "2fa" && (
+            <div className="space-y-4 py-2 pb-4">
+              <div className="space-y-2">
+                <Label htmlFor="require2fa">Require 2FA for</Label>
+                <Select defaultValue="admins">
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select users" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="admins">Admin accounts only</SelectItem>
+                    <SelectItem value="all">All users</SelectItem>
+                    <SelectItem value="none">No users (optional)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="space-y-2">
+                <div className="flex items-center space-x-2">
+                  <Checkbox id="allowApp" />
+                  <Label htmlFor="allowApp">Allow authenticator app</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Checkbox id="allowSms" defaultChecked />
+                  <Label htmlFor="allowSms">Allow SMS authentication</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Checkbox id="allowEmail" defaultChecked />
+                  <Label htmlFor="allowEmail">Allow email authentication</Label>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          {configType === "password-policy" && (
+            <div className="space-y-4 py-2 pb-4">
+              <div className="space-y-2">
+                <Label htmlFor="minLength">Minimum password length</Label>
+                <Input id="minLength" type="number" defaultValue="8" min="6" max="30" />
+              </div>
+              
+              <div className="space-y-2">
+                <div className="flex items-center space-x-2">
+                  <Checkbox id="requireUppercase" defaultChecked />
+                  <Label htmlFor="requireUppercase">Require uppercase letter</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Checkbox id="requireNumber" defaultChecked />
+                  <Label htmlFor="requireNumber">Require number</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Checkbox id="requireSpecial" defaultChecked />
+                  <Label htmlFor="requireSpecial">Require special character</Label>
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="expiry">Password expiry</Label>
+                <Select defaultValue="90">
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select expiry period" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="30">30 days</SelectItem>
+                    <SelectItem value="60">60 days</SelectItem>
+                    <SelectItem value="90">90 days</SelectItem>
+                    <SelectItem value="180">180 days</SelectItem>
+                    <SelectItem value="never">Never</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          )}
+          
+          {configType === "sso" && (
+            <div className="space-y-4 py-2 pb-4">
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="font-medium">Google SSO</h4>
+                    <p className="text-sm text-gray-500">Allow login with Google accounts</p>
+                  </div>
+                  <Switch />
+                </div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="font-medium">Microsoft SSO</h4>
+                    <p className="text-sm text-gray-500">Allow login with Microsoft accounts</p>
+                  </div>
+                  <Switch />
+                </div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="font-medium">SAML 2.0</h4>
+                    <p className="text-sm text-gray-500">Configure custom SAML provider</p>
+                  </div>
+                  <Button variant="outline" size="sm">Configure</Button>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          {configType === "rate-limiting" && (
+            <div className="space-y-4 py-2 pb-4">
+              <div className="space-y-2">
+                <Label htmlFor="rateLimit">Requests per minute</Label>
+                <Input id="rateLimit" type="number" defaultValue="60" min="10" max="1000" />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="rateBurst">Burst limit</Label>
+                <Input id="rateBurst" type="number" defaultValue="100" min="10" max="2000" />
+                <p className="text-xs text-gray-500">Maximum number of requests allowed in a short burst</p>
+              </div>
+              
+              <div className="space-y-2">
+                <div className="flex items-center space-x-2">
+                  <Checkbox id="authenticated" defaultChecked />
+                  <Label htmlFor="authenticated">Higher limits for authenticated users</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Checkbox id="byEndpoint" defaultChecked />
+                  <Label htmlFor="byEndpoint">Limit by endpoint (recommended)</Label>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          {configType === "ip-whitelist" && (
+            <div className="space-y-4 py-2 pb-4">
+              <div className="space-y-2">
+                <Label htmlFor="whitelistMode">Whitelist mode</Label>
+                <Select defaultValue="disabled">
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select mode" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="disabled">Disabled</SelectItem>
+                    <SelectItem value="api-only">API endpoints only</SelectItem>
+                    <SelectItem value="all">All endpoints</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="space-y-2">
+                <Label>Whitelisted IP addresses</Label>
+                <div className="border rounded-md p-2 h-32 overflow-y-auto space-y-2">
+                  <div className="flex items-center justify-between">
+                    <code className="text-sm">192.168.1.1</code>
+                    <Button variant="ghost" size="sm"><X className="h-4 w-4" /></Button>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <code className="text-sm">192.168.1.2</code>
+                    <Button variant="ghost" size="sm"><X className="h-4 w-4" /></Button>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <code className="text-sm">10.0.0.1</code>
+                    <Button variant="ghost" size="sm"><X className="h-4 w-4" /></Button>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="flex space-x-2">
+                <Input placeholder="Add IP address" />
+                <Button variant="outline" size="sm">Add</Button>
+              </div>
+            </div>
+          )}
+          
+          {configType === "api-keys" && (
+            <div className="space-y-4 py-2 pb-4">
+              <div className="space-y-2">
+                <Label>Active API Keys</Label>
+                <div className="border rounded-md divide-y">
+                  <div className="p-2 flex justify-between items-center">
+                    <div>
+                      <div className="font-medium">Primary Key</div>
+                      <div className="text-xs text-gray-500">Created: Apr 2, 2025</div>
+                    </div>
+                    <div className="flex space-x-2">
+                      <Button variant="ghost" size="sm">View</Button>
+                      <Button variant="ghost" size="sm" className="text-red-500">Revoke</Button>
+                    </div>
+                  </div>
+                  <div className="p-2 flex justify-between items-center">
+                    <div>
+                      <div className="font-medium">Integration Key</div>
+                      <div className="text-xs text-gray-500">Created: Apr 15, 2025</div>
+                    </div>
+                    <div className="flex space-x-2">
+                      <Button variant="ghost" size="sm">View</Button>
+                      <Button variant="ghost" size="sm" className="text-red-500">Revoke</Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div>
+                <Button variant="outline" size="sm">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Generate New API Key
+                </Button>
+              </div>
+            </div>
+          )}
+          
+          <DialogFooter className="sm:justify-end">
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => setConfigDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              onClick={() => {
+                toast({
+                  title: "Settings saved",
+                  description: "Your configuration has been saved successfully",
+                });
+                setConfigDialogOpen(false);
+              }}
+            >
+              Save changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
