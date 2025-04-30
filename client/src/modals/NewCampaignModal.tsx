@@ -107,15 +107,21 @@ const NewCampaignModal = ({ onClose, initialTemplateId = null }: NewCampaignModa
     onSuccess: (data) => {
       console.log("Invalidating /api/campaigns query cache");
       
-      // Invalidate multiple queries to ensure everything is refreshed
+      // Invalidate and reset queries to ensure everything is refreshed
       queryClient.invalidateQueries({ queryKey: ['/api/campaigns'] });
       queryClient.invalidateQueries({ queryKey: ['/api/campaigns/stats'] });
+      queryClient.resetQueries({ queryKey: ['/api/campaigns'] });
+      queryClient.resetQueries({ queryKey: ['/api/campaigns/stats'] });
       
+      // Force a refetch immediately
+      queryClient.refetchQueries({ queryKey: ['/api/campaigns'] });
+      queryClient.refetchQueries({ queryKey: ['/api/campaigns/stats'] });
+      
+      // Also schedule another refetch after a short delay as a backup
       setTimeout(() => {
-        // Force a refetch after a short delay
         queryClient.refetchQueries({ queryKey: ['/api/campaigns'] });
         queryClient.refetchQueries({ queryKey: ['/api/campaigns/stats'] });
-      }, 300);
+      }, 500);
       
       toast({
         title: "Success",

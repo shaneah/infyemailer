@@ -56,7 +56,7 @@ const CampaignDetail = () => {
   // Fallback: If the specific endpoint doesn't exist, fetch all campaigns and find the one we need
   const { data: allCampaigns, isLoading: isLoadingAll, error: allError } = useQuery<Campaign[]>({
     queryKey: ['/api/campaigns'],
-    enabled: !!campaignId && (!campaign || campaignError),
+    enabled: !!campaignId && (campaignError ? true : false),
   });
   
   // Combined loading and error states
@@ -64,7 +64,7 @@ const CampaignDetail = () => {
   const error = campaignError && allError ? campaignError : null;
   
   // Find the campaign data from either source
-  const campaignData = campaign || (allCampaigns?.find(c => c.id === campaignId));
+  const campaignData = campaign || (allCampaigns ? allCampaigns.find((c: Campaign) => c.id === campaignId) : undefined);
   
   const handleBackClick = () => {
     setLocation('/campaigns');

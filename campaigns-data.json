@@ -1,5 +1,30 @@
 [
   {
+    "name": "Monthly Newsletter",
+    "subject": "May Newsletter",
+    "previewText": "Check out our latest updates",
+    "senderName": "Your Company",
+    "replyToEmail": "info@example.com",
+    "content": "<h1>Monthly Newsletter</h1><p>Here are our latest updates...</p>",
+    "status": "sent",
+    "scheduledAt": "2023-05-15T09:00:00.000Z",
+    "metadata": {
+      "icon": {
+        "name": "envelope-fill",
+        "color": "primary"
+      },
+      "subtitle": "May 2023",
+      "recipients": 12483,
+      "openRate": 46.2,
+      "clickRate": 21.8,
+      "date": "May 15, 2023"
+    },
+    "id": 1,
+    "sentAt": null,
+    "createdAt": "2025-04-30T21:15:56.248Z",
+    "updatedAt": "2025-04-30T21:15:56.248Z"
+  },
+  {
     "name": "Subject Line Testing",
     "subject": "A/B Test: Subject Line Variations",
     "previewText": "Testing different subject lines",
@@ -22,8 +47,8 @@
     },
     "id": 2,
     "sentAt": null,
-    "createdAt": "2025-04-30T20:37:12.234Z",
-    "updatedAt": "2025-04-30T20:37:12.234Z"
+    "createdAt": "2025-04-30T21:15:56.249Z",
+    "updatedAt": "2025-04-30T21:15:56.249Z"
   },
   {
     "name": "Email Design Testing",
@@ -48,8 +73,8 @@
     },
     "id": 3,
     "sentAt": null,
-    "createdAt": "2025-04-30T20:37:12.234Z",
-    "updatedAt": "2025-04-30T20:37:12.234Z"
+    "createdAt": "2025-04-30T21:15:56.249Z",
+    "updatedAt": "2025-04-30T21:15:56.249Z"
   },
   {
     "name": "Product Launch",
@@ -73,8 +98,8 @@
     },
     "id": 4,
     "sentAt": null,
-    "createdAt": "2025-04-30T20:37:12.234Z",
-    "updatedAt": "2025-04-30T20:37:12.234Z"
+    "createdAt": "2025-04-30T21:15:56.249Z",
+    "updatedAt": "2025-04-30T21:15:56.249Z"
   },
   {
     "name": "Spring Sale",
@@ -98,8 +123,8 @@
     },
     "id": 5,
     "sentAt": null,
-    "createdAt": "2025-04-30T20:37:12.236Z",
-    "updatedAt": "2025-04-30T20:37:12.236Z"
+    "createdAt": "2025-04-30T21:15:56.252Z",
+    "updatedAt": "2025-04-30T21:15:56.252Z"
   },
   {
     "name": "Welcome Series",
@@ -123,7 +148,7 @@
     },
     "id": 6,
     "sentAt": null,
-    "createdAt": "2025-04-30T20:37:12.240Z",
-    "updatedAt": "2025-04-30T20:37:12.240Z"
+    "createdAt": "2025-04-30T21:15:56.255Z",
+    "updatedAt": "2025-04-30T21:15:56.255Z"
   }
 ]

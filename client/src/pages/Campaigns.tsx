@@ -74,14 +74,25 @@ export default function Campaigns() {
     sortBy: "date"
   });
   
+  // Effect to refresh campaigns on component mount
+  useEffect(() => {
+    // Whenever the Campaigns page is mounted, refresh the campaign data
+    queryClient.refetchQueries({ queryKey: ['/api/campaigns'] });
+    queryClient.refetchQueries({ queryKey: ['/api/campaigns/stats'] });
+  }, []);
+
   const { data: campaignStats, isLoading } = useQuery<CampaignStat[]>({
     queryKey: ['/api/campaigns/stats'],
     initialData: [],
+    refetchOnMount: true, // Refetch on component mount
+    refetchOnWindowFocus: true, // Refetch when window regains focus
   });
   
   const { data: campaigns } = useQuery<Campaign[]>({
     queryKey: ['/api/campaigns'],
     initialData: [],
+    refetchOnMount: true, // Refetch on component mount
+    refetchOnWindowFocus: true, // Refetch when window regains focus
   });
   
   // Export campaigns to Excel

@@ -189,7 +189,7 @@ const CampaignsTable = () => {
         <h3 className="text-lg font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
           Recent Campaigns
         </h3>
-        <Link href="/campaigns" className="text-sm px-4 py-2 rounded-md border border-blue-200 bg-white hover:bg-blue-50 transition-colors shadow-sm flex items-center gap-1">
+        <Link href="/campaigns" className="text-sm px-4 py-2 rounded-md border border-blue-200 bg-white hover:bg-blue-50 transition-colors shadow-sm flex items-center gap-1 cursor-pointer">
           View all
           <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M9 18l6-6-6-6"></path>
@@ -269,7 +269,7 @@ const CampaignsTable = () => {
                   <div className="inline-flex items-center space-x-2">
                     <Link 
                       href={`/campaigns/${campaign.id}`} 
-                      className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-blue-200 bg-white hover:bg-blue-50 shadow-sm h-9 px-3 group"
+                      className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-blue-200 bg-white hover:bg-blue-50 shadow-sm h-9 px-3 group cursor-pointer"
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-blue-600 group-hover:text-blue-700 transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
@@ -304,7 +304,7 @@ const CampaignsTable = () => {
                             Campaign Actions
                           </div>
                           <Link 
-                            href={`/campaigns/${campaign.id}/analytics`} 
+                            href={`/email-performance?campaignId=${campaign.id}`} 
                             className="group flex items-center px-3 py-2 text-sm rounded-md hover:bg-blue-50 hover:text-blue-700 transition-colors duration-150"
                           >
                             <svg xmlns="http://www.w3.org/2000/svg" className="mr-2 h-4 w-4 text-blue-400 group-hover:text-blue-600 transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -315,7 +315,7 @@ const CampaignsTable = () => {
                             <span className="group-hover:translate-x-0.5 transition-transform duration-150">Analytics</span>
                           </Link>
                           <Link 
-                            href={`/campaigns/${campaign.id}/edit`} 
+                            href={`/template-builder?campaignId=${campaign.id}`} 
                             className="group flex items-center px-3 py-2 text-sm rounded-md hover:bg-blue-50 hover:text-blue-700 transition-colors duration-150"
                           >
                             <svg xmlns="http://www.w3.org/2000/svg" className="mr-2 h-4 w-4 text-blue-400 group-hover:text-blue-600 transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
