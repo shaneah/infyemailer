@@ -46,17 +46,24 @@ const CampaignDetail = () => {
   const [, setLocation] = useLocation();
   const campaignId = parseInt(params?.id || '0', 10);
   
-  const { data: campaign, isLoading, error } = useQuery<Campaign>({
+  // First try to get the specific campaign
+  const { data: campaign, isLoading: isLoadingCampaign, error: campaignError } = useQuery<Campaign>({
     queryKey: [`/api/campaigns/${campaignId}`],
     enabled: !!campaignId,
+    retry: 1,  // Only retry once
   });
   
-  // Fallback: If the API endpoint doesn't exist, fetch all campaigns and find the one we need
-  const { data: allCampaigns } = useQuery<Campaign[]>({
+  // Fallback: If the specific endpoint doesn't exist, fetch all campaigns and find the one we need
+  const { data: allCampaigns, isLoading: isLoadingAll, error: allError } = useQuery<Campaign[]>({
     queryKey: ['/api/campaigns'],
-    enabled: !!campaignId,
+    enabled: !!campaignId && (!campaign || campaignError),
   });
   
+  // Combined loading and error states
+  const isLoading = isLoadingCampaign || isLoadingAll;
+  const error = campaignError && allError ? campaignError : null;
+  
+  // Find the campaign data from either source
   const campaignData = campaign || (allCampaigns?.find(c => c.id === campaignId));
   
   const handleBackClick = () => {
@@ -104,7 +111,9 @@ const CampaignDetail = () => {
   }
   
   // Helper function to get badge variant based on status
-  const getBadgeVariant = (status: string) => {
+  const getBadgeVariant = (status: string | undefined) => {
+    if (!status) return 'outline';
+    
     switch (status.toLowerCase()) {
       case 'sent':
       case 'active':
@@ -135,9 +144,9 @@ const CampaignDetail = () => {
         </div>
         <Badge 
           className="mt-2 sm:mt-0" 
-          variant={getBadgeVariant(campaignData.status.label)}
+          variant={getBadgeVariant(campaignData.status?.label)}
         >
-          {campaignData.status.label}
+          {campaignData.status?.label || 'Unknown'}
         </Badge>
       </div>
       
@@ -177,7 +186,7 @@ const CampaignDetail = () => {
                   <div className="col-span-1 text-sm text-muted-foreground">Recipients:</div>
                   <div className="col-span-2 text-sm font-medium flex items-center">
                     <Users className="h-4 w-4 mr-2 text-gray-500" />
-                    {campaignData.recipients.toLocaleString()}
+                    {campaignData.recipients ? campaignData.recipients.toLocaleString() : '0'}
                   </div>
                 </div>
                 
@@ -207,17 +216,17 @@ const CampaignDetail = () => {
                 <div className="space-y-2">
                   <div className="flex justify-between items-center">
                     <span className="text-sm">Open Rate</span>
-                    <span className="text-sm font-medium">{campaignData.openRate}%</span>
+                    <span className="text-sm font-medium">{campaignData.openRate ?? 0}%</span>
                   </div>
-                  <Progress value={campaignData.openRate} className="h-2" />
+                  <Progress value={campaignData.openRate ?? 0} className="h-2" />
                 </div>
                 
                 <div className="space-y-2">
                   <div className="flex justify-between items-center">
                     <span className="text-sm">Click Rate</span>
-                    <span className="text-sm font-medium">{campaignData.clickRate}%</span>
+                    <span className="text-sm font-medium">{campaignData.clickRate ?? 0}%</span>
                   </div>
-                  <Progress value={campaignData.clickRate} className="h-2" />
+                  <Progress value={campaignData.clickRate ?? 0} className="h-2" />
                 </div>
                 
                 <div className="space-y-2">
@@ -269,7 +278,7 @@ const CampaignDetail = () => {
                   </div>
                   <div className="space-y-1">
                     <p className="text-sm font-medium">Campaign Sent</p>
-                    <p className="text-xs text-muted-foreground">Delivered to {campaignData.recipients.toLocaleString()} recipients</p>
+                    <p className="text-xs text-muted-foreground">Delivered to {campaignData.recipients ? campaignData.recipients.toLocaleString() : '0'} recipients</p>
                     <p className="text-xs text-muted-foreground">3 days ago</p>
                   </div>
                 </div>
