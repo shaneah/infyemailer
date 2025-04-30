@@ -69,7 +69,8 @@ function EmailProviders() {
   // Query to fetch default email settings
   const {
     data: fetchedDefaultSettings,
-    isLoading: isLoadingDefaultSettings
+    isLoading: isLoadingDefaultSettings,
+    error: defaultSettingsError
   } = useQuery<{
     fromEmail: string;
     fromName: string;
@@ -78,8 +79,18 @@ function EmailProviders() {
   }>({
     queryKey: ['/api/email-settings/default'],
     queryFn: async () => {
-      const response = await apiRequest('GET', '/api/email-settings/default');
-      return response.json();
+      try {
+        const response = await apiRequest('GET', '/api/email-settings/default');
+        return await safeJsonParse<{
+          fromEmail: string;
+          fromName: string;
+          replyTo: string;
+          signature: string;
+        }>(response, 'default settings');
+      } catch (error) {
+        console.error('Error fetching default settings:', error);
+        throw error;
+      }
     }
   });
   
