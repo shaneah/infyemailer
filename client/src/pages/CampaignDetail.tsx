@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useLocation } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
+import { queryClient } from '@/lib/queryClient';
 import { 
   Card, 
   CardContent, 
@@ -51,12 +52,18 @@ const CampaignDetail = () => {
     queryKey: [`/api/campaigns/${campaignId}`],
     enabled: !!campaignId,
     retry: 1,  // Only retry once
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
   });
   
   // Fallback: If the specific endpoint doesn't exist, fetch all campaigns and find the one we need
   const { data: allCampaigns, isLoading: isLoadingAll, error: allError } = useQuery<Campaign[]>({
     queryKey: ['/api/campaigns'],
     enabled: !!campaignId && (campaignError ? true : false),
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
   });
   
   // Combined loading and error states
@@ -66,6 +73,15 @@ const CampaignDetail = () => {
   // Find the campaign data from either source
   const campaignData = campaign || (allCampaigns ? allCampaigns.find((c: Campaign) => c.id === campaignId) : undefined);
   
+  // Effect to refresh campaign data on component mount
+  useEffect(() => {
+    if (campaignId) {
+      // Refresh both specific campaign data and all campaigns list
+      queryClient.refetchQueries({ queryKey: [`/api/campaigns/${campaignId}`] });
+      queryClient.refetchQueries({ queryKey: ['/api/campaigns'] });
+    }
+  }, [campaignId]);
+
   const handleBackClick = () => {
     setLocation('/campaigns');
   };

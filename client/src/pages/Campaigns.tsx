@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { queryClient } from "@/lib/queryClient";
 import CampaignsTable from "@/components/CampaignsTable";
 import NewCampaignModal from "@/modals/NewCampaignModal";
 import { Skeleton } from "@/components/ui/skeleton";
