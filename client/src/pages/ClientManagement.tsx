@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Pencil, Trash2, Plus, CreditCard, BarChart4, User, Mail, Building2, Check, X, Loader2, Info as InfoIcon, PlusCircle, Shield } from 'lucide-react';
 import { queryClient, apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
+import { Link } from 'wouter';
 
 import {
   Card,
@@ -262,13 +263,13 @@ const ClientManagement = () => {
       password: "",
       status: "active",
       permissions: {
-        emailValidation: false,
-        campaigns: false,
-        contacts: false,
-        templates: false,
-        reporting: false,
-        domains: false,
-        abTesting: false
+        emailValidation: true,  // Set all permissions to true by default
+        campaigns: true,
+        contacts: true,
+        templates: true,
+        reporting: true,
+        domains: true,
+        abTesting: true
       },
       metadata: {}
     }
@@ -322,18 +323,33 @@ const ClientManagement = () => {
   const updateClientMutation = useMutation({
     mutationFn: async (data: z.infer<typeof clientFormSchema> & { id: number }) => {
       const { id, ...clientData } = data;
+      console.log("Updating client with data:", { id, ...clientData });
       const res = await apiRequest('PATCH', `/api/clients/${id}`, clientData);
       return await res.json();
     },
-    onSuccess: () => {
+    onSuccess: (updatedClient) => {
       toast({
         title: 'Success',
         description: 'Client updated successfully.',
       });
+      
+      // Update the selected client data if it matches the updated client
+      if (selectedClient && selectedClient.id === updatedClient.id) {
+        setSelectedClient(updatedClient);
+      }
+      
+      // Invalidate and refetch client data
       queryClient.invalidateQueries({ queryKey: ['/api/clients'] });
+      
+      // Also invalidate the specific client's data
+      if (updatedClient.id) {
+        queryClient.invalidateQueries({ queryKey: ['/api/clients', updatedClient.id] });
+      }
+      
       setIsEditDialogOpen(false);
     },
     onError: (error: Error) => {
+      console.error("Client update error:", error);
       toast({
         title: 'Error',
         description: `Failed to update client: ${error.message}`,
@@ -374,20 +390,40 @@ const ClientManagement = () => {
       operation: string; 
       amount: number;
     }) => {
+      console.log(`Updating client ${clientId} credits: ${operation} ${amount}`);
       const res = await apiRequest(
         'POST', 
         `/api/clients/${clientId}/email-credits/${operation}`, 
-        { amount }
+        { amount, reason: `Manual ${operation} by admin` }
       );
       return await res.json();
     },
-    onSuccess: () => {
+    onSuccess: (updatedData) => {
       toast({
         title: 'Success',
         description: 'Credits updated successfully.',
       });
+      
+      console.log("Credit update successful", updatedData);
+      
+      // Update the selected client data if applicable
+      if (selectedClient && updatedData && updatedData.id === selectedClient.id) {
+        setSelectedClient(prev => ({
+          ...prev!,
+          emailCredits: updatedData.emailCredits,
+          emailCreditsUsed: updatedData.emailCreditsUsed,
+          emailCreditsPurchased: updatedData.emailCreditsPurchased
+        }));
+      }
+      
+      // Invalidate and refetch client and history data
       queryClient.invalidateQueries({ queryKey: ['/api/clients'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/clients', selectedClientId, 'credit-history'] });
+      
+      if (selectedClientId) {
+        queryClient.invalidateQueries({ queryKey: ['/api/clients', selectedClientId] });
+        queryClient.invalidateQueries({ queryKey: ['/api/clients', selectedClientId, 'credit-history'] });
+      }
+      
       setIsCreditDialogOpen(false);
       creditForm.reset({
         amount: 100,
@@ -395,6 +431,7 @@ const ClientManagement = () => {
       });
     },
     onError: (error: Error) => {
+      console.error("Credit management error:", error);
       toast({
         title: 'Error',
         description: `Failed to update credits: ${error.message}`,
@@ -878,13 +915,32 @@ const ClientManagement = () => {
                     <div className="space-y-3">
                       <h3 className="font-semibold text-sm text-gray-500">QUICK ACTIONS</h3>
                       <div className="space-y-2">
-                        <Button className="w-full justify-start" variant="outline">
-                          <BarChart4 className="mr-2 h-4 w-4" /> View Campaign Analytics
+                        <Link href={`/email-performance?clientId=${selectedClient.id}`} passHref>
+                          <Button className="w-full justify-start" variant="outline">
+                            <BarChart4 className="mr-2 h-4 w-4" /> View Campaign Analytics
+                          </Button>
+                        </Link>
+                        <Button 
+                          className="w-full justify-start" 
+                          variant="outline"
+                          onClick={() => handleManageCredits(selectedClient)}
+                        >
+                          <CreditCard className="mr-2 h-4 w-4" /> Manage Credits
                         </Button>
-                        <Button className="w-full justify-start" variant="outline">
-                          <Mail className="mr-2 h-4 w-4" /> Send Test Email
-                        </Button>
-                        <Button className="w-full justify-start" variant="outline">
+                        <Button 
+                          className="w-full justify-start" 
+                          variant="outline"
+                          onClick={() => {
+                            // Automatically scroll to users tab
+                            const usersTab = document.querySelector('[data-value="users"]');
+                            if (usersTab instanceof HTMLElement) {
+                              usersTab.click();
+                              setTimeout(() => {
+                                usersTab.scrollIntoView({ behavior: 'smooth' });
+                              }, 100);
+                            }
+                          }}
+                        >
                           <User className="mr-2 h-4 w-4" /> Manage Users
                         </Button>
                       </div>
