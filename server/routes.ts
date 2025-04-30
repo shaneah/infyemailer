@@ -882,7 +882,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         content = 'Email,Name,Status,Added On\n';
         // CSV rows
         contacts.forEach(contact => {
-          content += `${contact.email},${contact.name || ''},${contact.status || ''},${contact.createdAt || ''}\n`;
+          // Get name with fallback to email username if name is undefined or empty
+          const name = contact.name || (contact.email ? contact.email.split('@')[0] : '');
+          // Get status properly accounting for object format or string format
+          const status = typeof contact.status === 'object' ? contact.status.label || '' : contact.status || '';
+          // Format date properly or use empty string if undefined
+          const createdDate = contact.createdAt ? new Date(contact.createdAt).toLocaleDateString() : '';
+          
+          content += `${contact.email},${name},${status},${createdDate}\n`;
         });
       } else {
         // Plain text - one email per line
