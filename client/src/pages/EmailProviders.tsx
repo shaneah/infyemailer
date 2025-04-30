@@ -291,33 +291,18 @@ function EmailProviders() {
         const response = await apiRequest('POST', `/api/email-providers/${id}/check-configuration`);
         console.log('Check configuration API response:', response);
         
-        if (!response.ok) {
-          // Clone the response before reading it to avoid the "body already read" error
-          const clonedResponse = response.clone();
-          
-          try {
-            const errorText = await clonedResponse.text();
-            console.error('Check configuration error response:', errorText);
-            
-            let errorData;
-            try {
-              errorData = JSON.parse(errorText);
-            } catch (e) {
-              throw new Error(`API error: ${response.status} - ${errorText.substring(0, 100)}`);
-            }
-            
-            throw new Error(errorData.error || errorData.details || `API error: ${response.status}`);
-          } catch (parseError) {
-            console.error('Error parsing error response:', parseError);
-            throw new Error(`Configuration check failed (Status: ${response.status})`);
-          }
-        }
-        
-        // Clone the response before reading it to avoid the "body already read" error
-        const clonedResponse = response.clone();
-        const data = await clonedResponse.json();
-        console.log('Configuration check result data:', data);
-        return data;
+        return await safeJsonParse<{
+          success: boolean;
+          apiConnected?: boolean;
+          senderIdentitiesVerified?: boolean;
+          errors?: string[];
+          warnings?: string[];
+          troubleshootingTips?: string[];
+          details?: {
+            verifiedSenders?: string[];
+            [key: string]: any;
+          };
+        }>(response, 'check configuration');
       } catch (error) {
         console.error('Error in configuration check:', error);
         throw error;
@@ -450,7 +435,7 @@ function EmailProviders() {
   const saveDefaultSettingsMutation = useMutation({
     mutationFn: async (settings: any) => {
       const response = await apiRequest('POST', '/api/email-settings/default', settings);
-      return response.json();
+      return await safeJsonParse<any>(response, 'default settings');
     },
     onSuccess: () => {
       // Invalidate the query to refresh data
