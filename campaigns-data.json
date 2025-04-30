@@ -21,8 +21,8 @@
     },
     "id": 1,
     "sentAt": null,
-    "createdAt": "2025-04-30T21:50:03.049Z",
-    "updatedAt": "2025-04-30T21:50:03.049Z"
+    "createdAt": "2025-04-30T21:58:26.158Z",
+    "updatedAt": "2025-04-30T21:58:26.158Z"
   },
   {
     "name": "Subject Line Testing",
@@ -47,8 +47,8 @@
     },
     "id": 2,
     "sentAt": null,
-    "createdAt": "2025-04-30T21:50:03.049Z",
-    "updatedAt": "2025-04-30T21:50:03.049Z"
+    "createdAt": "2025-04-30T21:58:26.158Z",
+    "updatedAt": "2025-04-30T21:58:26.158Z"
   },
   {
     "name": "Email Design Testing",
@@ -73,8 +73,8 @@
     },
     "id": 3,
     "sentAt": null,
-    "createdAt": "2025-04-30T21:50:03.050Z",
-    "updatedAt": "2025-04-30T21:50:03.050Z"
+    "createdAt": "2025-04-30T21:58:26.159Z",
+    "updatedAt": "2025-04-30T21:58:26.159Z"
   },
   {
     "name": "Product Launch",
@@ -98,8 +98,8 @@
     },
     "id": 4,
     "sentAt": null,
-    "createdAt": "2025-04-30T21:50:03.050Z",
-    "updatedAt": "2025-04-30T21:50:03.050Z"
+    "createdAt": "2025-04-30T21:58:26.159Z",
+    "updatedAt": "2025-04-30T21:58:26.159Z"
   },
   {
     "name": "Spring Sale",
@@ -123,8 +123,8 @@
     },
     "id": 5,
     "sentAt": null,
-    "createdAt": "2025-04-30T21:50:03.051Z",
-    "updatedAt": "2025-04-30T21:50:03.051Z"
+    "createdAt": "2025-04-30T21:58:26.162Z",
+    "updatedAt": "2025-04-30T21:58:26.162Z"
   },
   {
     "name": "Welcome Series",
@@ -148,32 +148,7 @@
     },
     "id": 6,
     "sentAt": null,
-    "createdAt": "2025-04-30T21:50:03.053Z",
-    "updatedAt": "2025-04-30T21:50:03.053Z"
-  },
-  {
-    "name": "test",
-    "subject": "(A/B Test)",
-    "previewText": "",
-    "senderName": "test",
-    "replyToEmail": "adi@test.com",
-    "content": "",
-    "status": "draft",
-    "isAbTest": true,
-    "sentAt": null,
-    "metadata": {
-      "subtitle": "",
-      "icon": {
-        "name": "envelope",
-        "color": "primary"
-      },
-      "recipients": 0,
-      "openRate": 0,
-      "clickRate": 0,
-      "date": "Apr 30, 2025"
-    },
-    "id": 7,
-    "createdAt": "2025-04-30T21:50:45.917Z",
-    "updatedAt": "2025-04-30T21:50:45.917Z"
+    "createdAt": "2025-04-30T21:58:26.164Z",
+    "updatedAt": "2025-04-30T21:58:26.164Z"
   }
 ]
