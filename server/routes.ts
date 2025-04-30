@@ -37,6 +37,7 @@ import AdmZip from "adm-zip";
 import { setupAuth } from "./auth";
 import { registerEmailProviderRoutes } from "./routes/emailProviders";
 import { registerEmailSettingsRoutes } from "./routes/emailSettings";
+import userManagementRoutes from "./routes/user-management";
 
 // Helper function to validate data against schema and return typed result
 function validate<T>(schema: any, data: any): { data: T } | { error: string } {
@@ -73,6 +74,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Register email settings routes
   registerEmailSettingsRoutes(app);
+  
+  // Register user management routes
+  app.use('/api', userManagementRoutes);
 
   // API Routes
   app.get('/api', (req: Request, res: Response) => {
