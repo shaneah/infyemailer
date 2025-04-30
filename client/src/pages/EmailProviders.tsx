@@ -110,8 +110,15 @@ function EmailProviders() {
   } = useQuery<EmailProvider[]>({
     queryKey: ['/api/email-providers'],
     queryFn: async () => {
-      const response = await apiRequest('GET', '/api/email-providers');
-      return response.json();
+      try {
+        const response = await apiRequest('GET', '/api/email-providers');
+        const data = await response.json();
+        console.log('Email providers data:', data);
+        return data;
+      } catch (error) {
+        console.error('Error fetching email providers:', error);
+        throw error;
+      }
     }
   });
 
@@ -496,6 +503,8 @@ function EmailProviders() {
   }
 
   if (providersError) {
+    console.error("Provider error details:", providersError);
+    
     return (
       <div className="flex flex-col items-center justify-center h-96 gap-4">
         <AlertTriangle className="h-12 w-12 text-red-500" />
@@ -503,6 +512,12 @@ function EmailProviders() {
         <p className="text-muted-foreground">
           An error occurred while loading the email providers.
         </p>
+        <div className="bg-red-50 text-red-800 p-4 rounded-md max-w-lg mb-2 text-sm">
+          <p className="font-medium">Error details:</p>
+          <p>{providersError instanceof Error 
+            ? providersError.message 
+            : "Unknown error. Please check the server logs."}</p>
+        </div>
         <Button onClick={() => queryClient.invalidateQueries({ queryKey: ['/api/email-providers'] })}>
           Try Again
         </Button>
