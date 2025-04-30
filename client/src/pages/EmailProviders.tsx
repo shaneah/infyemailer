@@ -972,7 +972,7 @@ function EmailProviders() {
 
       {/* Edit Provider Dialog */}
       <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-        <DialogContent className="sm:max-w-[500px]">
+        <DialogContent className="w-[95vw] max-w-[95vw] h-auto max-h-[90vh] overflow-y-auto sm:max-w-[600px] md:max-w-[700px]">
           <DialogHeader className="pb-2 border-b border-[#d4af37]/30">
             <DialogTitle className="text-[#1a3a5f] font-semibold">Edit Email Provider</DialogTitle>
             <DialogDescription>
@@ -1261,18 +1261,18 @@ function EmailProviders() {
               </div>
             </div>
           )}
-          <DialogFooter>
+          <DialogFooter className="flex flex-col sm:flex-row gap-2 sm:gap-4">
             <Button 
               variant="outline" 
               onClick={() => setIsEditOpen(false)}
-              className="border-[#1a3a5f]/30 text-[#1a3a5f] hover:bg-[#1a3a5f]/5"
+              className="border-[#1a3a5f]/30 text-[#1a3a5f] hover:bg-[#1a3a5f]/5 w-full sm:w-auto"
             >
               Cancel
             </Button>
             <Button
               onClick={handleUpdateProvider}
               disabled={!selectedProvider || updateProviderMutation.isPending}
-              className="bg-gradient-to-r from-[#1a3a5f] to-[#1a3a5f]/90 text-white hover:from-[#1a3a5f]/95 hover:to-[#1a3a5f]/85"
+              className="bg-gradient-to-r from-[#1a3a5f] to-[#1a3a5f]/90 text-white hover:from-[#1a3a5f]/95 hover:to-[#1a3a5f]/85 w-full sm:w-auto"
             >
               {updateProviderMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Save Changes
@@ -1283,18 +1283,18 @@ function EmailProviders() {
 
       {/* Delete Provider Dialog */}
       <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
-        <DialogContent className="sm:max-w-[400px]">
+        <DialogContent className="w-[95vw] max-w-[95vw] sm:max-w-[450px]">
           <DialogHeader>
             <DialogTitle>Delete Email Provider</DialogTitle>
             <DialogDescription>
               Are you sure you want to delete this email provider? This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter>
+          <DialogFooter className="flex flex-col sm:flex-row gap-2 sm:gap-4">
             <Button 
               variant="outline" 
               onClick={() => setIsDeleteOpen(false)}
-              className="border-[#1a3a5f]/30 text-[#1a3a5f] hover:bg-[#1a3a5f]/5"
+              className="border-[#1a3a5f]/30 text-[#1a3a5f] hover:bg-[#1a3a5f]/5 w-full sm:w-auto"
             >
               Cancel
             </Button>
@@ -1302,7 +1302,7 @@ function EmailProviders() {
               variant="destructive"
               onClick={handleDeleteProvider}
               disabled={deleteProviderMutation.isPending}
-              className="bg-red-600 hover:bg-red-700 text-white"
+              className="bg-red-600 hover:bg-red-700 text-white w-full sm:w-auto"
             >
               {deleteProviderMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Delete Provider
@@ -1313,7 +1313,7 @@ function EmailProviders() {
       
       {/* Test Email Dialog */}
       <Dialog open={isTestOpen} onOpenChange={setIsTestOpen}>
-        <DialogContent className="sm:max-w-[500px]">
+        <DialogContent className="w-[95vw] max-w-[95vw] sm:max-w-[600px]">
           <DialogHeader>
             <DialogTitle>Send Test Email</DialogTitle>
             <DialogDescription>
@@ -1358,13 +1358,18 @@ function EmailProviders() {
               />
             </div>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsTestOpen(false)}>
+          <DialogFooter className="flex flex-col sm:flex-row gap-2 sm:gap-4">
+            <Button 
+              variant="outline" 
+              onClick={() => setIsTestOpen(false)}
+              className="w-full sm:w-auto"
+            >
               Cancel
             </Button>
             <Button
               onClick={handleSendTestEmail}
               disabled={!testEmail.from || !testEmail.to || sendTestEmailMutation.isPending}
+              className="w-full sm:w-auto"
             >
               {sendTestEmailMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Send Test Email
@@ -1375,7 +1380,7 @@ function EmailProviders() {
       
       {/* Check Configuration Dialog */}
       <Dialog open={isCheckConfigOpen} onOpenChange={setIsCheckConfigOpen}>
-        <DialogContent className="sm:max-w-[500px]">
+        <DialogContent className="w-[95vw] max-w-[95vw] sm:max-w-[600px]">
           <DialogHeader>
             <DialogTitle>Check Provider Configuration</DialogTitle>
             <DialogDescription>
@@ -1517,15 +1522,20 @@ function EmailProviders() {
             </div>
           )}
           
-          <DialogFooter>
+          <DialogFooter className="flex flex-col sm:flex-row gap-2 sm:gap-4">
             {!configCheckResult && !checkConfigurationMutation.isPending ? (
               <>
-                <Button variant="outline" onClick={() => setIsCheckConfigOpen(false)}>
+                <Button 
+                  variant="outline" 
+                  onClick={() => setIsCheckConfigOpen(false)}
+                  className="w-full sm:w-auto"
+                >
                   Cancel
                 </Button>
                 <Button
                   onClick={handleCheckConfiguration}
                   disabled={checkConfigurationMutation.isPending}
+                  className="w-full sm:w-auto"
                 >
                   {checkConfigurationMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   Check Configuration
@@ -1539,6 +1549,7 @@ function EmailProviders() {
                     setIsCheckConfigOpen(false);
                   }
                 }}
+                className="w-full sm:w-auto"
               >
                 Close
               </Button>
