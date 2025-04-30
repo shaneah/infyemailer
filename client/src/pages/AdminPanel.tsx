@@ -35,6 +35,8 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 
 export default function AdminPanel() {
   const [activeTab, setActiveTab] = useState("security");
+  const [configDialogOpen, setConfigDialogOpen] = useState(false);
+  const [configType, setConfigType] = useState<string>("");
   const [creditAmount, setCreditAmount] = useState<number>(1000);
   const [creditReason, setCreditReason] = useState<string>("");
   const [selectedClientId, setSelectedClientId] = useState<number | null>(null);
@@ -572,13 +574,13 @@ export default function AdminPanel() {
                               variant="outline" 
                               size="sm"
                               onClick={() => {
+                                setConfigType("2fa");
+                                setConfigDialogOpen(true);
                                 toast({
                                   title: "Two-Factor Authentication",
                                   description: "Opening two-factor authentication configuration",
                                   variant: "default",
                                 });
-                                // Future implementation: Open 2FA configuration dialog
-                                setActiveTab("2fa-config");
                               }}
                             >
                               Configure
@@ -593,13 +595,13 @@ export default function AdminPanel() {
                               variant="outline" 
                               size="sm"
                               onClick={() => {
+                                setConfigType("password-policy");
+                                setConfigDialogOpen(true);
                                 toast({
                                   title: "Password Policy",
                                   description: "Opening password policy configuration",
                                   variant: "default",
                                 });
-                                // Future implementation: Open password policy dialog
-                                setActiveTab("password-policy");
                               }}
                             >
                               Configure
@@ -614,13 +616,13 @@ export default function AdminPanel() {
                               variant="outline" 
                               size="sm"
                               onClick={() => {
+                                setConfigType("sso");
+                                setConfigDialogOpen(true);
                                 toast({
                                   title: "Single Sign-On",
                                   description: "Opening SSO provider configuration",
                                   variant: "default",
                                 });
-                                // Future implementation: Open SSO configuration dialog
-                                setActiveTab("sso-config");
                               }}
                             >
                               Configure
@@ -645,13 +647,13 @@ export default function AdminPanel() {
                               variant="outline" 
                               size="sm"
                               onClick={() => {
+                                setConfigType("rate-limiting");
+                                setConfigDialogOpen(true);
                                 toast({
                                   title: "API Rate Limiting",
                                   description: "Opening API rate limiting configuration",
                                   variant: "default",
                                 });
-                                // Future implementation: Open rate limiting configuration dialog
-                                setActiveTab("rate-limiting");
                               }}
                             >
                               Configure
@@ -666,13 +668,13 @@ export default function AdminPanel() {
                               variant="outline" 
                               size="sm"
                               onClick={() => {
+                                setConfigType("ip-whitelist");
+                                setConfigDialogOpen(true);
                                 toast({
                                   title: "IP Whitelisting",
                                   description: "Opening IP whitelist configuration",
                                   variant: "default",
                                 });
-                                // Future implementation: Open IP whitelist dialog
-                                setActiveTab("ip-whitelist");
                               }}
                             >
                               Configure
@@ -687,13 +689,13 @@ export default function AdminPanel() {
                               variant="outline" 
                               size="sm"
                               onClick={() => {
+                                setConfigType("api-keys");
+                                setConfigDialogOpen(true);
                                 toast({
                                   title: "API Key Management",
                                   description: "Opening API key management interface",
                                   variant: "default",
                                 });
-                                // Future implementation: Open API key management dialog
-                                setActiveTab("api-keys");
                               }}
                             >
                               Configure
