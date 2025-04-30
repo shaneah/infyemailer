@@ -162,7 +162,7 @@ function EmailProviders() {
   const createProviderMutation = useMutation({
     mutationFn: async (providerData: any) => {
       const response = await apiRequest('POST', '/api/email-providers', providerData);
-      return response.json();
+      return await safeJsonParse<EmailProvider>(response, 'create provider');
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/email-providers'] });
@@ -186,7 +186,7 @@ function EmailProviders() {
   const updateProviderMutation = useMutation({
     mutationFn: async ({ id, data }: { id: number, data: any }) => {
       const response = await apiRequest('PATCH', `/api/email-providers/${id}`, data);
-      return response.json();
+      return await safeJsonParse<EmailProvider>(response, 'update provider');
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/email-providers'] });
@@ -233,35 +233,12 @@ function EmailProviders() {
     mutationFn: async ({ id, data }: { id: number, data: any }) => {
       try {
         const response = await apiRequest('POST', `/api/email-providers/${id}/test-email`, data);
-        
-        // If the response is not OK, try to get error details
-        if (!response.ok) {
-          // Clone the response before reading it to avoid the "body already read" error
-          const clonedResponse = response.clone();
-          
-          try {
-            const errorData = await clonedResponse.json();
-            if (errorData && errorData.error) {
-              throw new Error(errorData.error);
-            }
-          } catch (parseError) {
-            console.error('Error parsing error response:', parseError);
-            // If we can't parse the response as JSON, use the status text
-            throw new Error(`HTTP error ${response.status}: ${response.statusText}`);
-          }
-          
-          // Fallback error message
-          throw new Error(`Failed to send email (Status: ${response.status})`);
-        }
-        
-        // Clone the response before reading it to avoid the "body already read" error
-        const clonedResponse = response.clone();
-        return clonedResponse.json();
+        return await safeJsonParse<{ success: boolean; message?: string }>(response, 'test email');
       } catch (error: any) {
         // Better handle network and other errors
         console.error('Test email error:', error);
         
-        // Extract meaningful messages from errors
+        // Extract meaningful messages from errors based on the error message
         if (error.message.includes('ETIMEDOUT')) {
           throw new Error('Connection to SMTP server timed out. Please check your server address and port.');
         } else if (error.message.includes('ECONNREFUSED')) {
