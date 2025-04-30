@@ -38,6 +38,7 @@ import { setupAuth } from "./auth";
 import { registerEmailProviderRoutes } from "./routes/emailProviders";
 import { registerEmailSettingsRoutes } from "./routes/emailSettings";
 import userManagementRoutes from "./routes/user-management";
+import reportingRoutes from "./routes/reporting-routes";
 
 // Helper function to validate data against schema and return typed result
 function validate<T>(schema: any, data: any): { data: T } | { error: string } {
@@ -77,6 +78,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Register user management routes
   app.use('/api', userManagementRoutes);
+  
+  // Register reporting routes
+  app.use(reportingRoutes);
 
   // API Routes
   app.get('/api', (req: Request, res: Response) => {

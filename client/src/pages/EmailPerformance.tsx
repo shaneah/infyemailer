@@ -179,13 +179,22 @@ const EmailPerformance: React.FC = () => {
     refetchInterval: 30000, // Refetch every 30 seconds
   });
   
-  // Sample campaign data
-  const campaigns = [
-    { id: 1, name: 'Summer Sale Campaign' },
-    { id: 2, name: 'Product Launch' },
-    { id: 3, name: 'Weekly Newsletter' },
-    { id: 4, name: 'Customer Re-engagement' },
-  ];
+  // Fetch real campaigns for filtering
+  const { data: campaignsData, isLoading: isLoadingCampaigns } = useQuery({
+    queryKey: ['/api/campaigns'],
+    queryFn: async () => {
+      const response = await fetch('/api/campaigns');
+      if (!response.ok) {
+        throw new Error('Failed to fetch campaigns');
+      }
+      const data = await response.json();
+      console.log('Campaigns data:', data);
+      return data;
+    }
+  });
+  
+  // Use real campaign data or fall back to empty array if still loading
+  const campaigns = campaignsData || [];
   
   return (
     <div className="container mx-auto py-6">
