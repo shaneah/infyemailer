@@ -37,6 +37,8 @@ import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 
 // Type definitions
@@ -793,8 +795,142 @@ export default function ClientCollaboration() {
     });
   };
 
+  // Add a client
+  const handleAddClient = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    
+    // Create a new client
+    const newClient = {
+      id: Math.max(0, ...sampleClients.map(c => c.id)) + 1,
+      name: formData.get('name') as string,
+      company: formData.get('company') as string,
+      email: formData.get('email') as string,
+      phone: formData.get('phone') as string || "",
+      status: "active" as const,
+      avatar: "",
+      lastActive: new Date().toISOString(),
+      unreadMessages: 0,
+      pendingApprovals: 0
+    };
+    
+    // Add client to the list
+    sampleClients.push(newClient);
+    
+    // Select the new client
+    setSelectedClient(newClient);
+    
+    // Close the dialog
+    setIsAddClientDialogOpen(false);
+    
+    // Show toast
+    toast({
+      title: "Client added",
+      description: `Client ${newClient.name} has been added successfully.`,
+    });
+  };
+  
+  // Mark a message as read
+  const handleMarkMessageAsRead = (messageId: number) => {
+    // Update messages in state
+    const updatedMessages = messages.map(message => 
+      message.id === messageId ? { ...message, isRead: true } : message
+    );
+    setMessages(updatedMessages);
+    
+    // Update unread count in the client
+    if (selectedClient) {
+      const updatedClient = { 
+        ...selectedClient, 
+        unreadMessages: Math.max(0, selectedClient.unreadMessages - 1)
+      };
+      setSelectedClient(updatedClient);
+      
+      // Update in the sample data
+      const clientIndex = sampleClients.findIndex(c => c.id === selectedClient.id);
+      if (clientIndex >= 0) {
+        sampleClients[clientIndex] = updatedClient;
+      }
+    }
+  };
+  
   return (
     <div className="container mx-auto py-6 px-4 max-w-7xl">
+      {/* Add Client Dialog */}
+      <Dialog open={isAddClientDialogOpen} onOpenChange={setIsAddClientDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Add New Client</DialogTitle>
+            <DialogDescription>
+              Add a new client to collaborate with. This will create a new client profile that you can manage.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <form onSubmit={handleAddClient}>
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="name" className="text-right">
+                  Name
+                </Label>
+                <Input 
+                  id="name" 
+                  name="name"
+                  placeholder="John Smith" 
+                  className="col-span-3" 
+                  required
+                />
+              </div>
+              
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="company" className="text-right">
+                  Company
+                </Label>
+                <Input 
+                  id="company" 
+                  name="company"
+                  placeholder="Acme Inc." 
+                  className="col-span-3" 
+                  required
+                />
+              </div>
+              
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="email" className="text-right">
+                  Email
+                </Label>
+                <Input 
+                  id="email" 
+                  name="email"
+                  type="email"
+                  placeholder="john@example.com" 
+                  className="col-span-3" 
+                  required
+                />
+              </div>
+              
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="phone" className="text-right">
+                  Phone
+                </Label>
+                <Input 
+                  id="phone" 
+                  name="phone"
+                  placeholder="+1 (555) 123-4567" 
+                  className="col-span-3" 
+                />
+              </div>
+            </div>
+            
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setIsAddClientDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button type="submit">Add Client</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+    
       <div>
         <h1 className="text-2xl font-bold text-slate-900 mb-1">Client Collaboration Portal</h1>
         <p className="text-slate-500 mb-6">
