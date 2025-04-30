@@ -14,6 +14,7 @@ import NotFound from "@/pages/not-found";
 import { AIAssistantProvider } from "@/contexts/AIAssistantContext";
 import { AIAssistantButton } from "@/components/AIAssistant";
 import Campaigns from "@/pages/Campaigns";
+import CampaignDetail from "@/pages/CampaignDetail";
 import Templates from "@/pages/Templates";
 import Contacts from "@/pages/Contacts";
 import ListDetails from "@/pages/ListDetails";
@@ -226,6 +227,7 @@ function App() {
                     <ProtectedRoute path="/" component={Dashboard} />
                     <ProtectedRoute path="dashboard" component={Dashboard} />
                     <ProtectedRoute path="campaigns" component={Campaigns} />
+                    <ProtectedRoute path="campaigns/:id" component={CampaignDetail} />
                     <ProtectedRoute path="templates" component={Templates} />
                     <ProtectedRoute path="contacts" component={Contacts} />
                     <ProtectedRoute path="lists/:id" component={ListDetails} />
