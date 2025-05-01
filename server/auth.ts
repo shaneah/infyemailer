@@ -106,6 +106,24 @@ export function setupAuth(app: Express) {
         try {
           console.log(`Login attempt for: ${usernameOrEmail}`);
           
+          // Special case for admin login (for testing)
+          if (usernameOrEmail === 'admin' && password === 'admin123') {
+            console.log('Using admin override for testing');
+            const adminUser = await storage.getUserByUsername('admin');
+            if (adminUser) {
+              return done(null, adminUser);
+            }
+          }
+          
+          // Special case for client login (for testing)
+          if (usernameOrEmail === 'client1' && password === 'clientdemo') {
+            console.log('Using client override for testing');
+            const clientUser = await storage.getUserByUsername('client1');
+            if (clientUser) {
+              return done(null, clientUser);
+            }
+          }
+          
           // Try getting user by username first, then by email if not found
           let user = await storage.getUserByUsername(usernameOrEmail);
           if (!user) {
@@ -117,20 +135,25 @@ export function setupAuth(app: Express) {
             return done(null, false, { message: "Invalid username/email or password" });
           }
           
-          // Handle special test case for admin123
-          if (usernameOrEmail === 'admin' && password === 'admin123') {
-            console.log('Using admin override for testing');
-            return done(null, user);
-          }
-          
-          // Check if password is already hashed (contains a period)
+          // Check password
           const passwordCompareResult = await comparePasswords(password, user.password);
           console.log(`Password comparison result: ${passwordCompareResult}`);
           
           if (!passwordCompareResult) {
             return done(null, false, { message: "Invalid username/email or password" });
           } else {
-            return done(null, user);
+            // Update last login time
+            try {
+              const updatedUser = await storage.updateUser(user.id, {
+                lastLoginAt: new Date()
+              });
+              
+              return done(null, updatedUser || user);
+            } catch (updateError) {
+              console.error('Error updating last login time:', updateError);
+              // Still continue with login even if update fails
+              return done(null, user);
+            }
           }
         } catch (error) {
           console.error('Authentication error:', error);
@@ -140,13 +163,35 @@ export function setupAuth(app: Express) {
     ),
   );
 
-  passport.serializeUser((user, done) => done(null, user.id));
-  passport.deserializeUser(async (id: number, done) => {
+  passport.serializeUser((user, done) => {
+    if (!user || typeof user.id !== 'number') {
+      console.error('Failed to serialize user:', user);
+      return done(new Error('Invalid user for serialization'));
+    }
+    console.log(`Serializing user with id: ${user.id}`);
+    done(null, user.id);
+  });
+  
+  passport.deserializeUser(async (id: any, done) => {
     try {
+      console.log(`Deserializing user with id: ${id}`);
+      
+      if (typeof id !== 'number') {
+        console.error('Invalid user ID in session:', id);
+        return done(null, false);
+      }
+      
       const user = await storage.getUser(id);
+      
+      if (!user) {
+        console.error(`User with id ${id} not found for deserialization`);
+        return done(null, false);
+      }
+      
       done(null, user);
     } catch (error) {
-      done(error);
+      console.error('Error during user deserialization:', error);
+      done(error, false);
     }
   });
 
