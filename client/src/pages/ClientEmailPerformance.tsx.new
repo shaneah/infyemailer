@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import AdvancedEmailPerformance from '@/components/emails/AdvancedEmailPerformance';
+import { useClientAuth } from '@/hooks/useClientAuth';
 
 interface MetricRate {
   value: number;
@@ -42,16 +43,17 @@ interface ChartData {
   subscriberEngagementSegments: Array<{ segment: string; value: number; count: number }>;
 }
 
-export default function EmailPerformance() {
+export default function ClientEmailPerformance() {
+  const { user } = useClientAuth();
   const [timeframe, setTimeframe] = useState('7days');
   const [campaignFilter, setCampaignFilter] = useState('all');
   
   // Using React Query to fetch metrics data
   const { data: metricsData } = useQuery<EmailMetrics>({
-    queryKey: ['/api/email-performance/metrics', timeframe, campaignFilter],
+    queryKey: ['/api/client/email-performance/metrics', timeframe, campaignFilter],
     queryFn: async () => {
-      console.log(`Fetching metrics with timeframe=${timeframe}, campaignFilter=${campaignFilter}`);
-      const response = await fetch(`/api/email-performance/metrics?timeframe=${timeframe}&campaign=${campaignFilter}`);
+      console.log(`Fetching client metrics with timeframe=${timeframe}, campaignFilter=${campaignFilter}`);
+      const response = await fetch(`/api/client/email-performance/metrics?timeframe=${timeframe}&campaign=${campaignFilter}`);
       if (!response.ok) {
         throw new Error('Failed to fetch metrics');
       }
@@ -61,10 +63,10 @@ export default function EmailPerformance() {
   
   // Using React Query to fetch chart data
   const { data: chartData } = useQuery<ChartData>({
-    queryKey: ['/api/email-performance/charts', timeframe, campaignFilter],
+    queryKey: ['/api/client/email-performance/charts', timeframe, campaignFilter],
     queryFn: async () => {
-      console.log(`Fetching charts with timeframe=${timeframe}, campaignFilter=${campaignFilter}`);
-      const response = await fetch(`/api/email-performance/charts?timeframe=${timeframe}&campaign=${campaignFilter}`);
+      console.log(`Fetching client charts with timeframe=${timeframe}, campaignFilter=${campaignFilter}`);
+      const response = await fetch(`/api/client/email-performance/charts?timeframe=${timeframe}&campaign=${campaignFilter}`);
       if (!response.ok) {
         throw new Error('Failed to fetch chart data');
       }
@@ -72,16 +74,16 @@ export default function EmailPerformance() {
     }
   });
   
-  // Fetch campaigns for filtering
+  // Fetch client campaigns for filtering
   const { data: campaignsData } = useQuery({
-    queryKey: ['/api/campaigns'],
+    queryKey: ['/api/client/campaigns'],
     queryFn: async () => {
-      const response = await fetch('/api/campaigns');
+      const response = await fetch('/api/client/campaigns');
       if (!response.ok) {
         throw new Error('Failed to fetch campaigns');
       }
       const data = await response.json();
-      console.log('Campaigns data:', data);
+      console.log('Client campaigns data:', data);
       return data;
     }
   });
@@ -89,9 +91,10 @@ export default function EmailPerformance() {
   return (
     <div className="container mx-auto py-4">
       <AdvancedEmailPerformance 
-        userName="Admin"
+        userName={user?.firstName || 'Client'}
         metrics={metricsData}
         charts={chartData}
+        isClient={true}
       />
     </div>
   );
