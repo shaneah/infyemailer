@@ -276,9 +276,22 @@ export default function AdvancedEmailPerformance({
         </div>
         
         <div className="flex items-center gap-2">
-          <Select value={timeframe} onValueChange={(value) => setTimeframe(value)}>
+          <Select 
+            value={timeframe || "7days"} 
+            onValueChange={(value) => {
+              console.log(`Select timeframe changed to: ${value}`);
+              if (setTimeframe) setTimeframe(value);
+            }}
+          >
             <SelectTrigger className="w-[140px] h-9 text-xs bg-white dark:bg-gray-800">
-              <SelectValue placeholder="Month to date" />
+              <SelectValue>
+                {timeframe === 'today' && 'Today'}
+                {timeframe === 'yesterday' && 'Yesterday'}
+                {timeframe === '7days' && 'Last 7 Days'}
+                {timeframe === '30days' && 'Month to date'}
+                {timeframe === '90days' && 'Quarter to date'}
+                {!timeframe && 'Last 7 Days'}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="today">Today</SelectItem>
@@ -289,9 +302,21 @@ export default function AdvancedEmailPerformance({
             </SelectContent>
           </Select>
           
-          <Select value={campaignFilter} onValueChange={(value) => setCampaignFilter(value)}>
+          <Select 
+            value={campaignFilter || "all"} 
+            onValueChange={(value) => {
+              console.log(`Select campaign changed to: ${value}`);
+              if (setCampaignFilter) setCampaignFilter(value);
+            }}
+          >
             <SelectTrigger className="w-[140px] h-9 text-xs bg-white dark:bg-gray-800">
-              <SelectValue placeholder="All Campaigns" />
+              <SelectValue>
+                {campaignFilter === 'all' && 'All Campaigns'}
+                {campaignFilter === '1' && 'Monthly Newsletter'}
+                {campaignFilter === '2' && 'Product Announcements'}
+                {campaignFilter === '3' && 'Welcome Series'}
+                {!campaignFilter && 'All Campaigns'}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Campaigns</SelectItem>
@@ -485,9 +510,9 @@ export default function AdvancedEmailPerformance({
               title="Performance Trend"
               description="Opens, clicks, and conversions over time"
               action={
-                <Select defaultValue="7days" onValueChange={() => {}}>
+                <Select defaultValue="7days" onValueChange={(value) => console.log(`Chart timeframe changed to: ${value}`)}>
                   <SelectTrigger className="h-8 w-[130px] text-xs border bg-white dark:bg-gray-800">
-                    <SelectValue placeholder="Last 7 days" />
+                    <SelectValue>Last 7 days</SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="7days">Last 7 days</SelectItem>
