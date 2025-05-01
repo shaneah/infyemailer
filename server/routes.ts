@@ -2,14 +2,13 @@ import { createServer, type Server } from "http";
 import express, { type Express, type Request, type Response, type NextFunction } from "express";
 import { ZodError } from "zod";
 import {
-  schema,
   users,
   clientUsers,
   clients,
   campaigns,
   contacts,
   contactLists,
-  contactListRelations,
+  contactListsRelations,
   templates,
   domains,
   emails,
@@ -41,6 +40,7 @@ import { registerClientRoutes } from "./routes/clientRoutes";
 import { registerClientProviderRoutes } from "./routes/clientProviders";
 import userManagementRoutes from "./routes/user-management";
 import reportingRoutes from "./routes/reporting-routes";
+import { registerAIAssistantRoutes } from "./routes/ai-assistant-routes";
 
 // Helper function to validate data against schema and return typed result
 function validate<T>(schema: any, data: any): { data: T } | { error: string } {
@@ -89,6 +89,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Register reporting routes
   app.use(reportingRoutes);
+  
+  // Register AI Assistant routes
+  registerAIAssistantRoutes(app);
 
   // API Routes
   app.get('/api', (req: Request, res: Response) => {
@@ -206,7 +209,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: validatedData.error });
       }
       
-      const variant = await storage.createCampaignVariant(validatedData.data);
+      const variant = await storage.createCampaignVariant(validatedData.data as any);
       res.status(201).json(variant);
     } catch (error) {
       console.error('Error creating variant:', error);
@@ -270,7 +273,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: validatedData.error });
       }
       
-      const analytic = await storage.recordVariantAnalytic(validatedData.data);
+      const analytic = await storage.recordVariantAnalytic(validatedData.data as any);
       res.status(201).json(analytic);
     } catch (error) {
       console.error('Error recording variant analytics:', error);
@@ -363,7 +366,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Get a completion from the model
       const completion = await openai.chat.completions.create({
         model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
-        messages: messages,
+        messages: messages as any, // TypeScript fix for OpenAI's message type expectations
         max_tokens: 800
       });
       
