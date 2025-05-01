@@ -95,6 +95,10 @@ export default function ClientEmailPerformance() {
         metrics={metricsData}
         charts={chartData}
         isClient={true}
+        timeframe={timeframe}
+        setTimeframe={setTimeframe}
+        campaignFilter={campaignFilter}
+        setCampaignFilter={setCampaignFilter}
       />
     </div>
   );

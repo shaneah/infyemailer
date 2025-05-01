@@ -50,7 +50,7 @@ export default function EmailPerformance() {
   const { data: metricsData } = useQuery<EmailMetrics>({
     queryKey: ['/api/email-performance/metrics', timeframe, campaignFilter],
     queryFn: async () => {
-      console.log(`Fetching metrics with timeframe=${timeframe}, campaignFilter=${campaignFilter}`);
+      console.log(`Fetching admin metrics with timeframe=${timeframe}, campaignFilter=${campaignFilter}`);
       const response = await fetch(`/api/email-performance/metrics?timeframe=${timeframe}&campaign=${campaignFilter}`);
       if (!response.ok) {
         throw new Error('Failed to fetch metrics');
@@ -63,7 +63,7 @@ export default function EmailPerformance() {
   const { data: chartData } = useQuery<ChartData>({
     queryKey: ['/api/email-performance/charts', timeframe, campaignFilter],
     queryFn: async () => {
-      console.log(`Fetching charts with timeframe=${timeframe}, campaignFilter=${campaignFilter}`);
+      console.log(`Fetching admin charts with timeframe=${timeframe}, campaignFilter=${campaignFilter}`);
       const response = await fetch(`/api/email-performance/charts?timeframe=${timeframe}&campaign=${campaignFilter}`);
       if (!response.ok) {
         throw new Error('Failed to fetch chart data');
@@ -92,6 +92,10 @@ export default function EmailPerformance() {
         userName="Admin"
         metrics={metricsData}
         charts={chartData}
+        timeframe={timeframe}
+        setTimeframe={setTimeframe}
+        campaignFilter={campaignFilter}
+        setCampaignFilter={setCampaignFilter}
       />
     </div>
   );

@@ -230,16 +230,32 @@ interface AdvancedEmailPerformanceProps {
   metrics?: any;
   charts?: any;
   isClient?: boolean;
+  timeframe?: string;
+  setTimeframe?: (value: string) => void;
+  campaignFilter?: string;
+  setCampaignFilter?: (value: string) => void;
 }
 
 export default function AdvancedEmailPerformance({ 
   userName = 'User', 
   metrics, 
   charts,
-  isClient = false
+  isClient = false,
+  timeframe = '7days',
+  setTimeframe = () => {},
+  campaignFilter = 'all',
+  setCampaignFilter = () => {}
 }: AdvancedEmailPerformanceProps) {
-  const [timeframe, setTimeframe] = useState('30days');
-  const [campaignFilter, setCampaignFilter] = useState('all');
+  
+  useEffect(() => {
+    console.log(`AdvancedEmailPerformance: timeframe changed to ${timeframe}`);
+    console.log("Current metrics data:", metrics);
+  }, [timeframe, metrics]);
+  
+  useEffect(() => {
+    console.log(`AdvancedEmailPerformance: campaignFilter changed to ${campaignFilter}`);
+    console.log("Current charts data:", charts);
+  }, [campaignFilter, charts]);
   
   const userGreeting = useMemo(() => {
     const hour = new Date().getHours();
@@ -295,9 +311,9 @@ export default function AdvancedEmailPerformance({
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           <MetricCard 
             title="Open Rate" 
-            value="24.8%" 
-            change={3.2}
-            changeType="positive"
+            value={metrics?.openRate?.value ? `${metrics.openRate.value.toFixed(1)}%` : "24.8%"}
+            change={metrics?.openRate?.trendValue ? parseFloat(metrics.openRate.trendValue) : 3.2}
+            changeType={metrics?.openRate?.trend === "up" ? "positive" : "negative"}
             icon={<Mail className="h-3 w-3 text-primary mr-1" />}
             color="primary"
             dataSource="Mailchimp"
@@ -306,9 +322,9 @@ export default function AdvancedEmailPerformance({
           
           <MetricCard 
             title="Click Rate" 
-            value="3.6%" 
-            change={0.9}
-            changeType="positive"
+            value={metrics?.clickRate?.value ? `${metrics.clickRate.value.toFixed(1)}%` : "3.6%"}
+            change={metrics?.clickRate?.trendValue ? parseFloat(metrics.clickRate.trendValue) : 0.9}
+            changeType={metrics?.clickRate?.trend === "up" ? "positive" : "negative"}
             icon={<MousePointer className="h-3 w-3 text-green-500 mr-1" />}
             color="#10b981"
             dataSource="HubSpot"
@@ -317,7 +333,7 @@ export default function AdvancedEmailPerformance({
           
           <MetricCard 
             title="Total Subscribers" 
-            value="42,857" 
+            value={metrics?.totalSent ? metrics.totalSent.toLocaleString() : "42,857"}
             change={5.1}
             changeType="positive"
             icon={<Users className="h-3 w-3 text-orange-500 mr-1" />}
@@ -329,9 +345,9 @@ export default function AdvancedEmailPerformance({
           
           <MetricCard 
             title="Conversion Rate" 
-            value="1.2%" 
-            change={0.3}
-            changeType="negative"
+            value={metrics?.conversionRate?.value ? `${metrics.conversionRate.value.toFixed(1)}%` : "1.2%"}
+            change={metrics?.conversionRate?.trendValue ? parseFloat(metrics.conversionRate.trendValue) : 0.3}
+            changeType={metrics?.conversionRate?.trend === "up" ? "positive" : "negative"}
             icon={<Target className="h-3 w-3 text-purple-500 mr-1" />}
             color="#8b5cf6"
             dataSource="Analytics"
@@ -344,9 +360,9 @@ export default function AdvancedEmailPerformance({
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <MetricCard 
             title="Bounce Rate" 
-            value="0.8%" 
-            change={0.4}
-            changeType="negative"
+            value={metrics?.bounceRate?.value ? `${metrics.bounceRate.value.toFixed(1)}%` : "0.8%"}
+            change={metrics?.bounceRate?.trendValue ? parseFloat(metrics.bounceRate.trendValue) : 0.4}
+            changeType={metrics?.bounceRate?.trend === "up" ? "negative" : "positive"}
             icon={<AlertCircle className="h-3 w-3 text-red-500 mr-1" />}
             color="#ef4444"
             dataSource="Mailchimp"
@@ -355,7 +371,7 @@ export default function AdvancedEmailPerformance({
           
           <MetricCard 
             title="Active Readers" 
-            value="27,883" 
+            value={metrics?.totalOpens ? metrics.totalOpens.toLocaleString() : "27,883"}
             change={12}
             changeType="positive"
             icon={<Activity className="h-3 w-3 text-green-500 mr-1" />}
@@ -366,7 +382,7 @@ export default function AdvancedEmailPerformance({
           
           <MetricCard 
             title="Revenue per Email" 
-            value="$1.71" 
+            value="$1.71"
             change={3.4}
             changeType="negative"
             icon={<DollarSign className="h-3 w-3 text-orange-500 mr-1" />}
@@ -378,7 +394,7 @@ export default function AdvancedEmailPerformance({
           
           <MetricCard 
             title="Unsubscribe Rate" 
-            value="0.09%" 
+            value={metrics?.unsubscribes ? `${(metrics.unsubscribes / metrics.totalSent * 100).toFixed(2)}%` : "0.09%"}
             change={2}
             changeType="positive"
             icon={<Globe className="h-3 w-3 text-blue-500 mr-1" />}
