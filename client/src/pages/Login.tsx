@@ -176,13 +176,13 @@ export default function Login() {
       const normalizedY = -deltaY / length;
       
       // Apply movement (faster when mouse is closer)
-      const distance = Math.min(150, 1500 / length);
+      const distance = Math.min(200, 2000 / length);
       controls.start({
         x: normalizedX * distance,
         y: normalizedY * distance,
-        rotate: Math.random() * 20 - 10,
+        rotate: Math.random() * 25 - 12.5,
         scale: 0.9,
-        transition: { type: "spring", duration: 0.3, bounce: 0.6, stiffness: 300 }
+        transition: { type: "spring", duration: 0.3, bounce: 0.7, stiffness: 350 }
       });
     }
   };
@@ -331,7 +331,7 @@ export default function Login() {
       {/* Content container with login card */}
       <div className="flex-1 flex items-center justify-center p-6 z-10">
         <motion.div 
-          className="w-full max-w-sm overflow-hidden rounded-xl bg-zinc-900/80 shadow-2xl border border-zinc-800/30"
+          className="w-full max-w-md overflow-hidden rounded-xl bg-zinc-900/80 shadow-2xl border border-zinc-800/30"
           initial={{ opacity: 0, y: 20 }}
           animate={{ 
             opacity: 1, 
@@ -453,7 +453,7 @@ export default function Login() {
                         </div>
                       </div>
                       
-                      <div className="relative pt-4 min-h-[100px] flex items-center justify-center">
+                      <div className="relative pt-4 min-h-[150px] flex items-center justify-center">
                         <motion.div
                           ref={adminButtonRef}
                           className="w-full flex justify-center"
@@ -461,10 +461,10 @@ export default function Login() {
                           animate={adminButtonControls}
                           whileHover={!adminForm.getValues().usernameOrEmail || !adminForm.getValues().password ? {
                             scale: 0.95,
-                            x: Math.random() > 0.5 ? 100 : -100,
-                            y: Math.random() > 0.5 ? 50 : -50,
-                            rotate: Math.random() * 10 - 5,
-                            transition: { duration: 0.2 }
+                            x: Math.random() > 0.5 ? 150 : -150,
+                            y: Math.random() > 0.5 ? 80 : -80,
+                            rotate: Math.random() * 15 - 7.5,
+                            transition: { duration: 0.3 }
                           } : {
                             scale: 1.05,
                             transition: { duration: 0.2 }
@@ -574,7 +574,7 @@ export default function Login() {
                         </div>
                       </div>
                       
-                      <div className="relative pt-4 min-h-[100px] flex items-center justify-center">
+                      <div className="relative pt-4 min-h-[150px] flex items-center justify-center">
                         <motion.div
                           ref={clientButtonRef}
                           className="w-full flex justify-center"
@@ -582,10 +582,10 @@ export default function Login() {
                           animate={clientButtonControls}
                           whileHover={!clientForm.getValues().username || !clientForm.getValues().password ? {
                             scale: 0.95,
-                            x: Math.random() > 0.5 ? 100 : -100,
-                            y: Math.random() > 0.5 ? 50 : -50,
-                            rotate: Math.random() * 10 - 5,
-                            transition: { duration: 0.2 }
+                            x: Math.random() > 0.5 ? 150 : -150,
+                            y: Math.random() > 0.5 ? 80 : -80,
+                            rotate: Math.random() * 15 - 7.5,
+                            transition: { duration: 0.3 }
                           } : {
                             scale: 1.05,
                             transition: { duration: 0.2 }
