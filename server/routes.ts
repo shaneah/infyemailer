@@ -78,6 +78,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register email settings routes
   registerEmailSettingsRoutes(app);
   
+  // Register client routes
+  registerClientRoutes(app);
+  
+  // Register client provider routes
+  registerClientProviderRoutes(app);
+  
   // Register user management routes
   app.use('/api', userManagementRoutes);
   

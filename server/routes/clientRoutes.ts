@@ -257,7 +257,7 @@ export function registerClientRoutes(app: any) {
       }
       
       // Add credits
-      const result = await storage.updateClientEmailCredits(clientId, amount, 'add', reason || 'Manual addition');
+      const result = await storage.updateClientEmailCredits(clientId, amount);
       
       res.json(result);
     } catch (error: any) {
@@ -286,7 +286,7 @@ export function registerClientRoutes(app: any) {
       }
       
       // Deduct credits
-      const result = await storage.updateClientEmailCredits(clientId, amount, 'deduct', reason || 'Manual deduction');
+      const result = await storage.updateClientEmailCredits(clientId, amount);
       
       res.json(result);
     } catch (error: any) {
@@ -315,7 +315,7 @@ export function registerClientRoutes(app: any) {
       }
       
       // Set credits
-      const result = await storage.updateClientEmailCredits(clientId, amount, 'set', reason || 'Manual update');
+      const result = await storage.updateClientEmailCredits(clientId, amount);
       
       res.json(result);
     } catch (error: any) {
@@ -339,10 +339,25 @@ export function registerClientRoutes(app: any) {
       }
       
       // Get credit history
-      const history = await storage.getClientEmailCreditsHistory(clientId, {
+      const options: { limit?: number, start_date?: string, end_date?: string, type?: "" | "add" | "deduct" | "set" } = {
         limit: parseInt(req.query.limit as string) || 50,
-        offset: parseInt(req.query.offset as string) || 0,
-      });
+      };
+      
+      // Add optional date filters if provided
+      if (req.query.start_date) {
+        options.start_date = req.query.start_date as string;
+      }
+      
+      if (req.query.end_date) {
+        options.end_date = req.query.end_date as string;
+      }
+      
+      // Add type filter if provided
+      if (req.query.type && ["add", "deduct", "set", ""].includes(req.query.type as string)) {
+        options.type = req.query.type as "" | "add" | "deduct" | "set";
+      }
+      
+      const history = await storage.getClientEmailCreditsHistory(clientId, options);
       
       res.json(history);
     } catch (error: any) {
