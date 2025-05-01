@@ -41,57 +41,6 @@ export default function Login() {
   const [isClientLoading, setIsClientLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<string>("admin");
   
-  // Create refs for the button containers
-  const adminButtonRef = useRef<HTMLDivElement>(null);
-  const clientButtonRef = useRef<HTMLDivElement>(null);
-  
-  // Control animations for the buttons
-  const adminButtonControls = useAnimation();
-  const clientButtonControls = useAnimation();
-  
-  // Function to make the button run away from mouse when credentials aren't filled
-  const runAwayFromMouse = (e: React.MouseEvent, buttonRef: React.RefObject<HTMLDivElement>, form: any, controls: any) => {
-    if (buttonRef.current && (!form.getValues().usernameOrEmail && !form.getValues().username || !form.getValues().password)) {
-      const rect = buttonRef.current.getBoundingClientRect();
-      const buttonCenterX = rect.left + rect.width / 2;
-      const buttonCenterY = rect.top + rect.height / 2;
-      
-      // Calculate direction to move (away from mouse)
-      const deltaX = e.clientX - buttonCenterX;
-      const deltaY = e.clientY - buttonCenterY;
-      
-      // Normalize and invert the direction
-      const length = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-      const normalizedX = -deltaX / length;
-      const normalizedY = -deltaY / length;
-      
-      // Apply movement (faster when mouse is closer)
-      const distance = Math.min(100, 1000 / length);
-      controls.start({
-        x: normalizedX * distance,
-        y: normalizedY * distance,
-        rotate: Math.random() * 10 - 5,
-        transition: { type: "spring", duration: 0.3 }
-      });
-    }
-  };
-  
-  // Use client auth hook for client login
-  const { login: clientLogin } = useClientAuth();
-  
-  // Check if user is already logged in
-  useEffect(() => {
-    const user = localStorage.getItem('user') || sessionStorage.getItem('user');
-    if (user) {
-      setLocation('/');
-    }
-    
-    const clientUser = localStorage.getItem('clientUser') || sessionStorage.getItem('clientUser');
-    if (clientUser) {
-      setLocation('/client-dashboard');
-    }
-  }, [setLocation]);
-  
   // Admin login form
   const adminForm = useForm<AdminLoginFormValues>({
     resolver: zodResolver(adminLoginSchema),
@@ -111,6 +60,116 @@ export default function Login() {
       rememberMe: false
     }
   });
+  
+  // Create refs for the button containers
+  const adminButtonRef = useRef<HTMLDivElement>(null);
+  const clientButtonRef = useRef<HTMLDivElement>(null);
+  
+  // Control animations for the buttons
+  const adminButtonControls = useAnimation();
+  const clientButtonControls = useAnimation();
+  
+  // Use client auth hook for client login
+  const { login: clientLogin } = useClientAuth();
+  
+  // Check if user is already logged in
+  useEffect(() => {
+    const user = localStorage.getItem('user') || sessionStorage.getItem('user');
+    if (user) {
+      setLocation('/');
+    }
+    
+    const clientUser = localStorage.getItem('clientUser') || sessionStorage.getItem('clientUser');
+    if (clientUser) {
+      setLocation('/client-dashboard');
+    }
+  }, [setLocation]);
+  
+  // Initialize button positions and set up form change listeners
+  useEffect(() => {
+    // Watch for form changes to reset button position when both fields are filled
+    const adminSubscription = adminForm.watch(() => {
+      if (adminForm.getValues().usernameOrEmail && adminForm.getValues().password) {
+        adminButtonControls.start({
+          x: 0,
+          y: 0,
+          rotate: 0,
+          transition: { type: "spring", damping: 20, stiffness: 300 }
+        });
+      }
+    });
+    
+    const clientSubscription = clientForm.watch(() => {
+      if (clientForm.getValues().username && clientForm.getValues().password) {
+        clientButtonControls.start({
+          x: 0,
+          y: 0,
+          rotate: 0,
+          transition: { type: "spring", damping: 20, stiffness: 300 }
+        });
+      }
+    });
+    
+    // Set random initial positions for buttons if credentials not filled
+    if (!adminForm.getValues().usernameOrEmail || !adminForm.getValues().password) {
+      adminButtonControls.start({
+        x: Math.random() > 0.5 ? Math.random() * 40 - 20 : Math.random() * 40 - 20,
+        y: Math.random() > 0.5 ? Math.random() * 20 - 10 : Math.random() * 20 - 10,
+        rotate: Math.random() * 5 - 2.5,
+        transition: { type: "spring", damping: 10, stiffness: 100 }
+      });
+    }
+    
+    if (!clientForm.getValues().username || !clientForm.getValues().password) {
+      clientButtonControls.start({
+        x: Math.random() > 0.5 ? Math.random() * 40 - 20 : Math.random() * 40 - 20,
+        y: Math.random() > 0.5 ? Math.random() * 20 - 10 : Math.random() * 20 - 10,
+        rotate: Math.random() * 5 - 2.5,
+        transition: { type: "spring", damping: 10, stiffness: 100 }
+      });
+    }
+    
+    // Clean up subscriptions
+    return () => {
+      adminSubscription.unsubscribe();
+      clientSubscription.unsubscribe();
+    };
+  }, [adminForm, clientForm, adminButtonControls, clientButtonControls]);
+  
+  // Function to make the button run away from mouse when credentials aren't filled
+  const runAwayFromMouse = (e: React.MouseEvent, buttonRef: React.RefObject<HTMLDivElement>, form: any, controls: any) => {
+    // Only move button if either username or password is missing
+    const formValues = form.getValues();
+    const hasUsername = formValues.usernameOrEmail || formValues.username;
+    const hasPassword = formValues.password;
+    
+    if (buttonRef.current && (!hasUsername || !hasPassword)) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      const buttonCenterX = rect.left + rect.width / 2;
+      const buttonCenterY = rect.top + rect.height / 2;
+      
+      // Calculate direction to move (away from mouse)
+      const deltaX = e.clientX - buttonCenterX;
+      const deltaY = e.clientY - buttonCenterY;
+      
+      // Safety check to prevent division by zero
+      const length = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+      if (length < 1) return;
+      
+      // Normalize and invert the direction
+      const normalizedX = -deltaX / length;
+      const normalizedY = -deltaY / length;
+      
+      // Apply movement (faster when mouse is closer)
+      const distance = Math.min(80, 800 / length);
+      controls.start({
+        x: normalizedX * distance,
+        y: normalizedY * distance,
+        rotate: Math.random() * 10 - 5,
+        transition: { type: "spring", duration: 0.3, bounce: 0.5 }
+      });
+    }
+  };
 
   // Admin login mutation
   const adminLoginMutation = useMutation({
