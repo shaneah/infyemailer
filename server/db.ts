@@ -36,18 +36,9 @@ function setupDatabaseConnection() {
       }
     });
     
-    // Extract only table schemas from the schema object, excluding relation definitions
-    const tableSchemas: any = {};
-    for (const key in schema) {
-      const item = schema[key as keyof typeof schema];
-      // Check if the item is a table schema (has name property)
-      if (typeof item === 'object' && item !== null && 'name' in item) {
-        tableSchemas[key] = item;
-      }
-    }
-    
-    // Initialize Drizzle with only table schemas, bypassing the relation definitions
-    db = drizzle(pool, { schema: tableSchemas });
+    // Initialize Drizzle with the full schema including relations
+    // This ensures that we have proper ORM capabilities
+    db = drizzle(pool, { schema });
     log('PostgreSQL storage initialized with Neon driver', 'db');
     
     // Test connection (async but we'll wait for it)
