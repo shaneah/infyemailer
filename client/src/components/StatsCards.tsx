@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowDown, ArrowUp, TrendingUp, TrendingDown, ChevronRight } from "lucide-react";
+import { ArrowDown, ArrowUp, TrendingUp, TrendingDown, ChevronRight, Users } from "lucide-react";
 import { motion } from "framer-motion";
 
 interface Stat {

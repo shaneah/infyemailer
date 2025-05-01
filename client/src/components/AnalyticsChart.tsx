@@ -27,7 +27,10 @@ const AnalyticsChart = () => {
 
   // Format the data for the tooltips
   const getHighestValues = () => {
-    if (!data || !data.length) return { openRate: 0, clickRate: 0, date: '' };
+    if (!data || !data.length) return { 
+      openRate: { value: 0, date: '' },
+      clickRate: { value: 0, date: '' }
+    };
     
     let maxOpenIdx = 0;
     let maxClickIdx = 0;
@@ -40,11 +43,11 @@ const AnalyticsChart = () => {
     return {
       openRate: {
         value: data[maxOpenIdx].Opens,
-        date: data[maxOpenIdx].date,
+        date: data[maxOpenIdx].name || 'Latest date',
       },
       clickRate: {
         value: data[maxClickIdx].Clicks,
-        date: data[maxClickIdx].date, 
+        date: data[maxClickIdx].name || 'Latest date', 
       }
     };
   };
