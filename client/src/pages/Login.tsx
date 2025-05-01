@@ -1,34 +1,47 @@
+import { useState, useRef, useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { useLocation } from "wouter";
+import { motion, useAnimation } from "framer-motion";
+import { useMutation } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
+import { useClientAuth } from "@/hooks/useClientAuth";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useMutation } from "@tanstack/react-query";
-import { useLocation, Link } from "wouter";
-import { apiRequest } from "@/lib/queryClient";
-import { useState, useEffect, useRef } from "react";
-import infyLogo from "@/assets/Logo-white.png";
-import { useClientAuth } from '@/hooks/useClientAuth';
-import { motion, useAnimation } from "framer-motion";
-import { Mail, Lock, User, ArrowRight, CheckCircle2 } from "lucide-react";
+import { 
+  User, 
+  Lock,
+  Mail, 
+  ArrowRight,
+} from "lucide-react";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
 
-// Admin login schema
 const adminLoginSchema = z.object({
   usernameOrEmail: z.string().min(1, "Username or email is required"),
   password: z.string().min(1, "Password is required"),
-  rememberMe: z.boolean().optional().default(false)
+  rememberMe: z.boolean().default(false),
 });
 
-// Client login schema
 const clientLoginSchema = z.object({
   username: z.string().min(1, "Username is required"),
   password: z.string().min(1, "Password is required"),
-  rememberMe: z.boolean().optional().default(false)
+  rememberMe: z.boolean().default(false),
 });
 
 type AdminLoginFormValues = z.infer<typeof adminLoginSchema>;
@@ -290,577 +303,331 @@ export default function Login() {
     }
   }
 
+  // Show an error message if validation fails
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  // Effect to show error message when validation fails
+  useEffect(() => {
+    const adminErrors = Object.values(adminForm.formState.errors);
+    const clientErrors = Object.values(clientForm.formState.errors);
+    
+    if (activeTab === 'admin' && adminErrors.length > 0) {
+      setErrorMessage("Please fill the input fields before proceeding");
+    } else if (activeTab === 'client' && clientErrors.length > 0) {
+      setErrorMessage("Please fill the input fields before proceeding");
+    } else {
+      setErrorMessage(null);
+    }
+  }, [adminForm.formState.errors, clientForm.formState.errors, activeTab]);
+
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-violet-900 via-fuchsia-800 to-rose-800 relative overflow-hidden">
-      {/* Animated background elements */}
-      <div className="absolute inset-0 z-0">
-        <motion.div 
-          className="absolute top-0 right-0 w-full h-full opacity-20"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 0.2 }}
-          transition={{ duration: 1.5 }}
-        >
-          {/* Fun animated background shapes */}
-          <motion.div 
-            className="absolute top-20 left-20 w-96 h-96 bg-pink-400 rounded-full filter blur-[140px]"
-            animate={{ 
-              scale: [1, 1.2, 1],
-              x: [0, 20, 0],
-              y: [0, -20, 0],
-            }}
-            transition={{ 
-              repeat: Infinity,
-              duration: 8,
-              ease: "easeInOut"
-            }}
-          ></motion.div>
-          
-          <motion.div 
-            className="absolute bottom-20 right-20 w-96 h-96 bg-blue-500 rounded-full filter blur-[140px]"
-            animate={{ 
-              scale: [1, 1.3, 1],
-              x: [0, -20, 0],
-              y: [0, 20, 0],
-            }}
-            transition={{ 
-              repeat: Infinity,
-              duration: 9,
-              ease: "easeInOut",
-              delay: 0.5
-            }}
-          ></motion.div>
-          
-          <motion.div 
-            className="absolute top-1/2 right-1/4 w-72 h-72 bg-purple-600 rounded-full filter blur-[120px]"
-            animate={{ 
-              scale: [1, 1.1, 1],
-              x: [0, 30, 0],
-              y: [0, 30, 0],
-            }}
-            transition={{ 
-              repeat: Infinity,
-              duration: 7,
-              ease: "easeInOut",
-              delay: 1
-            }}
-          ></motion.div>
-          
-          <motion.div 
-            className="absolute top-1/3 left-1/4 w-64 h-64 bg-yellow-500 rounded-full filter blur-[130px] opacity-40"
-            animate={{ 
-              scale: [1, 1.2, 1],
-              x: [0, -20, 0],
-              y: [0, -30, 0],
-            }}
-            transition={{ 
-              repeat: Infinity,
-              duration: 10,
-              ease: "easeInOut",
-              delay: 2
-            }}
-          ></motion.div>
-        </motion.div>
-        
-        {/* Floating emoji particles */}
-        <div className="absolute inset-0 overflow-hidden">
-          {["✨", "🎮", "🎯", "🎪", "🎨"].map((emoji, i) => (
-            <motion.div
-              key={i}
-              className="absolute text-xl opacity-30"
-              initial={{
-                x: Math.random() * 100 + "%",
-                y: -30,
-                scale: Math.random() * 0.5 + 0.5
-              }}
-              animate={{
-                y: "120vh",
-                rotate: Math.random() * 360
-              }}
-              transition={{
-                duration: Math.random() * 20 + 10,
-                repeat: Infinity,
-                ease: "linear",
-                delay: Math.random() * 10
-              }}
-            >
-              {emoji}
-            </motion.div>
-          ))}
-        </div>
-      </div>
+    <div className="min-h-screen flex flex-col bg-slate-900 relative overflow-hidden">
       
-      {/* Content container with floating card */}
+      {/* Content container with login card */}
       <div className="flex-1 flex items-center justify-center p-6 z-10">
         <motion.div 
-          className="w-full max-w-5xl overflow-hidden rounded-3xl bg-white/10 backdrop-blur-lg shadow-2xl border border-white/20"
-          initial={{ opacity: 0, y: 20, rotate: -2 }}
+          className="w-full max-w-md overflow-hidden rounded-xl bg-black/80 shadow-2xl border border-slate-700/30"
+          initial={{ opacity: 0, y: 20 }}
           animate={{ 
             opacity: 1, 
-            y: 0, 
-            rotate: 0,
-            scale: [1, 1.01, 0.99, 1],
+            y: 0
           }}
           transition={{ 
-            duration: 0.8, 
-            ease: "easeOut",
-            scale: {
-              repeat: Infinity,
-              duration: 8,
-              ease: "easeInOut"
-            }
-          }}
-          whileHover={{
-            boxShadow: "0 25px 50px -12px rgba(255, 100, 255, 0.25)",
-            borderColor: "rgba(255, 255, 255, 0.3)",
+            duration: 0.5, 
+            ease: "easeOut"
           }}
         >
-          <div className="grid grid-cols-1 md:grid-cols-2">
-            {/* Left column - Brand and visuals */}
-            <div className="relative p-10 overflow-hidden bg-gradient-to-br from-indigo-900 to-blue-800">
-              <div className="relative z-10">
-                <motion.div 
-                  initial={{ opacity: 0, y: -20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2, duration: 0.7 }}
-                >
-                  <img 
-                    src="/attached_assets/Infinity Tech Logo-01.png" 
-                    alt="InfyMailer Logo" 
-                    className="h-12 mb-12" 
-                  />
-                </motion.div>
-                
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.4, duration: 0.7 }}
-                >
-                  <h1 className="text-4xl font-bold mb-4">
-                    <span className="text-white">Welcome to the</span><br />
-                    <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-300 via-purple-300 to-indigo-200 font-extrabold">
-                      InfyMailer Platform
-                    </span>
-                  </h1>
-                  
-                  <p className="text-white/80 mb-8 text-lg">
-                    Smart email marketing for modern businesses
-                  </p>
-                </motion.div>
-                
-                <motion.div 
-                  className="space-y-6 my-12"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.8, duration: 0.8 }}
-                >
-                  <div className="bg-white/10 backdrop-blur-md rounded-xl p-5 border border-white/10 hover:bg-white/15 transition-all duration-300">
-                    <div className="flex items-center">
-                      <div className="mr-4 p-2 rounded-full bg-indigo-500/20">
-                        <CheckCircle2 className="h-6 w-6 text-indigo-300" />
-                      </div>
-                      <div>
-                        <h3 className="text-white font-medium">AI-Powered Campaigns</h3>
-                        <p className="text-white/60 text-sm">Create engaging content effortlessly</p>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="bg-white/10 backdrop-blur-md rounded-xl p-5 border border-white/10 hover:bg-white/15 transition-all duration-300">
-                    <div className="flex items-center">
-                      <div className="mr-4 p-2 rounded-full bg-indigo-500/20">
-                        <CheckCircle2 className="h-6 w-6 text-indigo-300" />
-                      </div>
-                      <div>
-                        <h3 className="text-white font-medium">Real-Time Analytics</h3>
-                        <p className="text-white/60 text-sm">Track and optimize your campaigns</p>
-                      </div>
-                    </div>
-                  </div>
-                </motion.div>
+          <div className="flex flex-col items-center">
+            {/* User icon */}
+            <div className="relative mt-8 mb-4">
+              <div className="bg-slate-800 rounded-full p-5 border-4 border-black">
+                <User className="h-10 w-10 text-slate-300" />
               </div>
-              
-
             </div>
             
-            {/* Right column - Login form with tab navigation */}
-            <div className="p-10 bg-white/5 backdrop-blur-lg relative">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3, duration: 0.7 }}
-              >
-                <h2 className="text-2xl font-bold text-white mb-8">
-                  Sign in to your account
-                </h2>
+            {/* Login header */}
+            <div className="text-center mb-6">
+              <h2 className="text-2xl font-bold text-white tracking-wide">
+                LOGIN
+              </h2>
+            </div>
+            
+            {/* Error message */}
+            {errorMessage && (
+              <div className="mb-6 px-4 w-full">
+                <p className="text-center text-red-500 text-sm">{errorMessage}</p>
+              </div>
+            )}
+            
+            {/* Tab navigation - simplified */}
+            <div className="w-full px-8">
+              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                <TabsList className="grid grid-cols-2 mb-8 rounded-md overflow-hidden border border-slate-700 bg-slate-800/50 w-full">
+                  <TabsTrigger 
+                    value="admin" 
+                    className="py-2 data-[state=active]:bg-blue-600 data-[state=active]:text-white 
+                             data-[state=inactive]:bg-transparent data-[state=inactive]:text-slate-400 
+                             font-medium transition-all duration-200">
+                    Admin
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="client"
+                    className="py-2 data-[state=active]:bg-blue-600 data-[state=active]:text-white 
+                             data-[state=inactive]:bg-transparent data-[state=inactive]:text-slate-400 
+                             font-medium transition-all duration-200">
+                    Client
+                  </TabsTrigger>
+                </TabsList>
                 
-                <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                  <TabsList className="grid grid-cols-2 mb-8 rounded-lg overflow-hidden border border-white/10 bg-white/5">
-                    <TabsTrigger 
-                      value="admin" 
-                      className="py-3 data-[state=active]:bg-indigo-600/50 data-[state=active]:text-white 
-                               data-[state=inactive]:bg-transparent data-[state=inactive]:text-white/50 
-                               font-medium transition-all duration-300">
-                      Admin Dashboard
-                    </TabsTrigger>
-                    <TabsTrigger 
-                      value="client"
-                      className="py-3 data-[state=active]:bg-indigo-600/50 data-[state=active]:text-white 
-                               data-[state=inactive]:bg-transparent data-[state=inactive]:text-white/50 
-                               font-medium transition-all duration-300">
-                      Client Portal
-                    </TabsTrigger>
-                  </TabsList>
-                  
-                  {/* Admin Login Form */}
-                  <TabsContent value="admin" className="mt-0">
-                    <Form {...adminForm}>
-                      <form onSubmit={adminForm.handleSubmit(onAdminSubmit)} className="space-y-6">
-                        <motion.div
-                          initial={{ opacity: 0, x: -20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: 0.4, duration: 0.5 }}
-                        >
-                          <FormField
-                            control={adminForm.control}
-                            name="usernameOrEmail"
-                            render={({ field }) => (
-                              <FormItem className="space-y-3">
-                                <FormLabel className="text-white/80 font-medium text-sm">Username or Email</FormLabel>
-                                <FormControl>
-                                  <div className="relative group">
-                                    <div className="absolute left-3 top-3 text-white/40 group-focus-within:text-indigo-400 transition-colors duration-200">
-                                      <Mail className="h-5 w-5" />
-                                    </div>
-                                    <Input 
-                                      placeholder="Enter your username" 
-                                      {...field} 
-                                      className="pl-11 h-12 rounded-xl bg-white/5 border-white/10 focus:border-indigo-500 focus:bg-white/10 text-white placeholder:text-white/30 transition-all duration-200" 
-                                    />
-                                  </div>
-                                </FormControl>
-                                <FormMessage className="text-pink-300" />
-                              </FormItem>
-                            )}
-                          />
-                        </motion.div>
-                        
-                        <motion.div
-                          initial={{ opacity: 0, x: -20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: 0.5, duration: 0.5 }}
-                        >
-                          <FormField
-                            control={adminForm.control}
-                            name="password"
-                            render={({ field }) => (
-                              <FormItem className="space-y-3">
-                                <FormLabel className="text-white/80 font-medium text-sm">Password</FormLabel>
-                                <FormControl>
-                                  <div className="relative group">
-                                    <div className="absolute left-3 top-3 text-white/40 group-focus-within:text-indigo-400 transition-colors duration-200">
-                                      <Lock className="h-5 w-5" />
-                                    </div>
-                                    <Input 
-                                      type="password" 
-                                      placeholder="••••••••" 
-                                      {...field} 
-                                      className="pl-11 h-12 rounded-xl bg-white/5 border-white/10 focus:border-indigo-500 focus:bg-white/10 text-white placeholder:text-white/30 transition-all duration-200" 
-                                    />
-                                  </div>
-                                </FormControl>
-                                <FormMessage className="text-pink-300" />
-                              </FormItem>
-                            )}
-                          />
-                        </motion.div>
-                        
-                        <motion.div
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: 0.6, duration: 0.5 }}
-                          className="flex items-center justify-between"
-                        >
-                          <FormField
-                            control={adminForm.control}
-                            name="rememberMe"
-                            render={({ field }) => (
-                              <FormItem className="flex flex-row items-center space-x-3 space-y-0">
-                                <FormControl>
-                                  <Checkbox
-                                    checked={field.value}
-                                    onCheckedChange={field.onChange}
-                                    className="border-white/30 data-[state=checked]:bg-indigo-600 data-[state=checked]:border-indigo-600"
-                                  />
-                                </FormControl>
-                                <div className="leading-none">
-                                  <FormLabel className="font-normal text-sm text-white/70">Remember me</FormLabel>
+                {/* Admin Login Form */}
+                <TabsContent value="admin" className="px-2">
+                  <Form {...adminForm}>
+                    <form onSubmit={adminForm.handleSubmit(onAdminSubmit)} className="space-y-5">
+                      <FormField
+                        control={adminForm.control}
+                        name="usernameOrEmail"
+                        render={({ field }) => (
+                          <FormItem className="space-y-2">
+                            <FormLabel className="text-slate-400 font-medium text-sm">Username</FormLabel>
+                            <FormControl>
+                              <div className="relative">
+                                <Input 
+                                  placeholder="Enter your username" 
+                                  {...field} 
+                                  className="pl-4 h-10 rounded-md bg-slate-800/50 border-slate-700 focus:border-blue-500 focus:bg-slate-800 text-white placeholder:text-slate-500" 
+                                />
+                                <div className="absolute right-3 top-2.5 text-slate-500">
+                                  <User className="h-5 w-5" />
                                 </div>
-                              </FormItem>
-                            )}
-                          />
-                          <div className="text-sm">
-                            <a href="#" className="font-medium text-indigo-400 hover:text-indigo-300 transition-colors">
-                              Forgot password?
-                            </a>
-                          </div>
-                        </motion.div>
-                        
-                        <motion.div
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: 0.7, duration: 0.5 }}
-                          className="relative"
-                        >
-                          <motion.div
-                            ref={adminButtonRef}
-                            className="w-full"
-                            initial={{ x: 0, y: 0 }}
-                            animate={adminButtonControls}
-                            whileHover={!adminForm.getValues().usernameOrEmail || !adminForm.getValues().password ? {
-                              scale: 0.95,
-                              x: Math.random() > 0.5 ? 80 : -80,
-                              y: Math.random() > 0.5 ? 40 : -40,
-                              rotate: Math.random() * 5 - 2.5,
-                              transition: { duration: 0.2 }
-                            } : {
-                              scale: 1.05,
-                              transition: { duration: 0.2 }
-                            }}
-                            onMouseMove={(e) => runAwayFromMouse(e, adminButtonRef, adminForm, adminButtonControls)}
-                          >
-                            <Button 
-                              type="submit" 
-                              className="w-full h-12 mt-4 bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-700 hover:to-pink-600 text-white font-medium rounded-full shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50 transition-all duration-200 group overflow-hidden"
-                              disabled={isAdminLoading}
-                              onMouseEnter={() => {
-                                if (!adminForm.getValues().usernameOrEmail || !adminForm.getValues().password) {
-                                  // Play a fun sound effect
-                                  try {
-                                    const audio = new Audio("data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU");
-                                    audio.volume = 0.1;
-                                    audio.play().catch(e => console.log("Audio error", e));
-                                  } catch (e) {
-                                    console.log("Audio error", e);
-                                  }
-                                }
-                              }}
-                            >
-                              {isAdminLoading ? (
-                                <>
-                                  <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                  </svg>
-                                  Signing in...
-                                </>
-                              ) : (
-                                <>
-                                  {adminForm.getValues().usernameOrEmail && adminForm.getValues().password ? 
-                                    <span className="flex items-center justify-center">Sign in to Admin <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform duration-200" /></span> : 
-                                    <span className="flex items-center justify-center">{Math.random() > 0.5 ? "Catch me if you can!" : "Complete the form first!"} <span className="ml-2 animate-bounce">🤭</span></span>
-                                  }
-                                </>
-                              )}
-                            </Button>
-                          </motion.div>
-                          
-                          {/* Little helper text */}
-                          {(!adminForm.getValues().usernameOrEmail || !adminForm.getValues().password) && (
-                            <motion.p 
-                              className="text-center text-white/50 text-xs mt-2"
-                              initial={{ opacity: 0 }}
-                              animate={{ opacity: 1 }}
-                              transition={{ delay: 0.2 }}
-                            >
-                              Fill out both fields and I'll stop moving! 😉
-                            </motion.p>
-                          )}
-                        </motion.div>
-                      </form>
-                    </Form>
-                  </TabsContent>
-                  
-                  {/* Client Login Form */}
-                  <TabsContent value="client" className="mt-0">
-                    <Form {...clientForm}>
-                      <form onSubmit={clientForm.handleSubmit(onClientSubmit)} className="space-y-6">
-                        <motion.div
-                          initial={{ opacity: 0, x: -20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: 0.4, duration: 0.5 }}
-                        >
-                          <FormField
-                            control={clientForm.control}
-                            name="username"
-                            render={({ field }) => (
-                              <FormItem className="space-y-3">
-                                <FormLabel className="text-white/80 font-medium text-sm">Username</FormLabel>
-                                <FormControl>
-                                  <div className="relative group">
-                                    <div className="absolute left-3 top-3 text-white/40 group-focus-within:text-indigo-400 transition-colors duration-200">
-                                      <User className="h-5 w-5" />
-                                    </div>
-                                    <Input 
-                                      placeholder="Enter your username" 
-                                      {...field} 
-                                      className="pl-11 h-12 rounded-xl bg-white/5 border-white/10 focus:border-indigo-500 focus:bg-white/10 text-white placeholder:text-white/30 transition-all duration-200" 
-                                    />
-                                  </div>
-                                </FormControl>
-                                <FormMessage className="text-pink-300" />
-                              </FormItem>
-                            )}
-                          />
-                        </motion.div>
-                        
-                        <motion.div
-                          initial={{ opacity: 0, x: -20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: 0.5, duration: 0.5 }}
-                        >
-                          <FormField
-                            control={clientForm.control}
-                            name="password"
-                            render={({ field }) => (
-                              <FormItem className="space-y-3">
-                                <FormLabel className="text-white/80 font-medium text-sm">Password</FormLabel>
-                                <FormControl>
-                                  <div className="relative group">
-                                    <div className="absolute left-3 top-3 text-white/40 group-focus-within:text-indigo-400 transition-colors duration-200">
-                                      <Lock className="h-5 w-5" />
-                                    </div>
-                                    <Input 
-                                      type="password" 
-                                      placeholder="••••••••" 
-                                      {...field} 
-                                      className="pl-11 h-12 rounded-xl bg-white/5 border-white/10 focus:border-indigo-500 focus:bg-white/10 text-white placeholder:text-white/30 transition-all duration-200" 
-                                    />
-                                  </div>
-                                </FormControl>
-                                <FormMessage className="text-pink-300" />
-                              </FormItem>
-                            )}
-                          />
-                        </motion.div>
-                        
-                        <motion.div
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: 0.6, duration: 0.5 }}
-                          className="flex items-center justify-between"
-                        >
-                          <FormField
-                            control={clientForm.control}
-                            name="rememberMe"
-                            render={({ field }) => (
-                              <FormItem className="flex flex-row items-center space-x-3 space-y-0">
-                                <FormControl>
-                                  <Checkbox
-                                    checked={field.value}
-                                    onCheckedChange={field.onChange}
-                                    className="border-white/30 data-[state=checked]:bg-indigo-600 data-[state=checked]:border-indigo-600"
-                                  />
-                                </FormControl>
-                                <div className="leading-none">
-                                  <FormLabel className="font-normal text-sm text-white/70">Remember me</FormLabel>
+                              </div>
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <FormField
+                        control={adminForm.control}
+                        name="password"
+                        render={({ field }) => (
+                          <FormItem className="space-y-2">
+                            <FormLabel className="text-slate-400 font-medium text-sm">Password</FormLabel>
+                            <FormControl>
+                              <div className="relative">
+                                <Input 
+                                  type="password" 
+                                  placeholder="••••••••" 
+                                  {...field} 
+                                  className="pl-4 h-10 rounded-md bg-slate-800/50 border-slate-700 focus:border-blue-500 focus:bg-slate-800 text-white placeholder:text-slate-500" 
+                                />
+                                <div className="absolute right-3 top-2.5 text-slate-500">
+                                  <Lock className="h-5 w-5" />
                                 </div>
-                              </FormItem>
-                            )}
-                          />
-                          <div className="text-sm">
-                            <a href="#" className="font-medium text-indigo-400 hover:text-indigo-300 transition-colors">
-                              Forgot password?
-                            </a>
-                          </div>
-                        </motion.div>
-                        
-                        <motion.div
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: 0.7, duration: 0.5 }}
-                          className="relative"
-                        >
-                          <motion.div
-                            ref={clientButtonRef}
-                            className="w-full"
-                            initial={{ x: 0, y: 0 }}
-                            animate={clientButtonControls}
-                            whileHover={!clientForm.getValues().username || !clientForm.getValues().password ? {
-                              scale: 0.95,
-                              x: Math.random() > 0.5 ? 80 : -80,
-                              y: Math.random() > 0.5 ? 40 : -40,
-                              rotate: Math.random() * 5 - 2.5,
-                              transition: { duration: 0.2 }
-                            } : {
-                              scale: 1.05,
-                              transition: { duration: 0.2 }
-                            }}
-                            onMouseMove={(e) => runAwayFromMouse(e, clientButtonRef, clientForm, clientButtonControls)}
-                          >
-                            <Button 
-                              type="submit" 
-                              className="w-full h-12 mt-4 bg-gradient-to-r from-pink-500 to-orange-500 hover:from-pink-600 hover:to-orange-600 text-white font-medium rounded-full shadow-lg shadow-pink-500/30 hover:shadow-pink-500/50 transition-all duration-200 group overflow-hidden"
-                              disabled={isClientLoading}
-                              onMouseEnter={() => {
-                                if (!clientForm.getValues().username || !clientForm.getValues().password) {
-                                  // Play a fun sound effect
-                                  try {
-                                    const audio = new Audio("data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU");
-                                    audio.volume = 0.1;
-                                    audio.play().catch(e => console.log("Audio error", e));
-                                  } catch (e) {
-                                    console.log("Audio error", e);
-                                  }
-                                }
-                              }}
-                            >
-                              {isClientLoading ? (
-                                <>
-                                  <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                  </svg>
-                                  Signing in...
-                                </>
-                              ) : (
-                                <>
-                                  {clientForm.getValues().username && clientForm.getValues().password ? 
-                                    <span className="flex items-center justify-center">Sign in to Client Portal <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform duration-200" /></span> : 
-                                    <span className="flex items-center justify-center">{Math.random() > 0.5 ? "Nice try! Fill the form!" : "You can't catch me!"} <span className="ml-2 animate-pulse">😏</span></span>
-                                  }
-                                </>
-                              )}
-                            </Button>
-                          </motion.div>
-                          
-                          {/* Little helper text */}
-                          {(!clientForm.getValues().username || !clientForm.getValues().password) && (
-                            <motion.p 
-                              className="text-center text-white/50 text-xs mt-2"
-                              initial={{ opacity: 0 }}
-                              animate={{ opacity: 1 }}
-                              transition={{ delay: 0.2 }}
-                            >
-                              Complete the form to make me behave! 🙃
-                            </motion.p>
+                              </div>
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <div className="flex items-center justify-between">
+                        <FormField
+                          control={adminForm.control}
+                          name="rememberMe"
+                          render={({ field }) => (
+                            <FormItem className="flex flex-row items-center space-x-2 space-y-0">
+                              <FormControl>
+                                <Checkbox
+                                  checked={field.value}
+                                  onCheckedChange={field.onChange}
+                                  className="border-slate-600 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
+                                />
+                              </FormControl>
+                              <div className="leading-none">
+                                <FormLabel className="font-normal text-xs text-slate-400">Remember me</FormLabel>
+                              </div>
+                            </FormItem>
                           )}
+                        />
+                        <div className="text-xs">
+                          <a href="#" className="font-medium text-blue-500 hover:text-blue-400 transition-colors">
+                            Forgot Password?
+                          </a>
+                        </div>
+                      </div>
+                      
+                      <div className="relative pt-4">
+                        <motion.div
+                          ref={adminButtonRef}
+                          className="w-full"
+                          initial={{ x: 0, y: 0 }}
+                          animate={adminButtonControls}
+                          whileHover={!adminForm.getValues().usernameOrEmail || !adminForm.getValues().password ? {
+                            scale: 0.95,
+                            x: Math.random() > 0.5 ? 60 : -60,
+                            y: Math.random() > 0.5 ? 20 : -20,
+                            rotate: Math.random() * 5 - 2.5,
+                            transition: { duration: 0.2 }
+                          } : {
+                            scale: 1.05,
+                            transition: { duration: 0.2 }
+                          }}
+                          onMouseMove={(e) => runAwayFromMouse(e, adminButtonRef, adminForm, adminButtonControls)}
+                        >
+                          <Button 
+                            type="submit" 
+                            className="w-full h-10 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition-all duration-200"
+                            disabled={isAdminLoading}
+                          >
+                            {isAdminLoading ? (
+                              <>
+                                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                Signing in...
+                              </>
+                            ) : (
+                              <>
+                                {adminForm.getValues().usernameOrEmail && adminForm.getValues().password ? 
+                                  <span>Login</span> : 
+                                  <span>{Math.random() > 0.5 ? "Fill the form first!" : "Can't catch me!"}</span>
+                                }
+                              </>
+                            )}
+                          </Button>
                         </motion.div>
-                      </form>
-                    </Form>
-                  </TabsContent>
-                </Tabs>
-              </motion.div>
-              
-              <motion.div 
-                className="mt-16 text-center"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 1, duration: 0.8 }}
-              >
-                <p className="text-white/40 text-sm">
-                  If you're having trouble accessing your account, please contact <a href="#" className="text-indigo-400 hover:text-indigo-300">support@infymailer.com</a>
-                </p>
-              </motion.div>
+                      </div>
+                    </form>
+                  </Form>
+                </TabsContent>
+                
+                {/* Client Login Form */}
+                <TabsContent value="client" className="px-2">
+                  <Form {...clientForm}>
+                    <form onSubmit={clientForm.handleSubmit(onClientSubmit)} className="space-y-5">
+                      <FormField
+                        control={clientForm.control}
+                        name="username"
+                        render={({ field }) => (
+                          <FormItem className="space-y-2">
+                            <FormLabel className="text-slate-400 font-medium text-sm">Username</FormLabel>
+                            <FormControl>
+                              <div className="relative">
+                                <Input 
+                                  placeholder="Enter your username" 
+                                  {...field} 
+                                  className="pl-4 h-10 rounded-md bg-slate-800/50 border-slate-700 focus:border-blue-500 focus:bg-slate-800 text-white placeholder:text-slate-500" 
+                                />
+                                <div className="absolute right-3 top-2.5 text-slate-500">
+                                  <User className="h-5 w-5" />
+                                </div>
+                              </div>
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <FormField
+                        control={clientForm.control}
+                        name="password"
+                        render={({ field }) => (
+                          <FormItem className="space-y-2">
+                            <FormLabel className="text-slate-400 font-medium text-sm">Password</FormLabel>
+                            <FormControl>
+                              <div className="relative">
+                                <Input 
+                                  type="password" 
+                                  placeholder="••••••••" 
+                                  {...field} 
+                                  className="pl-4 h-10 rounded-md bg-slate-800/50 border-slate-700 focus:border-blue-500 focus:bg-slate-800 text-white placeholder:text-slate-500" 
+                                />
+                                <div className="absolute right-3 top-2.5 text-slate-500">
+                                  <Lock className="h-5 w-5" />
+                                </div>
+                              </div>
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <div className="flex items-center justify-between">
+                        <FormField
+                          control={clientForm.control}
+                          name="rememberMe"
+                          render={({ field }) => (
+                            <FormItem className="flex flex-row items-center space-x-2 space-y-0">
+                              <FormControl>
+                                <Checkbox
+                                  checked={field.value}
+                                  onCheckedChange={field.onChange}
+                                  className="border-slate-600 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
+                                />
+                              </FormControl>
+                              <div className="leading-none">
+                                <FormLabel className="font-normal text-xs text-slate-400">Remember me</FormLabel>
+                              </div>
+                            </FormItem>
+                          )}
+                        />
+                        <div className="text-xs">
+                          <a href="#" className="font-medium text-blue-500 hover:text-blue-400 transition-colors">
+                            Forgot Password?
+                          </a>
+                        </div>
+                      </div>
+                      
+                      <div className="relative pt-4">
+                        <motion.div
+                          ref={clientButtonRef}
+                          className="w-full"
+                          initial={{ x: 0, y: 0 }}
+                          animate={clientButtonControls}
+                          whileHover={!clientForm.getValues().username || !clientForm.getValues().password ? {
+                            scale: 0.95,
+                            x: Math.random() > 0.5 ? 60 : -60,
+                            y: Math.random() > 0.5 ? 20 : -20,
+                            rotate: Math.random() * 5 - 2.5,
+                            transition: { duration: 0.2 }
+                          } : {
+                            scale: 1.05,
+                            transition: { duration: 0.2 }
+                          }}
+                          onMouseMove={(e) => runAwayFromMouse(e, clientButtonRef, clientForm, clientButtonControls)}
+                        >
+                          <Button 
+                            type="submit" 
+                            className="w-full h-10 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition-all duration-200"
+                            disabled={isClientLoading}
+                          >
+                            {isClientLoading ? (
+                              <>
+                                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                Signing in...
+                              </>
+                            ) : (
+                              <>
+                                {clientForm.getValues().username && clientForm.getValues().password ? 
+                                  <span>Login</span> : 
+                                  <span>{Math.random() > 0.5 ? "Complete the form!" : "Try to catch me!"}</span>
+                                }
+                              </>
+                            )}
+                          </Button>
+                        </motion.div>
+                      </div>
+                    </form>
+                  </Form>
+                </TabsContent>
+              </Tabs>
+            </div>
+            
+            {/* Sign up link */}
+            <div className="mt-8 mb-8 text-center">
+              <p className="text-slate-500 text-sm">
+                Don't have an Account? <a href="#" className="text-blue-500 hover:text-blue-400">Sign up</a>
+              </p>
             </div>
           </div>
         </motion.div>
