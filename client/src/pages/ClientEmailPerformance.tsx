@@ -926,19 +926,16 @@ const ClientEmailPerformance: React.FC = () => {
           
           {/* Enhanced Email performance over time */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Card className="overflow-hidden border border-primary/10">
-              <CardHeader className="bg-gradient-to-r from-gray-50 to-white dark:from-gray-900 dark:to-gray-800 pb-2">
+            <Card>
+              <CardHeader>
                 <div className="flex justify-between items-start">
                   <div>
-                    <CardTitle className="flex items-center">
-                      <LineChartIcon className="h-5 w-5 mr-2 text-primary" />
-                      Performance Over Time
-                    </CardTitle>
+                    <CardTitle>Performance Over Time</CardTitle>
                     <CardDescription>Opens, clicks and conversions by day</CardDescription>
                   </div>
-                  <div className="bg-white/80 dark:bg-gray-800/80 p-1 rounded-md shadow-sm border border-gray-100 dark:border-gray-700 w-32">
+                  <div className="border rounded-md w-32">
                     <Select defaultValue="7days">
-                      <SelectTrigger className="h-7 text-xs border-0 bg-transparent px-2">
+                      <SelectTrigger className="h-8 text-xs border-0 px-2">
                         <SelectValue placeholder="7 days" />
                       </SelectTrigger>
                       <SelectContent>
@@ -950,51 +947,22 @@ const ClientEmailPerformance: React.FC = () => {
                   </div>
                 </div>
               </CardHeader>
-              <CardContent className="pt-4 h-80">
-                <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 mb-2 px-2">
-                  <div className="flex items-center">
-                    <div className="flex -space-x-1">
-                      <div className="h-2 w-2 rounded-full bg-primary"></div>
-                      <div className="h-2 w-2 rounded-full bg-primary/70"></div>
-                      <div className="h-2 w-2 rounded-full bg-primary/40"></div>
-                    </div>
-                    <span className="ml-1.5">AI Prediction Model</span>
-                  </div>
-                  
-                  <div className="inline-flex rounded border border-gray-200 dark:border-gray-700">
-                    <button className="px-2 py-0.5 text-xs bg-white dark:bg-gray-800 rounded-l border-r border-gray-200 dark:border-gray-700">Linear</button>
-                    <button className="px-2 py-0.5 text-xs bg-gray-50 dark:bg-gray-900">Curved</button>
-                  </div>
-                </div>
+              <CardContent className="h-80">
                 <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart
+                  <LineChart
                     data={chartData?.weeklyPerformance || emailPerformanceData}
-                    margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+                    margin={{ top: 10, right: 30, left: 0, bottom: 10 }}
                   >
-                    <defs>
-                      <linearGradient id="colorOpens" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#1e40af" stopOpacity={0.8}/>
-                        <stop offset="95%" stopColor="#1e40af" stopOpacity={0}/>
-                      </linearGradient>
-                      <linearGradient id="colorClicks" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#d4af37" stopOpacity={0.8}/>
-                        <stop offset="95%" stopColor="#d4af37" stopOpacity={0}/>
-                      </linearGradient>
-                      <linearGradient id="colorConversions" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#1a3a5f" stopOpacity={0.8}/>
-                        <stop offset="95%" stopColor="#1a3a5f" stopOpacity={0}/>
-                      </linearGradient>
-                    </defs>
                     <CartesianGrid strokeDasharray="3 3" opacity={0.1} vertical={false} />
                     <XAxis 
                       dataKey="day" 
-                      axisLine={false}
+                      axisLine={true}
                       tickLine={false}
                       padding={{ left: 10, right: 10 }}
                       tick={{ fontSize: 12 }}
                     />
                     <YAxis 
-                      axisLine={false}
+                      axisLine={true}
                       tickLine={false}
                       tick={{ fontSize: 12 }}
                       width={30}
@@ -1016,34 +984,31 @@ const ClientEmailPerformance: React.FC = () => {
                       iconSize={8}
                       wrapperStyle={{ paddingBottom: '10px' }}
                     />
-                    <Area 
+                    <Line 
                       type="monotone" 
                       dataKey="opens" 
-                      stroke="#1e40af" 
+                      stroke="hsl(var(--primary))" 
                       strokeWidth={2}
-                      fillOpacity={1} 
-                      fill="url(#colorOpens)" 
-                      activeDot={{ r: 6, strokeWidth: 0 }}
+                      dot={{ r: 3, fill: "hsl(var(--primary))" }}
+                      name="Opens"
                     />
-                    <Area 
+                    <Line 
                       type="monotone" 
                       dataKey="clicks" 
-                      stroke="#d4af37" 
+                      stroke="hsl(var(--secondary))" 
                       strokeWidth={2}
-                      fillOpacity={1} 
-                      fill="url(#colorClicks)" 
-                      activeDot={{ r: 6, strokeWidth: 0 }}
+                      dot={{ r: 3, fill: "hsl(var(--secondary))" }}
+                      name="Clicks"
                     />
-                    <Area 
+                    <Line 
                       type="monotone" 
                       dataKey="conversions" 
-                      stroke="#1a3a5f" 
+                      stroke="#10b981" 
                       strokeWidth={2}
-                      fillOpacity={1} 
-                      fill="url(#colorConversions)" 
-                      activeDot={{ r: 6, strokeWidth: 0 }}
+                      dot={{ r: 3, fill: "#10b981" }}
+                      name="Conversions"
                     />
-                  </AreaChart>
+                  </LineChart>
                 </ResponsiveContainer>
               </CardContent>
             </Card>
@@ -1065,9 +1030,16 @@ const ClientEmailPerformance: React.FC = () => {
                       outerRadius={80}
                       fill="#8884d8"
                       dataKey="value"
+                      stroke="#fff"
+                      strokeWidth={1}
                     >
                       {(chartData?.deviceBreakdown || engagementByDevice).map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        <Cell 
+                          key={`cell-${index}`} 
+                          fill={index === 0 ? "hsl(var(--primary))" : 
+                                index === 1 ? "hsl(var(--secondary))" : 
+                                "#10b981"} 
+                        />
                       ))}
                     </Pie>
                     <Tooltip formatter={(value) => `${value}%`} />
