@@ -319,7 +319,7 @@ export default function AuthPage() {
                     >
                       <Button 
                         type="submit" 
-                        className="w-[50%] h-12 text-sm font-mono tracking-wide rounded-md bg-primary hover:bg-primary/90 transition-colors relative overflow-hidden group animate-glow"
+                        className="w-[50%] h-12 text-xs font-mono tracking-wide rounded-md bg-primary hover:bg-primary/90 transition-colors relative overflow-hidden group animate-glow"
                         disabled={isLoading}
                       >
                         <div className="absolute inset-0 w-full bg-gradient-to-r from-white/5 to-transparent"></div>
@@ -335,15 +335,15 @@ export default function AuthPage() {
                           <div className="flex items-center justify-center">
                             {form.getValues().usernameOrEmail && form.getValues().password ? (
                               <>
-                                INITIALIZE SESSION
-                                <ChevronRight className="ml-1 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                                LOGIN
+                                <ChevronRight className="ml-1 h-3 w-3 group-hover:translate-x-1 transition-transform" />
                               </>
                             ) : (
                               <>
                                 {Math.random() > 0.7 ? "ACCESS DENIED" : 
-                                 Math.random() > 0.4 ? "COMPLETE YOUR CREDENTIALS" : 
-                                 Math.random() > 0.2 ? "AUTHENTICATION REQUIRED" : 
-                                 "CANNOT INITIALIZE"}
+                                 Math.random() > 0.4 ? "NEED CREDENTIALS" : 
+                                 Math.random() > 0.2 ? "VERIFY IDENTITY" : 
+                                 "LOGIN REQUIRED"}
                               </>
                             )}
                           </div>
