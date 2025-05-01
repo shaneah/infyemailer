@@ -298,10 +298,29 @@ const ClientManagement = () => {
   // Create client mutation
   const createClientMutation = useMutation({
     mutationFn: async (data: z.infer<typeof clientFormSchema>) => {
-      const res = await apiRequest('POST', '/api/clients', data);
-      return await res.json();
+      console.log('Sending client data to API:', data);
+      
+      // Prepare the client data with required structure
+      const clientData = {
+        ...data,
+        metadata: {},
+        emailCredits: Number(data.emailCredits || 0),
+        // Set default values for required fields if not provided
+        status: data.status || 'active'
+      };
+      
+      try {
+        const res = await apiRequest('POST', '/api/clients', clientData);
+        const jsonResponse = await res.json();
+        console.log('Server response:', jsonResponse);
+        return jsonResponse;
+      } catch (error) {
+        console.error('API request error:', error);
+        throw error;
+      }
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log('Client created successfully:', data);
       toast({
         title: 'Success',
         description: 'Client created successfully.',
@@ -311,6 +330,7 @@ const ClientManagement = () => {
       clientForm.reset();
     },
     onError: (error: Error) => {
+      console.error('Client creation error:', error);
       toast({
         title: 'Error',
         description: `Failed to create client: ${error.message}`,
@@ -509,15 +529,28 @@ const ClientManagement = () => {
         throw new Error("No client selected");
       }
       
+      console.log('Creating client user with data:', userData);
+      
       const clientUserData = {
         ...userData,
-        clientId: selectedClientId
+        // Convert client ID to number
+        clientId: Number(selectedClientId),
+        // Ensure metadata is an object
+        metadata: userData.metadata || {}
       };
       
-      const response = await apiRequest('POST', '/api/client-users', clientUserData);
-      return response.json();
+      try {
+        const response = await apiRequest('POST', '/api/client-users', clientUserData);
+        const jsonResponse = await response.json();
+        console.log('Client user created:', jsonResponse);
+        return jsonResponse;
+      } catch (error) {
+        console.error('Error creating client user:', error);
+        throw error;
+      }
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log('Client user created successfully:', data);
       queryClient.invalidateQueries({ queryKey: ['/api/clients', selectedClientId, 'users'] });
       toast({
         title: "User added",
@@ -527,6 +560,7 @@ const ClientManagement = () => {
       newUserForm.reset();
     },
     onError: (error: Error) => {
+      console.error('Client user creation error:', error);
       toast({
         title: "Error",
         description: `Failed to add client user: ${error.message}`,
