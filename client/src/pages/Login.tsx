@@ -174,12 +174,13 @@ export default function Login() {
       const normalizedY = -deltaY / length;
       
       // Apply movement (faster when mouse is closer)
-      const distance = Math.min(80, 800 / length);
+      const distance = Math.min(150, 1500 / length);
       controls.start({
         x: normalizedX * distance,
         y: normalizedY * distance,
-        rotate: Math.random() * 10 - 5,
-        transition: { type: "spring", duration: 0.3, bounce: 0.5 }
+        rotate: Math.random() * 20 - 10,
+        scale: 0.9,
+        transition: { type: "spring", duration: 0.3, bounce: 0.6, stiffness: 300 }
       });
     }
   };
@@ -450,17 +451,17 @@ export default function Login() {
                         </div>
                       </div>
                       
-                      <div className="relative pt-4">
+                      <div className="relative pt-4 min-h-[100px] flex items-center justify-center">
                         <motion.div
                           ref={adminButtonRef}
-                          className="w-full"
+                          className="w-full flex justify-center"
                           initial={{ x: 0, y: 0 }}
                           animate={adminButtonControls}
                           whileHover={!adminForm.getValues().usernameOrEmail || !adminForm.getValues().password ? {
                             scale: 0.95,
-                            x: Math.random() > 0.5 ? 60 : -60,
-                            y: Math.random() > 0.5 ? 20 : -20,
-                            rotate: Math.random() * 5 - 2.5,
+                            x: Math.random() > 0.5 ? 100 : -100,
+                            y: Math.random() > 0.5 ? 50 : -50,
+                            rotate: Math.random() * 10 - 5,
                             transition: { duration: 0.2 }
                           } : {
                             scale: 1.05,
@@ -470,7 +471,7 @@ export default function Login() {
                         >
                           <Button 
                             type="submit" 
-                            className="w-full h-11 bg-blue-600 hover:bg-blue-500 text-white font-medium rounded-lg transition-all duration-200"
+                            className="w-[60%] mx-auto h-11 bg-blue-600 hover:bg-blue-500 text-white font-medium rounded-lg transition-all duration-200"
                             disabled={isAdminLoading}
                           >
                             {isAdminLoading ? (
@@ -571,17 +572,17 @@ export default function Login() {
                         </div>
                       </div>
                       
-                      <div className="relative pt-4">
+                      <div className="relative pt-4 min-h-[100px] flex items-center justify-center">
                         <motion.div
                           ref={clientButtonRef}
-                          className="w-full"
+                          className="w-full flex justify-center"
                           initial={{ x: 0, y: 0 }}
                           animate={clientButtonControls}
                           whileHover={!clientForm.getValues().username || !clientForm.getValues().password ? {
                             scale: 0.95,
-                            x: Math.random() > 0.5 ? 60 : -60,
-                            y: Math.random() > 0.5 ? 20 : -20,
-                            rotate: Math.random() * 5 - 2.5,
+                            x: Math.random() > 0.5 ? 100 : -100,
+                            y: Math.random() > 0.5 ? 50 : -50,
+                            rotate: Math.random() * 10 - 5,
                             transition: { duration: 0.2 }
                           } : {
                             scale: 1.05,
@@ -591,7 +592,7 @@ export default function Login() {
                         >
                           <Button 
                             type="submit" 
-                            className="w-full h-11 bg-blue-600 hover:bg-blue-500 text-white font-medium rounded-lg transition-all duration-200"
+                            className="w-[60%] mx-auto h-11 bg-blue-600 hover:bg-blue-500 text-white font-medium rounded-lg transition-all duration-200"
                             disabled={isClientLoading}
                           >
                             {isClientLoading ? (
