@@ -193,6 +193,258 @@ export async function registerRoutes(app: Express): Promise<Server> {
     
     res.json(campaigns);
   });
+  // Contact Management API routes
+  app.get('/api/contacts', async (req: Request, res: Response) => {
+    try {
+      console.log('GET /api/contacts');
+      const contacts = await storage.getContacts();
+      res.json(contacts);
+    } catch (error) {
+      console.error('Error fetching contacts:', error);
+      res.status(500).json({ error: 'Failed to fetch contacts' });
+    }
+  });
+
+  app.get('/api/contacts/:id', async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ error: 'Invalid contact ID' });
+      }
+      
+      const contact = await storage.getContact(id);
+      if (!contact) {
+        return res.status(404).json({ error: 'Contact not found' });
+      }
+      
+      res.json(contact);
+    } catch (error) {
+      console.error('Error fetching contact:', error);
+      res.status(500).json({ error: 'Failed to fetch contact' });
+    }
+  });
+
+  app.post('/api/contacts', async (req: Request, res: Response) => {
+    try {
+      console.log('POST /api/contacts', req.body);
+      
+      // Validate request body
+      const result = validate<typeof insertContactSchema._type>(insertContactSchema, req.body);
+      if ('error' in result) {
+        return res.status(400).json({ error: result.error });
+      }
+      
+      // Add timestamp if not provided
+      const contactData = {
+        ...result.data,
+        createdAt: result.data.createdAt || new Date(),
+        metadata: result.data.metadata || {}
+      };
+      
+      console.log('Creating contact with validated data:', contactData);
+      
+      // Try direct SQL insertion as a workaround for the ORM issues
+      try {
+        console.log('Attempting direct SQL insertion through pool object');
+        
+        const sqlResult = await pool.query(
+          `INSERT INTO contacts (name, email, status, created_at, metadata) 
+           VALUES ($1, $2, $3, $4, $5) 
+           RETURNING *`,
+          [
+            contactData.name,
+            contactData.email,
+            contactData.status,
+            contactData.createdAt,
+            JSON.stringify(contactData.metadata || {})
+          ]
+        );
+        
+        console.log('Direct SQL contact creation result:', sqlResult.rows[0]);
+        
+        if (sqlResult.rows && sqlResult.rows[0]) {
+          res.status(201).json({
+            ...sqlResult.rows[0],
+            message: 'Contact created via direct SQL'
+          });
+        } else {
+          throw new Error('SQL insertion did not return a result');
+        }
+      } catch (sqlError) {
+        console.error('Error with direct SQL insert:', sqlError);
+        
+        // Fall back to using the storage.createContact method
+        console.log('Falling back to storage.createContact method');
+        const newContact = await storage.createContact(contactData);
+        
+        console.log('Contact created successfully via storage interface:', newContact);
+        res.status(201).json({
+          ...newContact,
+          message: 'Contact created via storage interface'
+        });
+      }
+    } catch (error) {
+      console.error('Error creating contact:', error);
+      res.status(500).json({ error: 'Failed to create contact' });
+    }
+  });
+  
+  // Debug route to help troubleshoot database issues
+  app.post('/api/contacts/debug', async (req: Request, res: Response) => {
+    try {
+      console.log('POST /api/contacts/debug - starting detailed database debug');
+      let dbInfo: any = {};
+      
+      // 1. Test database connection
+      console.log('1. Testing basic database connection...');
+      try {
+        const connectionTest = await pool.query('SELECT 1 as connection_test');
+        console.log('Database connection test result:', connectionTest.rows);
+        dbInfo.connectionTest = connectionTest.rows;
+      } catch (connErr) {
+        console.error('Database connection test failed:', connErr);
+        dbInfo.connectionTestError = connErr.message;
+      }
+      
+      // 2. Verify table structure
+      console.log('2. Verifying contacts table structure...');
+      try {
+        const tableInfo = await pool.query(`
+          SELECT column_name, data_type, is_nullable 
+          FROM information_schema.columns 
+          WHERE table_name = 'contacts'
+          ORDER BY ordinal_position
+        `);
+        console.log('Contacts table structure:', tableInfo.rows);
+        dbInfo.tableStructure = tableInfo.rows;
+      } catch (tableErr) {
+        console.error('Table structure check failed:', tableErr);
+        dbInfo.tableStructureError = tableErr.message;
+      }
+      
+      // 3. Test direct SQL insert
+      console.log('3. Testing direct SQL insert...');
+      try {
+        const insertResult = await pool.query(
+          `INSERT INTO contacts (name, email, status, created_at, metadata) 
+           VALUES ($1, $2, $3, $4, $5) 
+           RETURNING *`,
+          [
+            req.body.name || 'Debug Contact',
+            req.body.email || `debug-${Date.now()}@example.com`,
+            req.body.status || 'debug',
+            new Date(),
+            JSON.stringify(req.body.metadata || {debug: true, source: 'debug-route'})
+          ]
+        );
+        console.log('Direct SQL insert result:', insertResult.rows[0]);
+        dbInfo.insertedContact = insertResult.rows[0];
+        
+        // 4. Verify the insert with a SELECT
+        console.log('4. Verifying insert with SELECT...');
+        const selectResult = await pool.query(
+          `SELECT * FROM contacts WHERE email = $1`,
+          [insertResult.rows[0].email]
+        );
+        console.log('SELECT verification result:', selectResult.rows[0]);
+        dbInfo.verificationSelect = selectResult.rows[0];
+        
+        // 5. Check contacts mapping
+        console.log('5. Testing contacts mapping...');
+        try {
+          const contactFromStorage = await storage.getContacts();
+          console.log(`Found ${contactFromStorage.length} contacts via storage interface`);
+          dbInfo.contactsFromStorage = contactFromStorage;
+        } catch (mapErr) {
+          console.error('Contact storage mapping failed:', mapErr);
+          dbInfo.contactsMappingError = mapErr.message;
+        }
+        
+        // Return success with all debug info
+        res.status(200).json({
+          success: true,
+          message: 'Debug contact creation successful',
+          debugInfo: dbInfo
+        });
+      } catch (insertErr) {
+        console.error('Debug insert failed:', insertErr);
+        res.status(500).json({
+          success: false,
+          message: 'Debug contact creation failed',
+          error: insertErr.message,
+          debugInfo: dbInfo
+        });
+      }
+    } catch (mainErr) {
+      console.error('Overall debug process failed:', mainErr);
+      res.status(500).json({
+        success: false,
+        message: 'Debug process failed',
+        error: mainErr.message
+      });
+    }
+  });
+
+  app.patch('/api/contacts/:id', async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ error: 'Invalid contact ID' });
+      }
+      
+      // Get existing contact first
+      const existingContact = await storage.getContact(id);
+      if (!existingContact) {
+        return res.status(404).json({ error: 'Contact not found' });
+      }
+      
+      // Validate update data
+      const result = validate<Partial<typeof insertContactSchema._type>>(
+        insertContactSchema.partial(), 
+        req.body
+      );
+      
+      if ('error' in result) {
+        return res.status(400).json({ error: result.error });
+      }
+      
+      const updatedContact = await storage.updateContact(id, result.data);
+      if (!updatedContact) {
+        return res.status(500).json({ error: 'Failed to update contact' });
+      }
+      
+      res.json(updatedContact);
+    } catch (error) {
+      console.error('Error updating contact:', error);
+      res.status(500).json({ error: 'Failed to update contact' });
+    }
+  });
+
+  app.delete('/api/contacts/:id', async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ error: 'Invalid contact ID' });
+      }
+      
+      // Get existing contact first
+      const existingContact = await storage.getContact(id);
+      if (!existingContact) {
+        return res.status(404).json({ error: 'Contact not found' });
+      }
+      
+      const deletedContact = await storage.deleteContact(id);
+      if (!deletedContact) {
+        return res.status(500).json({ error: 'Failed to delete contact' });
+      }
+      
+      res.json({ success: true, message: 'Contact deleted successfully' });
+    } catch (error) {
+      console.error('Error deleting contact:', error);
+      res.status(500).json({ error: 'Failed to delete contact' });
+    }
+  });
+
   // Setup auth routes
   setupAuth(app);
   
