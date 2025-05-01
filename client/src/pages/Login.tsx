@@ -197,29 +197,128 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-indigo-950 via-blue-900 to-indigo-950 relative overflow-hidden">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-violet-900 via-fuchsia-800 to-rose-800 relative overflow-hidden">
       {/* Animated background elements */}
       <div className="absolute inset-0 z-0">
         <motion.div 
-          className="absolute top-0 right-0 w-full h-full opacity-10"
+          className="absolute top-0 right-0 w-full h-full opacity-20"
           initial={{ opacity: 0 }}
-          animate={{ opacity: 0.1 }}
+          animate={{ opacity: 0.2 }}
           transition={{ duration: 1.5 }}
         >
-          {/* Animated particles or gradient effect */}
-          <div className="absolute top-0 left-0 w-96 h-96 bg-blue-400 rounded-full filter blur-[120px] opacity-20"></div>
-          <div className="absolute bottom-0 right-0 w-96 h-96 bg-indigo-600 rounded-full filter blur-[120px] opacity-20"></div>
-          <div className="absolute top-1/3 right-1/4 w-72 h-72 bg-purple-500 rounded-full filter blur-[120px] opacity-10"></div>
+          {/* Fun animated background shapes */}
+          <motion.div 
+            className="absolute top-20 left-20 w-96 h-96 bg-pink-400 rounded-full filter blur-[140px]"
+            animate={{ 
+              scale: [1, 1.2, 1],
+              x: [0, 20, 0],
+              y: [0, -20, 0],
+            }}
+            transition={{ 
+              repeat: Infinity,
+              duration: 8,
+              ease: "easeInOut"
+            }}
+          ></motion.div>
+          
+          <motion.div 
+            className="absolute bottom-20 right-20 w-96 h-96 bg-blue-500 rounded-full filter blur-[140px]"
+            animate={{ 
+              scale: [1, 1.3, 1],
+              x: [0, -20, 0],
+              y: [0, 20, 0],
+            }}
+            transition={{ 
+              repeat: Infinity,
+              duration: 9,
+              ease: "easeInOut",
+              delay: 0.5
+            }}
+          ></motion.div>
+          
+          <motion.div 
+            className="absolute top-1/2 right-1/4 w-72 h-72 bg-purple-600 rounded-full filter blur-[120px]"
+            animate={{ 
+              scale: [1, 1.1, 1],
+              x: [0, 30, 0],
+              y: [0, 30, 0],
+            }}
+            transition={{ 
+              repeat: Infinity,
+              duration: 7,
+              ease: "easeInOut",
+              delay: 1
+            }}
+          ></motion.div>
+          
+          <motion.div 
+            className="absolute top-1/3 left-1/4 w-64 h-64 bg-yellow-500 rounded-full filter blur-[130px] opacity-40"
+            animate={{ 
+              scale: [1, 1.2, 1],
+              x: [0, -20, 0],
+              y: [0, -30, 0],
+            }}
+            transition={{ 
+              repeat: Infinity,
+              duration: 10,
+              ease: "easeInOut",
+              delay: 2
+            }}
+          ></motion.div>
         </motion.div>
+        
+        {/* Floating emoji particles */}
+        <div className="absolute inset-0 overflow-hidden">
+          {["✨", "🎮", "🎯", "🎪", "🎨"].map((emoji, i) => (
+            <motion.div
+              key={i}
+              className="absolute text-xl opacity-30"
+              initial={{
+                x: Math.random() * 100 + "%",
+                y: -30,
+                scale: Math.random() * 0.5 + 0.5
+              }}
+              animate={{
+                y: "120vh",
+                rotate: Math.random() * 360
+              }}
+              transition={{
+                duration: Math.random() * 20 + 10,
+                repeat: Infinity,
+                ease: "linear",
+                delay: Math.random() * 10
+              }}
+            >
+              {emoji}
+            </motion.div>
+          ))}
+        </div>
       </div>
       
       {/* Content container with floating card */}
       <div className="flex-1 flex items-center justify-center p-6 z-10">
         <motion.div 
-          className="w-full max-w-5xl overflow-hidden rounded-3xl bg-white/5 backdrop-blur-lg shadow-2xl border border-white/10"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: "easeOut" }}
+          className="w-full max-w-5xl overflow-hidden rounded-3xl bg-white/10 backdrop-blur-lg shadow-2xl border border-white/20"
+          initial={{ opacity: 0, y: 20, rotate: -2 }}
+          animate={{ 
+            opacity: 1, 
+            y: 0, 
+            rotate: 0,
+            scale: [1, 1.01, 0.99, 1],
+          }}
+          transition={{ 
+            duration: 0.8, 
+            ease: "easeOut",
+            scale: {
+              repeat: Infinity,
+              duration: 8,
+              ease: "easeInOut"
+            }
+          }}
+          whileHover={{
+            boxShadow: "0 25px 50px -12px rgba(255, 100, 255, 0.25)",
+            borderColor: "rgba(255, 255, 255, 0.3)",
+          }}
         >
           <div className="grid grid-cols-1 md:grid-cols-2">
             {/* Left column - Brand and visuals */}
@@ -421,26 +520,72 @@ export default function Login() {
                           initial={{ opacity: 0, y: 20 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ delay: 0.7, duration: 0.5 }}
+                          className="relative"
                         >
-                          <Button 
-                            type="submit" 
-                            className="w-full h-12 mt-4 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white font-medium rounded-xl shadow-lg shadow-indigo-600/20 hover:shadow-indigo-600/40 transition-all duration-200 group"
-                            disabled={isAdminLoading}
+                          <motion.div
+                            className="w-full"
+                            animate={{
+                              x: adminForm.getValues().usernameOrEmail && adminForm.getValues().password ? 0 : adminForm.formState.isSubmitting ? 0 : Math.random() > 0.5 ? Math.random() * 80 - 40 : Math.random() * 80 - 40,
+                              y: adminForm.getValues().usernameOrEmail && adminForm.getValues().password ? 0 : adminForm.formState.isSubmitting ? 0 : Math.random() > 0.5 ? Math.random() * 70 - 35 : Math.random() * 70 - 35,
+                              rotate: adminForm.getValues().usernameOrEmail && adminForm.getValues().password ? 0 : adminForm.formState.isSubmitting ? 0 : Math.random() * 5 - 2.5,
+                            }}
+                            transition={{
+                              type: "spring",
+                              stiffness: 300,
+                              damping: 20
+                            }}
+                            whileHover={{
+                              scale: adminForm.getValues().usernameOrEmail && adminForm.getValues().password ? 1.05 : 1,
+                              rotate: adminForm.getValues().usernameOrEmail && adminForm.getValues().password ? 0 : Math.random() * 10 - 5,
+                            }}
                           >
-                            {isAdminLoading ? (
-                              <>
-                                <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                </svg>
-                                Signing in...
-                              </>
-                            ) : (
-                              <>
-                                Sign in to Admin <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform duration-200" />
-                              </>
-                            )}
-                          </Button>
+                            <Button 
+                              type="submit" 
+                              className="w-full h-12 mt-4 bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-700 hover:to-pink-600 text-white font-medium rounded-full shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50 transition-all duration-200 group overflow-hidden"
+                              disabled={isAdminLoading}
+                              onMouseEnter={() => {
+                                if (!adminForm.getValues().usernameOrEmail || !adminForm.getValues().password) {
+                                  // Play a fun sound effect
+                                  try {
+                                    const audio = new Audio("data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU");
+                                    audio.volume = 0.1;
+                                    audio.play().catch(e => console.log("Audio error", e));
+                                  } catch (e) {
+                                    console.log("Audio error", e);
+                                  }
+                                }
+                              }}
+                            >
+                              {isAdminLoading ? (
+                                <>
+                                  <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                  </svg>
+                                  Signing in...
+                                </>
+                              ) : (
+                                <>
+                                  {adminForm.getValues().usernameOrEmail && adminForm.getValues().password ? 
+                                    <span className="flex items-center justify-center">Sign in to Admin <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform duration-200" /></span> : 
+                                    <span className="flex items-center justify-center">{Math.random() > 0.5 ? "Catch me if you can!" : "Complete the form first!"} <span className="ml-2 animate-bounce">🤭</span></span>
+                                  }
+                                </>
+                              )}
+                            </Button>
+                          </motion.div>
+                          
+                          {/* Little helper text */}
+                          {(!adminForm.getValues().usernameOrEmail || !adminForm.getValues().password) && (
+                            <motion.p 
+                              className="text-center text-white/50 text-xs mt-2"
+                              initial={{ opacity: 0 }}
+                              animate={{ opacity: 1 }}
+                              transition={{ delay: 0.2 }}
+                            >
+                              Fill out both fields and I'll stop moving! 😉
+                            </motion.p>
+                          )}
                         </motion.div>
                       </form>
                     </Form>
@@ -544,26 +689,72 @@ export default function Login() {
                           initial={{ opacity: 0, y: 20 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ delay: 0.7, duration: 0.5 }}
+                          className="relative"
                         >
-                          <Button 
-                            type="submit" 
-                            className="w-full h-12 mt-4 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white font-medium rounded-xl shadow-lg shadow-indigo-600/20 hover:shadow-indigo-600/40 transition-all duration-200 group"
-                            disabled={isClientLoading}
+                          <motion.div
+                            className="w-full"
+                            animate={{
+                              x: clientForm.getValues().username && clientForm.getValues().password ? 0 : clientForm.formState.isSubmitting ? 0 : Math.random() > 0.5 ? Math.random() * 80 - 40 : Math.random() * 80 - 40,
+                              y: clientForm.getValues().username && clientForm.getValues().password ? 0 : clientForm.formState.isSubmitting ? 0 : Math.random() > 0.5 ? Math.random() * 70 - 35 : Math.random() * 70 - 35,
+                              rotate: clientForm.getValues().username && clientForm.getValues().password ? 0 : clientForm.formState.isSubmitting ? 0 : Math.random() * 5 - 2.5,
+                            }}
+                            transition={{
+                              type: "spring",
+                              stiffness: 300,
+                              damping: 20
+                            }}
+                            whileHover={{
+                              scale: clientForm.getValues().username && clientForm.getValues().password ? 1.05 : 1,
+                              rotate: clientForm.getValues().username && clientForm.getValues().password ? 0 : Math.random() * 10 - 5,
+                            }}
                           >
-                            {isClientLoading ? (
-                              <>
-                                <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                </svg>
-                                Signing in...
-                              </>
-                            ) : (
-                              <>
-                                Sign in to Client Portal <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform duration-200" />
-                              </>
-                            )}
-                          </Button>
+                            <Button 
+                              type="submit" 
+                              className="w-full h-12 mt-4 bg-gradient-to-r from-pink-500 to-orange-500 hover:from-pink-600 hover:to-orange-600 text-white font-medium rounded-full shadow-lg shadow-pink-500/30 hover:shadow-pink-500/50 transition-all duration-200 group overflow-hidden"
+                              disabled={isClientLoading}
+                              onMouseEnter={() => {
+                                if (!clientForm.getValues().username || !clientForm.getValues().password) {
+                                  // Play a fun sound effect
+                                  try {
+                                    const audio = new Audio("data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU");
+                                    audio.volume = 0.1;
+                                    audio.play().catch(e => console.log("Audio error", e));
+                                  } catch (e) {
+                                    console.log("Audio error", e);
+                                  }
+                                }
+                              }}
+                            >
+                              {isClientLoading ? (
+                                <>
+                                  <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                  </svg>
+                                  Signing in...
+                                </>
+                              ) : (
+                                <>
+                                  {clientForm.getValues().username && clientForm.getValues().password ? 
+                                    <span className="flex items-center justify-center">Sign in to Client Portal <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform duration-200" /></span> : 
+                                    <span className="flex items-center justify-center">{Math.random() > 0.5 ? "Nice try! Fill the form!" : "You can't catch me!"} <span className="ml-2 animate-pulse">😏</span></span>
+                                  }
+                                </>
+                              )}
+                            </Button>
+                          </motion.div>
+                          
+                          {/* Little helper text */}
+                          {(!clientForm.getValues().username || !clientForm.getValues().password) && (
+                            <motion.p 
+                              className="text-center text-white/50 text-xs mt-2"
+                              initial={{ opacity: 0 }}
+                              animate={{ opacity: 1 }}
+                              transition={{ delay: 0.2 }}
+                            >
+                              Complete the form to make me behave! 🙃
+                            </motion.p>
+                          )}
                         </motion.div>
                       </form>
                     </Form>
