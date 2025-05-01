@@ -2195,7 +2195,7 @@ export class MemStorage implements IStorage {
       const { comparePasswords } = await import('./auth');
       
       // Special case for testing credentials
-      if (username === 'client1' && password === 'client123') {
+      if (username === 'client1' && password === 'clientdemo') {
         console.log('Using test client credentials override');
         user.lastLoginAt = new Date();
         this.clientUsers.set(user.id, user);
