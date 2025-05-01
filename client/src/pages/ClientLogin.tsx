@@ -270,7 +270,7 @@ const ClientLogin = () => {
             
             <div className="mt-8 text-center text-xs">
               <div className="flex justify-center items-center space-x-1 text-slate-400">
-                <a href="#" onClick={(e) => { e.preventDefault(); setLocation('login'); }} 
+                <a href="#" onClick={(e) => { e.preventDefault(); setLocation('auth'); }} 
                   className="text-blue-400 hover:text-blue-300 underline-offset-4 hover:underline">
                   Switch to Admin Login
                 </a>

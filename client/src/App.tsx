@@ -86,7 +86,7 @@ function App() {
         {/* Client Portal Routes */}
         <Route path="client-login">
           <div className="min-h-screen">
-            <ClientLogin />
+            <SimpleClientLoginV2 />
             <Toaster />
           </div>
         </Route>
