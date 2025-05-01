@@ -2921,7 +2921,7 @@ export default function ClientRoutes() {
           variant: "destructive"
         });
         
-        setLocation('/client-login');
+        setLocation('/login');
       } finally {
         setIsLoading(false);
       }
