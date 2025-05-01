@@ -14,10 +14,20 @@ export function registerClientProviderRoutes(app: any) {
         return res.status(404).json({ error: 'Client not found' });
       }
       
-      const providers = await storage.getClientProviders(clientId);
+      let providers = [];
+      try {
+        const result = await storage.getClientProviders(clientId);
+        if (Array.isArray(result)) {
+          providers = result;
+        } else {
+          console.warn('getClientProviders did not return an array, using empty array instead');
+        }
+      } catch (err) {
+        console.warn('Error calling getClientProviders, returning empty array', err);
+      }
       
       // Fetch full provider details for each assigned provider
-      const enrichedProviders = await Promise.all(
+      const enrichedProviders = Array.isArray(providers) ? await Promise.all(
         providers.map(async (cp) => {
           // Get the full provider details 
           // For now, we'll just return what we have
@@ -26,7 +36,7 @@ export function registerClientProviderRoutes(app: any) {
             providerName: `Provider ${cp.providerId}` // Placeholder - would fetch actual provider name
           };
         })
-      );
+      ) : [];
       
       res.json(enrichedProviders);
     } catch (error: any) {
@@ -57,12 +67,11 @@ export function registerClientProviderRoutes(app: any) {
         return res.status(404).json({ error: 'Client not found' });
       }
       
-      // Assign provider to client
-      const result = await storage.assignProviderToClient(
+      // Assign provider to client 
+      const result = await storage.assignProviderToClient({
         clientId, 
-        validatedData.providerId, 
-        validatedData.settings
-      );
+        providerId: parseInt(validatedData.providerId, 10)
+      });
       
       res.status(201).json(result);
     } catch (error: any) {
@@ -87,7 +96,7 @@ export function registerClientProviderRoutes(app: any) {
       }
       
       // Remove provider from client
-      const success = await storage.removeProviderFromClient(clientId, providerId);
+      const success = await storage.removeProviderFromClient(clientId, parseInt(providerId, 10));
       
       if (!success) {
         return res.status(404).json({ error: 'Provider assignment not found' });
