@@ -242,37 +242,31 @@ const EmailPerformance: React.FC = () => {
   const campaigns = campaignsData || [];
   
   return (
-    <div className="container mx-auto py-6">
-      <div className="mb-6">
-        <h1 className="text-2xl font-semibold">
-          Email Performance Dashboard
-        </h1>
-        <p className="text-muted-foreground mt-1">Track and analyze your email campaign metrics</p>
-      </div>
-      
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-        <div className="flex space-x-2">
-          <Button variant="outline" size="sm" className="text-xs h-8">Last 7 Days</Button>
-          <Button variant="outline" size="sm" className="text-xs h-8">Last 30 Days</Button>
-          <Button variant="outline" size="sm" className="text-xs h-8">Custom Range</Button>
+    <div className="container mx-auto py-4">
+      <div className="mb-4 flex justify-between items-center">
+        <div>
+          <h1 className="text-2xl font-semibold">
+            Good Afternoon, {metricsData ? 'Admin' : 'User'} 
+          </h1>
+          <p className="text-muted-foreground mt-1">Email Performance Overview</p>
         </div>
         
-        <div className="flex space-x-2">
+        <div className="flex items-center gap-2">
           <Select value={timeframe} onValueChange={setTimeframe}>
-            <SelectTrigger className="w-[140px] h-8 text-xs">
-              <SelectValue placeholder="Select Timeframe" />
+            <SelectTrigger className="w-[140px] h-9 text-xs">
+              <SelectValue placeholder="Month to date" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="today">Today</SelectItem>
               <SelectItem value="yesterday">Yesterday</SelectItem>
               <SelectItem value="7days">Last 7 Days</SelectItem>
-              <SelectItem value="30days">Last 30 Days</SelectItem>
-              <SelectItem value="90days">Last 90 Days</SelectItem>
+              <SelectItem value="30days">Month to date</SelectItem>
+              <SelectItem value="90days">Quarter to date</SelectItem>
             </SelectContent>
           </Select>
           
           <Select value={campaignFilter} onValueChange={setCampaignFilter}>
-            <SelectTrigger className="w-[140px] h-8 text-xs">
+            <SelectTrigger className="w-[140px] h-9 text-xs">
               <SelectValue placeholder="All Campaigns" />
             </SelectTrigger>
             <SelectContent>
@@ -287,60 +281,268 @@ const EmailPerformance: React.FC = () => {
         </div>
       </div>
       
-      {/* Key Metrics Section */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <MetricCard 
-          title="Open Rate" 
-          value={metricsData ? `${metricsData.openRate.value.toFixed(1)}%` : "24.8%"} 
-          subValue={metricsData ? `Industry avg: ${metricsData.openRate.industryAvg.toFixed(1)}%` : "Industry avg: 21.5%"} 
-          trend={metricsData ? metricsData.openRate.trend as 'up' | 'down' | 'neutral' : "up"} 
-          trendValue={metricsData ? metricsData.openRate.trendValue : "3.2%"}
-        />
-        <MetricCard 
-          title="Click Rate" 
-          value={metricsData ? `${metricsData.clickRate.value.toFixed(1)}%` : "3.6%"} 
-          subValue={metricsData ? `Industry avg: ${metricsData.clickRate.industryAvg.toFixed(1)}%` : "Industry avg: 2.7%"} 
-          trend={metricsData ? metricsData.clickRate.trend as 'up' | 'down' | 'neutral' : "up"} 
-          trendValue={metricsData ? metricsData.clickRate.trendValue : "0.9%"}
-        />
-        <MetricCard 
-          title="Conversion Rate" 
-          value={metricsData ? `${metricsData.conversionRate.value.toFixed(1)}%` : "1.2%"} 
-          subValue={metricsData ? `Goal: ${metricsData.conversionRate.goal.toFixed(1)}%` : "Goal: 1.5%"} 
-          trend={metricsData ? metricsData.conversionRate.trend as 'up' | 'down' | 'neutral' : "down"} 
-          trendValue={metricsData ? metricsData.conversionRate.trendValue : "0.3%"}
-        />
-        <MetricCard 
-          title="Bounce Rate" 
-          value={metricsData ? `${metricsData.bounceRate.value.toFixed(1)}%` : "0.8%"} 
-          subValue={metricsData ? `Industry avg: ${metricsData.bounceRate.industryAvg.toFixed(1)}%` : "Industry avg: 1.2%"} 
-          trend={metricsData ? metricsData.bounceRate.trend as 'up' | 'down' | 'neutral' : "up"} 
-          trendValue={metricsData ? metricsData.bounceRate.trendValue : "0.4%"}
-        />
-      </div>
-      
-      {/* Extended Metrics Section */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <MetricCard 
-          title="Total Sent" 
-          value={metricsData ? metricsData.totalSent.toLocaleString() : "42,857"} 
-          subValue={`Last ${timeframe === '7days' ? '7 days' : timeframe === '30days' ? '30 days' : timeframe === '90days' ? '90 days' : timeframe}`}
-        />
-        <MetricCard 
-          title="Total Opens" 
-          value={metricsData ? metricsData.totalOpens.toLocaleString() : "10,628"} 
-          subValue={metricsData ? `${(metricsData.totalOpens / metricsData.totalSent * 100).toFixed(1)}% of sent` : "24.8% of sent"}
-        />
-        <MetricCard 
-          title="Total Clicks" 
-          value={metricsData ? metricsData.totalClicks.toLocaleString() : "1,543"} 
-          subValue={metricsData ? `${(metricsData.totalClicks / metricsData.totalSent * 100).toFixed(1)}% of sent` : "3.6% of sent"}
-        />
-        <MetricCard 
-          title="Unsubscribes" 
-          value={metricsData ? metricsData.unsubscribes.toLocaleString() : "38"} 
-          subValue={metricsData ? `${(metricsData.unsubscribes / metricsData.totalSent * 100).toFixed(2)}% of sent` : "0.09% of sent"}
-        />
+      <div className="bg-gray-50 dark:bg-gray-900/50 p-6 rounded-lg border mb-6">
+        <h2 className="text-lg font-medium mb-4">Performance overview</h2>
+        
+        {/* Key Metrics Section - Modern Layout */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          {/* Open Rate */}
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+            <p className="text-xs text-muted-foreground mb-2">Month to date</p>
+            <h3 className="text-sm font-medium text-muted-foreground">Open Rate</h3>
+            <div className="mt-1 flex items-end justify-between">
+              <div className="flex items-baseline">
+                <span className="text-3xl font-bold">
+                  {metricsData ? `${metricsData.openRate.value.toFixed(1)}%` : "24.8%"}
+                </span>
+              </div>
+              <div className={`flex items-center text-xs ${
+                (metricsData?.openRate.trend || "up") === "up" 
+                  ? "text-emerald-500" 
+                  : (metricsData?.openRate.trend || "neutral") === "down" 
+                    ? "text-rose-500" 
+                    : "text-gray-500"
+              }`}>
+                {(metricsData?.openRate.trend || "up") === "up" ? (
+                  <ArrowUp className="h-3 w-3 mr-1" />
+                ) : (metricsData?.openRate.trend || "neutral") === "down" ? (
+                  <ArrowDown className="h-3 w-3 mr-1" />
+                ) : null}
+                <span>{metricsData?.openRate.trendValue || "3.2%"}</span>
+              </div>
+            </div>
+            <div className="mt-3 relative h-2 w-full bg-gray-100 dark:bg-gray-700 rounded">
+              <div 
+                className="absolute top-0 left-0 h-full bg-primary rounded" 
+                style={{ width: metricsData?.openRate.value ? `${Math.min(100, metricsData.openRate.value / 0.5)}%` : "50%" }}
+              ></div>
+            </div>
+            <div className="mt-2 flex items-center">
+              <Mail className="h-3 w-3 text-primary mr-1" />
+              <span className="text-xs text-muted-foreground">Mailchimp</span>
+            </div>
+          </div>
+          
+          {/* Click Rate */}
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+            <p className="text-xs text-muted-foreground mb-2">Month to date</p>
+            <h3 className="text-sm font-medium text-muted-foreground">Click Rate</h3>
+            <div className="mt-1 flex items-end justify-between">
+              <div className="flex items-baseline">
+                <span className="text-3xl font-bold">
+                  {metricsData ? `${metricsData.clickRate.value.toFixed(1)}%` : "3.6%"}
+                </span>
+              </div>
+              <div className={`flex items-center text-xs ${
+                (metricsData?.clickRate.trend || "up") === "up" 
+                  ? "text-emerald-500" 
+                  : (metricsData?.clickRate.trend || "neutral") === "down" 
+                    ? "text-rose-500" 
+                    : "text-gray-500"
+              }`}>
+                {(metricsData?.clickRate.trend || "up") === "up" ? (
+                  <ArrowUp className="h-3 w-3 mr-1" />
+                ) : (metricsData?.clickRate.trend || "neutral") === "down" ? (
+                  <ArrowDown className="h-3 w-3 mr-1" />
+                ) : null}
+                <span>{metricsData?.clickRate.trendValue || "0.9%"}</span>
+              </div>
+            </div>
+            <div className="mt-3 relative h-2 w-full bg-gray-100 dark:bg-gray-700 rounded">
+              <div 
+                className="absolute top-0 left-0 h-full bg-green-500 rounded" 
+                style={{ width: metricsData?.clickRate.value ? `${Math.min(100, metricsData.clickRate.value * 10)}%` : "36%" }}
+              ></div>
+            </div>
+            <div className="mt-2 flex items-center">
+              <Activity className="h-3 w-3 text-green-500 mr-1" />
+              <span className="text-xs text-muted-foreground">HubSpot</span>
+            </div>
+          </div>
+          
+          {/* Total Subscribers */}
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+            <p className="text-xs text-muted-foreground mb-2">Month to date</p>
+            <h3 className="text-sm font-medium text-muted-foreground">Total Subscribers</h3>
+            <div className="mt-1 flex items-end justify-between">
+              <div className="flex items-baseline">
+                <span className="text-3xl font-bold">
+                  {metricsData ? metricsData.totalSent.toLocaleString() : "42,857"}
+                </span>
+              </div>
+              <div className="flex items-center text-xs text-emerald-500">
+                <ArrowUp className="h-3 w-3 mr-1" />
+                <span>5.1%</span>
+              </div>
+            </div>
+            <div className="mt-3 relative h-2 w-full bg-gray-100 dark:bg-gray-700 rounded">
+              <div 
+                className="absolute top-0 left-0 h-full bg-orange-500 rounded" 
+                style={{ width: "67%" }}
+              ></div>
+            </div>
+            <div className="mt-2 flex items-center">
+              <Users className="h-3 w-3 text-orange-500 mr-1" />
+              <span className="text-xs text-muted-foreground">Analytics</span>
+            </div>
+          </div>
+          
+          {/* Conversion Rate */}
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+            <p className="text-xs text-muted-foreground mb-2">Month to date</p>
+            <h3 className="text-sm font-medium text-muted-foreground">Conversion Rate</h3>
+            <div className="mt-1 flex items-end justify-between">
+              <div className="flex items-baseline">
+                <span className="text-3xl font-bold">
+                  {metricsData ? `${metricsData.conversionRate.value.toFixed(1)}%` : "1.2%"}
+                </span>
+              </div>
+              <div className={`flex items-center text-xs ${
+                (metricsData?.conversionRate.trend || "down") === "up" 
+                  ? "text-emerald-500" 
+                  : (metricsData?.conversionRate.trend || "down") === "down" 
+                    ? "text-rose-500" 
+                    : "text-gray-500"
+              }`}>
+                {(metricsData?.conversionRate.trend || "down") === "up" ? (
+                  <ArrowUp className="h-3 w-3 mr-1" />
+                ) : (metricsData?.conversionRate.trend || "down") === "down" ? (
+                  <ArrowDown className="h-3 w-3 mr-1" />
+                ) : null}
+                <span>{metricsData?.conversionRate.trendValue || "0.3%"}</span>
+              </div>
+            </div>
+            <div className="mt-3 relative h-2 w-full bg-gray-100 dark:bg-gray-700 rounded">
+              <div 
+                className="absolute top-0 left-0 h-full bg-purple-500 rounded" 
+                style={{ width: metricsData?.conversionRate.value ? `${Math.min(100, metricsData.conversionRate.value * 30)}%` : "36%" }}
+              ></div>
+            </div>
+            <div className="mt-2 flex items-center">
+              <Target className="h-3 w-3 text-purple-500 mr-1" />
+              <span className="text-xs text-muted-foreground">Analytics</span>
+            </div>
+          </div>
+        </div>
+        
+        {/* Second Row Metrics */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* Bounce Rate */}
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+            <p className="text-xs text-muted-foreground mb-2">Month to date</p>
+            <h3 className="text-sm font-medium text-muted-foreground">Bounce Rate</h3>
+            <div className="mt-1 flex items-end justify-between">
+              <div className="flex items-baseline">
+                <span className="text-3xl font-bold">
+                  {metricsData ? `${metricsData.bounceRate.value.toFixed(1)}%` : "0.8%"}
+                </span>
+              </div>
+              <div className={`flex items-center text-xs ${
+                (metricsData?.bounceRate.trend || "up") === "up" 
+                  ? "text-rose-500" 
+                  : (metricsData?.bounceRate.trend || "neutral") === "down" 
+                    ? "text-emerald-500" 
+                    : "text-gray-500"
+              }`}>
+                {(metricsData?.bounceRate.trend || "up") === "up" ? (
+                  <ArrowUp className="h-3 w-3 mr-1" />
+                ) : (metricsData?.bounceRate.trend || "neutral") === "down" ? (
+                  <ArrowDown className="h-3 w-3 mr-1" />
+                ) : null}
+                <span>{metricsData?.bounceRate.trendValue || "0.4%"}</span>
+              </div>
+            </div>
+            <div className="mt-3 relative h-2 w-full bg-gray-100 dark:bg-gray-700 rounded">
+              <div 
+                className="absolute top-0 left-0 h-full bg-red-500 rounded" 
+                style={{ width: metricsData?.bounceRate.value ? `${Math.min(100, metricsData.bounceRate.value * 20)}%` : "16%" }}
+              ></div>
+            </div>
+            <div className="mt-2 flex items-center">
+              <AlertCircle className="h-3 w-3 text-red-500 mr-1" />
+              <span className="text-xs text-muted-foreground">Mailchimp</span>
+            </div>
+          </div>
+          
+          {/* Active Users */}
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+            <p className="text-xs text-muted-foreground mb-2">Month to date</p>
+            <h3 className="text-sm font-medium text-muted-foreground">Active Readers</h3>
+            <div className="mt-1 flex items-end justify-between">
+              <div className="flex items-baseline">
+                <span className="text-3xl font-bold">
+                  {metricsData ? ((metricsData.totalSent * 0.62)|0).toLocaleString() : "27,883"}
+                </span>
+              </div>
+              <div className="flex items-center text-xs text-emerald-500">
+                <ArrowUp className="h-3 w-3 mr-1" />
+                <span>12%</span>
+              </div>
+            </div>
+            <div className="mt-3 relative h-2 w-full bg-gray-100 dark:bg-gray-700 rounded">
+              <div 
+                className="absolute top-0 left-0 h-full bg-green-500 rounded" 
+                style={{ width: "69%" }}
+              ></div>
+            </div>
+            <div className="mt-2 flex items-center">
+              <Activity className="h-3 w-3 text-green-500 mr-1" />
+              <span className="text-xs text-muted-foreground">Mixpanel</span>
+            </div>
+          </div>
+          
+          {/* Average Revenue */}
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+            <p className="text-xs text-muted-foreground mb-2">Month to date</p>
+            <h3 className="text-sm font-medium text-muted-foreground">Revenue per Email</h3>
+            <div className="mt-1 flex items-end justify-between">
+              <div className="flex items-baseline">
+                <span className="text-3xl font-bold">$1.71</span>
+              </div>
+              <div className="flex items-center text-xs text-rose-500">
+                <ArrowDown className="h-3 w-3 mr-1" />
+                <span>3.4%</span>
+              </div>
+            </div>
+            <div className="mt-3 relative h-2 w-full bg-gray-100 dark:bg-gray-700 rounded">
+              <div 
+                className="absolute top-0 left-0 h-full bg-orange-500 rounded" 
+                style={{ width: "57%" }}
+              ></div>
+            </div>
+            <div className="mt-2 flex items-center">
+              <BarChart3 className="h-3 w-3 text-orange-500 mr-1" />
+              <span className="text-xs text-muted-foreground">Stripe Analytics</span>
+            </div>
+          </div>
+          
+          {/* Unsubscribe Rate */}
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+            <p className="text-xs text-muted-foreground mb-2">Month to date</p>
+            <h3 className="text-sm font-medium text-muted-foreground">Unsubscribe Rate</h3>
+            <div className="mt-1 flex items-end justify-between">
+              <div className="flex items-baseline">
+                <span className="text-3xl font-bold">
+                  {metricsData ? `${(metricsData.unsubscribes / metricsData.totalSent * 100).toFixed(2)}%` : "0.09%"}
+                </span>
+              </div>
+              <div className="flex items-center text-xs text-emerald-500">
+                <ArrowDown className="h-3 w-3 mr-1" />
+                <span>2%</span>
+              </div>
+            </div>
+            <div className="mt-3 relative h-2 w-full bg-gray-100 dark:bg-gray-700 rounded">
+              <div 
+                className="absolute top-0 left-0 h-full bg-blue-500 rounded" 
+                style={{ width: "32%" }}
+              ></div>
+            </div>
+            <div className="mt-2 flex items-center">
+              <Globe className="h-3 w-3 text-blue-500 mr-1" />
+              <span className="text-xs text-muted-foreground">Analytics</span>
+            </div>
+          </div>
+        </div>
       </div>
       
       {/* Main Dashboard Content */}
@@ -573,7 +775,7 @@ const EmailPerformance: React.FC = () => {
               </CardHeader>
               <CardContent className="h-80">
                 <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart
+                  <LineChart
                     data={[
                       { date: '01/04', open: 24.2, click: 3.1, conversion: 0.9 },
                       { date: '02/04', open: 25.1, click: 3.3, conversion: 1.0 },
@@ -583,17 +785,31 @@ const EmailPerformance: React.FC = () => {
                       { date: '06/04', open: 28.1, click: 3.9, conversion: 1.4 },
                       { date: '07/04', open: 27.5, click: 3.8, conversion: 1.3 },
                     ]}
-                    margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+                    margin={{ top: 10, right: 30, left: 0, bottom: 10 }}
                   >
-                    <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
-                    <XAxis dataKey="date" />
-                    <YAxis />
-                    <Tooltip />
+                    <CartesianGrid strokeDasharray="3 3" opacity={0.1} vertical={false} />
+                    <XAxis 
+                      dataKey="date" 
+                      axisLine={true}
+                      tickLine={false}
+                    />
+                    <YAxis 
+                      axisLine={true}
+                      tickLine={false}
+                    />
+                    <Tooltip 
+                      contentStyle={{ 
+                        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                        borderRadius: '6px',
+                        border: '1px solid rgba(0, 0, 0, 0.05)',
+                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+                      }}
+                    />
                     <Legend />
-                    <Area type="monotone" dataKey="open" stackId="1" stroke="#1e40af" fill="#1e40af" />
-                    <Area type="monotone" dataKey="click" stackId="2" stroke="#d4af37" fill="#d4af37" />
-                    <Area type="monotone" dataKey="conversion" stackId="3" stroke="#1a3a5f" fill="#1a3a5f" />
-                  </AreaChart>
+                    <Line type="monotone" dataKey="open" stroke="hsl(var(--primary))" strokeWidth={2} dot={{ r: 3 }} name="Open Rate %" />
+                    <Line type="monotone" dataKey="click" stroke="hsl(var(--secondary))" strokeWidth={2} dot={{ r: 3 }} name="Click Rate %" />
+                    <Line type="monotone" dataKey="conversion" stroke="#10b981" strokeWidth={2} dot={{ r: 3 }} name="Conversion Rate %" />
+                  </LineChart>
                 </ResponsiveContainer>
               </CardContent>
             </Card>
