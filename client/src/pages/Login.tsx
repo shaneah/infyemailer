@@ -197,336 +197,393 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#09152E] relative overflow-hidden">
-      {/* Background decorative elements */}
-      <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
-        {/* Dark blue diamond pattern background */}
-        <div className="absolute inset-0 opacity-10" 
-             style={{
-               backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'24\' height=\'24\' viewBox=\'0 0 24 24\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M12 0l12 12-12 12L0 12 12 0zm0 4.686L4.686 12 12 19.314 19.314 12 12 4.686z\' fill=\'%23ffffff\' fill-opacity=\'1\' fill-rule=\'evenodd\'/%3E%3C/svg%3E")',
-               backgroundSize: '24px 24px'
-             }}
-        ></div>
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-indigo-950 via-blue-900 to-indigo-950 relative overflow-hidden">
+      {/* Animated background elements */}
+      <div className="absolute inset-0 z-0">
+        <motion.div 
+          className="absolute top-0 right-0 w-full h-full opacity-10"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 0.1 }}
+          transition={{ duration: 1.5 }}
+        >
+          {/* Animated particles or gradient effect */}
+          <div className="absolute top-0 left-0 w-96 h-96 bg-blue-400 rounded-full filter blur-[120px] opacity-20"></div>
+          <div className="absolute bottom-0 right-0 w-96 h-96 bg-indigo-600 rounded-full filter blur-[120px] opacity-20"></div>
+          <div className="absolute top-1/3 right-1/4 w-72 h-72 bg-purple-500 rounded-full filter blur-[120px] opacity-10"></div>
+        </motion.div>
       </div>
       
-      {/* Content container with grid layout for three equal columns */}
-      <div className="flex-1 flex items-center justify-center py-10 px-6 z-10">
-        <div className="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left column - Brand messaging with Infinity Tech logo */}
-          <div className="bg-[#0c1d3d] rounded-2xl p-8 flex flex-col shadow-xl">
-            <div>
-              <img 
-                src="/attached_assets/Infinity Tech Logo-01.png" 
-                alt="Infinity Tech Logo" 
-                className="h-10 mb-8" 
-              />
-              
-              <h1 className="text-3xl font-bold mb-4">
-                <span className="text-white">Welcome to the</span><br />
-                <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#d4af37] to-[#f5f0e1] font-extrabold">
-                  InfyMailer Platform
-                </span>
-              </h1>
-              
-              <p className="text-white/80 mb-8">
-                The premium email marketing solution designed for modern businesses
-              </p>
-              
-              <div className="space-y-6 my-8">
-                <div className="flex items-center">
-                  <div className="mr-4 p-2 rounded-full bg-[#d4af37]/10">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-[#d4af37]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                    </svg>
-                  </div>
-                  <div>
-                    <h3 className="text-[#d4af37] font-medium">Enterprise-Grade Security</h3>
-                    <p className="text-white/60 text-sm">Advanced protection for your data and campaigns</p>
-                  </div>
-                </div>
-                <div className="flex items-center">
-                  <div className="mr-4 p-2 rounded-full bg-[#d4af37]/10">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-[#d4af37]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
-                    </svg>
-                  </div>
-                  <div>
-                    <h3 className="text-[#d4af37] font-medium">Real-Time Analytics</h3>
-                    <p className="text-white/60 text-sm">Track performance with detailed insights and metrics</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            <div className="text-white/40 text-sm mt-auto pt-4">
-              &copy; 2025 InfyMailer. Premium email marketing platform.
-            </div>
-          </div>
-          
-          {/* Middle column - Login form with tab navigation */}
-          <div className="bg-[#0c1d3d] rounded-2xl p-8 flex flex-col shadow-xl">
-            <h2 className="text-2xl font-bold text-white mb-6">
-              Sign in to your account
-            </h2>
-              
-              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="grid grid-cols-2 mb-8 rounded-lg overflow-hidden border border-[#ffffff20]">
-                  <TabsTrigger 
-                    value="admin" 
-                    className="py-3 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0c2f6c] data-[state=active]:to-[#193555] 
-                             data-[state=active]:text-[#d4af37] data-[state=inactive]:bg-[#ffffff08]
-                             data-[state=inactive]:text-gray-400 font-medium">
-                    Admin Dashboard
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="client"
-                    className="py-3 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0c2f6c] data-[state=active]:to-[#193555] 
-                             data-[state=active]:text-[#d4af37] data-[state=inactive]:bg-[#ffffff08]  
-                             data-[state=inactive]:text-gray-400 font-medium">
-                    Client Portal
-                  </TabsTrigger>
-                </TabsList>
+      {/* Content container with floating card */}
+      <div className="flex-1 flex items-center justify-center p-6 z-10">
+        <motion.div 
+          className="w-full max-w-5xl overflow-hidden rounded-3xl bg-white/5 backdrop-blur-lg shadow-2xl border border-white/10"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+        >
+          <div className="grid grid-cols-1 md:grid-cols-2">
+            {/* Left column - Brand and visuals */}
+            <div className="relative p-10 overflow-hidden bg-gradient-to-br from-indigo-900 to-blue-800">
+              <div className="relative z-10">
+                <motion.div 
+                  initial={{ opacity: 0, y: -20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2, duration: 0.7 }}
+                >
+                  <img 
+                    src="/attached_assets/Infinity Tech Logo-01.png" 
+                    alt="InfyMailer Logo" 
+                    className="h-12 mb-12" 
+                  />
+                </motion.div>
                 
-                {/* Admin Login Form */}
-                <TabsContent value="admin" className="mt-0">
-                  <Form {...adminForm}>
-                    <form onSubmit={adminForm.handleSubmit(onAdminSubmit)} className="space-y-6">
-                      <FormField
-                        control={adminForm.control}
-                        name="usernameOrEmail"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-white/90 font-medium text-sm">Admin Username</FormLabel>
-                            <FormControl>
-                              <Input 
-                                placeholder="admin" 
-                                {...field} 
-                                className="rounded-lg bg-[#ffffff10] border-[#ffffff20] focus:border-[#d4af37] focus:bg-[#ffffff15] text-white placeholder:text-white/40 shadow-inner" 
-                              />
-                            </FormControl>
-                            <FormMessage className="text-[#ffb4b4]" />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={adminForm.control}
-                        name="password"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-white/90 font-medium text-sm">Password</FormLabel>
-                            <FormControl>
-                              <Input 
-                                type="password" 
-                                placeholder="••••••••" 
-                                {...field} 
-                                className="rounded-lg bg-[#ffffff10] border-[#ffffff20] focus:border-[#d4af37] focus:bg-[#ffffff15] text-white placeholder:text-white/40 shadow-inner" 
-                              />
-                            </FormControl>
-                            <FormMessage className="text-[#ffb4b4]" />
-                          </FormItem>
-                        )}
-                      />
-                      <div className="flex items-center justify-between">
-                        <FormField
-                          control={adminForm.control}
-                          name="rememberMe"
-                          render={({ field }) => (
-                            <FormItem className="flex flex-row items-center space-x-2 space-y-0">
-                              <FormControl>
-                                <Checkbox
-                                  checked={field.value}
-                                  onCheckedChange={field.onChange}
-                                  className="data-[state=checked]:bg-[#d4af37] data-[state=checked]:border-[#d4af37]"
-                                />
-                              </FormControl>
-                              <div className="leading-none">
-                                <FormLabel className="font-normal text-sm text-white/80">Remember me</FormLabel>
-                              </div>
-                            </FormItem>
-                          )}
-                        />
-                        <div className="text-sm">
-                          <a href="#" className="font-medium text-[#d4af37] hover:text-[#f5f0e1] transition-colors">
-                            Forgot password?
-                          </a>
-                        </div>
-                      </div>
-                      <Button 
-                        type="submit" 
-                        className="w-full mt-2 py-3 bg-gradient-to-r from-[#d4af37] to-[#b38728] hover:from-[#b38728] hover:to-[#d4af37] text-[#09152E] font-medium rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center"
-                        disabled={isAdminLoading}
-                      >
-                        {isAdminLoading ? (
-                          <>
-                            <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-[#09152E]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                            Signing in...
-                          </>
-                        ) : "Sign in to Admin"}
-                      </Button>
-                      
-                      <div className="mt-4 rounded-lg p-4 text-xs text-white/80 text-center border border-[#ffffff15] bg-[#ffffff05]">
-                        <p className="mb-1 font-medium text-[#d4af37]">Demo Credentials</p>
-                        <p>Username: <strong>admin</strong> | Password: <strong>admin123</strong></p>
-                      </div>
-                    </form>
-                  </Form>
-                </TabsContent>
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.4, duration: 0.7 }}
+                >
+                  <h1 className="text-4xl font-bold mb-4">
+                    <span className="text-white">Welcome to the</span><br />
+                    <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-300 via-purple-300 to-indigo-200 font-extrabold">
+                      InfyMailer Platform
+                    </span>
+                  </h1>
+                  
+                  <p className="text-white/80 mb-8 text-lg">
+                    Smart email marketing for modern businesses
+                  </p>
+                </motion.div>
                 
-                {/* Client Login Form */}
-                <TabsContent value="client" className="mt-0">
-                  <Form {...clientForm}>
-                    <form onSubmit={clientForm.handleSubmit(onClientSubmit)} className="space-y-6">
-                      <FormField
-                        control={clientForm.control}
-                        name="username"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-white/90 font-medium text-sm">Client Username</FormLabel>
-                            <FormControl>
-                              <Input 
-                                placeholder="client1" 
-                                {...field} 
-                                className="rounded-lg bg-[#ffffff10] border-[#ffffff20] focus:border-[#d4af37] focus:bg-[#ffffff15] text-white placeholder:text-white/40 shadow-inner" 
-                              />
-                            </FormControl>
-                            <FormMessage className="text-[#ffb4b4]" />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={clientForm.control}
-                        name="password"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-white/90 font-medium text-sm">Password</FormLabel>
-                            <FormControl>
-                              <Input 
-                                type="password" 
-                                placeholder="••••••••" 
-                                {...field} 
-                                className="rounded-lg bg-[#ffffff10] border-[#ffffff20] focus:border-[#d4af37] focus:bg-[#ffffff15] text-white placeholder:text-white/40 shadow-inner" 
-                              />
-                            </FormControl>
-                            <FormMessage className="text-[#ffb4b4]" />
-                          </FormItem>
-                        )}
-                      />
-                      <div className="flex items-center justify-between">
-                        <FormField
-                          control={clientForm.control}
-                          name="rememberMe"
-                          render={({ field }) => (
-                            <FormItem className="flex flex-row items-center space-x-2 space-y-0">
-                              <FormControl>
-                                <Checkbox
-                                  checked={field.value}
-                                  onCheckedChange={field.onChange}
-                                  className="data-[state=checked]:bg-[#d4af37] data-[state=checked]:border-[#d4af37]"
-                                />
-                              </FormControl>
-                              <div className="leading-none">
-                                <FormLabel className="font-normal text-sm text-white/80">Remember me</FormLabel>
-                              </div>
-                            </FormItem>
-                          )}
-                        />
-                        <div className="text-sm">
-                          <a href="#" className="font-medium text-[#d4af37] hover:text-[#f5f0e1] transition-colors">
-                            Forgot password?
-                          </a>
-                        </div>
+                <motion.div 
+                  className="space-y-6 my-12"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.8, duration: 0.8 }}
+                >
+                  <div className="bg-white/10 backdrop-blur-md rounded-xl p-5 border border-white/10 hover:bg-white/15 transition-all duration-300">
+                    <div className="flex items-center">
+                      <div className="mr-4 p-2 rounded-full bg-indigo-500/20">
+                        <CheckCircle2 className="h-6 w-6 text-indigo-300" />
                       </div>
-                      <Button 
-                        type="submit" 
-                        className="w-full mt-2 py-3 bg-gradient-to-r from-[#d4af37] to-[#b38728] hover:from-[#b38728] hover:to-[#d4af37] text-[#09152E] font-medium rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center"
-                        disabled={isClientLoading}
-                      >
-                        {isClientLoading ? (
-                          <>
-                            <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-[#09152E]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                            Signing in...
-                          </>
-                        ) : "Sign in to Client Portal"}
-                      </Button>
-                      
-                      <div className="mt-4 rounded-lg p-4 text-xs text-white/80 text-center border border-[#ffffff15] bg-[#ffffff05]">
-                        <p className="mb-1 font-medium text-[#d4af37]">Demo Credentials</p>
-                        <p>Username: <strong>client1</strong> | Password: <strong>clientdemo</strong></p>
+                      <div>
+                        <h3 className="text-white font-medium">AI-Powered Campaigns</h3>
+                        <p className="text-white/60 text-sm">Create engaging content effortlessly</p>
                       </div>
-                    </form>
-                  </Form>
-                </TabsContent>
-              </Tabs>
-          </div>
-          
-          {/* Right column - Features highlights */}
-          <div className="bg-[#0c1d3d] rounded-2xl p-8 flex flex-col shadow-xl">
-            <div className="flex items-center mb-6">
-              <div className="w-12 h-12 flex items-center justify-center bg-gradient-to-br from-[#0c2f6c] to-[#193555] rounded-lg mr-4 shadow-md">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-[#d4af37]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-white/10 backdrop-blur-md rounded-xl p-5 border border-white/10 hover:bg-white/15 transition-all duration-300">
+                    <div className="flex items-center">
+                      <div className="mr-4 p-2 rounded-full bg-indigo-500/20">
+                        <CheckCircle2 className="h-6 w-6 text-indigo-300" />
+                      </div>
+                      <div>
+                        <h3 className="text-white font-medium">Real-Time Analytics</h3>
+                        <p className="text-white/60 text-sm">Track and optimize your campaigns</p>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
               </div>
-              <div>
-                <h3 className="text-lg font-medium text-white">Smart Email Campaigns</h3>
-                <p className="text-sm text-white/60">Automate your marketing with precision targeting</p>
-              </div>
-            </div>
-            
-            <div className="flex items-center mb-6">
-              <div className="w-12 h-12 flex items-center justify-center bg-gradient-to-br from-[#0c2f6c] to-[#193555] rounded-lg mr-4 shadow-md">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-[#d4af37]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                </svg>
-              </div>
-              <div>
-                <h3 className="text-lg font-medium text-white">Advanced Reporting</h3>
-                <p className="text-sm text-white/60">Gain insights with detailed analytics and metrics</p>
+              
+              {/* Background decorative elements */}
+              <div className="absolute inset-0 z-0 overflow-hidden">
+                <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-indigo-600/30 rounded-full"></div>
+                <div className="absolute -top-20 -left-20 w-80 h-80 bg-blue-500/20 rounded-full"></div>
+                <div className="absolute top-40 right-20 w-40 h-40 bg-purple-500/20 rounded-full blur-xl"></div>
               </div>
             </div>
             
-            <div className="flex items-center mb-6">
-              <div className="w-12 h-12 flex items-center justify-center bg-gradient-to-br from-[#0c2f6c] to-[#193555] rounded-lg mr-4 shadow-md">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-[#d4af37]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4" />
-                </svg>
-              </div>
-              <div>
-                <h3 className="text-lg font-medium text-white">Smart A/B Testing</h3>
-                <p className="text-sm text-white/60">Optimize campaigns with automated testing</p>
-              </div>
-            </div>
-            
-            <div className="flex items-center mb-6">
-              <div className="w-12 h-12 flex items-center justify-center bg-gradient-to-br from-[#0c2f6c] to-[#193555] rounded-lg mr-4 shadow-md">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-[#d4af37]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                </svg>
-              </div>
-              <div>
-                <h3 className="text-lg font-medium text-white">Audience Management</h3>
-                <p className="text-sm text-white/60">Segment contacts for targeted campaigns</p>
-              </div>
-            </div>
-            
-            <div className="mt-auto">
-              <div className="p-4 rounded-lg bg-[#ffffff08] border border-[#ffffff15]">
-                <p className="text-white/90 text-sm mb-2">
-                  <span className="font-medium text-[#d4af37]">InfyMailer Pro</span> gives you access to all premium features including AI-powered content generation and advanced automation.
+            {/* Right column - Login form with tab navigation */}
+            <div className="p-10 bg-white/5 backdrop-blur-lg relative">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3, duration: 0.7 }}
+              >
+                <h2 className="text-2xl font-bold text-white mb-8">
+                  Sign in to your account
+                </h2>
+                
+                <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                  <TabsList className="grid grid-cols-2 mb-8 rounded-lg overflow-hidden border border-white/10 bg-white/5">
+                    <TabsTrigger 
+                      value="admin" 
+                      className="py-3 data-[state=active]:bg-indigo-600/50 data-[state=active]:text-white 
+                               data-[state=inactive]:bg-transparent data-[state=inactive]:text-white/50 
+                               font-medium transition-all duration-300">
+                      Admin Dashboard
+                    </TabsTrigger>
+                    <TabsTrigger 
+                      value="client"
+                      className="py-3 data-[state=active]:bg-indigo-600/50 data-[state=active]:text-white 
+                               data-[state=inactive]:bg-transparent data-[state=inactive]:text-white/50 
+                               font-medium transition-all duration-300">
+                      Client Portal
+                    </TabsTrigger>
+                  </TabsList>
+                  
+                  {/* Admin Login Form */}
+                  <TabsContent value="admin" className="mt-0">
+                    <Form {...adminForm}>
+                      <form onSubmit={adminForm.handleSubmit(onAdminSubmit)} className="space-y-6">
+                        <motion.div
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 0.4, duration: 0.5 }}
+                        >
+                          <FormField
+                            control={adminForm.control}
+                            name="usernameOrEmail"
+                            render={({ field }) => (
+                              <FormItem className="space-y-3">
+                                <FormLabel className="text-white/80 font-medium text-sm">Username or Email</FormLabel>
+                                <FormControl>
+                                  <div className="relative group">
+                                    <div className="absolute left-3 top-3 text-white/40 group-focus-within:text-indigo-400 transition-colors duration-200">
+                                      <Mail className="h-5 w-5" />
+                                    </div>
+                                    <Input 
+                                      placeholder="Enter your username" 
+                                      {...field} 
+                                      className="pl-11 h-12 rounded-xl bg-white/5 border-white/10 focus:border-indigo-500 focus:bg-white/10 text-white placeholder:text-white/30 transition-all duration-200" 
+                                    />
+                                  </div>
+                                </FormControl>
+                                <FormMessage className="text-pink-300" />
+                              </FormItem>
+                            )}
+                          />
+                        </motion.div>
+                        
+                        <motion.div
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 0.5, duration: 0.5 }}
+                        >
+                          <FormField
+                            control={adminForm.control}
+                            name="password"
+                            render={({ field }) => (
+                              <FormItem className="space-y-3">
+                                <FormLabel className="text-white/80 font-medium text-sm">Password</FormLabel>
+                                <FormControl>
+                                  <div className="relative group">
+                                    <div className="absolute left-3 top-3 text-white/40 group-focus-within:text-indigo-400 transition-colors duration-200">
+                                      <Lock className="h-5 w-5" />
+                                    </div>
+                                    <Input 
+                                      type="password" 
+                                      placeholder="••••••••" 
+                                      {...field} 
+                                      className="pl-11 h-12 rounded-xl bg-white/5 border-white/10 focus:border-indigo-500 focus:bg-white/10 text-white placeholder:text-white/30 transition-all duration-200" 
+                                    />
+                                  </div>
+                                </FormControl>
+                                <FormMessage className="text-pink-300" />
+                              </FormItem>
+                            )}
+                          />
+                        </motion.div>
+                        
+                        <motion.div
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.6, duration: 0.5 }}
+                          className="flex items-center justify-between"
+                        >
+                          <FormField
+                            control={adminForm.control}
+                            name="rememberMe"
+                            render={({ field }) => (
+                              <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+                                <FormControl>
+                                  <Checkbox
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                    className="border-white/30 data-[state=checked]:bg-indigo-600 data-[state=checked]:border-indigo-600"
+                                  />
+                                </FormControl>
+                                <div className="leading-none">
+                                  <FormLabel className="font-normal text-sm text-white/70">Remember me</FormLabel>
+                                </div>
+                              </FormItem>
+                            )}
+                          />
+                          <div className="text-sm">
+                            <a href="#" className="font-medium text-indigo-400 hover:text-indigo-300 transition-colors">
+                              Forgot password?
+                            </a>
+                          </div>
+                        </motion.div>
+                        
+                        <motion.div
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.7, duration: 0.5 }}
+                        >
+                          <Button 
+                            type="submit" 
+                            className="w-full h-12 mt-4 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white font-medium rounded-xl shadow-lg shadow-indigo-600/20 hover:shadow-indigo-600/40 transition-all duration-200 group"
+                            disabled={isAdminLoading}
+                          >
+                            {isAdminLoading ? (
+                              <>
+                                <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                Signing in...
+                              </>
+                            ) : (
+                              <>
+                                Sign in to Admin <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform duration-200" />
+                              </>
+                            )}
+                          </Button>
+                        </motion.div>
+                      </form>
+                    </Form>
+                  </TabsContent>
+                  
+                  {/* Client Login Form */}
+                  <TabsContent value="client" className="mt-0">
+                    <Form {...clientForm}>
+                      <form onSubmit={clientForm.handleSubmit(onClientSubmit)} className="space-y-6">
+                        <motion.div
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 0.4, duration: 0.5 }}
+                        >
+                          <FormField
+                            control={clientForm.control}
+                            name="username"
+                            render={({ field }) => (
+                              <FormItem className="space-y-3">
+                                <FormLabel className="text-white/80 font-medium text-sm">Username</FormLabel>
+                                <FormControl>
+                                  <div className="relative group">
+                                    <div className="absolute left-3 top-3 text-white/40 group-focus-within:text-indigo-400 transition-colors duration-200">
+                                      <User className="h-5 w-5" />
+                                    </div>
+                                    <Input 
+                                      placeholder="Enter your username" 
+                                      {...field} 
+                                      className="pl-11 h-12 rounded-xl bg-white/5 border-white/10 focus:border-indigo-500 focus:bg-white/10 text-white placeholder:text-white/30 transition-all duration-200" 
+                                    />
+                                  </div>
+                                </FormControl>
+                                <FormMessage className="text-pink-300" />
+                              </FormItem>
+                            )}
+                          />
+                        </motion.div>
+                        
+                        <motion.div
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 0.5, duration: 0.5 }}
+                        >
+                          <FormField
+                            control={clientForm.control}
+                            name="password"
+                            render={({ field }) => (
+                              <FormItem className="space-y-3">
+                                <FormLabel className="text-white/80 font-medium text-sm">Password</FormLabel>
+                                <FormControl>
+                                  <div className="relative group">
+                                    <div className="absolute left-3 top-3 text-white/40 group-focus-within:text-indigo-400 transition-colors duration-200">
+                                      <Lock className="h-5 w-5" />
+                                    </div>
+                                    <Input 
+                                      type="password" 
+                                      placeholder="••••••••" 
+                                      {...field} 
+                                      className="pl-11 h-12 rounded-xl bg-white/5 border-white/10 focus:border-indigo-500 focus:bg-white/10 text-white placeholder:text-white/30 transition-all duration-200" 
+                                    />
+                                  </div>
+                                </FormControl>
+                                <FormMessage className="text-pink-300" />
+                              </FormItem>
+                            )}
+                          />
+                        </motion.div>
+                        
+                        <motion.div
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.6, duration: 0.5 }}
+                          className="flex items-center justify-between"
+                        >
+                          <FormField
+                            control={clientForm.control}
+                            name="rememberMe"
+                            render={({ field }) => (
+                              <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+                                <FormControl>
+                                  <Checkbox
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                    className="border-white/30 data-[state=checked]:bg-indigo-600 data-[state=checked]:border-indigo-600"
+                                  />
+                                </FormControl>
+                                <div className="leading-none">
+                                  <FormLabel className="font-normal text-sm text-white/70">Remember me</FormLabel>
+                                </div>
+                              </FormItem>
+                            )}
+                          />
+                          <div className="text-sm">
+                            <a href="#" className="font-medium text-indigo-400 hover:text-indigo-300 transition-colors">
+                              Forgot password?
+                            </a>
+                          </div>
+                        </motion.div>
+                        
+                        <motion.div
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.7, duration: 0.5 }}
+                        >
+                          <Button 
+                            type="submit" 
+                            className="w-full h-12 mt-4 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white font-medium rounded-xl shadow-lg shadow-indigo-600/20 hover:shadow-indigo-600/40 transition-all duration-200 group"
+                            disabled={isClientLoading}
+                          >
+                            {isClientLoading ? (
+                              <>
+                                <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                Signing in...
+                              </>
+                            ) : (
+                              <>
+                                Sign in to Client Portal <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform duration-200" />
+                              </>
+                            )}
+                          </Button>
+                        </motion.div>
+                      </form>
+                    </Form>
+                  </TabsContent>
+                </Tabs>
+              </motion.div>
+              
+              <motion.div 
+                className="mt-16 text-center"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 1, duration: 0.8 }}
+              >
+                <p className="text-white/40 text-sm">
+                  If you're having trouble accessing your account, please contact <a href="#" className="text-indigo-400 hover:text-indigo-300">support@infymailer.com</a>
                 </p>
-                <Button className="w-full py-2 mt-2 bg-[#ffffff15] text-white/90 hover:bg-[#ffffff20] rounded-lg border border-[#ffffff15]">
-                  Learn About Pro Features
-                </Button>
-              </div>
+              </motion.div>
             </div>
           </div>
-        </div>
+        </motion.div>
       </div>
     </div>
   );
