@@ -321,12 +321,12 @@ export default function Login() {
   }, [adminForm.formState.errors, clientForm.formState.errors, activeTab]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-900 relative overflow-hidden">
+    <div className="min-h-screen flex flex-col bg-[#0f1119] relative overflow-hidden">
       
       {/* Content container with login card */}
       <div className="flex-1 flex items-center justify-center p-6 z-10">
         <motion.div 
-          className="w-full max-w-md overflow-hidden rounded-xl bg-black/80 shadow-2xl border border-slate-700/30"
+          className="w-full max-w-md overflow-hidden rounded-lg bg-black/90 shadow-2xl border border-slate-700/20"
           initial={{ opacity: 0, y: 20 }}
           animate={{ 
             opacity: 1, 
@@ -339,14 +339,14 @@ export default function Login() {
         >
           <div className="flex flex-col items-center">
             {/* User icon */}
-            <div className="relative mt-8 mb-4">
-              <div className="bg-slate-800 rounded-full p-5 border-4 border-black">
+            <div className="relative -mt-12 mb-2">
+              <div className="bg-slate-800 rounded-full p-4 border-4 border-black">
                 <User className="h-10 w-10 text-slate-300" />
               </div>
             </div>
             
             {/* Login header */}
-            <div className="text-center mb-6">
+            <div className="text-center mb-4">
               <h2 className="text-2xl font-bold text-white tracking-wide">
                 LOGIN
               </h2>
@@ -354,13 +354,13 @@ export default function Login() {
             
             {/* Error message */}
             {errorMessage && (
-              <div className="mb-6 px-4 w-full">
+              <div className="mb-4 px-4 w-full">
                 <p className="text-center text-red-500 text-sm">{errorMessage}</p>
               </div>
             )}
             
             {/* Tab navigation - simplified */}
-            <div className="w-full px-8">
+            <div className="w-full px-6">
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                 <TabsList className="grid grid-cols-2 mb-8 rounded-md overflow-hidden border border-slate-700 bg-slate-800/50 w-full">
                   <TabsTrigger 
@@ -624,7 +624,7 @@ export default function Login() {
             </div>
             
             {/* Sign up link */}
-            <div className="mt-8 mb-8 text-center">
+            <div className="mt-6 mb-6 text-center">
               <p className="text-slate-500 text-sm">
                 Don't have an Account? <a href="#" className="text-blue-500 hover:text-blue-400">Sign up</a>
               </p>
