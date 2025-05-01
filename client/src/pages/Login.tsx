@@ -126,19 +126,21 @@ export default function Login() {
     // Set random initial positions for buttons if credentials not filled
     if (!adminForm.getValues().usernameOrEmail || !adminForm.getValues().password) {
       adminButtonControls.start({
-        x: Math.random() > 0.5 ? Math.random() * 40 - 20 : Math.random() * 40 - 20,
-        y: Math.random() > 0.5 ? Math.random() * 20 - 10 : Math.random() * 20 - 10,
-        rotate: Math.random() * 5 - 2.5,
-        transition: { type: "spring", damping: 10, stiffness: 100 }
+        x: Math.random() > 0.5 ? Math.random() * 80 - 40 : Math.random() * 80 - 40,
+        y: Math.random() > 0.5 ? Math.random() * 40 - 20 : Math.random() * 40 - 20,
+        rotate: Math.random() * 8 - 4,
+        scale: 0.98,
+        transition: { type: "spring", damping: 8, stiffness: 80 }
       });
     }
     
     if (!clientForm.getValues().username || !clientForm.getValues().password) {
       clientButtonControls.start({
-        x: Math.random() > 0.5 ? Math.random() * 40 - 20 : Math.random() * 40 - 20,
-        y: Math.random() > 0.5 ? Math.random() * 20 - 10 : Math.random() * 20 - 10,
-        rotate: Math.random() * 5 - 2.5,
-        transition: { type: "spring", damping: 10, stiffness: 100 }
+        x: Math.random() > 0.5 ? Math.random() * 80 - 40 : Math.random() * 80 - 40,
+        y: Math.random() > 0.5 ? Math.random() * 40 - 20 : Math.random() * 40 - 20,
+        rotate: Math.random() * 8 - 4,
+        scale: 0.98,
+        transition: { type: "spring", damping: 8, stiffness: 80 }
       });
     }
     
@@ -486,7 +488,7 @@ export default function Login() {
                               <>
                                 {adminForm.getValues().usernameOrEmail && adminForm.getValues().password ? 
                                   <span>Login</span> : 
-                                  <span>{Math.random() > 0.5 ? "Fill the form first!" : "Can't catch me!"}</span>
+                                  <span>{Math.random() > 0.7 ? "Fill the form first!" : Math.random() > 0.4 ? "Too slow!" : "Can't catch me!"}</span>
                                 }
                               </>
                             )}
@@ -607,7 +609,12 @@ export default function Login() {
                               <>
                                 {clientForm.getValues().username && clientForm.getValues().password ? 
                                   <span>Login</span> : 
-                                  <span>{Math.random() > 0.5 ? "Complete the form!" : "Try to catch me!"}</span>
+                                  <span>{
+                                    Math.random() > 0.7 ? "Complete the form!" : 
+                                    Math.random() > 0.4 ? "Nice try!" : 
+                                    Math.random() > 0.2 ? "Try to catch me!" : 
+                                    "Too fast for you!"
+                                  }</span>
                                 }
                               </>
                             )}
