@@ -321,12 +321,14 @@ export default function Login() {
   }, [adminForm.formState.errors, clientForm.formState.errors, activeTab]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#0f1119] relative overflow-hidden">
+    <div className="min-h-screen flex flex-col bg-black relative overflow-hidden">
+      {/* Subtle gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-950/20 to-black pointer-events-none"></div>
       
       {/* Content container with login card */}
       <div className="flex-1 flex items-center justify-center p-6 z-10">
         <motion.div 
-          className="w-full max-w-md overflow-hidden rounded-lg bg-black/90 shadow-2xl border border-slate-700/20"
+          className="w-full max-w-sm overflow-hidden rounded-xl bg-zinc-900/80 shadow-2xl border border-zinc-800/30"
           initial={{ opacity: 0, y: 20 }}
           animate={{ 
             opacity: 1, 
@@ -337,44 +339,38 @@ export default function Login() {
             ease: "easeOut"
           }}
         >
-          <div className="flex flex-col items-center">
-            {/* User icon */}
-            <div className="relative -mt-12 mb-2">
-              <div className="bg-slate-800 rounded-full p-4 border-4 border-black">
-                <User className="h-10 w-10 text-slate-300" />
-              </div>
-            </div>
-            
+          <div className="flex flex-col items-center p-6 pt-8">
             {/* Login header */}
-            <div className="text-center mb-4">
+            <div className="text-center mb-8">
               <h2 className="text-2xl font-bold text-white tracking-wide">
-                LOGIN
+                Sign In
               </h2>
+              <p className="text-zinc-500 text-sm mt-2">Enter your credentials to access your account</p>
             </div>
             
             {/* Error message */}
             {errorMessage && (
-              <div className="mb-4 px-4 w-full">
+              <div className="mb-4 w-full">
                 <p className="text-center text-red-500 text-sm">{errorMessage}</p>
               </div>
             )}
             
             {/* Tab navigation - simplified */}
-            <div className="w-full px-6">
+            <div className="w-full">
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="grid grid-cols-2 mb-8 rounded-md overflow-hidden border border-slate-700 bg-slate-800/50 w-full">
+                <TabsList className="grid grid-cols-2 mb-8 rounded-full overflow-hidden border-0 bg-zinc-800/50 w-full">
                   <TabsTrigger 
                     value="admin" 
                     className="py-2 data-[state=active]:bg-blue-600 data-[state=active]:text-white 
-                             data-[state=inactive]:bg-transparent data-[state=inactive]:text-slate-400 
-                             font-medium transition-all duration-200">
+                             data-[state=inactive]:bg-transparent data-[state=inactive]:text-zinc-400 
+                             font-medium transition-all duration-200 rounded-full">
                     Admin
                   </TabsTrigger>
                   <TabsTrigger 
                     value="client"
                     className="py-2 data-[state=active]:bg-blue-600 data-[state=active]:text-white 
-                             data-[state=inactive]:bg-transparent data-[state=inactive]:text-slate-400 
-                             font-medium transition-all duration-200">
+                             data-[state=inactive]:bg-transparent data-[state=inactive]:text-zinc-400 
+                             font-medium transition-all duration-200 rounded-full">
                     Client
                   </TabsTrigger>
                 </TabsList>
@@ -388,15 +384,15 @@ export default function Login() {
                         name="usernameOrEmail"
                         render={({ field }) => (
                           <FormItem className="space-y-2">
-                            <FormLabel className="text-slate-400 font-medium text-sm">Username</FormLabel>
+                            <FormLabel className="text-zinc-400 font-medium text-sm">Username</FormLabel>
                             <FormControl>
                               <div className="relative">
                                 <Input 
                                   placeholder="Enter your username" 
                                   {...field} 
-                                  className="pl-4 h-10 rounded-md bg-slate-800/50 border-slate-700 focus:border-blue-500 focus:bg-slate-800 text-white placeholder:text-slate-500" 
+                                  className="pl-4 h-11 rounded-lg bg-zinc-800/60 border-zinc-700 focus:border-blue-500 focus:bg-zinc-800/80 text-white placeholder:text-zinc-500" 
                                 />
-                                <div className="absolute right-3 top-2.5 text-slate-500">
+                                <div className="absolute right-3 top-3 text-zinc-500">
                                   <User className="h-5 w-5" />
                                 </div>
                               </div>
@@ -410,16 +406,16 @@ export default function Login() {
                         name="password"
                         render={({ field }) => (
                           <FormItem className="space-y-2">
-                            <FormLabel className="text-slate-400 font-medium text-sm">Password</FormLabel>
+                            <FormLabel className="text-zinc-400 font-medium text-sm">Password</FormLabel>
                             <FormControl>
                               <div className="relative">
                                 <Input 
                                   type="password" 
                                   placeholder="••••••••" 
                                   {...field} 
-                                  className="pl-4 h-10 rounded-md bg-slate-800/50 border-slate-700 focus:border-blue-500 focus:bg-slate-800 text-white placeholder:text-slate-500" 
+                                  className="pl-4 h-11 rounded-lg bg-zinc-800/60 border-zinc-700 focus:border-blue-500 focus:bg-zinc-800/80 text-white placeholder:text-zinc-500" 
                                 />
-                                <div className="absolute right-3 top-2.5 text-slate-500">
+                                <div className="absolute right-3 top-3 text-zinc-500">
                                   <Lock className="h-5 w-5" />
                                 </div>
                               </div>
@@ -438,11 +434,11 @@ export default function Login() {
                                 <Checkbox
                                   checked={field.value}
                                   onCheckedChange={field.onChange}
-                                  className="border-slate-600 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
+                                  className="border-zinc-600 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
                                 />
                               </FormControl>
                               <div className="leading-none">
-                                <FormLabel className="font-normal text-xs text-slate-400">Remember me</FormLabel>
+                                <FormLabel className="font-normal text-xs text-zinc-400">Remember me</FormLabel>
                               </div>
                             </FormItem>
                           )}
@@ -474,7 +470,7 @@ export default function Login() {
                         >
                           <Button 
                             type="submit" 
-                            className="w-full h-10 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition-all duration-200"
+                            className="w-full h-11 bg-blue-600 hover:bg-blue-500 text-white font-medium rounded-lg transition-all duration-200"
                             disabled={isAdminLoading}
                           >
                             {isAdminLoading ? (
@@ -509,15 +505,15 @@ export default function Login() {
                         name="username"
                         render={({ field }) => (
                           <FormItem className="space-y-2">
-                            <FormLabel className="text-slate-400 font-medium text-sm">Username</FormLabel>
+                            <FormLabel className="text-zinc-400 font-medium text-sm">Username</FormLabel>
                             <FormControl>
                               <div className="relative">
                                 <Input 
                                   placeholder="Enter your username" 
                                   {...field} 
-                                  className="pl-4 h-10 rounded-md bg-slate-800/50 border-slate-700 focus:border-blue-500 focus:bg-slate-800 text-white placeholder:text-slate-500" 
+                                  className="pl-4 h-11 rounded-lg bg-zinc-800/60 border-zinc-700 focus:border-blue-500 focus:bg-zinc-800/80 text-white placeholder:text-zinc-500" 
                                 />
-                                <div className="absolute right-3 top-2.5 text-slate-500">
+                                <div className="absolute right-3 top-3 text-zinc-500">
                                   <User className="h-5 w-5" />
                                 </div>
                               </div>
@@ -531,16 +527,16 @@ export default function Login() {
                         name="password"
                         render={({ field }) => (
                           <FormItem className="space-y-2">
-                            <FormLabel className="text-slate-400 font-medium text-sm">Password</FormLabel>
+                            <FormLabel className="text-zinc-400 font-medium text-sm">Password</FormLabel>
                             <FormControl>
                               <div className="relative">
                                 <Input 
                                   type="password" 
                                   placeholder="••••••••" 
                                   {...field} 
-                                  className="pl-4 h-10 rounded-md bg-slate-800/50 border-slate-700 focus:border-blue-500 focus:bg-slate-800 text-white placeholder:text-slate-500" 
+                                  className="pl-4 h-11 rounded-lg bg-zinc-800/60 border-zinc-700 focus:border-blue-500 focus:bg-zinc-800/80 text-white placeholder:text-zinc-500" 
                                 />
-                                <div className="absolute right-3 top-2.5 text-slate-500">
+                                <div className="absolute right-3 top-3 text-zinc-500">
                                   <Lock className="h-5 w-5" />
                                 </div>
                               </div>
@@ -595,7 +591,7 @@ export default function Login() {
                         >
                           <Button 
                             type="submit" 
-                            className="w-full h-10 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition-all duration-200"
+                            className="w-full h-11 bg-blue-600 hover:bg-blue-500 text-white font-medium rounded-lg transition-all duration-200"
                             disabled={isClientLoading}
                           >
                             {isClientLoading ? (
