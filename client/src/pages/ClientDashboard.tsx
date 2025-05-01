@@ -56,7 +56,7 @@ export default function ClientDashboard({ onOpenSidebar }: ClientDashboardProps)
             description: "Please log in again to continue",
             variant: "destructive"
           });
-          setLocation('/client-login');
+          setLocation('/login');
           return false;
         }
         
@@ -91,14 +91,14 @@ export default function ClientDashboard({ onOpenSidebar }: ClientDashboardProps)
             description: "Please log in to access your dashboard",
             variant: "destructive"
           });
-          setLocation('/client-login');
+          setLocation('/login');
           return;
         }
         
-        // Use client data from storage (in a real app, would fetch from API)
+        // Use client data from storage with proper naming
         setClientData({
-          clientName: currentClientUser.clientName,
-          clientCompany: currentClientUser.clientCompany,
+          clientName: currentClientUser.firstName || 'Client User',
+          clientCompany: currentClientUser.email?.split('@')[1]?.split('.')[0] || 'Company',
           stats: {
             activeCampaigns: 3,
             totalEmails: 12500,
@@ -163,14 +163,14 @@ export default function ClientDashboard({ onOpenSidebar }: ClientDashboardProps)
       });
       
       // Redirect to login page
-      setLocation('/client-login');
+      setLocation('/login');
     } catch (error) {
       console.error('Logout error:', error);
       
       // Even if server logout fails, clear client-side storage and redirect
       sessionStorage.removeItem('clientUser');
       localStorage.removeItem('clientUser');
-      setLocation('/client-login');
+      setLocation('/login');
     }
   };
 

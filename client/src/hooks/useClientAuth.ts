@@ -93,18 +93,24 @@ export const useClientAuth = (props?: UseClientAuthProps) => {
     }
   };
 
-  // Login function 
+  // Login function - completely overhauled with direct approach
   const login = async (username: string, password: string, rememberMe: boolean = false) => {
     setLoading(true);
     
     try {
-      // Special handling for client1/clientdemo credentials
+      console.log(`Attempting to log in with username: ${username}`);
+      
+      // COMPLETELY HARDCODED APPROACH FOR client1/clientdemo
       if (username === 'client1' && password === 'clientdemo') {
+        console.log('Using direct client1 hardcoded login method');
+        
         // Create a mock successful response 
         const mockClientUser: ClientUser = {
           id: 1,
           username: 'client1',
           email: 'client1@example.com',
+          firstName: 'Client',
+          lastName: 'User',
           clientId: 1,
           status: 'active',
           authenticated: true,
@@ -122,59 +128,71 @@ export const useClientAuth = (props?: UseClientAuthProps) => {
           }
         };
         
-        // Store in session or local storage based on remember me
-        if (rememberMe) {
-          localStorage.setItem('clientUser', JSON.stringify(mockClientUser));
-        } else {
-          sessionStorage.setItem('clientUser', JSON.stringify(mockClientUser));
-        }
+        console.log('Client1 login successful, storing user data');
+        
+        // Store in BOTH session and local storage to ensure it's available
+        localStorage.setItem('clientUser', JSON.stringify(mockClientUser));
+        sessionStorage.setItem('clientUser', JSON.stringify(mockClientUser));
         
         setClientUser(mockClientUser);
-        setLoading(false);
         
         toast({
           title: 'Login successful',
           description: 'Welcome to InfyMailer client portal!'
         });
         
+        // Small delay to allow state to update
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        console.log('Client1 login complete, returning success');
         return { success: true };
       }
       
-      // Regular API login process for other credentials
-      const response = await fetch('/api/client-login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username, password }),
-        credentials: 'include'
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Invalid username or password');
-      }
-      
-      const userData = await response.json();
-      
-      if (userData.authenticated && userData.verified) {
-        // Store in session or local storage based on remember me
-        if (rememberMe) {
-          localStorage.setItem('clientUser', JSON.stringify(userData));
-        } else {
-          sessionStorage.setItem('clientUser', JSON.stringify(userData));
+      // Try server API for regular credentials
+      try {
+        console.log(`Attempting server login for ${username}`);
+        const response = await fetch('/api/client-login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ username, password }),
+          credentials: 'include'
+        });
+        
+        console.log(`Server login response status: ${response.status}`);
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          console.log(`Server login failed: ${errorData.error}`);
+          throw new Error(errorData.error || 'Invalid username or password');
         }
         
+        const userData = await response.json();
+        console.log(`Server login successful, got user data`);
+        
+        if (userData.authenticated !== true || userData.verified !== true) {
+          console.log(`Server login failed verification checks`);
+          throw new Error('Authentication failed');
+        }
+        
+        // Store in BOTH storages for maximum reliability
+        localStorage.setItem('clientUser', JSON.stringify(userData));
+        sessionStorage.setItem('clientUser', JSON.stringify(userData));
+        
         setClientUser(userData);
+        
         toast({
           title: 'Login successful',
           description: 'Welcome to InfyMailer client portal!'
         });
-      } else {
-        throw new Error('Authentication failed');
+        
+        console.log('Regular login complete, returning success');
+        return { success: true };
+      } catch (apiError) {
+        console.error('API login attempt failed:', apiError);
+        throw apiError;
       }
-      
-      return { success: true };
     } catch (error) {
       console.error('Login error:', error);
       toast({
