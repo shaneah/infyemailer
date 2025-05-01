@@ -626,13 +626,6 @@ export default function Login() {
                 </TabsContent>
               </Tabs>
             </div>
-            
-            {/* Sign up link */}
-            <div className="mt-6 mb-6 text-center">
-              <p className="text-zinc-500 text-sm">
-                Don't have an Account? <a href="#" className="text-blue-500 hover:text-blue-400 font-medium">Sign up</a>
-              </p>
-            </div>
           </div>
         </motion.div>
       </div>
