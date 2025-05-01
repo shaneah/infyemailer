@@ -1,378 +1,206 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useAIAssistant } from '@/contexts/AIAssistantContext';
+import { X, Send, MessageSquare, ChevronDown, ChevronUp, Trash2, Loader2 } from 'lucide-react';
+import { useAIAssistant, ChatMessage } from '../contexts/AIAssistantContext';
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import {
-  X,
-  Send,
-  Trash2,
-  Bot,
-  Minimize2,
-  Maximize2,
-  Sparkles,
-  Menu,
-  Loader2,
-} from 'lucide-react';
-import { formatTimestamp } from '@/utils/ai-assistant-utils';
-import { 
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger 
-} from '@/components/ui/tooltip';
-import { 
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger 
-} from '@/components/ui/dropdown-menu';
-import { Separator } from '@/components/ui/separator';
-import { Badge } from '@/components/ui/badge';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { cn } from '@/lib/utils';
 
-// Helper function to format message text with line breaks and links
-function formatMessageText(text: string): React.ReactNode {
-  // Split by line breaks
-  const parts = text.split('\n');
-  
-  // Create an array to hold formatted parts
-  const formattedParts: React.ReactNode[] = [];
-  
-  // Process each part
-  parts.forEach((part, index) => {
-    // Add previous parts with line breaks
-    if (index > 0) {
-      formattedParts.push(<br key={`br-${index}`} />);
-    }
-    
-    // Check for links and format them
-    const linkRegex = /(https?:\/\/[^\s]+)/g;
-    const segments = part.split(linkRegex);
-    
-    // Process each segment
-    segments.forEach((segment, segmentIndex) => {
-      if (segment.match(linkRegex)) {
-        // This is a link
-        formattedParts.push(
-          <a 
-            key={`link-${index}-${segmentIndex}`}
-            href={segment}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-500 hover:underline"
-          >
-            {segment}
-          </a>
-        );
-      } else if (segment) {
-        // This is regular text
-        formattedParts.push(
-          <span key={`text-${index}-${segmentIndex}`}>{segment}</span>
-        );
+export function AIAssistant() {
+  const { messages, isOpen, isLoading, openChat, closeChat, sendMessage, clearChat } = useAIAssistant();
+  const [inputValue, setInputValue] = useState('');
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [isMinimized, setIsMinimized] = useState(false);
+
+  // Scroll to bottom of messages when new messages are added
+  useEffect(() => {
+    if (scrollAreaRef.current && !isMinimized) {
+      const scrollContainer = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
+      if (scrollContainer) {
+        scrollContainer.scrollTop = scrollContainer.scrollHeight;
       }
-    });
-  });
-  
-  return <>{formattedParts}</>;
+    }
+  }, [messages, isMinimized]);
+
+  // Focus input when opening chat
+  useEffect(() => {
+    if (isOpen && !isMinimized && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [isOpen, isMinimized]);
+
+  const handleSend = async (e?: React.FormEvent) => {
+    e?.preventDefault();
+    
+    if (inputValue.trim() === '') return;
+    
+    await sendMessage(inputValue);
+    setInputValue('');
+  };
+
+  const formatTime = (date: Date) => {
+    return new Intl.DateTimeFormat('en-US', {
+      hour: 'numeric',
+      minute: 'numeric',
+      hour12: true
+    }).format(date instanceof Date ? date : new Date(date));
+  };
+
+  const toggleMinimize = () => {
+    setIsMinimized(!isMinimized);
+  };
+
+  if (!isOpen) {
+    return (
+      <div className="fixed bottom-4 right-4 z-50">
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button 
+                onClick={openChat} 
+                className="h-12 w-12 rounded-full shadow-lg bg-primary hover:bg-primary/90"
+              >
+                <MessageSquare className="h-6 w-6" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="left">
+              <p>Open AI Assistant</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </div>
+    );
+  }
+
+  return (
+    <div 
+      className={cn(
+        "fixed bottom-4 right-4 z-50 flex flex-col bg-background border border-border rounded-lg shadow-xl transition-all duration-200 ease-in-out",
+        isMinimized 
+          ? "w-[300px] h-14" 
+          : "w-[380px] max-w-[95vw] h-[550px] max-h-[80vh]"
+      )}
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between p-3 border-b bg-accent/50">
+        <div className="flex items-center gap-2">
+          <Avatar className="h-8 w-8 bg-primary">
+            <AvatarImage src="" />
+            <AvatarFallback className="text-sm text-primary-foreground">AI</AvatarFallback>
+          </Avatar>
+          <h3 className="font-medium">Email Marketing Assistant</h3>
+        </div>
+        <div className="flex items-center gap-1">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="h-7 w-7" 
+            onClick={toggleMinimize}
+          >
+            {isMinimized ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+          </Button>
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="h-7 w-7 text-destructive hover:text-destructive" 
+            onClick={closeChat}
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+
+      {/* Body - only show when not minimized */}
+      {!isMinimized && (
+        <>
+          <div className="flex-1 relative overflow-hidden" ref={scrollAreaRef}>
+            <ScrollArea className="h-full">
+              <div className="p-4 space-y-4">
+                {messages.map((message) => (
+                  <MessageBubble key={message.id} message={message} />
+                ))}
+                {isLoading && (
+                  <div className="flex justify-center py-2">
+                    <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                  </div>
+                )}
+              </div>
+            </ScrollArea>
+          </div>
+
+          {/* Input area */}
+          <div className="p-3 border-t">
+            <form onSubmit={handleSend} className="flex gap-2">
+              <div className="relative flex-1">
+                <input
+                  ref={inputRef}
+                  type="text"
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  placeholder="Ask me anything about email marketing..."
+                  className="w-full px-3 py-2 bg-accent/50 rounded-md border border-border focus:outline-none focus:ring-1 focus:ring-primary"
+                  disabled={isLoading}
+                />
+                {messages.length > 1 && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="absolute right-2 top-1/2 transform -translate-y-1/2 h-7 w-7 text-muted-foreground hover:text-destructive"
+                    onClick={clearChat}
+                    disabled={isLoading}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
+              <Button 
+                type="submit" 
+                size="icon" 
+                disabled={inputValue.trim() === '' || isLoading}
+                className="h-10 w-10 rounded-md"
+              >
+                <Send className="h-4 w-4" />
+              </Button>
+            </form>
+          </div>
+        </>
+      )}
+    </div>
+  );
 }
 
-// Message component to display a single chat message
-const Message: React.FC<{
-  content: string;
-  isUser: boolean;
-  timestamp?: Date;
-}> = ({ content, isUser, timestamp }) => {
+function MessageBubble({ message }: { message: ChatMessage }) {
+  const isUser = message.role === 'user';
+  
   return (
-    <div className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-4`}>
-      <div
-        className={`p-3 rounded-lg max-w-[75%] ${
-          isUser
-            ? 'bg-primary text-primary-foreground rounded-tr-none'
-            : 'bg-muted text-foreground rounded-tl-none'
-        }`}
-      >
-        <div className="text-sm">{formatMessageText(content)}</div>
-        {timestamp && (
-          <div className="text-xs opacity-70 mt-1 text-right">
-            {formatTimestamp(timestamp)}
-          </div>
+    <div className={cn("flex", isUser ? "justify-end" : "justify-start")}>
+      <div 
+        className={cn(
+          "relative max-w-[85%] rounded-lg px-4 py-2 shadow-sm",
+          isUser 
+            ? "bg-primary text-primary-foreground rounded-br-none" 
+            : "bg-accent text-accent-foreground rounded-bl-none"
         )}
+      >
+        <div className="whitespace-pre-wrap break-words text-sm">
+          {message.content}
+        </div>
+        <div className={cn(
+          "text-[10px] mt-1 opacity-70 text-right", 
+          isUser ? "text-primary-foreground" : "text-muted-foreground"
+        )}>
+          {message.timestamp instanceof Date 
+            ? new Intl.DateTimeFormat('en-US', {
+                hour: 'numeric',
+                minute: 'numeric',
+                hour12: true
+              }).format(message.timestamp)
+            : ''}
+        </div>
       </div>
     </div>
   );
-};
-
-// Suggested message component
-const SuggestedMessage: React.FC<{
-  message: string;
-  onSelect: (message: string) => void;
-}> = ({ message, onSelect }) => {
-  return (
-    <Button
-      variant="outline"
-      className="mr-2 mb-2 text-sm whitespace-normal h-auto py-1.5"
-      onClick={() => onSelect(message)}
-    >
-      {message}
-    </Button>
-  );
-};
-
-// Main AI Assistant component
-export const AIAssistant: React.FC = () => {
-  const {
-    isOpen,
-    toggleAssistant,
-    chatHistory,
-    sendMessage,
-    clearHistory,
-    isLoading,
-    context,
-    setContext,
-    suggestedMessages,
-    minimized,
-    toggleMinimize,
-  } = useAIAssistant();
-  
-  const [inputValue, setInputValue] = useState('');
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
-  
-  // Auto-scroll to bottom when chat history updates
-  useEffect(() => {
-    if (messagesEndRef.current && isOpen && !minimized) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
-    }
-  }, [chatHistory, isOpen, minimized]);
-  
-  // Auto-focus input when opening the assistant
-  useEffect(() => {
-    if (isOpen && !minimized && textareaRef.current) {
-      textareaRef.current.focus();
-    }
-  }, [isOpen, minimized]);
-  
-  // Handle form submission
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (inputValue.trim() && !isLoading) {
-      sendMessage(inputValue.trim());
-      setInputValue('');
-    }
-  };
-  
-  // Handle key press in textarea
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSubmit(e);
-    }
-  };
-  
-  // Handle selecting a suggested message
-  const handleSuggestedMessageClick = (message: string) => {
-    sendMessage(message);
-  };
-  
-  // Handle context change
-  const handleContextChange = (value: string) => {
-    setContext(value);
-  };
-  
-  // If the assistant is not open, don't render anything
-  if (!isOpen) {
-    return null;
-  }
-  
-  return (
-    <div className="fixed bottom-4 right-4 z-50 flex flex-col shadow-lg rounded-lg">
-      <Card className={`w-[360px] ${minimized ? 'h-auto' : 'h-[500px]'} flex flex-col bg-card`}>
-        <CardHeader className="py-3 px-4 flex flex-row items-center justify-between space-y-0 border-b">
-          <div className="flex items-center">
-            <Bot className="h-5 w-5 mr-2" />
-            <CardTitle className="text-lg font-medium">AI Assistant</CardTitle>
-            {context !== 'general' && (
-              <Badge variant="outline" className="ml-2">
-                {context.replace('_', ' ')}
-              </Badge>
-            )}
-          </div>
-          <div className="flex space-x-1">
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8"
-                    onClick={toggleMinimize}
-                  >
-                    {minimized ? <Maximize2 className="h-4 w-4" /> : <Minimize2 className="h-4 w-4" />}
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>{minimized ? 'Maximize' : 'Minimize'}</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-            
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8"
-                    onClick={toggleAssistant}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Close</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </div>
-        </CardHeader>
-        
-        {!minimized && (
-          <>
-            <CardContent className="flex-1 overflow-auto p-4 space-y-4">
-              <div className="flex justify-between items-center mb-2">
-                <Select value={context} onValueChange={handleContextChange}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select a topic" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="general">General Help</SelectItem>
-                    <SelectItem value="email_marketing">Email Marketing</SelectItem>
-                    <SelectItem value="template_design">Template Design</SelectItem>
-                    <SelectItem value="campaign_strategy">Campaign Strategy</SelectItem>
-                  </SelectContent>
-                </Select>
-                
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-8 w-8">
-                      <Menu className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={clearHistory}>
-                      <Trash2 className="h-4 w-4 mr-2" />
-                      Clear History
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-              
-              <Separator className="my-2" />
-              
-              <div className="space-y-4">
-                {chatHistory.map((message, index) => (
-                  <Message
-                    key={index}
-                    content={message.content}
-                    isUser={message.role === 'user'}
-                    timestamp={new Date()}
-                  />
-                ))}
-                {isLoading && (
-                  <div className="flex justify-start mb-4">
-                    <div className="p-3 rounded-lg bg-muted text-muted-foreground rounded-tl-none">
-                      <Loader2 className="h-5 w-5 animate-spin" />
-                    </div>
-                  </div>
-                )}
-                <div ref={messagesEndRef} />
-              </div>
-              
-              {suggestedMessages.length > 0 && chatHistory.length <= 2 && (
-                <div className="mt-4">
-                  <p className="text-sm text-muted-foreground mb-2">Suggested questions:</p>
-                  <div className="flex flex-wrap">
-                    {suggestedMessages.map((msg, index) => (
-                      <SuggestedMessage
-                        key={index}
-                        message={msg}
-                        onSelect={handleSuggestedMessageClick}
-                      />
-                    ))}
-                  </div>
-                </div>
-              )}
-            </CardContent>
-            
-            <CardFooter className="p-3 border-t">
-              <form onSubmit={handleSubmit} className="flex w-full space-x-2">
-                <Textarea
-                  ref={textareaRef}
-                  placeholder="Type your message..."
-                  value={inputValue}
-                  onChange={(e) => setInputValue(e.target.value)}
-                  onKeyDown={handleKeyPress}
-                  className="min-h-10 max-h-32 resize-none"
-                  disabled={isLoading}
-                />
-                <Button
-                  type="submit"
-                  size="icon"
-                  disabled={!inputValue.trim() || isLoading}
-                >
-                  {isLoading ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <Send className="h-4 w-4" />
-                  )}
-                </Button>
-              </form>
-            </CardFooter>
-          </>
-        )}
-      </Card>
-    </div>
-  );
-};
-
-// Toggle button for opening the assistant
-export const AIAssistantButton: React.FC = () => {
-  const { toggleAssistant, isOpen } = useAIAssistant();
-  
-  return (
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Button
-            onClick={toggleAssistant}
-            variant="default"
-            size="icon"
-            className="fixed bottom-4 right-4 z-40 rounded-full h-12 w-12 shadow-lg"
-            aria-label="Open AI Assistant"
-            data-state={isOpen ? 'open' : 'closed'}
-          >
-            <Sparkles className="h-5 w-5" />
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent side="left">
-          <p>AI Assistant</p>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
-  );
-};
+}
