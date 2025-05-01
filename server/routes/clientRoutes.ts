@@ -96,11 +96,51 @@ export function registerClientRoutes(app: any) {
     }
   });
   
-  // Client session verification
+  // Client logout endpoint
+  app.post('/api/client-logout', (req: Request, res: Response) => {
+    console.log('Client logout request received');
+    // In a real application, this would invalidate server-side session
+    // For now, just return success since we're handling auth state client-side
+    res.status(200).json({ success: true, message: 'Logged out successfully' });
+  });
+  
+  // Client session verification - enhanced with support for both verification formats
   app.get('/api/client/verify-session', async (req: Request, res: Response) => {
-    // For now, just return success as we're handling auth in the frontend
-    // This is a placeholder for future server-side session handling
-    res.status(200).json({ verified: true });
+    // For now, we're handling auth primarily in the frontend with localStorage/sessionStorage
+    // Return a consistent success format so the client can handle any response format
+    
+    // Hard-coded client1 user for development support - this ensures a consistent experience
+    // during UI/UX development with a predictable data structure
+    const mockClientUser = {
+      id: 1,
+      username: 'client1',
+      email: 'client1@example.com',
+      firstName: 'Client',
+      lastName: 'User',
+      clientId: 1,
+      status: 'active',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      lastLoginAt: new Date(),
+      metadata: {
+        permissions: {
+          campaigns: true,
+          contacts: true,
+          templates: true,
+          reporting: true,
+          domains: true,
+          abTesting: true,
+          emailValidation: true
+        }
+      }
+    };
+    
+    // Return user data with verified status
+    res.status(200).json({ 
+      verified: true,
+      // For backward compatibility with some code paths that expect user data directly
+      user: mockClientUser
+    });
   });
 
   // Get all clients
