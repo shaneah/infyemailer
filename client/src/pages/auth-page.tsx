@@ -57,13 +57,13 @@ export default function AuthPage() {
         const normalizedY = -deltaY / length;
         
         // Apply movement (faster when mouse is closer)
-        const distance = Math.min(220, 2200 / length);
+        const distance = Math.min(280, 2800 / length);
         buttonControls.start({
           x: normalizedX * distance,
           y: normalizedY * distance,
-          rotate: Math.random() * 25 - 12.5,
-          scale: 0.93,
-          transition: { type: "spring", duration: 0.3, bounce: 0.7, stiffness: 350 }
+          rotate: Math.random() * 30 - 15,
+          scale: 0.92,
+          transition: { type: "spring", duration: 0.3, bounce: 0.8, stiffness: 400 }
         });
       }
     }
@@ -299,18 +299,18 @@ export default function AuthPage() {
                     </a>
                   </div>
                   
-                  <div className="pt-2 animate-slide-up animation-delay-1300 relative min-h-[180px] flex items-center justify-center">
+                  <div className="pt-2 animate-slide-up animation-delay-1300 relative min-h-[200px] flex items-center justify-center">
                     <motion.div
                       ref={buttonRef}
                       className="w-full flex justify-center"
                       initial={{ x: 0, y: 0 }}
                       animate={buttonControls}
                       whileHover={!form.getValues().usernameOrEmail || !form.getValues().password ? {
-                        scale: 0.97,
-                        x: Math.random() > 0.5 ? 150 : -150,
-                        y: Math.random() > 0.5 ? 90 : -90,
-                        rotate: Math.random() * 20 - 10,
-                        transition: { duration: 0.3 }
+                        scale: 0.95,
+                        x: Math.random() > 0.5 ? 180 : -180,
+                        y: Math.random() > 0.5 ? 100 : -100,
+                        rotate: Math.random() * 25 - 12.5,
+                        transition: { duration: 0.25, type: "spring", bounce: 0.6 }
                       } : {
                         scale: 1.03,
                         transition: { duration: 0.2 }
@@ -319,7 +319,7 @@ export default function AuthPage() {
                     >
                       <Button 
                         type="submit" 
-                        className="w-[50%] h-12 text-xs font-mono tracking-wide rounded-md bg-primary hover:bg-primary/90 transition-colors relative overflow-hidden group animate-glow"
+                        className="w-[30%] h-10 text-xs font-mono tracking-wide rounded-md bg-primary hover:bg-primary/90 transition-colors relative overflow-hidden group animate-glow"
                         disabled={isLoading}
                       >
                         <div className="absolute inset-0 w-full bg-gradient-to-r from-white/5 to-transparent"></div>
