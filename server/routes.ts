@@ -69,6 +69,130 @@ const insertCampaignVariantSchema = createInsertSchema(campaignVariants).omit({ 
 const insertVariantAnalyticsSchema = createInsertSchema(variantAnalytics).omit({ id: true });
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Client email performance API routes
+  app.get('/api/client/email-performance/metrics', (req: Request, res: Response) => {
+    console.log('GET /api/client/email-performance/metrics', req.query);
+    const timeframe = req.query.timeframe as string || '7days';
+    const campaign = req.query.campaign as string || 'all';
+    
+    // Return mock metrics data based on timeframe and campaign filter
+    const metrics = {
+      openRate: { 
+        value: timeframe === '7days' ? 24.8 : timeframe === '30days' ? 22.5 : 20.3, 
+        industryAvg: 18.0, 
+        trend: "up", 
+        trendValue: "3.2" 
+      },
+      clickRate: { 
+        value: timeframe === '7days' ? 3.6 : timeframe === '30days' ? 3.2 : 2.9, 
+        industryAvg: 2.5, 
+        trend: "up", 
+        trendValue: "0.9" 
+      },
+      conversionRate: { 
+        value: timeframe === '7days' ? 1.2 : timeframe === '30days' ? 0.9 : 0.8, 
+        goal: 2.0, 
+        trend: "up", 
+        trendValue: "0.3" 
+      },
+      bounceRate: { 
+        value: timeframe === '7days' ? 0.8 : timeframe === '30days' ? 1.2 : 1.5,
+        industryAvg: 2.0, 
+        trend: "down", 
+        trendValue: "0.4" 
+      },
+      totalSent: timeframe === '7days' ? 12500 : timeframe === '30days' ? 42857 : 78950,
+      totalOpens: timeframe === '7days' ? 3100 : timeframe === '30days' ? 9643 : 16020,
+      totalClicks: timeframe === '7days' ? 450 : timeframe === '30days' ? 1542 : 2289,
+      unsubscribes: timeframe === '7days' ? 12 : timeframe === '30days' ? 38 : 67
+    };
+    
+    res.json(metrics);
+  });
+  
+  app.get('/api/client/email-performance/charts', (req: Request, res: Response) => {
+    console.log('GET /api/client/email-performance/charts', req.query);
+    const timeframe = req.query.timeframe as string || '7days';
+    const campaign = req.query.campaign as string || 'all';
+    
+    // Generate daily data points based on timeframe
+    const generateDailyData = () => {
+      if (timeframe === '7days') {
+        return [
+          { day: 'Mon', opens: 450, clicks: 65, conversions: 12 },
+          { day: 'Tue', opens: 520, clicks: 72, conversions: 18 },
+          { day: 'Wed', opens: 480, clicks: 68, conversions: 15 },
+          { day: 'Thu', opens: 530, clicks: 75, conversions: 20 },
+          { day: 'Fri', opens: 490, clicks: 70, conversions: 16 },
+          { day: 'Sat', opens: 300, clicks: 45, conversions: 8 },
+          { day: 'Sun', opens: 330, clicks: 55, conversions: 9 }
+        ];
+      } else if (timeframe === '30days') {
+        // More condensed data for 30 days
+        return [
+          { day: 'Week 1', opens: 1800, clicks: 275, conversions: 54 },
+          { day: 'Week 2', opens: 1950, clicks: 295, conversions: 62 },
+          { day: 'Week 3', opens: 1750, clicks: 260, conversions: 48 },
+          { day: 'Week 4', opens: 2100, clicks: 310, conversions: 68 }
+        ];
+      } else {
+        // Quarter to date (90 days)
+        return [
+          { day: 'Jan', opens: 5200, clicks: 780, conversions: 156 },
+          { day: 'Feb', opens: 5600, clicks: 840, conversions: 168 },
+          { day: 'Mar', opens: 5300, clicks: 795, conversions: 159 }
+        ];
+      }
+    };
+    
+    // Return charts data
+    const charts = {
+      weeklyPerformance: generateDailyData(),
+      deviceBreakdown: [
+        { name: 'Mobile', value: 65 },
+        { name: 'Desktop', value: 28 },
+        { name: 'Tablet', value: 7 }
+      ],
+      clickDistribution: [
+        { link: 'Read more', clicks: 345 },
+        { link: 'Product link', clicks: 278 },
+        { link: 'Contact us', clicks: 156 },
+        { link: 'Pricing', clicks: 98 },
+        { link: 'Social media', clicks: 65 }
+      ],
+      // Other chart data...
+    };
+    
+    res.json(charts);
+  });
+  
+  app.get('/api/client/campaigns', (req: Request, res: Response) => {
+    console.log('GET /api/client/campaigns');
+    
+    // Return mock campaigns for the client
+    const campaigns = [
+      {
+        id: 1,
+        name: "Monthly Newsletter",
+        subject: "March 2025 Newsletter",
+        status: "Sent"
+      },
+      {
+        id: 2,
+        name: "Product Announcement",
+        subject: "Introducing our new service",
+        status: "Draft"
+      },
+      {
+        id: 3,
+        name: "Welcome Series",
+        subject: "Welcome to our platform",
+        status: "Active"
+      }
+    ];
+    
+    res.json(campaigns);
+  });
   // Setup auth routes
   setupAuth(app);
   

@@ -3023,6 +3023,10 @@ export default function ClientRoutes() {
           <Route path="/client-email-performance">
             <ClientEmailPerformance />
           </Route>
+          {/* Also support route without leading slash for consistency with App.tsx */}
+          <Route path="client-email-performance">
+            <ClientEmailPerformance />
+          </Route>
           <Route path="/client-reports">
             <ClientReports />
           </Route>
