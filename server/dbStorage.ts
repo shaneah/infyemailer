@@ -572,10 +572,42 @@ export class DbStorage implements IStorage {
 
   async createContact(contact: Omit<schema.InsertContact, 'id'>) {
     try {
-      const [newContact] = await db.insert(schema.contacts).values(contact).returning();
-      return newContact;
+      console.log('DbStorage: Creating contact with data:', JSON.stringify(contact, null, 2));
+      console.log('DbStorage: Using db object:', typeof db, db ? 'db exists' : 'db is null/undefined');
+      
+      // Convert the camelCase properties to snake_case for database
+      // This is likely the issue - our schema uses camelCase but database is using snake_case
+      const dbContact = {
+        name: contact.name,
+        email: contact.email,
+        status: contact.status,
+        created_at: contact.createdAt || new Date(),
+        metadata: contact.metadata || {}
+      };
+      
+      console.log('DbStorage: Transformed contact data for db:', JSON.stringify(dbContact, null, 2));
+      
+      // Try to execute the insert using direct SQL as a fallback
+      try {
+        console.log('DbStorage: Attempting direct SQL insert as fallback');
+        const result = await db.execute(
+          sql`INSERT INTO contacts (name, email, status, created_at, metadata) 
+              VALUES (${dbContact.name}, ${dbContact.email}, ${dbContact.status}, ${dbContact.created_at}, ${JSON.stringify(dbContact.metadata)})
+              RETURNING *`
+        );
+        console.log('DbStorage: Direct SQL insert result:', result);
+        return result[0];
+      } catch (sqlError) {
+        console.error('DbStorage: Failed SQL direct insert:', sqlError);
+        
+        // Original approach
+        console.log('DbStorage: Falling back to Drizzle ORM insert');
+        const [newContact] = await db.insert(schema.contacts).values(contact).returning();
+        console.log('DbStorage: Successfully created contact with Drizzle ORM:', newContact);
+        return newContact;
+      }
     } catch (error) {
-      console.error('Error creating contact:', error);
+      console.error('DbStorage: Error creating contact:', error);
       throw error;
     }
   }
