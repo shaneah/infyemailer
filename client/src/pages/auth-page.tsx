@@ -57,13 +57,13 @@ export default function AuthPage() {
         const normalizedY = -deltaY / length;
         
         // Apply movement (faster when mouse is closer)
-        const distance = Math.min(180, 1800 / length);
+        const distance = Math.min(220, 2200 / length);
         buttonControls.start({
           x: normalizedX * distance,
           y: normalizedY * distance,
-          rotate: Math.random() * 20 - 10,
-          scale: 0.95,
-          transition: { type: "spring", duration: 0.3, bounce: 0.6, stiffness: 300 }
+          rotate: Math.random() * 25 - 12.5,
+          scale: 0.93,
+          transition: { type: "spring", duration: 0.3, bounce: 0.7, stiffness: 350 }
         });
       }
     }
@@ -299,7 +299,7 @@ export default function AuthPage() {
                     </a>
                   </div>
                   
-                  <div className="pt-2 animate-slide-up animation-delay-1300 relative min-h-[150px] flex items-center justify-center">
+                  <div className="pt-2 animate-slide-up animation-delay-1300 relative min-h-[180px] flex items-center justify-center">
                     <motion.div
                       ref={buttonRef}
                       className="w-full flex justify-center"
@@ -307,9 +307,9 @@ export default function AuthPage() {
                       animate={buttonControls}
                       whileHover={!form.getValues().usernameOrEmail || !form.getValues().password ? {
                         scale: 0.97,
-                        x: Math.random() > 0.5 ? 120 : -120,
-                        y: Math.random() > 0.5 ? 70 : -70,
-                        rotate: Math.random() * 15 - 7.5,
+                        x: Math.random() > 0.5 ? 150 : -150,
+                        y: Math.random() > 0.5 ? 90 : -90,
+                        rotate: Math.random() * 20 - 10,
                         transition: { duration: 0.3 }
                       } : {
                         scale: 1.03,
@@ -319,7 +319,7 @@ export default function AuthPage() {
                     >
                       <Button 
                         type="submit" 
-                        className="w-[80%] h-12 text-sm font-mono tracking-wide rounded-md bg-primary hover:bg-primary/90 transition-colors relative overflow-hidden group animate-glow"
+                        className="w-[50%] h-12 text-sm font-mono tracking-wide rounded-md bg-primary hover:bg-primary/90 transition-colors relative overflow-hidden group animate-glow"
                         disabled={isLoading}
                       >
                         <div className="absolute inset-0 w-full bg-gradient-to-r from-white/5 to-transparent"></div>
