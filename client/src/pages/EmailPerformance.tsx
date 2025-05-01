@@ -29,6 +29,26 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
+import { 
+  BarChart3,
+  ArrowUp,
+  ArrowDown,
+  TrendingUp,
+  Activity,
+  Users,
+  Clock,
+  AlertCircle,
+  BarChart2, 
+  PieChart as PieChartIcon,
+  Globe,
+  Zap,
+  Cpu,
+  Mail,
+  Target,
+  Calendar,
+  TrendingDown,
+  LineChart as LineChartIcon,
+} from 'lucide-react';
 
 // Sample data for now - will be replaced with API data
 const emailPerformanceData = [
@@ -104,6 +124,11 @@ interface MetricCardProps {
   subValue?: string;
   trend?: 'up' | 'down' | 'neutral';
   trendValue?: string;
+  icon?: React.ReactNode;
+  color?: string;
+  showProgress?: boolean;
+  progressValue?: number;
+  bgGradient?: boolean;
 }
 
 // Metric Card Component
@@ -112,27 +137,47 @@ const MetricCard: React.FC<MetricCardProps> = ({
   value, 
   subValue, 
   trend = 'neutral',
-  trendValue
+  trendValue,
+  icon,
+  color = "primary",
+  showProgress = false,
+  progressValue = 0,
+  bgGradient = false
 }) => {
   return (
-    <Card>
-      <CardHeader className="pb-2">
-        <CardTitle className="text-sm font-medium text-gray-500">{title}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="flex items-baseline justify-between">
-          <div>
-            <div className="text-2xl font-bold">{value}</div>
-            {subValue && <p className="text-sm text-gray-500">{subValue}</p>}
-          </div>
-          {trend && trendValue && (
-            <Badge variant={trend === 'up' ? 'default' : trend === 'down' ? 'destructive' : 'outline'}>
-              {trend === 'up' ? '↑' : trend === 'down' ? '↓' : '–'} {trendValue}
-            </Badge>
-          )}
+    <div className="border rounded-lg p-4">
+      <div className="flex items-center mb-3">
+        <div className="w-8 h-8 rounded-md bg-primary/10 flex items-center justify-center mr-3">
+          {icon || <BarChart3 className="h-4 w-4 text-primary" />}
         </div>
-      </CardContent>
-    </Card>
+        <div>
+          <p className="text-sm text-muted-foreground">{title}</p>
+          <h4 className="text-xl font-semibold">{value}</h4>
+        </div>
+        <div className="ml-auto">
+          {((trend || "neutral") === "up") ? (
+            <div className="flex items-center text-emerald-500 text-sm">
+              <ArrowUp className="h-3 w-3 mr-1" />
+              <span>{trendValue || "0%"}</span>
+            </div>
+          ) : (trend || "neutral") === "down" ? (
+            <div className="flex items-center text-rose-500 text-sm">
+              <ArrowDown className="h-3 w-3 mr-1" />
+              <span>{trendValue || "0%"}</span>
+            </div>
+          ) : null}
+        </div>
+      </div>
+      {showProgress && (
+        <div className="mt-1">
+          <Progress value={progressValue} className="h-1" />
+          <p className="text-xs text-muted-foreground mt-1.5">{subValue}</p>
+        </div>
+      )}
+      {!showProgress && subValue && (
+        <p className="text-xs text-muted-foreground mt-1.5">{subValue}</p>
+      )}
+    </div>
   );
 };
 
@@ -198,16 +243,23 @@ const EmailPerformance: React.FC = () => {
   
   return (
     <div className="container mx-auto py-6">
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">
-            Email Performance Dashboard
-          </h1>
-          <p className="text-gray-500">Track and analyze your email campaign metrics</p>
+      <div className="mb-6">
+        <h1 className="text-2xl font-semibold">
+          Email Performance Dashboard
+        </h1>
+        <p className="text-muted-foreground mt-1">Track and analyze your email campaign metrics</p>
+      </div>
+      
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+        <div className="flex space-x-2">
+          <Button variant="outline" size="sm" className="text-xs h-8">Last 7 Days</Button>
+          <Button variant="outline" size="sm" className="text-xs h-8">Last 30 Days</Button>
+          <Button variant="outline" size="sm" className="text-xs h-8">Custom Range</Button>
         </div>
-        <div className="flex space-x-4">
+        
+        <div className="flex space-x-2">
           <Select value={timeframe} onValueChange={setTimeframe}>
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-[140px] h-8 text-xs">
               <SelectValue placeholder="Select Timeframe" />
             </SelectTrigger>
             <SelectContent>
@@ -220,7 +272,7 @@ const EmailPerformance: React.FC = () => {
           </Select>
           
           <Select value={campaignFilter} onValueChange={setCampaignFilter}>
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-[140px] h-8 text-xs">
               <SelectValue placeholder="All Campaigns" />
             </SelectTrigger>
             <SelectContent>
