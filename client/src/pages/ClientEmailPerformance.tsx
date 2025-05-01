@@ -29,7 +29,29 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import { Loader2 } from 'lucide-react';
+import { 
+  Loader2, 
+  BarChart3, 
+  TrendingUp,
+  Activity,
+  Users,
+  Clock,
+  AlertCircle,
+  BarChart2, 
+  PieChart as PieChartIcon,
+  Globe,
+  Zap,
+  ArrowUp,
+  ArrowDown,
+  Cpu,
+  Mail,
+  Target,
+  Calendar,
+  TrendingDown,
+  Smartphone,
+  Layers,
+  LineChart as LineChartIcon
+} from 'lucide-react';
 
 // Sample data for now - will be replaced with API data
 const emailPerformanceData = [
@@ -105,34 +127,86 @@ interface MetricCardProps {
   subValue?: string;
   trend?: 'up' | 'down' | 'neutral';
   trendValue?: string;
+  icon?: React.ReactNode;
+  color?: string;
+  showProgress?: boolean;
+  progressValue?: number;
+  bgGradient?: boolean;
 }
 
-// Metric Card Component
+// Modern Metric Card Component
 const MetricCard: React.FC<MetricCardProps> = ({ 
   title, 
   value, 
   subValue, 
   trend = 'neutral',
-  trendValue
+  trendValue,
+  icon,
+  color = "primary",
+  showProgress = false,
+  progressValue = 0,
+  bgGradient = false
 }) => {
+  // Determine the color class based on trend and provided color
+  const colorClass = trend === 'up' ? 'text-emerald-500' : trend === 'down' ? 'text-rose-500' : `text-${color}`;
+  const iconColorClass = `text-${color}`;
+  const trendIcon = trend === 'up' ? <ArrowUp size={14} className="text-emerald-500" /> : 
+                   trend === 'down' ? <ArrowDown size={14} className="text-rose-500" /> : null;
+  
+  // Gradients for background
+  const bgStyle = bgGradient ? {
+    background: 'linear-gradient(135deg, rgba(49, 46, 129, 0.05) 0%, rgba(17, 24, 39, 0.05) 100%)',
+  } : {};
+  
   return (
-    <Card>
-      <CardHeader className="pb-2">
-        <CardTitle className="text-sm font-medium text-gray-500">{title}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="flex items-baseline justify-between">
-          <div>
-            <div className="text-2xl font-bold">{value}</div>
-            {subValue && <p className="text-sm text-gray-500">{subValue}</p>}
+    <Card className="relative overflow-hidden transition-all hover:shadow-md border border-gray-100 dark:border-gray-800 group" style={bgStyle}>
+      <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-primary/5 to-primary/10 rounded-full -mt-8 -mr-8 z-0"></div>
+      
+      <CardHeader className="pb-2 relative z-10">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center">
+            {icon && (
+              <div className={`mr-3 p-2 rounded-md bg-${color}/10 flex items-center justify-center transition-transform group-hover:scale-110`}>
+                {icon}
+              </div>
+            )}
+            <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-300">{title}</CardTitle>
           </div>
+          
           {trend && trendValue && (
-            <Badge variant={trend === 'up' ? 'default' : trend === 'down' ? 'destructive' : 'outline'}>
-              {trend === 'up' ? '↑' : trend === 'down' ? '↓' : '–'} {trendValue}
-            </Badge>
+            <div className={`flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium ${trend === 'up' ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400' : trend === 'down' ? 'bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400' : 'bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-400'}`}>
+              {trendIcon}
+              <span>{trendValue}</span>
+            </div>
+          )}
+        </div>
+      </CardHeader>
+      
+      <CardContent className="relative z-10">
+        <div className="flex flex-col space-y-1">
+          <div className="text-2xl font-bold tracking-tight">{value}</div>
+          {subValue && <p className="text-sm text-gray-500 dark:text-gray-400">{subValue}</p>}
+          
+          {showProgress && (
+            <div className="mt-3">
+              <div className="flex items-center justify-between text-xs mb-1">
+                <span className="text-gray-500">Progress</span>
+                <span className="font-medium">{progressValue}%</span>
+              </div>
+              <Progress 
+                value={progressValue} 
+                className="h-1.5" 
+                style={{ 
+                  '--progress-background': 'rgba(var(--primary), 0.2)',
+                  '--progress-foreground': 'rgb(var(--primary))'
+                } as React.CSSProperties} 
+              />
+            </div>
           )}
         </div>
       </CardContent>
+      
+      <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
     </Card>
   );
 };
@@ -396,40 +470,69 @@ const ClientEmailPerformance: React.FC = () => {
   // Main content when data is loaded
   return (
     <div className="container mx-auto py-6">
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">
-            Email Performance Dashboard
-          </h1>
-          <p className="text-gray-500">Track and analyze your email campaign metrics</p>
-        </div>
-        <div className="flex space-x-4">
-          <Select value={timeframe} onValueChange={setTimeframe}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Select Timeframe" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="today">Today</SelectItem>
-              <SelectItem value="yesterday">Yesterday</SelectItem>
-              <SelectItem value="7days">Last 7 Days</SelectItem>
-              <SelectItem value="30days">Last 30 Days</SelectItem>
-              <SelectItem value="90days">Last 90 Days</SelectItem>
-            </SelectContent>
-          </Select>
+      {/* Modern dashboard header with animated gradient */}
+      <div className="relative rounded-xl overflow-hidden bg-gradient-to-r from-gray-900 to-gray-800 p-6 mb-8 shadow-lg">
+        <div className="absolute inset-0 bg-grid-white/[0.05] bg-[length:20px_20px]"></div>
+        <div className="absolute h-32 w-32 rounded-full bg-primary/20 blur-3xl -top-10 -right-10"></div>
+        <div className="absolute h-32 w-32 rounded-full bg-blue-500/20 blur-3xl -bottom-10 -left-10"></div>
+        
+        <div className="relative flex flex-col md:flex-row justify-between items-start md:items-center gap-4 md:gap-8">
+          <div className="flex items-center">
+            <div className="mr-4 p-3 rounded-lg bg-white/10 backdrop-blur-sm">
+              <BarChart3 className="h-8 w-8 text-primary" />
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+                Email Performance 
+                <span className="ml-1 bg-gradient-to-r from-primary to-blue-500 bg-clip-text">Analytics</span>
+              </h1>
+              <p className="text-gray-400 mt-1 flex items-center">
+                <Cpu className="h-4 w-4 mr-1 text-primary/70" /> 
+                <span>AI-powered insights and real-time campaign analytics</span>
+              </p>
+            </div>
+          </div>
           
-          <Select value={campaignFilter} onValueChange={setCampaignFilter}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="All Campaigns" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Campaigns</SelectItem>
-              {campaigns.map(campaign => (
-                <SelectItem key={campaign.id} value={String(campaign.id)}>
-                  {campaign.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-1.5 flex items-center">
+              <Calendar className="h-4 w-4 text-gray-400 ml-2 mr-1" />
+              <Select value={timeframe} onValueChange={setTimeframe}>
+                <SelectTrigger className="border-0 bg-transparent focus:ring-0 shadow-none text-white px-2 h-9 min-w-[160px]">
+                  <SelectValue placeholder="Select Timeframe" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="today">Today</SelectItem>
+                  <SelectItem value="yesterday">Yesterday</SelectItem>
+                  <SelectItem value="7days">Last 7 Days</SelectItem>
+                  <SelectItem value="30days">Last 30 Days</SelectItem>
+                  <SelectItem value="90days">Last 90 Days</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-1.5 flex items-center">
+              <Mail className="h-4 w-4 text-gray-400 ml-2 mr-1" />
+              <Select value={campaignFilter} onValueChange={setCampaignFilter}>
+                <SelectTrigger className="border-0 bg-transparent focus:ring-0 shadow-none text-white px-2 h-9 min-w-[160px]">
+                  <SelectValue placeholder="All Campaigns" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Campaigns</SelectItem>
+                  {campaigns.map(campaign => (
+                    <SelectItem key={campaign.id} value={String(campaign.id)}>
+                      {campaign.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </div>
+        
+        {/* Animated Data Processing Indicator */}
+        <div className="absolute bottom-2 right-4 flex items-center gap-1.5">
+          <div className="size-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
+          <span className="text-xs text-emerald-400">AI Analysis Active</span>
         </div>
       </div>
       
