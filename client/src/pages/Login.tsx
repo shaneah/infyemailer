@@ -13,6 +13,7 @@ import { useLocation, Link } from "wouter";
 import { apiRequest } from "@/lib/queryClient";
 import { useState, useEffect } from "react";
 import infyLogo from "@/assets/Logo-white.png";
+import { useClientAuth } from '@/hooks/useClientAuth';
 
 // Admin login schema
 const adminLoginSchema = z.object({
@@ -37,6 +38,9 @@ export default function Login() {
   const [isAdminLoading, setIsAdminLoading] = useState(false);
   const [isClientLoading, setIsClientLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<string>("admin");
+  
+  // Use client auth hook for client login
+  const { login: clientLogin } = useClientAuth();
   
   // Check if user is already logged in
   useEffect(() => {
@@ -102,67 +106,6 @@ export default function Login() {
     }
   });
 
-  // Client login using server API
-  const clientLoginMutation = useMutation({
-    mutationFn: async (data: ClientLoginFormValues) => {
-      console.log("Attempting client login with username:", data.username);
-      
-      try {
-        const response = await fetch('/api/client-login', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            username: data.username,
-            password: data.password
-          }),
-          credentials: 'include'
-        });
-        
-        console.log("Login response status:", response.status);
-        
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || 'Login failed. Please check your credentials.');
-        }
-        
-        return await response.json();
-      } catch (error) {
-        console.error("Login error:", error);
-        throw error;
-      }
-    },
-    onSuccess: (data) => {
-      toast({
-        title: "Login successful",
-        description: "Welcome to InfyMailer client portal!"
-      });
-      
-      // Store user data in localStorage or sessionStorage based on remember me
-      if (clientForm.getValues().rememberMe) {
-        localStorage.setItem('clientUser', JSON.stringify(data));
-      } else {
-        sessionStorage.setItem('clientUser', JSON.stringify(data));
-      }
-      
-      // Short delay to show loading state
-      setTimeout(() => {
-        setLocation('/client-dashboard');
-      }, 500);
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Login failed",
-        description: error.message || "Invalid client credentials. Please try again.",
-        variant: "destructive"
-      });
-    },
-    onSettled: () => {
-      setIsClientLoading(false);
-    }
-  });
-
   // Admin form submit handler
   function onAdminSubmit(data: AdminLoginFormValues) {
     setIsAdminLoading(true);
@@ -170,9 +113,21 @@ export default function Login() {
   }
   
   // Client form submit handler
-  function onClientSubmit(data: ClientLoginFormValues) {
+  async function onClientSubmit(data: ClientLoginFormValues) {
     setIsClientLoading(true);
-    clientLoginMutation.mutate(data);
+    try {
+      const result = await clientLogin(data.username, data.password, data.rememberMe);
+      if (result.success) {
+        // Small delay for animation to complete
+        setTimeout(() => {
+          setLocation('/client-dashboard');
+        }, 500);
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+    } finally {
+      setIsClientLoading(false);
+    }
   }
 
   return (
@@ -420,12 +375,12 @@ export default function Login() {
                       </div>
                       <Button 
                         type="submit" 
-                        className="w-full mt-2 py-3 bg-gradient-to-r from-[#0c2f6c] to-[#193555] hover:from-[#193555] hover:to-[#0c2f6c] text-[#d4af37] font-medium rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center border border-[#d4af37]/20"
+                        className="w-full mt-2 py-3 bg-gradient-to-r from-[#d4af37] to-[#b38728] hover:from-[#b38728] hover:to-[#d4af37] text-[#09152E] font-medium rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center"
                         disabled={isClientLoading}
                       >
                         {isClientLoading ? (
                           <>
-                            <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-[#d4af37]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-[#09152E]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                             </svg>
@@ -444,62 +399,65 @@ export default function Login() {
               </Tabs>
           </div>
           
-          {/* Right side - Features/Marketing */}
-          <div className="hidden lg:flex lg:flex-col lg:justify-between bg-[#0c1d3d] rounded-2xl p-8 shadow-xl text-white relative overflow-hidden">
-            {/* Background pattern */}
-            <div className="absolute inset-0 opacity-10" 
-                 style={{
-                   backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'52\' height=\'26\' viewBox=\'0 0 52 26\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23d4af37\' fill-opacity=\'0.15\'%3E%3Cpath d=\'M10 10c0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6h2c0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4v2c-3.314 0-6-2.686-6-6 0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6zm25.464-1.95l8.486 8.486-1.414 1.414-8.486-8.486 1.414-1.414z\' /%3E%3C/g%3E%3C/g%3E%3C/svg%3E")'
-                 }}
-            ></div>
-
-            <div className="relative z-10">
-              <h1 className="text-3xl font-extrabold leading-tight bg-clip-text text-transparent bg-gradient-to-r from-[#d4af37] to-[#f5f0e1]">
-                InfyMailer Platform
-              </h1>
-              <p className="mt-3 text-lg text-[#f5f0e1]/90">
-                The comprehensive email marketing solution for growing businesses
-              </p>
-            </div>
-            
-            <div className="space-y-6 my-8 relative z-10">
-              <div className="flex items-start bg-white/10 p-4 rounded-lg hover:bg-[#d4af37]/15 transition-all duration-200 border border-[#d4af37]/20">
-                <div className="bg-[#d4af37] p-2 rounded-full mr-4 text-[#0c2f6c]">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                  </svg>
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold text-[#d4af37]">Advanced Email Marketing</h3>
-                  <p className="text-[#f5f0e1]/90">Create and send beautiful emails that convert</p>
-                </div>
+          {/* Right column - Features highlights */}
+          <div className="bg-[#0c1d3d] rounded-2xl p-8 flex flex-col shadow-xl">
+            <div className="flex items-center mb-6">
+              <div className="w-12 h-12 flex items-center justify-center bg-gradient-to-br from-[#0c2f6c] to-[#193555] rounded-lg mr-4 shadow-md">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-[#d4af37]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
               </div>
-              <div className="flex items-start bg-white/10 p-4 rounded-lg hover:bg-[#d4af37]/15 transition-all duration-200 border border-[#d4af37]/20">
-                <div className="bg-[#d4af37] p-2 rounded-full mr-4 text-[#0c2f6c]">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                  </svg>
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold text-[#d4af37]">Intelligent Analytics</h3>
-                  <p className="text-[#f5f0e1]/90">Track performance with detailed analytics and reports</p>
-                </div>
-              </div>
-              <div className="flex items-start bg-white/10 p-4 rounded-lg hover:bg-[#d4af37]/15 transition-all duration-200 border border-[#d4af37]/20">
-                <div className="bg-[#d4af37] p-2 rounded-full mr-4 text-[#0c2f6c]">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zm0 8a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zm12 0a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
-                  </svg>
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold text-[#d4af37]">A/B Testing</h3>
-                  <p className="text-[#f5f0e1]/90">Optimize your campaigns with powerful testing tools</p>
-                </div>
+              <div>
+                <h3 className="text-lg font-medium text-white">Smart Email Campaigns</h3>
+                <p className="text-sm text-white/60">Automate your marketing with precision targeting</p>
               </div>
             </div>
             
-            <div className="pt-6 border-t border-[#d4af37]/20 text-sm text-[#f5f0e1]/70 relative z-10">
-              &copy; {new Date().getFullYear()} InfyMailer. All rights reserved.
+            <div className="flex items-center mb-6">
+              <div className="w-12 h-12 flex items-center justify-center bg-gradient-to-br from-[#0c2f6c] to-[#193555] rounded-lg mr-4 shadow-md">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-[#d4af37]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-lg font-medium text-white">Advanced Reporting</h3>
+                <p className="text-sm text-white/60">Gain insights with detailed analytics and metrics</p>
+              </div>
+            </div>
+            
+            <div className="flex items-center mb-6">
+              <div className="w-12 h-12 flex items-center justify-center bg-gradient-to-br from-[#0c2f6c] to-[#193555] rounded-lg mr-4 shadow-md">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-[#d4af37]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-lg font-medium text-white">Smart A/B Testing</h3>
+                <p className="text-sm text-white/60">Optimize campaigns with automated testing</p>
+              </div>
+            </div>
+            
+            <div className="flex items-center mb-6">
+              <div className="w-12 h-12 flex items-center justify-center bg-gradient-to-br from-[#0c2f6c] to-[#193555] rounded-lg mr-4 shadow-md">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-[#d4af37]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-lg font-medium text-white">Audience Management</h3>
+                <p className="text-sm text-white/60">Segment contacts for targeted campaigns</p>
+              </div>
+            </div>
+            
+            <div className="mt-auto">
+              <div className="p-4 rounded-lg bg-[#ffffff08] border border-[#ffffff15]">
+                <p className="text-white/90 text-sm mb-2">
+                  <span className="font-medium text-[#d4af37]">InfyMailer Pro</span> gives you access to all premium features including AI-powered content generation and advanced automation.
+                </p>
+                <Button className="w-full py-2 mt-2 bg-[#ffffff15] text-white/90 hover:bg-[#ffffff20] rounded-lg border border-[#ffffff15]">
+                  Learn About Pro Features
+                </Button>
+              </div>
             </div>
           </div>
         </div>
