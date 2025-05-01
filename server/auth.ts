@@ -8,6 +8,7 @@ import { storage } from "./storage";
 import memorystore from "memorystore";
 import { pool, isDatabaseAvailable } from "./db";
 import connectPgSimple from "connect-pg-simple";
+import { v4 as uuidv4 } from "uuid";
 
 declare global {
   namespace Express {
@@ -61,33 +62,30 @@ export async function comparePasswords(supplied: string, stored: string) {
 }
 
 export function setupAuth(app: Express) {
-  // Determine which session store to use based on database availability
-  let sessionStore;
+  // Generate a strong session secret if one doesn't exist
+  const sessionSecret = process.env.SESSION_SECRET || uuidv4() + uuidv4();
   
-  if (isDatabaseAvailable) {
-    console.log('Using PostgreSQL for session storage');
-    const PgSessionStore = connectPgSimple(session);
-    sessionStore = new PgSessionStore({
-      pool,
-      tableName: 'session', // Default table name
-      createTableIfMissing: true
-    });
-  } else {
-    console.log('Using memory store for session storage');
-    const MemoryStore = memorystore(session);
-    sessionStore = new MemoryStore({
-      checkPeriod: 86400000 // prune expired entries every 24h
-    });
-  }
+  // Use a simple memory store to avoid database issues with session storage
+  const MemoryStore = memorystore(session);
+  const sessionStore = new MemoryStore({
+    checkPeriod: 86400000 // prune expired entries every 24h
+  });
 
+  // Session configuration with enhanced security
   const sessionSettings: session.SessionOptions = {
-    secret: process.env.SESSION_SECRET || 'infy-mailer-secret',
-    resave: false,
-    saveUninitialized: false,
+    name: 'infy_sid', // Custom session name instead of default connect.sid
+    secret: sessionSecret,
+    resave: true,
+    rolling: true, // Reset expiration countdown on every response
+    saveUninitialized: true,
     store: sessionStore,
+    genid: () => uuidv4(), // Generate random session IDs
     cookie: {
       maxAge: 1000 * 60 * 60 * 24, // 1 day
-      secure: false,
+      secure: false, // Set to true in production with HTTPS
+      httpOnly: true, 
+      sameSite: 'lax',
+      path: '/'
     }
   };
 
@@ -221,14 +219,33 @@ export function setupAuth(app: Express) {
   });
 
   app.post("/api/login", (req, res, next) => {
+    console.log('Login attempt with credentials:', {
+      usernameOrEmail: req.body.usernameOrEmail,
+      passwordProvided: !!req.body.password
+    });
+    
     passport.authenticate("local", (err: any, user: Express.User | false | null, info: { message: string } | undefined) => {
-      if (err) return next(err);
+      if (err) {
+        console.error('Login authentication error:', err);
+        return next(err);
+      }
+      
       if (!user) {
+        console.log('Login failed - user not found or invalid credentials');
         return res.status(401).json({ message: info?.message || "Authentication failed" });
       }
       
+      console.log('Login successful - establishing session for user ID:', user.id);
+      
       req.login(user, (err: Error | null) => {
-        if (err) return next(err);
+        if (err) {
+          console.error('Session creation failed:', err);
+          return next(err);
+        }
+        
+        // Log session details
+        console.log('Session created - Session ID:', req.sessionID);
+        
         // Remove password from response
         const { password, ...userWithoutPassword } = user as any;
         res.status(200).json(userWithoutPassword);
@@ -244,9 +261,44 @@ export function setupAuth(app: Express) {
   });
 
   app.get("/api/user", (req, res) => {
-    if (!req.isAuthenticated()) return res.status(401).json({ message: "Not authenticated" });
+    console.log('GET /api/user - Session ID:', req.sessionID);
+    console.log('GET /api/user - isAuthenticated:', req.isAuthenticated());
+    
+    if (!req.isAuthenticated()) {
+      console.log('GET /api/user - Authentication failed');
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+    
+    console.log('GET /api/user - User:', req.user ? `ID: ${req.user.id}, Username: ${req.user.username}` : 'null');
+    
+    if (!req.user) {
+      console.log('GET /api/user - User object is null despite being authenticated');
+      return res.status(500).json({ message: "Authentication error: User object is null" });
+    }
+    
     // Remove password from response
     const { password, ...userWithoutPassword } = req.user;
     res.json(userWithoutPassword);
+  });
+  
+  // Debug route to check session status
+  app.get("/api/session-debug", (req, res) => {
+    const sessionInfo = {
+      hasSession: !!req.session,
+      sessionID: req.sessionID || 'none',
+      isAuthenticated: req.isAuthenticated(),
+      user: req.user ? {
+        id: req.user.id,
+        username: req.user.username,
+        roles: req.user.roles || [],
+      } : null,
+      cookie: req.session?.cookie ? {
+        maxAge: req.session.cookie.maxAge,
+        expires: req.session.cookie.expires,
+      } : null,
+    };
+    
+    console.log('Session Debug Info:', JSON.stringify(sessionInfo, null, 2));
+    res.json(sessionInfo);
   });
 }
