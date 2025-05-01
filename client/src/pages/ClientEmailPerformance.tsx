@@ -50,7 +50,13 @@ import {
   TrendingDown,
   Smartphone,
   Layers,
-  LineChart as LineChartIcon
+  LineChart as LineChartIcon,
+  Lightbulb,
+  MousePointer,
+  MousePointerClick,
+  ArrowDownCircle,
+  Eye,
+  UserMinus2
 } from 'lucide-react';
 
 // Sample data for now - will be replaced with API data
@@ -470,34 +476,24 @@ const ClientEmailPerformance: React.FC = () => {
   // Main content when data is loaded
   return (
     <div className="container mx-auto py-6">
-      {/* Modern dashboard header with animated gradient */}
-      <div className="relative rounded-xl overflow-hidden bg-gradient-to-r from-gray-900 to-gray-800 p-6 mb-8 shadow-lg">
-        <div className="absolute inset-0 bg-grid-white/[0.05] bg-[length:20px_20px]"></div>
-        <div className="absolute h-32 w-32 rounded-full bg-primary/20 blur-3xl -top-10 -right-10"></div>
-        <div className="absolute h-32 w-32 rounded-full bg-blue-500/20 blur-3xl -bottom-10 -left-10"></div>
-        
-        <div className="relative flex flex-col md:flex-row justify-between items-start md:items-center gap-4 md:gap-8">
-          <div className="flex items-center">
-            <div className="mr-4 p-3 rounded-lg bg-white/10 backdrop-blur-sm">
-              <BarChart3 className="h-8 w-8 text-primary" />
-            </div>
-            <div>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
-                Email Performance 
-                <span className="ml-1 bg-gradient-to-r from-primary to-blue-500 bg-clip-text">Analytics</span>
-              </h1>
-              <p className="text-gray-400 mt-1 flex items-center">
-                <Cpu className="h-4 w-4 mr-1 text-primary/70" /> 
-                <span>AI-powered insights and real-time campaign analytics</span>
-              </p>
-            </div>
+      {/* Clean dashboard header */}
+      <div className="border rounded-xl p-6 mb-8 shadow-sm bg-card">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 md:gap-8">
+          <div>
+            <h1 className="text-3xl font-semibold text-foreground">
+              Email Performance
+            </h1>
+            <p className="text-muted-foreground mt-1 flex items-center">
+              <BarChart3 className="h-4 w-4 mr-1.5" /> 
+              <span>Campaign analytics and performance metrics</span>
+            </p>
           </div>
           
           <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
-            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-1.5 flex items-center">
-              <Calendar className="h-4 w-4 text-gray-400 ml-2 mr-1" />
+            <div className="border rounded-md flex items-center">
+              <Calendar className="h-4 w-4 text-muted-foreground ml-2 mr-1" />
               <Select value={timeframe} onValueChange={setTimeframe}>
-                <SelectTrigger className="border-0 bg-transparent focus:ring-0 shadow-none text-white px-2 h-9 min-w-[160px]">
+                <SelectTrigger className="border-0 focus:ring-0 shadow-none px-2 h-9 min-w-[160px]">
                   <SelectValue placeholder="Select Timeframe" />
                 </SelectTrigger>
                 <SelectContent>
@@ -510,10 +506,10 @@ const ClientEmailPerformance: React.FC = () => {
               </Select>
             </div>
             
-            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-1.5 flex items-center">
-              <Mail className="h-4 w-4 text-gray-400 ml-2 mr-1" />
+            <div className="border rounded-md flex items-center">
+              <Mail className="h-4 w-4 text-muted-foreground ml-2 mr-1" />
               <Select value={campaignFilter} onValueChange={setCampaignFilter}>
-                <SelectTrigger className="border-0 bg-transparent focus:ring-0 shadow-none text-white px-2 h-9 min-w-[160px]">
+                <SelectTrigger className="border-0 focus:ring-0 shadow-none px-2 h-9 min-w-[160px]">
                   <SelectValue placeholder="All Campaigns" />
                 </SelectTrigger>
                 <SelectContent>
@@ -528,156 +524,265 @@ const ClientEmailPerformance: React.FC = () => {
             </div>
           </div>
         </div>
+      </div>
+      
+      {/* Key Metrics Section - Cleaner Style */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div className="border rounded-lg p-4">
+          <div className="flex items-center mb-3">
+            <div className="w-8 h-8 rounded-md bg-primary/10 flex items-center justify-center mr-3">
+              <Mail className="h-4 w-4 text-primary" />
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">Open Rate</p>
+              <h4 className="text-xl font-semibold">{metricsData?.openRate?.value ? `${metricsData.openRate.value.toFixed(1)}%` : "24.8%"}</h4>
+            </div>
+            <div className="ml-auto">
+              {((metricsData?.openRate?.trend || "up") === "up") ? (
+                <div className="flex items-center text-emerald-500 text-sm">
+                  <ArrowUp className="h-3 w-3 mr-1" />
+                  <span>{metricsData?.openRate?.trendValue || "3.2%"}</span>
+                </div>
+              ) : (
+                <div className="flex items-center text-rose-500 text-sm">
+                  <ArrowDown className="h-3 w-3 mr-1" />
+                  <span>{metricsData?.openRate?.trendValue || "3.2%"}</span>
+                </div>
+              )}
+            </div>
+          </div>
+          <div className="mt-1">
+            <Progress value={metricsData?.openRate?.value || 24.8} className="h-1" />
+            <p className="text-xs text-muted-foreground mt-1.5">Industry avg: {metricsData?.openRate?.industryAvg?.toFixed(1) || "21.5"}%</p>
+          </div>
+        </div>
         
-        {/* Animated Data Processing Indicator */}
-        <div className="absolute bottom-2 right-4 flex items-center gap-1.5">
-          <div className="size-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
-          <span className="text-xs text-emerald-400">AI Analysis Active</span>
+        <div className="border rounded-lg p-4">
+          <div className="flex items-center mb-3">
+            <div className="w-8 h-8 rounded-md bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center mr-3">
+              <MousePointer className="h-4 w-4 text-blue-500" />
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">Click Rate</p>
+              <h4 className="text-xl font-semibold">{metricsData?.clickRate?.value ? `${metricsData.clickRate.value.toFixed(1)}%` : "3.6%"}</h4>
+            </div>
+            <div className="ml-auto">
+              {((metricsData?.clickRate?.trend || "up") === "up") ? (
+                <div className="flex items-center text-emerald-500 text-sm">
+                  <ArrowUp className="h-3 w-3 mr-1" />
+                  <span>{metricsData?.clickRate?.trendValue || "0.9%"}</span>
+                </div>
+              ) : (
+                <div className="flex items-center text-rose-500 text-sm">
+                  <ArrowDown className="h-3 w-3 mr-1" />
+                  <span>{metricsData?.clickRate?.trendValue || "0.9%"}</span>
+                </div>
+              )}
+            </div>
+          </div>
+          <div className="mt-1">
+            <Progress value={(metricsData?.clickRate?.value || 3.6) * 5} className="h-1" />
+            <p className="text-xs text-muted-foreground mt-1.5">Industry avg: {metricsData?.clickRate?.industryAvg?.toFixed(1) || "2.7"}%</p>
+          </div>
+        </div>
+        
+        <div className="border rounded-lg p-4">
+          <div className="flex items-center mb-3">
+            <div className="w-8 h-8 rounded-md bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center mr-3">
+              <Target className="h-4 w-4 text-emerald-500" />
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">Conversion Rate</p>
+              <h4 className="text-xl font-semibold">{metricsData?.conversionRate?.value ? `${metricsData.conversionRate.value.toFixed(1)}%` : "1.2%"}</h4>
+            </div>
+            <div className="ml-auto">
+              {((metricsData?.conversionRate?.trend || "down") === "up") ? (
+                <div className="flex items-center text-emerald-500 text-sm">
+                  <ArrowUp className="h-3 w-3 mr-1" />
+                  <span>{metricsData?.conversionRate?.trendValue || "0.3%"}</span>
+                </div>
+              ) : (
+                <div className="flex items-center text-rose-500 text-sm">
+                  <ArrowDown className="h-3 w-3 mr-1" />
+                  <span>{metricsData?.conversionRate?.trendValue || "0.3%"}</span>
+                </div>
+              )}
+            </div>
+          </div>
+          <div className="mt-1">
+            <Progress value={(metricsData?.conversionRate?.value || 1.2) * 10} className="h-1" />
+            <p className="text-xs text-muted-foreground mt-1.5">Goal: {metricsData?.conversionRate?.goal?.toFixed(1) || "1.5"}%</p>
+          </div>
+        </div>
+        
+        <div className="border rounded-lg p-4">
+          <div className="flex items-center mb-3">
+            <div className="w-8 h-8 rounded-md bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center mr-3">
+              <ArrowDownCircle className="h-4 w-4 text-amber-500" />
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">Bounce Rate</p>
+              <h4 className="text-xl font-semibold">{metricsData?.bounceRate?.value ? `${metricsData.bounceRate.value.toFixed(1)}%` : "0.8%"}</h4>
+            </div>
+            <div className="ml-auto">
+              {((metricsData?.bounceRate?.trend || "up") !== "up") ? (
+                <div className="flex items-center text-emerald-500 text-sm">
+                  <ArrowDown className="h-3 w-3 mr-1" />
+                  <span>{metricsData?.bounceRate?.trendValue || "0.4%"}</span>
+                </div>
+              ) : (
+                <div className="flex items-center text-rose-500 text-sm">
+                  <ArrowUp className="h-3 w-3 mr-1" />
+                  <span>{metricsData?.bounceRate?.trendValue || "0.4%"}</span>
+                </div>
+              )}
+            </div>
+          </div>
+          <div className="mt-1">
+            <Progress value={(metricsData?.bounceRate?.value || 0.8) * 10} className="h-1" />
+            <p className="text-xs text-muted-foreground mt-1.5">Industry avg: {metricsData?.bounceRate?.industryAvg?.toFixed(1) || "1.2"}%</p>
+          </div>
         </div>
       </div>
       
-      {/* Key Metrics Section with Visual Indicators */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <MetricCard 
-          title="Open Rate" 
-          value={metricsData?.openRate?.value ? `${metricsData.openRate.value.toFixed(1)}%` : "24.8%"} 
-          subValue={metricsData?.openRate?.industryAvg ? `Industry avg: ${metricsData.openRate.industryAvg.toFixed(1)}%` : "Industry avg: 21.5%"} 
-          trend={metricsData?.openRate?.trend ? metricsData.openRate.trend as 'up' | 'down' | 'neutral' : "up"} 
-          trendValue={metricsData?.openRate?.trendValue ? metricsData.openRate.trendValue : "3.2%"}
-          icon={<Mail className="h-5 w-5 text-primary" />}
-          showProgress={true}
-          progressValue={metricsData?.openRate?.value || 24.8}
-          bgGradient={true}
-        />
-        <MetricCard 
-          title="Click Rate" 
-          value={metricsData?.clickRate?.value ? `${metricsData.clickRate.value.toFixed(1)}%` : "3.6%"} 
-          subValue={metricsData?.clickRate?.industryAvg ? `Industry avg: ${metricsData.clickRate.industryAvg.toFixed(1)}%` : "Industry avg: 2.7%"} 
-          trend={metricsData?.clickRate?.trend ? metricsData.clickRate.trend as 'up' | 'down' | 'neutral' : "up"} 
-          trendValue={metricsData?.clickRate?.trendValue ? metricsData.clickRate.trendValue : "0.9%"}
-          icon={<Activity className="h-5 w-5 text-blue-500" />}
-          showProgress={true}
-          progressValue={metricsData?.clickRate?.value || 3.6}
-          bgGradient={true}
-        />
-        <MetricCard 
-          title="Conversion Rate" 
-          value={metricsData?.conversionRate?.value ? `${metricsData.conversionRate.value.toFixed(1)}%` : "1.2%"} 
-          subValue={metricsData?.conversionRate?.goal ? `Goal: ${metricsData.conversionRate.goal.toFixed(1)}%` : "Goal: 1.5%"} 
-          trend={metricsData?.conversionRate?.trend ? metricsData.conversionRate.trend as 'up' | 'down' | 'neutral' : "down"} 
-          trendValue={metricsData?.conversionRate?.trendValue ? metricsData.conversionRate.trendValue : "0.3%"}
-          icon={<Target className="h-5 w-5 text-emerald-500" />}
-          showProgress={true}
-          progressValue={metricsData?.conversionRate?.value || 1.2}
-          bgGradient={true}
-        />
-        <MetricCard 
-          title="Bounce Rate" 
-          value={metricsData?.bounceRate?.value ? `${metricsData.bounceRate.value.toFixed(1)}%` : "0.8%"} 
-          subValue={metricsData?.bounceRate?.industryAvg ? `Industry avg: ${metricsData.bounceRate.industryAvg.toFixed(1)}%` : "Industry avg: 1.2%"} 
-          trend={metricsData?.bounceRate?.trend ? metricsData.bounceRate.trend as 'up' | 'down' | 'neutral' : "up"} 
-          trendValue={metricsData?.bounceRate?.trendValue ? metricsData.bounceRate.trendValue : "0.4%"}
-          icon={<AlertCircle className="h-5 w-5 text-amber-500" />}
-          showProgress={true}
-          progressValue={metricsData?.bounceRate?.value || 0.8}
-          bgGradient={true}
-        />
+      {/* Extended Metrics Section - Clean Style */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <div className="border rounded-md p-3 bg-card">
+          <div className="flex items-center gap-2 mb-1.5">
+            <Mail className="h-4 w-4 text-muted-foreground" />
+            <span className="text-sm text-muted-foreground">Total Sent</span>
+          </div>
+          <div className="font-medium text-lg">
+            {typeof metricsData?.totalSent === 'number' ? metricsData.totalSent.toLocaleString() : "42,857"}
+          </div>
+          <div className="text-xs text-muted-foreground mt-0.5">
+            Last {timeframe === '7days' ? '7 days' : timeframe === '30days' ? '30 days' : timeframe === '90days' ? '90 days' : timeframe}
+          </div>
+        </div>
+        
+        <div className="border rounded-md p-3 bg-card">
+          <div className="flex items-center gap-2 mb-1.5">
+            <Eye className="h-4 w-4 text-muted-foreground" />
+            <span className="text-sm text-muted-foreground">Total Opens</span>
+          </div>
+          <div className="font-medium text-lg">
+            {typeof metricsData?.totalOpens === 'number' ? metricsData.totalOpens.toLocaleString() : "10,628"}
+          </div>
+          <div className="text-xs text-muted-foreground mt-0.5">
+            {typeof metricsData?.totalOpens === 'number' && typeof metricsData?.totalSent === 'number' ? 
+              `${(metricsData.totalOpens / metricsData.totalSent * 100).toFixed(1)}% of sent` : "24.8% of sent"}
+          </div>
+        </div>
+        
+        <div className="border rounded-md p-3 bg-card">
+          <div className="flex items-center gap-2 mb-1.5">
+            <MousePointerClick className="h-4 w-4 text-muted-foreground" />
+            <span className="text-sm text-muted-foreground">Total Clicks</span>
+          </div>
+          <div className="font-medium text-lg">
+            {typeof metricsData?.totalClicks === 'number' ? metricsData.totalClicks.toLocaleString() : "1,543"}
+          </div>
+          <div className="text-xs text-muted-foreground mt-0.5">
+            {typeof metricsData?.totalClicks === 'number' && typeof metricsData?.totalSent === 'number' ? 
+              `${(metricsData.totalClicks / metricsData.totalSent * 100).toFixed(1)}% of sent` : "3.6% of sent"}
+          </div>
+        </div>
+        
+        <div className="border rounded-md p-3 bg-card">
+          <div className="flex items-center gap-2 mb-1.5">
+            <UserMinus2 className="h-4 w-4 text-muted-foreground" />
+            <span className="text-sm text-muted-foreground">Unsubscribes</span>
+          </div>
+          <div className="font-medium text-lg">
+            {typeof metricsData?.unsubscribes === 'number' ? metricsData.unsubscribes.toLocaleString() : "38"}
+          </div>
+          <div className="text-xs text-muted-foreground mt-0.5">
+            {typeof metricsData?.unsubscribes === 'number' && typeof metricsData?.totalSent === 'number' ? 
+              `${(metricsData.unsubscribes / metricsData.totalSent * 100).toFixed(2)}% of sent` : "0.09% of sent"}
+          </div>
+        </div>
       </div>
       
-      {/* Extended Metrics Section with Visual Indicators */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <MetricCard 
-          title="Total Sent" 
-          value={typeof metricsData?.totalSent === 'number' ? metricsData.totalSent.toLocaleString() : "42,857"} 
-          subValue={`Last ${timeframe === '7days' ? '7 days' : timeframe === '30days' ? '30 days' : timeframe === '90days' ? '90 days' : timeframe}`}
-          icon={<Mail className="h-5 w-5 text-indigo-400" />}
-          color="indigo"
-        />
-        <MetricCard 
-          title="Total Opens" 
-          value={typeof metricsData?.totalOpens === 'number' ? metricsData.totalOpens.toLocaleString() : "10,628"} 
-          subValue={typeof metricsData?.totalOpens === 'number' && typeof metricsData?.totalSent === 'number' ? 
-            `${(metricsData.totalOpens / metricsData.totalSent * 100).toFixed(1)}% of sent` : "24.8% of sent"}
-          icon={<Zap className="h-5 w-5 text-emerald-400" />}
-          color="emerald"
-        />
-        <MetricCard 
-          title="Total Clicks" 
-          value={typeof metricsData?.totalClicks === 'number' ? metricsData.totalClicks.toLocaleString() : "1,543"} 
-          subValue={typeof metricsData?.totalClicks === 'number' && typeof metricsData?.totalSent === 'number' ? 
-            `${(metricsData.totalClicks / metricsData.totalSent * 100).toFixed(1)}% of sent` : "3.6% of sent"}
-          icon={<BarChart2 className="h-5 w-5 text-blue-400" />}
-          color="blue"
-        />
-        <MetricCard 
-          title="Unsubscribes" 
-          value={typeof metricsData?.unsubscribes === 'number' ? metricsData.unsubscribes.toLocaleString() : "38"} 
-          subValue={typeof metricsData?.unsubscribes === 'number' && typeof metricsData?.totalSent === 'number' ? 
-            `${(metricsData.unsubscribes / metricsData.totalSent * 100).toFixed(2)}% of sent` : "0.09% of sent"}
-          icon={<Users className="h-5 w-5 text-rose-400" />}
-          color="rose"
-        />
-      </div>
-      
-      {/* AI Insights Component */}
-      <Card className="mb-6 border border-primary/20 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-950">
-        <CardContent className="p-6">
-          <div className="flex items-start">
-            <div className="mr-4 p-2 rounded-full bg-primary/10 flex items-center justify-center">
-              <Cpu className="h-6 w-6 text-primary" />
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold mb-1 flex items-center">
-                AI Performance Insights
-                <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-primary/10 text-primary">
-                  Auto-generated
-                </span>
-              </h3>
-              
-              <div className="text-sm text-gray-600 dark:text-gray-300 space-y-2 mt-2">
-                <p className="flex items-start">
-                  <TrendingUp className="h-4 w-4 mr-2 mt-0.5 text-emerald-500" />
-                  <span>Your open rates are <strong>3.2% higher</strong> than industry average, suggesting your subject lines are effective.</span>
-                </p>
-                <p className="flex items-start">
-                  <TrendingDown className="h-4 w-4 mr-2 mt-0.5 text-amber-500" />
-                  <span>Conversion rates are <strong>0.3% below</strong> your target goal. Consider optimizing call-to-action buttons.</span>
-                </p>
-                <p className="flex items-start">
-                  <Smartphone className="h-4 w-4 mr-2 mt-0.5 text-blue-500" />
-                  <span><strong>63% of opens</strong> are coming from mobile devices. Ensure your templates are mobile-optimized.</span>
-                </p>
+      {/* AI Insights Component - Cleaner Style */}
+      <Card className="mb-6 border">
+        <CardHeader className="pb-2">
+          <div className="flex items-center">
+            <Lightbulb className="h-5 w-5 mr-2 text-primary" />
+            <CardTitle className="text-base">Key Insights</CardTitle>
+          </div>
+        </CardHeader>
+        <CardContent className="pt-2">
+          <div className="divide-y">
+            <div className="py-3 first:pt-0 last:pb-0">
+              <div className="flex items-start">
+                <div className="mr-3 p-1.5 rounded-full bg-emerald-100 dark:bg-emerald-900">
+                  <TrendingUp className="h-3.5 w-3.5 text-emerald-500" />
+                </div>
+                <div className="text-sm">
+                  <strong className="font-medium">Strong open rates</strong>
+                  <p className="text-muted-foreground mt-0.5">Your open rates are 3.2% higher than industry average.</p>
+                </div>
               </div>
-              
-              <div className="mt-4 flex">
-                <Button variant="outline" size="sm" className="mr-2 text-xs">
-                  <Zap className="h-3 w-3 mr-1" /> Generate Recommendations
-                </Button>
-                <Button variant="ghost" size="sm" className="text-xs">
-                  <LineChartIcon className="h-3 w-3 mr-1" /> See Detailed Analysis
-                </Button>
+            </div>
+            
+            <div className="py-3 first:pt-0 last:pb-0">
+              <div className="flex items-start">
+                <div className="mr-3 p-1.5 rounded-full bg-amber-100 dark:bg-amber-900">
+                  <TrendingDown className="h-3.5 w-3.5 text-amber-500" />
+                </div>
+                <div className="text-sm">
+                  <strong className="font-medium">Conversion opportunity</strong>
+                  <p className="text-muted-foreground mt-0.5">Consider optimizing call-to-action buttons to increase conversions.</p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="py-3 first:pt-0 last:pb-0">
+              <div className="flex items-start">
+                <div className="mr-3 p-1.5 rounded-full bg-blue-100 dark:bg-blue-900">
+                  <Smartphone className="h-3.5 w-3.5 text-blue-500" />
+                </div>
+                <div className="text-sm">
+                  <strong className="font-medium">Mobile optimization</strong>
+                  <p className="text-muted-foreground mt-0.5">63% of opens are on mobile devices. Ensure responsive templates.</p>
+                </div>
               </div>
             </div>
           </div>
         </CardContent>
       </Card>
       
-      {/* Main Dashboard Content with Animated Tabs */}
+      {/* Main Dashboard Content with Clean Tabs */}
       <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList className="grid grid-cols-5 h-12 rounded-lg bg-gradient-to-r from-gray-100/90 to-gray-50/80 dark:from-gray-900 dark:to-gray-800 p-1">
-          <TabsTrigger value="overview" className="rounded-md data-[state=active]:bg-white dark:data-[state=active]:bg-gray-950 data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all">
+        <TabsList className="flex w-full border-b space-x-6 bg-transparent p-0">
+          <TabsTrigger 
+            value="overview" 
+            className="pb-2.5 px-2 rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:font-medium transition-all"
+          >
             <BarChart3 className="h-4 w-4 mr-1.5" /> Overview
           </TabsTrigger>
-          <TabsTrigger value="opens" className="rounded-md data-[state=active]:bg-white dark:data-[state=active]:bg-gray-950 data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all">
+          <TabsTrigger 
+            value="opens" 
+            className="pb-2.5 px-2 rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:font-medium transition-all"
+          >
             <Mail className="h-4 w-4 mr-1.5" /> Email Opens
           </TabsTrigger>
-          <TabsTrigger value="engagement" className="rounded-md data-[state=active]:bg-white dark:data-[state=active]:bg-gray-950 data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all">
+          <TabsTrigger 
+            value="engagement" 
+            className="pb-2.5 px-2 rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:font-medium transition-all"
+          >
             <Activity className="h-4 w-4 mr-1.5" /> Engagement
           </TabsTrigger>
-          <TabsTrigger value="campaigns" className="rounded-md data-[state=active]:bg-white dark:data-[state=active]:bg-gray-950 data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all">
+          <TabsTrigger 
+            value="campaigns" 
+            className="pb-2.5 px-2 rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:font-medium transition-all"
+          >
             <Layers className="h-4 w-4 mr-1.5" /> Campaigns
           </TabsTrigger>
-          <TabsTrigger value="audience" className="rounded-md data-[state=active]:bg-white dark:data-[state=active]:bg-gray-950 data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all">
+          <TabsTrigger 
+            value="audience" 
+            className="pb-2.5 px-2 rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:font-medium transition-all"
+          >
             <Users className="h-4 w-4 mr-1.5" /> Audience
           </TabsTrigger>
         </TabsList>
