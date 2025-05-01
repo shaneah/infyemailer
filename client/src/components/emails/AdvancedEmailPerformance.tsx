@@ -249,13 +249,15 @@ export default function AdvancedEmailPerformance({
   
   useEffect(() => {
     console.log(`AdvancedEmailPerformance: timeframe changed to ${timeframe}`);
+    console.log(`Running in ${isClient ? 'client' : 'admin'} mode`);
     console.log("Current metrics data:", metrics);
-  }, [timeframe, metrics]);
+  }, [timeframe, metrics, isClient]);
   
   useEffect(() => {
     console.log(`AdvancedEmailPerformance: campaignFilter changed to ${campaignFilter}`);
+    console.log(`Running in ${isClient ? 'client' : 'admin'} mode`);
     console.log("Current charts data:", charts);
-  }, [campaignFilter, charts]);
+  }, [campaignFilter, charts, isClient]);
   
   const userGreeting = useMemo(() => {
     const hour = new Date().getHours();
