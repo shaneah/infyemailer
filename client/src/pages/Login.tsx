@@ -479,12 +479,7 @@ export default function Login() {
                 </motion.div>
               </div>
               
-              {/* Background decorative elements */}
-              <div className="absolute inset-0 z-0 overflow-hidden">
-                <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-indigo-600/30 rounded-full"></div>
-                <div className="absolute -top-20 -left-20 w-80 h-80 bg-blue-500/20 rounded-full"></div>
-                <div className="absolute top-40 right-20 w-40 h-40 bg-purple-500/20 rounded-full blur-xl"></div>
-              </div>
+
             </div>
             
             {/* Right column - Login form with tab navigation */}
