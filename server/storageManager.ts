@@ -12,13 +12,16 @@ const dbStorage = new DbStorage();
 
 /**
  * Returns the appropriate storage instance based on database availability
+ * We prefer database storage but fall back to memory storage if necessary
+ * This fallback is needed for the application to start properly
  */
 export function getStorage(): IStorage {
   if (isDatabaseAvailable) {
     log('Using PostgreSQL database storage', 'storage');
     return dbStorage;
   } else {
-    log('Using in-memory storage (database unavailable)', 'storage');
+    // Fall back to memory storage but log a warning
+    log('WARNING: Using in-memory storage (database unavailable) - data will NOT be persisted between restarts', 'storage');
     return memStorage;
   }
 }
@@ -45,11 +48,13 @@ export async function updateStorageReferences(): Promise<void> {
         log(`Database connection confirmed - found ${clients.length} clients`, 'storage');
       } catch (dbError) {
         log(`Warning: Database verification test failed: ${dbError.message}`, 'storage');
-        // Continue anyway as we'll try to use the database
+        // Warn but continue - allow app to start with potential issues
+        log('Continuing with database storage despite verification issues', 'storage');
       }
     } else {
+      // Fall back to memory storage if database is not available
       Object.assign(storageModule.storage, memStorage);
-      log('Storage references updated to use memory storage', 'storage');
+      log('WARNING: Storage references updated to use memory storage - data will NOT be persisted between restarts', 'storage');
       
       // Initialize memory storage with default data if needed
       try {
