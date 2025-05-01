@@ -87,7 +87,7 @@ export default function EmailPerformance() {
   });
   
   return (
-    <div className="container mx-auto py-4">
+    <div className="w-full px-4">
       <AdvancedEmailPerformance 
         userName="Admin"
         metrics={metricsData}

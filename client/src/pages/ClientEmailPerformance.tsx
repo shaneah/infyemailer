@@ -44,7 +44,7 @@ interface ChartData {
 }
 
 export default function ClientEmailPerformance() {
-  const { user } = useClientAuth();
+  const { clientUser } = useClientAuth();
   const [timeframe, setTimeframe] = useState('7days');
   const [campaignFilter, setCampaignFilter] = useState('all');
   
@@ -89,9 +89,9 @@ export default function ClientEmailPerformance() {
   });
   
   return (
-    <div className="container mx-auto py-4">
+    <div className="w-full px-4">
       <AdvancedEmailPerformance 
-        userName={user?.firstName || 'Client'}
+        userName={clientUser?.firstName || 'Client'}
         metrics={metricsData}
         charts={chartData}
         isClient={true}
