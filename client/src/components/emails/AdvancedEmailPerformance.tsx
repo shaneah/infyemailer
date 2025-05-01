@@ -260,8 +260,8 @@ export default function AdvancedEmailPerformance({
         </div>
         
         <div className="flex items-center gap-2">
-          <Select value={timeframe} onValueChange={setTimeframe}>
-            <SelectTrigger className="w-[140px] h-9 text-xs">
+          <Select value={timeframe} onValueChange={(value) => setTimeframe(value)}>
+            <SelectTrigger className="w-[140px] h-9 text-xs bg-white dark:bg-gray-800">
               <SelectValue placeholder="Month to date" />
             </SelectTrigger>
             <SelectContent>
@@ -273,8 +273,8 @@ export default function AdvancedEmailPerformance({
             </SelectContent>
           </Select>
           
-          <Select value={campaignFilter} onValueChange={setCampaignFilter}>
-            <SelectTrigger className="w-[140px] h-9 text-xs">
+          <Select value={campaignFilter} onValueChange={(value) => setCampaignFilter(value)}>
+            <SelectTrigger className="w-[140px] h-9 text-xs bg-white dark:bg-gray-800">
               <SelectValue placeholder="All Campaigns" />
             </SelectTrigger>
             <SelectContent>
@@ -469,8 +469,8 @@ export default function AdvancedEmailPerformance({
               title="Performance Trend"
               description="Opens, clicks, and conversions over time"
               action={
-                <Select defaultValue="7days">
-                  <SelectTrigger className="h-8 w-[130px] text-xs border">
+                <Select defaultValue="7days" onValueChange={() => {}}>
+                  <SelectTrigger className="h-8 w-[130px] text-xs border bg-white dark:bg-gray-800">
                     <SelectValue placeholder="Last 7 days" />
                   </SelectTrigger>
                   <SelectContent>
