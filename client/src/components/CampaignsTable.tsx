@@ -9,19 +9,18 @@ import { Link } from "wouter";
 interface Campaign {
   id: number;
   name: string;
-  subtitle: string;
-  icon: {
-    name: string;
-    color: string;
+  status: string;
+  metadata?: {
+    subtitle?: string;
+    icon?: {
+      name: string;
+      color: string;
+    };
+    recipients?: number;
+    openRate?: number;
+    clickRate?: number;
+    date?: string;
   };
-  status: {
-    label: string;
-    color: string;
-  };
-  recipients: number;
-  openRate: number;
-  clickRate: number;
-  date: string;
 }
 
 const CampaignsTable = () => {

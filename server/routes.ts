@@ -86,6 +86,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api', (req: Request, res: Response) => {
     res.json({ status: 'API is running' });
   });
+  
+  // Get all campaigns
+  app.get('/api/campaigns', async (req: Request, res: Response) => {
+    try {
+      const campaigns = await storage.getCampaigns();
+      res.json(campaigns);
+    } catch (error) {
+      console.error('Error fetching campaigns:', error);
+      res.status(500).json({ error: 'Failed to fetch campaigns' });
+    }
+  });
 
   // OpenAI client
   const openai = new OpenAI({
