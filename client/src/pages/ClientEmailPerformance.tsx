@@ -536,7 +536,7 @@ const ClientEmailPerformance: React.FC = () => {
         </div>
       </div>
       
-      {/* Key Metrics Section */}
+      {/* Key Metrics Section with Visual Indicators */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <MetricCard 
           title="Open Rate" 
@@ -544,6 +544,10 @@ const ClientEmailPerformance: React.FC = () => {
           subValue={metricsData?.openRate?.industryAvg ? `Industry avg: ${metricsData.openRate.industryAvg.toFixed(1)}%` : "Industry avg: 21.5%"} 
           trend={metricsData?.openRate?.trend ? metricsData.openRate.trend as 'up' | 'down' | 'neutral' : "up"} 
           trendValue={metricsData?.openRate?.trendValue ? metricsData.openRate.trendValue : "3.2%"}
+          icon={<Mail className="h-5 w-5 text-primary" />}
+          showProgress={true}
+          progressValue={metricsData?.openRate?.value || 24.8}
+          bgGradient={true}
         />
         <MetricCard 
           title="Click Rate" 
@@ -551,6 +555,10 @@ const ClientEmailPerformance: React.FC = () => {
           subValue={metricsData?.clickRate?.industryAvg ? `Industry avg: ${metricsData.clickRate.industryAvg.toFixed(1)}%` : "Industry avg: 2.7%"} 
           trend={metricsData?.clickRate?.trend ? metricsData.clickRate.trend as 'up' | 'down' | 'neutral' : "up"} 
           trendValue={metricsData?.clickRate?.trendValue ? metricsData.clickRate.trendValue : "0.9%"}
+          icon={<Activity className="h-5 w-5 text-blue-500" />}
+          showProgress={true}
+          progressValue={metricsData?.clickRate?.value || 3.6}
+          bgGradient={true}
         />
         <MetricCard 
           title="Conversion Rate" 
@@ -558,6 +566,10 @@ const ClientEmailPerformance: React.FC = () => {
           subValue={metricsData?.conversionRate?.goal ? `Goal: ${metricsData.conversionRate.goal.toFixed(1)}%` : "Goal: 1.5%"} 
           trend={metricsData?.conversionRate?.trend ? metricsData.conversionRate.trend as 'up' | 'down' | 'neutral' : "down"} 
           trendValue={metricsData?.conversionRate?.trendValue ? metricsData.conversionRate.trendValue : "0.3%"}
+          icon={<Target className="h-5 w-5 text-emerald-500" />}
+          showProgress={true}
+          progressValue={metricsData?.conversionRate?.value || 1.2}
+          bgGradient={true}
         />
         <MetricCard 
           title="Bounce Rate" 
@@ -565,44 +577,109 @@ const ClientEmailPerformance: React.FC = () => {
           subValue={metricsData?.bounceRate?.industryAvg ? `Industry avg: ${metricsData.bounceRate.industryAvg.toFixed(1)}%` : "Industry avg: 1.2%"} 
           trend={metricsData?.bounceRate?.trend ? metricsData.bounceRate.trend as 'up' | 'down' | 'neutral' : "up"} 
           trendValue={metricsData?.bounceRate?.trendValue ? metricsData.bounceRate.trendValue : "0.4%"}
+          icon={<AlertCircle className="h-5 w-5 text-amber-500" />}
+          showProgress={true}
+          progressValue={metricsData?.bounceRate?.value || 0.8}
+          bgGradient={true}
         />
       </div>
       
-      {/* Extended Metrics Section */}
+      {/* Extended Metrics Section with Visual Indicators */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <MetricCard 
           title="Total Sent" 
           value={typeof metricsData?.totalSent === 'number' ? metricsData.totalSent.toLocaleString() : "42,857"} 
           subValue={`Last ${timeframe === '7days' ? '7 days' : timeframe === '30days' ? '30 days' : timeframe === '90days' ? '90 days' : timeframe}`}
+          icon={<Mail className="h-5 w-5 text-indigo-400" />}
+          color="indigo"
         />
         <MetricCard 
           title="Total Opens" 
           value={typeof metricsData?.totalOpens === 'number' ? metricsData.totalOpens.toLocaleString() : "10,628"} 
           subValue={typeof metricsData?.totalOpens === 'number' && typeof metricsData?.totalSent === 'number' ? 
             `${(metricsData.totalOpens / metricsData.totalSent * 100).toFixed(1)}% of sent` : "24.8% of sent"}
+          icon={<Zap className="h-5 w-5 text-emerald-400" />}
+          color="emerald"
         />
         <MetricCard 
           title="Total Clicks" 
           value={typeof metricsData?.totalClicks === 'number' ? metricsData.totalClicks.toLocaleString() : "1,543"} 
           subValue={typeof metricsData?.totalClicks === 'number' && typeof metricsData?.totalSent === 'number' ? 
             `${(metricsData.totalClicks / metricsData.totalSent * 100).toFixed(1)}% of sent` : "3.6% of sent"}
+          icon={<BarChart2 className="h-5 w-5 text-blue-400" />}
+          color="blue"
         />
         <MetricCard 
           title="Unsubscribes" 
           value={typeof metricsData?.unsubscribes === 'number' ? metricsData.unsubscribes.toLocaleString() : "38"} 
           subValue={typeof metricsData?.unsubscribes === 'number' && typeof metricsData?.totalSent === 'number' ? 
             `${(metricsData.unsubscribes / metricsData.totalSent * 100).toFixed(2)}% of sent` : "0.09% of sent"}
+          icon={<Users className="h-5 w-5 text-rose-400" />}
+          color="rose"
         />
       </div>
       
-      {/* Main Dashboard Content */}
+      {/* AI Insights Component */}
+      <Card className="mb-6 border border-primary/20 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-950">
+        <CardContent className="p-6">
+          <div className="flex items-start">
+            <div className="mr-4 p-2 rounded-full bg-primary/10 flex items-center justify-center">
+              <Cpu className="h-6 w-6 text-primary" />
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold mb-1 flex items-center">
+                AI Performance Insights
+                <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-primary/10 text-primary">
+                  Auto-generated
+                </span>
+              </h3>
+              
+              <div className="text-sm text-gray-600 dark:text-gray-300 space-y-2 mt-2">
+                <p className="flex items-start">
+                  <TrendingUp className="h-4 w-4 mr-2 mt-0.5 text-emerald-500" />
+                  <span>Your open rates are <strong>3.2% higher</strong> than industry average, suggesting your subject lines are effective.</span>
+                </p>
+                <p className="flex items-start">
+                  <TrendingDown className="h-4 w-4 mr-2 mt-0.5 text-amber-500" />
+                  <span>Conversion rates are <strong>0.3% below</strong> your target goal. Consider optimizing call-to-action buttons.</span>
+                </p>
+                <p className="flex items-start">
+                  <Smartphone className="h-4 w-4 mr-2 mt-0.5 text-blue-500" />
+                  <span><strong>63% of opens</strong> are coming from mobile devices. Ensure your templates are mobile-optimized.</span>
+                </p>
+              </div>
+              
+              <div className="mt-4 flex">
+                <Button variant="outline" size="sm" className="mr-2 text-xs">
+                  <Zap className="h-3 w-3 mr-1" /> Generate Recommendations
+                </Button>
+                <Button variant="ghost" size="sm" className="text-xs">
+                  <LineChartIcon className="h-3 w-3 mr-1" /> See Detailed Analysis
+                </Button>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+      
+      {/* Main Dashboard Content with Animated Tabs */}
       <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="opens">Email Opens</TabsTrigger>
-          <TabsTrigger value="engagement">Engagement Metrics</TabsTrigger>
-          <TabsTrigger value="campaigns">Campaign Comparison</TabsTrigger>
-          <TabsTrigger value="audience">Audience Insights</TabsTrigger>
+        <TabsList className="grid grid-cols-5 h-12 rounded-lg bg-gradient-to-r from-gray-100/90 to-gray-50/80 dark:from-gray-900 dark:to-gray-800 p-1">
+          <TabsTrigger value="overview" className="rounded-md data-[state=active]:bg-white dark:data-[state=active]:bg-gray-950 data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all">
+            <BarChart3 className="h-4 w-4 mr-1.5" /> Overview
+          </TabsTrigger>
+          <TabsTrigger value="opens" className="rounded-md data-[state=active]:bg-white dark:data-[state=active]:bg-gray-950 data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all">
+            <Mail className="h-4 w-4 mr-1.5" /> Email Opens
+          </TabsTrigger>
+          <TabsTrigger value="engagement" className="rounded-md data-[state=active]:bg-white dark:data-[state=active]:bg-gray-950 data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all">
+            <Activity className="h-4 w-4 mr-1.5" /> Engagement
+          </TabsTrigger>
+          <TabsTrigger value="campaigns" className="rounded-md data-[state=active]:bg-white dark:data-[state=active]:bg-gray-950 data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all">
+            <Layers className="h-4 w-4 mr-1.5" /> Campaigns
+          </TabsTrigger>
+          <TabsTrigger value="audience" className="rounded-md data-[state=active]:bg-white dark:data-[state=active]:bg-gray-950 data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all">
+            <Users className="h-4 w-4 mr-1.5" /> Audience
+          </TabsTrigger>
         </TabsList>
         
         {/* Overview Tab */}
@@ -742,28 +819,126 @@ const ClientEmailPerformance: React.FC = () => {
             </CardContent>
           </Card>
           
-          {/* Email performance over time */}
+          {/* Enhanced Email performance over time */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Performance Over Time</CardTitle>
-                <CardDescription>Opens, clicks and conversions by day</CardDescription>
+            <Card className="overflow-hidden border border-primary/10">
+              <CardHeader className="bg-gradient-to-r from-gray-50 to-white dark:from-gray-900 dark:to-gray-800 pb-2">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <CardTitle className="flex items-center">
+                      <LineChartIcon className="h-5 w-5 mr-2 text-primary" />
+                      Performance Over Time
+                    </CardTitle>
+                    <CardDescription>Opens, clicks and conversions by day</CardDescription>
+                  </div>
+                  <div className="bg-white/80 dark:bg-gray-800/80 p-1 rounded-md shadow-sm border border-gray-100 dark:border-gray-700 w-32">
+                    <Select defaultValue="7days">
+                      <SelectTrigger className="h-7 text-xs border-0 bg-transparent px-2">
+                        <SelectValue placeholder="7 days" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="7days">7 days</SelectItem>
+                        <SelectItem value="30days">30 days</SelectItem>
+                        <SelectItem value="90days">90 days</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
               </CardHeader>
-              <CardContent className="h-80">
+              <CardContent className="pt-4 h-80">
+                <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 mb-2 px-2">
+                  <div className="flex items-center">
+                    <div className="flex -space-x-1">
+                      <div className="h-2 w-2 rounded-full bg-primary"></div>
+                      <div className="h-2 w-2 rounded-full bg-primary/70"></div>
+                      <div className="h-2 w-2 rounded-full bg-primary/40"></div>
+                    </div>
+                    <span className="ml-1.5">AI Prediction Model</span>
+                  </div>
+                  
+                  <div className="inline-flex rounded border border-gray-200 dark:border-gray-700">
+                    <button className="px-2 py-0.5 text-xs bg-white dark:bg-gray-800 rounded-l border-r border-gray-200 dark:border-gray-700">Linear</button>
+                    <button className="px-2 py-0.5 text-xs bg-gray-50 dark:bg-gray-900">Curved</button>
+                  </div>
+                </div>
                 <ResponsiveContainer width="100%" height="100%">
-                  <LineChart
+                  <AreaChart
                     data={chartData?.weeklyPerformance || emailPerformanceData}
-                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                    margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
                   >
-                    <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
-                    <XAxis dataKey="day" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Line type="monotone" dataKey="opens" stroke="#1e40af" activeDot={{ r: 8 }} strokeWidth={2} />
-                    <Line type="monotone" dataKey="clicks" stroke="#d4af37" activeDot={{ r: 6 }} strokeWidth={2} />
-                    <Line type="monotone" dataKey="conversions" stroke="#1a3a5f" strokeWidth={2} />
-                  </LineChart>
+                    <defs>
+                      <linearGradient id="colorOpens" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#1e40af" stopOpacity={0.8}/>
+                        <stop offset="95%" stopColor="#1e40af" stopOpacity={0}/>
+                      </linearGradient>
+                      <linearGradient id="colorClicks" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#d4af37" stopOpacity={0.8}/>
+                        <stop offset="95%" stopColor="#d4af37" stopOpacity={0}/>
+                      </linearGradient>
+                      <linearGradient id="colorConversions" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#1a3a5f" stopOpacity={0.8}/>
+                        <stop offset="95%" stopColor="#1a3a5f" stopOpacity={0}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" opacity={0.1} vertical={false} />
+                    <XAxis 
+                      dataKey="day" 
+                      axisLine={false}
+                      tickLine={false}
+                      padding={{ left: 10, right: 10 }}
+                      tick={{ fontSize: 12 }}
+                    />
+                    <YAxis 
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fontSize: 12 }}
+                      width={30}
+                    />
+                    <Tooltip 
+                      contentStyle={{ 
+                        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                        borderRadius: '6px',
+                        border: '1px solid rgba(0, 0, 0, 0.05)',
+                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+                      }}
+                      labelStyle={{ fontWeight: 'bold', marginBottom: '4px' }}
+                      itemStyle={{ padding: '2px 0' }}
+                    />
+                    <Legend 
+                      verticalAlign="top" 
+                      height={36}
+                      iconType="circle"
+                      iconSize={8}
+                      wrapperStyle={{ paddingBottom: '10px' }}
+                    />
+                    <Area 
+                      type="monotone" 
+                      dataKey="opens" 
+                      stroke="#1e40af" 
+                      strokeWidth={2}
+                      fillOpacity={1} 
+                      fill="url(#colorOpens)" 
+                      activeDot={{ r: 6, strokeWidth: 0 }}
+                    />
+                    <Area 
+                      type="monotone" 
+                      dataKey="clicks" 
+                      stroke="#d4af37" 
+                      strokeWidth={2}
+                      fillOpacity={1} 
+                      fill="url(#colorClicks)" 
+                      activeDot={{ r: 6, strokeWidth: 0 }}
+                    />
+                    <Area 
+                      type="monotone" 
+                      dataKey="conversions" 
+                      stroke="#1a3a5f" 
+                      strokeWidth={2}
+                      fillOpacity={1} 
+                      fill="url(#colorConversions)" 
+                      activeDot={{ r: 6, strokeWidth: 0 }}
+                    />
+                  </AreaChart>
                 </ResponsiveContainer>
               </CardContent>
             </Card>
