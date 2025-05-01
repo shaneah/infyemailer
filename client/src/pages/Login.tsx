@@ -14,6 +14,8 @@ import { apiRequest } from "@/lib/queryClient";
 import { useState, useEffect } from "react";
 import infyLogo from "@/assets/Logo-white.png";
 import { useClientAuth } from '@/hooks/useClientAuth';
+import { motion } from "framer-motion";
+import { Mail, Lock, User, ArrowRight, CheckCircle2 } from "lucide-react";
 
 // Admin login schema
 const adminLoginSchema = z.object({
