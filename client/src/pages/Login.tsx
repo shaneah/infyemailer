@@ -11,10 +11,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useMutation } from "@tanstack/react-query";
 import { useLocation, Link } from "wouter";
 import { apiRequest } from "@/lib/queryClient";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import infyLogo from "@/assets/Logo-white.png";
 import { useClientAuth } from '@/hooks/useClientAuth';
-import { motion } from "framer-motion";
+import { motion, useAnimation } from "framer-motion";
 import { Mail, Lock, User, ArrowRight, CheckCircle2 } from "lucide-react";
 
 // Admin login schema
@@ -40,6 +40,41 @@ export default function Login() {
   const [isAdminLoading, setIsAdminLoading] = useState(false);
   const [isClientLoading, setIsClientLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<string>("admin");
+  
+  // Create refs for the button containers
+  const adminButtonRef = useRef<HTMLDivElement>(null);
+  const clientButtonRef = useRef<HTMLDivElement>(null);
+  
+  // Control animations for the buttons
+  const adminButtonControls = useAnimation();
+  const clientButtonControls = useAnimation();
+  
+  // Function to make the button run away from mouse when credentials aren't filled
+  const runAwayFromMouse = (e: React.MouseEvent, buttonRef: React.RefObject<HTMLDivElement>, form: any, controls: any) => {
+    if (buttonRef.current && (!form.getValues().usernameOrEmail && !form.getValues().username || !form.getValues().password)) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      const buttonCenterX = rect.left + rect.width / 2;
+      const buttonCenterY = rect.top + rect.height / 2;
+      
+      // Calculate direction to move (away from mouse)
+      const deltaX = e.clientX - buttonCenterX;
+      const deltaY = e.clientY - buttonCenterY;
+      
+      // Normalize and invert the direction
+      const length = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+      const normalizedX = -deltaX / length;
+      const normalizedY = -deltaY / length;
+      
+      // Apply movement (faster when mouse is closer)
+      const distance = Math.min(100, 1000 / length);
+      controls.start({
+        x: normalizedX * distance,
+        y: normalizedY * distance,
+        rotate: Math.random() * 10 - 5,
+        transition: { type: "spring", duration: 0.3 }
+      });
+    }
+  };
   
   // Use client auth hook for client login
   const { login: clientLogin } = useClientAuth();
@@ -523,21 +558,21 @@ export default function Login() {
                           className="relative"
                         >
                           <motion.div
+                            ref={adminButtonRef}
                             className="w-full"
-                            animate={{
-                              x: adminForm.getValues().usernameOrEmail && adminForm.getValues().password ? 0 : adminForm.formState.isSubmitting ? 0 : Math.random() > 0.5 ? Math.random() * 80 - 40 : Math.random() * 80 - 40,
-                              y: adminForm.getValues().usernameOrEmail && adminForm.getValues().password ? 0 : adminForm.formState.isSubmitting ? 0 : Math.random() > 0.5 ? Math.random() * 70 - 35 : Math.random() * 70 - 35,
-                              rotate: adminForm.getValues().usernameOrEmail && adminForm.getValues().password ? 0 : adminForm.formState.isSubmitting ? 0 : Math.random() * 5 - 2.5,
+                            initial={{ x: 0, y: 0 }}
+                            animate={adminButtonControls}
+                            whileHover={!adminForm.getValues().usernameOrEmail || !adminForm.getValues().password ? {
+                              scale: 0.95,
+                              x: Math.random() > 0.5 ? 80 : -80,
+                              y: Math.random() > 0.5 ? 40 : -40,
+                              rotate: Math.random() * 5 - 2.5,
+                              transition: { duration: 0.2 }
+                            } : {
+                              scale: 1.05,
+                              transition: { duration: 0.2 }
                             }}
-                            transition={{
-                              type: "spring",
-                              stiffness: 300,
-                              damping: 20
-                            }}
-                            whileHover={{
-                              scale: adminForm.getValues().usernameOrEmail && adminForm.getValues().password ? 1.05 : 1,
-                              rotate: adminForm.getValues().usernameOrEmail && adminForm.getValues().password ? 0 : Math.random() * 10 - 5,
-                            }}
+                            onMouseMove={(e) => runAwayFromMouse(e, adminButtonRef, adminForm, adminButtonControls)}
                           >
                             <Button 
                               type="submit" 
@@ -692,21 +727,21 @@ export default function Login() {
                           className="relative"
                         >
                           <motion.div
+                            ref={clientButtonRef}
                             className="w-full"
-                            animate={{
-                              x: clientForm.getValues().username && clientForm.getValues().password ? 0 : clientForm.formState.isSubmitting ? 0 : Math.random() > 0.5 ? Math.random() * 80 - 40 : Math.random() * 80 - 40,
-                              y: clientForm.getValues().username && clientForm.getValues().password ? 0 : clientForm.formState.isSubmitting ? 0 : Math.random() > 0.5 ? Math.random() * 70 - 35 : Math.random() * 70 - 35,
-                              rotate: clientForm.getValues().username && clientForm.getValues().password ? 0 : clientForm.formState.isSubmitting ? 0 : Math.random() * 5 - 2.5,
+                            initial={{ x: 0, y: 0 }}
+                            animate={clientButtonControls}
+                            whileHover={!clientForm.getValues().username || !clientForm.getValues().password ? {
+                              scale: 0.95,
+                              x: Math.random() > 0.5 ? 80 : -80,
+                              y: Math.random() > 0.5 ? 40 : -40,
+                              rotate: Math.random() * 5 - 2.5,
+                              transition: { duration: 0.2 }
+                            } : {
+                              scale: 1.05,
+                              transition: { duration: 0.2 }
                             }}
-                            transition={{
-                              type: "spring",
-                              stiffness: 300,
-                              damping: 20
-                            }}
-                            whileHover={{
-                              scale: clientForm.getValues().username && clientForm.getValues().password ? 1.05 : 1,
-                              rotate: clientForm.getValues().username && clientForm.getValues().password ? 0 : Math.random() * 10 - 5,
-                            }}
+                            onMouseMove={(e) => runAwayFromMouse(e, clientButtonRef, clientForm, clientButtonControls)}
                           >
                             <Button 
                               type="submit" 
