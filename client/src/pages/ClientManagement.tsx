@@ -218,8 +218,22 @@ const ClientManagement = () => {
     queryKey: ['/api/clients', selectedClientId, 'providers'],
     queryFn: async () => {
       if (!selectedClientId) return [];
-      const response = await fetch(`/api/clients/${selectedClientId}/providers`);
-      return response.json();
+      
+      try {
+        const response = await fetch(`/api/clients/${selectedClientId}/providers`);
+        const data = await response.json();
+        
+        // Ensure we always have an array, never undefined or null
+        if (!Array.isArray(data)) {
+          console.warn('Provider data is not an array:', data);
+          return [];
+        }
+        
+        return data;
+      } catch (error) {
+        console.error('Error fetching client providers:', error);
+        return [];
+      }
     },
     enabled: !!selectedClientId,
   });
@@ -228,8 +242,22 @@ const ClientManagement = () => {
   const { data: availableProviders = [], isLoading: isLoadingAvailableProviders } = useQuery<EmailProvider[]>({
     queryKey: ['/api/email-providers'],
     queryFn: async () => {
-      const response = await fetch('/api/email-providers');
-      return response.json();
+      try {
+        const response = await fetch('/api/email-providers');
+        const data = await response.json();
+        
+        // Ensure we always have an array, never undefined or null
+        if (!Array.isArray(data)) {
+          console.warn('Available providers data is not an array:', data);
+          return [];
+        }
+        
+        return data;
+      } catch (error) {
+        console.error('Error fetching available providers:', error);
+        // Return empty array as fallback
+        return [];
+      }
     },
   });
 
