@@ -555,11 +555,11 @@ export default function Login() {
                                 <Checkbox
                                   checked={field.value}
                                   onCheckedChange={field.onChange}
-                                  className="border-slate-600 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
+                                  className="border-zinc-600 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
                                 />
                               </FormControl>
                               <div className="leading-none">
-                                <FormLabel className="font-normal text-xs text-slate-400">Remember me</FormLabel>
+                                <FormLabel className="font-normal text-xs text-zinc-400">Remember me</FormLabel>
                               </div>
                             </FormItem>
                           )}
@@ -621,8 +621,8 @@ export default function Login() {
             
             {/* Sign up link */}
             <div className="mt-6 mb-6 text-center">
-              <p className="text-slate-500 text-sm">
-                Don't have an Account? <a href="#" className="text-blue-500 hover:text-blue-400">Sign up</a>
+              <p className="text-zinc-500 text-sm">
+                Don't have an Account? <a href="#" className="text-blue-500 hover:text-blue-400 font-medium">Sign up</a>
               </p>
             </div>
           </div>
