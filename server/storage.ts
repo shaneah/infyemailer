@@ -78,10 +78,6 @@ export interface IStorage {
   removeRoleFromUser(userId: number, roleId: number): Promise<boolean>;
   
   // Client-Provider Management Methods
-  getClientProviders(clientId: number): Promise<ClientProvider[]>;
-  assignProviderToClient(clientId: number, providerId: string, settings: any): Promise<ClientProvider>;
-  removeProviderFromClient(clientId: number, providerId: string): Promise<boolean>;
-  removeRoleFromUsers(roleId: number): Promise<boolean>;
   
   // Role-Permission Management Methods
   getRolePermissions(): Promise<RolePermission[]>;
@@ -1086,31 +1082,25 @@ export class MemStorage implements IStorage {
       .filter(provider => provider.clientId === clientId);
   }
   
-  async assignProviderToClient(clientId: number, providerId: string, settings: any = {}): Promise<ClientProvider> {
+  async assignProviderToClient(clientProvider: InsertClientProvider): Promise<ClientProvider> {
     const id = this.clientProviderId++;
     const now = new Date();
-    
-    // Convert providerId to number for storage
-    const providerIdNum = parseInt(providerId, 10);
     
     const newClientProvider: ClientProvider = {
       id,
       createdAt: now,
-      clientId,
-      providerId: providerIdNum,
-      // Add the settings to metadata if needed
+      clientId: clientProvider.clientId,
+      providerId: clientProvider.providerId,
+      // Add any additional fields if needed
     };
     
     this.clientProviders.set(id, newClientProvider);
     return newClientProvider;
   }
   
-  async removeProviderFromClient(clientId: number, providerId: string): Promise<boolean> {
-    // Convert providerId to number for comparison
-    const providerIdNum = parseInt(providerId, 10);
-    
+  async removeProviderFromClient(clientId: number, providerId: number): Promise<boolean> {
     const provider = Array.from(this.clientProviders.values())
-      .find(p => p.clientId === clientId && p.providerId === providerIdNum);
+      .find(p => p.clientId === clientId && p.providerId === providerId);
     
     if (!provider) return false;
     
