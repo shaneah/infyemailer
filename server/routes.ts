@@ -37,6 +37,8 @@ import AdmZip from "adm-zip";
 import { setupAuth } from "./auth";
 import { registerEmailProviderRoutes } from "./routes/emailProviders";
 import { registerEmailSettingsRoutes } from "./routes/emailSettings";
+import { registerClientRoutes } from "./routes/clientRoutes";
+import { registerClientProviderRoutes } from "./routes/clientProviders";
 import userManagementRoutes from "./routes/user-management";
 import reportingRoutes from "./routes/reporting-routes";
 
