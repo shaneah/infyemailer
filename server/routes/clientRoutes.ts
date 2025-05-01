@@ -15,6 +15,56 @@ const clientSchema = z.object({
 });
 
 export function registerClientRoutes(app: any) {
+  // Client login endpoint
+  app.post('/api/client-login', async (req: Request, res: Response) => {
+    try {
+      const { username, password } = req.body;
+      
+      console.log(`Processing client login for username: ${username}`);
+      
+      if (!username || !password) {
+        return res.status(400).json({ error: 'Username and password are required' });
+      }
+      
+      // Check credentials against database
+      const user = await storage.verifyClientLogin(username, password);
+      
+      if (!user) {
+        console.log(`Client login failed for username: ${username}`);
+        return res.status(401).json({ error: 'Invalid username or password' });
+      }
+      
+      // For now, we're handling session in the frontend
+      // Update last login timestamp
+      if (user.id) {
+        await storage.updateClientUser(user.id, { lastLoginAt: new Date() });
+      }
+      
+      // Send basic user info (excluding password)
+      const { password: _, ...userInfo } = user;
+      console.log(`Client login successful for username: ${username}`);
+      
+      return res.status(200).json({
+        ...userInfo,
+        authenticated: true,
+        verified: true
+      });
+    } catch (error: any) {
+      console.error('Error processing client login:', error);
+      res.status(500).json({ 
+        error: 'Login failed', 
+        details: error.message 
+      });
+    }
+  });
+  
+  // Client session verification
+  app.get('/api/client/verify-session', async (req: Request, res: Response) => {
+    // For now, just return success as we're handling auth in the frontend
+    // This is a placeholder for future server-side session handling
+    res.status(200).json({ verified: true });
+  });
+
   // Get all clients
   app.get('/api/clients', async (req: Request, res: Response) => {
     try {

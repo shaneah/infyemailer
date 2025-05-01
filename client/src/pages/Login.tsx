@@ -102,31 +102,36 @@ export default function Login() {
     }
   });
 
-  // Client login (direct demo implementation mirroring SimpleClientLogin functionality)
+  // Client login using server API
   const clientLoginMutation = useMutation({
     mutationFn: async (data: ClientLoginFormValues) => {
-      // For demo, we'll validate directly here instead of making a server call
-      if (data.username !== 'client1') {
-        throw new Error('Invalid username. Please use "client1" for demo purposes.');
-      }
+      console.log("Attempting client login with username:", data.username);
       
-      // Create mock user data for demo purposes
-      return {
-        id: 5,
-        username: data.username,
-        clientId: 1,
-        clientName: 'Demo Client',
-        clientCompany: 'ACME Corp',
-        permissions: {
-          emailValidation: true,
-          campaigns: true,
-          contacts: true,
-          templates: true,
-          reporting: true,
-          domains: true,
-          abTesting: true
+      try {
+        const response = await fetch('/api/client-login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            username: data.username,
+            password: data.password
+          }),
+          credentials: 'include'
+        });
+        
+        console.log("Login response status:", response.status);
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Login failed. Please check your credentials.');
         }
-      };
+        
+        return await response.json();
+      } catch (error) {
+        console.error("Login error:", error);
+        throw error;
+      }
     },
     onSuccess: (data) => {
       toast({
