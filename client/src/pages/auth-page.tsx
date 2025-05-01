@@ -350,12 +350,6 @@ export default function AuthPage() {
                         )}
                       </Button>
                     </motion.div>
-                    
-                    {/* Terminal-like decoration */}
-                    <div className="flex items-center mt-4 text-xs text-gray-500 font-mono">
-                      <div className="w-2 h-2 bg-primary/50 rounded-full mr-2 animate-pulse"></div>
-                      <span className="opacity-70">System ready • Awaiting authentication</span>
-                    </div>
                   </div>
                   
                   <div className="border-t border-gray-700/30 mt-6 pt-6 text-center animate-fade-in animation-delay-1400">
