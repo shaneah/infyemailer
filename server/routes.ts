@@ -366,21 +366,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
           message: 'Debug contact creation successful',
           debugInfo: dbInfo
         });
-      } catch (insertErr) {
+      } catch (insertErr: any) {
         console.error('Debug insert failed:', insertErr);
         res.status(500).json({
           success: false,
           message: 'Debug contact creation failed',
-          error: insertErr.message,
+          error: insertErr.message || 'Unknown error',
           debugInfo: dbInfo
         });
       }
-    } catch (mainErr) {
+    } catch (mainErr: any) {
       console.error('Overall debug process failed:', mainErr);
       res.status(500).json({
         success: false,
         message: 'Debug process failed',
-        error: mainErr.message
+        error: mainErr.message || 'Unknown error',
+        partialDebugInfo: dbInfo || {}
       });
     }
   });
