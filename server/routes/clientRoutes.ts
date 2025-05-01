@@ -1,8 +1,6 @@
 import { Request, Response } from "express";
-import { getStorage } from "../storageManager";
+import { storage } from "../storage";
 import { z } from "zod";
-
-const storage = getStorage();
 
 // Client schema validation
 const clientSchema = z.object({

@@ -1,8 +1,6 @@
 import { Request, Response } from "express";
-import { getStorage } from "../storageManager";
+import { storage } from "../storage";
 import { z } from "zod";
-
-const storage = getStorage();
 
 export function registerClientProviderRoutes(app: any) {
   // Get all providers assigned to a client

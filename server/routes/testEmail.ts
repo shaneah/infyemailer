@@ -1,9 +1,7 @@
 import { Request, Response } from 'express';
 import { z } from 'zod';
 import { emailService } from '../services/EmailService';
-import { getStorage } from '../storageManager';
-
-const storage = getStorage();
+import { storage } from '../storage';
 
 // Import the default email settings from the emailSettings route
 import { defaultEmailSettings } from './emailSettings';
