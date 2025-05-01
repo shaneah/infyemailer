@@ -221,48 +221,48 @@ const CampaignsTable = () => {
                     </div>
                     <div>
                       <div className="font-semibold text-gray-900">{campaign.name}</div>
-                      <div className="text-xs text-gray-500">{campaign.subtitle || 'Email campaign'}</div>
+                      <div className="text-xs text-gray-500">{campaign.metadata?.subtitle || 'Email campaign'}</div>
                     </div>
                   </div>
                 </td>
                 <td className="py-5 px-6">
                   <span className={`px-3 py-1.5 rounded-full text-xs font-medium inline-block
-                    ${campaign.status.color === 'success' ? 'bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border border-green-200' : 
-                     campaign.status.color === 'warning' ? 'bg-gradient-to-r from-amber-100 to-yellow-100 text-amber-800 border border-amber-200' : 
-                     campaign.status.color === 'danger' ? 'bg-gradient-to-r from-red-100 to-rose-100 text-red-800 border border-red-200' : 
-                     campaign.status.color === 'info' ? 'bg-gradient-to-r from-blue-100 to-sky-100 text-blue-800 border border-blue-200' :
-                     campaign.status.color === 'primary' ? 'bg-gradient-to-r from-indigo-100 to-violet-100 text-indigo-800 border border-indigo-200' : 
+                    ${campaign.status === 'active' ? 'bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border border-green-200' : 
+                     campaign.status === 'scheduled' ? 'bg-gradient-to-r from-amber-100 to-yellow-100 text-amber-800 border border-amber-200' : 
+                     campaign.status === 'failed' ? 'bg-gradient-to-r from-red-100 to-rose-100 text-red-800 border border-red-200' : 
+                     campaign.status === 'draft' ? 'bg-gradient-to-r from-blue-100 to-sky-100 text-blue-800 border border-blue-200' :
+                     campaign.status === 'sent' ? 'bg-gradient-to-r from-indigo-100 to-violet-100 text-indigo-800 border border-indigo-200' : 
                      'bg-gradient-to-r from-slate-100 to-gray-100 text-slate-800 border border-slate-200'}`}>
-                    {campaign.status.label}
+                    {campaign.status.charAt(0).toUpperCase() + campaign.status.slice(1)}
                   </span>
                 </td>
                 <td className="py-5 px-6 font-medium text-gray-700">
-                  {campaign.recipients.toLocaleString()}
+                  {campaign.metadata?.recipients?.toLocaleString() || '0'}
                 </td>
                 <td className="py-5 px-6">
                   <div className="flex items-center">
-                    <span className="font-medium text-gray-900 mr-3">{campaign.openRate}%</span>
+                    <span className="font-medium text-gray-900 mr-3">{campaign.metadata?.openRate || 0}%</span>
                     <div className="bg-gray-200 h-2 rounded-full w-28">
                       <div 
                         className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-teal-500" 
-                        style={{ width: `${Math.min(100, campaign.openRate)}%` }}
+                        style={{ width: `${Math.min(100, campaign.metadata?.openRate || 0)}%` }}
                       />
                     </div>
                   </div>
                 </td>
                 <td className="py-5 px-6">
                   <div className="flex items-center">
-                    <span className="font-medium text-gray-900 mr-3">{campaign.clickRate}%</span>
+                    <span className="font-medium text-gray-900 mr-3">{campaign.metadata?.clickRate || 0}%</span>
                     <div className="bg-gray-200 h-2 rounded-full w-28">
                       <div 
                         className="h-full rounded-full bg-gradient-to-r from-blue-500 to-indigo-500" 
-                        style={{ width: `${Math.min(100, campaign.clickRate)}%` }}
+                        style={{ width: `${Math.min(100, campaign.metadata?.clickRate || 0)}%` }}
                       />
                     </div>
                   </div>
                 </td>
                 <td className="py-5 px-6 text-gray-700">
-                  {campaign.date}
+                  {campaign.metadata?.date || 'N/A'}
                 </td>
                 <td className="py-5 px-6 text-right">
                   <div className="inline-flex items-center space-x-2">
