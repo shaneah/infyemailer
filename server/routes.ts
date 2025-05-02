@@ -835,11 +835,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Template Management - ZIP Import endpoint
   app.post('/api/templates/import-zip', async (req: Request, res: Response) => {
     try {
+      // Enhanced request inspection for debugging
+      console.log('=== ZIP IMPORT DEBUGGING ===');
+      console.log(`Headers: ${JSON.stringify(req.headers['content-type'])}`);
+      console.log(`Body keys: ${Object.keys(req.body || {})}`);
+      console.log(`Has req.files: ${req.files ? 'Yes' : 'No'}`);
+      if (req.files) {
+        console.log(`Files: ${JSON.stringify(Object.keys(req.files))}`);
+      }
+      
       // Get the template name from the request
       const { name } = req.body;
       
       console.log(`ZIP template import request for template: ${name}`);
-      console.log(`Request files:`, req.files ? Object.keys(req.files) : 'No files');
       
       if (!name) {
         return res.status(400).json({ error: 'Template name is required' });
@@ -847,6 +855,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Check if a file was uploaded
       if (!req.files || Object.keys(req.files).length === 0) {
+        console.log('No files were found in the request');
         return res.status(400).json({ error: 'No file was uploaded' });
       }
       

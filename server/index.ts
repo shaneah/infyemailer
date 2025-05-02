@@ -11,14 +11,33 @@ const app = express();
 // Increase the JSON payload size limit to 50MB
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: false, limit: '50mb' }));
-// Configure file upload middleware
+// Configure file upload middleware with more permissive settings
 app.use(fileUpload({
   limits: { fileSize: 50 * 1024 * 1024 }, // 50MB max file size
   useTempFiles: true,
   tempFileDir: '/tmp/',
   debug: true, // Enable debug for troubleshooting
-  abortOnLimit: true
+  abortOnLimit: true,
+  createParentPath: true,
+  preserveExtension: true,
+  safeFileNames: true,
+  parseNested: true
 }));
+
+// Log incoming requests with file upload info for debugging
+app.use((req, res, next) => {
+  if (req.path.includes('/import-zip')) {
+    console.log('IMPORT REQUEST:', {
+      path: req.path,
+      method: req.method,
+      contentType: req.headers['content-type'],
+      hasFiles: req.files ? 'Yes' : 'No',
+      filesKeys: req.files ? Object.keys(req.files) : [],
+      body: Object.keys(req.body || {})
+    });
+  }
+  next();
+});
 
 app.use((req, res, next) => {
   const start = Date.now();
