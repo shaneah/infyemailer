@@ -73,7 +73,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Set up file upload middleware for template imports
   app.use(fileUpload({
     createParentPath: true,
-    limits: { fileSize: 50 * 1024 * 1024 }, // 50MB max file size
+    limits: { 
+      fileSize: 50 * 1024 * 1024, // 50MB max file size
+      parts: 1000 // Allow more form fields
+    },
     abortOnLimit: true,
     useTempFiles: true,
     tempFileDir: '/tmp/',
@@ -81,9 +84,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
     safeFileNames: true,
     preserveExtension: true,
     parseNested: true,
-    // Explicitly enable upload for all routes
-    uploadTimeout: 0 // No timeout for large files
+    uploadTimeout: 0, // No timeout for large files
+    responseOnLimit: 'File size limit exceeded (max: 50MB)',
+    uriDecodeFileNames: true,
+    // Add a debug handler to log upload issues
+    debug: (debugMessage) => {
+      console.log('File upload debug:', debugMessage);
+    }
   }));
+  
+  // Add debug log for multipart requests
+  app.use((req, res, next) => {
+    if (req.headers['content-type']?.includes('multipart/form-data')) {
+      console.log('IMPORT REQUEST:', {
+        path: req.path,
+        method: req.method,
+        contentType: req.headers['content-type'],
+        hasFiles: req.files ? 'Yes' : 'No',
+        filesKeys: req.files ? Object.keys(req.files) : [],
+        body: req.body ? Object.keys(req.body) : []
+      });
+    }
+    next();
+  });
   
   // Client email performance API routes
   app.get('/api/client/email-performance/metrics', (req: Request, res: Response) => {
@@ -1134,23 +1157,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log(`Body keys: ${Object.keys(req.body || {})}`);
       console.log(`Has req.files: ${req.files ? 'Yes' : 'No'}`);
       
-      if (req.files) {
-        console.log(`Available files: ${JSON.stringify(Object.keys(req.files))}`);
-        
-        // Debug each file object
-        for (const key of Object.keys(req.files)) {
-          const file = req.files[key];
-          if (Array.isArray(file)) {
-            console.log(`File ${key} is an array with ${file.length} items`);
-            file.forEach((f, i) => {
-              console.log(`  Item ${i}: name=${f.name}, size=${f.size}, type=${f.mimetype}`);
-            });
-          } else {
-            console.log(`File ${key}: name=${file.name}, size=${file.size}, type=${file.mimetype}`);
-          }
-        }
-      }
-      
       // Get the template name from the request
       const { name } = req.body;
       if (!name) {
@@ -1159,7 +1165,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       console.log(`ZIP template import request for template: ${name}`);
       
-      // Check if files are attached - look for any possible field name containing a file
+      // Check if files are attached
       if (!req.files || Object.keys(req.files).length === 0) {
         console.error('No files found in request');
         return res.status(400).json({ 
@@ -1167,38 +1173,65 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       
-      if (!name) {
-        return res.status(400).json({ error: 'Template name is required' });
+      // Debug each file object
+      console.log(`Available files: ${JSON.stringify(Object.keys(req.files))}`);
+      
+      // Find any ZIP file in the request under any field name
+      let zipFile = null;
+      let fileField = '';
+      
+      for (const key of Object.keys(req.files)) {
+        const file = req.files[key];
+        
+        if (Array.isArray(file)) {
+          console.log(`Field ${key} is an array with ${file.length} files`);
+          // Look for a ZIP file in the array
+          for (let i = 0; i < file.length; i++) {
+            const f = file[i];
+            console.log(`  Item ${i}: name=${f.name}, size=${f.size}, type=${f.mimetype}`);
+            
+            if (f.name.toLowerCase().endsWith('.zip') || 
+                f.mimetype === 'application/zip' || 
+                f.mimetype === 'application/x-zip-compressed') {
+              zipFile = f;
+              fileField = `${key}[${i}]`;
+              break;
+            }
+          }
+        } else {
+          console.log(`Field ${key}: name=${file.name}, size=${file.size}, type=${file.mimetype}`);
+          
+          if (file.name.toLowerCase().endsWith('.zip') || 
+              file.mimetype === 'application/zip' || 
+              file.mimetype === 'application/x-zip-compressed') {
+            zipFile = file;
+            fileField = key;
+            break;
+          }
+        }
+        
+        // If we found a ZIP file, no need to check other fields
+        if (zipFile) break;
       }
       
-      // Check if a file was uploaded
-      if (!req.files || Object.keys(req.files).length === 0) {
-        console.log('No files were found in the request');
-        return res.status(400).json({ error: 'No file was uploaded' });
+      if (!zipFile) {
+        return res.status(400).json({ 
+          error: 'No ZIP file found in the request. Please upload a .zip file.'
+        });
       }
       
-      // Get the uploaded file
-      const uploadedFile = req.files.file as UploadedFile;
-      console.log(`Received file: ${uploadedFile.name}, Size: ${uploadedFile.size}, MIME: ${uploadedFile.mimetype}`);
-      
-      // Validate that it's a ZIP file
-      if (!uploadedFile.name || 
-         !(uploadedFile.name.toLowerCase().endsWith('.zip') || 
-           uploadedFile.mimetype === 'application/zip' || 
-           uploadedFile.mimetype === 'application/x-zip-compressed')) {
-        return res.status(400).json({ error: 'Invalid file format. Please upload a ZIP file.' });
-      }
+      console.log(`Found ZIP file in field '${fileField}': ${zipFile.name}, ${zipFile.size} bytes`)
       
       // Now let's actually process the ZIP file
       try {
         // Check for tempFilePath or data
-        if (!uploadedFile.tempFilePath && !uploadedFile.data) {
+        if (!zipFile.tempFilePath && !zipFile.data) {
           console.error('Neither tempFilePath nor data is available in the uploaded file');
           return res.status(500).json({ error: 'Invalid file upload data' });
         }
         
         // Create a new AdmZip instance with the uploaded file
-        const zip = new AdmZip(uploadedFile.tempFilePath || uploadedFile.data);
+        const zip = new AdmZip(zipFile.tempFilePath || zipFile.data);
         
         // Get the entries
         const zipEntries = zip.getEntries();
@@ -1315,8 +1348,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
             createdAt: new Date(),
             metadata: {
               importedFromZip: true,
-              originalFileName: uploadedFile.name,
-              fileSizeKB: Math.round(uploadedFile.size / 1024),
+              originalFileName: zipFile.name,
+              fileSizeKB: Math.round(zipFile.size / 1024),
               importDate: new Date().toISOString(),
               originalHtml: htmlContent,
               resources: resources,
