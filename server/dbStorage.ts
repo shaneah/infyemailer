@@ -1157,16 +1157,15 @@ export class DbStorage implements IStorage {
         console.error('Database not properly initialized for getLists - falling back to direct SQL');
         try {
           // Fallback to direct SQL query
-          const result = await pool.query('SELECT * FROM contact_lists ORDER BY created_at DESC');
+          const result = await pool.query('SELECT * FROM lists ORDER BY created_at DESC');
           console.log(`Retrieved ${result.rows ? result.rows.length : 0} lists via direct SQL`);
           if (result && result.rows) {
             return result.rows.map(row => ({
               id: row.id,
               name: row.name,
               description: row.description,
-              status: row.status,
               createdAt: row.created_at,
-              metadata: row.metadata || {}
+              updatedAt: row.updated_at
             }));
           }
           return [];
@@ -1177,23 +1176,23 @@ export class DbStorage implements IStorage {
       }
       
       try {
-        const lists = await db.select().from(schema.contactLists).orderBy(desc(schema.contactLists.createdAt));
+        const lists = await db.select().from(schema.lists).orderBy(desc(schema.lists.createdAt));
+        console.log(`Retrieved ${lists.length} lists via ORM`);
         return lists;
       } catch (ormError) {
         console.error('ORM query failed for lists:', ormError);
         
         // Fallback to direct SQL query
         try {
-          const result = await pool.query('SELECT * FROM contact_lists ORDER BY created_at DESC');
+          const result = await pool.query('SELECT * FROM lists ORDER BY created_at DESC');
           console.log(`Retrieved ${result.rows ? result.rows.length : 0} lists via direct SQL fallback`);
           if (result && result.rows) {
             return result.rows.map(row => ({
               id: row.id,
               name: row.name,
               description: row.description,
-              status: row.status,
               createdAt: row.created_at,
-              metadata: row.metadata || {}
+              updatedAt: row.updated_at
             }));
           }
           return [];
@@ -1245,11 +1244,37 @@ export class DbStorage implements IStorage {
 
   async updateList(id: number, update: any) {
     try {
+      // Check if db is properly initialized
+      if (!db || !db.update) {
+        console.error('Database not properly initialized for updateList - falling back to direct SQL');
+        
+        try {
+          // Fallback to direct SQL query
+          const result = await pool.query(
+            'UPDATE lists SET name = $1, description = $2, updated_at = NOW() WHERE id = $3 RETURNING *',
+            [update.name, update.description, id]
+          );
+          
+          if (result.rows && result.rows.length > 0) {
+            console.log('Updated list via direct SQL:', result.rows[0]);
+            return result.rows[0];
+          } else {
+            console.log('No list found to update with id:', id);
+            return undefined;
+          }
+        } catch (sqlError) {
+          console.error('Direct SQL failed in updateList:', sqlError);
+          return undefined;
+        }
+      }
+      
+      // Use ORM if available
       const [updatedList] = await db
-        .update(schema.contactLists)
+        .update(schema.lists)
         .set(update)
-        .where(eq(schema.contactLists.id, id))
+        .where(eq(schema.lists.id, id))
         .returning();
+      console.log('Updated list via ORM:', updatedList);
       return updatedList;
     } catch (error) {
       console.error('Error updating list:', error);
@@ -1259,10 +1284,33 @@ export class DbStorage implements IStorage {
 
   async deleteList(id: number) {
     try {
+      // Check if db is properly initialized
+      if (!db || !db.delete) {
+        console.error('Database not properly initialized for deleteList - falling back to direct SQL');
+        
+        try {
+          // Fallback to direct SQL query
+          const result = await pool.query('DELETE FROM lists WHERE id = $1 RETURNING *', [id]);
+          
+          if (result.rows && result.rows.length > 0) {
+            console.log('Deleted list via direct SQL:', result.rows[0]);
+            return result.rows[0];
+          } else {
+            console.log('No list found to delete with id:', id);
+            return undefined;
+          }
+        } catch (sqlError) {
+          console.error('Direct SQL failed in deleteList:', sqlError);
+          return undefined;
+        }
+      }
+      
+      // Use ORM if available
       const [deletedList] = await db
-        .delete(schema.contactLists)
-        .where(eq(schema.contactLists.id, id))
+        .delete(schema.lists)
+        .where(eq(schema.lists.id, id))
         .returning();
+      console.log('Deleted list via ORM:', deletedList);
       return deletedList;
     } catch (error) {
       console.error('Error deleting list:', error);
