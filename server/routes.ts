@@ -967,6 +967,177 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Add multiple contacts to a list
+  app.post('/api/contacts-lists/batch', async (req: Request, res: Response) => {
+    try {
+      const { contactIds, listIds } = req.body;
+      
+      if (!Array.isArray(contactIds) || !Array.isArray(listIds)) {
+        return res.status(400).json({ 
+          error: 'Invalid request format', 
+          details: 'Both contactIds and listIds must be arrays' 
+        });
+      }
+      
+      if (contactIds.length === 0 || listIds.length === 0) {
+        return res.status(400).json({ 
+          error: 'Empty arrays provided', 
+          details: 'Both contactIds and listIds must contain at least one element' 
+        });
+      }
+      
+      const results = {
+        success: [],
+        errors: []
+      };
+      
+      // Process each contact-list pair
+      for (const contactId of contactIds) {
+        for (const listId of listIds) {
+          try {
+            // Verify contact exists
+            const contact = await storage.getContact(contactId);
+            if (!contact) {
+              results.errors.push({ 
+                contactId, 
+                listId, 
+                error: `Contact with ID ${contactId} not found` 
+              });
+              continue;
+            }
+            
+            // Verify list exists
+            const list = await storage.getList(listId);
+            if (!list) {
+              results.errors.push({ 
+                contactId, 
+                listId, 
+                error: `List with ID ${listId} not found` 
+              });
+              continue;
+            }
+            
+            // Add contact to list
+            await storage.addContactToList({
+              contactId,
+              listId
+            });
+            
+            results.success.push({ contactId, listId });
+          } catch (error) {
+            console.error(`Error adding contact ${contactId} to list ${listId}:`, error);
+            results.errors.push({ 
+              contactId, 
+              listId, 
+              error: error.message || 'Unknown error occurred' 
+            });
+          }
+        }
+      }
+      
+      // Return results with appropriate status code
+      if (results.success.length > 0 && results.errors.length === 0) {
+        res.status(200).json({
+          message: 'All contacts successfully added to lists',
+          results
+        });
+      } else if (results.success.length > 0 && results.errors.length > 0) {
+        res.status(207).json({
+          message: 'Some contacts were added successfully, but others failed',
+          results
+        });
+      } else {
+        res.status(500).json({
+          message: 'Failed to add any contacts to lists',
+          results
+        });
+      }
+    } catch (error) {
+      console.error('Batch contact-list operation error:', error);
+      res.status(500).json({ 
+        error: 'Failed to process batch operation',
+        details: error.message 
+      });
+    }
+  });
+  
+  // Remove multiple contacts from multiple lists
+  app.post('/api/contacts-lists/batch-remove', async (req: Request, res: Response) => {
+    try {
+      const { contactIds, listIds } = req.body;
+      
+      if (!Array.isArray(contactIds) || !Array.isArray(listIds)) {
+        return res.status(400).json({ 
+          error: 'Invalid request format', 
+          details: 'Both contactIds and listIds must be arrays' 
+        });
+      }
+      
+      if (contactIds.length === 0 || listIds.length === 0) {
+        return res.status(400).json({ 
+          error: 'Empty arrays provided', 
+          details: 'Both contactIds and listIds must contain at least one element' 
+        });
+      }
+      
+      const results = {
+        success: [],
+        errors: []
+      };
+      
+      // Process each contact-list pair
+      for (const contactId of contactIds) {
+        for (const listId of listIds) {
+          try {
+            // No need to check if contact or list exists, removeContactFromList will handle this
+            const success = await storage.removeContactFromList(contactId, listId);
+            
+            if (success) {
+              results.success.push({ contactId, listId });
+            } else {
+              results.errors.push({ 
+                contactId, 
+                listId, 
+                error: 'Failed to remove contact from list' 
+              });
+            }
+          } catch (error) {
+            console.error(`Error removing contact ${contactId} from list ${listId}:`, error);
+            results.errors.push({ 
+              contactId, 
+              listId, 
+              error: error.message || 'Unknown error occurred' 
+            });
+          }
+        }
+      }
+      
+      // Return results with appropriate status code
+      if (results.success.length > 0 && results.errors.length === 0) {
+        res.status(200).json({
+          message: 'All contacts successfully removed from lists',
+          results
+        });
+      } else if (results.success.length > 0 && results.errors.length > 0) {
+        res.status(207).json({
+          message: 'Some contacts were removed successfully, but others failed',
+          results
+        });
+      } else {
+        res.status(500).json({
+          message: 'Failed to remove any contacts from lists',
+          results
+        });
+      }
+    } catch (error) {
+      console.error('Batch contact-list removal operation error:', error);
+      res.status(500).json({ 
+        error: 'Failed to process batch removal operation',
+        details: error.message 
+      });
+    }
+  });
+  
   // Remove contact from a list
   app.delete('/api/contacts/:contactId/lists/:listId', async (req: Request, res: Response) => {
     const contactId = parseInt(req.params.contactId, 10);
