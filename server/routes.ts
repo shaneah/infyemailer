@@ -3609,7 +3609,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/email-validation/batch', async (req: Request, res: Response) => {
+  app.post('/api/email-validation/bulk', async (req: Request, res: Response) => {
     try {
       const { emails } = req.body;
       
