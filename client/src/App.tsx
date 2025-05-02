@@ -51,6 +51,7 @@ import EmailTest from "@/pages/EmailTest";
 import Login from "@/pages/Login";
 import EmailPerformanceDashboard from "@/pages/EmailPerformanceDashboard";
 import ClientPlaceholderPage from "@/pages/ClientPlaceholderPage";
+import WelcomeMessageTest from "@/pages/WelcomeMessageTest";
 
 
 function App() {
@@ -196,6 +197,14 @@ function App() {
         <Route path="email-performance-dashboard">
           <div className="bg-background min-h-screen">
             <EmailPerformanceDashboard />
+            <Toaster />
+          </div>
+        </Route>
+        
+        {/* Test Welcome Message Component */}
+        <Route path="welcome-test">
+          <div className="bg-background min-h-screen">
+            <WelcomeMessageTest />
             <Toaster />
           </div>
         </Route>
