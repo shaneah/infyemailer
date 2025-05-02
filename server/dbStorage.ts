@@ -724,44 +724,63 @@ export class DbStorage implements IStorage {
 
   async getCampaigns() {
     try {
+      // Check if db is properly initialized
       if (!db || !db.select) {
-        console.error('Database not properly initialized for getCampaigns');
-        throw new Error('Database not properly initialized');
-      }
-      
-      // Try using direct SQL query as a more reliable approach
-      try {
-        const result = await pool.query(`
-          SELECT * FROM campaigns
-          ORDER BY created_at DESC
-        `);
-        
-        if (result && result.rows) {
-          console.log(`Retrieved ${result.rows.length} campaigns via direct SQL`);
-          return result.rows.map(row => ({
-            id: row.id,
-            name: row.name,
-            description: row.description,
-            status: row.status,
-            subject: row.subject,
-            createdAt: row.created_at,
-            senderEmail: row.sender_email,
-            senderName: row.sender_name,
-            metadata: row.metadata || {},
-            isAbTest: row.is_ab_test
-          }));
+        console.error('Database not properly initialized for getCampaigns - falling back to direct SQL');
+        try {
+          // Fallback to direct SQL query
+          const result = await pool.query('SELECT * FROM campaigns ORDER BY created_at DESC');
+          console.log(`Retrieved ${result.rows ? result.rows.length : 0} campaigns via direct SQL`);
+          if (result && result.rows) {
+            return result.rows.map(row => ({
+              id: row.id,
+              name: row.name,
+              description: row.description,
+              status: row.status,
+              subject: row.subject,
+              createdAt: row.created_at,
+              senderEmail: row.sender_email,
+              senderName: row.sender_name,
+              metadata: row.metadata || {},
+              isAbTest: row.is_ab_test
+            }));
+          }
+          return [];
+        } catch (sqlError) {
+          console.error('Direct SQL failed for campaigns:', sqlError);
+          return [];
         }
-      } catch (sqlError) {
-        console.error('Error with direct SQL in getCampaigns:', sqlError);
       }
       
-      // Fall back to ORM if direct SQL fails
       try {
         const campaigns = await db.select().from(schema.campaigns).orderBy(desc(schema.campaigns.createdAt));
         return campaigns;
       } catch (ormError) {
-        console.error('Error getting campaigns via ORM:', ormError);
-        return [];
+        console.error('ORM query failed for campaigns:', ormError);
+        
+        // Fallback to direct SQL query
+        try {
+          const result = await pool.query('SELECT * FROM campaigns ORDER BY created_at DESC');
+          console.log(`Retrieved ${result.rows ? result.rows.length : 0} campaigns via direct SQL fallback`);
+          if (result && result.rows) {
+            return result.rows.map(row => ({
+              id: row.id,
+              name: row.name,
+              description: row.description,
+              status: row.status,
+              subject: row.subject,
+              createdAt: row.created_at,
+              senderEmail: row.sender_email,
+              senderName: row.sender_name,
+              metadata: row.metadata || {},
+              isAbTest: row.is_ab_test
+            }));
+          }
+          return [];
+        } catch (sqlError) {
+          console.error('Direct SQL fallback also failed for campaigns:', sqlError);
+          return [];
+        }
       }
     } catch (error) {
       console.error('Error getting campaigns:', error);
@@ -833,8 +852,56 @@ export class DbStorage implements IStorage {
 
   async getContacts() {
     try {
-      const contacts = await db.select().from(schema.contacts).orderBy(desc(schema.contacts.createdAt));
-      return contacts;
+      // Check if db is properly initialized
+      if (!db || !db.select) {
+        console.error('Database not properly initialized for getContacts - falling back to direct SQL');
+        try {
+          // Fallback to direct SQL query
+          const result = await pool.query('SELECT * FROM contacts ORDER BY created_at DESC');
+          console.log(`Retrieved ${result.rows ? result.rows.length : 0} contacts via direct SQL`);
+          if (result && result.rows) {
+            return result.rows.map(row => ({
+              id: row.id,
+              name: row.name,
+              email: row.email,
+              status: row.status,
+              createdAt: row.created_at,
+              metadata: row.metadata || {}
+            }));
+          }
+          return [];
+        } catch (sqlError) {
+          console.error('Direct SQL failed for contacts:', sqlError);
+          return [];
+        }
+      }
+      
+      try {
+        const contacts = await db.select().from(schema.contacts).orderBy(desc(schema.contacts.createdAt));
+        return contacts;
+      } catch (ormError) {
+        console.error('ORM query failed for contacts:', ormError);
+        
+        // Fallback to direct SQL query
+        try {
+          const result = await pool.query('SELECT * FROM contacts ORDER BY created_at DESC');
+          console.log(`Retrieved ${result.rows ? result.rows.length : 0} contacts via direct SQL fallback`);
+          if (result && result.rows) {
+            return result.rows.map(row => ({
+              id: row.id,
+              name: row.name,
+              email: row.email,
+              status: row.status,
+              createdAt: row.created_at,
+              metadata: row.metadata || {}
+            }));
+          }
+          return [];
+        } catch (sqlError) {
+          console.error('Direct SQL fallback also failed for contacts:', sqlError);
+          return [];
+        }
+      }
     } catch (error) {
       console.error('Error getting contacts:', error);
       return [];
@@ -933,8 +1000,56 @@ export class DbStorage implements IStorage {
 
   async getLists() {
     try {
-      const lists = await db.select().from(schema.contactLists).orderBy(desc(schema.contactLists.createdAt));
-      return lists;
+      // Check if db is properly initialized
+      if (!db || !db.select) {
+        console.error('Database not properly initialized for getLists - falling back to direct SQL');
+        try {
+          // Fallback to direct SQL query
+          const result = await pool.query('SELECT * FROM contact_lists ORDER BY created_at DESC');
+          console.log(`Retrieved ${result.rows ? result.rows.length : 0} lists via direct SQL`);
+          if (result && result.rows) {
+            return result.rows.map(row => ({
+              id: row.id,
+              name: row.name,
+              description: row.description,
+              status: row.status,
+              createdAt: row.created_at,
+              metadata: row.metadata || {}
+            }));
+          }
+          return [];
+        } catch (sqlError) {
+          console.error('Direct SQL failed for lists:', sqlError);
+          return [];
+        }
+      }
+      
+      try {
+        const lists = await db.select().from(schema.contactLists).orderBy(desc(schema.contactLists.createdAt));
+        return lists;
+      } catch (ormError) {
+        console.error('ORM query failed for lists:', ormError);
+        
+        // Fallback to direct SQL query
+        try {
+          const result = await pool.query('SELECT * FROM contact_lists ORDER BY created_at DESC');
+          console.log(`Retrieved ${result.rows ? result.rows.length : 0} lists via direct SQL fallback`);
+          if (result && result.rows) {
+            return result.rows.map(row => ({
+              id: row.id,
+              name: row.name,
+              description: row.description,
+              status: row.status,
+              createdAt: row.created_at,
+              metadata: row.metadata || {}
+            }));
+          }
+          return [];
+        } catch (sqlError) {
+          console.error('Direct SQL fallback also failed for lists:', sqlError);
+          return [];
+        }
+      }
     } catch (error) {
       console.error('Error getting lists:', error);
       return [];
