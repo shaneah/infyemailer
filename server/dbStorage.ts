@@ -1009,6 +1009,61 @@ export class DbStorage implements IStorage {
 
   async createTemplate(template: Omit<schema.InsertTemplate, 'id'>) {
     try {
+      if (!db || !db.insert) {
+        console.error('Database not properly initialized for createTemplate');
+        throw new Error('Database not properly initialized');
+      }
+      
+      console.log('Creating template with name:', template.name);
+      
+      // Try direct SQL first for more reliable template creation
+      try {
+        // Make sure template has createdAt
+        const templateWithDate = {
+          ...template,
+          created_at: template.createdAt || new Date()
+        };
+        
+        console.log('Attempting to create template via direct SQL');
+        const result = await pool.query(`
+          INSERT INTO templates (
+            name, 
+            content, 
+            description, 
+            category, 
+            created_at, 
+            metadata
+          ) VALUES (
+            $1, $2, $3, $4, $5, $6
+          ) RETURNING *
+        `, [
+          templateWithDate.name,
+          templateWithDate.content,
+          templateWithDate.description || '',
+          templateWithDate.category || 'general',
+          templateWithDate.created_at,
+          templateWithDate.metadata || {}
+        ]);
+        
+        if (result && result.rows && result.rows.length > 0) {
+          console.log(`Created template via direct SQL: ${result.rows[0].id} - ${result.rows[0].name}`);
+          // Map from snake_case to camelCase for consistent return
+          return {
+            id: result.rows[0].id,
+            name: result.rows[0].name,
+            content: result.rows[0].content,
+            description: result.rows[0].description,
+            category: result.rows[0].category,
+            createdAt: result.rows[0].created_at,
+            metadata: result.rows[0].metadata
+          };
+        }
+      } catch (sqlError) {
+        console.error('Error with direct SQL in createTemplate:', sqlError);
+      }
+      
+      // Fall back to ORM if direct SQL fails
+      console.log('Falling back to ORM for template creation');
       const [newTemplate] = await db.insert(schema.templates).values(template).returning();
       return newTemplate;
     } catch (error) {
