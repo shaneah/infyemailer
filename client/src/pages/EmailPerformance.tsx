@@ -1093,11 +1093,11 @@ const DetailedOpens = () => {
               className="w-full px-3 py-2 border rounded-md text-sm"
             >
               <option value="all">All Campaigns</option>
-              {campaignsData?.map(campaign => (
-                <option key={campaign.id} value={campaign.id.toString()}>
-                  {campaign.name}
+              {Array.isArray(campaignsData) ? campaignsData.map(campaign => (
+                <option key={campaign?.id || Math.random()} value={campaign?.id?.toString() || ''}>
+                  {campaign?.name || 'Unnamed Campaign'}
                 </option>
-              ))}
+              )) : null}
             </select>
           </div>
         </div>
