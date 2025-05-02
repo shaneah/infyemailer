@@ -156,7 +156,11 @@ export default function Templates() {
   
   const handleCopyHtmlCode = () => {
     if (selectedTemplate?.content) {
-      navigator.clipboard.writeText(selectedTemplate.content);
+      const contentText = typeof selectedTemplate.content === 'string' 
+        ? selectedTemplate.content 
+        : JSON.stringify(selectedTemplate.content, null, 2);
+        
+      navigator.clipboard.writeText(contentText);
       toast({
         title: "Copied",
         description: "HTML code copied to clipboard",
