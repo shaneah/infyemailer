@@ -4,15 +4,16 @@ import "./env-setup";
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
-import fileUpload from "express-fileupload";
+// Removed fileUpload import - it's now ONLY used in routes.ts
 import { isDatabaseAvailable, initDatabase } from "./db";
 
 const app = express();
 // Increase the JSON payload size limit to 50MB
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: false, limit: '50mb' }));
-// NOTE: File upload middleware is configured in registerRoutes 
-// to avoid conflicts with multiple middleware instances
+// IMPORTANT: File upload middleware is ONLY configured in registerRoutes 
+// DO NOT add another instance of the fileUpload middleware here
+// Using multiple instances causes "Request is not eligible for file upload" errors
 
 // Log incoming requests with file upload info for debugging
 app.use((req, res, next) => {
