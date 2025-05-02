@@ -1010,7 +1010,7 @@ const ClientEmailPerformance: React.FC = () => {
             >
               <div className="h-[calc(100%-2rem)] overflow-y-auto p-3">
                 <ul className="space-y-3">
-                  {realtimeData?.map((activity, index) => (
+                  {(realtimeData || []).map((activity, index) => (
                     <motion.li 
                       key={index}
                       initial={{ opacity: 0, x: -10 }}
@@ -1089,7 +1089,7 @@ const ClientEmailPerformance: React.FC = () => {
                       radius={[0, 4, 4, 0]}
                       barSize={20}
                     >
-                      {chartData?.clickDistribution.map((entry, index) => (
+                      {(chartData?.clickDistribution || []).map((entry, index) => (
                         <Cell 
                           key={`cell-${index}`}
                           fill={`hsl(265, ${50 + (index * 10)}%, ${60 - (index * 4)}%)`}
@@ -1223,7 +1223,7 @@ const ClientEmailPerformance: React.FC = () => {
                       radius={[0, 4, 4, 0]}
                       barSize={20}
                     >
-                      {chartData?.geographicalDistribution.map((entry, index) => (
+                      {(chartData?.geographicalDistribution || []).map((entry, index) => (
                         <Cell 
                           key={`cell-${index}`}
                           fill={`hsl(220, ${50 + (index * 8)}%, ${60 - (index * 5)}%)`}
@@ -1258,7 +1258,7 @@ const ClientEmailPerformance: React.FC = () => {
                       dataKey="value"
                       label={({ name, value, percent }) => `${name}: ${value}% (${(percent * 100).toFixed(1)}%)`}
                     >
-                      {chartData?.deviceBreakdown.map((entry, index) => (
+                      {(chartData?.deviceBreakdown || []).map((entry, index) => (
                         <Cell 
                           key={`cell-${index}`} 
                           fill={DEVICE_COLORS[index % DEVICE_COLORS.length]} 
@@ -1362,7 +1362,7 @@ const ClientEmailPerformance: React.FC = () => {
                       radius={[4, 4, 0, 0]}
                       barSize={40}
                     >
-                      {chartData?.emailClientDistribution.map((entry, index) => (
+                      {(chartData?.emailClientDistribution || []).map((entry, index) => (
                         <Cell 
                           key={`cell-${index}`} 
                           fill={EMAIL_CLIENT_COLORS[index % EMAIL_CLIENT_COLORS.length]} 
@@ -1560,7 +1560,7 @@ const ClientEmailPerformance: React.FC = () => {
                       radius={[0, 4, 4, 0]} 
                       barSize={16}
                     >
-                      {chartData?.subjectLinePerformance.map((entry, index) => (
+                      {(chartData?.subjectLinePerformance || []).map((entry, index) => (
                         <Cell 
                           key={`cell-${index}`}
                           fill={`hsl(220, ${90 - (index * 8)}%, ${50 + (index * 3)}%)`}
