@@ -3,6 +3,13 @@
     "name": "Test User",
     "email": "test@example.com",
     "id": 1,
-    "createdAt": "2025-05-02T21:33:34.227Z"
+    "createdAt": "2025-05-02T21:33:34.227Z",
+    "lastActivityAt": null
+  },
+  {
+    "name": "Aadi Mughal",
+    "email": "adimughal@hotmail.ca",
+    "id": 2,
+    "createdAt": "2025-05-02T21:42:02.156Z"
   }
 ]

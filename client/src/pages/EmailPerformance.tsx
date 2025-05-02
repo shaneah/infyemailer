@@ -207,31 +207,63 @@ const EmailPerformance: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <MetricCard 
           title="Open Rate" 
-          value={metricsData ? `${metricsData.openRate.value.toFixed(1)}%` : "24.8%"} 
-          subValue={metricsData ? `Industry avg: ${metricsData.openRate.industryAvg.toFixed(1)}%` : "Industry avg: 21.5%"} 
-          trend={metricsData ? metricsData.openRate.trend as 'up' | 'down' | 'neutral' : "up"} 
-          trendValue={metricsData ? metricsData.openRate.trendValue : "3.2%"}
+          value={metricsData && metricsData.openRate && typeof metricsData.openRate.value === 'number' 
+            ? `${metricsData.openRate.value.toFixed(1)}%` 
+            : "24.8%"} 
+          subValue={metricsData && metricsData.openRate && typeof metricsData.openRate.industryAvg === 'number' 
+            ? `Industry avg: ${metricsData.openRate.industryAvg.toFixed(1)}%` 
+            : "Industry avg: 21.5%"} 
+          trend={metricsData && metricsData.openRate && metricsData.openRate.trend 
+            ? metricsData.openRate.trend as 'up' | 'down' | 'neutral' 
+            : "up"} 
+          trendValue={metricsData && metricsData.openRate && metricsData.openRate.trendValue 
+            ? metricsData.openRate.trendValue 
+            : "3.2%"}
         />
         <MetricCard 
           title="Click Rate" 
-          value={metricsData ? `${metricsData.clickRate.value.toFixed(1)}%` : "3.6%"} 
-          subValue={metricsData ? `Industry avg: ${metricsData.clickRate.industryAvg.toFixed(1)}%` : "Industry avg: 2.7%"} 
-          trend={metricsData ? metricsData.clickRate.trend as 'up' | 'down' | 'neutral' : "up"} 
-          trendValue={metricsData ? metricsData.clickRate.trendValue : "0.9%"}
+          value={metricsData && metricsData.clickRate && typeof metricsData.clickRate.value === 'number' 
+            ? `${metricsData.clickRate.value.toFixed(1)}%` 
+            : "3.6%"} 
+          subValue={metricsData && metricsData.clickRate && typeof metricsData.clickRate.industryAvg === 'number' 
+            ? `Industry avg: ${metricsData.clickRate.industryAvg.toFixed(1)}%` 
+            : "Industry avg: 2.7%"} 
+          trend={metricsData && metricsData.clickRate && metricsData.clickRate.trend 
+            ? metricsData.clickRate.trend as 'up' | 'down' | 'neutral' 
+            : "up"} 
+          trendValue={metricsData && metricsData.clickRate && metricsData.clickRate.trendValue 
+            ? metricsData.clickRate.trendValue 
+            : "0.9%"}
         />
         <MetricCard 
           title="Conversion Rate" 
-          value={metricsData ? `${metricsData.conversionRate.value.toFixed(1)}%` : "1.2%"} 
-          subValue={metricsData ? `Goal: ${metricsData.conversionRate.goal.toFixed(1)}%` : "Goal: 1.5%"} 
-          trend={metricsData ? metricsData.conversionRate.trend as 'up' | 'down' | 'neutral' : "down"} 
-          trendValue={metricsData ? metricsData.conversionRate.trendValue : "0.3%"}
+          value={metricsData && metricsData.conversionRate && typeof metricsData.conversionRate.value === 'number' 
+            ? `${metricsData.conversionRate.value.toFixed(1)}%` 
+            : "1.2%"} 
+          subValue={metricsData && metricsData.conversionRate && typeof metricsData.conversionRate.goal === 'number' 
+            ? `Goal: ${metricsData.conversionRate.goal.toFixed(1)}%` 
+            : "Goal: 1.5%"} 
+          trend={metricsData && metricsData.conversionRate && metricsData.conversionRate.trend 
+            ? metricsData.conversionRate.trend as 'up' | 'down' | 'neutral' 
+            : "down"} 
+          trendValue={metricsData && metricsData.conversionRate && metricsData.conversionRate.trendValue 
+            ? metricsData.conversionRate.trendValue 
+            : "0.3%"}
         />
         <MetricCard 
           title="Bounce Rate" 
-          value={metricsData ? `${metricsData.bounceRate.value.toFixed(1)}%` : "0.8%"} 
-          subValue={metricsData ? `Industry avg: ${metricsData.bounceRate.industryAvg.toFixed(1)}%` : "Industry avg: 1.2%"} 
-          trend={metricsData ? metricsData.bounceRate.trend as 'up' | 'down' | 'neutral' : "up"} 
-          trendValue={metricsData ? metricsData.bounceRate.trendValue : "0.4%"}
+          value={metricsData && metricsData.bounceRate && typeof metricsData.bounceRate.value === 'number' 
+            ? `${metricsData.bounceRate.value.toFixed(1)}%` 
+            : "0.8%"} 
+          subValue={metricsData && metricsData.bounceRate && typeof metricsData.bounceRate.industryAvg === 'number' 
+            ? `Industry avg: ${metricsData.bounceRate.industryAvg.toFixed(1)}%` 
+            : "Industry avg: 1.2%"} 
+          trend={metricsData && metricsData.bounceRate && metricsData.bounceRate.trend 
+            ? metricsData.bounceRate.trend as 'up' | 'down' | 'neutral' 
+            : "up"} 
+          trendValue={metricsData && metricsData.bounceRate && metricsData.bounceRate.trendValue 
+            ? metricsData.bounceRate.trendValue 
+            : "0.4%"}
         />
       </div>
       
@@ -239,23 +271,37 @@ const EmailPerformance: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <MetricCard 
           title="Total Sent" 
-          value={metricsData ? metricsData.totalSent.toLocaleString() : "42,857"} 
+          value={metricsData && typeof metricsData.totalSent === 'number' 
+            ? metricsData.totalSent.toLocaleString() 
+            : "42,857"} 
           subValue={`Last ${timeframe === '7days' ? '7 days' : timeframe === '30days' ? '30 days' : timeframe === '90days' ? '90 days' : timeframe}`}
         />
         <MetricCard 
           title="Total Opens" 
-          value={metricsData ? metricsData.totalOpens.toLocaleString() : "10,628"} 
-          subValue={metricsData ? `${(metricsData.totalOpens / metricsData.totalSent * 100).toFixed(1)}% of sent` : "24.8% of sent"}
+          value={metricsData && typeof metricsData.totalOpens === 'number' 
+            ? metricsData.totalOpens.toLocaleString() 
+            : "10,628"} 
+          subValue={metricsData && typeof metricsData.totalOpens === 'number' && typeof metricsData.totalSent === 'number' && metricsData.totalSent > 0
+            ? `${(metricsData.totalOpens / metricsData.totalSent * 100).toFixed(1)}% of sent` 
+            : "24.8% of sent"}
         />
         <MetricCard 
           title="Total Clicks" 
-          value={metricsData ? metricsData.totalClicks.toLocaleString() : "1,543"} 
-          subValue={metricsData ? `${(metricsData.totalClicks / metricsData.totalSent * 100).toFixed(1)}% of sent` : "3.6% of sent"}
+          value={metricsData && typeof metricsData.totalClicks === 'number' 
+            ? metricsData.totalClicks.toLocaleString() 
+            : "1,543"} 
+          subValue={metricsData && typeof metricsData.totalClicks === 'number' && typeof metricsData.totalSent === 'number' && metricsData.totalSent > 0
+            ? `${(metricsData.totalClicks / metricsData.totalSent * 100).toFixed(1)}% of sent` 
+            : "3.6% of sent"}
         />
         <MetricCard 
           title="Unsubscribes" 
-          value={metricsData ? metricsData.unsubscribes.toLocaleString() : "38"} 
-          subValue={metricsData ? `${(metricsData.unsubscribes / metricsData.totalSent * 100).toFixed(2)}% of sent` : "0.09% of sent"}
+          value={metricsData && typeof metricsData.unsubscribes === 'number' 
+            ? metricsData.unsubscribes.toLocaleString() 
+            : "38"} 
+          subValue={metricsData && typeof metricsData.unsubscribes === 'number' && typeof metricsData.totalSent === 'number' && metricsData.totalSent > 0
+            ? `${(metricsData.unsubscribes / metricsData.totalSent * 100).toFixed(2)}% of sent` 
+            : "0.09% of sent"}
         />
       </div>
       
@@ -399,7 +445,9 @@ const EmailPerformance: React.FC = () => {
               <CardContent className="h-80">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart 
-                    data={chartData?.weeklyPerformance || emailPerformanceData} 
+                    data={chartData && Array.isArray(chartData.weeklyPerformance) 
+                      ? chartData.weeklyPerformance 
+                      : emailPerformanceData} 
                     margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
                   >
                     <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
@@ -424,7 +472,9 @@ const EmailPerformance: React.FC = () => {
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
-                      data={chartData?.deviceBreakdown || engagementByDevice}
+                      data={chartData && Array.isArray(chartData.deviceBreakdown) 
+                        ? chartData.deviceBreakdown 
+                        : engagementByDevice}
                       cx="50%"
                       cy="50%"
                       labelLine={false}
@@ -433,7 +483,9 @@ const EmailPerformance: React.FC = () => {
                       dataKey="value"
                       label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
                     >
-                      {(chartData?.deviceBreakdown || engagementByDevice).map((entry, index) => (
+                      {(chartData && Array.isArray(chartData.deviceBreakdown) 
+                        ? chartData.deviceBreakdown 
+                        : engagementByDevice).map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}
                     </Pie>
