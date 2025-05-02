@@ -1344,6 +1344,76 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Template management - standard creation endpoint
+  app.post('/api/templates', async (req: Request, res: Response) => {
+    try {
+      console.log('Creating new template:', req.body.name);
+      
+      // Validate the template data
+      if (!req.body.name || !req.body.content) {
+        return res.status(400).json({ error: 'Template name and content are required' });
+      }
+
+      // Create the template with robust error handling
+      let template;
+      try {
+        // Ensure content is properly stringified
+        const contentToSave = typeof req.body.content === 'string' 
+          ? req.body.content 
+          : JSON.stringify(req.body.content);
+          
+        // Create template with validated data
+        template = await storage.createTemplate({
+          name: req.body.name,
+          content: contentToSave,
+          description: req.body.description || '',
+          category: req.body.category || 'general',
+          subject: req.body.subject || req.body.name,
+          metadata: req.body.metadata || {}
+        });
+        
+        console.log(`Template created via standard method with ID: ${template.id}`);
+      } catch (storageError) {
+        // If standard method fails, try direct SQL insertion
+        console.error('Standard storage method failed:', storageError);
+        console.log('Attempting fallback with direct SQL insertion');
+        
+        // Prepare template data for direct SQL
+        const templateData = {
+          name: req.body.name,
+          content: typeof req.body.content === 'string' 
+            ? req.body.content 
+            : JSON.stringify(req.body.content),
+          description: req.body.description || '',
+          category: req.body.category || 'general',
+          createdAt: new Date(),
+          metadata: req.body.metadata || {}
+        };
+        
+        template = await directSqlInsertTemplate(templateData);
+        
+        if (!template) {
+          throw new Error('All template creation methods failed');
+        }
+        
+        console.log(`Template created via direct SQL fallback with ID: ${template.id}`);
+      }
+      
+      // Return success response
+      return res.status(201).json({
+        id: template.id,
+        name: template.name,
+        description: template.description,
+        message: 'Template created successfully'
+      });
+    } catch (error: any) {
+      console.error('Error creating template:', error);
+      return res.status(500).json({ 
+        error: 'Failed to create template: ' + (error.message || 'Unknown error')
+      });
+    }
+  });
+
   const httpServer = createServer(app);
 
   return httpServer;

@@ -34,50 +34,54 @@ export default function ImportTemplateModal({ open, onOpenChange, onImportSucces
     mutationFn: async (data: { name: string; content: string }) => {
       console.log("Importing HTML template...", data.name);
       try {
+        // Create the email content structure (this needs to be a string in the database)
+        const emailContentStructure = {
+          name: data.name,
+          subject: `${data.name}`,
+          previewText: `${data.name} - Imported HTML Template`,
+          sections: [
+            {
+              id: `section-${Date.now()}`,
+              elements: [
+                {
+                  id: `element-${Date.now()}`,
+                  type: "text",
+                  content: { 
+                    text: "This template was imported from HTML. You can now edit it using the drag-and-drop editor." 
+                  },
+                  styles: { 
+                    fontSize: "16px", 
+                    color: "#666666", 
+                    textAlign: "left" 
+                  }
+                },
+                {
+                  id: `element-${Date.now() + 1}`,
+                  type: "html",
+                  content: { 
+                    html: data.content 
+                  },
+                  styles: {}
+                }
+              ],
+              styles: {
+                backgroundColor: "#ffffff",
+                padding: "12px"
+              }
+            }
+          ],
+          styles: {
+            fontFamily: "Arial, sans-serif",
+            backgroundColor: "#f4f4f4",
+            maxWidth: "600px"
+          }
+        };
+
         // Create a template object with responsive email structure
         const templateData = {
           name: data.name,
-          content: JSON.stringify({
-            name: data.name,
-            subject: `${data.name}`,
-            previewText: `${data.name} - Imported HTML Template`,
-            sections: [
-              {
-                id: `section-${Date.now()}`,
-                elements: [
-                  {
-                    id: `element-${Date.now()}`,
-                    type: "text",
-                    content: { 
-                      text: "This template was imported from HTML. You can now edit it using the drag-and-drop editor." 
-                    },
-                    styles: { 
-                      fontSize: "16px", 
-                      color: "#666666", 
-                      textAlign: "left" 
-                    }
-                  },
-                  {
-                    id: `element-${Date.now() + 1}`,
-                    type: "html",
-                    content: { 
-                      html: data.content 
-                    },
-                    styles: {}
-                  }
-                ],
-                styles: {
-                  backgroundColor: "#ffffff",
-                  padding: "12px"
-                }
-              }
-            ],
-            styles: {
-              fontFamily: "Arial, sans-serif",
-              backgroundColor: "#f4f4f4",
-              maxWidth: "600px"
-            }
-          }),
+          // Make sure this is properly stringified content
+          content: JSON.stringify(emailContentStructure),
           description: `Imported HTML template: ${data.name}`,
           category: "imported",
           subject: `${data.name} Subject`,
@@ -85,13 +89,27 @@ export default function ImportTemplateModal({ open, onOpenChange, onImportSucces
             importedFromHtml: true,
             new: true,
             importMethod: htmlFile ? 'file' : 'paste',
-            originalFileName: htmlFile?.name,
-            originalHtml: data.content
+            originalFileName: htmlFile?.name
+            // Don't include originalHtml in metadata as it can be too large and cause issues
           }
         };
 
         console.log("Sending template data...");
-        const response = await apiRequest("POST", "/api/templates", templateData);
+        // Use regular fetch instead of apiRequest for better error handling with HTML content
+        const response = await fetch("/api/templates", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(templateData),
+          credentials: "include"
+        });
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`Failed to import template: ${errorText}`);
+        }
+        
         return await response.json();
       } catch (error) {
         console.error("Error in mutation function:", error);
