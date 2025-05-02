@@ -1048,12 +1048,6 @@ const ContactsV2 = () => {
                           <Badge 
                             variant="outline" 
                             className={
-                              typeof contact.status === "object" && contact.status?.label ? 
-                                contact.status.color === "success" ? "border-green-200 bg-green-50 text-green-700" :
-                                contact.status.color === "warning" ? "border-orange-200 bg-orange-50 text-orange-700" : 
-                                contact.status.color === "danger" ? "border-red-200 bg-red-50 text-red-700" :
-                                "border-primary-200 bg-primary-50 text-primary-700"
-                              :
                               contact.status === "active" ? "border-green-200 bg-green-50 text-green-700" :
                               contact.status === "inactive" ? "border-gray-200 bg-gray-50 text-gray-700" :
                               contact.status === "unsubscribed" ? "border-orange-200 bg-orange-50 text-orange-700" :
@@ -1061,9 +1055,7 @@ const ContactsV2 = () => {
                               ""
                             }
                           >
-                            {typeof contact.status === "object" && contact.status?.label 
-                              ? contact.status.label 
-                              : (contact.status || "Unknown")}
+                            {contact.status || "Unknown"}
                           </Badge>
                         </TableCell>
                         <TableCell>
@@ -1406,12 +1398,6 @@ const ContactsV2 = () => {
                   <Badge 
                     variant="outline" 
                     className={
-                      typeof selectedContact.status === "object" && selectedContact.status?.label ? 
-                        selectedContact.status.color === "success" ? "border-green-200 bg-green-50 text-green-700" :
-                        selectedContact.status.color === "warning" ? "border-orange-200 bg-orange-50 text-orange-700" : 
-                        selectedContact.status.color === "danger" ? "border-red-200 bg-red-50 text-red-700" :
-                        "border-primary-200 bg-primary-50 text-primary-700"
-                      :
                       selectedContact.status === "active" ? "border-green-200 bg-green-50 text-green-700" :
                       selectedContact.status === "inactive" ? "border-gray-200 bg-gray-50 text-gray-700" :
                       selectedContact.status === "unsubscribed" ? "border-orange-200 bg-orange-50 text-orange-700" :
@@ -1419,9 +1405,7 @@ const ContactsV2 = () => {
                       ""
                     }
                   >
-                    {typeof selectedContact.status === "object" && selectedContact.status?.label 
-                      ? selectedContact.status.label 
-                      : (selectedContact.status || "Unknown")}
+                    {selectedContact.status || "Unknown"}
                   </Badge>
                 </div>
               </div>
