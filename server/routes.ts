@@ -3625,7 +3625,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/email-validation/health-check', async (req: Request, res: Response) => {
+  app.post('/api/email-validation/health', async (req: Request, res: Response) => {
     try {
       const { email } = req.body;
       
@@ -3638,6 +3638,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Email health check error:', error);
       res.status(500).json({ error: 'Error checking email health' });
+    }
+  });
+  
+  // Email validation stats
+  app.get('/api/email-validation/stats', async (req: Request, res: Response) => {
+    try {
+      // In a real application, these would be retrieved from a database
+      const stats = {
+        totalValidated: 254892,
+        averageDeliverability: 98.7,
+        disposableDetected: 1843,
+        duplicatesDetected: 3721,
+        spamTrapsIdentified: 142
+      };
+      
+      res.json(stats);
+    } catch (error) {
+      console.error('Error fetching email validation stats:', error);
+      res.status(500).json({ error: 'Error fetching email validation statistics' });
     }
   });
   
