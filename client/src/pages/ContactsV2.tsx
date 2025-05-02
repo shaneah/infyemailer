@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import * as XLSX from 'xlsx';
+import { motion, AnimatePresence } from "framer-motion";
 
 // UI Components
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
@@ -60,20 +61,28 @@ import {
   ChevronRight, 
   Search,
   Users,
-  RefreshCw,
   UserPlus,
   FileText,
   Inbox,
   Tag,
+  Mail,
+  Phone,
+  Building,
+  Clock,
+  Calendar,
+  RefreshCw,
   ListFilter,
+  ArrowUpDown,
   UploadCloud,
   SlidersHorizontal,
-  ArrowDownUp
+  ChevronDown,
+  PieChart,
+  UserCheck,
+  Grid3X3,
+  CircleAlert
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Switch } from "@/components/ui/switch";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { motion, AnimatePresence } from "framer-motion";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -117,6 +126,7 @@ const ContactsV2 = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [importProgress, setImportProgress] = useState(0);
   const [isImporting, setIsImporting] = useState(false);
+  const [viewType, setViewType] = useState<"grid" | "table">("table");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const itemsPerPage = 10;
@@ -152,7 +162,7 @@ const ContactsV2 = () => {
     refetch: refetchContacts 
   } = useQuery<any[]>({ 
     queryKey: ['/api/contacts'],
-    onError: (error) => {
+    onError: (error: any) => {
       toast({
         title: "Error loading contacts",
         description: error.message,
@@ -167,7 +177,7 @@ const ContactsV2 = () => {
     isLoading: isLoadingLists 
   } = useQuery<any[]>({ 
     queryKey: ['/api/lists'],
-    onError: (error) => {
+    onError: (error: any) => {
       toast({
         title: "Error loading lists",
         description: error.message,
@@ -518,8 +528,8 @@ const ContactsV2 = () => {
   // Filter contacts based on search query, list filter, and status filter
   const filteredContacts = contacts.filter(contact => {
     const matchesSearch = 
-      contact.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      contact.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      contact.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      contact.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (contact.company && contact.company.toLowerCase().includes(searchQuery.toLowerCase()));
     
     const matchesList = 
@@ -577,359 +587,388 @@ const ContactsV2 = () => {
     setSelectedContacts([]);
   }, [searchQuery, selectedListFilter, selectedStatusFilter]);
 
+  const contactStatusColors = {
+    active: {
+      bg: "bg-gradient-to-r from-green-500 to-emerald-500",
+      text: "text-white",
+      badge: "border-green-200 bg-green-100 text-green-700"
+    },
+    inactive: {
+      bg: "bg-gradient-to-r from-gray-400 to-gray-500",
+      text: "text-white",
+      badge: "border-gray-200 bg-gray-100 text-gray-700"
+    },
+    unsubscribed: {
+      bg: "bg-gradient-to-r from-orange-400 to-orange-500",
+      text: "text-white",
+      badge: "border-orange-200 bg-orange-100 text-orange-700"
+    },
+    bounced: {
+      bg: "bg-gradient-to-r from-red-400 to-red-500",
+      text: "text-white",
+      badge: "border-red-200 bg-red-100 text-red-700"
+    }
+  };
+
+  // Get status color for a contact
+  const getStatusColor = (status: string) => {
+    return contactStatusColors[status as keyof typeof contactStatusColors] || contactStatusColors.inactive;
+  };
+
+  // Get random gradient for avatar
+  const getAvatarGradient = (id: number) => {
+    const gradients = [
+      "from-purple-500 to-indigo-500",
+      "from-blue-500 to-cyan-500",
+      "from-pink-500 to-rose-500",
+      "from-amber-500 to-orange-500",
+      "from-emerald-500 to-green-500",
+      "from-fuchsia-500 to-pink-500",
+      "from-violet-500 to-purple-500",
+      "from-sky-500 to-blue-500",
+      "from-rose-500 to-red-500",
+      "from-indigo-500 to-blue-500"
+    ];
+    return gradients[id % gradients.length];
+  };
+
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex flex-col space-y-8">
-        {/* Header Section */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Contacts</h1>
-            <p className="text-gray-500 mt-1">Manage your contacts and subscriber lists</p>
-          </div>
-          
-          <div className="flex flex-wrap gap-2">
-            <Dialog open={openDialog === "create"} onOpenChange={(open) => setOpenDialog(open ? "create" : null)}>
-              <DialogTrigger asChild>
-                <Button className="bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700 shadow-md">
-                  <UserPlus className="h-4 w-4 mr-2" />
-                  Add Contact
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-[500px]">
-                <DialogHeader>
-                  <DialogTitle>Create New Contact</DialogTitle>
-                  <DialogDescription>
-                    Add a new contact to your database. Fill in the details below.
-                  </DialogDescription>
-                </DialogHeader>
-                
-                <Form {...form}>
-                  <form onSubmit={form.handleSubmit(handleCreateContact)} className="space-y-4 mt-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <FormField
-                        control={form.control}
-                        name="name"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Name</FormLabel>
-                            <FormControl>
-                              <Input placeholder="John Doe" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <FormField
-                        control={form.control}
-                        name="email"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Email</FormLabel>
-                            <FormControl>
-                              <Input placeholder="john@example.com" type="email" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <FormField
-                        control={form.control}
-                        name="company"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Company</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Acme Inc." {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <FormField
-                        control={form.control}
-                        name="phone"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Phone</FormLabel>
-                            <FormControl>
-                              <Input placeholder="+1 (555) 123-4567" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <FormField
-                        control={form.control}
-                        name="industry"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Industry</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Technology" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <FormField
-                        control={form.control}
-                        name="status"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Status</FormLabel>
-                            <Select 
-                              onValueChange={field.onChange} 
-                              defaultValue={field.value}
-                            >
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select status" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                <SelectItem value="active">Active</SelectItem>
-                                <SelectItem value="inactive">Inactive</SelectItem>
-                                <SelectItem value="unsubscribed">Unsubscribed</SelectItem>
-                                <SelectItem value="bounced">Bounced</SelectItem>
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                    
-                    <FormField
-                      control={form.control}
-                      name="lists"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Contact Lists</FormLabel>
-                          <div className="grid grid-cols-2 gap-2 p-2 border rounded-md">
-                            {isLoadingLists ? (
-                              <Skeleton className="h-[24px] w-full" />
-                            ) : lists.length === 0 ? (
-                              <p className="text-sm text-gray-500 col-span-2 py-1">
-                                No lists available. Create lists first.
-                              </p>
-                            ) : (
-                              lists.map((list) => (
-                                <div key={list.id} className="flex items-center space-x-2">
-                                  <Checkbox
-                                    id={`list-${list.id}`}
-                                    checked={field.value?.includes(list.id.toString())}
-                                    onCheckedChange={(checked) => {
-                                      const currentValues = field.value || [];
-                                      if (checked) {
-                                        field.onChange([...currentValues, list.id.toString()]);
-                                      } else {
-                                        field.onChange(
-                                          currentValues.filter((value) => value !== list.id.toString())
-                                        );
-                                      }
-                                    }}
-                                  />
-                                  <Label htmlFor={`list-${list.id}`} className="text-sm">
-                                    {list.name}
-                                  </Label>
-                                </div>
-                              ))
-                            )}
-                          </div>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    
-                    <FormField
-                      control={form.control}
-                      name="notes"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Notes</FormLabel>
-                          <FormControl>
-                            <Textarea 
-                              placeholder="Additional notes about this contact"
-                              className="resize-none"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    
-                    <DialogFooter>
-                      <Button type="button" variant="outline" onClick={() => setOpenDialog(null)}>
-                        Cancel
-                      </Button>
-                      <Button 
-                        type="submit" 
-                        disabled={createContactMutation.isPending}
-                        className="bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700"
-                      >
-                        {createContactMutation.isPending ? "Creating..." : "Create Contact"}
-                      </Button>
-                    </DialogFooter>
-                  </form>
-                </Form>
-              </DialogContent>
-            </Dialog>
-            
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline">
-                  <UploadCloud className="h-4 w-4 mr-2" />
-                  Import / Export
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuItem onClick={() => setOpenDialog("import")}>
-                  <Upload className="h-4 w-4 mr-2" />
-                  <span>Import Contacts</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleExportContacts}>
-                  <Download className="h-4 w-4 mr-2" />
-                  <span>{selectedContacts.length > 0 ? "Export Selected" : "Export All"}</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-            
-            {selectedContacts.length > 0 && (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline">
-                    <SlidersHorizontal className="h-4 w-4 mr-2" />
-                    Bulk Actions ({selectedContacts.length})
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>List Actions</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  {lists.map((list) => (
-                    <DropdownMenuItem key={list.id} onClick={() => handleAddToList(list.id.toString())}>
-                      <Tag className="h-4 w-4 mr-2" />
-                      <span>Add to: {list.name}</span>
-                    </DropdownMenuItem>
-                  ))}
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => setOpenDialog("bulkDelete")} className="text-red-600 focus:text-red-600">
-                    <Trash2 className="h-4 w-4 mr-2" />
-                    <span>Delete Selected</span>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
-          </div>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col space-y-4 md:space-y-0 md:flex-row md:justify-between md:items-center">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
+            Contact Management
+          </h1>
+          <p className="text-muted-foreground mt-1">
+            Manage your contacts, import data and organize your audience
+          </p>
         </div>
-        
-        {/* Filter and Search Section */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
-          <div className="col-span-1 md:col-span-5">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <Input
-                placeholder="Search contacts..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-          </div>
-          
-          <div className="col-span-1 md:col-span-3">
-            <Select value={selectedListFilter} onValueChange={setSelectedListFilter}>
-              <SelectTrigger>
-                <SelectValue placeholder="Filter by list" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Lists</SelectItem>
-                {lists.map((list) => (
-                  <SelectItem key={list.id} value={list.id.toString()}>
-                    {list.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          
-          <div className="col-span-1 md:col-span-3">
-            <Select value={selectedStatusFilter} onValueChange={setSelectedStatusFilter}>
-              <SelectTrigger>
-                <SelectValue placeholder="Filter by status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Statuses</SelectItem>
-                <SelectItem value="active">Active</SelectItem>
-                <SelectItem value="inactive">Inactive</SelectItem>
-                <SelectItem value="unsubscribed">Unsubscribed</SelectItem>
-                <SelectItem value="bounced">Bounced</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          
-          <div className="col-span-1 md:col-span-1">
-            <Button 
-              variant="outline" 
-              size="icon" 
-              onClick={() => {
-                setSearchQuery("");
-                setSelectedListFilter("all");
-                setSelectedStatusFilter("all");
-                setSortField("name");
-                setSortDirection("asc");
-              }}
-              title="Reset filters"
-            >
-              <RefreshCw className="h-4 w-4" />
+
+        <div className="flex flex-wrap gap-2">
+          <Button 
+            onClick={() => setOpenDialog("create")}
+            className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-md"
+          >
+            <UserPlus className="mr-2 h-4 w-4" />
+            Add Contact
+          </Button>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="border-purple-200">
+                <UploadCloud className="mr-2 h-4 w-4" />
+                Import / Export
+                <ChevronDown className="ml-2 h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem onClick={() => setOpenDialog("import")}>
+                <Upload className="mr-2 h-4 w-4" />
+                <span>Import Contacts</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleExportContacts}>
+                <Download className="mr-2 h-4 w-4" />
+                <span>{selectedContacts.length > 0 ? "Export Selected" : "Export All"}</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          {selectedContacts.length > 0 && (
+            <Button variant="outline" className="bg-amber-50 border-amber-200 text-amber-700">
+              <Tag className="mr-2 h-4 w-4" />
+              {selectedContacts.length} Selected
             </Button>
-          </div>
+          )}
+
+          <Button 
+            variant="outline" 
+            className="px-2.5" 
+            onClick={() => setViewType(viewType === "grid" ? "table" : "grid")}
+          >
+            {viewType === "grid" ? (
+              <><Grid3X3 className="h-4 w-4" /></>
+            ) : (
+              <><ListFilter className="h-4 w-4" /></>
+            )}
+          </Button>
         </div>
-        
-        {/* Contacts Table Section */}
-        <div className="bg-white rounded-lg border shadow-sm overflow-hidden">
-          {isLoadingContacts ? (
-            <div className="p-4 space-y-4">
-              <Skeleton className="h-8 w-full" />
-              {[...Array(5)].map((_, index) => (
-                <Skeleton key={index} className="h-16 w-full" />
-              ))}
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          <Card className="overflow-hidden border-purple-100">
+            <div className="bg-gradient-to-r from-purple-600 to-indigo-600 p-4 text-white">
+              <div className="flex justify-between items-center">
+                <h3 className="font-medium">Total Contacts</h3>
+                <Users className="h-5 w-5 opacity-80" />
+              </div>
+              <p className="text-3xl font-bold mt-2">{contacts.length}</p>
             </div>
-          ) : isContactsError ? (
-            <div className="p-8 text-center">
-              <Alert variant="destructive">
-                <AlertTitle>Error loading contacts</AlertTitle>
-                <AlertDescription>
-                  There was an error loading your contacts. Please try refreshing the page.
-                </AlertDescription>
-              </Alert>
+            <CardContent className="p-4 pt-4 bg-purple-50">
+              <div className="flex justify-between text-xs text-muted-foreground">
+                <span>Active: {contacts.filter(c => c.status === 'active').length}</span>
+                <span>Inactive: {contacts.filter(c => c.status !== 'active').length}</span>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.1 }}
+        >
+          <Card className="overflow-hidden border-blue-100">
+            <div className="bg-gradient-to-r from-blue-600 to-cyan-500 p-4 text-white">
+              <div className="flex justify-between items-center">
+                <h3 className="font-medium">Lists</h3>
+                <Tag className="h-5 w-5 opacity-80" />
+              </div>
+              <p className="text-3xl font-bold mt-2">{lists.length}</p>
+            </div>
+            <CardContent className="p-4 pt-4 bg-blue-50">
+              <div className="flex justify-between text-xs text-muted-foreground">
+                {lists.length > 0 ? (
+                  <>
+                    <span>Largest: {[...lists].sort((a, b) => b.count - a.count)[0]?.name || "N/A"}</span>
+                    <span>{lists.reduce((sum, list) => sum + list.count, 0)} Total Members</span>
+                  </>
+                ) : (
+                  <span>No lists available</span>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.2 }}
+        >
+          <Card className="overflow-hidden border-pink-100">
+            <div className="bg-gradient-to-r from-pink-600 to-rose-500 p-4 text-white">
+              <div className="flex justify-between items-center">
+                <h3 className="font-medium">New Contacts</h3>
+                <UserPlus className="h-5 w-5 opacity-80" />
+              </div>
+              <p className="text-3xl font-bold mt-2">
+                {contacts.filter(c => {
+                  const createdDate = c.createdAt ? new Date(c.createdAt) : null;
+                  const now = new Date();
+                  const thirtyDaysAgo = new Date(now.setDate(now.getDate() - 30));
+                  return createdDate && createdDate > thirtyDaysAgo;
+                }).length}
+              </p>
+            </div>
+            <CardContent className="p-4 pt-4 bg-pink-50">
+              <div className="flex justify-between text-xs text-muted-foreground">
+                <span>Last 30 days</span>
+                <span>+{Math.round((contacts.filter(c => {
+                  const createdDate = c.createdAt ? new Date(c.createdAt) : null;
+                  const now = new Date();
+                  const thirtyDaysAgo = new Date(now.setDate(now.getDate() - 30));
+                  return createdDate && createdDate > thirtyDaysAgo;
+                }).length / (contacts.length || 1)) * 100)}% growth</span>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.3 }}
+        >
+          <Card className="overflow-hidden border-amber-100">
+            <div className="bg-gradient-to-r from-amber-500 to-orange-500 p-4 text-white">
+              <div className="flex justify-between items-center">
+                <h3 className="font-medium">Engagement</h3>
+                <PieChart className="h-5 w-5 opacity-80" />
+              </div>
+              <p className="text-3xl font-bold mt-2">
+                {Math.round((contacts.filter(c => c.status === 'active').length / (contacts.length || 1)) * 100)}%
+              </p>
+            </div>
+            <CardContent className="p-4 pt-4 bg-amber-50">
+              <div className="flex justify-between text-xs text-muted-foreground">
+                <span>Active rate</span>
+                <span>Unsubscribed: {contacts.filter(c => c.status === 'unsubscribed').length}</span>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </div>
+
+      {/* Filters and Search */}
+      <Card className="border-none shadow-md bg-gradient-to-r from-gray-50 to-white">
+        <CardContent className="p-4 space-y-4">
+          <div className="grid gap-4 grid-cols-1 md:grid-cols-12">
+            <div className="md:col-span-5">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Input
+                  placeholder="Search by name, email or company..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10 border-purple-200"
+                />
+              </div>
+            </div>
+            
+            <div className="md:col-span-3">
+              <Select value={selectedListFilter} onValueChange={setSelectedListFilter}>
+                <SelectTrigger className="border-purple-200">
+                  <SelectValue placeholder="Filter by list" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Lists</SelectItem>
+                  {lists.map((list) => (
+                    <SelectItem key={list.id} value={list.id.toString()}>
+                      {list.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="md:col-span-3">
+              <Select value={selectedStatusFilter} onValueChange={setSelectedStatusFilter}>
+                <SelectTrigger className="border-purple-200">
+                  <SelectValue placeholder="Filter by status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Statuses</SelectItem>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="inactive">Inactive</SelectItem>
+                  <SelectItem value="unsubscribed">Unsubscribed</SelectItem>
+                  <SelectItem value="bounced">Bounced</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="md:col-span-1">
+              <Button 
+                variant="outline" 
+                size="icon" 
+                onClick={() => {
+                  setSearchQuery("");
+                  setSelectedListFilter("all");
+                  setSelectedStatusFilter("all");
+                  setSortField("name");
+                  setSortDirection("asc");
+                }}
+                className="h-10 w-10 border-purple-200"
+                title="Reset filters"
+              >
+                <RefreshCw className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+          
+          {selectedContacts.length > 0 && (
+            <div className="flex items-center justify-between pt-2">
+              <div className="flex items-center gap-2">
+                <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">
+                  {selectedContacts.length} contacts selected
+                </Badge>
+                
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="sm" className="border-purple-200 h-8">
+                      <Tag className="mr-2 h-3 w-3" />
+                      Add to List
+                      <ChevronDown className="ml-2 h-3 w-3" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start">
+                    <DropdownMenuLabel>Select a list</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    {lists.map((list) => (
+                      <DropdownMenuItem key={list.id} onClick={() => handleAddToList(list.id.toString())}>
+                        {list.name}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+              
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="text-red-500 border-red-200 h-8 hover:bg-red-50"
+                onClick={() => setOpenDialog("bulkDelete")}
+              >
+                <Trash2 className="mr-2 h-3 w-3" />
+                Delete Selected
+              </Button>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Contacts Display */}
+      <AnimatePresence mode="wait">
+        {isLoadingContacts ? (
+          <Card className="border-none shadow-md overflow-hidden">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="p-8 space-y-4"
+            >
+              <div className="flex justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+              </div>
+              <p className="text-center text-gray-500">Loading contacts...</p>
+            </motion.div>
+          </Card>
+        ) : isContactsError ? (
+          <Card className="border-none shadow-md overflow-hidden">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="p-8 text-center"
+            >
+              <div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
+                <CircleAlert className="h-8 w-8 text-red-600" />
+              </div>
+              <h3 className="mb-2 text-lg font-medium">Error Loading Contacts</h3>
+              <p className="mb-4 text-gray-500">
+                There was a problem loading your contacts. Please try again.
+              </p>
               <Button 
                 variant="outline" 
                 onClick={() => refetchContacts()} 
-                className="mt-4"
+                className="border-purple-200"
               >
-                <RefreshCw className="h-4 w-4 mr-2" />
+                <RefreshCw className="mr-2 h-4 w-4" />
                 Retry
               </Button>
-            </div>
-          ) : filteredContacts.length === 0 ? (
-            <div className="p-8 text-center">
+            </motion.div>
+          </Card>
+        ) : filteredContacts.length === 0 ? (
+          <Card className="border-none shadow-md overflow-hidden">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="p-8 text-center"
+            >
               {searchQuery || selectedListFilter !== "all" || selectedStatusFilter !== "all" ? (
-                <div>
-                  <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-gray-100 mb-4">
-                    <Search className="h-6 w-6 text-gray-400" />
+                <>
+                  <div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-amber-100">
+                    <Search className="h-8 w-8 text-amber-600" />
                   </div>
-                  <h3 className="text-lg font-medium text-gray-900 mb-1">No matching contacts</h3>
-                  <p className="text-gray-500 mb-4">
+                  <h3 className="mb-2 text-lg font-medium">No matching contacts</h3>
+                  <p className="mb-4 text-gray-500">
                     No contacts match your current filter criteria.
                   </p>
                   <Button 
@@ -939,81 +978,91 @@ const ContactsV2 = () => {
                       setSelectedListFilter("all");
                       setSelectedStatusFilter("all");
                     }}
+                    className="border-purple-200"
                   >
                     Clear Filters
                   </Button>
-                </div>
+                </>
               ) : (
-                <div>
-                  <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-purple-100 mb-4">
-                    <Users className="h-6 w-6 text-purple-600" />
+                <>
+                  <div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-purple-100">
+                    <Users className="h-8 w-8 text-purple-600" />
                   </div>
-                  <h3 className="text-lg font-medium text-gray-900 mb-1">No contacts yet</h3>
-                  <p className="text-gray-500 mb-4">
+                  <h3 className="mb-2 text-lg font-medium">No contacts yet</h3>
+                  <p className="mb-4 text-gray-500">
                     Get started by creating a new contact or importing a list.
                   </p>
                   <div className="flex flex-wrap justify-center gap-2">
                     <Button 
                       onClick={() => setOpenDialog("create")}
-                      className="bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700"
+                      className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
                     >
-                      <UserPlus className="h-4 w-4 mr-2" />
+                      <UserPlus className="mr-2 h-4 w-4" />
                       Add Contact
                     </Button>
                     <Button 
                       variant="outline" 
                       onClick={() => setOpenDialog("import")}
+                      className="border-purple-200"
                     >
-                      <Upload className="h-4 w-4 mr-2" />
+                      <Upload className="mr-2 h-4 w-4" />
                       Import Contacts
                     </Button>
                   </div>
-                </div>
+                </>
               )}
-            </div>
-          ) : (
-            <div>
+            </motion.div>
+          </Card>
+        ) : viewType === "table" ? (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            key="table-view"
+          >
+            <Card className="border-none shadow-md overflow-hidden">
               <div className="overflow-x-auto">
                 <Table>
-                  <TableHeader>
+                  <TableHeader className="bg-gradient-to-r from-gray-50 to-slate-50">
                     <TableRow>
                       <TableHead className="w-[50px]">
                         <Checkbox 
                           id="select-all"
                           checked={paginatedContacts.length > 0 && selectedContacts.length === paginatedContacts.length}
-                          onCheckedChange={handleSelectAll}
+                          onCheckedChange={(e: any) => handleSelectAll(e)}
+                          className="border-purple-300"
                         />
                       </TableHead>
                       <TableHead 
-                        className="cursor-pointer hover:bg-gray-50"
+                        className="cursor-pointer hover:bg-gray-100 transition-colors"
                         onClick={() => handleSort("name")}
                       >
-                        <div className="flex items-center">
+                        <div className="flex items-center space-x-1">
                           <span>Name</span>
                           {sortField === "name" && (
-                            <ArrowDownUp className={`h-3 w-3 ml-1 transform ${sortDirection === "desc" ? "rotate-180" : ""}`} />
+                            <ArrowUpDown className={`h-3 w-3 transform ${sortDirection === "desc" ? "rotate-180" : ""}`} />
                           )}
                         </div>
                       </TableHead>
                       <TableHead 
-                        className="cursor-pointer hover:bg-gray-50"
+                        className="cursor-pointer hover:bg-gray-100 transition-colors"
                         onClick={() => handleSort("email")}
                       >
-                        <div className="flex items-center">
+                        <div className="flex items-center space-x-1">
                           <span>Email</span>
                           {sortField === "email" && (
-                            <ArrowDownUp className={`h-3 w-3 ml-1 transform ${sortDirection === "desc" ? "rotate-180" : ""}`} />
+                            <ArrowUpDown className={`h-3 w-3 transform ${sortDirection === "desc" ? "rotate-180" : ""}`} />
                           )}
                         </div>
                       </TableHead>
                       <TableHead 
-                        className="cursor-pointer hover:bg-gray-50"
+                        className="cursor-pointer hover:bg-gray-100 transition-colors"
                         onClick={() => handleSort("company")}
                       >
-                        <div className="flex items-center">
+                        <div className="flex items-center space-x-1">
                           <span>Company</span>
                           {sortField === "company" && (
-                            <ArrowDownUp className={`h-3 w-3 ml-1 transform ${sortDirection === "desc" ? "rotate-180" : ""}`} />
+                            <ArrowUpDown className={`h-3 w-3 transform ${sortDirection === "desc" ? "rotate-180" : ""}`} />
                           )}
                         </div>
                       </TableHead>
@@ -1024,48 +1073,45 @@ const ContactsV2 = () => {
                   </TableHeader>
                   <TableBody>
                     {paginatedContacts.map((contact) => (
-                      <TableRow key={contact.id} className="hover:bg-gray-50 transition-colors">
+                      <TableRow key={contact.id} className="hover:bg-purple-50/50 transition-colors">
                         <TableCell>
                           <Checkbox 
                             id={`select-${contact.id}`}
                             checked={selectedContacts.includes(contact.id.toString())}
-                            onCheckedChange={(e) => handleSelectContact(e as any, contact.id.toString())}
+                            onCheckedChange={(e: any) => handleSelectContact(e, contact.id.toString())}
+                            className="border-purple-300"
                           />
                         </TableCell>
                         <TableCell className="font-medium">
                           <div className="flex items-center">
-                            <Avatar className="h-8 w-8 mr-2">
-                              <AvatarFallback className="bg-gradient-to-br from-purple-400 to-pink-400 text-white">
-                                {contact.name.split(" ").map((n: string) => n[0]).join("").toUpperCase()}
-                              </AvatarFallback>
-                            </Avatar>
-                            <span>{contact.name}</span>
+                            <div className="mr-2 flex-shrink-0">
+                              <Avatar className="h-8 w-8">
+                                <AvatarFallback className={`bg-gradient-to-br ${getAvatarGradient(contact.id)} text-white text-xs`}>
+                                  {contact.name?.split(" ").map((n: string) => n[0]).join("").toUpperCase()}
+                                </AvatarFallback>
+                              </Avatar>
+                            </div>
+                            <span className="truncate">{contact.name}</span>
                           </div>
                         </TableCell>
-                        <TableCell>{contact.email}</TableCell>
+                        <TableCell className="truncate max-w-[180px]">{contact.email}</TableCell>
                         <TableCell>{contact.company || "-"}</TableCell>
                         <TableCell>
                           <Badge 
                             variant="outline" 
-                            className={
-                              contact.status === "active" ? "border-green-200 bg-green-50 text-green-700" :
-                              contact.status === "inactive" ? "border-gray-200 bg-gray-50 text-gray-700" :
-                              contact.status === "unsubscribed" ? "border-orange-200 bg-orange-50 text-orange-700" :
-                              contact.status === "bounced" ? "border-red-200 bg-red-50 text-red-700" :
-                              ""
-                            }
+                            className={getStatusColor(contact.status || 'inactive').badge}
                           >
                             {contact.status || "Unknown"}
                           </Badge>
                         </TableCell>
                         <TableCell>
-                          <div className="flex flex-wrap gap-1">
+                          <div className="flex flex-wrap gap-1 max-w-[150px]">
                             {contact.lists?.length > 0 ? (
                               contact.lists.slice(0, 2).map((list: any) => (
                                 <Badge 
                                   key={list.id} 
-                                  variant="secondary"
-                                  className="bg-purple-100 text-purple-800 hover:bg-purple-200"
+                                  variant="outline"
+                                  className="bg-purple-100 text-purple-800 border-purple-200 hover:bg-purple-200"
                                 >
                                   {list.name}
                                 </Badge>
@@ -1074,7 +1120,7 @@ const ContactsV2 = () => {
                               <span className="text-gray-500 text-sm">None</span>
                             )}
                             {contact.lists?.length > 2 && (
-                              <Badge variant="outline" className="bg-gray-100">
+                              <Badge variant="outline" className="bg-gray-100 border-gray-200">
                                 +{contact.lists.length - 2}
                               </Badge>
                             )}
@@ -1086,7 +1132,7 @@ const ContactsV2 = () => {
                               variant="ghost"
                               size="sm"
                               onClick={() => handleViewContact(contact)}
-                              className="h-8 w-8 p-0"
+                              className="h-8 w-8 p-0 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
                             >
                               <Eye className="h-4 w-4" />
                             </Button>
@@ -1094,7 +1140,7 @@ const ContactsV2 = () => {
                               variant="ghost"
                               size="sm"
                               onClick={() => handleEditContact(contact)}
-                              className="h-8 w-8 p-0"
+                              className="h-8 w-8 p-0 text-amber-600 hover:text-amber-700 hover:bg-amber-50"
                             >
                               <Edit className="h-4 w-4" />
                             </Button>
@@ -1103,18 +1149,18 @@ const ContactsV2 = () => {
                                 <Button
                                   variant="ghost"
                                   size="sm"
-                                  className="h-8 w-8 p-0"
+                                  className="h-8 w-8 p-0 text-gray-600 hover:text-gray-700 hover:bg-gray-100"
                                 >
                                   <MoreVertical className="h-4 w-4" />
                                 </Button>
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end">
                                 <DropdownMenuItem onClick={() => handleViewContact(contact)}>
-                                  <Eye className="h-4 w-4 mr-2" />
+                                  <Eye className="mr-2 h-4 w-4" />
                                   <span>View Details</span>
                                 </DropdownMenuItem>
                                 <DropdownMenuItem onClick={() => handleEditContact(contact)}>
-                                  <Edit className="h-4 w-4 mr-2" />
+                                  <Edit className="mr-2 h-4 w-4" />
                                   <span>Edit Contact</span>
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator />
@@ -1127,7 +1173,7 @@ const ContactsV2 = () => {
                                       listId: list.id.toString() 
                                     })}
                                   >
-                                    <Tag className="h-4 w-4 mr-2" />
+                                    <Tag className="mr-2 h-4 w-4" />
                                     <span>{list.name}</span>
                                   </DropdownMenuItem>
                                 ))}
@@ -1137,9 +1183,9 @@ const ContactsV2 = () => {
                                     setSelectedContact(contact);
                                     setOpenDialog("delete");
                                   }}
-                                  className="text-red-600 focus:text-red-600"
+                                  className="text-red-600"
                                 >
-                                  <Trash2 className="h-4 w-4 mr-2" />
+                                  <Trash2 className="mr-2 h-4 w-4" />
                                   <span>Delete</span>
                                 </DropdownMenuItem>
                               </DropdownMenuContent>
@@ -1153,7 +1199,7 @@ const ContactsV2 = () => {
               </div>
               
               {/* Pagination */}
-              <div className="flex items-center justify-between px-4 py-2 border-t">
+              <div className="flex items-center justify-between px-4 py-3 border-t border-gray-100 bg-gray-50">
                 <div className="text-sm text-gray-500">
                   Showing {paginatedContacts.length} of {filteredContacts.length} contacts
                 </div>
@@ -1163,6 +1209,7 @@ const ContactsV2 = () => {
                     size="sm"
                     onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                     disabled={currentPage === 1}
+                    className="h-8 border-purple-200"
                   >
                     <ChevronLeft className="h-4 w-4" />
                   </Button>
@@ -1174,28 +1221,184 @@ const ContactsV2 = () => {
                     size="sm"
                     onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                     disabled={currentPage === totalPages || totalPages === 0}
+                    className="h-8 border-purple-200"
                   >
                     <ChevronRight className="h-4 w-4" />
                   </Button>
                 </div>
               </div>
+            </Card>
+          </motion.div>
+        ) : (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            key="grid-view"
+          >
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {paginatedContacts.map((contact) => (
+                <motion.div 
+                  key={contact.id} 
+                  whileHover={{ y: -4 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <Card className="border-none shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+                    <div className={`${getStatusColor(contact.status || 'inactive').bg} h-2`}></div>
+                    <CardContent className="p-6">
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-center">
+                          <div className="mr-3 flex-shrink-0">
+                            <Avatar className="h-14 w-14">
+                              <AvatarFallback className={`bg-gradient-to-br ${getAvatarGradient(contact.id)} text-white text-lg`}>
+                                {contact.name?.split(" ").map((n: string) => n[0]).join("").toUpperCase()}
+                              </AvatarFallback>
+                            </Avatar>
+                          </div>
+                          <div>
+                            <h3 className="text-lg font-semibold truncate max-w-[180px]">{contact.name}</h3>
+                            <p className="text-sm text-gray-500 truncate max-w-[180px]">{contact.email}</p>
+                          </div>
+                        </div>
+                        <Checkbox 
+                          checked={selectedContacts.includes(contact.id.toString())}
+                          onCheckedChange={(e: any) => handleSelectContact(e, contact.id.toString())}
+                          className="border-purple-300"
+                        />
+                      </div>
+                      
+                      <div className="mt-4 space-y-3">
+                        <div className="flex items-center text-sm">
+                          <Badge 
+                            variant="outline" 
+                            className={getStatusColor(contact.status || 'inactive').badge}
+                          >
+                            {contact.status || "Unknown"}
+                          </Badge>
+                        </div>
+                        
+                        {contact.company && (
+                          <div className="flex items-center text-sm">
+                            <Building className="h-4 w-4 text-gray-400 mr-2" />
+                            <span className="text-gray-700 truncate">{contact.company}</span>
+                          </div>
+                        )}
+                        
+                        {contact.lists?.length > 0 && (
+                          <div className="flex items-start text-sm">
+                            <Tag className="h-4 w-4 text-gray-400 mr-2 mt-0.5" />
+                            <div className="flex flex-wrap gap-1">
+                              {contact.lists.slice(0, 2).map((list: any) => (
+                                <Badge 
+                                  key={list.id} 
+                                  variant="outline"
+                                  className="bg-purple-100 text-purple-800 border-purple-200"
+                                >
+                                  {list.name}
+                                </Badge>
+                              ))}
+                              {contact.lists.length > 2 && (
+                                <Badge variant="outline" className="bg-gray-100 border-gray-200">
+                                  +{contact.lists.length - 2}
+                                </Badge>
+                              )}
+                            </div>
+                          </div>
+                        )}
+                        
+                        {contact.createdAt && (
+                          <div className="flex items-center text-sm text-gray-500">
+                            <Calendar className="h-3 w-3 text-gray-400 mr-2" />
+                            <span>Added {new Date(contact.createdAt).toLocaleDateString()}</span>
+                          </div>
+                        )}
+                      </div>
+                      
+                      <div className="mt-5 flex justify-between pt-4 border-t border-gray-100">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleViewContact(contact)}
+                          className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                        >
+                          <Eye className="h-4 w-4 mr-1" />
+                          View
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleEditContact(contact)}
+                          className="text-amber-600 hover:text-amber-700 hover:bg-amber-50"
+                        >
+                          <Edit className="h-4 w-4 mr-1" />
+                          Edit
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            setSelectedContact(contact);
+                            setOpenDialog("delete");
+                          }}
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                        >
+                          <Trash2 className="h-4 w-4 mr-1" />
+                          Delete
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
             </div>
-          )}
-        </div>
-      </div>
-      
-      {/* Edit Contact Dialog */}
-      <Dialog open={openDialog === "edit"} onOpenChange={(open) => setOpenDialog(open ? "edit" : null)}>
+            
+            {/* Grid Pagination */}
+            <div className="mt-4 flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-100">
+              <div className="text-sm text-gray-500">
+                Showing {paginatedContacts.length} of {filteredContacts.length} contacts
+              </div>
+              <div className="flex items-center space-x-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                  disabled={currentPage === 1}
+                  className="h-8 border-purple-200"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                <span className="text-sm">
+                  Page {currentPage} of {Math.max(1, totalPages)}
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                  disabled={currentPage === totalPages || totalPages === 0}
+                  className="h-8 border-purple-200"
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Create Contact Dialog */}
+      <Dialog open={openDialog === "create"} onOpenChange={(open) => setOpenDialog(open ? "create" : null)}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
-            <DialogTitle>Edit Contact</DialogTitle>
+            <DialogTitle className="bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
+              Create New Contact
+            </DialogTitle>
             <DialogDescription>
-              Update contact information. Click save when you're done.
+              Add a new contact to your database. Fill in the details below.
             </DialogDescription>
           </DialogHeader>
           
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleUpdateContact)} className="space-y-4 mt-4">
+            <form onSubmit={form.handleSubmit(handleCreateContact)} className="space-y-4 mt-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
@@ -1204,7 +1407,7 @@ const ContactsV2 = () => {
                     <FormItem>
                       <FormLabel>Name</FormLabel>
                       <FormControl>
-                        <Input placeholder="John Doe" {...field} />
+                        <Input placeholder="John Doe" {...field} className="border-purple-200" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -1218,7 +1421,7 @@ const ContactsV2 = () => {
                     <FormItem>
                       <FormLabel>Email</FormLabel>
                       <FormControl>
-                        <Input placeholder="john@example.com" type="email" {...field} />
+                        <Input placeholder="john@example.com" type="email" {...field} className="border-purple-200" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -1234,7 +1437,7 @@ const ContactsV2 = () => {
                     <FormItem>
                       <FormLabel>Company</FormLabel>
                       <FormControl>
-                        <Input placeholder="Acme Inc." {...field} />
+                        <Input placeholder="Acme Inc." {...field} className="border-purple-200" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -1248,7 +1451,7 @@ const ContactsV2 = () => {
                     <FormItem>
                       <FormLabel>Phone</FormLabel>
                       <FormControl>
-                        <Input placeholder="+1 (555) 123-4567" {...field} />
+                        <Input placeholder="+1 (555) 123-4567" {...field} className="border-purple-200" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -1264,7 +1467,7 @@ const ContactsV2 = () => {
                     <FormItem>
                       <FormLabel>Industry</FormLabel>
                       <FormControl>
-                        <Input placeholder="Technology" {...field} />
+                        <Input placeholder="Technology" {...field} className="border-purple-200" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -1280,10 +1483,9 @@ const ContactsV2 = () => {
                       <Select 
                         onValueChange={field.onChange} 
                         defaultValue={field.value}
-                        value={field.value}
                       >
                         <FormControl>
-                          <SelectTrigger>
+                          <SelectTrigger className="border-purple-200">
                             <SelectValue placeholder="Select status" />
                           </SelectTrigger>
                         </FormControl>
@@ -1306,7 +1508,203 @@ const ContactsV2 = () => {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Contact Lists</FormLabel>
-                    <div className="grid grid-cols-2 gap-2 p-2 border rounded-md">
+                    <div className="grid grid-cols-2 gap-2 p-2 border rounded-md border-purple-200">
+                      {isLoadingLists ? (
+                        <Skeleton className="h-[24px] w-full" />
+                      ) : lists.length === 0 ? (
+                        <p className="text-sm text-gray-500 col-span-2 py-1">
+                          No lists available. Create lists first.
+                        </p>
+                      ) : (
+                        lists.map((list) => (
+                          <div key={list.id} className="flex items-center space-x-2">
+                            <Checkbox
+                              id={`list-${list.id}`}
+                              checked={field.value?.includes(list.id.toString())}
+                              onCheckedChange={(checked) => {
+                                const currentValues = field.value || [];
+                                if (checked) {
+                                  field.onChange([...currentValues, list.id.toString()]);
+                                } else {
+                                  field.onChange(
+                                    currentValues.filter((value) => value !== list.id.toString())
+                                  );
+                                }
+                              }}
+                              className="border-purple-300"
+                            />
+                            <Label htmlFor={`list-${list.id}`} className="text-sm">
+                              {list.name}
+                            </Label>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="notes"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Notes</FormLabel>
+                    <FormControl>
+                      <Textarea 
+                        placeholder="Additional notes about this contact"
+                        className="resize-none border-purple-200"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <DialogFooter>
+                <Button type="button" variant="outline" onClick={() => setOpenDialog(null)} className="border-purple-200">
+                  Cancel
+                </Button>
+                <Button 
+                  type="submit" 
+                  disabled={createContactMutation.isPending}
+                  className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
+                >
+                  {createContactMutation.isPending ? "Creating..." : "Create Contact"}
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Edit Contact Dialog */}
+      <Dialog open={openDialog === "edit"} onOpenChange={(open) => setOpenDialog(open ? "edit" : null)}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle className="bg-gradient-to-r from-amber-500 to-orange-500 bg-clip-text text-transparent">
+              Edit Contact
+            </DialogTitle>
+            <DialogDescription>
+              Update contact information. Click save when you're done.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(handleUpdateContact)} className="space-y-4 mt-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Name</FormLabel>
+                      <FormControl>
+                        <Input placeholder="John Doe" {...field} className="border-amber-200" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email</FormLabel>
+                      <FormControl>
+                        <Input placeholder="john@example.com" type="email" {...field} className="border-amber-200" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="company"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Company</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Acme Inc." {...field} className="border-amber-200" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="phone"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Phone</FormLabel>
+                      <FormControl>
+                        <Input placeholder="+1 (555) 123-4567" {...field} className="border-amber-200" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="industry"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Industry</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Technology" {...field} className="border-amber-200" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="status"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Status</FormLabel>
+                      <Select 
+                        onValueChange={field.onChange} 
+                        defaultValue={field.value}
+                        value={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="border-amber-200">
+                            <SelectValue placeholder="Select status" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="active">Active</SelectItem>
+                          <SelectItem value="inactive">Inactive</SelectItem>
+                          <SelectItem value="unsubscribed">Unsubscribed</SelectItem>
+                          <SelectItem value="bounced">Bounced</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              
+              <FormField
+                control={form.control}
+                name="lists"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Contact Lists</FormLabel>
+                    <div className="grid grid-cols-2 gap-2 p-2 border rounded-md border-amber-200">
                       {isLoadingLists ? (
                         <Skeleton className="h-[24px] w-full" />
                       ) : lists.length === 0 ? (
@@ -1329,6 +1727,7 @@ const ContactsV2 = () => {
                                   );
                                 }
                               }}
+                              className="border-amber-300"
                             />
                             <Label htmlFor={`edit-list-${list.id}`} className="text-sm">
                               {list.name}
@@ -1351,7 +1750,7 @@ const ContactsV2 = () => {
                     <FormControl>
                       <Textarea 
                         placeholder="Additional notes about this contact"
-                        className="resize-none"
+                        className="resize-none border-amber-200"
                         {...field}
                       />
                     </FormControl>
@@ -1361,13 +1760,13 @@ const ContactsV2 = () => {
               />
               
               <DialogFooter>
-                <Button type="button" variant="outline" onClick={() => setOpenDialog(null)}>
+                <Button type="button" variant="outline" onClick={() => setOpenDialog(null)} className="border-amber-200">
                   Cancel
                 </Button>
                 <Button 
                   type="submit" 
                   disabled={updateContactMutation.isPending}
-                  className="bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700"
+                  className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white"
                 >
                   {updateContactMutation.isPending ? "Saving..." : "Save Changes"}
                 </Button>
@@ -1381,15 +1780,17 @@ const ContactsV2 = () => {
       <Dialog open={openDialog === "view"} onOpenChange={(open) => setOpenDialog(open ? "view" : null)}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
-            <DialogTitle>Contact Details</DialogTitle>
+            <DialogTitle className="bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">
+              Contact Details
+            </DialogTitle>
           </DialogHeader>
           
           {selectedContact && (
             <div className="space-y-4">
               <div className="flex flex-col items-center mt-2 mb-6">
-                <Avatar className="h-20 w-20 mb-3">
-                  <AvatarFallback className="bg-gradient-to-br from-purple-400 to-pink-400 text-white text-xl">
-                    {selectedContact.name.split(" ").map((n: string) => n[0]).join("").toUpperCase()}
+                <Avatar className="h-24 w-24 mb-3 shadow-md">
+                  <AvatarFallback className={`bg-gradient-to-br ${getAvatarGradient(selectedContact.id)} text-white text-xl`}>
+                    {selectedContact.name?.split(" ").map((n: string) => n[0]).join("").toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
                 <h2 className="text-xl font-bold">{selectedContact.name}</h2>
@@ -1397,53 +1798,62 @@ const ContactsV2 = () => {
                 <div className="mt-2">
                   <Badge 
                     variant="outline" 
-                    className={
-                      selectedContact.status === "active" ? "border-green-200 bg-green-50 text-green-700" :
-                      selectedContact.status === "inactive" ? "border-gray-200 bg-gray-50 text-gray-700" :
-                      selectedContact.status === "unsubscribed" ? "border-orange-200 bg-orange-50 text-orange-700" :
-                      selectedContact.status === "bounced" ? "border-red-200 bg-red-50 text-red-700" :
-                      ""
-                    }
+                    className={getStatusColor(selectedContact.status || 'inactive').badge}
                   >
                     {selectedContact.status || "Unknown"}
                   </Badge>
                 </div>
               </div>
               
-              <Separator />
+              <Separator className="bg-gray-200" />
               
               <div className="grid grid-cols-2 gap-4">
-                <div>
+                <div className="space-y-1">
                   <p className="text-sm text-gray-500">Company</p>
-                  <p className="font-medium">{selectedContact.company || "-"}</p>
+                  <div className="flex items-center">
+                    <Building className="h-4 w-4 text-gray-400 mr-2" />
+                    <p className="font-medium">{selectedContact.company || "-"}</p>
+                  </div>
                 </div>
-                <div>
+                
+                <div className="space-y-1">
                   <p className="text-sm text-gray-500">Phone</p>
-                  <p className="font-medium">{selectedContact.phone || "-"}</p>
+                  <div className="flex items-center">
+                    <Phone className="h-4 w-4 text-gray-400 mr-2" />
+                    <p className="font-medium">{selectedContact.phone || "-"}</p>
+                  </div>
                 </div>
-                <div>
+                
+                <div className="space-y-1">
                   <p className="text-sm text-gray-500">Industry</p>
-                  <p className="font-medium">{selectedContact.industry || "-"}</p>
+                  <div className="flex items-center">
+                    <Tag className="h-4 w-4 text-gray-400 mr-2" />
+                    <p className="font-medium">{selectedContact.industry || "-"}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm text-gray-500">Created</p>
-                  <p className="font-medium">
-                    {selectedContact.createdAt 
-                      ? new Date(selectedContact.createdAt).toLocaleDateString() 
-                      : "-"}
-                  </p>
+                
+                <div className="space-y-1">
+                  <p className="text-sm text-gray-500">Added</p>
+                  <div className="flex items-center">
+                    <Calendar className="h-4 w-4 text-gray-400 mr-2" />
+                    <p className="font-medium">
+                      {selectedContact.createdAt 
+                        ? new Date(selectedContact.createdAt).toLocaleDateString() 
+                        : "-"}
+                    </p>
+                  </div>
                 </div>
               </div>
               
-              <div>
+              <div className="space-y-1">
                 <p className="text-sm text-gray-500 mb-1">Lists</p>
                 <div className="flex flex-wrap gap-1">
                   {selectedContact.lists?.length > 0 ? (
                     selectedContact.lists.map((list: any) => (
                       <Badge 
                         key={list.id} 
-                        variant="secondary"
-                        className="bg-purple-100 text-purple-800"
+                        variant="outline"
+                        className="bg-purple-100 text-purple-800 border-purple-200"
                       >
                         {list.name}
                       </Badge>
@@ -1455,16 +1865,41 @@ const ContactsV2 = () => {
               </div>
               
               {selectedContact.notes && (
-                <div>
+                <div className="space-y-1">
                   <p className="text-sm text-gray-500 mb-1">Notes</p>
-                  <p className="text-gray-700 p-3 bg-gray-50 rounded-md border">{selectedContact.notes}</p>
+                  <div className="p-3 bg-blue-50 rounded-md border border-blue-100 text-gray-700">
+                    {selectedContact.notes}
+                  </div>
                 </div>
               )}
+              
+              <div className="pt-4">
+                <Separator className="bg-gray-200 mb-4" />
+                
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="bg-blue-50 border border-blue-100 rounded-md p-3 flex flex-col items-center">
+                    <Mail className="h-5 w-5 text-blue-500 mb-1" />
+                    <p className="text-sm font-medium">Email Sent</p>
+                    <p className="text-xl font-bold text-blue-600">
+                      {selectedContact.emailsSent || "0"}
+                    </p>
+                  </div>
+                  
+                  <div className="bg-green-50 border border-green-100 rounded-md p-3 flex flex-col items-center">
+                    <UserCheck className="h-5 w-5 text-green-500 mb-1" />
+                    <p className="text-sm font-medium">Response Rate</p>
+                    <p className="text-xl font-bold text-green-600">
+                      {selectedContact.responseRate ? `${selectedContact.responseRate}%` : "0%"}
+                    </p>
+                  </div>
+                </div>
+              </div>
               
               <DialogFooter className="gap-2">
                 <Button 
                   variant="outline" 
                   onClick={() => handleEditContact(selectedContact)}
+                  className="border-amber-200 text-amber-700 hover:bg-amber-50"
                 >
                   <Edit className="h-4 w-4 mr-2" />
                   Edit
@@ -1488,7 +1923,7 @@ const ContactsV2 = () => {
       <Dialog open={openDialog === "delete"} onOpenChange={(open) => setOpenDialog(open ? "delete" : null)}>
         <DialogContent className="sm:max-w-[400px]">
           <DialogHeader>
-            <DialogTitle>Delete Contact</DialogTitle>
+            <DialogTitle className="text-red-600">Delete Contact</DialogTitle>
             <DialogDescription>
               Are you sure you want to delete this contact? This action cannot be undone.
             </DialogDescription>
@@ -1497,14 +1932,23 @@ const ContactsV2 = () => {
           <div className="mt-2 mb-4">
             {selectedContact && (
               <div className="p-4 bg-red-50 rounded-md border border-red-100">
-                <p className="font-medium">{selectedContact.name}</p>
-                <p className="text-gray-500">{selectedContact.email}</p>
+                <div className="flex items-center">
+                  <Avatar className="h-10 w-10 mr-3">
+                    <AvatarFallback className={`bg-gradient-to-br ${getAvatarGradient(selectedContact.id)} text-white text-xs`}>
+                      {selectedContact.name?.split(" ").map((n: string) => n[0]).join("").toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="font-medium">{selectedContact.name}</p>
+                    <p className="text-gray-500 text-sm">{selectedContact.email}</p>
+                  </div>
+                </div>
               </div>
             )}
           </div>
           
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => setOpenDialog(null)}>
+            <Button type="button" variant="outline" onClick={() => setOpenDialog(null)} className="border-gray-200">
               Cancel
             </Button>
             <Button 
@@ -1522,7 +1966,7 @@ const ContactsV2 = () => {
       <Dialog open={openDialog === "bulkDelete"} onOpenChange={(open) => setOpenDialog(open ? "bulkDelete" : null)}>
         <DialogContent className="sm:max-w-[400px]">
           <DialogHeader>
-            <DialogTitle>Delete Contacts</DialogTitle>
+            <DialogTitle className="text-red-600">Delete Contacts</DialogTitle>
             <DialogDescription>
               Are you sure you want to delete {selectedContacts.length} contacts? This action cannot be undone.
             </DialogDescription>
@@ -1530,7 +1974,10 @@ const ContactsV2 = () => {
           
           <div className="mt-4 mb-4">
             <Alert variant="destructive">
-              <AlertTitle>Warning</AlertTitle>
+              <AlertTitle className="flex items-center">
+                <CircleAlert className="h-4 w-4 mr-2" />
+                Warning
+              </AlertTitle>
               <AlertDescription>
                 This will permanently delete {selectedContacts.length} contacts from your database.
               </AlertDescription>
@@ -1538,7 +1985,7 @@ const ContactsV2 = () => {
           </div>
           
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => setOpenDialog(null)}>
+            <Button type="button" variant="outline" onClick={() => setOpenDialog(null)} className="border-gray-200">
               Cancel
             </Button>
             <Button 
@@ -1556,7 +2003,9 @@ const ContactsV2 = () => {
       <Dialog open={openDialog === "import"} onOpenChange={(open) => !isImporting && setOpenDialog(open ? "import" : null)}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
-            <DialogTitle>Import Contacts</DialogTitle>
+            <DialogTitle className="bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
+              Import Contacts
+            </DialogTitle>
             <DialogDescription>
               Upload a CSV or Excel file containing your contacts. The file should have headers for at least name and email.
             </DialogDescription>
@@ -1564,7 +2013,7 @@ const ContactsV2 = () => {
           
           <Form {...importForm}>
             <form onSubmit={importForm.handleSubmit(handleFileImport)} className="space-y-4 mt-4">
-              <div className="border-2 border-dashed border-gray-200 rounded-lg p-4 text-center">
+              <div className="border-2 border-dashed border-purple-200 rounded-lg p-4 text-center">
                 <input 
                   type="file" 
                   id="file-upload" 
@@ -1583,7 +2032,7 @@ const ContactsV2 = () => {
                   className="cursor-pointer block"
                 >
                   <div className="flex flex-col items-center space-y-2">
-                    <div className="p-3 rounded-full bg-purple-100">
+                    <div className="p-3 rounded-full bg-gradient-to-r from-purple-100 to-indigo-100">
                       <UploadCloud className="h-6 w-6 text-purple-600" />
                     </div>
                     <div className="text-gray-700 font-medium">
@@ -1601,7 +2050,7 @@ const ContactsV2 = () => {
                 )}
               </div>
               
-              <div className="space-y-4">
+              <div className="p-4 border border-purple-100 rounded-md bg-purple-50 space-y-4">
                 <div className="flex items-center space-x-2">
                   <Checkbox 
                     id="headerRow"
@@ -1610,6 +2059,7 @@ const ContactsV2 = () => {
                       importForm.setValue("headerRow", checked as boolean);
                     }}
                     disabled={isImporting}
+                    className="border-purple-300"
                   />
                   <Label htmlFor="headerRow">File has header row</Label>
                 </div>
@@ -1622,29 +2072,30 @@ const ContactsV2 = () => {
                       importForm.setValue("skipDuplicates", checked as boolean);
                     }}
                     disabled={isImporting}
+                    className="border-purple-300"
                   />
                   <Label htmlFor="skipDuplicates">Skip duplicates</Label>
                 </div>
-              </div>
-              
-              <div>
-                <Label>Add to list (optional)</Label>
-                <Select 
-                  onValueChange={(value) => importForm.setValue("addToList", value)}
-                  disabled={isImporting || lists.length === 0}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a list" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="">None</SelectItem>
-                    {lists.map((list) => (
-                      <SelectItem key={list.id} value={list.id.toString()}>
-                        {list.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                
+                <div>
+                  <Label>Add to list (optional)</Label>
+                  <Select 
+                    onValueChange={(value) => importForm.setValue("addToList", value)}
+                    disabled={isImporting || lists.length === 0}
+                  >
+                    <SelectTrigger className="mt-1 border-purple-200">
+                      <SelectValue placeholder="Select a list" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">None</SelectItem>
+                      {lists.map((list) => (
+                        <SelectItem key={list.id} value={list.id.toString()}>
+                          {list.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
               
               {isImporting && (
@@ -1653,7 +2104,7 @@ const ContactsV2 = () => {
                     <span>Importing...</span>
                     <span>{importProgress}%</span>
                   </div>
-                  <Progress value={importProgress} />
+                  <Progress value={importProgress} className="h-2" />
                 </div>
               )}
               
@@ -1663,13 +2114,14 @@ const ContactsV2 = () => {
                   variant="outline" 
                   onClick={() => setOpenDialog(null)}
                   disabled={isImporting}
+                  className="border-purple-200"
                 >
                   Cancel
                 </Button>
                 <Button 
                   type="submit" 
                   disabled={isImporting || !fileInputRef.current?.files?.[0]}
-                  className="bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700"
+                  className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
                 >
                   {isImporting ? "Importing..." : "Import Contacts"}
                 </Button>
