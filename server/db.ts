@@ -51,7 +51,8 @@ function setupDatabaseConnection() {
             from: () => {
               return {
                 where: () => Promise.resolve([]),
-                execute: () => Promise.resolve([])
+                execute: () => Promise.resolve([]),
+                orderBy: () => Promise.resolve([])
               };
             }
           };
