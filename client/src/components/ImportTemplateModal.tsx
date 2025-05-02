@@ -144,68 +144,66 @@ export default function ImportTemplateModal({ open, onOpenChange, onImportSucces
     mutationFn: async (data: { name: string; file: File }) => {
       console.log("Preparing ZIP upload for template:", data.name);
       
-      const formData = new FormData();
-      formData.append("name", data.name);
-      formData.append("file", data.file);
-      
-      console.log("File information:", {
-        name: data.file.name,
-        type: data.file.type,
-        size: data.file.size
-      });
-      
-      // Use regular fetch for file uploads instead of apiRequest
-      // This avoids issues with Content-Type and JSON stringification
-      console.log('FormData content:', Array.from(formData.entries()).map(([key, value]) => {
-        if (value instanceof File) {
-          return `${key}: File(${value.name}, ${value.type}, ${value.size} bytes)`;
-        }
-        return `${key}: ${value}`;
-      }));
-      
-      const response = await fetch("/api/templates/import-zip", {
-        method: "POST",
-        body: formData,
-        credentials: "include",
-        // Don't manually set Content-Type, let browser set it with boundary
-        // This is crucial for proper multipart/form-data handling
-      });
-      
-      console.log("Response status:", response.status, response.statusText);
-      
-      if (!response.ok) {
-        // Try to parse error response as JSON
-        let errorMessage = `Server returned ${response.status}: ${response.statusText}`;
-        
-        try {
-          const contentType = response.headers.get("content-type");
-          if (contentType && contentType.includes("application/json")) {
-            const errorData = await response.json();
-            if (errorData && errorData.error) {
-              errorMessage = errorData.error;
-            }
-          } else {
-            // If not JSON, try to get text
-            const errorText = await response.text();
-            if (errorText) {
-              errorMessage = `Server error: ${errorText.substring(0, 100)}${errorText.length > 100 ? '...' : ''}`;
-            }
-          }
-        } catch (parseError) {
-          console.error("Error parsing error response:", parseError);
-        }
-        
-        throw new Error(errorMessage);
-      }
-      
-      // Parse successful response
       try {
-        const result = await response.json();
-        console.log("Template import successful:", result);
-        return result;
-      } catch (jsonError) {
-        console.error("Error parsing success response:", jsonError);
-        throw new Error("Invalid response from server: not valid JSON");
+        // Create a multipart form-data object
+        const formData = new FormData();
+        formData.append("name", data.name);
+        formData.append("zipFile", data.file); // Change key to zipFile to match server expectation
+        
+        console.log("File information:", {
+          name: data.file.name,
+          type: data.file.type,
+          size: data.file.size
+        });
+        
+        // First, try with proper multipart/form-data
+        const response = await fetch("/api/templates/import-zip", {
+          method: "POST",
+          body: formData,
+          credentials: "include",
+          // Let the browser set the correct Content-Type with boundary
+        });
+        
+        console.log("Response status:", response.status, response.statusText);
+        
+        if (!response.ok) {
+          // Try to get detailed error information
+          let errorMessage = `Server returned ${response.status}: ${response.statusText}`;
+          
+          try {
+            const contentType = response.headers.get("content-type");
+            if (contentType && contentType.includes("application/json")) {
+              const errorData = await response.json();
+              if (errorData && errorData.error) {
+                errorMessage = errorData.error;
+              }
+            } else {
+              // If not JSON, try to get text
+              const errorText = await response.text();
+              if (errorText) {
+                errorMessage = `Server error: ${errorText.substring(0, 100)}${errorText.length > 100 ? '...' : ''}`;
+              }
+            }
+          } catch (parseError) {
+            console.error("Error parsing error response:", parseError);
+          }
+          
+          // Throw a detailed error
+          throw new Error(`Failed to import template: ${errorMessage}`);
+        }
+        
+        // Parse successful response
+        try {
+          const result = await response.json();
+          console.log("Template import successful:", result);
+          return result;
+        } catch (jsonError) {
+          console.error("Error parsing success response:", jsonError);
+          throw new Error("Invalid response from server: not valid JSON");
+        }
+      } catch (error) {
+        console.error("ZIP import error:", error);
+        throw error;
       }
     },
     onSuccess: (data) => {

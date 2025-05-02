@@ -1344,6 +1344,79 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Template management - GET endpoint
+  app.get('/api/templates', async (req: Request, res: Response) => {
+    try {
+      console.log('Fetching all templates');
+      
+      // Try using standard storage method first
+      let templates = [];
+      try {
+        templates = await storage.getTemplates();
+        console.log(`Fetched ${templates.length} templates via standard method`);
+      } catch (storageError) {
+        console.error('Error fetching templates via standard method:', storageError);
+        
+        // Fallback to direct SQL
+        try {
+          console.log('Attempting direct SQL template fetch as fallback');
+          const result = await pool.query('SELECT * FROM templates ORDER BY id DESC');
+          templates = result.rows || [];
+          console.log(`Fetched ${templates.length} templates via direct SQL`);
+        } catch (sqlError) {
+          console.error('Direct SQL template fetch failed:', sqlError);
+          
+          // Load from file storage as last resort
+          console.log('Falling back to file storage for templates');
+          try {
+            // Load templates from file storage backup
+            const templatesFilePath = path.join(process.cwd(), 'email-templates-data.json');
+            if (fs.existsSync(templatesFilePath)) {
+              const templatesData = fs.readFileSync(templatesFilePath, 'utf8');
+              templates = JSON.parse(templatesData);
+              console.log(`Loaded ${templates.length} templates from file storage`);
+            }
+          } catch (fileError) {
+            console.error('File storage fallback failed:', fileError);
+          }
+        }
+      }
+      
+      // Transform templates to ensure consistent format
+      const formattedTemplates = templates.map(template => {
+        // Handle cases where content might be stringified twice
+        let parsedContent = template.content;
+        try {
+          // If content is a string but in JSON format, parse it
+          if (typeof template.content === 'string' && 
+              (template.content.startsWith('{') || template.content.startsWith('['))) {
+            parsedContent = JSON.parse(template.content);
+          }
+        } catch (e) {
+          // If parsing fails, keep original content
+          console.log(`Content parsing failed for template ${template.id}, using original content`);
+        }
+        
+        return {
+          id: template.id,
+          name: template.name,
+          description: template.description || '',
+          content: parsedContent,
+          category: template.category || 'general',
+          subject: template.subject || template.name,
+          createdAt: template.createdAt || template.created_at || new Date().toISOString(),
+          updatedAt: template.updatedAt || template.updated_at || new Date().toISOString(),
+          metadata: template.metadata || {}
+        };
+      });
+      
+      return res.status(200).json(formattedTemplates);
+    } catch (error: any) {
+      console.error('Error fetching templates:', error);
+      return res.status(500).json({ error: 'Failed to fetch templates: ' + (error.message || 'Unknown error') });
+    }
+  });
+
   // Template management - standard creation endpoint
   app.post('/api/templates', async (req: Request, res: Response) => {
     try {
