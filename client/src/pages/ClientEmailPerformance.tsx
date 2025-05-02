@@ -908,7 +908,7 @@ const ClientEmailPerformance: React.FC = () => {
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
-                      data={chartData?.deviceBreakdown}
+                      data={chartData?.deviceBreakdown || []}
                       cx="50%"
                       cy="50%"
                       innerRadius={60}
@@ -918,7 +918,7 @@ const ClientEmailPerformance: React.FC = () => {
                       label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
                       labelLine={false}
                     >
-                      {chartData?.deviceBreakdown.map((entry, index) => (
+                      {(chartData?.deviceBreakdown || []).map((entry, index) => (
                         <Cell 
                           key={`cell-${index}`} 
                           fill={DEVICE_COLORS[index % DEVICE_COLORS.length]} 
@@ -934,7 +934,7 @@ const ClientEmailPerformance: React.FC = () => {
               </div>
               <div className="px-6 pb-4">
                 <div className="flex flex-wrap gap-3 justify-center">
-                  {chartData?.deviceBreakdown.map((entry, index) => (
+                  {(chartData?.deviceBreakdown || []).map((entry, index) => (
                     <div key={index} className="flex items-center">
                       <div 
                         className="w-3 h-3 rounded-full mr-1.5" 
@@ -956,7 +956,7 @@ const ClientEmailPerformance: React.FC = () => {
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
-                      data={chartData?.emailClientDistribution}
+                      data={chartData?.emailClientDistribution || []}
                       cx="50%"
                       cy="50%"
                       innerRadius={60}
@@ -966,7 +966,7 @@ const ClientEmailPerformance: React.FC = () => {
                       label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
                       labelLine={false}
                     >
-                      {chartData?.emailClientDistribution.map((entry, index) => (
+                      {(chartData?.emailClientDistribution || []).map((entry, index) => (
                         <Cell 
                           key={`cell-${index}`} 
                           fill={EMAIL_CLIENT_COLORS[index % EMAIL_CLIENT_COLORS.length]} 
@@ -982,7 +982,7 @@ const ClientEmailPerformance: React.FC = () => {
               </div>
               <div className="px-6 pb-4">
                 <div className="flex flex-wrap gap-3 justify-center">
-                  {chartData?.emailClientDistribution.map((entry, index) => (
+                  {(chartData?.emailClientDistribution || []).map((entry, index) => (
                     <div key={index} className="flex items-center">
                       <div 
                         className="w-3 h-3 rounded-full mr-1.5" 
@@ -1160,7 +1160,7 @@ const ClientEmailPerformance: React.FC = () => {
                       background
                       dataKey="value"
                     >
-                      {chartData?.subscriberEngagementSegments.map((entry, index) => (
+                      {(chartData?.subscriberEngagementSegments || []).map((entry, index) => (
                         <Cell 
                           key={`cell-${index}`} 
                           fill={SUBSCRIBER_COLORS[index % SUBSCRIBER_COLORS.length]} 
@@ -1179,7 +1179,7 @@ const ClientEmailPerformance: React.FC = () => {
               </div>
               <div className="px-6 pb-4">
                 <div className="flex flex-wrap gap-3 justify-center">
-                  {chartData?.subscriberEngagementSegments.map((entry, index) => (
+                  {(chartData?.subscriberEngagementSegments || []).map((entry, index) => (
                     <div key={index} className="flex items-center">
                       <div 
                         className="w-3 h-3 rounded-full mr-1.5" 
@@ -1436,21 +1436,32 @@ const ClientEmailPerformance: React.FC = () => {
                     </h4>
                     
                     <div className="space-y-3">
-                      {chartData?.deviceOverTime[0]?.mobile < chartData?.deviceOverTime[chartData.deviceOverTime.length - 1]?.mobile ? (
-                        <Alert className="bg-green-50 border-green-200">
-                          <div className="flex">
-                            <TrendingUp className="h-4 w-4 text-green-600 mr-2" />
-                            <AlertDescription>
-                              <strong>Mobile Growth:</strong> Mobile usage has increased by approximately {Math.round(chartData.deviceOverTime[chartData.deviceOverTime.length - 1].mobile - chartData.deviceOverTime[0].mobile)}% since {chartData.deviceOverTime[0].month}. Continue optimizing for mobile devices.
-                            </AlertDescription>
-                          </div>
-                        </Alert>
+                      {chartData?.deviceOverTime && chartData.deviceOverTime.length > 0 ? (
+                        chartData.deviceOverTime[0]?.mobile < chartData.deviceOverTime[chartData.deviceOverTime.length - 1]?.mobile ? (
+                          <Alert className="bg-green-50 border-green-200">
+                            <div className="flex">
+                              <TrendingUp className="h-4 w-4 text-green-600 mr-2" />
+                              <AlertDescription>
+                                <strong>Mobile Growth:</strong> Mobile usage has increased by approximately {Math.round((chartData.deviceOverTime[chartData.deviceOverTime.length - 1]?.mobile || 0) - (chartData.deviceOverTime[0]?.mobile || 0))}% since {chartData.deviceOverTime[0]?.month || 'start'}. Continue optimizing for mobile devices.
+                              </AlertDescription>
+                            </div>
+                          </Alert>
+                        ) : (
+                          <Alert className="bg-orange-50 border-orange-200">
+                            <div className="flex">
+                              <InfoIcon className="h-4 w-4 text-orange-600 mr-2" />
+                              <AlertDescription>
+                                <strong>Device Shift:</strong> Consider testing new designs optimized for your audience's evolving device preferences.
+                              </AlertDescription>
+                            </div>
+                          </Alert>
+                        )
                       ) : (
-                        <Alert className="bg-orange-50 border-orange-200">
+                        <Alert className="bg-blue-50 border-blue-200">
                           <div className="flex">
-                            <InfoIcon className="h-4 w-4 text-orange-600 mr-2" />
+                            <InfoIcon className="h-4 w-4 text-blue-600 mr-2" />
                             <AlertDescription>
-                              <strong>Device Shift:</strong> Consider testing new designs optimized for your audience's evolving device preferences.
+                              <strong>Device Trend Analysis:</strong> Collect more data to analyze device usage patterns over time.
                             </AlertDescription>
                           </div>
                         </Alert>
