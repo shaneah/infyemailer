@@ -7,6 +7,32 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Switch } from "@/components/ui/switch";
+import { motion, AnimatePresence } from "framer-motion";
+import { 
+  Mail, 
+  Calendar, 
+  CheckCircle, 
+  Clock, 
+  Users, 
+  FileText, 
+  Settings, 
+  ChevronRight, 
+  ChevronLeft, 
+  X, 
+  FileEdit,
+  Send,
+  BadgePercent,
+  CalendarCheck,
+  PlusCircle,
+  Trash,
+  AlertCircle,
+  Info
+} from "lucide-react";
 
 const campaignSchema = z.object({
   name: z.string().min(1, "Campaign name is required"),
@@ -185,16 +211,110 @@ const NewCampaignModal = ({ onClose, initialTemplateId = null }: NewCampaignModa
   console.log("Template count:", templates.length, "List count:", lists.length);
 
   return (
-    <div className="modal fade show" style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)' }} tabIndex={-1}>
-      <div className="modal-dialog modal-lg">
-        <div className="modal-content">
-          <div className="modal-header">
-            <h5 className="modal-title">Create New Campaign</h5>
-            <button type="button" className="btn-close" onClick={onClose}></button>
+    <Dialog open={true} onOpenChange={onClose}>
+      <DialogContent className="bg-white rounded-xl max-w-4xl p-0 overflow-hidden">
+        <div className="bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 p-5 text-white relative">
+          {/* Decorative elements */}
+          <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-white opacity-10 -translate-y-1/2 translate-x-1/2"></div>
+          <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-white opacity-10 translate-y-1/2 -translate-x-1/2"></div>
+          
+          <div className="relative z-10">
+            <DialogTitle className="text-2xl font-bold flex items-center">
+              <Mail className="h-6 w-6 mr-2" />
+              Create New Campaign
+            </DialogTitle>
+            <DialogDescription className="text-white/80 max-w-lg">
+              Create, schedule, and send your email campaign. Design, target, and track all in one place.
+            </DialogDescription>
           </div>
-          <div className="d-flex">
-            <div className="modal-body flex-grow-1">
-              {activeTab === 'details' && (
+          
+          <button 
+            onClick={onClose} 
+            className="absolute top-2 right-2 rounded-full p-1 text-white/80 hover:text-white hover:bg-white/10 transition-colors"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+        
+        <div className="flex">
+          {/* Side navigation */}
+          <div className="w-48 bg-gradient-to-b from-purple-50 to-pink-50 p-4 border-r border-purple-100">
+            <div className="space-y-1">
+              <button
+                onClick={() => setActiveTab('details')}
+                className={`w-full flex items-center p-2 rounded-lg text-sm transition-all ${
+                  activeTab === 'details' 
+                    ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white font-medium shadow-sm' 
+                    : 'text-gray-600 hover:bg-purple-100 hover:text-purple-700'
+                }`}
+              >
+                <FileText className={`h-4 w-4 mr-2 ${activeTab === 'details' ? 'text-white' : 'text-purple-500'}`} />
+                Campaign Details
+              </button>
+              
+              <button
+                onClick={() => setActiveTab('content')}
+                className={`w-full flex items-center p-2 rounded-lg text-sm transition-all ${
+                  activeTab === 'content' 
+                    ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white font-medium shadow-sm' 
+                    : 'text-gray-600 hover:bg-purple-100 hover:text-purple-700'
+                }`}
+              >
+                <FileEdit className={`h-4 w-4 mr-2 ${activeTab === 'content' ? 'text-white' : 'text-purple-500'}`} />
+                Email Content
+              </button>
+              
+              <button
+                onClick={() => setActiveTab('audience')}
+                className={`w-full flex items-center p-2 rounded-lg text-sm transition-all ${
+                  activeTab === 'audience' 
+                    ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white font-medium shadow-sm' 
+                    : 'text-gray-600 hover:bg-purple-100 hover:text-purple-700'
+                }`}
+              >
+                <Users className={`h-4 w-4 mr-2 ${activeTab === 'audience' ? 'text-white' : 'text-purple-500'}`} />
+                Select Audience
+                {selectedLists.length > 0 && (
+                  <span className="ml-auto bg-purple-100 text-purple-600 text-xs font-medium rounded-full px-2 py-0.5">
+                    {selectedLists.length}
+                  </span>
+                )}
+              </button>
+              
+              <button
+                onClick={() => setActiveTab('testing')}
+                className={`w-full flex items-center p-2 rounded-lg text-sm transition-all ${
+                  activeTab === 'testing' 
+                    ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white font-medium shadow-sm' 
+                    : 'text-gray-600 hover:bg-purple-100 hover:text-purple-700'
+                }`}
+              >
+                <BadgePercent className={`h-4 w-4 mr-2 ${activeTab === 'testing' ? 'text-white' : 'text-purple-500'}`} />
+                A/B Testing
+                {isAbTesting && (
+                  <span className="ml-auto bg-green-100 text-green-600 text-xs font-medium rounded-full px-2 py-0.5">
+                    On
+                  </span>
+                )}
+              </button>
+              
+              <button
+                onClick={() => setActiveTab('settings')}
+                className={`w-full flex items-center p-2 rounded-lg text-sm transition-all ${
+                  activeTab === 'settings' 
+                    ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white font-medium shadow-sm' 
+                    : 'text-gray-600 hover:bg-purple-100 hover:text-purple-700'
+                }`}
+              >
+                <Settings className={`h-4 w-4 mr-2 ${activeTab === 'settings' ? 'text-white' : 'text-purple-500'}`} />
+                Schedule & Send
+              </button>
+            </div>
+          </div>
+          
+          {/* Main content */}
+          <div className="flex-grow p-5 max-h-[70vh] overflow-y-auto">
+            {activeTab === 'details' && (
                 <div>
                   <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -294,10 +414,10 @@ const NewCampaignModal = ({ onClose, initialTemplateId = null }: NewCampaignModa
                     </form>
                   </Form>
                   
-                  <div className="mt-4 d-flex justify-content-end">
-                    <button 
+                  <div className="mt-6 flex justify-end">
+                    <Button 
                       type="button" 
-                      className="btn btn-primary"
+                      className="bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700 shadow-md"
                       onClick={() => {
                         // Validate required fields
                         const name = form.getValues("name");
@@ -328,72 +448,90 @@ const NewCampaignModal = ({ onClose, initialTemplateId = null }: NewCampaignModa
                         setActiveTab('content');
                       }}
                     >
-                      Next: Content
-                    </button>
+                      <ChevronRight className="mr-2 h-4 w-4" />
+                      Next: Choose Template
+                    </Button>
                   </div>
                 </div>
               )}
               
               {activeTab === 'content' && (
                 <div>
-                  <div className="mb-3">
-                    <label className="form-label">Select a Template</label>
-                    <div className="row row-cols-1 row-cols-md-3 g-3">
-                      {templates.map((template: Template) => (
-                        <div className="col" key={template.id}>
-                          <div 
-                            className={`card template-card ${selectedTemplateId === template.id.toString() ? 'selected' : ''}`}
-                            onClick={() => setSelectedTemplateId(template.id.toString())}
-                          >
-                            <div 
-                              className="card-img-top bg-light d-flex justify-content-center align-items-center" 
-                              style={{ height: '120px' }}
+                  <h3 className="text-lg font-medium mb-4 text-gray-800">Choose a Template for Your Campaign</h3>
+                  <div className="mb-6">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      {templates.map((template: Template) => {
+                        // Determine template color by id
+                        const colors = [
+                          { bg: "from-purple-500 to-pink-600", text: "text-purple-700", border: "border-purple-200", hover: "hover:border-purple-300" },
+                          { bg: "from-blue-500 to-cyan-600", text: "text-blue-700", border: "border-blue-200", hover: "hover:border-blue-300" },
+                          { bg: "from-orange-500 to-amber-600", text: "text-orange-700", border: "border-orange-200", hover: "hover:border-orange-300" },
+                        ];
+                        
+                        const colorIndex = (Number(template.id) - 1) % colors.length;
+                        const color = colors[colorIndex];
+                        
+                        return (
+                          <div className="group" key={template.id}>
+                            <motion.div 
+                              className={`relative flex flex-col rounded-xl overflow-hidden transition-all duration-200 cursor-pointer 
+                                ${selectedTemplateId === template.id.toString() 
+                                  ? `border-2 border-${color.bg.split(' ')[0].replace('from-', '')} shadow-md` 
+                                  : `border border-gray-200 ${color.hover} shadow-sm hover:shadow`}
+                              `}
+                              onClick={() => setSelectedTemplateId(template.id.toString())}
+                              whileHover={{ y: -4 }}
+                              transition={{ duration: 0.2 }}
                             >
-                              <i className={`bi bi-file-earmark-text fs-1 text-${Number(template.id) === 1 ? "primary" : Number(template.id) === 2 ? "danger" : "success"}`}></i>
-                            </div>
-                            <div className="card-body">
-                              <h6 className="card-title">{template.name}</h6>
-                              <p className="card-text small text-muted">{template.description}</p>
-                            </div>
+                              {/* Header with gradient */}
+                              <div className={`h-24 bg-gradient-to-r ${color.bg} flex items-center justify-center p-4`}>
+                                <FileText className="h-10 w-10 text-white" />
+                                
+                                {/* Selection indicator */}
+                                {selectedTemplateId === template.id.toString() && (
+                                  <div className="absolute top-2 right-2 bg-white rounded-full p-1">
+                                    <CheckCircle className="h-5 w-5 text-green-600" />
+                                  </div>
+                                )}
+                              </div>
+                              
+                              {/* Content */}
+                              <div className="p-4 flex-grow bg-white">
+                                <h3 className={`font-medium mb-1 ${color.text}`}>{template.name}</h3>
+                                <p className="text-sm text-gray-500 line-clamp-2">{template.description}</p>
+                              </div>
+                                
+                              {/* Footer */}
+                              <div className="px-4 py-3 bg-gray-50 text-xs text-gray-500 border-t border-gray-100">
+                                {template.category && (
+                                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                    {template.category}
+                                  </span>
+                                )}
+                              </div>
+                            </motion.div>
                           </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   </div>
-                  <div className="mt-4 d-flex justify-content-between">
-                    <button
+                  
+                  <div className="flex justify-between mt-6">
+                    <Button
                       type="button"
-                      className="btn btn-outline-secondary"
+                      variant="outline"
                       onClick={() => setActiveTab('details')}
+                      className="flex items-center"
                     >
-                      Back to Details
-                    </button>
+                      <ChevronLeft className="mr-2 h-4 w-4" />
+                      Back
+                    </Button>
                     
-                    <div>
-                      <button 
-                        type="button" 
-                        className="btn btn-primary me-2"
-                        onClick={() => {
-                          if (!selectedTemplateId) {
-                            toast({
-                              title: "No Template Selected",
-                              description: "Please select a template first",
-                              variant: "destructive"
-                            });
-                            return;
-                          }
-                          
-                          console.log("Moving to audience tab, selected template:", selectedTemplateId);
-                          // Go to audience tab
-                          setActiveTab('audience');
-                        }}
-                      >
-                        Next: Contact Lists
-                      </button>
-                      
-                      <button 
-                        type="button" 
-                        className="btn btn-outline-primary"
+                    <div className="space-x-2">
+                      <Button 
+                        type="button"
+                        variant="outline"
+                        className="border-purple-200 text-purple-700 hover:bg-purple-50 hover:text-purple-800"
                         onClick={() => {
                           if (!selectedTemplateId) {
                             toast({
@@ -432,8 +570,31 @@ const NewCampaignModal = ({ onClose, initialTemplateId = null }: NewCampaignModa
                           );
                         }}
                       >
-                        Create & Proceed to Editor
-                      </button>
+                        <FileEdit className="mr-2 h-4 w-4" />
+                        Proceed to Editor
+                      </Button>
+                      
+                      <Button 
+                        type="button" 
+                        className="bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700 shadow-md"
+                        onClick={() => {
+                          if (!selectedTemplateId) {
+                            toast({
+                              title: "No Template Selected",
+                              description: "Please select a template first",
+                              variant: "destructive"
+                            });
+                            return;
+                          }
+                          
+                          console.log("Moving to audience tab, selected template:", selectedTemplateId);
+                          // Go to audience tab
+                          setActiveTab('audience');
+                        }}
+                      >
+                        <ChevronRight className="mr-2 h-4 w-4" />
+                        Next: Select Audience
+                      </Button>
                     </div>
                   </div>
                 </div>
@@ -442,65 +603,104 @@ const NewCampaignModal = ({ onClose, initialTemplateId = null }: NewCampaignModa
               {activeTab === 'audience' && (
                 <div>
                   {console.log("Audience tab rendered, available lists:", lists)}
-                  <div className="mb-4">
-                    <label className="form-label">Select Contact List(s)</label>
-                    <p className="text-muted mb-3">Choose one or more contact lists for your campaign</p>
+                  
+                  <div className="mb-6">
+                    <h3 className="text-lg font-medium mb-2 text-gray-800">Select Your Audience</h3>
+                    <p className="text-sm text-gray-500 mb-4">Choose one or more contact lists to receive your campaign</p>
                     
-                    <div className="card mb-3">
-                      <div className="card-body p-0">
-                        <div className="list-group list-group-flush">
-                          {lists.map((list) => (
-                            <div key={list.id} className="list-group-item">
-                              <div className="form-check">
-                                <input 
-                                  className="form-check-input" 
-                                  type="checkbox" 
-                                  id={`list-${list.id}`} 
-                                  value={list.id}
-                                  checked={selectedLists.includes(list.id.toString())}
-                                  onChange={(e) => {
-                                    if (e.target.checked) {
-                                      setSelectedLists([...selectedLists, list.id.toString()]);
-                                    } else {
-                                      setSelectedLists(selectedLists.filter(id => id !== list.id.toString()));
-                                    }
-                                  }}
-                                />
-                                <label className="form-check-label d-flex justify-content-between align-items-center w-100" htmlFor={`list-${list.id}`}>
-                                  <span>{list.name}</span>
-                                  <span className="badge bg-primary rounded-pill">{list.count.toLocaleString()} contacts</span>
-                                </label>
-                              </div>
+                    <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden mb-4">
+                      {lists.map((list, index) => (
+                        <div 
+                          key={list.id} 
+                          className={`flex items-center p-3 hover:bg-purple-50 transition-colors cursor-pointer ${
+                            index !== lists.length - 1 ? 'border-b border-gray-100' : ''
+                          } ${
+                            selectedLists.includes(list.id.toString()) ? 'bg-purple-50' : ''
+                          }`}
+                          onClick={() => {
+                            if (selectedLists.includes(list.id.toString())) {
+                              setSelectedLists(selectedLists.filter(id => id !== list.id.toString()));
+                            } else {
+                              setSelectedLists([...selectedLists, list.id.toString()]);
+                            }
+                          }}
+                        >
+                          <div className="flex items-center flex-1">
+                            <div className={`w-5 h-5 rounded-md border flex items-center justify-center mr-3 ${
+                              selectedLists.includes(list.id.toString()) 
+                                ? 'bg-gradient-to-r from-purple-600 to-pink-600 border-transparent' 
+                                : 'border-gray-300'
+                            }`}>
+                              {selectedLists.includes(list.id.toString()) && (
+                                <CheckCircle className="h-4 w-4 text-white" />
+                              )}
                             </div>
-                          ))}
-                          
-                          {lists.length === 0 && (
-                            <div className="list-group-item text-center py-4">
-                              <p className="mb-1">No contact lists available</p>
-                              <a href="/contacts" className="btn btn-sm btn-outline-primary mt-2">Create a contact list</a>
+                            
+                            <div className="flex-1">
+                              <span className="font-medium text-gray-800">{list.name}</span>
                             </div>
-                          )}
+                            
+                            <div className="ml-4">
+                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gradient-to-r from-purple-100 to-pink-100 text-purple-800">
+                                {list.count.toLocaleString()} contacts
+                              </span>
+                            </div>
+                          </div>
                         </div>
-                      </div>
+                      ))}
+                      
+                      {lists.length === 0 && (
+                        <div className="p-8 text-center">
+                          <div className="inline-flex items-center justify-center p-3 rounded-full bg-purple-100 mb-4">
+                            <Users className="h-6 w-6 text-purple-600" />
+                          </div>
+                          <h4 className="text-gray-800 font-medium mb-2">No contact lists available</h4>
+                          <p className="text-gray-500 mb-4">You need to create a contact list first</p>
+                          <a 
+                            href="/contacts" 
+                            className="inline-flex items-center px-4 py-2 rounded-md bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700 shadow-sm text-sm font-medium"
+                          >
+                            Create a contact list
+                          </a>
+                        </div>
+                      )}
                     </div>
                     
-                    <a href="/contacts" className="btn btn-outline-secondary btn-sm">
-                      <i className="bi bi-plus-circle me-1"></i>
-                      Create a new contact list
-                    </a>
+                    {lists.length > 0 && (
+                      <div className="bg-gray-50 rounded-lg border border-gray-200 p-4 mb-6">
+                        <div className="flex items-center text-sm">
+                          <div className="mr-3 bg-purple-100 p-2 rounded-full">
+                            <Users className="h-5 w-5 text-purple-600" />
+                          </div>
+                          <div>
+                            <span className="font-medium">Total audience: </span>
+                            <span className="text-gray-700">
+                              {selectedLists.length > 0 
+                                ? lists
+                                    .filter(list => selectedLists.includes(list.id.toString()))
+                                    .reduce((sum, list) => sum + list.count, 0)
+                                    .toLocaleString()
+                                : 0} contacts
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                     
-                    <div className="mt-4 d-flex justify-content-between">
-                      <button
+                    <div className="flex justify-between mt-6">
+                      <Button
                         type="button"
-                        className="btn btn-outline-secondary"
+                        variant="outline"
                         onClick={() => setActiveTab('content')}
+                        className="flex items-center"
                       >
-                        Back to Content
-                      </button>
+                        <ChevronLeft className="mr-2 h-4 w-4" />
+                        Back
+                      </Button>
                       
-                      <button 
-                        type="button" 
-                        className="btn btn-primary"
+                      <Button 
+                        type="button"
+                        className="bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700 shadow-md"
                         onClick={() => {
                           if (selectedLists.length === 0) {
                             toast({
@@ -512,421 +712,382 @@ const NewCampaignModal = ({ onClose, initialTemplateId = null }: NewCampaignModa
                           }
                           
                           // Go to A/B testing tab
-                          setActiveTab('ab-testing');
+                          setActiveTab('testing');
                         }}
                       >
+                        <ChevronRight className="mr-2 h-4 w-4" />
                         Next: A/B Testing
-                      </button>
+                      </Button>
                     </div>
                   </div>
                 </div>
               )}
               
-              {activeTab === 'ab-testing' && (
+              {activeTab === 'testing' && (
                 <div>
-                  <div className="mb-4">
-                    <div className="form-check form-switch mb-3">
-                      <input
-                        className="form-check-input"
-                        type="checkbox"
-                        id="abTestingSwitch"
-                        checked={isAbTesting}
-                        onChange={() => setIsAbTesting(!isAbTesting)}
-                      />
-                      <label className="form-check-label fw-medium" htmlFor="abTestingSwitch">
-                        Enable A/B Testing
-                      </label>
+                  <h3 className="text-lg font-medium mb-3 text-gray-800">A/B Testing Configuration</h3>
+                  <p className="text-sm text-gray-500 mb-4">Create multiple variants of your email to test different subject lines and content</p>
+                    
+                  <div className="flex items-center p-4 bg-gray-50 rounded-lg border border-gray-200 mb-6">
+                    <div className="flex-grow">
+                      <p className="font-medium mb-0.5">Enable A/B Testing</p>
+                      <p className="text-sm text-gray-500">Test different subject lines, preview text, or content versions</p>
                     </div>
+                    <Switch 
+                      checked={isAbTesting}
+                      onCheckedChange={setIsAbTesting}
+                    />
+                  </div>
 
-                    {isAbTesting && (
-                      <>
-                        <div className="alert alert-info mb-4">
-                          <div className="d-flex">
-                            <div className="me-3 fs-5"><i className="bi bi-info-circle-fill"></i></div>
-                            <div>
-                              <p className="mb-1 fw-bold">How A/B Testing Works</p>
-                              <p className="small mb-0">Create multiple variants of your email with different subjects, content, or preview text. InfyMailer will automatically distribute these variants to your audience and track which performs better, allowing you to determine the winning variant based on open rates, click rates, and conversions.</p>
-                            </div>
+                  {isAbTesting && (
+                    <div className="space-y-6">
+                      <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-4 rounded-lg border border-purple-100 mb-4">
+                        <div className="flex">
+                          <div className="mr-3 text-purple-500">
+                            <Info className="h-5 w-5" />
+                          </div>
+                          <div className="space-y-1">
+                            <p className="font-medium text-purple-800">How A/B Testing Works</p>
+                            <p className="text-sm text-purple-700">
+                              Create multiple variants of your email with different subjects, content, or preview text. 
+                              We'll distribute these variants to your audience and track which performs better, allowing you 
+                              to determine the winning variant based on open rates, clicks, and conversions.
+                            </p>
                           </div>
                         </div>
-
-                        <div className="card mb-4 border-0 shadow-sm">
-                          <div className="card-header bg-gradient-primary text-white d-flex justify-content-between align-items-center">
-                            <h5 className="card-title mb-0">Email Variants</h5>
-                            <span className="badge bg-white text-primary">{variants.length} variant{variants.length !== 1 ? 's' : ''}</span>
-                          </div>
-                          <div className="card-body">
-                            {variants.length > 0 ? (
-                              <div className="mb-3">
-                                {variants.map((variant, index) => (
-                                  <div key={variant.id} className="card mb-3 border shadow-sm">
-                                    <div className="card-header bg-gradient-light d-flex justify-content-between align-items-center py-2">
-                                      <h6 className="mb-0 fw-bold">Variant {index + 1}: {variant.name}</h6>
-                                      <div>
-                                        <button 
-                                          type="button" 
-                                          className="btn btn-sm btn-outline-primary me-2"
-                                          onClick={() => {
-                                            // Implement edit variant functionality
-                                            // For now, we'll just open a simple prompt to rename
-                                            const newName = prompt("Enter a new name for this variant:", variant.name);
-                                            if (newName && newName.trim() !== '') {
-                                              const updatedVariants = [...variants];
-                                              updatedVariants[index] = {
-                                                ...variant,
-                                                name: newName.trim()
-                                              };
-                                              setVariants(updatedVariants);
-                                            }
-                                          }}
-                                        >
-                                          Edit
-                                        </button>
-                                        <button 
-                                          type="button" 
-                                          className="btn btn-sm btn-outline-danger"
-                                          onClick={() => {
-                                            setVariants(variants.filter(v => v.id !== variant.id));
-                                          }}
-                                        >
-                                          Remove
-                                        </button>
-                                      </div>
+                      </div>
+                        
+                      <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+                        <div className="bg-gradient-to-r from-purple-600 to-pink-600 px-4 py-2 text-white flex justify-between items-center">
+                          <h3 className="text-base font-medium m-0 flex items-center">
+                            <BadgePercent className="h-4 w-4 mr-2" />
+                            Email Variants
+                          </h3>
+                          {variants.length > 0 && (
+                            <span className="text-xs bg-white/20 text-white px-2 py-0.5 rounded-full">
+                              {variants.length} variant{variants.length !== 1 ? 's' : ''}
+                            </span>
+                          )}
+                        </div>
+                          
+                        <div className="p-4">
+                          {variants.length > 0 ? (
+                            <div className="space-y-3">
+                              {variants.map((variant, index) => (
+                                <div 
+                                  key={variant.id} 
+                                  className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden"
+                                >
+                                  <div className="bg-gray-50 px-4 py-2 border-b border-gray-200 flex justify-between items-center">
+                                    <h4 className="text-sm font-medium m-0 flex items-center text-gray-800">
+                                      Variant {index + 1}: {variant.name}
+                                    </h4>
+                                    <div className="flex space-x-1">
+                                      <Button 
+                                        size="sm"
+                                        variant="ghost"
+                                        className="h-7 px-2 text-gray-500 hover:text-gray-800"
+                                        onClick={() => {
+                                          // Implement edit variant functionality
+                                          const newName = prompt("Enter a new name for this variant:", variant.name);
+                                          if (newName && newName.trim() !== '') {
+                                            const updatedVariants = [...variants];
+                                            updatedVariants[index] = {
+                                              ...variant,
+                                              name: newName.trim()
+                                            };
+                                            setVariants(updatedVariants);
+                                          }
+                                        }}
+                                      >
+                                        Edit
+                                      </Button>
+                                      <Button 
+                                        size="sm"
+                                        variant="ghost"
+                                        className="h-7 px-2 text-red-600 hover:text-red-700 hover:bg-red-50"
+                                        onClick={() => {
+                                          setVariants(variants.filter(v => v.id !== variant.id));
+                                        }}
+                                      >
+                                        <Trash className="h-4 w-4" />
+                                      </Button>
                                     </div>
-                                    <div className="card-body">
-                                      <div className="row g-3">
-                                        <div className="col-md-12">
-                                          <div className="d-flex align-items-center">
-                                            <div className="badge bg-primary me-2 fs-6 px-2">A</div>
-                                            <div>
-                                              <div className="text-muted small mb-1">Subject Line</div>
-                                              <div className="fw-medium">{variant.subject}</div>
-                                            </div>
-                                          </div>
+                                  </div>
+                                  <div className="p-4">
+                                    <div className="space-y-3">
+                                      <div className="flex items-start">
+                                        <div className="flex-shrink-0">
+                                          <span className="flex h-7 w-7 rounded-full bg-purple-100 text-purple-600 text-xs items-center justify-center font-medium">A</span>
                                         </div>
-                                        <div className="col-md-12">
-                                          <div className="d-flex align-items-center">
-                                            <div className="badge bg-secondary me-2 fs-6 px-2">P</div>
-                                            <div>
-                                              <div className="text-muted small mb-1">Preview Text</div>
-                                              <div className="fw-medium">{variant.previewText}</div>
-                                            </div>
-                                          </div>
+                                        <div className="ml-3">
+                                          <p className="text-xs text-gray-500 mb-1">Subject Line</p>
+                                          <p className="text-sm font-medium text-gray-800">{variant.subject}</p>
                                         </div>
-                                        {index === 0 && (
-                                          <div className="col-12">
-                                            <div className="alert alert-success mb-0 py-2">
-                                              <div className="d-flex align-items-center">
-                                                <div className="me-2"><i className="bi bi-star-fill"></i></div>
-                                                <div className="small">Control variant (original email)</div>
-                                              </div>
-                                            </div>
-                                          </div>
-                                        )}
+                                      </div>
+                                        
+                                      <div className="flex items-start">
+                                        <div className="flex-shrink-0">
+                                          <span className="flex h-7 w-7 rounded-full bg-gray-100 text-gray-600 text-xs items-center justify-center font-medium">P</span>
+                                        </div>
+                                        <div className="ml-3">
+                                          <p className="text-xs text-gray-500 mb-1">Preview Text</p>
+                                          <p className="text-sm text-gray-700">{variant.previewText}</p>
+                                        </div>
                                       </div>
                                     </div>
                                   </div>
-                                ))}
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <div className="text-center py-8">
+                              <div className="inline-flex items-center justify-center p-3 rounded-full bg-purple-100 mb-3">
+                                <BadgePercent className="h-6 w-6 text-purple-600" />
                               </div>
-                            ) : (
-                              <div className="text-center p-4 border border-dashed rounded mb-3">
-                                <div className="text-muted mb-3"><i className="bi bi-envelope-plus fs-2"></i></div>
-                                <p className="text-muted mb-0">No variants created yet. Add at least one variant to use A/B testing.</p>
-                              </div>
-                            )}
-
-                            <button 
-                              type="button" 
-                              className="btn btn-primary w-100 mb-3"
+                              <h4 className="text-gray-800 font-medium mb-1">No Variants Added Yet</h4>
+                              <p className="text-gray-500 mb-4 text-sm">Create at least one variant to use A/B testing</p>
+                            </div>
+                          )}
+                            
+                          <div className="mt-4">
+                            <Button
+                              type="button"
                               onClick={() => {
-                                // Clone the template as a new variant
-                                const selectedTemplate = templates.find(t => t.id.toString() === selectedTemplateId);
+                                // Get current form values
+                                const formValues = form.getValues();
                                 
-                                if (!selectedTemplate) {
-                                  toast({
-                                    title: "Template Not Found",
-                                    description: "Please select a template first",
-                                    variant: "destructive"
-                                  });
-                                  return;
-                                }
+                                // Generate random ID
+                                const variantId = Date.now().toString();
                                 
+                                // Create new variant
                                 const newVariant = {
-                                  id: `variant-${Date.now()}`,
+                                  id: variantId,
                                   name: `Variant ${variants.length + 1}`,
-                                  subject: form.getValues('subject') || 'New Subject',
-                                  previewText: form.getValues('previewText') || 'Preview text for this variant',
-                                  content: selectedTemplate.content
+                                  subject: formValues.subject || "",
+                                  previewText: formValues.previewText || "",
+                                  content: "", // Empty content for now
+                                  weight: 50
                                 };
                                 
+                                // Add to variants array
                                 setVariants([...variants, newVariant]);
                               }}
+                              className="w-full flex items-center justify-center bg-gray-50 hover:bg-gray-100 text-gray-700 border border-gray-200"
+                              variant="outline"
                             >
-                              <i className="bi bi-plus-circle me-2"></i> Add New Variant
-                            </button>
+                              <PlusCircle className="h-4 w-4 mr-2" />
+                              Add New Variant
+                            </Button>
                           </div>
                         </div>
-                        
-                        {variants.length > 0 && (
-                          <div className="card mb-4 border-0 shadow-sm">
-                            <div className="card-header bg-gradient-primary text-white">
-                              <h5 className="card-title mb-0">Test Settings</h5>
-                            </div>
-                            <div className="card-body">
-                              <div className="form-group mb-3">
-                                <label className="form-label fw-medium">Distribution Method</label>
-                                <select className="form-select mb-2">
-                                  <option value="even">Even Split (Default)</option>
-                                  <option value="percent">Custom Percentages</option>
-                                </select>
-                                <div className="form-text text-muted small">
-                                  Even Split distributes your audience equally across all variants. Custom Percentages allows you to set specific weights for each variant.
-                                </div>
-                              </div>
-                              
-                              <div className="form-group mb-3">
-                                <label className="form-label fw-medium">Success Metric</label>
-                                <select className="form-select mb-2">
-                                  <option value="open_rate">Open Rate (Default)</option>
-                                  <option value="click_rate">Click Rate</option>
-                                  <option value="conversion">Conversion Rate</option>
-                                </select>
-                                <div className="form-text text-muted small">
-                                  Select which metric to use when determining the winning variant.
-                                </div>
-                              </div>
-                              
-                              <div className="form-group">
-                                <label className="form-label fw-medium">Winner Selection</label>
-                                <div className="form-check mb-2">
-                                  <input className="form-check-input" type="radio" name="winnerSelection" id="automatic" checked />
-                                  <label className="form-check-label" htmlFor="automatic">
-                                    Automatic (After 48 hours)
-                                  </label>
-                                </div>
-                                <div className="form-check">
-                                  <input className="form-check-input" type="radio" name="winnerSelection" id="manual" />
-                                  <label className="form-check-label" htmlFor="manual">
-                                    Manual Selection
-                                  </label>
-                                </div>
-                                <div className="form-text text-muted small">
-                                  Choose whether InfyMailer should automatically select the winning variant based on the success metric, or if you want to choose manually.
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        )}
-                      </>
-                    )}
-                  </div>
-                  
-                  <div className="text-end">
-                    <div className="d-flex justify-content-between">
-                      <button 
-                        type="button" 
-                        className="btn btn-outline-secondary" 
-                        onClick={() => setActiveTab('audience')}
-                      >
-                        Back
-                      </button>
-                      <button 
-                        type="button" 
-                        className="btn btn-primary" 
-                        onClick={() => {
-                          if (isAbTesting && variants.length === 0) {
-                            toast({
-                              title: "Missing Variants",
-                              description: "Please add at least one variant or disable A/B testing",
-                              variant: "destructive"
-                            });
-                            return;
-                          }
-                          
-                          // Go to settings tab
-                          setActiveTab('settings');
-                        }}
-                      >
-                        Next: Settings
-                      </button>
+                      </div>
                     </div>
+                  )}
+                  
+                  <div className="flex justify-between mt-6">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setActiveTab('audience')}
+                      className="flex items-center"
+                    >
+                      <ChevronLeft className="mr-2 h-4 w-4" />
+                      Back
+                    </Button>
+                    
+                    <Button 
+                      type="button"
+                      className="bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700 shadow-md"
+                      onClick={() => {
+                        // If A/B testing is enabled, make sure there's at least one variant
+                        if (isAbTesting && variants.length === 0) {
+                          toast({
+                            title: "No Variants Added",
+                            description: "Please add at least one variant or disable A/B testing",
+                            variant: "destructive"
+                          });
+                          return;
+                        }
+                        
+                        // Move to settings tab
+                        setActiveTab('settings');
+                      }}
+                    >
+                      <ChevronRight className="mr-2 h-4 w-4" />
+                      Next: Schedule & Send
+                    </Button>
                   </div>
                 </div>
               )}
               
               {activeTab === 'settings' && (
                 <div>
-                  <Form {...form}>
-                    <form>
-                      <div className="mb-3">
-                        <label className="form-label">When to Send</label>
-                        <div className="form-check mb-2">
-                          <input 
-                            className="form-check-input" 
-                            type="radio" 
-                            name="sendOptions" 
-                            id="sendNow" 
-                            checked={sendOption === 'now'}
-                            onChange={() => setSendOption('now')}
-                          />
-                          <label className="form-check-label" htmlFor="sendNow">
-                            Send immediately
-                          </label>
+                  <h3 className="text-lg font-medium mb-3 text-gray-800">Schedule & Send</h3>
+                  <p className="text-sm text-gray-500 mb-5">Choose when to send your campaign</p>
+                  
+                  <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden mb-6">
+                    <div className="p-5">
+                      <div className="space-y-5">
+                        <div 
+                          className={`flex items-start p-3 rounded-lg cursor-pointer ${
+                            sendOption === 'now' ? 'bg-purple-50 border border-purple-200' : 'bg-gray-50 border border-gray-200 hover:bg-gray-100'
+                          }`}
+                          onClick={() => setSendOption('now')}
+                        >
+                          <div className={`h-5 w-5 rounded-full border flex items-center justify-center mr-3 mt-0.5 ${
+                            sendOption === 'now' ? 'bg-purple-600 border-transparent' : 'border-gray-300'
+                          }`}>
+                            {sendOption === 'now' && (
+                              <div className="h-2 w-2 rounded-full bg-white"></div>
+                            )}
+                          </div>
+                          <div>
+                            <h4 className="text-base font-medium mb-1">Send immediately</h4>
+                            <p className="text-sm text-gray-500">Your campaign will be sent right after creation</p>
+                          </div>
                         </div>
-                        <div className="form-check">
-                          <input 
-                            className="form-check-input" 
-                            type="radio" 
-                            name="sendOptions" 
-                            id="scheduleDate" 
-                            checked={sendOption === 'schedule'}
-                            onChange={() => setSendOption('schedule')}
-                          />
-                          <label className="form-check-label" htmlFor="scheduleDate">
-                            Schedule for later
-                          </label>
+                        
+                        <div 
+                          className={`flex items-start p-3 rounded-lg cursor-pointer ${
+                            sendOption === 'schedule' ? 'bg-purple-50 border border-purple-200' : 'bg-gray-50 border border-gray-200 hover:bg-gray-100'
+                          }`}
+                          onClick={() => setSendOption('schedule')}
+                        >
+                          <div className={`h-5 w-5 rounded-full border flex items-center justify-center mr-3 mt-0.5 ${
+                            sendOption === 'schedule' ? 'bg-purple-600 border-transparent' : 'border-gray-300'
+                          }`}>
+                            {sendOption === 'schedule' && (
+                              <div className="h-2 w-2 rounded-full bg-white"></div>
+                            )}
+                          </div>
+                          <div className="flex-grow">
+                            <h4 className="text-base font-medium mb-1">Schedule for later</h4>
+                            <p className="text-sm text-gray-500 mb-3">Choose a specific date and time to send your campaign</p>
+                            
+                            {sendOption === 'schedule' && (
+                              <div className="grid grid-cols-2 gap-3">
+                                <div>
+                                  <p className="text-sm text-gray-700 mb-1">Date</p>
+                                  <Input
+                                    type="date"
+                                    value={form.getValues("scheduledDate")}
+                                    onChange={(e) => form.setValue("scheduledDate", e.target.value)}
+                                    min={new Date().toISOString().split('T')[0]}
+                                    className="border-gray-300"
+                                  />
+                                </div>
+                                <div>
+                                  <p className="text-sm text-gray-700 mb-1">Time</p>
+                                  <Input
+                                    type="time"
+                                    value={form.getValues("scheduledTime")}
+                                    onChange={(e) => form.setValue("scheduledTime", e.target.value)}
+                                    className="border-gray-300"
+                                  />
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                        
+                        <div 
+                          className={`flex items-start p-3 rounded-lg cursor-pointer ${
+                            sendOption === 'draft' ? 'bg-purple-50 border border-purple-200' : 'bg-gray-50 border border-gray-200 hover:bg-gray-100'
+                          }`}
+                          onClick={() => setSendOption('draft')}
+                        >
+                          <div className={`h-5 w-5 rounded-full border flex items-center justify-center mr-3 mt-0.5 ${
+                            sendOption === 'draft' ? 'bg-purple-600 border-transparent' : 'border-gray-300'
+                          }`}>
+                            {sendOption === 'draft' && (
+                              <div className="h-2 w-2 rounded-full bg-white"></div>
+                            )}
+                          </div>
+                          <div>
+                            <h4 className="text-base font-medium mb-1">Save as draft</h4>
+                            <p className="text-sm text-gray-500">Your campaign will be saved and can be sent later</p>
+                          </div>
                         </div>
                       </div>
-                      
-                      {sendOption === 'schedule' && (
-                        <div className="row mb-3">
-                          <div className="col-md-6">
-                            <FormField
-                              control={form.control}
-                              name="scheduledDate"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel htmlFor="scheduleDate">Date</FormLabel>
-                                  <FormControl>
-                                    <Input 
-                                      {...field} 
-                                      id="scheduleDate" 
-                                      type="date"
-                                    />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                          </div>
-                          <div className="col-md-6">
-                            <FormField
-                              control={form.control}
-                              name="scheduledTime"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel htmlFor="scheduleTime">Time</FormLabel>
-                                  <FormControl>
-                                    <Input 
-                                      {...field} 
-                                      id="scheduleTime" 
-                                      type="time"
-                                    />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                          </div>
-                        </div>
-                      )}
-                    </form>
-                  </Form>
+                    </div>
+                  </div>
                   
-                  <div className="mb-3">
-                    <label className="form-label">Tracking Options</label>
-                    <div className="form-check mb-2">
-                      <input className="form-check-input" type="checkbox" id="trackOpens" defaultChecked />
-                      <label className="form-check-label" htmlFor="trackOpens">
-                        Track opens
-                      </label>
+                  <div className="bg-purple-50 rounded-lg border border-purple-100 p-4 mb-6">
+                    <div className="flex">
+                      <div className="mr-3 text-purple-500">
+                        <AlertCircle className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-medium text-purple-800 mb-1">Campaign Summary</h4>
+                        <ul className="text-sm text-purple-700 space-y-1">
+                          <li><span className="font-medium">Name:</span> {form.getValues("name")}</li>
+                          <li><span className="font-medium">Subject:</span> {form.getValues("subject")}</li>
+                          <li><span className="font-medium">Template:</span> {templates.find(t => t.id.toString() === selectedTemplateId)?.name || "None"}</li>
+                          <li>
+                            <span className="font-medium">Recipients:</span> {
+                              selectedLists.length > 0 
+                                ? lists
+                                    .filter(list => selectedLists.includes(list.id.toString()))
+                                    .reduce((sum, list) => sum + list.count, 0)
+                                    .toLocaleString()
+                                : 0
+                            } contacts
+                          </li>
+                          <li><span className="font-medium">A/B Testing:</span> {isAbTesting ? `Enabled (${variants.length} variants)` : "Disabled"}</li>
+                          <li>
+                            <span className="font-medium">Delivery:</span> {
+                              sendOption === 'now' 
+                                ? "Send immediately" 
+                                : sendOption === 'schedule' 
+                                  ? `Scheduled for ${form.getValues("scheduledDate")} at ${form.getValues("scheduledTime")}` 
+                                  : "Save as draft"
+                            }
+                          </li>
+                        </ul>
+                      </div>
                     </div>
-                    <div className="form-check mb-2">
-                      <input className="form-check-input" type="checkbox" id="trackClicks" defaultChecked />
-                      <label className="form-check-label" htmlFor="trackClicks">
-                        Track link clicks
-                      </label>
-                    </div>
-                    <div className="form-check mb-4">
-                      <input className="form-check-input" type="checkbox" id="googleAnalytics" />
-                      <label className="form-check-label" htmlFor="googleAnalytics">
-                        Add Google Analytics parameters
-                      </label>
-                    </div>
+                  </div>
+                  
+                  <div className="flex justify-between mt-6">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setActiveTab('testing')}
+                      className="flex items-center"
+                    >
+                      <ChevronLeft className="mr-2 h-4 w-4" />
+                      Back
+                    </Button>
                     
-                    <div className="mt-4 d-flex justify-content-between">
-                      <button
-                        type="button"
-                        className="btn btn-outline-secondary"
-                        onClick={() => setActiveTab('ab-testing')}
-                      >
-                        Back to A/B Testing
-                      </button>
-                    </div>
+                    <Button 
+                      type="button"
+                      className="bg-gradient-to-r from-green-600 to-emerald-600 text-white hover:from-green-700 hover:to-emerald-700 shadow-md"
+                      onClick={form.handleSubmit(onSubmit)}
+                      disabled={createCampaignMutation.isPending}
+                    >
+                      {createCampaignMutation.isPending ? (
+                        <>
+                          <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                          Creating Campaign...
+                        </>
+                      ) : (
+                        <>
+                          <Send className="mr-2 h-4 w-4" />
+                          {sendOption === 'now' ? 'Send Campaign' : sendOption === 'schedule' ? 'Schedule Campaign' : 'Save as Draft'}
+                        </>
+                      )}
+                    </Button>
                   </div>
                 </div>
               )}
-            </div>
-            <nav className="px-3 pt-4 border-start" style={{ minWidth: '180px' }}>
-              <div className="nav flex-column nav-pills" role="tablist">
-                <button 
-                  className={`nav-link ${activeTab === 'details' ? 'active' : ''} text-start mb-2`} 
-                  type="button" 
-                  onClick={() => setActiveTab('details')}
-                >
-                  Campaign Details
-                </button>
-                <button 
-                  className={`nav-link ${activeTab === 'content' ? 'active' : ''} text-start mb-2`}
-                  type="button" 
-                  onClick={() => setActiveTab('content')}
-                >
-                  Content
-                </button>
-                <button 
-                  className={`nav-link ${activeTab === 'audience' ? 'active' : ''} text-start mb-2 d-flex justify-content-between align-items-center`}
-                  type="button" 
-                  onClick={() => setActiveTab('audience')}
-                >
-                  <span>Contact Lists</span>
-                  {selectedLists.length > 0 && (
-                    <span className="badge bg-primary rounded-pill ms-2">{selectedLists.length}</span>
-                  )}
-                </button>
-                <button 
-                  className={`nav-link ${activeTab === 'ab-testing' ? 'active' : ''} text-start mb-2 d-flex justify-content-between align-items-center`}
-                  type="button" 
-                  onClick={() => setActiveTab('ab-testing')}
-                >
-                  <span>A/B Testing</span>
-                  {isAbTesting && (
-                    <span className="badge bg-success rounded-pill ms-2">{variants.length}</span>
-                  )}
-                </button>
-                <button 
-                  className={`nav-link ${activeTab === 'settings' ? 'active' : ''} text-start`}
-                  type="button" 
-                  onClick={() => setActiveTab('settings')}
-                >
-                  Settings
-                </button>
-              </div>
-            </nav>
-          </div>
-          <div className="modal-footer">
-            <button type="button" className="btn btn-secondary" onClick={onClose}>Cancel</button>
-            <button 
-              type="button" 
-              className="btn btn-primary"
-              onClick={form.handleSubmit(onSubmit)}
-              disabled={createCampaignMutation.isPending}
-            >
-              {createCampaignMutation.isPending ? 'Scheduling...' : 'Schedule Campaign'}
-            </button>
           </div>
         </div>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 };
 
