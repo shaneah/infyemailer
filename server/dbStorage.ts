@@ -420,6 +420,43 @@ export class DbStorage implements IStorage {
     }
   }
 
+  async getUserByEmail(email: string) {
+    try {
+      const [user] = await db.select().from(schema.users).where(eq(schema.users.email, email));
+      return user;
+    } catch (error) {
+      console.error('Error getting user by email:', error);
+      return undefined;
+    }
+  }
+  
+  async verifyUserLogin(usernameOrEmail: string, password: string) {
+    try {
+      // Try username first
+      let user = await this.getUserByUsername(usernameOrEmail);
+      
+      // If not found, try email
+      if (!user) {
+        user = await this.getUserByEmail(usernameOrEmail);
+      }
+      
+      if (!user) {
+        return undefined;
+      }
+      
+      // Compare passwords (implement proper password verification here)
+      // For now, we're doing a simple comparison for testing
+      if (user.password === password) {
+        return user;
+      }
+      
+      return undefined;
+    } catch (error) {
+      console.error('Error verifying user login:', error);
+      return undefined;
+    }
+  }
+
   async getUsers() {
     try {
       const users = await db.select().from(schema.users).orderBy(desc(schema.users.createdAt));
