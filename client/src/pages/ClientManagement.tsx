@@ -192,15 +192,29 @@ const ClientManagement = () => {
   }, [selectedClientId, clients]);
 
   // Selected client's users
-  const { data: clientUsers = [], isLoading: isLoadingUsers } = useQuery<ClientUser[]>({
+  const { data: clientUsersData, isLoading: isLoadingUsers } = useQuery<any>({
     queryKey: ['/api/clients', selectedClientId, 'users'],
     queryFn: async () => {
-      if (!selectedClientId) return [];
-      const response = await fetch(`/api/clients/${selectedClientId}/users`);
-      return response.json();
+      if (!selectedClientId) return { users: [] };
+      
+      try {
+        const response = await fetch(`/api/clients/${selectedClientId}/users`);
+        const data = await response.json();
+        return data;
+      } catch (error) {
+        console.error('Error fetching client users:', error);
+        return { users: [] };
+      }
     },
     enabled: !!selectedClientId,
   });
+  
+  // Ensure clientUsers is always an array
+  const clientUsers = Array.isArray(clientUsersData) 
+    ? clientUsersData 
+    : (clientUsersData?.users && Array.isArray(clientUsersData.users) 
+        ? clientUsersData.users 
+        : []);
 
   // Selected client's credit history
   const { data: creditHistoryData, isLoading: isLoadingHistory } = useQuery<any>({
@@ -221,52 +235,51 @@ const ClientManagement = () => {
         : []);
   
   // Selected client's providers
-  const { data: clientProviders = [], isLoading: isLoadingProviders } = useQuery<ClientProvider[]>({
+  const { data: clientProvidersData, isLoading: isLoadingProviders } = useQuery<any>({
     queryKey: ['/api/clients', selectedClientId, 'providers'],
     queryFn: async () => {
-      if (!selectedClientId) return [];
+      if (!selectedClientId) return { providers: [] };
       
       try {
         const response = await fetch(`/api/clients/${selectedClientId}/providers`);
         const data = await response.json();
-        
-        // Ensure we always have an array, never undefined or null
-        if (!Array.isArray(data)) {
-          console.warn('Provider data is not an array:', data);
-          return [];
-        }
-        
         return data;
       } catch (error) {
         console.error('Error fetching client providers:', error);
-        return [];
+        return { providers: [] };
       }
     },
     enabled: !!selectedClientId,
   });
   
+  // Ensure clientProviders is always an array
+  const clientProviders = Array.isArray(clientProvidersData) 
+    ? clientProvidersData 
+    : (clientProvidersData?.providers && Array.isArray(clientProvidersData.providers) 
+        ? clientProvidersData.providers 
+        : []);
+  
   // Available email providers
-  const { data: availableProviders = [], isLoading: isLoadingAvailableProviders } = useQuery<EmailProvider[]>({
+  const { data: availableProvidersData, isLoading: isLoadingAvailableProviders } = useQuery<any>({
     queryKey: ['/api/email-providers'],
     queryFn: async () => {
       try {
         const response = await fetch('/api/email-providers');
         const data = await response.json();
-        
-        // Ensure we always have an array, never undefined or null
-        if (!Array.isArray(data)) {
-          console.warn('Available providers data is not an array:', data);
-          return [];
-        }
-        
         return data;
       } catch (error) {
         console.error('Error fetching available providers:', error);
-        // Return empty array as fallback
-        return [];
+        return { providers: [] };
       }
     },
   });
+  
+  // Ensure availableProviders is always an array
+  const availableProviders = Array.isArray(availableProvidersData) 
+    ? availableProvidersData 
+    : (availableProvidersData?.providers && Array.isArray(availableProvidersData.providers) 
+        ? availableProvidersData.providers 
+        : []);
 
   // Form for adding/editing client
   const clientForm = useForm<z.infer<typeof clientFormSchema>>({
