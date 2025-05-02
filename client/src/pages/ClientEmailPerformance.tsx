@@ -1387,7 +1387,7 @@ const ClientEmailPerformance: React.FC = () => {
                       Device Optimization Recommendations
                     </h4>
                     <div className="space-y-3">
-                      {chartData?.deviceBreakdown[0]?.name === 'Mobile' && chartData?.deviceBreakdown[0]?.value > 50 ? (
+                      {chartData?.deviceBreakdown && chartData.deviceBreakdown.length > 0 && chartData.deviceBreakdown[0]?.name === 'Mobile' && chartData.deviceBreakdown[0]?.value > 50 ? (
                         <Alert className="bg-blue-50 border-blue-200">
                           <div className="flex">
                             <InfoIcon className="h-4 w-4 text-blue-600 mr-2" />
@@ -1407,7 +1407,7 @@ const ClientEmailPerformance: React.FC = () => {
                         </Alert>
                       )}
                       
-                      {chartData?.emailClientDistribution[0]?.name === 'Gmail' && chartData?.emailClientDistribution[0]?.value > 40 ? (
+                      {chartData?.emailClientDistribution && chartData.emailClientDistribution.length > 0 && chartData.emailClientDistribution[0]?.name === 'Gmail' && chartData.emailClientDistribution[0]?.value > 40 ? (
                         <Alert className="bg-blue-50 border-blue-200">
                           <div className="flex">
                             <InfoIcon className="h-4 w-4 text-blue-600 mr-2" />
