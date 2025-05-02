@@ -1,6 +1,6 @@
 import { IStorage } from './storage';
 import { db } from './db';
-import { eq, desc, and, gt, lt, isNull, count, sql } from 'drizzle-orm';
+import { eq, desc, and, gt, lt, isNull, count, sql, inArray } from 'drizzle-orm';
 import * as schema from '../shared/schema';
 import { log } from './vite';
 import { safeDbOperation } from './dbHelper';
@@ -614,13 +614,105 @@ export class DbStorage implements IStorage {
     }
   }
 
-  // Basic stubs for contact list relations
-  async getContactListRelations(contactId: number, listId?: number) { return []; }
-  async addContactToList(contactId: number, listId: number) { return {}; }
-  async removeContactFromList(contactId: number, listId: number) { return {}; }
-  async getContactsInList(listId: number) { return []; }
-  async getContactLists(contactId: number) { return []; }
-  async getListCount(listId: number) { return 0; }
+  // Contact list relations implementations
+  async getContactListRelations(contactId: number, listId?: number) {
+    try {
+      if (listId) {
+        return await db
+          .select()
+          .from(schema.contactLists)
+          .where(
+            and(
+              eq(schema.contactLists.contactId, contactId),
+              eq(schema.contactLists.listId, listId)
+            )
+          );
+      } else {
+        return await db
+          .select()
+          .from(schema.contactLists)
+          .where(eq(schema.contactLists.contactId, contactId));
+      }
+    } catch (error) {
+      console.error('Error getting contact list relations:', error);
+      return [];
+    }
+  }
+  
+  async addContactToList(contactList: schema.InsertContactList) {
+    try {
+      console.log('Adding contact to list:', contactList);
+      const [result] = await db
+        .insert(schema.contactLists)
+        .values(contactList)
+        .returning();
+      return result;
+    } catch (error) {
+      console.error('Error adding contact to list:', error);
+      throw error;
+    }
+  }
+  
+  async removeContactFromList(contactId: number, listId: number) {
+    try {
+      await db
+        .delete(schema.contactLists)
+        .where(
+          and(
+            eq(schema.contactLists.contactId, contactId),
+            eq(schema.contactLists.listId, listId)
+          )
+        );
+      return true;
+    } catch (error) {
+      console.error('Error removing contact from list:', error);
+      return false;
+    }
+  }
+  
+  async getContactsInList(listId: number) {
+    try {
+      const relations = await db
+        .select()
+        .from(schema.contactLists)
+        .where(eq(schema.contactLists.listId, listId));
+      
+      const contactIds = relations.map(rel => rel.contactId);
+      
+      if (contactIds.length === 0) return [];
+      
+      return await db
+        .select()
+        .from(schema.contacts)
+        .where(inArray(schema.contacts.id, contactIds));
+    } catch (error) {
+      console.error('Error getting contacts in list:', error);
+      return [];
+    }
+  }
+  
+  async getContactLists() {
+    try {
+      return await db.select().from(schema.contactLists);
+    } catch (error) {
+      console.error('Error getting all contact lists:', error);
+      return [];
+    }
+  }
+  
+  async getListCount(listId: number) {
+    try {
+      const result = await db
+        .select({ count: count() })
+        .from(schema.contactLists)
+        .where(eq(schema.contactLists.listId, listId));
+      
+      return result[0]?.count || 0;
+    } catch (error) {
+      console.error('Error getting list count:', error);
+      return 0;
+    }
+  }
 
   // Template methods
   async getTemplate(id: number) {
