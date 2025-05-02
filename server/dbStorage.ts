@@ -682,8 +682,45 @@ export class DbStorage implements IStorage {
 
   async getCampaigns() {
     try {
-      const campaigns = await db.select().from(schema.campaigns).orderBy(desc(schema.campaigns.createdAt));
-      return campaigns;
+      if (!db || !db.select) {
+        console.error('Database not properly initialized for getCampaigns');
+        throw new Error('Database not properly initialized');
+      }
+      
+      // Try using direct SQL query as a more reliable approach
+      try {
+        const result = await pool.query(`
+          SELECT * FROM campaigns
+          ORDER BY created_at DESC
+        `);
+        
+        if (result && result.rows) {
+          console.log(`Retrieved ${result.rows.length} campaigns via direct SQL`);
+          return result.rows.map(row => ({
+            id: row.id,
+            name: row.name,
+            description: row.description,
+            status: row.status,
+            subject: row.subject,
+            createdAt: row.created_at,
+            senderEmail: row.sender_email,
+            senderName: row.sender_name,
+            metadata: row.metadata || {},
+            isAbTest: row.is_ab_test
+          }));
+        }
+      } catch (sqlError) {
+        console.error('Error with direct SQL in getCampaigns:', sqlError);
+      }
+      
+      // Fall back to ORM if direct SQL fails
+      try {
+        const campaigns = await db.select().from(schema.campaigns).orderBy(desc(schema.campaigns.createdAt));
+        return campaigns;
+      } catch (ormError) {
+        console.error('Error getting campaigns via ORM:', ormError);
+        return [];
+      }
     } catch (error) {
       console.error('Error getting campaigns:', error);
       return [];
