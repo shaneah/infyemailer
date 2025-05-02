@@ -706,10 +706,10 @@ const ClientEmailPerformance: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             <MetricCard 
               title="Average Open Rate" 
-              value={formatPercent(metricsData?.openRate.value || 0)} 
-              subValue={`Industry avg: ${formatPercent(metricsData?.openRate.industryAvg || 0)}`}
-              trend={metricsData?.openRate.trend as 'up' | 'down' | 'neutral'}
-              trendValue={metricsData?.openRate.trendValue}
+              value={formatPercent(metricsData?.openRate?.value || 0)} 
+              subValue={`Industry avg: ${formatPercent(metricsData?.openRate?.industryAvg || 0)}`}
+              trend={(metricsData?.openRate?.trend || 'neutral') as 'up' | 'down' | 'neutral'}
+              trendValue={metricsData?.openRate?.trendValue || ''}
               icon={<Eye className="h-4 w-4" />}
               color="blue"
               delay={0}
@@ -717,10 +717,10 @@ const ClientEmailPerformance: React.FC = () => {
             
             <MetricCard 
               title="Average Click Rate" 
-              value={formatPercent(metricsData?.clickRate.value || 0)} 
-              subValue={`Industry avg: ${formatPercent(metricsData?.clickRate.industryAvg || 0)}`}
-              trend={metricsData?.clickRate.trend as 'up' | 'down' | 'neutral'}
-              trendValue={metricsData?.clickRate.trendValue}
+              value={formatPercent(metricsData?.clickRate?.value || 0)} 
+              subValue={`Industry avg: ${formatPercent(metricsData?.clickRate?.industryAvg || 0)}`}
+              trend={(metricsData?.clickRate?.trend || 'neutral') as 'up' | 'down' | 'neutral'}
+              trendValue={metricsData?.clickRate?.trendValue || ''}
               icon={<MousePointerClick className="h-4 w-4" />}
               color="purple"
               delay={1}
@@ -728,10 +728,10 @@ const ClientEmailPerformance: React.FC = () => {
             
             <MetricCard 
               title="Conversion Rate" 
-              value={formatPercent(metricsData?.conversionRate.value || 0)} 
-              subValue={`Goal: ${formatPercent(metricsData?.conversionRate.goal || 0)}`}
-              trend={metricsData?.conversionRate.trend as 'up' | 'down' | 'neutral'}
-              trendValue={metricsData?.conversionRate.trendValue}
+              value={formatPercent(metricsData?.conversionRate?.value || 0)} 
+              subValue={`Goal: ${formatPercent(metricsData?.conversionRate?.goal || 0)}`}
+              trend={(metricsData?.conversionRate?.trend || 'neutral') as 'up' | 'down' | 'neutral'}
+              trendValue={metricsData?.conversionRate?.trendValue || ''}
               icon={<ShoppingBag className="h-4 w-4" />}
               color="green"
               delay={2}
@@ -739,10 +739,10 @@ const ClientEmailPerformance: React.FC = () => {
             
             <MetricCard 
               title="Bounce Rate" 
-              value={formatPercent(metricsData?.bounceRate.value || 0)} 
-              subValue={`Industry avg: ${formatPercent(metricsData?.bounceRate.industryAvg || 0)}`}
-              trend={metricsData?.bounceRate.trend === 'up' ? 'down' : 'up'}
-              trendValue={metricsData?.bounceRate.trendValue}
+              value={formatPercent(metricsData?.bounceRate?.value || 0)} 
+              subValue={`Industry avg: ${formatPercent(metricsData?.bounceRate?.industryAvg || 0)}`}
+              trend={metricsData?.bounceRate?.trend === 'up' ? 'down' : 'up'}
+              trendValue={metricsData?.bounceRate?.trendValue || ''}
               icon={<XCircle className="h-4 w-4" />}
               color="red"
               delay={3}
@@ -1889,7 +1889,7 @@ const ClientEmailPerformance: React.FC = () => {
                   <div className="bg-gradient-to-r from-purple-50 to-fuchsia-50 border border-purple-100 rounded-lg p-4">
                     <div className="flex items-start">
                       <div className="bg-white p-2 rounded-full shadow-sm mr-4">
-                        <Clock className="h-5 w-5 text-purple-600" />
+                        <ClockIcon className="h-5 w-5 text-purple-600" />
                       </div>
                       <div>
                         <h4 className="text-purple-800 font-semibold mb-1">
