@@ -1,5 +1,5 @@
 import { IStorage } from './storage';
-import { db } from './db';
+import { db, pool } from './db';
 import { eq, desc, and, gt, lt, isNull, count, sql } from 'drizzle-orm';
 import * as schema from '../shared/schema';
 import { log } from './vite';

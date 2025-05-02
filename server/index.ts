@@ -20,8 +20,10 @@ app.use(fileUpload({
   abortOnLimit: true,
   createParentPath: true,
   preserveExtension: true,
-  safeFileNames: true,
-  parseNested: true
+  safeFileNames: false, // Allow original filenames
+  parseNested: true,
+  uploadTimeout: 60000, // 60 second timeout
+  uriDecodeFileNames: true,
 }));
 
 // Log incoming requests with file upload info for debugging

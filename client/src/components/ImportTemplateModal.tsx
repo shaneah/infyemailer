@@ -138,10 +138,19 @@ export default function ImportTemplateModal({ open, onOpenChange, onImportSucces
       
       // Use regular fetch for file uploads instead of apiRequest
       // This avoids issues with Content-Type and JSON stringification
+      console.log('FormData content:', Array.from(formData.entries()).map(([key, value]) => {
+        if (value instanceof File) {
+          return `${key}: File(${value.name}, ${value.type}, ${value.size} bytes)`;
+        }
+        return `${key}: ${value}`;
+      }));
+      
       const response = await fetch("/api/templates/import-zip", {
         method: "POST",
         body: formData,
-        credentials: "include"
+        credentials: "include",
+        // Don't manually set Content-Type, let browser set it with boundary
+        // This is crucial for proper multipart/form-data handling
       });
       
       console.log("Response status:", response.status, response.statusText);

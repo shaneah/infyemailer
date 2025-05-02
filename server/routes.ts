@@ -1080,6 +1080,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Template Management - ZIP Import endpoint
+  // Direct database connection for backup functionality
+  async function directSqlInsertTemplate(template: any) {
+    try {
+      console.log('Attempting direct SQL template insertion as last resort');
+      // Import the PostgreSQL pool directly from the module
+      const { Pool } = await import('@neondatabase/serverless');
+      
+      // Create a new direct connection to the database
+      const directPool = new Pool({ 
+        connectionString: process.env.DATABASE_URL,
+        ssl: { rejectUnauthorized: false }
+      });
+      
+      const result = await directPool.query(`
+        INSERT INTO templates (name, content, description, category, created_at, metadata)
+        VALUES ($1, $2, $3, $4, $5, $6)
+        RETURNING id, name, description
+      `, [
+        template.name,
+        template.content,
+        template.description || '',
+        template.category || 'imported',
+        new Date(),
+        template.metadata || {}
+      ]);
+      
+      // Be sure to end the pool to prevent connection leaks
+      await directPool.end();
+      
+      if (result && result.rows && result.rows.length > 0) {
+        console.log(`Template created via direct SQL with ID: ${result.rows[0].id}`);
+        return result.rows[0];
+      }
+      
+      return null;
+    } catch (sqlError) {
+      console.error('Final SQL direct insertion failed:', sqlError);
+      return null;
+    }
+  }
+  
   app.post('/api/templates/import-zip', async (req: Request, res: Response) => {
     try {
       // Enhanced request inspection for debugging
@@ -1155,8 +1196,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         console.log(`Found HTML file: ${indexHtmlEntry.entryName}`);
         
-        // Extract the content of the HTML file
-        const htmlContent = indexHtmlEntry.getData().toString('utf8');
+        // Extract the content of the HTML file with error handling
+        let htmlContent;
+        try {
+          console.log('Attempting to extract HTML content from zip entry');
+          // Use readAsText for more reliable extraction
+          htmlContent = zip.readAsText(indexHtmlEntry.entryName);
+          console.log(`Extracted HTML content (${htmlContent.length} bytes)`);
+          
+          if (!htmlContent || htmlContent.length === 0) {
+            // Alternative extraction method as fallback
+            console.log('First extraction method returned empty content, trying getData');
+            htmlContent = indexHtmlEntry.getData().toString('utf8');
+            
+            if (!htmlContent || htmlContent.length === 0) {
+              throw new Error('Extracted HTML content is empty');
+            }
+          }
+        } catch (extractError) {
+          console.error('Failed to extract HTML content:', extractError);
+          return res.status(500).json({ 
+            error: 'Failed to extract HTML content from ZIP file' 
+          });
+        }
         
         // Create a template content object with JSON structure
         const templateContent = {
@@ -1214,14 +1276,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.log(`Found ${resources.length} additional resources in ZIP`);
         
         try {
-          // Create the template with additional logging
-          console.log(`Importing ZIP template: ${name}`);
-          
-          const template = await storage.createTemplate({
+          // Prepare template data to be consistent across all insertion methods
+          const templateData = {
             name: name,
             content: JSON.stringify(templateContent),
             description: `Imported ZIP template: ${name}`,
             category: 'imported',
+            createdAt: new Date(),
             metadata: {
               importedFromZip: true,
               originalFileName: uploadedFile.name,
@@ -1232,7 +1293,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
               htmlFileName: indexHtmlEntry.entryName,
               new: true
             }
-          });
+          };
+          
+          // Create the template with additional logging
+          console.log(`Importing ZIP template: ${name}`);
+          
+          let template;
+          try {
+            // Try using the standard storage method first
+            console.log('Attempting to import template via standard storage method');
+            template = await storage.createTemplate(templateData);
+            console.log(`Template created via standard method with ID: ${template.id}`);
+          } catch (storageError) {
+            // If standard method fails, try direct SQL insertion
+            console.error('Standard storage method failed:', storageError);
+            console.log('Attempting fallback with direct SQL insertion');
+            
+            template = await directSqlInsertTemplate(templateData);
+            
+            if (!template) {
+              throw new Error('All template creation methods failed');
+            }
+            
+            console.log(`Template created via direct SQL fallback with ID: ${template.id}`);
+          }
           
           console.log(`ZIP template imported successfully with ID: ${template.id}`);
           // Return a proper JSON response
