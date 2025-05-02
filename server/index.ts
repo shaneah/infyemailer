@@ -16,14 +16,13 @@ app.use(express.urlencoded({ extended: false, limit: '50mb' }));
 // Using multiple instances causes "Request is not eligible for file upload" errors
 
 // Log incoming requests with file upload info for debugging
-app.use((req, res, next) => {
+app.use((req: any, res, next) => {
   if (req.path.includes('/import-zip')) {
     console.log('IMPORT REQUEST:', {
       path: req.path,
       method: req.method,
       contentType: req.headers['content-type'],
-      hasFiles: req.files ? 'Yes' : 'No',
-      filesKeys: req.files ? Object.keys(req.files) : [],
+      // Safe access to avoid "Request is not eligible for file upload" errors
       body: Object.keys(req.body || {})
     });
   }

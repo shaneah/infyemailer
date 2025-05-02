@@ -91,15 +91,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   }));
   
   // Add debug log for multipart requests
-  app.use((req, res, next) => {
+  app.use((req: any, res, next) => {
     if (req.headers['content-type']?.includes('multipart/form-data')) {
-      console.log('IMPORT REQUEST:', {
+      console.log('UPLOAD REQUEST:', {
         path: req.path,
         method: req.method,
-        contentType: req.headers['content-type'],
-        hasFiles: req.files ? 'Yes' : 'No',
-        filesKeys: req.files ? Object.keys(req.files) : [],
-        body: req.body ? Object.keys(req.body) : []
+        contentType: req.headers['content-type']
+        // Removed references to req.files to avoid "Request is not eligible for file upload" errors
       });
     }
     next();
