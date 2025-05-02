@@ -356,7 +356,7 @@ const EmailValidation = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <motion.div 
-        className="relative overflow-hidden rounded-xl p-8 md:p-10 mb-10 shadow-2xl bg-gradient-to-r from-purple-900 via-indigo-800 to-purple-900"
+        className="relative overflow-hidden rounded-xl p-8 md:p-10 mb-10 shadow-2xl bg-gradient-to-br from-purple-600 via-fuchsia-500 to-pink-500"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
@@ -368,17 +368,43 @@ const EmailValidation = () => {
               backgroundSize: "30px 30px"
             }}
           ></div>
-          <div className="absolute bottom-0 left-0 right-0 h-64 bg-gradient-to-t from-purple-900/30 to-transparent"></div>
-          <div className="absolute -top-24 -right-24 w-64 h-64 rounded-full bg-gradient-to-br from-indigo-500/30 to-purple-600/30 blur-xl"></div>
-          <div className="absolute -bottom-32 -left-32 w-96 h-96 rounded-full bg-gradient-to-tr from-indigo-600/20 to-purple-500/20 blur-xl"></div>
+          <div className="absolute bottom-0 left-0 right-0 h-64 bg-gradient-to-t from-pink-600/30 to-transparent"></div>
+          
+          {/* Animated circles */}
+          <motion.div 
+            className="absolute -top-24 -right-24 w-64 h-64 rounded-full bg-gradient-to-br from-yellow-400/30 to-pink-600/30 blur-xl"
+            animate={{ 
+              scale: [1, 1.2, 1],
+              opacity: [0.4, 0.6, 0.4]
+            }}
+            transition={{
+              duration: 8,
+              repeat: Infinity,
+              repeatType: "reverse"
+            }}
+          ></motion.div>
+          
+          <motion.div 
+            className="absolute -bottom-32 -left-32 w-96 h-96 rounded-full bg-gradient-to-tr from-cyan-500/20 to-blue-500/20 blur-xl"
+            animate={{ 
+              scale: [1, 1.1, 1],
+              opacity: [0.3, 0.5, 0.3]
+            }}
+            transition={{
+              duration: 6,
+              repeat: Infinity,
+              repeatType: "reverse",
+              delay: 1
+            }}
+          ></motion.div>
         </div>
         
         <div className="relative z-10">
           <div className="flex items-center mb-4">
-            <div className="flex items-center justify-center h-10 w-10 rounded-lg bg-indigo-600/70 backdrop-blur-sm mr-3">
-              <Gem className="h-6 w-6 text-white" />
+            <div className="flex items-center justify-center h-12 w-12 rounded-lg bg-gradient-to-r from-amber-400 to-orange-500 shadow-lg shadow-orange-500/20 mr-3">
+              <Sparkles className="h-7 w-7 text-white" />
             </div>
-            <Badge className="bg-indigo-500/80 backdrop-blur-sm text-white py-1 px-3 rounded-full">
+            <Badge className="bg-gradient-to-r from-blue-500 to-cyan-400 text-white py-1.5 px-4 rounded-full shadow-md shadow-blue-500/20">
               Premium Feature
             </Badge>
           </div>
@@ -389,17 +415,17 @@ const EmailValidation = () => {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2, duration: 0.5 }}
           >
-            <span className="inline-block bg-clip-text text-transparent bg-gradient-to-r from-white via-indigo-200 to-white">
-              AI-Powered Email
+            <span className="inline-block bg-clip-text text-transparent bg-gradient-to-r from-white via-amber-200 to-white">
+              Smart Email
             </span>
             <br />
-            <span className="inline-block bg-clip-text text-transparent bg-gradient-to-r from-indigo-300 via-purple-200 to-indigo-300">
+            <span className="inline-block bg-clip-text text-transparent bg-gradient-to-r from-cyan-300 via-blue-200 to-purple-300">
               Validation & Intelligence
             </span>
           </motion.h1>
           
           <motion.p 
-            className="text-indigo-100 text-base md:text-xl max-w-3xl mb-6 md:mb-8 leading-relaxed"
+            className="text-white text-base md:text-xl max-w-3xl mb-6 md:mb-8 leading-relaxed"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3, duration: 0.5 }}
@@ -560,16 +586,16 @@ const EmailValidation = () => {
         transition={{ duration: 0.5, delay: 0.3 }}
       >
         <Tabs defaultValue="single" className="mb-8">
-          <div className="bg-gradient-to-r from-indigo-900/90 to-purple-900/90 rounded-xl shadow-inner p-1">
-            <TabsList className="grid w-full grid-cols-2 gap-1 bg-transparent">
+          <div className="bg-gradient-to-r from-blue-900/90 via-indigo-800/90 to-purple-900/90 rounded-xl shadow-xl p-2 border border-indigo-600/20">
+            <TabsList className="grid w-full grid-cols-2 gap-2 bg-transparent backdrop-blur-xl">
               <div>
                 <TabsTrigger 
                   value="single" 
-                  className="w-full data-[state=active]:bg-gradient-to-br data-[state=active]:from-indigo-600 data-[state=active]:to-purple-700 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg transition-all duration-200 ease-in-out p-0.5"
+                  className="w-full data-[state=active]:bg-gradient-to-br data-[state=active]:from-cyan-500 data-[state=active]:to-blue-600 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-blue-500/20 text-indigo-100 hover:bg-white/5 rounded-lg transition-all duration-200 ease-out p-0.5"
                 >
                   <div className="flex items-center py-2 px-2">
-                    <div className="mr-2 flex items-center justify-center h-6 w-6 rounded-full bg-gradient-to-br from-indigo-400/80 to-purple-500/80">
-                      <MailIcon className="h-3 w-3 text-white" />
+                    <div className="mr-2 flex items-center justify-center h-8 w-8 rounded-full bg-gradient-to-br from-cyan-400/80 to-blue-500/80 shadow-md shadow-blue-500/20">
+                      <MailIcon className="h-4 w-4 text-white" />
                     </div>
                     <span className="font-medium">Single Email Validation</span>
                   </div>
@@ -578,11 +604,11 @@ const EmailValidation = () => {
               <div>
                 <TabsTrigger 
                   value="bulk" 
-                  className="w-full data-[state=active]:bg-gradient-to-br data-[state=active]:from-indigo-600 data-[state=active]:to-purple-700 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg transition-all duration-200 ease-in-out p-0.5"
+                  className="w-full data-[state=active]:bg-gradient-to-br data-[state=active]:from-fuchsia-500 data-[state=active]:to-purple-600 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-purple-500/20 text-indigo-100 hover:bg-white/5 rounded-lg transition-all duration-200 ease-out p-0.5"
                 >
                   <div className="flex items-center py-2 px-2">
-                    <div className="mr-2 flex items-center justify-center h-6 w-6 rounded-full bg-gradient-to-br from-indigo-400/80 to-purple-500/80">
-                      <Layers className="h-3 w-3 text-white" />
+                    <div className="mr-2 flex items-center justify-center h-8 w-8 rounded-full bg-gradient-to-br from-fuchsia-400/80 to-purple-500/80 shadow-md shadow-purple-500/20">
+                      <Layers className="h-4 w-4 text-white" />
                     </div>
                     <span className="font-medium">Bulk Email Validation</span>
                   </div>
@@ -598,14 +624,14 @@ const EmailValidation = () => {
             transition={{ duration: 0.5 }}
           >
             <Card className="border-0 shadow-2xl overflow-hidden border border-indigo-500/20 bg-white">
-              <CardHeader className="bg-gradient-to-r from-indigo-900 to-purple-900 border-b border-indigo-600/30">
+              <CardHeader className="bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 border-b border-blue-700/30 shadow-md shadow-blue-500/10">
                 <CardTitle className="text-xl text-white flex items-center">
-                  <div className="mr-3 flex items-center justify-center h-8 w-8 rounded-lg bg-indigo-500/40 backdrop-blur-sm">
-                    <MailIcon className="h-4 w-4 text-white" />
+                  <div className="mr-3 flex items-center justify-center h-10 w-10 rounded-lg bg-gradient-to-br from-blue-500/60 to-indigo-600/60 backdrop-blur-sm shadow-lg shadow-blue-700/20 border border-blue-500/30">
+                    <MailIcon className="h-5 w-5 text-white" />
                   </div>
                   <div className="flex flex-col">
-                    <span>Validate Individual Email</span>
-                    <CardDescription className="text-indigo-200 mt-1">
+                    <span className="font-semibold text-blue-50">Validate Individual Email</span>
+                    <CardDescription className="text-blue-100 mt-1">
                       Smart check for validity, deliverability, and domain health
                     </CardDescription>
                   </div>
@@ -638,13 +664,13 @@ const EmailValidation = () => {
                       <Button 
                         onClick={validateSingleEmail} 
                         disabled={isLoading}
-                        className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white border border-indigo-700/30 shadow-md"
+                        className="w-full bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600 text-white border border-blue-700/30 shadow-md shadow-blue-500/10 py-6 rounded-xl"
                       >
                         {isLoading ? 
-                          <RefreshCw className="h-4 w-4 animate-spin mr-2" /> : 
-                          <MailCheck className="h-4 w-4 mr-2" />
+                          <RefreshCw className="h-5 w-5 animate-spin mr-2" /> : 
+                          <MailCheck className="h-5 w-5 mr-2" />
                         }
-                        Validate Email
+                        <span className="font-medium">Validate Email</span>
                       </Button>
                     </motion.div>
                     
@@ -878,14 +904,14 @@ const EmailValidation = () => {
             transition={{ duration: 0.5 }}
           >
             <Card className="border-0 shadow-2xl overflow-hidden border border-indigo-500/20 bg-white">
-              <CardHeader className="bg-gradient-to-r from-indigo-900 to-purple-900 border-b border-indigo-600/30">
+              <CardHeader className="bg-gradient-to-br from-fuchsia-600 via-purple-700 to-indigo-800 border-b border-purple-700/30 shadow-md shadow-purple-500/10">
                 <CardTitle className="text-xl text-white flex items-center">
-                  <div className="mr-3 flex items-center justify-center h-8 w-8 rounded-lg bg-indigo-500/40 backdrop-blur-sm">
-                    <Layers className="h-4 w-4 text-white" />
+                  <div className="mr-3 flex items-center justify-center h-10 w-10 rounded-lg bg-gradient-to-br from-fuchsia-500/60 to-purple-600/60 backdrop-blur-sm shadow-lg shadow-purple-700/20 border border-purple-500/30">
+                    <Layers className="h-5 w-5 text-white" />
                   </div>
                   <div className="flex flex-col">
-                    <span>Bulk Email Validation</span>
-                    <CardDescription className="text-indigo-200 mt-1">
+                    <span className="font-semibold text-purple-50">Bulk Email Validation</span>
+                    <CardDescription className="text-purple-100 mt-1">
                       Clean entire lists, find & fix issues in batch processing
                     </CardDescription>
                   </div>
