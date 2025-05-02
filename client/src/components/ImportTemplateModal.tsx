@@ -148,7 +148,11 @@ export default function ImportTemplateModal({ open, onOpenChange, onImportSucces
         // Create a multipart form-data object
         const formData = new FormData();
         formData.append("name", data.name);
-        formData.append("zipFile", data.file); // Change key to zipFile to match server expectation
+        
+        // Try multiple field names to work around potential server-side issues
+        formData.append("file", data.file);
+        formData.append("zipFile", data.file);
+        formData.append("template", data.file);
         
         console.log("File information:", {
           name: data.file.name,
@@ -156,12 +160,12 @@ export default function ImportTemplateModal({ open, onOpenChange, onImportSucces
           size: data.file.size
         });
         
-        // First, try with proper multipart/form-data
+        // Make sure the Content-Type is not set manually - let browser handle it
+        console.log("Sending ZIP import request with form data");
         const response = await fetch("/api/templates/import-zip", {
           method: "POST",
           body: formData,
-          credentials: "include",
-          // Let the browser set the correct Content-Type with boundary
+          credentials: "include"
         });
         
         console.log("Response status:", response.status, response.statusText);
@@ -188,7 +192,54 @@ export default function ImportTemplateModal({ open, onOpenChange, onImportSucces
             console.error("Error parsing error response:", parseError);
           }
           
-          // Throw a detailed error
+          // Try an alternative approach if the first attempt failed
+          if (response.status === 400 && errorMessage.includes("No file")) {
+            console.log("First approach failed, trying alternative method");
+            
+            // Try a different approach with XMLHttpRequest for better file upload compatibility
+            return new Promise((resolve, reject) => {
+              const xhr = new XMLHttpRequest();
+              const altFormData = new FormData();
+              
+              altFormData.append("name", data.name);
+              altFormData.append("file", data.file);
+              
+              xhr.open("POST", "/api/templates/import-zip", true);
+              xhr.withCredentials = true;
+              
+              xhr.onload = function() {
+                if (xhr.status >= 200 && xhr.status < 300) {
+                  try {
+                    const result = JSON.parse(xhr.responseText);
+                    console.log("Template import successful with XHR:", result);
+                    resolve(result);
+                  } catch (jsonError) {
+                    console.error("Error parsing XHR success response:", jsonError);
+                    reject(new Error("Invalid response from server: not valid JSON"));
+                  }
+                } else {
+                  console.error("XHR request failed with status:", xhr.status);
+                  reject(new Error(`XHR request failed: ${xhr.status} ${xhr.statusText}`));
+                }
+              };
+              
+              xhr.onerror = function() {
+                console.error("XHR network error");
+                reject(new Error("Network error during file upload"));
+              };
+              
+              xhr.upload.onprogress = function(e) {
+                if (e.lengthComputable) {
+                  const percentComplete = Math.round((e.loaded / e.total) * 100);
+                  console.log(`Upload progress: ${percentComplete}%`);
+                }
+              };
+              
+              xhr.send(altFormData);
+            });
+          }
+          
+          // Throw a detailed error if both approaches failed
           throw new Error(`Failed to import template: ${errorMessage}`);
         }
         

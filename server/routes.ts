@@ -77,7 +77,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     abortOnLimit: true,
     useTempFiles: true,
     tempFileDir: '/tmp/',
-    debug: true
+    debug: true,
+    safeFileNames: true,
+    preserveExtension: true,
+    parseNested: true,
+    // Explicitly enable upload for all routes
+    uploadTimeout: 0 // No timeout for large files
   }));
   
   // Client email performance API routes
@@ -1123,19 +1128,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   app.post('/api/templates/import-zip', async (req: Request, res: Response) => {
     try {
-      // Enhanced request inspection for debugging
+      // Enhanced request inspection for detailed debugging
       console.log('=== ZIP IMPORT DEBUGGING ===');
       console.log(`Headers: ${JSON.stringify(req.headers['content-type'])}`);
       console.log(`Body keys: ${Object.keys(req.body || {})}`);
       console.log(`Has req.files: ${req.files ? 'Yes' : 'No'}`);
+      
       if (req.files) {
-        console.log(`Files: ${JSON.stringify(Object.keys(req.files))}`);
+        console.log(`Available files: ${JSON.stringify(Object.keys(req.files))}`);
+        
+        // Debug each file object
+        for (const key of Object.keys(req.files)) {
+          const file = req.files[key];
+          if (Array.isArray(file)) {
+            console.log(`File ${key} is an array with ${file.length} items`);
+            file.forEach((f, i) => {
+              console.log(`  Item ${i}: name=${f.name}, size=${f.size}, type=${f.mimetype}`);
+            });
+          } else {
+            console.log(`File ${key}: name=${file.name}, size=${file.size}, type=${file.mimetype}`);
+          }
+        }
       }
       
       // Get the template name from the request
       const { name } = req.body;
+      if (!name) {
+        return res.status(400).json({ error: 'Template name is required' });
+      }
       
       console.log(`ZIP template import request for template: ${name}`);
+      
+      // Check if files are attached - look for any possible field name containing a file
+      if (!req.files || Object.keys(req.files).length === 0) {
+        console.error('No files found in request');
+        return res.status(400).json({ 
+          error: 'No files uploaded. Make sure you are sending a multipart/form-data request with a file field.'
+        });
+      }
       
       if (!name) {
         return res.status(400).json({ error: 'Template name is required' });
