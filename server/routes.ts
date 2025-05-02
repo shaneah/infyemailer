@@ -80,15 +80,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     abortOnLimit: true,
     useTempFiles: true,
     tempFileDir: '/tmp/',
-    debug: true,
-    safeFileNames: true,
+    safeFileNames: false, // Allow original filenames
     preserveExtension: true,
     parseNested: true,
-    uploadTimeout: 0, // No timeout for large files
+    uploadTimeout: 60000, // 60 second timeout
     responseOnLimit: 'File size limit exceeded (max: 50MB)',
     uriDecodeFileNames: true,
     // Add a debug handler to log upload issues
-    debug: (debugMessage) => {
+    debug: (debugMessage: any) => {
       console.log('File upload debug:', debugMessage);
     }
   }));

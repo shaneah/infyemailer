@@ -11,20 +11,8 @@ const app = express();
 // Increase the JSON payload size limit to 50MB
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: false, limit: '50mb' }));
-// Configure file upload middleware with more permissive settings
-app.use(fileUpload({
-  limits: { fileSize: 50 * 1024 * 1024 }, // 50MB max file size
-  useTempFiles: true,
-  tempFileDir: '/tmp/',
-  debug: true, // Enable debug for troubleshooting
-  abortOnLimit: true,
-  createParentPath: true,
-  preserveExtension: true,
-  safeFileNames: false, // Allow original filenames
-  parseNested: true,
-  uploadTimeout: 60000, // 60 second timeout
-  uriDecodeFileNames: true,
-}));
+// NOTE: File upload middleware is configured in registerRoutes 
+// to avoid conflicts with multiple middleware instances
 
 // Log incoming requests with file upload info for debugging
 app.use((req, res, next) => {
