@@ -993,30 +993,40 @@ const DetailedOpens = () => {
 
   // Filter emails based on search term
   const filteredEmails = useMemo(() => {
-    if (!openData?.emails) return [];
-    return openData.emails.filter((email: EmailOpen) => 
-      email.emailName.toLowerCase().includes(searchTerm.toLowerCase()) || 
-      email.recipient.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      email.campaignName.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    if (!openData || !openData.emails || !Array.isArray(openData.emails)) return [];
+    
+    return openData.emails.filter((email: EmailOpen) => {
+      if (!email) return false;
+      
+      const emailName = email.emailName || '';
+      const recipient = email.recipient || '';
+      const campaignName = email.campaignName || '';
+      const searchTermLower = searchTerm.toLowerCase();
+      
+      return emailName.toLowerCase().includes(searchTermLower) || 
+        recipient.toLowerCase().includes(searchTermLower) ||
+        campaignName.toLowerCase().includes(searchTermLower);
+    });
   }, [openData, searchTerm]);
 
   // Function to download email opens data as CSV
   const handleDownload = () => {
-    if (!filteredEmails || filteredEmails.length === 0) return;
+    if (!filteredEmails || !Array.isArray(filteredEmails) || filteredEmails.length === 0) return;
     
     // Create CSV content
     const headers = ["Email Name", "Recipient", "Opens", "Last Opened", "Device", "Campaign"];
     const csvRows = [headers];
     
     filteredEmails.forEach((email: EmailOpen) => {
+      if (!email) return;
+      
       csvRows.push([
-        email.emailName,
-        email.recipient,
-        email.openCount.toString(),
-        email.lastOpenedAt,
-        email.device,
-        email.campaignName
+        email.emailName || '',
+        email.recipient || '',
+        (typeof email.openCount === 'number' ? email.openCount.toString() : '0'),
+        email.lastOpenedAt || '',
+        email.device || '',
+        email.campaignName || ''
       ]);
     });
     
@@ -1115,13 +1125,13 @@ const DetailedOpens = () => {
                   </tr>
                 ) : (
                   filteredEmails.map((email: EmailOpen) => (
-                    <tr key={email.id} className="border-b hover:bg-gray-50">
-                      <td className="py-3 px-4">{email.emailName}</td>
-                      <td className="py-3 px-4">{email.recipient}</td>
-                      <td className="py-3 px-4 text-center font-medium">{email.openCount}</td>
-                      <td className="py-3 px-4">{email.lastOpenedAt}</td>
-                      <td className="py-3 px-4">{email.device}</td>
-                      <td className="py-3 px-4">{email.campaignName}</td>
+                    <tr key={email?.id || Math.random()} className="border-b hover:bg-gray-50">
+                      <td className="py-3 px-4">{email?.emailName || '-'}</td>
+                      <td className="py-3 px-4">{email?.recipient || '-'}</td>
+                      <td className="py-3 px-4 text-center font-medium">{typeof email?.openCount === 'number' ? email.openCount : 0}</td>
+                      <td className="py-3 px-4">{email?.lastOpenedAt || '-'}</td>
+                      <td className="py-3 px-4">{email?.device || '-'}</td>
+                      <td className="py-3 px-4">{email?.campaignName || '-'}</td>
                     </tr>
                   ))
                 )}
