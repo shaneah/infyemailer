@@ -610,6 +610,106 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ error: 'Failed to delete contact' });
     }
   });
+  
+  // Lists API endpoints
+  app.get('/api/lists', async (req: Request, res: Response) => {
+    try {
+      console.log('GET /api/lists - fetching all lists');
+      const lists = await storage.getLists();
+      res.status(200).json(lists || []);
+    } catch (error) {
+      console.error('Error fetching lists:', error);
+      res.status(500).json({ error: 'Failed to fetch lists' });
+    }
+  });
+  
+  app.get('/api/lists/:id', async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      
+      if (isNaN(id)) {
+        return res.status(400).json({ error: 'Invalid list ID' });
+      }
+      
+      const list = await storage.getList(id);
+      
+      if (!list) {
+        return res.status(404).json({ error: 'List not found' });
+      }
+      
+      res.status(200).json(list);
+    } catch (error) {
+      console.error('Error fetching list:', error);
+      res.status(500).json({ error: 'Failed to fetch list' });
+    }
+  });
+  
+  app.post('/api/lists', async (req: Request, res: Response) => {
+    try {
+      console.log('POST /api/lists - creating list:', req.body);
+      const listData = {
+        name: req.body.name,
+        description: req.body.description
+      };
+      
+      if (!listData.name) {
+        return res.status(400).json({ error: 'List name is required' });
+      }
+      
+      const newList = await storage.createList(listData);
+      res.status(201).json(newList);
+    } catch (error) {
+      console.error('Error creating list:', error);
+      res.status(500).json({ error: 'Failed to create list' });
+    }
+  });
+  
+  app.patch('/api/lists/:id', async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      
+      if (isNaN(id)) {
+        return res.status(400).json({ error: 'Invalid list ID' });
+      }
+      
+      const updateData = {
+        name: req.body.name,
+        description: req.body.description
+      };
+      
+      const updatedList = await storage.updateList(id, updateData);
+      
+      if (!updatedList) {
+        return res.status(404).json({ error: 'List not found' });
+      }
+      
+      res.status(200).json(updatedList);
+    } catch (error) {
+      console.error('Error updating list:', error);
+      res.status(500).json({ error: 'Failed to update list' });
+    }
+  });
+  
+  app.delete('/api/lists/:id', async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      
+      if (isNaN(id)) {
+        return res.status(400).json({ error: 'Invalid list ID' });
+      }
+      
+      const deleted = await storage.deleteList(id);
+      
+      if (!deleted) {
+        return res.status(404).json({ error: 'List not found' });
+      }
+      
+      res.status(200).json({ success: true });
+    } catch (error) {
+      console.error('Error deleting list:', error);
+      res.status(500).json({ error: 'Failed to delete list' });
+    }
+  });
 
   // Setup auth routes
   setupAuth(app);

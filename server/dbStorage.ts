@@ -1210,7 +1210,32 @@ export class DbStorage implements IStorage {
 
   async createList(list: any) {
     try {
-      const [newList] = await db.insert(schema.contactLists).values(list).returning();
+      // Check if db is properly initialized
+      if (!db || !db.insert) {
+        console.error('Database not properly initialized for createList - falling back to direct SQL');
+        
+        try {
+          // Fallback to direct SQL query
+          const result = await pool.query(
+            'INSERT INTO lists (name, description, created_at, updated_at) VALUES ($1, $2, NOW(), NOW()) RETURNING *',
+            [list.name, list.description]
+          );
+          
+          console.log('Created list via direct SQL:', result.rows[0]);
+          return result.rows[0];
+        } catch (sqlError) {
+          console.error('Direct SQL failed in createList:', sqlError);
+          throw sqlError;
+        }
+      }
+      
+      // Use ORM if available
+      const [newList] = await db.insert(schema.lists).values({
+        name: list.name,
+        description: list.description
+      }).returning();
+      
+      console.log('Created list via ORM:', newList);
       return newList;
     } catch (error) {
       console.error('Error creating list:', error);
