@@ -559,7 +559,9 @@ export class DbStorage implements IStorage {
   // List methods
   async getList(id: number) {
     try {
-      const [list] = await db.select().from(schema.contactLists).where(eq(schema.contactLists.id, id));
+      console.log(`Getting list with id: ${id}`);
+      const [list] = await db.select().from(schema.lists).where(eq(schema.lists.id, id));
+      console.log(`Found list:`, list);
       return list;
     } catch (error) {
       console.error('Error getting list:', error);
@@ -569,7 +571,9 @@ export class DbStorage implements IStorage {
 
   async getLists() {
     try {
-      const lists = await db.select().from(schema.contactLists).orderBy(desc(schema.contactLists.createdAt));
+      console.log('Getting all lists');
+      const lists = await db.select().from(schema.lists).orderBy(desc(schema.lists.createdAt));
+      console.log(`Found ${lists.length} lists`);
       return lists;
     } catch (error) {
       console.error('Error getting lists:', error);
@@ -579,7 +583,9 @@ export class DbStorage implements IStorage {
 
   async createList(list: any) {
     try {
-      const [newList] = await db.insert(schema.contactLists).values(list).returning();
+      console.log('Creating new list:', list);
+      const [newList] = await db.insert(schema.lists).values(list).returning();
+      console.log('New list created:', newList);
       return newList;
     } catch (error) {
       console.error('Error creating list:', error);
@@ -589,11 +595,13 @@ export class DbStorage implements IStorage {
 
   async updateList(id: number, update: any) {
     try {
+      console.log(`Updating list ${id} with:`, update);
       const [updatedList] = await db
-        .update(schema.contactLists)
+        .update(schema.lists)
         .set(update)
-        .where(eq(schema.contactLists.id, id))
+        .where(eq(schema.lists.id, id))
         .returning();
+      console.log('List updated:', updatedList);
       return updatedList;
     } catch (error) {
       console.error('Error updating list:', error);
@@ -603,10 +611,12 @@ export class DbStorage implements IStorage {
 
   async deleteList(id: number) {
     try {
+      console.log(`Deleting list ${id}`);
       const [deletedList] = await db
-        .delete(schema.contactLists)
-        .where(eq(schema.contactLists.id, id))
+        .delete(schema.lists)
+        .where(eq(schema.lists.id, id))
         .returning();
+      console.log('List deleted:', deletedList);
       return deletedList;
     } catch (error) {
       console.error('Error deleting list:', error);
@@ -642,10 +652,39 @@ export class DbStorage implements IStorage {
   async addContactToList(contactList: schema.InsertContactList) {
     try {
       console.log('Adding contact to list:', contactList);
+      
+      // Verify the contact exists
+      const contact = await this.getContact(contactList.contactId);
+      if (!contact) {
+        console.error(`Contact with ID ${contactList.contactId} not found`);
+        throw new Error(`Contact with ID ${contactList.contactId} not found`);
+      }
+      
+      // Verify the list exists
+      const list = await this.getList(contactList.listId);
+      if (!list) {
+        console.error(`List with ID ${contactList.listId} not found`);
+        throw new Error(`List with ID ${contactList.listId} not found`);
+      }
+      
+      // Check if this relation already exists to avoid duplicates
+      const existingRelations = await this.getContactListRelations(contactList.contactId, contactList.listId);
+      if (existingRelations && existingRelations.length > 0) {
+        console.log(`Contact ${contactList.contactId} is already in list ${contactList.listId}`);
+        return existingRelations[0];
+      }
+      
+      // Add the contact to the list
+      console.log('Verified contact and list exist, creating relationship');
       const [result] = await db
         .insert(schema.contactLists)
-        .values(contactList)
+        .values({
+          ...contactList,
+          addedAt: new Date()
+        })
         .returning();
+      
+      console.log('Successfully added contact to list:', result);
       return result;
     } catch (error) {
       console.error('Error adding contact to list:', error);
