@@ -143,17 +143,125 @@ const EmailPerformance: React.FC = () => {
   // Using React Query to fetch metrics data
   const { data: metricsData, isLoading: isLoadingMetrics } = useQuery<EmailMetrics>({
     queryKey: ['/api/email-performance/metrics', timeframe, campaignFilter],
+    queryFn: async () => {
+      try {
+        // Create query parameters for the API
+        const params = new URLSearchParams();
+        if (timeframe) params.append('timeframe', timeframe);
+        if (campaignFilter && campaignFilter !== 'all') params.append('campaignId', campaignFilter);
+        
+        const queryString = params.toString() ? `?${params.toString()}` : '';
+        const res = await fetch(`/api/email-performance/metrics${queryString}`);
+        
+        if (!res.ok) {
+          console.error(`Error fetching metrics: ${res.status} ${res.statusText}`);
+          return {
+            openRate: { value: 0, industryAvg: 0, trend: 'neutral', trendValue: '0%' },
+            clickRate: { value: 0, industryAvg: 0, trend: 'neutral', trendValue: '0%' },
+            conversionRate: { value: 0, goal: 0, trend: 'neutral', trendValue: '0%' },
+            bounceRate: { value: 0, industryAvg: 0, trend: 'neutral', trendValue: '0%' },
+            totalSent: 0,
+            totalOpens: 0,
+            totalClicks: 0,
+            unsubscribes: 0
+          };
+        }
+        
+        return await res.json();
+      } catch (error) {
+        console.error('Error fetching metrics data:', error);
+        return {
+          openRate: { value: 0, industryAvg: 0, trend: 'neutral', trendValue: '0%' },
+          clickRate: { value: 0, industryAvg: 0, trend: 'neutral', trendValue: '0%' },
+          conversionRate: { value: 0, goal: 0, trend: 'neutral', trendValue: '0%' },
+          bounceRate: { value: 0, industryAvg: 0, trend: 'neutral', trendValue: '0%' },
+          totalSent: 0,
+          totalOpens: 0,
+          totalClicks: 0,
+          unsubscribes: 0
+        };
+      }
+    }
   });
   
   // Using React Query to fetch chart data
   const { data: chartData, isLoading: isLoadingCharts } = useQuery<ChartData>({
     queryKey: ['/api/email-performance/charts', timeframe, campaignFilter],
+    queryFn: async () => {
+      try {
+        // Create query parameters for the API
+        const params = new URLSearchParams();
+        if (timeframe) params.append('timeframe', timeframe);
+        if (campaignFilter && campaignFilter !== 'all') params.append('campaignId', campaignFilter);
+        
+        const queryString = params.toString() ? `?${params.toString()}` : '';
+        const res = await fetch(`/api/email-performance/charts${queryString}`);
+        
+        if (!res.ok) {
+          console.error(`Error fetching chart data: ${res.status} ${res.statusText}`);
+          return {
+            weeklyPerformance: [],
+            deviceBreakdown: [],
+            clickDistribution: [],
+            engagementOverTime: [],
+            engagementByTimeOfDay: [],
+            emailClientDistribution: [],
+            campaignComparison: [],
+            subjectLinePerformance: [],
+            sendTimeEffectiveness: [],
+            geographicalDistribution: [],
+            deviceOverTime: [],
+            subscriberEngagementSegments: []
+          };
+        }
+        
+        return await res.json();
+      } catch (error) {
+        console.error('Error fetching chart data:', error);
+        return {
+          weeklyPerformance: [],
+          deviceBreakdown: [],
+          clickDistribution: [],
+          engagementOverTime: [],
+          engagementByTimeOfDay: [],
+          emailClientDistribution: [],
+          campaignComparison: [],
+          subjectLinePerformance: [],
+          sendTimeEffectiveness: [],
+          geographicalDistribution: [],
+          deviceOverTime: [],
+          subscriberEngagementSegments: []
+        };
+      }
+    }
   });
   
   // Using React Query to fetch real-time activity
   const { data: realtimeData } = useQuery<RealtimeActivity[]>({
     queryKey: ['/api/email-performance/realtime'],
     refetchInterval: 30000, // Refetch every 30 seconds
+    queryFn: async () => {
+      try {
+        const res = await fetch('/api/email-performance/realtime');
+        
+        if (!res.ok) {
+          console.error(`Error fetching realtime data: ${res.status} ${res.statusText}`);
+          return [];
+        }
+        
+        const data = await res.json();
+        
+        if (!Array.isArray(data)) {
+          console.warn('API response for realtime data is not an array:', data);
+          return [];
+        }
+        
+        return data;
+      } catch (error) {
+        console.error('Error fetching realtime data:', error);
+        return [];
+      }
+    }
   });
   
   // Sample campaign data
@@ -956,6 +1064,28 @@ const DetailedOpens = () => {
   // Fetch campaigns for the filter dropdown
   const { data: campaignsData } = useQuery<Array<{ id: number; name: string }>>({
     queryKey: ['/api/campaigns'],
+    queryFn: async () => {
+      try {
+        const res = await fetch('/api/campaigns');
+        
+        if (!res.ok) {
+          console.error(`Error fetching campaigns: ${res.status} ${res.statusText}`);
+          return [];
+        }
+        
+        const data = await res.json();
+        
+        if (!Array.isArray(data)) {
+          console.warn('API response for campaigns is not an array:', data);
+          return [];
+        }
+        
+        return data;
+      } catch (error) {
+        console.error('Error fetching campaigns data:', error);
+        return [];
+      }
+    }
   });
   
   // Using React Query to fetch detailed open data
@@ -973,9 +1103,32 @@ const DetailedOpens = () => {
   }>({
     queryKey: ['/api/email-performance/detailed-opens', selectedCampaign],
     queryFn: async () => {
-      const res = await fetch(`/api/email-performance/detailed-opens${selectedCampaign !== "all" ? `?campaignId=${selectedCampaign}` : ''}`);
-      if (!res.ok) throw new Error('Failed to fetch open data');
-      return res.json();
+      try {
+        // Validate campaign parameter to prevent sending invalid values
+        const campaignParam = (selectedCampaign && selectedCampaign !== "all" && selectedCampaign !== "undefined" && selectedCampaign !== "null") 
+          ? `?campaignId=${encodeURIComponent(selectedCampaign)}` 
+          : '';
+          
+        const res = await fetch(`/api/email-performance/detailed-opens${campaignParam}`);
+        
+        if (!res.ok) {
+          console.error(`Error fetching open data: ${res.status} ${res.statusText}`);
+          return { emails: [] }; // Return empty array on error
+        }
+        
+        const data = await res.json();
+        
+        // Ensure the response has an emails array
+        if (!data || !data.emails || !Array.isArray(data.emails)) {
+          console.warn('API response missing emails array:', data);
+          return { emails: [] };
+        }
+        
+        return data;
+      } catch (error) {
+        console.error('Error fetching email open data:', error);
+        return { emails: [] }; // Return empty array on error
+      }
     }
   });
 
