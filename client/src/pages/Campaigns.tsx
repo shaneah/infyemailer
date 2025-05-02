@@ -1,172 +1,19 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { queryClient } from "@/lib/queryClient";
 import CampaignsTable from "@/components/CampaignsTable";
 import NewCampaignModal from "@/modals/NewCampaignModal";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Filter, Download, PlusCircle, BarChart4, Mail, Send, Users } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
-import { 
-  Sheet, 
-  SheetContent, 
-  SheetHeader, 
-  SheetTitle, 
-  SheetFooter,
-  SheetClose
-} from "@/components/ui/sheet";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { 
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue, 
-} from "@/components/ui/select";
-import * as XLSX from 'xlsx';
-
-// Define types for campaign data and filters
-interface Campaign {
-  id: number;
-  name: string;
-  subtitle?: string;
-  icon?: { name: string; color: string };
-  status?: { label: string; color: string };
-  recipients?: number;
-  openRate?: number;
-  clickRate?: number;
-  date?: string;
-  [key: string]: any;
-}
-
-interface CampaignStat {
-  id: number;
-  title: string;
-  value: string;
-  description?: string;
-  change?: {
-    value: string;
-    color: string;
-  };
-}
-
-interface CampaignFilters {
-  status: string;
-  dateRange: string;
-  includeArchived: boolean;
-  sortBy: string;
-}
 
 export default function Campaigns() {
   const [showNewCampaignModal, setShowNewCampaignModal] = useState(false);
-  const [showFilterSheet, setShowFilterSheet] = useState(false);
   const [initialTemplateId, setInitialTemplateId] = useState<string | null>(null);
   const [location] = useLocation();
-  const { toast } = useToast();
-  
-  // Filter state
-  const [filters, setFilters] = useState<CampaignFilters>({
-    status: "all",
-    dateRange: "all",
-    includeArchived: false,
-    sortBy: "date"
-  });
-  
-  // Effect to refresh campaigns on component mount
-  useEffect(() => {
-    // Whenever the Campaigns page is mounted, refresh the campaign data
-    queryClient.refetchQueries({ queryKey: ['/api/campaigns'] });
-    queryClient.refetchQueries({ queryKey: ['/api/campaigns/stats'] });
-  }, []);
-
-  const { data: campaignStats, isLoading } = useQuery<CampaignStat[]>({
+  const { data: campaignStats, isLoading } = useQuery({
     queryKey: ['/api/campaigns/stats'],
-    initialData: [],
-    refetchOnMount: true, // Refetch on component mount
-    refetchOnWindowFocus: true, // Refetch when window regains focus
   });
-  
-  const { data: campaigns } = useQuery<Campaign[]>({
-    queryKey: ['/api/campaigns'],
-    initialData: [],
-    refetchOnMount: true, // Refetch on component mount
-    refetchOnWindowFocus: true, // Refetch when window regains focus
-  });
-  
-  // Export campaigns to Excel
-  const exportCampaigns = () => {
-    try {
-      if (!campaigns || campaigns.length === 0) {
-        toast({
-          title: "No data to export",
-          description: "There are no campaigns available to export.",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      // Transform campaign data for export
-      const exportData = campaigns.map(campaign => ({
-        Name: campaign.name,
-        Status: campaign.status?.label || 'Unknown',
-        Recipients: campaign.recipients || 0,
-        'Open Rate': `${campaign.openRate || 0}%`,
-        'Click Rate': `${campaign.clickRate || 0}%`,
-        Date: campaign.date || 'Not set',
-      }));
-
-      // Create workbook and worksheet
-      const wb = XLSX.utils.book_new();
-      const ws = XLSX.utils.json_to_sheet(exportData);
-      
-      // Set column widths
-      const wscols = [
-        { wch: 25 }, // Name
-        { wch: 15 }, // Status
-        { wch: 15 }, // Recipients
-        { wch: 15 }, // Open Rate
-        { wch: 15 }, // Click Rate
-        { wch: 20 }, // Date
-      ];
-      ws['!cols'] = wscols;
-      
-      // Add worksheet to workbook
-      XLSX.utils.book_append_sheet(wb, ws, 'Campaigns');
-      
-      // Generate file and trigger download
-      XLSX.writeFile(wb, `campaigns-export-${new Date().toISOString().split('T')[0]}.xlsx`);
-      
-      toast({
-        title: "Export successful",
-        description: "Campaign data has been exported to Excel.",
-        duration: 3000,
-      });
-    } catch (error) {
-      console.error('Export failed:', error);
-      toast({
-        title: "Export failed",
-        description: "There was an issue exporting the campaign data.",
-        variant: "destructive",
-        duration: 3000,
-      });
-    }
-  };
-  
-  // Apply filters to campaigns
-  const applyFilters = (newFilters: CampaignFilters) => {
-    setFilters(newFilters);
-    // In a real implementation, this would trigger API calls with filter params
-    // or filter the local data
-    
-    toast({
-      title: "Filters applied",
-      description: "Campaign list has been updated based on your filters.",
-      duration: 3000,
-    });
-  };
   
   useEffect(() => {
     // Check if the URL has a templateId parameter
@@ -194,21 +41,11 @@ export default function Campaigns() {
           </div>
           <div className="flex items-center gap-2">
             <div className="hidden sm:flex">
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="mr-2 border-blue-200"
-                onClick={() => setShowFilterSheet(true)}
-              >
+              <Button variant="outline" size="sm" className="mr-2 border-blue-200">
                 <Filter className="h-4 w-4 mr-2" />
                 Filter
               </Button>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="mr-4 border-blue-200"
-                onClick={() => exportCampaigns()}
-              >
+              <Button variant="outline" size="sm" className="mr-4 border-blue-200">
                 <Download className="h-4 w-4 mr-2" />
                 Export
               </Button>
@@ -307,125 +144,6 @@ export default function Campaigns() {
           initialTemplateId={initialTemplateId}
         />
       )}
-      
-      {/* Filter Sheet */}
-      <Sheet open={showFilterSheet} onOpenChange={setShowFilterSheet}>
-        <SheetContent className="sm:max-w-md">
-          <SheetHeader>
-            <SheetTitle>Filter Campaigns</SheetTitle>
-          </SheetHeader>
-          
-          <div className="py-6 space-y-6">
-            <div className="space-y-3">
-              <h3 className="text-sm font-medium">Campaign Status</h3>
-              <RadioGroup 
-                defaultValue={filters.status}
-                onValueChange={(value) => setFilters({...filters, status: value})}
-                className="flex flex-col space-y-2"
-              >
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="all" id="status-all" />
-                  <Label htmlFor="status-all">All</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="active" id="status-active" />
-                  <Label htmlFor="status-active">Active</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="scheduled" id="status-scheduled" />
-                  <Label htmlFor="status-scheduled">Scheduled</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="sent" id="status-sent" />
-                  <Label htmlFor="status-sent">Sent</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="draft" id="status-draft" />
-                  <Label htmlFor="status-draft">Draft</Label>
-                </div>
-              </RadioGroup>
-            </div>
-            
-            <div className="space-y-3">
-              <h3 className="text-sm font-medium">Date Range</h3>
-              <RadioGroup 
-                defaultValue={filters.dateRange}
-                onValueChange={(value) => setFilters({...filters, dateRange: value})}
-                className="flex flex-col space-y-2"
-              >
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="all" id="date-all" />
-                  <Label htmlFor="date-all">All Time</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="today" id="date-today" />
-                  <Label htmlFor="date-today">Today</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="last-week" id="date-last-week" />
-                  <Label htmlFor="date-last-week">Last 7 Days</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="last-month" id="date-last-month" />
-                  <Label htmlFor="date-last-month">Last 30 Days</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="last-3-months" id="date-last-3-months" />
-                  <Label htmlFor="date-last-3-months">Last 3 Months</Label>
-                </div>
-              </RadioGroup>
-            </div>
-            
-            <div className="space-y-3">
-              <h3 className="text-sm font-medium">Sort By</h3>
-              <Select
-                defaultValue={filters.sortBy}
-                onValueChange={(value) => setFilters({...filters, sortBy: value})}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Sort by..." />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="date">Date (Newest first)</SelectItem>
-                  <SelectItem value="date-asc">Date (Oldest first)</SelectItem>
-                  <SelectItem value="name">Name (A-Z)</SelectItem>
-                  <SelectItem value="name-desc">Name (Z-A)</SelectItem>
-                  <SelectItem value="open-rate">Open Rate (High to Low)</SelectItem>
-                  <SelectItem value="click-rate">Click Rate (High to Low)</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div className="space-y-3">
-              <h3 className="text-sm font-medium">Additional Options</h3>
-              <div className="flex items-center space-x-2">
-                <Checkbox 
-                  id="include-archived" 
-                  checked={filters.includeArchived}
-                  onCheckedChange={(checked) => setFilters({...filters, includeArchived: !!checked})}
-                />
-                <Label htmlFor="include-archived">Include archived campaigns</Label>
-              </div>
-            </div>
-          </div>
-          
-          <SheetFooter className="sm:justify-between">
-            <SheetClose asChild>
-              <Button type="button" variant="outline">
-                Cancel
-              </Button>
-            </SheetClose>
-            <SheetClose asChild>
-              <Button 
-                type="button" 
-                onClick={() => applyFilters(filters)}
-              >
-                Apply Filters
-              </Button>
-            </SheetClose>
-          </SheetFooter>
-        </SheetContent>
-      </Sheet>
     </div>
   );
 }

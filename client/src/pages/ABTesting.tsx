@@ -63,17 +63,7 @@ export default function ABTesting() {
     error: detailError
   } = useQuery<CampaignDetailResponse>({
     queryKey: ['/api/ab-testing/campaigns', params?.id],
-    queryFn: async () => {
-      console.log(`Fetching A/B test campaign details for ID: ${params?.id}`);
-      const response = await fetch(`/api/ab-testing/campaigns/${params?.id}`);
-      if (!response.ok) {
-        throw new Error(`Failed to fetch campaign details: ${response.status}`);
-      }
-      return await response.json();
-    },
-    enabled: !!params?.id,
-    retry: 2,
-    staleTime: 60000 // 1 minute
+    enabled: !!params?.id
   });
 
   // Mutation to set winning variant

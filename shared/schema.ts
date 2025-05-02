@@ -16,6 +16,7 @@ export const clients = pgTable("clients", {
   emailCredits: integer("email_credits").default(0),
   emailCreditsPurchased: integer("email_credits_purchased").default(0),
   emailCreditsUsed: integer("email_credits_used").default(0),
+  lastCreditUpdateAt: timestamp("last_credit_update_at"),
   lastCampaignAt: timestamp("last_campaign_at"),
   avatar: text("avatar"),
   metadata: json("metadata")

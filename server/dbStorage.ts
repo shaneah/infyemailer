@@ -1,5 +1,5 @@
 import { IStorage } from './storage';
-import { db, pool } from './db';
+import { db } from './db';
 import { eq, desc, and, gt, lt, isNull, count, sql } from 'drizzle-orm';
 import * as schema from '../shared/schema';
 import { log } from './vite';
@@ -172,42 +172,19 @@ export class DbStorage implements IStorage {
     try {
       console.log(`DB lookup for client user with username: ${username}`);
       
-      // Improved SQL query with better result handling
-      const users = await db.query.clientUsers.findMany({
-        where: eq(clientUsers.username, username)
-      });
-      
-      if (users && users.length > 0) {
-        const user = users[0];
-        console.log(`Found client user via Drizzle query:`, user);
-        return user;
-      }
-      
-      // Fallback to direct SQL if the Drizzle query fails
-      console.log('Trying direct SQL query as fallback');
-      const rows = await db.execute(
+      // Direct SQL query for troubleshooting
+      const directResult = await db.execute(
         sql`SELECT * FROM client_users WHERE username = ${username}`
       );
+      console.log('Direct SQL query result:', directResult);
       
-      if (rows && rows.length > 0) {
-        // Convert the raw result to an object
-        const user = rows[0];
-        console.log(`Found client user via direct SQL:`, user);
+      if (directResult && directResult.length > 0) {
+        const user = directResult[0];
+        console.log(`Found user via direct SQL:`, user);
         return user;
       }
       
-      // One more fallback with hardcoded query for client1
-      if (username === 'client1') {
-        console.log('Using hardcoded fallback for client1');
-        const allUsers = await db.execute(sql`SELECT * FROM client_users`);
-        console.log('All client users:', allUsers);
-        
-        if (allUsers && allUsers.length > 0) {
-          return allUsers[0]; // Assuming client1 is the first user
-        }
-      }
-      
-      console.log('Client user not found via any method');
+      console.log('User not found via direct SQL query');
       return undefined;
     } catch (error) {
       console.error('Error getting client user by username:', error);
@@ -341,28 +318,7 @@ export class DbStorage implements IStorage {
     try {
       console.log(`Verifying client login for username: ${username}`);
       
-      // Special override for client1 - this is a hardcoded fallback in case the 
-      // database lookup fails
-      if (username === 'client1' && password === 'clientdemo') {
-        console.log('Attempting client1/clientdemo override using direct SQL');
-        
-        // Try to get the client directly from the database
-        try {
-          const rows = await db.execute(
-            sql`SELECT * FROM client_users LIMIT 1`
-          );
-          
-          if (rows && rows.length > 0) {
-            const user = rows[0];
-            console.log('Found client1 user via direct SQL override');
-            return user;
-          }
-        } catch (sqlError) {
-          console.error('Direct SQL override failed:', sqlError);
-        }
-      }
-      
-      // Normal flow - get the user by username
+      // Get the user by username
       const user = await this.getClientUserByUsername(username);
       if (!user) {
         console.log(`Client user not found for login: ${username}`);
@@ -371,23 +327,16 @@ export class DbStorage implements IStorage {
       
       console.log(`Found client user for verification:`, user);
       
-      // For any client login, accept the specified password for testing/demo
+      // For client "client1" with password "clientdemo", do an exact comparison override
       if (username === 'client1' && password === 'clientdemo') {
         console.log('Using client1/clientdemo override for login');
         return user;
       }
       
-      // Check if the stored password exactly equals the provided password
-      // This is a simplified approach for the demo
-      if (user.password === password) {
-        console.log(`Client password exact match passed for: ${username}`);
-        return user;
-      }
-      
-      // Alternative check if password is included in the stored value
-      // This handles cases where the stored value might be a hash
-      if (password && user.password && user.password.includes(password)) {
-        console.log(`Client password includes match passed for: ${username}`);
+      // Regular password verification - would compare hashed passwords
+      // This is a placeholder - in a real app, you'd verify the password hash
+      if (user.password.includes(password)) {
+        console.log(`Client password verification passed for: ${username}`);
         return user;
       }
       
@@ -402,405 +351,20 @@ export class DbStorage implements IStorage {
   // Admin user methods
   async getUser(id: number) {
     try {
-      // Check if db is properly initialized
-      if (!db || !db.execute) {
-        console.error('Database not properly initialized in getUser - falling back to direct SQL');
-        try {
-          // Fallback to direct SQL query
-          const result = await pool.query('SELECT * FROM users WHERE id = $1 LIMIT 1', [id]);
-          
-          if (result && result.rows && result.rows.length > 0) {
-            return result.rows[0];
-          }
-        } catch (sqlError) {
-          console.error('Direct SQL failed in getUser:', sqlError);
-        }
-        
-        // Fallback admin user for testing
-        if (id === 1) {
-          console.log('Using fallback admin user for testing in getUser');
-          return {
-            id: 1,
-            username: 'admin',
-            email: 'admin@example.com',
-            password: 'admin123',
-            firstName: 'Admin',
-            lastName: 'User',
-            status: 'active',
-            role: 'admin',
-            createdAt: new Date(),
-            lastLoginAt: new Date()
-          };
-        }
-        return undefined;
-      }
-      
-      try {
-        // Use a safer approach with proper error handling
-        let result;
-        try {
-          // First try with the ORM
-          const [user] = await db.select().from(schema.users).where(eq(schema.users.id, id));
-          if (user) {
-            return user;
-          }
-        } catch (ormSelectError) {
-          console.warn('ORM select failed in getUser, trying execute:', ormSelectError);
-          
-          // If ORM select fails, try with execute
-          try {
-            result = await db.execute(
-              sql`SELECT * FROM users WHERE id = ${id} LIMIT 1`
-            );
-          } catch (executeError) {
-            console.warn('SQL execute also failed in getUser:', executeError);
-            
-            // Let it fall through to the next fallback
-            result = { rows: [] };
-          }
-        }
-        
-        if (result && result.rows && result.rows.length > 0) {
-          return result.rows[0];
-        }
-      } catch (ormError) {
-        console.error('ORM query failed in getUser:', ormError);
-        
-        // Fallback to direct SQL query
-        try {
-          const result = await pool.query('SELECT * FROM users WHERE id = $1 LIMIT 1', [id]);
-          
-          if (result && result.rows && result.rows.length > 0) {
-            return result.rows[0];
-          }
-        } catch (sqlError) {
-          console.error('Direct SQL fallback also failed in getUser:', sqlError);
-        }
-      }
-      
-      // Fallback admin user for testing
-      if (id === 1) {
-        console.log('Using fallback admin user for testing in getUser');
-        return {
-          id: 1,
-          username: 'admin',
-          email: 'admin@example.com',
-          password: 'admin123',
-          firstName: 'Admin',
-          lastName: 'User',
-          status: 'active',
-          role: 'admin',
-          createdAt: new Date(),
-          lastLoginAt: new Date()
-        };
-      }
-      
-      return undefined;
+      const [user] = await db.select().from(schema.users).where(eq(schema.users.id, id));
+      return user;
     } catch (error) {
       console.error('Error getting user:', error);
-      
-      // Fallback admin user for testing in case of error
-      if (id === 1) {
-        console.log('Using fallback admin user for testing after error in getUser');
-        return {
-          id: 1,
-          username: 'admin',
-          email: 'admin@example.com',
-          password: 'admin123',
-          firstName: 'Admin',
-          lastName: 'User',
-          status: 'active',
-          role: 'admin',
-          createdAt: new Date(),
-          lastLoginAt: new Date()
-        };
-      }
-      
       return undefined;
     }
   }
 
   async getUserByUsername(username: string) {
     try {
-      // Check if db is properly initialized
-      if (!db || !db.execute) {
-        console.error('Database not properly initialized in getUserByUsername - falling back to direct SQL');
-        try {
-          // Fallback to direct SQL query
-          const result = await pool.query('SELECT * FROM users WHERE username = $1 LIMIT 1', [username]);
-          
-          if (result && result.rows && result.rows.length > 0) {
-            return result.rows[0];
-          }
-        } catch (sqlError) {
-          console.error('Direct SQL failed in getUserByUsername:', sqlError);
-        }
-        
-        // Fallback admin user for testing
-        if (username === 'admin') {
-          console.log('Using fallback admin user for testing in getUserByUsername');
-          return {
-            id: 1,
-            username: 'admin',
-            email: 'admin@example.com',
-            password: 'admin123',
-            firstName: 'Admin',
-            lastName: 'User',
-            status: 'active',
-            role: 'admin',
-            createdAt: new Date(),
-            lastLoginAt: new Date()
-          };
-        }
-        return undefined;
-      }
-      
-      try {
-        // First try with the ORM
-        const [user] = await db.select().from(schema.users).where(eq(schema.users.username, username));
-        if (user) {
-          return user;
-        }
-        
-        // If ORM select fails or returns nothing, try with execute
-        const result = await db.execute(
-          sql`SELECT * FROM users WHERE username = ${username} LIMIT 1`
-        );
-        
-        if (result && result.rows && result.rows.length > 0) {
-          return result.rows[0];
-        }
-      } catch (ormError) {
-        console.error('ORM query failed in getUserByUsername:', ormError);
-        
-        // Fallback to direct SQL query
-        try {
-          const result = await pool.query('SELECT * FROM users WHERE username = $1 LIMIT 1', [username]);
-          
-          if (result && result.rows && result.rows.length > 0) {
-            return result.rows[0];
-          }
-        } catch (sqlError) {
-          console.error('Direct SQL fallback also failed in getUserByUsername:', sqlError);
-        }
-      }
-      
-      // Fallback admin user for testing
-      if (username === 'admin') {
-        console.log('Using fallback admin user for testing in getUserByUsername');
-        return {
-          id: 1,
-          username: 'admin',
-          email: 'admin@example.com',
-          password: 'admin123',
-          firstName: 'Admin',
-          lastName: 'User',
-          status: 'active',
-          role: 'admin',
-          createdAt: new Date(),
-          lastLoginAt: new Date()
-        };
-      }
-      
-      return undefined;
+      const [user] = await db.select().from(schema.users).where(eq(schema.users.username, username));
+      return user;
     } catch (error) {
       console.error('Error getting user by username:', error);
-      
-      // Fallback admin user for testing in case of error
-      if (username === 'admin') {
-        console.log('Using fallback admin user for testing after error in getUserByUsername');
-        return {
-          id: 1,
-          username: 'admin',
-          email: 'admin@example.com',
-          password: 'admin123',
-          firstName: 'Admin',
-          lastName: 'User',
-          status: 'active',
-          role: 'admin',
-          createdAt: new Date(),
-          lastLoginAt: new Date()
-        };
-      }
-      
-      return undefined;
-    }
-  }
-
-  async getUserByEmail(email: string) {
-    try {
-      // Check if db is properly initialized
-      if (!db || !db.execute) {
-        console.error('Database not properly initialized in getUserByEmail - falling back to direct SQL');
-        try {
-          // Fallback to direct SQL query
-          const result = await pool.query('SELECT * FROM users WHERE email = $1 LIMIT 1', [email]);
-          
-          if (result && result.rows && result.rows.length > 0) {
-            return result.rows[0];
-          }
-        } catch (sqlError) {
-          console.error('Direct SQL failed in getUserByEmail:', sqlError);
-        }
-        
-        // Fallback admin user for testing
-        if (email === 'admin@example.com') {
-          console.log('Using fallback admin user for testing in getUserByEmail');
-          return {
-            id: 1,
-            username: 'admin',
-            email: 'admin@example.com',
-            password: 'admin123',
-            firstName: 'Admin',
-            lastName: 'User',
-            status: 'active',
-            role: 'admin',
-            createdAt: new Date(),
-            lastLoginAt: new Date()
-          };
-        }
-        return undefined;
-      }
-      
-      try {
-        // First try with the ORM
-        const [user] = await db.select().from(schema.users).where(eq(schema.users.email, email));
-        if (user) {
-          return user;
-        }
-        
-        // If ORM select fails or returns nothing, try with execute
-        const result = await db.execute(
-          sql`SELECT * FROM users WHERE email = ${email} LIMIT 1`
-        );
-        
-        if (result && result.rows && result.rows.length > 0) {
-          return result.rows[0];
-        }
-      } catch (ormError) {
-        console.error('ORM query failed in getUserByEmail:', ormError);
-        
-        // Fallback to direct SQL query
-        try {
-          const result = await pool.query('SELECT * FROM users WHERE email = $1 LIMIT 1', [email]);
-          
-          if (result && result.rows && result.rows.length > 0) {
-            return result.rows[0];
-          }
-        } catch (sqlError) {
-          console.error('Direct SQL fallback also failed in getUserByEmail:', sqlError);
-        }
-      }
-      
-      // Fallback admin user for testing
-      if (email === 'admin@example.com') {
-        console.log('Using fallback admin user for testing in getUserByEmail');
-        return {
-          id: 1,
-          username: 'admin',
-          email: 'admin@example.com',
-          password: 'admin123',
-          firstName: 'Admin',
-          lastName: 'User',
-          status: 'active',
-          role: 'admin',
-          createdAt: new Date(),
-          lastLoginAt: new Date()
-        };
-      }
-      
-      return undefined;
-    } catch (error) {
-      console.error('Error getting user by email:', error);
-      
-      // Fallback admin user for testing in case of error
-      if (email === 'admin@example.com') {
-        console.log('Using fallback admin user for testing after error in getUserByEmail');
-        return {
-          id: 1,
-          username: 'admin',
-          email: 'admin@example.com',
-          password: 'admin123',
-          firstName: 'Admin',
-          lastName: 'User',
-          status: 'active',
-          role: 'admin',
-          createdAt: new Date(),
-          lastLoginAt: new Date()
-        };
-      }
-      
-      return undefined;
-    }
-  }
-  
-  async verifyUserLogin(usernameOrEmail: string, password: string) {
-    try {
-      console.log(`Verifying admin login for: ${usernameOrEmail}`);
-      
-      // Special admin override for testing and development
-      if ((usernameOrEmail === 'admin' || usernameOrEmail === 'admin@example.com') && 
-          password === 'admin123') {
-        console.log('Using admin override for testing');
-        return {
-          id: 1,
-          username: 'admin',
-          email: 'admin@example.com',
-          password: 'admin123',
-          firstName: 'Admin',
-          lastName: 'User',
-          status: 'active',
-          role: 'admin',
-          createdAt: new Date(),
-          lastLoginAt: new Date()
-        };
-      }
-      
-      // Try username first
-      let user = await this.getUserByUsername(usernameOrEmail);
-      
-      // If not found, try email
-      if (!user) {
-        user = await this.getUserByEmail(usernameOrEmail);
-      }
-      
-      if (!user) {
-        console.log('User not found');
-        return undefined;
-      }
-      
-      console.log(`Found user for verification:`, user);
-      
-      // Compare passwords (implement proper password verification here)
-      // For now, we're doing a simple comparison for testing
-      if (user.password === password) {
-        console.log(`Password match passed for: ${usernameOrEmail}`);
-        return user;
-      }
-      
-      console.log(`Password verification failed for: ${usernameOrEmail}`);
-      return undefined;
-    } catch (error) {
-      console.error('Error verifying user login:', error);
-      
-      // Last resort fallback for admin
-      if ((usernameOrEmail === 'admin' || usernameOrEmail === 'admin@example.com') && 
-          password === 'admin123') {
-        console.log('Using admin fallback after error');
-        return {
-          id: 1,
-          username: 'admin',
-          email: 'admin@example.com',
-          password: 'admin123',
-          firstName: 'Admin',
-          lastName: 'User',
-          status: 'active',
-          role: 'admin',
-          createdAt: new Date(),
-          lastLoginAt: new Date()
-        };
-      }
-      
       return undefined;
     }
   }
@@ -855,50 +419,8 @@ export class DbStorage implements IStorage {
   // Campaigns methods
   async getCampaign(id: number) {
     try {
-      if (!db || !db.select) {
-        console.error('Database not properly initialized for getCampaign');
-        throw new Error('Database not properly initialized');
-      }
-      
-      // Try direct SQL first as a more reliable approach
-      try {
-        console.log(`Attempting to fetch campaign ID ${id} via direct SQL`);
-        const result = await pool.query(`
-          SELECT id, name, description, status, subject, 
-                 created_at as "createdAt", sender_email as "senderEmail", 
-                 sender_name as "senderName", metadata, is_ab_test as "isAbTest"
-          FROM campaigns
-          WHERE id = $1
-        `, [id]);
-        
-        if (result && result.rows && result.rows.length > 0) {
-          console.log(`Found campaign ${id} via direct SQL: ${result.rows[0].name}`);
-          return result.rows[0];
-        } else {
-          console.log(`No campaign found with ID ${id} via direct SQL`);
-        }
-      } catch (sqlError) {
-        console.error(`Error with direct SQL in getCampaign ID ${id}:`, sqlError);
-      }
-      
-      // Fall back to ORM if direct SQL fails
-      try {
-        console.log(`Trying ORM approach for campaign ID ${id}`);
-        const [campaign] = await db.select().from(schema.campaigns).where(eq(schema.campaigns.id, id));
-        
-        if (campaign) {
-          console.log(`Found campaign ${id} via ORM: ${campaign.name}`);
-          return campaign;
-        } else {
-          console.log(`No campaign found with ID ${id} via ORM`);
-        }
-      } catch (ormError) {
-        console.error(`Error with ORM in getCampaign ID ${id}:`, ormError);
-      }
-      
-      // If both methods fail, return undefined
-      console.log(`All methods failed to find campaign ID ${id}`);
-      return undefined;
+      const [campaign] = await db.select().from(schema.campaigns).where(eq(schema.campaigns.id, id));
+      return campaign;
     } catch (error) {
       console.error('Error getting campaign:', error);
       return undefined;
@@ -907,64 +429,8 @@ export class DbStorage implements IStorage {
 
   async getCampaigns() {
     try {
-      // Check if db is properly initialized
-      if (!db || !db.select) {
-        console.error('Database not properly initialized for getCampaigns - falling back to direct SQL');
-        try {
-          // Fallback to direct SQL query
-          const result = await pool.query('SELECT * FROM campaigns ORDER BY created_at DESC');
-          console.log(`Retrieved ${result.rows ? result.rows.length : 0} campaigns via direct SQL`);
-          if (result && result.rows) {
-            return result.rows.map(row => ({
-              id: row.id,
-              name: row.name,
-              description: row.description,
-              status: row.status,
-              subject: row.subject,
-              createdAt: row.created_at,
-              senderEmail: row.sender_email,
-              senderName: row.sender_name,
-              metadata: row.metadata || {},
-              isAbTest: row.is_ab_test
-            }));
-          }
-          return [];
-        } catch (sqlError) {
-          console.error('Direct SQL failed for campaigns:', sqlError);
-          return [];
-        }
-      }
-      
-      try {
-        const campaigns = await db.select().from(schema.campaigns).orderBy(desc(schema.campaigns.createdAt));
-        return campaigns;
-      } catch (ormError) {
-        console.error('ORM query failed for campaigns:', ormError);
-        
-        // Fallback to direct SQL query
-        try {
-          const result = await pool.query('SELECT * FROM campaigns ORDER BY created_at DESC');
-          console.log(`Retrieved ${result.rows ? result.rows.length : 0} campaigns via direct SQL fallback`);
-          if (result && result.rows) {
-            return result.rows.map(row => ({
-              id: row.id,
-              name: row.name,
-              description: row.description,
-              status: row.status,
-              subject: row.subject,
-              createdAt: row.created_at,
-              senderEmail: row.sender_email,
-              senderName: row.sender_name,
-              metadata: row.metadata || {},
-              isAbTest: row.is_ab_test
-            }));
-          }
-          return [];
-        } catch (sqlError) {
-          console.error('Direct SQL fallback also failed for campaigns:', sqlError);
-          return [];
-        }
-      }
+      const campaigns = await db.select().from(schema.campaigns).orderBy(desc(schema.campaigns.createdAt));
+      return campaigns;
     } catch (error) {
       console.error('Error getting campaigns:', error);
       return [];
@@ -1035,56 +501,8 @@ export class DbStorage implements IStorage {
 
   async getContacts() {
     try {
-      // Check if db is properly initialized
-      if (!db || !db.select) {
-        console.error('Database not properly initialized for getContacts - falling back to direct SQL');
-        try {
-          // Fallback to direct SQL query
-          const result = await pool.query('SELECT * FROM contacts ORDER BY created_at DESC');
-          console.log(`Retrieved ${result.rows ? result.rows.length : 0} contacts via direct SQL`);
-          if (result && result.rows) {
-            return result.rows.map(row => ({
-              id: row.id,
-              name: row.name,
-              email: row.email,
-              status: row.status,
-              createdAt: row.created_at,
-              metadata: row.metadata || {}
-            }));
-          }
-          return [];
-        } catch (sqlError) {
-          console.error('Direct SQL failed for contacts:', sqlError);
-          return [];
-        }
-      }
-      
-      try {
-        const contacts = await db.select().from(schema.contacts).orderBy(desc(schema.contacts.createdAt));
-        return contacts;
-      } catch (ormError) {
-        console.error('ORM query failed for contacts:', ormError);
-        
-        // Fallback to direct SQL query
-        try {
-          const result = await pool.query('SELECT * FROM contacts ORDER BY created_at DESC');
-          console.log(`Retrieved ${result.rows ? result.rows.length : 0} contacts via direct SQL fallback`);
-          if (result && result.rows) {
-            return result.rows.map(row => ({
-              id: row.id,
-              name: row.name,
-              email: row.email,
-              status: row.status,
-              createdAt: row.created_at,
-              metadata: row.metadata || {}
-            }));
-          }
-          return [];
-        } catch (sqlError) {
-          console.error('Direct SQL fallback also failed for contacts:', sqlError);
-          return [];
-        }
-      }
+      const contacts = await db.select().from(schema.contacts).orderBy(desc(schema.contacts.createdAt));
+      return contacts;
     } catch (error) {
       console.error('Error getting contacts:', error);
       return [];
@@ -1103,42 +521,10 @@ export class DbStorage implements IStorage {
 
   async createContact(contact: Omit<schema.InsertContact, 'id'>) {
     try {
-      console.log('DbStorage: Creating contact with data:', JSON.stringify(contact, null, 2));
-      console.log('DbStorage: Using db object:', typeof db, db ? 'db exists' : 'db is null/undefined');
-      
-      // Convert the camelCase properties to snake_case for database
-      // This is likely the issue - our schema uses camelCase but database is using snake_case
-      const dbContact = {
-        name: contact.name,
-        email: contact.email,
-        status: contact.status,
-        created_at: contact.createdAt || new Date(),
-        metadata: contact.metadata || {}
-      };
-      
-      console.log('DbStorage: Transformed contact data for db:', JSON.stringify(dbContact, null, 2));
-      
-      // Try to execute the insert using direct SQL as a fallback
-      try {
-        console.log('DbStorage: Attempting direct SQL insert as fallback');
-        const result = await db.execute(
-          sql`INSERT INTO contacts (name, email, status, created_at, metadata) 
-              VALUES (${dbContact.name}, ${dbContact.email}, ${dbContact.status}, ${dbContact.created_at}, ${JSON.stringify(dbContact.metadata)})
-              RETURNING *`
-        );
-        console.log('DbStorage: Direct SQL insert result:', result);
-        return result[0];
-      } catch (sqlError) {
-        console.error('DbStorage: Failed SQL direct insert:', sqlError);
-        
-        // Original approach
-        console.log('DbStorage: Falling back to Drizzle ORM insert');
-        const [newContact] = await db.insert(schema.contacts).values(contact).returning();
-        console.log('DbStorage: Successfully created contact with Drizzle ORM:', newContact);
-        return newContact;
-      }
+      const [newContact] = await db.insert(schema.contacts).values(contact).returning();
+      return newContact;
     } catch (error) {
-      console.error('DbStorage: Error creating contact:', error);
+      console.error('Error creating contact:', error);
       throw error;
     }
   }
@@ -1183,55 +569,8 @@ export class DbStorage implements IStorage {
 
   async getLists() {
     try {
-      // Check if db is properly initialized
-      if (!db || !db.select) {
-        console.error('Database not properly initialized for getLists - falling back to direct SQL');
-        try {
-          // Fallback to direct SQL query
-          const result = await pool.query('SELECT * FROM lists ORDER BY created_at DESC');
-          console.log(`Retrieved ${result.rows ? result.rows.length : 0} lists via direct SQL`);
-          if (result && result.rows) {
-            return result.rows.map(row => ({
-              id: row.id,
-              name: row.name,
-              description: row.description,
-              createdAt: row.created_at,
-              updatedAt: row.updated_at
-            }));
-          }
-          return [];
-        } catch (sqlError) {
-          console.error('Direct SQL failed for lists:', sqlError);
-          return [];
-        }
-      }
-      
-      try {
-        const lists = await db.select().from(schema.lists).orderBy(desc(schema.lists.createdAt));
-        console.log(`Retrieved ${lists.length} lists via ORM`);
-        return lists;
-      } catch (ormError) {
-        console.error('ORM query failed for lists:', ormError);
-        
-        // Fallback to direct SQL query
-        try {
-          const result = await pool.query('SELECT * FROM lists ORDER BY created_at DESC');
-          console.log(`Retrieved ${result.rows ? result.rows.length : 0} lists via direct SQL fallback`);
-          if (result && result.rows) {
-            return result.rows.map(row => ({
-              id: row.id,
-              name: row.name,
-              description: row.description,
-              createdAt: row.created_at,
-              updatedAt: row.updated_at
-            }));
-          }
-          return [];
-        } catch (sqlError) {
-          console.error('Direct SQL fallback also failed for lists:', sqlError);
-          return [];
-        }
-      }
+      const lists = await db.select().from(schema.contactLists).orderBy(desc(schema.contactLists.createdAt));
+      return lists;
     } catch (error) {
       console.error('Error getting lists:', error);
       return [];
@@ -1240,32 +579,7 @@ export class DbStorage implements IStorage {
 
   async createList(list: any) {
     try {
-      // Check if db is properly initialized
-      if (!db || !db.insert) {
-        console.error('Database not properly initialized for createList - falling back to direct SQL');
-        
-        try {
-          // Fallback to direct SQL query
-          const result = await pool.query(
-            'INSERT INTO lists (name, description, created_at, updated_at) VALUES ($1, $2, NOW(), NOW()) RETURNING *',
-            [list.name, list.description]
-          );
-          
-          console.log('Created list via direct SQL:', result.rows[0]);
-          return result.rows[0];
-        } catch (sqlError) {
-          console.error('Direct SQL failed in createList:', sqlError);
-          throw sqlError;
-        }
-      }
-      
-      // Use ORM if available
-      const [newList] = await db.insert(schema.lists).values({
-        name: list.name,
-        description: list.description
-      }).returning();
-      
-      console.log('Created list via ORM:', newList);
+      const [newList] = await db.insert(schema.contactLists).values(list).returning();
       return newList;
     } catch (error) {
       console.error('Error creating list:', error);
@@ -1275,37 +589,11 @@ export class DbStorage implements IStorage {
 
   async updateList(id: number, update: any) {
     try {
-      // Check if db is properly initialized
-      if (!db || !db.update) {
-        console.error('Database not properly initialized for updateList - falling back to direct SQL');
-        
-        try {
-          // Fallback to direct SQL query
-          const result = await pool.query(
-            'UPDATE lists SET name = $1, description = $2, updated_at = NOW() WHERE id = $3 RETURNING *',
-            [update.name, update.description, id]
-          );
-          
-          if (result.rows && result.rows.length > 0) {
-            console.log('Updated list via direct SQL:', result.rows[0]);
-            return result.rows[0];
-          } else {
-            console.log('No list found to update with id:', id);
-            return undefined;
-          }
-        } catch (sqlError) {
-          console.error('Direct SQL failed in updateList:', sqlError);
-          return undefined;
-        }
-      }
-      
-      // Use ORM if available
       const [updatedList] = await db
-        .update(schema.lists)
+        .update(schema.contactLists)
         .set(update)
-        .where(eq(schema.lists.id, id))
+        .where(eq(schema.contactLists.id, id))
         .returning();
-      console.log('Updated list via ORM:', updatedList);
       return updatedList;
     } catch (error) {
       console.error('Error updating list:', error);
@@ -1315,33 +603,10 @@ export class DbStorage implements IStorage {
 
   async deleteList(id: number) {
     try {
-      // Check if db is properly initialized
-      if (!db || !db.delete) {
-        console.error('Database not properly initialized for deleteList - falling back to direct SQL');
-        
-        try {
-          // Fallback to direct SQL query
-          const result = await pool.query('DELETE FROM lists WHERE id = $1 RETURNING *', [id]);
-          
-          if (result.rows && result.rows.length > 0) {
-            console.log('Deleted list via direct SQL:', result.rows[0]);
-            return result.rows[0];
-          } else {
-            console.log('No list found to delete with id:', id);
-            return undefined;
-          }
-        } catch (sqlError) {
-          console.error('Direct SQL failed in deleteList:', sqlError);
-          return undefined;
-        }
-      }
-      
-      // Use ORM if available
       const [deletedList] = await db
-        .delete(schema.lists)
-        .where(eq(schema.lists.id, id))
+        .delete(schema.contactLists)
+        .where(eq(schema.contactLists.id, id))
         .returning();
-      console.log('Deleted list via ORM:', deletedList);
       return deletedList;
     } catch (error) {
       console.error('Error deleting list:', error);
@@ -1370,107 +635,8 @@ export class DbStorage implements IStorage {
 
   async getTemplates() {
     try {
-      console.log('Looking up all templates');
-      
-      // Check if db is properly initialized
-      if (!db || !db.select) {
-        console.error('Database not properly initialized for getTemplates - falling back to direct SQL');
-        try {
-          // Fallback to direct SQL query
-          console.log('Attempting direct SQL query for templates');
-          const result = await pool.query(`
-            SELECT id, name, content, description, category, client_id as "clientId", 
-                   is_global as "isGlobal", created_at as "createdAt", updated_at as "updatedAt", 
-                   subject, metadata, version, rating, rating_count as "ratingCount", thumbnail_url as "thumbnailUrl"
-            FROM templates 
-            ORDER BY created_at DESC
-          `);
-          
-          console.log(`Retrieved ${result.rows?.length || 0} templates via direct SQL`);
-          
-          // Convert content from JSON string if needed
-          const templatesWithParsedContent = (result.rows || []).map(template => {
-            try {
-              if (typeof template.content === 'string') {
-                // Only try to parse if it looks like JSON
-                if (template.content.trim().startsWith('{')) {
-                  template.content = JSON.parse(template.content);
-                }
-              }
-            } catch (e) {
-              console.warn(`Failed to parse template content for template ID ${template.id}:`, e);
-              // Keep the content as string if parsing fails
-            }
-            return template;
-          });
-          
-          return templatesWithParsedContent;
-        } catch (sqlError) {
-          console.error('Direct SQL also failed for templates:', sqlError);
-          return [];
-        }
-      }
-      
-      try {
-        console.log('Attempting ORM query for templates');
-        const templates = await db.select().from(schema.templates).orderBy(desc(schema.templates.createdAt));
-        console.log(`Retrieved ${templates.length} templates via ORM`);
-        
-        // Convert content from JSON string if needed
-        const templatesWithParsedContent = templates.map(template => {
-          try {
-            if (typeof template.content === 'string') {
-              // Only try to parse if it looks like JSON
-              if (template.content.trim().startsWith('{')) {
-                template.content = JSON.parse(template.content);
-              }
-            }
-          } catch (e) {
-            console.warn(`Failed to parse template content for template ID ${template.id}:`, e);
-            // Keep the content as string if parsing fails
-          }
-          return template;
-        });
-        
-        return templatesWithParsedContent;
-      } catch (ormError) {
-        console.error('ORM query failed for templates:', ormError);
-        
-        // Fallback to direct SQL query
-        try {
-          console.log('Attempting direct SQL fallback for templates');
-          const result = await pool.query(`
-            SELECT id, name, content, description, category, client_id as "clientId", 
-                   is_global as "isGlobal", created_at as "createdAt", updated_at as "updatedAt", 
-                   subject, metadata, version, rating, rating_count as "ratingCount", thumbnail_url as "thumbnailUrl"
-            FROM templates 
-            ORDER BY created_at DESC
-          `);
-          
-          console.log(`Retrieved ${result.rows?.length || 0} templates via direct SQL fallback`);
-          
-          // Convert content from JSON string if needed
-          const templatesWithParsedContent = (result.rows || []).map(template => {
-            try {
-              if (typeof template.content === 'string') {
-                // Only try to parse if it looks like JSON
-                if (template.content.trim().startsWith('{')) {
-                  template.content = JSON.parse(template.content);
-                }
-              }
-            } catch (e) {
-              console.warn(`Failed to parse template content for template ID ${template.id}:`, e);
-              // Keep the content as string if parsing fails
-            }
-            return template;
-          });
-          
-          return templatesWithParsedContent;
-        } catch (sqlError) {
-          console.error('Direct SQL fallback also failed for templates:', sqlError);
-          return [];
-        }
-      }
+      const templates = await db.select().from(schema.templates).orderBy(desc(schema.templates.createdAt));
+      return templates;
     } catch (error) {
       console.error('Error getting templates:', error);
       return [];
@@ -1479,61 +645,6 @@ export class DbStorage implements IStorage {
 
   async createTemplate(template: Omit<schema.InsertTemplate, 'id'>) {
     try {
-      if (!db || !db.insert) {
-        console.error('Database not properly initialized for createTemplate');
-        throw new Error('Database not properly initialized');
-      }
-      
-      console.log('Creating template with name:', template.name);
-      
-      // Try direct SQL first for more reliable template creation
-      try {
-        // Make sure template has createdAt
-        const templateWithDate = {
-          ...template,
-          created_at: template.createdAt || new Date()
-        };
-        
-        console.log('Attempting to create template via direct SQL');
-        const result = await pool.query(`
-          INSERT INTO templates (
-            name, 
-            content, 
-            description, 
-            category, 
-            created_at, 
-            metadata
-          ) VALUES (
-            $1, $2, $3, $4, $5, $6
-          ) RETURNING *
-        `, [
-          templateWithDate.name,
-          templateWithDate.content,
-          templateWithDate.description || '',
-          templateWithDate.category || 'general',
-          templateWithDate.created_at,
-          templateWithDate.metadata || {}
-        ]);
-        
-        if (result && result.rows && result.rows.length > 0) {
-          console.log(`Created template via direct SQL: ${result.rows[0].id} - ${result.rows[0].name}`);
-          // Map from snake_case to camelCase for consistent return
-          return {
-            id: result.rows[0].id,
-            name: result.rows[0].name,
-            content: result.rows[0].content,
-            description: result.rows[0].description,
-            category: result.rows[0].category,
-            createdAt: result.rows[0].created_at,
-            metadata: result.rows[0].metadata
-          };
-        }
-      } catch (sqlError) {
-        console.error('Error with direct SQL in createTemplate:', sqlError);
-      }
-      
-      // Fall back to ORM if direct SQL fails
-      console.log('Falling back to ORM for template creation');
       const [newTemplate] = await db.insert(schema.templates).values(template).returning();
       return newTemplate;
     } catch (error) {
@@ -1843,50 +954,14 @@ export class DbStorage implements IStorage {
   
   async getAbTestCampaigns(): Promise<schema.Campaign[]> {
     try {
-      if (!db || !db.select) {
-        console.error('Database not properly initialized for getAbTestCampaigns');
-        throw new Error('Database not properly initialized');
-      }
+      const campaigns = await safeDbOperation(
+        db.select()
+          .from(schema.campaigns)
+          .where(eq(schema.campaigns.isAbTest, true)),
+        []
+      );
       
-      // Try direct SQL first as a more reliable approach
-      try {
-        console.log('Attempting to fetch A/B test campaigns via direct SQL');
-        const result = await pool.query(`
-          SELECT id, name, description, status, subject, 
-                 created_at as "createdAt", sender_email as "senderEmail", 
-                 sender_name as "senderName", metadata, is_ab_test as "isAbTest"
-          FROM campaigns
-          WHERE is_ab_test = true
-          ORDER BY created_at DESC
-        `);
-        
-        if (result && result.rows) {
-          console.log(`Retrieved ${result.rows.length} A/B test campaigns via direct SQL`);
-          return result.rows;
-        }
-      } catch (sqlError) {
-        console.error('Error with direct SQL in getAbTestCampaigns:', sqlError);
-      }
-      
-      // Try ORM with safeDbOperation as fallback
-      try {
-        console.log('Trying ORM approach for A/B test campaigns');
-        const campaigns = await safeDbOperation(
-          db.select()
-            .from(schema.campaigns)
-            .where(eq(schema.campaigns.isAbTest, true)),
-          []
-        );
-        
-        console.log(`Retrieved ${campaigns.length} A/B test campaigns via ORM`);
-        return campaigns;
-      } catch (ormError) {
-        console.error('Error with ORM in getAbTestCampaigns:', ormError);
-      }
-      
-      // If all methods fail, return empty array
-      console.log('All A/B test campaign data sources failed, returning empty array');
-      return [];
+      return campaigns;
     } catch (error) {
       console.error("Error fetching A/B test campaigns:", error);
       return [];

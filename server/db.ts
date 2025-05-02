@@ -36,61 +36,19 @@ function setupDatabaseConnection() {
       }
     });
     
-    // Initialize Drizzle with the full schema including relations
-    try {
-      db = drizzle(pool, { schema });
-      log('PostgreSQL storage initialized with Neon driver', 'db');
-    } catch (drizzleError) {
-      log(`Failed to initialize Drizzle ORM: ${drizzleError.message}`, 'db');
-      // Create a minimal db object that provides basic query functionality
-      db = {
-        query: pool.query.bind(pool),
-        execute: pool.query.bind(pool),
-        select: () => {
-          return {
-            from: () => {
-              return {
-                where: () => Promise.resolve([]),
-                execute: () => Promise.resolve([]),
-                orderBy: () => Promise.resolve([])
-              };
-            }
-          };
-        },
-        insert: () => {
-          return {
-            values: () => {
-              return {
-                returning: () => Promise.resolve([])
-              };
-            }
-          };
-        },
-        delete: () => {
-          return {
-            where: () => {
-              return {
-                returning: () => Promise.resolve([])
-              };
-            }
-          };
-        },
-        update: () => {
-          return {
-            set: () => {
-              return {
-                where: () => {
-                  return {
-                    returning: () => Promise.resolve([])
-                  };
-                }
-              };
-            }
-          };
-        }
-      };
-      log('Created fallback db object with basic query functionality', 'db');
+    // Extract only table schemas from the schema object, excluding relation definitions
+    const tableSchemas: any = {};
+    for (const key in schema) {
+      const item = schema[key as keyof typeof schema];
+      // Check if the item is a table schema (has name property)
+      if (typeof item === 'object' && item !== null && 'name' in item) {
+        tableSchemas[key] = item;
+      }
     }
+    
+    // Initialize Drizzle with only table schemas, bypassing the relation definitions
+    db = drizzle(pool, { schema: tableSchemas });
+    log('PostgreSQL storage initialized with Neon driver', 'db');
     
     // Test connection (async but we'll wait for it)
     return new Promise<boolean>((resolve) => {
@@ -123,7 +81,7 @@ function setupDatabaseConnection() {
 export async function initDatabase(): Promise<boolean> {
   try {
     // Set up database connection
-    let connectionResult = await setupDatabaseConnection();
+    const connectionResult = await setupDatabaseConnection();
     
     // Make multiple connection attempts if the first one fails
     // This helps with temporary connection issues during startup
@@ -134,37 +92,66 @@ export async function initDatabase(): Promise<boolean> {
       await new Promise(resolve => setTimeout(resolve, 2000));
       
       // Second attempt
-      connectionResult = await setupDatabaseConnection();
+      const secondAttempt = await setupDatabaseConnection();
       
-      if (!connectionResult) {
+      if (!secondAttempt) {
         log('Second database connection attempt failed, retrying in 3 seconds...', 'db');
         
         // Wait 3 seconds before final try
         await new Promise(resolve => setTimeout(resolve, 3000));
         
         // Final attempt
-        connectionResult = await setupDatabaseConnection();
+        const finalAttempt = await setupDatabaseConnection();
+        isDatabaseAvailable = finalAttempt;
+      } else {
+        isDatabaseAvailable = true;
       }
+    } else {
+      isDatabaseAvailable = true;
     }
     
-    // Always force database to be available regardless of connection attempts
-    isDatabaseAvailable = true;
-    log('Database availability forced to ensure database operations', 'db');
-    
-    // Database is connected, set up prepared statements for common operations
-    // This can help with performance and reliability
-    log('Setting up prepared database queries for common operations', 'db');
-    
-    // Run a simple database operation to ensure the connection is properly established
-    try {
-      const testResult = await pool.query('SELECT 1 as connection_test');
-      if (testResult && testResult.rows && testResult.rows[0]?.connection_test === 1) {
-        log('Database connection fully verified and ready', 'db');
+    if (!isDatabaseAvailable) {
+      log('All database connection attempts failed, using memory storage fallback', 'db');
+      // Create a dummy db client for fallback
+      db = {
+        select: () => ({ from: () => ({ where: () => [] }) }),
+        insert: () => ({ values: () => ({ returning: () => [] }) }),
+        update: () => ({ set: () => ({ where: () => ({ returning: () => [] }) }) }),
+        delete: () => ({ where: () => ({ returning: () => [] }) }),
+        execute: (sql: any) => Promise.resolve([]),
+        rawQuery: (sql: string, params?: any[]) => Promise.resolve({ rows: [] }),
+        query: { 
+          // Stub for all table queries
+          // For each table in schema, create a query method
+          ...Object.keys(schema).reduce((acc, key) => {
+            // Only add methods for tables
+            if (typeof schema[key as keyof typeof schema] === 'object' && 
+                schema[key as keyof typeof schema] !== null &&
+                'name' in schema[key as keyof typeof schema]) {
+              acc[key] = {
+                findMany: async () => [],
+                findFirst: async () => undefined
+              };
+            }
+            return acc;
+          }, {} as Record<string, any>)
+        }
+      };
+    } else {
+      // Database is connected, set up prepared statements for common operations
+      // This can help with performance and reliability
+      log('Setting up prepared database queries for common operations', 'db');
+      
+      // Run a simple database operation to ensure the connection is properly established
+      try {
+        const testResult = await pool.query('SELECT 1 as connection_test');
+        if (testResult && testResult.rows && testResult.rows[0]?.connection_test === 1) {
+          log('Database connection fully verified and ready', 'db');
+        }
+      } catch (err) {
+        log(`Warning: Database connection test failed: ${err.message}`, 'db');
+        // Continue anyway as the initial connection was successful
       }
-    } catch (err: any) {
-      log(`Warning: Database connection test failed: ${err.message}`, 'db');
-      // Continue anyway as we're forcing the database to be available
-      log('Continuing despite verification issues - database storage will be used', 'db');
     }
     
     return isDatabaseAvailable;
@@ -180,16 +167,17 @@ export async function initDatabase(): Promise<boolean> {
  */
 export async function runMigrations(): Promise<boolean> {
   try {
-    // Force database availability to ensure we use the database
-    isDatabaseAvailable = true;
-    log('Database marked as available for migrations and operations', 'db');
+    if (!isDatabaseAvailable) {
+      log('Cannot run migrations - database connection not available', 'db');
+      return false;
+    }
     
     const migrationsFolder = path.join(process.cwd(), 'migrations');
     
     // Check if migrations folder exists
     if (!fs.existsSync(migrationsFolder)) {
       log('Migrations folder not found', 'db');
-      return true; // Continue without migrations
+      return false;
     }
     
     log(`Running migrations from ${migrationsFolder}`, 'db');

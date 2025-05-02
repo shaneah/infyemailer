@@ -10,89 +10,29 @@ const router = Router();
  * Returns key email performance metrics with comparison to previous period
  */
 router.get('/api/email-performance/metrics', isClientAuthenticated, (req, res) => {
-  // Extract query parameters
-  const timeframe = req.query.timeframe as string || '7days';
-  const campaignId = req.query.campaign as string || 'all';
-  
-  console.log(`Processing metrics request with timeframe=${timeframe}, campaign=${campaignId}`);
-  
-  // Generate different data based on timeframe and campaign
-  let openRateValue = 24.8;
-  let clickRateValue = 3.6;
-  let bounceRateValue = 1.2;
-  let conversionRateValue = 1.2;
-  
-  // Apply timeframe-based variations
-  if (timeframe === 'today') {
-    openRateValue = 22.5;
-    clickRateValue = 3.1;
-    bounceRateValue = 1.1;
-    conversionRateValue = 0.9;
-  } else if (timeframe === 'yesterday') {
-    openRateValue = 23.4;
-    clickRateValue = 3.3;
-    bounceRateValue = 1.0;
-    conversionRateValue = 1.0;
-  } else if (timeframe === '30days') {
-    openRateValue = 25.7;
-    clickRateValue = 3.9;
-    bounceRateValue = 0.9;
-    conversionRateValue = 1.4;
-  } else if (timeframe === '90days') {
-    openRateValue = 26.1;
-    clickRateValue = 4.1;
-    bounceRateValue = 0.8;
-    conversionRateValue = 1.5;
-  }
-  
-  // Apply campaign-based variations if a specific campaign is selected
-  if (campaignId !== 'all') {
-    const campaignIdNum = parseInt(campaignId);
-    // Simple algorithm to generate predictable but different values for each campaign
-    const modifier = (campaignIdNum % 5) * 0.5;
-    openRateValue = Math.min(35, openRateValue + modifier);
-    clickRateValue = Math.min(7, clickRateValue + (modifier / 2));
-    bounceRateValue = Math.max(0.5, bounceRateValue - (modifier / 10));
-    conversionRateValue = Math.min(3, conversionRateValue + (modifier / 4));
-  }
-  
-  // Calculate total sends, opens, and clicks based on the values above
-  const totalSent = Math.floor(10000 + (parseInt(campaignId) !== NaN ? parseInt(campaignId) * 1000 : 0));
-  const totalOpens = Math.floor(totalSent * (openRateValue / 100));
-  const totalClicks = Math.floor(totalSent * (clickRateValue / 100));
-  const unsubscribes = Math.floor(totalSent * 0.0009);
-  
   // In a real implementation, this would pull from the database
-  // For now, we'll generate data that responds to the filters
+  // For now, we'll generate realistic data
   const metrics = {
     openRate: { 
-      value: openRateValue, 
-      industryAvg: 21.5,
-      trend: openRateValue > 21.5 ? 'up' : 'down',
-      trendValue: Math.abs(openRateValue - 21.5).toFixed(1) + '%'
+      value: 24.8, 
+      change: 2.5 
     },
     clickRate: { 
-      value: clickRateValue, 
-      industryAvg: 2.7,
-      trend: clickRateValue > 2.7 ? 'up' : 'down',
-      trendValue: Math.abs(clickRateValue - 2.7).toFixed(1) + '%'
-    },
-    conversionRate: {
-      value: conversionRateValue,
-      goal: 1.5,
-      trend: conversionRateValue >= 1.5 ? 'up' : 'down',
-      trendValue: Math.abs(conversionRateValue - 1.5).toFixed(1) + '%'
+      value: 3.6, 
+      change: 1.2 
     },
     bounceRate: { 
-      value: bounceRateValue, 
-      industryAvg: 1.2,
-      trend: bounceRateValue < 1.2 ? 'up' : 'down',
-      trendValue: Math.abs(bounceRateValue - 1.2).toFixed(1) + '%'
+      value: 1.2, 
+      change: -0.3 
     },
-    totalSent,
-    totalOpens,
-    totalClicks,
-    unsubscribes
+    unsubscribeRate: { 
+      value: 0.2, 
+      change: -0.1 
+    },
+    deliverability: { 
+      value: 98.8, 
+      change: 0.5 
+    }
   };
   
   res.json(metrics);
@@ -103,158 +43,30 @@ router.get('/api/email-performance/metrics', isClientAuthenticated, (req, res) =
  * Returns data for weekly performance and monthly trends charts
  */
 router.get('/api/email-performance/charts', isClientAuthenticated, (req, res) => {
-  // Extract query parameters
-  const timeframe = req.query.timeframe as string || '7days';
-  const campaignId = req.query.campaign as string || 'all';
+  // Generate weekly performance data
+  const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
   
-  console.log(`Processing charts request with timeframe=${timeframe}, campaign=${campaignId}`);
+  const weeklyPerformance = days.map(day => ({
+    day,
+    opens: randomInt(100, 500),
+    clicks: randomInt(20, 150),
+    unsubscribes: randomInt(0, 10)
+  }));
   
-  // Define base data structure
-  const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-  const hours = [...Array(24).keys()].map(h => h.toString().padStart(2, '0'));
+  // Generate monthly trends data
   const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
-  const countries = ['US', 'UK', 'UAE', 'Germany', 'Australia', 'Japan', 'Canada', 'Others'];
-  const emailClients = ['Gmail', 'Apple Mail', 'Outlook', 'Yahoo', 'Other'];
-  const deviceTypes = ['Desktop', 'Mobile', 'Tablet'];
   
-  // Seed for somewhat stable yet varying random values
-  const campaignSeed = parseInt(campaignId) || 0;
-  let timeframeSeed = 1; // Default for 7days
+  const monthlyTrends = months.map(month => ({
+    month,
+    campaigns: randomInt(2, 10),
+    opens: randomInt(500, 5000),
+    engagementScore: randomInt(60, 95)
+  }));
   
-  // Set timeframe seed for consistent random values
-  if (timeframe === 'today') timeframeSeed = 2;
-  else if (timeframe === 'yesterday') timeframeSeed = 3;
-  else if (timeframe === '30days') timeframeSeed = 4;
-  else if (timeframe === '90days') timeframeSeed = 5;
-  
-  // Time series data variations based on timeframe
-  const weekly = days.map((day, index) => {
-    // Generate stable random data that differs by timeframe and campaign
-    const baseSeed = (index + 1) * timeframeSeed * (campaignSeed > 0 ? campaignSeed : 1);
-    const variance = Math.sin(baseSeed) * 0.5 + 0.5; // Value between 0 and 1
-    
-    return {
-      day,
-      opens: Math.floor(100 + variance * 400),
-      clicks: Math.floor(20 + variance * 130),
-      conversions: Math.floor(5 + variance * 25)
-    };
+  res.json({
+    weeklyPerformance,
+    monthlyTrends
   });
-  
-  // Device breakdown varies slightly by campaign and timeframe
-  const deviceBreakdown = [
-    { name: 'Desktop', value: Math.floor(30 + ((campaignSeed + timeframeSeed) % 5) * 5) },
-    { name: 'Mobile', value: Math.floor(40 + ((campaignSeed * timeframeSeed) % 3) * 5) }
-  ];
-  // Calculate tablet to make sure the sum is 100%
-  const tabletValue = 100 - deviceBreakdown[0].value - deviceBreakdown[1].value;
-  deviceBreakdown.push({ name: 'Tablet', value: tabletValue });
-  
-  // Email client distribution
-  const clientDistribution = emailClients.map((client, index) => {
-    const baseFactor = (index + 1) * (campaignSeed || 1) * timeframeSeed;
-    let value = 0;
-    
-    if (client === 'Gmail') value = 35 + (baseFactor % 10);
-    else if (client === 'Apple Mail') value = 25 + (baseFactor % 8);
-    else if (client === 'Outlook') value = 20 + (baseFactor % 6);
-    else if (client === 'Yahoo') value = 10 + (baseFactor % 4);
-    else value = 10 - ((baseFactor % 8) / 2); // Other - ensure it's reasonably small
-    
-    return { name: client, value };
-  });
-  
-  // Subject line performance - different by timeframe
-  const subjectLinePerformance = [
-    { type: 'Question', rate: 26 + (timeframeSeed % 4) },
-    { type: 'Announcement', rate: 24 + (timeframeSeed % 5) },
-    { type: 'How-to', rate: 22 + ((timeframeSeed + 1) % 3) },
-    { type: 'Offer', rate: 28 + ((timeframeSeed + 2) % 4) },
-    { type: 'Urgent', rate: 30 + (timeframeSeed % 6) }
-  ];
-  
-  // Campaign comparison - different by timeframe
-  const campaignComparison = [
-    { name: 'Newsletter', open: 24 + (timeframeSeed % 5), click: 3.2 + (timeframeSeed % 2), conversion: 0.8 + (timeframeSeed % 1) },
-    { name: 'Promotion', open: 28 + ((timeframeSeed + 1) % 6), click: 4.1 + ((timeframeSeed + 1) % 2), conversion: 1.2 + ((timeframeSeed + 1) % 1) },
-    { name: 'Announcement', open: 26 + ((timeframeSeed + 2) % 4), click: 3.6 + ((timeframeSeed + 2) % 2), conversion: 0.9 + ((timeframeSeed + 2) % 1) },
-    { name: 'Onboarding', open: 32 + ((timeframeSeed + 3) % 7), click: 5.2 + ((timeframeSeed + 3) % 3), conversion: 1.5 + ((timeframeSeed + 3) % 1) }
-  ];
-  
-  // Engagement over time
-  const oneWeekData = days.map((day, i) => {
-    const base = (i + 1) * (timeframeSeed + campaignSeed);
-    return {
-      date: day,
-      open: 20 + (base % 15),
-      click: 3 + (base % 4),
-      conversion: 0.8 + ((base % 10) / 10)
-    };
-  });
-  
-  const engagementByTimeOfDay = hours.map(hour => {
-    const hourNum = parseInt(hour);
-    let factor = 1;
-    
-    // Apply a normal distribution for the time of day (peak at 9-10 AM and 7-8 PM)
-    if (hourNum >= 8 && hourNum <= 11) factor = 3; // Morning peak
-    else if (hourNum >= 18 && hourNum <= 21) factor = 2.5; // Evening peak
-    else if (hourNum >= 0 && hourNum <= 5) factor = 0.5; // Low at night
-    
-    return {
-      hour: `${hour}:00`,
-      opens: Math.floor(20 * factor + ((hourNum * timeframeSeed) % 40)) // Base value * factor + some variance
-    };
-  });
-  
-  // Geographic distribution
-  const geoDistribution = countries.map((country, index) => {
-    const baseValue = 5 + (index * 5);
-    return {
-      country,
-      opens: baseValue + ((index + timeframeSeed + campaignSeed) % 15) * 2
-    };
-  });
-  
-  // Build the response object
-  const response = {
-    weeklyPerformance: weekly,
-    deviceBreakdown,
-    emailClientDistribution: clientDistribution,
-    campaignComparison,
-    subjectLinePerformance,
-    engagementOverTime: oneWeekData,
-    engagementByTimeOfDay,
-    geographicalDistribution: geoDistribution,
-    // Additional data that would be included
-    clickDistribution: [
-      { link: 'Main CTA', clicks: 42 + (timeframeSeed % 10) },
-      { link: 'Product Link', clicks: 28 + (timeframeSeed % 8) },
-      { link: 'Learn More', clicks: 18 + (timeframeSeed % 6) },
-      { link: 'Unsubscribe', clicks: 4 + (timeframeSeed % 2) }
-    ],
-    deviceOverTime: months.map((month, i) => ({
-      month,
-      desktop: 40 + ((i + timeframeSeed) % 10),
-      mobile: 45 + ((i + timeframeSeed + 1) % 12),
-      tablet: 15 + ((i + timeframeSeed + 2) % 8)
-    })),
-    sendTimeEffectiveness: days.map(day => ({
-      day,
-      morning: 28 + ((days.indexOf(day) + timeframeSeed) % 8),
-      afternoon: 24 + ((days.indexOf(day) + timeframeSeed + 1) % 7),
-      evening: 30 + ((days.indexOf(day) + timeframeSeed + 2) % 9)
-    })),
-    subscriberEngagementSegments: [
-      { segment: 'Highly Engaged', value: 15 + (timeframeSeed % 5), count: 1200 + (timeframeSeed * 100) },
-      { segment: 'Active', value: 35 + (timeframeSeed % 7), count: 3200 + (timeframeSeed * 200) },
-      { segment: 'Occasional', value: 30 + (timeframeSeed % 6), count: 2800 + (timeframeSeed * 150) },
-      { segment: 'At Risk', value: 12 + (timeframeSeed % 4), count: 950 + (timeframeSeed * 50) },
-      { segment: 'Inactive', value: 8 + (timeframeSeed % 3), count: 650 + (timeframeSeed * 40) }
-    ]
-  };
-  
-  res.json(response);
 });
 
 /**

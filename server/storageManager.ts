@@ -12,43 +12,56 @@ const dbStorage = new DbStorage();
 
 /**
  * Returns the appropriate storage instance based on database availability
- * We prefer database storage but fall back to memory storage if necessary
- * This fallback is needed for the application to start properly
  */
 export function getStorage(): IStorage {
-  // Always force database storage to ensure persistence
-  log('Using PostgreSQL database storage', 'storage');
-  return dbStorage;
+  if (isDatabaseAvailable) {
+    log('Using PostgreSQL database storage', 'storage');
+    return dbStorage;
+  } else {
+    log('Using in-memory storage (database unavailable)', 'storage');
+    return memStorage;
+  }
 }
 
 /**
  * Helper function to switch storage at runtime
- * This ensures consistent database usage throughout the application
+ * This allows modules that have already imported storage to get the updated instance
  */
 export async function updateStorageReferences(): Promise<void> {
   try {
     // Use the imported storage object directly and modify its properties
     const storageModule = await import('./storage.js');
     
-    // Always use database storage for persistence
-    // We can't reassign the exported const, but we can copy all properties
-    // from dbStorage to the existing storage object
-    Object.assign(storageModule.storage, dbStorage);
-    log('Storage references updated to use database storage', 'storage');
-    
-    // Verify database connection by performing a simple operation
-    try {
-      // Try to access clients to verify DB is working properly
-      const clients = await dbStorage.getClients();
-      log(`Database connection confirmed - found ${clients ? clients.length : 0} clients`, 'storage');
-    } catch (dbError) {
-      log(`Warning: Database verification test failed: ${dbError.message}`, 'storage');
-      // Warn but continue - allow app to start with potential issues
-      log('Continuing with database storage despite verification issues', 'storage');
+    if (isDatabaseAvailable) {
+      // We can't reassign the exported const, but we can copy all properties
+      // from dbStorage to the existing storage object
+      Object.assign(storageModule.storage, dbStorage);
+      log('Storage references updated to use database storage', 'storage');
+      
+      // Verify database connection by performing a simple operation
+      try {
+        // Try to access clients to verify DB is working properly
+        const clients = await dbStorage.getClients();
+        log(`Database connection confirmed - found ${clients.length} clients`, 'storage');
+      } catch (dbError) {
+        log(`Warning: Database verification test failed: ${dbError.message}`, 'storage');
+        // Continue anyway as we'll try to use the database
+      }
+    } else {
+      Object.assign(storageModule.storage, memStorage);
+      log('Storage references updated to use memory storage', 'storage');
+      
+      // Initialize memory storage with default data if needed
+      try {
+        await memStorage.initializeWithSampleData();
+        log('Memory storage initialized with sample data', 'storage');
+      } catch (sampleError) {
+        log(`Warning: Failed to initialize memory storage with sample data: ${sampleError.message}`, 'storage');
+      }
     }
     
     return Promise.resolve();
-  } catch (error: any) {
+  } catch (error) {
     log(`Error updating storage references: ${error.message}`, 'storage');
     return Promise.reject(error);
   }

@@ -136,38 +136,6 @@ router.patch("/users/:id", async (req, res) => {
   }
 });
 
-// Update user status (activate/deactivate)
-router.patch("/users/:id/status", async (req, res) => {
-  try {
-    const userId = parseInt(req.params.id);
-    if (isNaN(userId)) {
-      return res.status(400).json({ error: "Invalid user ID" });
-    }
-
-    // Validate status value
-    const { status } = req.body;
-    if (status !== 'active' && status !== 'inactive') {
-      return res.status(400).json({ error: "Status must be 'active' or 'inactive'" });
-    }
-
-    const user = await storage.getUser(userId);
-    if (!user) {
-      return res.status(404).json({ error: "User not found" });
-    }
-
-    // Update user status
-    const updatedUser = await storage.updateUser(userId, { status });
-    
-    // Remove password from response
-    const { password, ...sanitizedUser } = updatedUser || {};
-
-    res.json(sanitizedUser);
-  } catch (error) {
-    console.error("Error updating user status:", error);
-    res.status(500).json({ error: "Failed to update user status" });
-  }
-});
-
 // Delete a user
 router.delete("/users/:id", async (req, res) => {
   try {

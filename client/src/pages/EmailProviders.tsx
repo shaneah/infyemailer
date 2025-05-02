@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from "@/lib/queryClient";
-import { safeJsonParse } from "@/lib/safeJsonParse";
 import { Check, X, Edit, Trash, AlertTriangle, Loader2, Plus, Send, Key, Info, CheckCircle, Settings, Save } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -69,8 +68,7 @@ function EmailProviders() {
   // Query to fetch default email settings
   const {
     data: fetchedDefaultSettings,
-    isLoading: isLoadingDefaultSettings,
-    error: defaultSettingsError
+    isLoading: isLoadingDefaultSettings
   } = useQuery<{
     fromEmail: string;
     fromName: string;
@@ -79,18 +77,8 @@ function EmailProviders() {
   }>({
     queryKey: ['/api/email-settings/default'],
     queryFn: async () => {
-      try {
-        const response = await apiRequest('GET', '/api/email-settings/default');
-        return await safeJsonParse<{
-          fromEmail: string;
-          fromName: string;
-          replyTo: string;
-          signature: string;
-        }>(response, 'default settings');
-      } catch (error) {
-        console.error('Error fetching default settings:', error);
-        throw error;
-      }
+      const response = await apiRequest('GET', '/api/email-settings/default');
+      return response.json();
     }
   });
   
@@ -122,13 +110,8 @@ function EmailProviders() {
   } = useQuery<EmailProvider[]>({
     queryKey: ['/api/email-providers'],
     queryFn: async () => {
-      try {
-        const response = await apiRequest('GET', '/api/email-providers');
-        return await safeJsonParse<EmailProvider[]>(response, 'email providers');
-      } catch (error) {
-        console.error('Error fetching email providers:', error);
-        throw error;
-      }
+      const response = await apiRequest('GET', '/api/email-providers');
+      return response.json();
     }
   });
 
@@ -139,13 +122,8 @@ function EmailProviders() {
   } = useQuery<AvailableProvider[]>({
     queryKey: ['/api/email-providers/available'],
     queryFn: async () => {
-      try {
-        const response = await apiRequest('GET', '/api/email-providers/available');
-        return await safeJsonParse<AvailableProvider[]>(response, 'available providers');
-      } catch (error) {
-        console.error('Error fetching available providers:', error);
-        throw error;
-      }
+      const response = await apiRequest('GET', '/api/email-providers/available');
+      return response.json();
     }
   });
   
@@ -157,14 +135,8 @@ function EmailProviders() {
     queryKey: ['/api/email-providers/requirements', newProviderType],
     queryFn: async () => {
       if (!newProviderType) return [];
-      
-      try {
-        const response = await apiRequest('GET', `/api/email-providers/requirements/${newProviderType}`);
-        return await safeJsonParse<AuthRequirement[]>(response, 'auth requirements'); 
-      } catch (error) {
-        console.error('Error fetching auth requirements:', error);
-        throw error;
-      }
+      const response = await apiRequest('GET', `/api/email-providers/requirements/${newProviderType}`);
+      return response.json();
     },
     enabled: !!newProviderType
   });
@@ -173,7 +145,7 @@ function EmailProviders() {
   const createProviderMutation = useMutation({
     mutationFn: async (providerData: any) => {
       const response = await apiRequest('POST', '/api/email-providers', providerData);
-      return await safeJsonParse<EmailProvider>(response, 'create provider');
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/email-providers'] });
@@ -197,7 +169,7 @@ function EmailProviders() {
   const updateProviderMutation = useMutation({
     mutationFn: async ({ id, data }: { id: number, data: any }) => {
       const response = await apiRequest('PATCH', `/api/email-providers/${id}`, data);
-      return await safeJsonParse<EmailProvider>(response, 'update provider');
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/email-providers'] });
@@ -244,12 +216,35 @@ function EmailProviders() {
     mutationFn: async ({ id, data }: { id: number, data: any }) => {
       try {
         const response = await apiRequest('POST', `/api/email-providers/${id}/test-email`, data);
-        return await safeJsonParse<{ success: boolean; message?: string }>(response, 'test email');
+        
+        // If the response is not OK, try to get error details
+        if (!response.ok) {
+          // Clone the response before reading it to avoid the "body already read" error
+          const clonedResponse = response.clone();
+          
+          try {
+            const errorData = await clonedResponse.json();
+            if (errorData && errorData.error) {
+              throw new Error(errorData.error);
+            }
+          } catch (parseError) {
+            console.error('Error parsing error response:', parseError);
+            // If we can't parse the response as JSON, use the status text
+            throw new Error(`HTTP error ${response.status}: ${response.statusText}`);
+          }
+          
+          // Fallback error message
+          throw new Error(`Failed to send email (Status: ${response.status})`);
+        }
+        
+        // Clone the response before reading it to avoid the "body already read" error
+        const clonedResponse = response.clone();
+        return clonedResponse.json();
       } catch (error: any) {
         // Better handle network and other errors
         console.error('Test email error:', error);
         
-        // Extract meaningful messages from errors based on the error message
+        // Extract meaningful messages from errors
         if (error.message.includes('ETIMEDOUT')) {
           throw new Error('Connection to SMTP server timed out. Please check your server address and port.');
         } else if (error.message.includes('ECONNREFUSED')) {
@@ -302,18 +297,33 @@ function EmailProviders() {
         const response = await apiRequest('POST', `/api/email-providers/${id}/check-configuration`);
         console.log('Check configuration API response:', response);
         
-        return await safeJsonParse<{
-          success: boolean;
-          apiConnected?: boolean;
-          senderIdentitiesVerified?: boolean;
-          errors?: string[];
-          warnings?: string[];
-          troubleshootingTips?: string[];
-          details?: {
-            verifiedSenders?: string[];
-            [key: string]: any;
-          };
-        }>(response, 'check configuration');
+        if (!response.ok) {
+          // Clone the response before reading it to avoid the "body already read" error
+          const clonedResponse = response.clone();
+          
+          try {
+            const errorText = await clonedResponse.text();
+            console.error('Check configuration error response:', errorText);
+            
+            let errorData;
+            try {
+              errorData = JSON.parse(errorText);
+            } catch (e) {
+              throw new Error(`API error: ${response.status} - ${errorText.substring(0, 100)}`);
+            }
+            
+            throw new Error(errorData.error || errorData.details || `API error: ${response.status}`);
+          } catch (parseError) {
+            console.error('Error parsing error response:', parseError);
+            throw new Error(`Configuration check failed (Status: ${response.status})`);
+          }
+        }
+        
+        // Clone the response before reading it to avoid the "body already read" error
+        const clonedResponse = response.clone();
+        const data = await clonedResponse.json();
+        console.log('Configuration check result data:', data);
+        return data;
       } catch (error) {
         console.error('Error in configuration check:', error);
         throw error;
@@ -446,7 +456,7 @@ function EmailProviders() {
   const saveDefaultSettingsMutation = useMutation({
     mutationFn: async (settings: any) => {
       const response = await apiRequest('POST', '/api/email-settings/default', settings);
-      return await safeJsonParse<any>(response, 'default settings');
+      return response.json();
     },
     onSuccess: () => {
       // Invalidate the query to refresh data
@@ -486,8 +496,6 @@ function EmailProviders() {
   }
 
   if (providersError) {
-    console.error("Provider error details:", providersError);
-    
     return (
       <div className="flex flex-col items-center justify-center h-96 gap-4">
         <AlertTriangle className="h-12 w-12 text-red-500" />
@@ -495,12 +503,6 @@ function EmailProviders() {
         <p className="text-muted-foreground">
           An error occurred while loading the email providers.
         </p>
-        <div className="bg-red-50 text-red-800 p-4 rounded-md max-w-lg mb-2 text-sm">
-          <p className="font-medium">Error details:</p>
-          <p>{providersError instanceof Error 
-            ? providersError.message 
-            : "Unknown error. Please check the server logs."}</p>
-        </div>
         <Button onClick={() => queryClient.invalidateQueries({ queryKey: ['/api/email-providers'] })}>
           Try Again
         </Button>
@@ -970,7 +972,7 @@ function EmailProviders() {
 
       {/* Edit Provider Dialog */}
       <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-        <DialogContent className="w-[95vw] max-w-[95vw] h-auto max-h-[90vh] overflow-y-auto sm:max-w-[600px] md:max-w-[700px]">
+        <DialogContent className="sm:max-w-[500px]">
           <DialogHeader className="pb-2 border-b border-[#d4af37]/30">
             <DialogTitle className="text-[#1a3a5f] font-semibold">Edit Email Provider</DialogTitle>
             <DialogDescription>
@@ -1259,18 +1261,18 @@ function EmailProviders() {
               </div>
             </div>
           )}
-          <DialogFooter className="flex flex-col sm:flex-row gap-2 sm:gap-4">
+          <DialogFooter>
             <Button 
               variant="outline" 
               onClick={() => setIsEditOpen(false)}
-              className="border-[#1a3a5f]/30 text-[#1a3a5f] hover:bg-[#1a3a5f]/5 w-full sm:w-auto"
+              className="border-[#1a3a5f]/30 text-[#1a3a5f] hover:bg-[#1a3a5f]/5"
             >
               Cancel
             </Button>
             <Button
               onClick={handleUpdateProvider}
               disabled={!selectedProvider || updateProviderMutation.isPending}
-              className="bg-gradient-to-r from-[#1a3a5f] to-[#1a3a5f]/90 text-white hover:from-[#1a3a5f]/95 hover:to-[#1a3a5f]/85 w-full sm:w-auto"
+              className="bg-gradient-to-r from-[#1a3a5f] to-[#1a3a5f]/90 text-white hover:from-[#1a3a5f]/95 hover:to-[#1a3a5f]/85"
             >
               {updateProviderMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Save Changes
@@ -1281,18 +1283,18 @@ function EmailProviders() {
 
       {/* Delete Provider Dialog */}
       <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
-        <DialogContent className="w-[95vw] max-w-[95vw] sm:max-w-[450px]">
+        <DialogContent className="sm:max-w-[400px]">
           <DialogHeader>
             <DialogTitle>Delete Email Provider</DialogTitle>
             <DialogDescription>
               Are you sure you want to delete this email provider? This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter className="flex flex-col sm:flex-row gap-2 sm:gap-4">
+          <DialogFooter>
             <Button 
               variant="outline" 
               onClick={() => setIsDeleteOpen(false)}
-              className="border-[#1a3a5f]/30 text-[#1a3a5f] hover:bg-[#1a3a5f]/5 w-full sm:w-auto"
+              className="border-[#1a3a5f]/30 text-[#1a3a5f] hover:bg-[#1a3a5f]/5"
             >
               Cancel
             </Button>
@@ -1300,7 +1302,7 @@ function EmailProviders() {
               variant="destructive"
               onClick={handleDeleteProvider}
               disabled={deleteProviderMutation.isPending}
-              className="bg-red-600 hover:bg-red-700 text-white w-full sm:w-auto"
+              className="bg-red-600 hover:bg-red-700 text-white"
             >
               {deleteProviderMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Delete Provider
@@ -1311,7 +1313,7 @@ function EmailProviders() {
       
       {/* Test Email Dialog */}
       <Dialog open={isTestOpen} onOpenChange={setIsTestOpen}>
-        <DialogContent className="w-[95vw] max-w-[95vw] sm:max-w-[600px]">
+        <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
             <DialogTitle>Send Test Email</DialogTitle>
             <DialogDescription>
@@ -1356,18 +1358,13 @@ function EmailProviders() {
               />
             </div>
           </div>
-          <DialogFooter className="flex flex-col sm:flex-row gap-2 sm:gap-4">
-            <Button 
-              variant="outline" 
-              onClick={() => setIsTestOpen(false)}
-              className="w-full sm:w-auto"
-            >
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsTestOpen(false)}>
               Cancel
             </Button>
             <Button
               onClick={handleSendTestEmail}
               disabled={!testEmail.from || !testEmail.to || sendTestEmailMutation.isPending}
-              className="w-full sm:w-auto"
             >
               {sendTestEmailMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Send Test Email
@@ -1378,7 +1375,7 @@ function EmailProviders() {
       
       {/* Check Configuration Dialog */}
       <Dialog open={isCheckConfigOpen} onOpenChange={setIsCheckConfigOpen}>
-        <DialogContent className="w-[95vw] max-w-[95vw] sm:max-w-[600px]">
+        <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
             <DialogTitle>Check Provider Configuration</DialogTitle>
             <DialogDescription>
@@ -1520,20 +1517,15 @@ function EmailProviders() {
             </div>
           )}
           
-          <DialogFooter className="flex flex-col sm:flex-row gap-2 sm:gap-4">
+          <DialogFooter>
             {!configCheckResult && !checkConfigurationMutation.isPending ? (
               <>
-                <Button 
-                  variant="outline" 
-                  onClick={() => setIsCheckConfigOpen(false)}
-                  className="w-full sm:w-auto"
-                >
+                <Button variant="outline" onClick={() => setIsCheckConfigOpen(false)}>
                   Cancel
                 </Button>
                 <Button
                   onClick={handleCheckConfiguration}
                   disabled={checkConfigurationMutation.isPending}
-                  className="w-full sm:w-auto"
                 >
                   {checkConfigurationMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   Check Configuration
@@ -1547,7 +1539,6 @@ function EmailProviders() {
                     setIsCheckConfigOpen(false);
                   }
                 }}
-                className="w-full sm:w-auto"
               >
                 Close
               </Button>

@@ -156,11 +156,7 @@ export default function Templates() {
   
   const handleCopyHtmlCode = () => {
     if (selectedTemplate?.content) {
-      const contentText = typeof selectedTemplate.content === 'string' 
-        ? selectedTemplate.content 
-        : JSON.stringify(selectedTemplate.content, null, 2);
-        
-      navigator.clipboard.writeText(contentText);
+      navigator.clipboard.writeText(selectedTemplate.content);
       toast({
         title: "Copied",
         description: "HTML code copied to clipboard",
@@ -765,7 +761,7 @@ export default function Templates() {
                       <div className="md:col-span-2 flex justify-center md:justify-start">
                         <div className="relative w-20 h-20 overflow-hidden rounded-md border border-gray-100 shadow-sm bg-white">
                           <iframe 
-                            srcDoc={typeof template.content === 'string' ? template.content : JSON.stringify(template.content)}
+                            srcDoc={template.content}
                             className="absolute inset-0 w-full h-full transform scale-[0.25] origin-top-left"
                             title={`Thumbnail of ${template.name}`}
                             loading="lazy"
@@ -879,8 +875,7 @@ export default function Templates() {
                             <DropdownMenuItem
                               onClick={(e) => {
                                 e.stopPropagation();
-                                const contentText = typeof template.content === 'string' ? template.content : JSON.stringify(template.content);
-                                window.navigator.clipboard.writeText(contentText);
+                                window.navigator.clipboard.writeText(template.content);
                                 toast({
                                   title: "HTML code copied",
                                   description: "The template HTML has been copied to your clipboard.",
@@ -973,7 +968,7 @@ export default function Templates() {
                       </div>
                       <div className="border border-t-0 border-gray-200 rounded-b-md">
                         <pre className="p-4 text-xs bg-zinc-950 text-zinc-100 overflow-auto max-h-[350px] rounded-b-md">
-                          <code>{typeof selectedTemplate.content === 'string' ? selectedTemplate.content : JSON.stringify(selectedTemplate.content, null, 2) || 'No template content available.'}</code>
+                          <code>{selectedTemplate.content || 'No template content available.'}</code>
                         </pre>
                       </div>
                     </div>

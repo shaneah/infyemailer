@@ -22,22 +22,7 @@ interface InteractiveTemplatePreviewProps {
 }
 
 // Function to parse template content that could be HTML or JSON
-const parseTemplateContent = (content: any): string => {
-  // If content is not a string, try to stringify it first
-  if (typeof content !== 'string') {
-    try {
-      // If it's an object, stringify it
-      if (typeof content === 'object' && content !== null) {
-        return JSON.stringify(content);
-      }
-      // Convert to string for any other type
-      return String(content || '');
-    } catch (e) {
-      console.error('Error converting content to string:', e);
-      return '';
-    }
-  }
-  
+const parseTemplateContent = (content: string): string => {
   try {
     // Try to parse as JSON first
     const templateData = JSON.parse(content);
@@ -71,17 +56,7 @@ const parseTemplateContent = (content: any): string => {
 };
 
 // Function to personalize content with placeholders
-const personalizeContent = (content: any, data: Record<string, any> = {}): string => {
-  // Ensure content is a string
-  if (typeof content !== 'string') {
-    try {
-      content = String(content || '');
-    } catch (e) {
-      console.error('Error converting content to string for personalization:', e);
-      return '';
-    }
-  }
-  
+const personalizeContent = (content: string, data: Record<string, any> = {}): string => {
   let personalizedContent = content;
   
   // Replace all {{placeholder}} with actual data

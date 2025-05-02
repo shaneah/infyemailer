@@ -34,54 +34,50 @@ export default function ImportTemplateModal({ open, onOpenChange, onImportSucces
     mutationFn: async (data: { name: string; content: string }) => {
       console.log("Importing HTML template...", data.name);
       try {
-        // Create the email content structure (this needs to be a string in the database)
-        const emailContentStructure = {
-          name: data.name,
-          subject: `${data.name}`,
-          previewText: `${data.name} - Imported HTML Template`,
-          sections: [
-            {
-              id: `section-${Date.now()}`,
-              elements: [
-                {
-                  id: `element-${Date.now()}`,
-                  type: "text",
-                  content: { 
-                    text: "This template was imported from HTML. You can now edit it using the drag-and-drop editor." 
-                  },
-                  styles: { 
-                    fontSize: "16px", 
-                    color: "#666666", 
-                    textAlign: "left" 
-                  }
-                },
-                {
-                  id: `element-${Date.now() + 1}`,
-                  type: "html",
-                  content: { 
-                    html: data.content 
-                  },
-                  styles: {}
-                }
-              ],
-              styles: {
-                backgroundColor: "#ffffff",
-                padding: "12px"
-              }
-            }
-          ],
-          styles: {
-            fontFamily: "Arial, sans-serif",
-            backgroundColor: "#f4f4f4",
-            maxWidth: "600px"
-          }
-        };
-
         // Create a template object with responsive email structure
         const templateData = {
           name: data.name,
-          // Make sure this is properly stringified content
-          content: JSON.stringify(emailContentStructure),
+          content: JSON.stringify({
+            name: data.name,
+            subject: `${data.name}`,
+            previewText: `${data.name} - Imported HTML Template`,
+            sections: [
+              {
+                id: `section-${Date.now()}`,
+                elements: [
+                  {
+                    id: `element-${Date.now()}`,
+                    type: "text",
+                    content: { 
+                      text: "This template was imported from HTML. You can now edit it using the drag-and-drop editor." 
+                    },
+                    styles: { 
+                      fontSize: "16px", 
+                      color: "#666666", 
+                      textAlign: "left" 
+                    }
+                  },
+                  {
+                    id: `element-${Date.now() + 1}`,
+                    type: "html",
+                    content: { 
+                      html: data.content 
+                    },
+                    styles: {}
+                  }
+                ],
+                styles: {
+                  backgroundColor: "#ffffff",
+                  padding: "12px"
+                }
+              }
+            ],
+            styles: {
+              fontFamily: "Arial, sans-serif",
+              backgroundColor: "#f4f4f4",
+              maxWidth: "600px"
+            }
+          }),
           description: `Imported HTML template: ${data.name}`,
           category: "imported",
           subject: `${data.name} Subject`,
@@ -89,27 +85,13 @@ export default function ImportTemplateModal({ open, onOpenChange, onImportSucces
             importedFromHtml: true,
             new: true,
             importMethod: htmlFile ? 'file' : 'paste',
-            originalFileName: htmlFile?.name
-            // Don't include originalHtml in metadata as it can be too large and cause issues
+            originalFileName: htmlFile?.name,
+            originalHtml: data.content
           }
         };
 
         console.log("Sending template data...");
-        // Use regular fetch instead of apiRequest for better error handling with HTML content
-        const response = await fetch("/api/templates", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify(templateData),
-          credentials: "include"
-        });
-        
-        if (!response.ok) {
-          const errorText = await response.text();
-          throw new Error(`Failed to import template: ${errorText}`);
-        }
-        
+        const response = await apiRequest("POST", "/api/templates", templateData);
         return await response.json();
       } catch (error) {
         console.error("Error in mutation function:", error);
@@ -142,120 +124,24 @@ export default function ImportTemplateModal({ open, onOpenChange, onImportSucces
   // Import ZIP template mutation
   const importZipMutation = useMutation({
     mutationFn: async (data: { name: string; file: File }) => {
-      console.log("Preparing ZIP upload for template:", data.name);
+      const formData = new FormData();
+      formData.append("name", data.name);
+      formData.append("file", data.file);
       
-      try {
-        // Create a multipart form-data object
-        const formData = new FormData();
-        formData.append("name", data.name);
-        
-        // Try multiple field names to work around potential server-side issues
-        formData.append("file", data.file);
-        formData.append("zipFile", data.file);
-        formData.append("template", data.file);
-        
-        console.log("File information:", {
-          name: data.file.name,
-          type: data.file.type,
-          size: data.file.size
-        });
-        
-        // Make sure the Content-Type is not set manually - let browser handle it
-        console.log("Sending ZIP import request with form data");
-        const response = await fetch("/api/templates/import-zip", {
-          method: "POST",
-          body: formData,
-          credentials: "include"
-        });
-        
-        console.log("Response status:", response.status, response.statusText);
-        
-        if (!response.ok) {
-          // Try to get detailed error information
-          let errorMessage = `Server returned ${response.status}: ${response.statusText}`;
-          
-          try {
-            const contentType = response.headers.get("content-type");
-            if (contentType && contentType.includes("application/json")) {
-              const errorData = await response.json();
-              if (errorData && errorData.error) {
-                errorMessage = errorData.error;
-              }
-            } else {
-              // If not JSON, try to get text
-              const errorText = await response.text();
-              if (errorText) {
-                errorMessage = `Server error: ${errorText.substring(0, 100)}${errorText.length > 100 ? '...' : ''}`;
-              }
-            }
-          } catch (parseError) {
-            console.error("Error parsing error response:", parseError);
-          }
-          
-          // Try an alternative approach if the first attempt failed
-          if (response.status === 400 && errorMessage.includes("No file")) {
-            console.log("First approach failed, trying alternative method");
-            
-            // Try a different approach with XMLHttpRequest for better file upload compatibility
-            return new Promise((resolve, reject) => {
-              const xhr = new XMLHttpRequest();
-              const altFormData = new FormData();
-              
-              altFormData.append("name", data.name);
-              altFormData.append("file", data.file);
-              
-              xhr.open("POST", "/api/templates/import-zip", true);
-              xhr.withCredentials = true;
-              
-              xhr.onload = function() {
-                if (xhr.status >= 200 && xhr.status < 300) {
-                  try {
-                    const result = JSON.parse(xhr.responseText);
-                    console.log("Template import successful with XHR:", result);
-                    resolve(result);
-                  } catch (jsonError) {
-                    console.error("Error parsing XHR success response:", jsonError);
-                    reject(new Error("Invalid response from server: not valid JSON"));
-                  }
-                } else {
-                  console.error("XHR request failed with status:", xhr.status);
-                  reject(new Error(`XHR request failed: ${xhr.status} ${xhr.statusText}`));
-                }
-              };
-              
-              xhr.onerror = function() {
-                console.error("XHR network error");
-                reject(new Error("Network error during file upload"));
-              };
-              
-              xhr.upload.onprogress = function(e) {
-                if (e.lengthComputable) {
-                  const percentComplete = Math.round((e.loaded / e.total) * 100);
-                  console.log(`Upload progress: ${percentComplete}%`);
-                }
-              };
-              
-              xhr.send(altFormData);
-            });
-          }
-          
-          // Throw a detailed error if both approaches failed
-          throw new Error(`Failed to import template: ${errorMessage}`);
-        }
-        
-        // Parse successful response
-        try {
-          const result = await response.json();
-          console.log("Template import successful:", result);
-          return result;
-        } catch (jsonError) {
-          console.error("Error parsing success response:", jsonError);
-          throw new Error("Invalid response from server: not valid JSON");
-        }
-      } catch (error) {
-        console.error("ZIP import error:", error);
-        throw error;
+      // Use regular fetch for file uploads instead of apiRequest
+      // This avoids issues with Content-Type and JSON stringification
+      const response = await fetch("/api/templates/import-zip", {
+        method: "POST",
+        body: formData,
+        credentials: "include"
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `Server returned ${response.status}: ${response.statusText}`);
       }
+      
+      return await response.json();
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['/api/templates'] });

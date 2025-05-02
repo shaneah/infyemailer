@@ -6,7 +6,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import * as XLSX from 'xlsx';
-import CreateListModal from "@/modals/CreateListModal";
 
 // UI Components
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -284,6 +283,8 @@ export default function Contacts() {
   const [bulkDeleteDialogOpen, setBulkDeleteDialogOpen] = useState(false);
   const [selectedContacts, setSelectedContacts] = useState<number[]>([]);
   const [selectAll, setSelectAll] = useState(false);
+  const [newListName, setNewListName] = useState('');
+  const [newListDescription, setNewListDescription] = useState('');
   const [importText, setImportText] = useState('');
   const [importFormat, setImportFormat] = useState('txt');
   const [exportFormat, setExportFormat] = useState('txt');
@@ -426,24 +427,9 @@ export default function Contacts() {
   // Export contacts mutation
   const exportContactsMutation = useMutation({
     mutationFn: async (format: string) => {
-      const response = await apiRequest("GET", `/api/contacts/export?format=${format}`);
-      // Parse the JSON response
-      return response.json();
+      return apiRequest("GET", `/api/contacts/export?format=${format}`);
     },
     onSuccess: (data: any) => {
-      console.log("Export data received:", data);
-      
-      // Check if data.content is empty
-      if (!data.content || data.count === 0) {
-        toast({
-          title: "Export notice",
-          description: "No contacts available to export.",
-          variant: "default",
-        });
-        setExportDialogOpen(false);
-        return;
-      }
-      
       // Create and download file
       const blob = new Blob([data.content], { type: getContentType(exportFormat) });
       const url = window.URL.createObjectURL(blob);
@@ -462,7 +448,6 @@ export default function Contacts() {
       });
     },
     onError: (error: any) => {
-      console.error("Export error:", error);
       toast({
         title: "Export failed",
         description: `Failed to export contacts: ${error.message}`,
@@ -532,7 +517,29 @@ export default function Contacts() {
     }
   });
   
-  // List management
+  // Create list mutation
+  const createListMutation = useMutation({
+    mutationFn: (values: { name: string; description?: string }) => {
+      return apiRequest("POST", "/api/lists", values);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/lists'] });
+      toast({
+        title: "List created",
+        description: "The contact list has been created successfully.",
+      });
+      setListDialogOpen(false);
+      setNewListName('');
+      setNewListDescription('');
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: `Failed to create list: ${error.message}`,
+        variant: "destructive",
+      });
+    },
+  });
   
   // Delete list mutation
   const [deleteListDialogOpen, setDeleteListDialogOpen] = useState(false);
@@ -1468,28 +1475,73 @@ export default function Contacts() {
               <h5 className="text-lg font-semibold text-gray-800">Contact Lists</h5>
               <p className="text-sm text-muted-foreground">Organize your contacts into targeted groups</p>
             </div>
-            <Button 
-              size="sm" 
-              className="flex items-center gap-2 bg-primary hover:bg-primary/90" 
-              onClick={() => setListDialogOpen(true)}
-            >
-              <Plus size={16} />
-              New List
-            </Button>
-            
-            {/* Use our enhanced CreateListModal component */}
-            <CreateListModal 
-              isOpen={listDialogOpen} 
-              onClose={() => setListDialogOpen(false)}
-              onSuccess={(newList) => {
-                // Invalidate queries to refresh the lists
-                queryClient.invalidateQueries({ queryKey: ['/api/lists'] });
-                toast({
-                  title: "Success",
-                  description: `List "${newList.name}" has been created`,
-                });
-              }}
-            />
+            <Dialog open={listDialogOpen} onOpenChange={setListDialogOpen}>
+              <DialogTrigger asChild>
+                <Button size="sm" className="flex items-center gap-2 bg-primary hover:bg-primary/90" onClick={() => setListDialogOpen(true)}>
+                  <Plus size={16} />
+                  New List
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                  <DialogTitle>Create New List</DialogTitle>
+                  <DialogDescription>
+                    Create a new list to organize your contacts.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="name">List Name</Label>
+                    <Input 
+                      id="name" 
+                      placeholder="My Awesome List" 
+                      value={newListName}
+                      onChange={(e) => setNewListName(e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="description">Description (Optional)</Label>
+                    <Textarea 
+                      id="description" 
+                      placeholder="A brief description of this list..."
+                      className="min-h-[80px]"
+                      value={newListDescription}
+                      onChange={(e) => setNewListDescription(e.target.value)}
+                    />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setListDialogOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button 
+                    type="button" 
+                    onClick={() => {
+                      if (!newListName.trim()) {
+                        toast({
+                          title: "Error",
+                          description: "List name is required",
+                          variant: "destructive",
+                        });
+                        return;
+                      }
+                      createListMutation.mutate({
+                        name: newListName.trim(),
+                        description: newListDescription.trim() || undefined
+                      });
+                    }}
+                    disabled={createListMutation.isPending}
+                  >
+                    {createListMutation.isPending ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Creating...
+                      </>
+                    ) : "Create List"}
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           </div>
         </CardHeader>
         <CardContent>

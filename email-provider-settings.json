@@ -12,5 +12,16 @@
     "isDefault": true,
     "createdAt": "2025-04-13T01:00:09.309Z",
     "updatedAt": "2025-04-13T01:00:13.988Z"
+  },
+  {
+    "id": 3,
+    "name": "SendClean",
+    "provider": "sendclean",
+    "config": {
+      "apiKey": "test"
+    },
+    "isDefault": false,
+    "createdAt": "2025-04-14T21:04:13.563Z",
+    "updatedAt": "2025-04-14T21:04:13.563Z"
   }
 ]

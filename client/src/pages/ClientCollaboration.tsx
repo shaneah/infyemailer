@@ -37,8 +37,6 @@ import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 
 // Type definitions
@@ -534,15 +532,7 @@ const MessageBubble: React.FC<{ message: Message; isAdmin: boolean }> = ({ messa
   const isSentByAdmin = message.senderType === 'admin';
   
   return (
-    <div 
-      className={`flex ${isSentByAdmin ? 'justify-end' : 'justify-start'} mb-4 ${!message.isRead && !isSentByAdmin ? 'cursor-pointer' : ''}`}
-      onClick={() => {
-        // If message is from client and unread, mark as read
-        if (!isSentByAdmin && !message.isRead) {
-          handleMarkMessageAsRead(message.id);
-        }
-      }}
-    >
+    <div className={`flex ${isSentByAdmin ? 'justify-end' : 'justify-start'} mb-4`}>
       {!isSentByAdmin && (
         <Avatar className="h-8 w-8 mr-2 mt-1">
           <AvatarImage src={message.senderAvatar} alt={message.senderName} />
@@ -553,9 +543,7 @@ const MessageBubble: React.FC<{ message: Message; isAdmin: boolean }> = ({ messa
         <div className={`rounded-lg p-3 ${
           isSentByAdmin 
             ? 'bg-blue-500 text-white' 
-            : !message.isRead 
-              ? 'bg-blue-50 border border-blue-200 text-slate-800 hover:bg-blue-100 transition-colors'
-              : 'bg-white border border-slate-200 text-slate-800'
+            : 'bg-white border border-slate-200 text-slate-800'
         }`}>
           <p className="text-sm">{message.content}</p>
           {message.attachments && message.attachments.length > 0 && (
@@ -581,9 +569,6 @@ const MessageBubble: React.FC<{ message: Message; isAdmin: boolean }> = ({ messa
         </div>
         <div className={`text-xs text-slate-500 mt-1 ${isSentByAdmin ? 'text-right' : 'text-left'}`}>
           {formatTime(message.timestamp)}
-          {!message.isRead && !isSentByAdmin && (
-            <span className="ml-2 inline-block w-2 h-2 bg-blue-500 rounded-full"></span>
-          )}
         </div>
       </div>
       {isSentByAdmin && (
@@ -723,7 +708,6 @@ export default function ClientCollaboration() {
   const [clientSearchQuery, setClientSearchQuery] = useState('');
   const [sharedResources, setSharedResources] = useState<SharedResource[]>([]);
   const [collaborationRequests, setCollaborationRequests] = useState<CollaborationRequest[]>([]);
-  const [isAddClientDialogOpen, setIsAddClientDialogOpen] = useState(false);
   const { toast } = useToast();
   const [, setLocation] = useLocation();
 
@@ -808,142 +792,8 @@ export default function ClientCollaboration() {
     });
   };
 
-  // Add a client
-  const handleAddClient = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    
-    // Create a new client
-    const newClient = {
-      id: Math.max(0, ...sampleClients.map(c => c.id)) + 1,
-      name: formData.get('name') as string,
-      company: formData.get('company') as string,
-      email: formData.get('email') as string,
-      phone: formData.get('phone') as string || "",
-      status: "active" as const,
-      avatar: "",
-      lastActive: new Date().toISOString(),
-      unreadMessages: 0,
-      pendingApprovals: 0
-    };
-    
-    // Add client to the list
-    sampleClients.push(newClient);
-    
-    // Select the new client
-    setSelectedClient(newClient);
-    
-    // Close the dialog
-    setIsAddClientDialogOpen(false);
-    
-    // Show toast
-    toast({
-      title: "Client added",
-      description: `Client ${newClient.name} has been added successfully.`,
-    });
-  };
-  
-  // Mark a message as read
-  const handleMarkMessageAsRead = (messageId: number) => {
-    // Update messages in state
-    const updatedMessages = messages.map(message => 
-      message.id === messageId ? { ...message, isRead: true } : message
-    );
-    setMessages(updatedMessages);
-    
-    // Update unread count in the client
-    if (selectedClient) {
-      const updatedClient = { 
-        ...selectedClient, 
-        unreadMessages: Math.max(0, selectedClient.unreadMessages - 1)
-      };
-      setSelectedClient(updatedClient);
-      
-      // Update in the sample data
-      const clientIndex = sampleClients.findIndex(c => c.id === selectedClient.id);
-      if (clientIndex >= 0) {
-        sampleClients[clientIndex] = updatedClient;
-      }
-    }
-  };
-  
   return (
     <div className="container mx-auto py-6 px-4 max-w-7xl">
-      {/* Add Client Dialog */}
-      <Dialog open={isAddClientDialogOpen} onOpenChange={setIsAddClientDialogOpen}>
-        <DialogContent className="sm:max-w-[500px]">
-          <DialogHeader>
-            <DialogTitle>Add New Client</DialogTitle>
-            <DialogDescription>
-              Add a new client to collaborate with. This will create a new client profile that you can manage.
-            </DialogDescription>
-          </DialogHeader>
-          
-          <form onSubmit={handleAddClient}>
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="name" className="text-right">
-                  Name
-                </Label>
-                <Input 
-                  id="name" 
-                  name="name"
-                  placeholder="John Smith" 
-                  className="col-span-3" 
-                  required
-                />
-              </div>
-              
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="company" className="text-right">
-                  Company
-                </Label>
-                <Input 
-                  id="company" 
-                  name="company"
-                  placeholder="Acme Inc." 
-                  className="col-span-3" 
-                  required
-                />
-              </div>
-              
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="email" className="text-right">
-                  Email
-                </Label>
-                <Input 
-                  id="email" 
-                  name="email"
-                  type="email"
-                  placeholder="john@example.com" 
-                  className="col-span-3" 
-                  required
-                />
-              </div>
-              
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="phone" className="text-right">
-                  Phone
-                </Label>
-                <Input 
-                  id="phone" 
-                  name="phone"
-                  placeholder="+1 (555) 123-4567" 
-                  className="col-span-3" 
-                />
-              </div>
-            </div>
-            
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setIsAddClientDialogOpen(false)}>
-                Cancel
-              </Button>
-              <Button type="submit">Add Client</Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
-    
       <div>
         <h1 className="text-2xl font-bold text-slate-900 mb-1">Client Collaboration Portal</h1>
         <p className="text-slate-500 mb-6">
@@ -958,11 +808,7 @@ export default function ClientCollaboration() {
             <CardHeader className="pb-2">
               <div className="flex justify-between items-center mb-2">
                 <CardTitle className="text-lg font-semibold">Clients</CardTitle>
-                <Button 
-                  size="sm" 
-                  className="h-8 gap-1"
-                  onClick={() => setIsAddClientDialogOpen(true)}
-                >
+                <Button size="sm" className="h-8 gap-1">
                   <UserPlus size={14} />
                   Add
                 </Button>

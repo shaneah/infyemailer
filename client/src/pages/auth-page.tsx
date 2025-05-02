@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -13,7 +13,6 @@ import { useAuth } from "@/hooks/use-auth";
 import Logo from "@/assets/Logo-white.png";
 import Infy from "@/assets/infinity-tech-logo-full.png";
 import { Mail, Lock, Info, CheckCircle, ChevronRight } from "lucide-react";
-import { motion, useAnimationControls } from "framer-motion";
 
 // Admin login schema
 const adminLoginSchema = z.object({
@@ -29,45 +28,6 @@ export default function AuthPage() {
   const [_, setLocation] = useLocation();
   const [isLoading, setIsLoading] = useState(false);
   const { user, loginMutation } = useAuth();
-  
-  // Button animation references and controls
-  const buttonRef = useRef<HTMLDivElement>(null);
-  const buttonControls = useAnimationControls();
-  
-  // Run away from mouse function
-  const runAwayFromMouse = (e: React.MouseEvent) => {
-    // Only run away if form is not filled correctly
-    if (!form.getValues().usernameOrEmail || !form.getValues().password) {
-      if (buttonRef.current) {
-        const buttonRect = buttonRef.current.getBoundingClientRect();
-        
-        // Get center points of button
-        const buttonCenterX = buttonRect.left + buttonRect.width / 2;
-        const buttonCenterY = buttonRect.top + buttonRect.height / 2;
-        
-        // Get mouse position relative to button center
-        const deltaX = e.clientX - buttonCenterX;
-        const deltaY = e.clientY - buttonCenterY;
-        
-        // Calculate magnitude of the vector (distance)
-        const length = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-        
-        // Normalize and invert the direction (run away)
-        const normalizedX = -deltaX / length;
-        const normalizedY = -deltaY / length;
-        
-        // Apply movement (faster when mouse is closer)
-        const distance = Math.min(280, 2800 / length);
-        buttonControls.start({
-          x: normalizedX * distance,
-          y: normalizedY * distance,
-          rotate: Math.random() * 30 - 15,
-          scale: 0.92,
-          transition: { type: "spring", duration: 0.3, bounce: 0.8, stiffness: 400 }
-        });
-      }
-    }
-  };
 
   // Redirect if already logged in
   useEffect(() => {
@@ -299,57 +259,34 @@ export default function AuthPage() {
                     </a>
                   </div>
                   
-                  <div className="pt-2 animate-slide-up animation-delay-1300 relative min-h-[200px] flex items-center justify-center">
-                    <motion.div
-                      ref={buttonRef}
-                      className="w-full flex justify-center"
-                      initial={{ x: 0, y: 0 }}
-                      animate={buttonControls}
-                      whileHover={!form.getValues().usernameOrEmail || !form.getValues().password ? {
-                        scale: 0.95,
-                        x: Math.random() > 0.5 ? 180 : -180,
-                        y: Math.random() > 0.5 ? 100 : -100,
-                        rotate: Math.random() * 25 - 12.5,
-                        transition: { duration: 0.25, type: "spring", bounce: 0.6 }
-                      } : {
-                        scale: 1.03,
-                        transition: { duration: 0.2 }
-                      }}
-                      onMouseMove={(e) => runAwayFromMouse(e)}
+                  <div className="pt-2 animate-slide-up animation-delay-1300">
+                    <Button 
+                      type="submit" 
+                      className="w-full h-12 text-sm font-mono tracking-wide rounded-md bg-primary hover:bg-primary/90 transition-colors relative overflow-hidden group animate-glow"
+                      disabled={isLoading}
                     >
-                      <Button 
-                        type="submit" 
-                        className="w-[30%] h-10 text-xs font-mono tracking-wide rounded-md bg-primary hover:bg-primary/90 transition-colors relative overflow-hidden group animate-glow"
-                        disabled={isLoading}
-                      >
-                        <div className="absolute inset-0 w-full bg-gradient-to-r from-white/5 to-transparent"></div>
-                        {isLoading ? (
-                          <div className="flex items-center justify-center">
-                            <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                            AUTHENTICATING...
-                          </div>
-                        ) : (
-                          <div className="flex items-center justify-center">
-                            {form.getValues().usernameOrEmail && form.getValues().password ? (
-                              <>
-                                LOGIN
-                                <ChevronRight className="ml-1 h-3 w-3 group-hover:translate-x-1 transition-transform" />
-                              </>
-                            ) : (
-                              <>
-                                {Math.random() > 0.7 ? "ACCESS DENIED" : 
-                                 Math.random() > 0.4 ? "NEED CREDENTIALS" : 
-                                 Math.random() > 0.2 ? "VERIFY IDENTITY" : 
-                                 "LOGIN REQUIRED"}
-                              </>
-                            )}
-                          </div>
-                        )}
-                      </Button>
-                    </motion.div>
+                      <div className="absolute inset-0 w-full bg-gradient-to-r from-white/5 to-transparent"></div>
+                      {isLoading ? (
+                        <div className="flex items-center justify-center">
+                          <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                          AUTHENTICATING...
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-center">
+                          INITIALIZE SESSION
+                          <ChevronRight className="ml-1 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                        </div>
+                      )}
+                    </Button>
+                    
+                    {/* Terminal-like decoration */}
+                    <div className="flex items-center mt-4 text-xs text-gray-500 font-mono">
+                      <div className="w-2 h-2 bg-primary/50 rounded-full mr-2 animate-pulse"></div>
+                      <span className="opacity-70">System ready • Awaiting authentication</span>
+                    </div>
                   </div>
                   
                   <div className="border-t border-gray-700/30 mt-6 pt-6 text-center animate-fade-in animation-delay-1400">

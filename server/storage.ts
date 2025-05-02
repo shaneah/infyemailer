@@ -78,6 +78,10 @@ export interface IStorage {
   removeRoleFromUser(userId: number, roleId: number): Promise<boolean>;
   
   // Client-Provider Management Methods
+  getClientProviders(clientId: number): Promise<ClientProvider[]>;
+  assignProviderToClient(clientId: number, providerId: string, settings: any): Promise<ClientProvider>;
+  removeProviderFromClient(clientId: number, providerId: string): Promise<boolean>;
+  removeRoleFromUsers(roleId: number): Promise<boolean>;
   
   // Role-Permission Management Methods
   getRolePermissions(): Promise<RolePermission[]>;
@@ -1082,25 +1086,31 @@ export class MemStorage implements IStorage {
       .filter(provider => provider.clientId === clientId);
   }
   
-  async assignProviderToClient(clientProvider: InsertClientProvider): Promise<ClientProvider> {
+  async assignProviderToClient(clientId: number, providerId: string, settings: any = {}): Promise<ClientProvider> {
     const id = this.clientProviderId++;
     const now = new Date();
+    
+    // Convert providerId to number for storage
+    const providerIdNum = parseInt(providerId, 10);
     
     const newClientProvider: ClientProvider = {
       id,
       createdAt: now,
-      clientId: clientProvider.clientId,
-      providerId: clientProvider.providerId,
-      // Add any additional fields if needed
+      clientId,
+      providerId: providerIdNum,
+      // Add the settings to metadata if needed
     };
     
     this.clientProviders.set(id, newClientProvider);
     return newClientProvider;
   }
   
-  async removeProviderFromClient(clientId: number, providerId: number): Promise<boolean> {
+  async removeProviderFromClient(clientId: number, providerId: string): Promise<boolean> {
+    // Convert providerId to number for comparison
+    const providerIdNum = parseInt(providerId, 10);
+    
     const provider = Array.from(this.clientProviders.values())
-      .find(p => p.clientId === clientId && p.providerId === providerId);
+      .find(p => p.clientId === clientId && p.providerId === providerIdNum);
     
     if (!provider) return false;
     
@@ -2185,7 +2195,7 @@ export class MemStorage implements IStorage {
       const { comparePasswords } = await import('./auth');
       
       // Special case for testing credentials
-      if (username === 'client1' && password === 'clientdemo') {
+      if (username === 'client1' && password === 'client123') {
         console.log('Using test client credentials override');
         user.lastLoginAt = new Date();
         this.clientUsers.set(user.id, user);
@@ -2941,13 +2951,10 @@ export class MemStorage implements IStorage {
   }
 }
 
-// Import DbStorage for database persistence
-import { DbStorage } from './dbStorage';
-
-// Create instances of storage implementations
+// Create an instance of MemStorage for in-memory storage
 const memStorage = new MemStorage();
-const dbStorage = new DbStorage();
 
-// IMPORTANT: Force using database storage for persistence instead of memory storage
-// This will ensure data persists between application restarts
-export const storage = dbStorage;
+// Use dynamic storage selection based on database availability
+// Initialize with memory storage, but allow dynamic switching through storageManager
+// This avoids circular dependency issues
+export const storage = memStorage;

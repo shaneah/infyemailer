@@ -95,8 +95,6 @@ const UserManagement = () => {
   const [activeTab, setActiveTab] = useState("users");
   const [isNewUserDialogOpen, setIsNewUserDialogOpen] = useState(false);
   const [isNewRoleDialogOpen, setIsNewRoleDialogOpen] = useState(false);
-  const [isEditUserDialogOpen, setIsEditUserDialogOpen] = useState(false);
-  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
@@ -365,117 +363,6 @@ const UserManagement = () => {
       });
     }
   };
-  
-  // Handler to edit a user
-  const handleEditUser = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (!selectedUser) return;
-    
-    const formData = new FormData(e.currentTarget);
-    const userData = {
-      firstName: formData.get("firstName") as string,
-      lastName: formData.get("lastName") as string,
-      email: formData.get("email") as string,
-      status: formData.get("status") as string || selectedUser.status,
-    };
-
-    try {
-      const response = await fetch(`/api/users/${selectedUser.id}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(userData)
-      });
-      
-      if (!response.ok) {
-        throw new Error(`Failed to update user: ${response.statusText}`);
-      }
-      
-      const roleId = formData.get("roleId");
-      if (roleId) {
-        await handleUserRoleChange(selectedUser.id, parseInt(roleId.toString()));
-      }
-      
-      toast({
-        title: "User updated",
-        description: `User ${selectedUser.username} has been updated successfully.`,
-      });
-      setIsEditUserDialogOpen(false);
-      setSelectedUser(null);
-      queryClient.invalidateQueries({ queryKey: ["/api/users"] });
-    } catch (error) {
-      console.error("Error updating user:", error);
-      toast({
-        title: "Error updating user",
-        description: (error as Error).message || "There was an error updating the user. Please try again.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  // Handler to toggle user status (activate/deactivate)
-  const handleToggleUserStatus = async (user: User) => {
-    const newStatus = user.status === "active" ? "inactive" : "active";
-    
-    try {
-      const response = await fetch(`/api/users/${user.id}/status`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ status: newStatus })
-      });
-      
-      if (!response.ok) {
-        throw new Error(`Failed to update user status: ${response.statusText}`);
-      }
-      
-      toast({
-        title: newStatus === "active" ? "User activated" : "User deactivated",
-        description: `User ${user.username} has been ${newStatus === "active" ? "activated" : "deactivated"} successfully.`,
-      });
-      queryClient.invalidateQueries({ queryKey: ["/api/users"] });
-    } catch (error) {
-      console.error("Error updating user status:", error);
-      toast({
-        title: "Error updating user status",
-        description: (error as Error).message || "There was an error updating the user status. Please try again.",
-        variant: "destructive",
-      });
-    }
-  };
-  
-  // Handler to delete a user
-  const handleDeleteUser = async () => {
-    if (!selectedUser) return;
-    
-    try {
-      const response = await fetch(`/api/users/${selectedUser.id}`, {
-        method: 'DELETE'
-      });
-      
-      if (!response.ok) {
-        throw new Error(`Failed to delete user: ${response.statusText}`);
-      }
-      
-      toast({
-        title: "User deleted",
-        description: `User ${selectedUser.username} has been deleted successfully.`,
-      });
-      setIsDeleteConfirmOpen(false);
-      setSelectedUser(null);
-      queryClient.invalidateQueries({ queryKey: ["/api/users"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/user-roles"] });
-    } catch (error) {
-      console.error("Error deleting user:", error);
-      toast({
-        title: "Error deleting user",
-        description: (error as Error).message || "There was an error deleting the user. Please try again.",
-        variant: "destructive",
-      });
-    }
-  };
 
   if (isLoading) {
     return (
@@ -689,26 +576,16 @@ const UserManagement = () => {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                               <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                              <DropdownMenuItem onClick={() => {
-                                setSelectedUser(user);
-                                setIsEditUserDialogOpen(true);
-                              }}>
+                              <DropdownMenuItem onClick={() => setSelectedUser(user)}>
                                 Edit User
                               </DropdownMenuItem>
                               <DropdownMenuSeparator />
                               <DropdownMenuItem
-                                onClick={() => handleToggleUserStatus(user)}
                                 className={user.status === "active" ? "text-destructive" : "text-green-600"}
                               >
                                 {user.status === "active" ? "Deactivate" : "Activate"}
                               </DropdownMenuItem>
-                              <DropdownMenuItem 
-                                onClick={() => {
-                                  setSelectedUser(user);
-                                  setIsDeleteConfirmOpen(true);
-                                }}
-                                className="text-destructive"
-                              >
+                              <DropdownMenuItem className="text-destructive">
                                 Delete User
                               </DropdownMenuItem>
                             </DropdownMenuContent>
@@ -909,154 +786,6 @@ const UserManagement = () => {
           </div>
         </TabsContent>
       </Tabs>
-      
-      {/* Edit User Dialog */}
-      <Dialog open={isEditUserDialogOpen} onOpenChange={setIsEditUserDialogOpen}>
-        <DialogContent className="sm:max-w-[500px]">
-          <DialogHeader>
-            <DialogTitle>Edit User</DialogTitle>
-            <DialogDescription>
-              Update user information and role assignment.
-            </DialogDescription>
-          </DialogHeader>
-          {selectedUser && (
-            <form onSubmit={handleEditUser}>
-              <div className="grid gap-4 py-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="editFirstName">First Name</Label>
-                    <Input 
-                      id="editFirstName" 
-                      name="firstName" 
-                      defaultValue={selectedUser.firstName || ''} 
-                      required 
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="editLastName">Last Name</Label>
-                    <Input 
-                      id="editLastName" 
-                      name="lastName" 
-                      defaultValue={selectedUser.lastName || ''} 
-                      required 
-                    />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="editEmail">Email</Label>
-                  <Input 
-                    id="editEmail" 
-                    name="email" 
-                    type="email" 
-                    defaultValue={selectedUser.email} 
-                    required 
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="editUsername">Username</Label>
-                  <Input 
-                    id="editUsername" 
-                    name="username" 
-                    defaultValue={selectedUser.username} 
-                    disabled 
-                  />
-                  <p className="text-xs text-muted-foreground">Username cannot be changed.</p>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="editStatus">Status</Label>
-                  <Select name="status" defaultValue={selectedUser.status}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="active">Active</SelectItem>
-                      <SelectItem value="inactive">Inactive</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="editRole">Role</Label>
-                  <Select 
-                    name="roleId"
-                    defaultValue={
-                      userRoles.find(ur => ur.userId === selectedUser.id)?.roleId.toString()
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a role" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {roles.map((role) => (
-                        <SelectItem key={role.id} value={role.id.toString()}>
-                          {role.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <DialogFooter>
-                <Button 
-                  variant="outline" 
-                  type="button" 
-                  className="border-[#d4af37]/30 text-[#1a3a5f] hover:bg-[#f5f0e1] hover:text-[#1a3a5f] hover:border-[#d4af37]"
-                  onClick={() => {
-                    setIsEditUserDialogOpen(false);
-                    setSelectedUser(null);
-                  }}
-                >
-                  Cancel
-                </Button>
-                <Button 
-                  type="submit" 
-                  className="bg-gradient-to-r from-[#1a3a5f] to-[#2c5a8f] text-white hover:from-[#1a3a5f]/90 hover:to-[#2c5a8f]/90 hover:shadow-md transition-all duration-300 border border-[#d4af37]/30 hover:border-[#d4af37]"
-                >
-                  <span className="bg-gradient-to-r from-white to-[#d4af37]/80 bg-clip-text text-transparent font-medium">Save Changes</span>
-                </Button>
-              </DialogFooter>
-            </form>
-          )}
-        </DialogContent>
-      </Dialog>
-      
-      {/* Delete Confirmation Dialog */}
-      <Dialog open={isDeleteConfirmOpen} onOpenChange={setIsDeleteConfirmOpen}>
-        <DialogContent className="sm:max-w-[400px]">
-          <DialogHeader>
-            <DialogTitle className="text-destructive">Confirm Delete</DialogTitle>
-            <DialogDescription>
-              Are you sure you want to delete this user? This action cannot be undone.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="py-4">
-            {selectedUser && (
-              <div className="space-y-2 text-center">
-                <p className="font-medium">{selectedUser.firstName} {selectedUser.lastName}</p>
-                <p className="text-sm text-muted-foreground">{selectedUser.email}</p>
-                <p className="text-sm text-muted-foreground">Username: {selectedUser.username}</p>
-              </div>
-            )}
-          </div>
-          <DialogFooter className="gap-2 sm:gap-0">
-            <Button 
-              variant="outline" 
-              className="border-[#d4af37]/30 text-[#1a3a5f] hover:bg-[#f5f0e1] hover:text-[#1a3a5f] hover:border-[#d4af37]"
-              onClick={() => {
-                setIsDeleteConfirmOpen(false);
-                setSelectedUser(null);
-              }}
-            >
-              Cancel
-            </Button>
-            <Button 
-              variant="destructive"
-              onClick={handleDeleteUser}
-            >
-              Delete
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };

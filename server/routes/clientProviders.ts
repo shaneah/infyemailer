@@ -1,6 +1,8 @@
 import { Request, Response } from "express";
-import { storage } from "../storage";
+import { getStorage } from "../storageManager";
 import { z } from "zod";
+
+const storage = getStorage();
 
 export function registerClientProviderRoutes(app: any) {
   // Get all providers assigned to a client
@@ -14,20 +16,10 @@ export function registerClientProviderRoutes(app: any) {
         return res.status(404).json({ error: 'Client not found' });
       }
       
-      let providers = [];
-      try {
-        const result = await storage.getClientProviders(clientId);
-        if (Array.isArray(result)) {
-          providers = result;
-        } else {
-          console.warn('getClientProviders did not return an array, using empty array instead');
-        }
-      } catch (err) {
-        console.warn('Error calling getClientProviders, returning empty array', err);
-      }
+      const providers = await storage.getClientProviders(clientId);
       
       // Fetch full provider details for each assigned provider
-      const enrichedProviders = Array.isArray(providers) ? await Promise.all(
+      const enrichedProviders = await Promise.all(
         providers.map(async (cp) => {
           // Get the full provider details 
           // For now, we'll just return what we have
@@ -36,7 +28,7 @@ export function registerClientProviderRoutes(app: any) {
             providerName: `Provider ${cp.providerId}` // Placeholder - would fetch actual provider name
           };
         })
-      ) : [];
+      );
       
       res.json(enrichedProviders);
     } catch (error: any) {
@@ -67,11 +59,12 @@ export function registerClientProviderRoutes(app: any) {
         return res.status(404).json({ error: 'Client not found' });
       }
       
-      // Assign provider to client 
-      const result = await storage.assignProviderToClient({
+      // Assign provider to client
+      const result = await storage.assignProviderToClient(
         clientId, 
-        providerId: parseInt(validatedData.providerId, 10)
-      });
+        validatedData.providerId, 
+        validatedData.settings
+      );
       
       res.status(201).json(result);
     } catch (error: any) {
@@ -96,7 +89,7 @@ export function registerClientProviderRoutes(app: any) {
       }
       
       // Remove provider from client
-      const success = await storage.removeProviderFromClient(clientId, parseInt(providerId, 10));
+      const success = await storage.removeProviderFromClient(clientId, providerId);
       
       if (!success) {
         return res.status(404).json({ error: 'Provider assignment not found' });

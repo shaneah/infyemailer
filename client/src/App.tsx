@@ -12,9 +12,8 @@ import { AuthProvider } from "@/hooks/use-auth";
 import { ProtectedRoute } from "@/lib/protected-route";
 import NotFound from "@/pages/not-found";
 import { AIAssistantProvider } from "@/contexts/AIAssistantContext";
-import { AIAssistant } from "@/components/AIAssistant";
+import { AIAssistantButton } from "@/components/AIAssistant";
 import Campaigns from "@/pages/Campaigns";
-import CampaignDetail from "@/pages/CampaignDetail";
 import Templates from "@/pages/Templates";
 import Contacts from "@/pages/Contacts";
 import ListDetails from "@/pages/ListDetails";
@@ -51,7 +50,6 @@ import EmailTest from "@/pages/EmailTest";
 import Login from "@/pages/Login";
 import EmailPerformanceDashboard from "@/pages/EmailPerformanceDashboard";
 import ClientPlaceholderPage from "@/pages/ClientPlaceholderPage";
-import WelcomeMessageTest from "@/pages/WelcomeMessageTest";
 
 
 function App() {
@@ -201,14 +199,6 @@ function App() {
           </div>
         </Route>
         
-        {/* Test Welcome Message Component */}
-        <Route path="welcome-test">
-          <div className="bg-background min-h-screen">
-            <WelcomeMessageTest />
-            <Toaster />
-          </div>
-        </Route>
-        
         {/* Auth Route */}
         <Route path="auth">
           <AuthProvider>
@@ -236,7 +226,6 @@ function App() {
                     <ProtectedRoute path="/" component={Dashboard} />
                     <ProtectedRoute path="dashboard" component={Dashboard} />
                     <ProtectedRoute path="campaigns" component={Campaigns} />
-                    <ProtectedRoute path="campaigns/:id" component={CampaignDetail} />
                     <ProtectedRoute path="templates" component={Templates} />
                     <ProtectedRoute path="contacts" component={Contacts} />
                     <ProtectedRoute path="lists/:id" component={ListDetails} />
@@ -276,7 +265,7 @@ function App() {
               
               <Toaster />
               {/* AI Assistant Button added here to be available throughout the app */}
-              <AIAssistant />
+              <AIAssistantButton />
             </div>
           </AuthProvider>
         </Route>

@@ -11,18 +11,8 @@ import { Badge } from "@/components/ui/badge";
 import APIHealthOverview from "@/components/APIHealthOverview";
 import { useAuth } from "@/hooks/use-auth";
 import { useLocation } from "wouter";
-import { Camera, Upload, Trash2, Plus, UserPlus, Settings as SettingsIcon, Users } from "lucide-react";
+import { Camera, Upload, Trash2 } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogDescription, 
-  DialogFooter, 
-  DialogHeader, 
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { useQuery } from "@tanstack/react-query";
 
 export default function Settings() {
   const { toast } = useToast();
@@ -34,45 +24,6 @@ export default function Settings() {
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const storageUsed = 65; // Percentage of storage used
-  
-  // Team member dialogs state
-  const [showInviteDialog, setShowInviteDialog] = useState(false);
-  const [showManageDialog, setShowManageDialog] = useState(false);
-  const [showPermissionsDialog, setShowPermissionsDialog] = useState(false);
-  const [selectedTeamMember, setSelectedTeamMember] = useState<any>(null);
-  const [selectedRole, setSelectedRole] = useState<string | null>(null);
-  
-  // Fetch team members from API (simplified for demo)
-  const { data: teamMembers, isLoading: isLoadingTeam } = useQuery({
-    queryKey: ['/api/users'],
-    queryFn: async () => {
-      try {
-        const response = await apiRequest('GET', '/api/users');
-        const data = await response.json();
-        return data;
-      } catch (error) {
-        console.error('Error fetching team members:', error);
-        return [];
-      }
-    },
-    enabled: activeTab === 'team', // Only fetch when viewing team tab
-  });
-  
-  // Fetch roles from API
-  const { data: roles } = useQuery({
-    queryKey: ['/api/roles'],
-    queryFn: async () => {
-      try {
-        const response = await apiRequest('GET', '/api/roles');
-        const data = await response.json();
-        return data;
-      } catch (error) {
-        console.error('Error fetching roles:', error);
-        return [];
-      }
-    },
-    enabled: activeTab === 'team', // Only fetch when viewing team tab
-  });
   
   // Set active tab based on path (profile or settings)
   useEffect(() => {
@@ -181,48 +132,6 @@ export default function Settings() {
         description: "Your settings have been saved successfully.",
       });
     }, 1000);
-  };
-  
-  // Team management functions
-  const handleInviteTeamMember = () => {
-    setShowInviteDialog(true);
-  };
-  
-  const handleManageTeamMember = (member: any) => {
-    setSelectedTeamMember(member);
-    setShowManageDialog(true);
-  };
-  
-  const handleEditPermissions = (role: string) => {
-    setSelectedRole(role);
-    setShowPermissionsDialog(true);
-  };
-  
-  const handleSendInvite = () => {
-    // In a real implementation, you would send an API request
-    toast({
-      title: "Invitation sent",
-      description: "Your team member will receive an email invitation shortly.",
-    });
-    setShowInviteDialog(false);
-  };
-  
-  const handleUpdateMember = () => {
-    // In a real implementation, you would send an API request
-    toast({
-      title: "Team member updated",
-      description: "Team member information has been updated successfully.",
-    });
-    setShowManageDialog(false);
-  };
-  
-  const handleUpdatePermissions = () => {
-    // In a real implementation, you would send an API request
-    toast({
-      title: "Permissions updated",
-      description: `${selectedRole} permissions have been updated successfully.`,
-    });
-    setShowPermissionsDialog(false);
   };
 
   return (
@@ -458,113 +367,86 @@ export default function Settings() {
                         Manage access and permissions for your team
                       </CardDescription>
                     </div>
-                    <Button size="sm" onClick={handleInviteTeamMember}>
-                      <UserPlus className="h-4 w-4 mr-1" />
+                    <Button size="sm">
                       Invite Team Member
                     </Button>
                   </div>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {isLoadingTeam ? (
-                      <div className="text-center py-4">
-                        <div className="w-8 h-8 border-4 border-t-transparent border-blue-600 rounded-full animate-spin mx-auto mb-2"></div>
-                        <p className="text-gray-500">Loading team members...</p>
-                      </div>
-                    ) : teamMembers && teamMembers.length > 0 ? (
-                      <div className="rounded-md border">
-                        {teamMembers.map((member: any) => (
-                          <div key={member.id} className="p-4 border-b flex items-center justify-between">
-                            <div className="flex items-center space-x-3">
-                              <div className="rounded-full bg-blue-100 p-2 flex items-center justify-center">
-                                <span className="text-sm font-medium text-blue-600">
-                                  {member.firstName?.[0]?.toUpperCase() || member.username[0]?.toUpperCase()}
-                                  {member.lastName?.[0]?.toUpperCase() || ''}
-                                </span>
-                              </div>
-                              <div>
-                                <p className="font-medium">
-                                  {member.firstName && member.lastName 
-                                    ? `${member.firstName} ${member.lastName}` 
-                                    : member.username}
-                                </p>
-                                <p className="text-sm text-gray-500">{member.email}</p>
-                              </div>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <Badge 
-                                className={
-                                  member.username === "admin" 
-                                    ? "bg-blue-100 text-blue-600 border-none" 
-                                    : "bg-purple-100 text-purple-600 border-none"
-                                }
-                              >
-                                {member.username === "admin" ? "Administrator" : "Member"}
-                              </Badge>
-                              <Button 
-                                variant="ghost" 
-                                size="sm" 
-                                onClick={() => handleManageTeamMember(member)}
-                              >
-                                Manage
-                              </Button>
-                            </div>
+                    <div className="rounded-md border">
+                      <div className="p-4 border-b flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <div className="rounded-full bg-blue-100 p-2 flex items-center justify-center">
+                            <span className="text-sm font-medium text-blue-600">JS</span>
                           </div>
-                        ))}
+                          <div>
+                            <p className="font-medium">John Smith</p>
+                            <p className="text-sm text-gray-500">john@example.com</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Badge className="bg-blue-100 text-blue-600 border-none">Owner</Badge>
+                          <Button variant="ghost" size="sm">Manage</Button>
+                        </div>
                       </div>
-                    ) : (
-                      <div className="text-center py-8">
-                        <Users className="h-12 w-12 mx-auto mb-3 text-gray-300" />
-                        <h3 className="text-lg font-medium mb-1">No team members found</h3>
-                        <p className="text-gray-500 mb-4">Invite team members to collaborate on your projects</p>
-                        <Button onClick={handleInviteTeamMember}>
-                          <UserPlus className="h-4 w-4 mr-1" />
-                          Invite Team Member
-                        </Button>
+
+                      <div className="p-4 border-b flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <div className="rounded-full bg-gray-100 p-2 flex items-center justify-center">
+                            <span className="text-sm font-medium text-gray-600">JD</span>
+                          </div>
+                          <div>
+                            <p className="font-medium">Jane Doe</p>
+                            <p className="text-sm text-gray-500">jane@example.com</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Badge className="bg-purple-100 text-purple-600 border-none">Admin</Badge>
+                          <Button variant="ghost" size="sm">Manage</Button>
+                        </div>
                       </div>
-                    )}
+
+                      <div className="p-4 flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <div className="rounded-full bg-gray-100 p-2 flex items-center justify-center">
+                            <span className="text-sm font-medium text-gray-600">RJ</span>
+                          </div>
+                          <div>
+                            <p className="font-medium">Robert Johnson</p>
+                            <p className="text-sm text-gray-500">robert@example.com</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Badge className="bg-green-100 text-green-600 border-none">Editor</Badge>
+                          <Button variant="ghost" size="sm">Manage</Button>
+                        </div>
+                      </div>
+                    </div>
 
                     <div className="p-4 border rounded-md">
                       <h3 className="font-medium mb-2">Role Permissions</h3>
                       <div className="space-y-4">
                         <div className="flex items-start justify-between">
                           <div>
-                            <p className="font-medium">Administrator</p>
+                            <p className="font-medium">Owner</p>
                             <p className="text-sm text-gray-500">Full access to all settings and billing</p>
                           </div>
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            onClick={() => handleEditPermissions("Administrator")}
-                          >
-                            Edit Permissions
-                          </Button>
+                          <Button variant="outline" size="sm">Edit Permissions</Button>
                         </div>
                         <div className="flex items-start justify-between">
                           <div>
-                            <p className="font-medium">Email Manager</p>
-                            <p className="text-sm text-gray-500">Access to email campaigns and templates</p>
+                            <p className="font-medium">Admin</p>
+                            <p className="text-sm text-gray-500">Access to all features except billing</p>
                           </div>
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            onClick={() => handleEditPermissions("Email Manager")}
-                          >
-                            Edit Permissions
-                          </Button>
+                          <Button variant="outline" size="sm">Edit Permissions</Button>
                         </div>
                         <div className="flex items-start justify-between">
                           <div>
-                            <p className="font-medium">Contact Manager</p>
-                            <p className="text-sm text-gray-500">Can manage contacts and lists, but limited campaign access</p>
+                            <p className="font-medium">Editor</p>
+                            <p className="text-sm text-gray-500">Can create and edit campaigns, but cannot access settings</p>
                           </div>
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            onClick={() => handleEditPermissions("Contact Manager")}
-                          >
-                            Edit Permissions
-                          </Button>
+                          <Button variant="outline" size="sm">Edit Permissions</Button>
                         </div>
                       </div>
                     </div>
@@ -591,209 +473,6 @@ export default function Settings() {
           </Tabs>
         </div>
       </div>
-      
-      {/* Invite Team Member Dialog */}
-      <Dialog open={showInviteDialog} onOpenChange={setShowInviteDialog}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Invite Team Member</DialogTitle>
-            <DialogDescription>
-              Enter the email address of the person you want to invite to your team.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email Address</Label>
-              <Input id="email" placeholder="colleague@example.com" />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="role">Role</Label>
-              <Select defaultValue="viewer">
-                <SelectTrigger>
-                  <SelectValue placeholder="Select role" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="administrator">Administrator</SelectItem>
-                  <SelectItem value="email-manager">Email Manager</SelectItem>
-                  <SelectItem value="contact-manager">Contact Manager</SelectItem>
-                  <SelectItem value="viewer">Viewer</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="message">Personal Message (Optional)</Label>
-              <Input id="message" placeholder="I'm inviting you to collaborate on our email campaigns" />
-            </div>
-          </div>
-          <DialogFooter className="sm:justify-end">
-            <Button variant="outline" onClick={() => setShowInviteDialog(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleSendInvite}>
-              Send Invitation
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Manage Team Member Dialog */}
-      <Dialog open={showManageDialog} onOpenChange={setShowManageDialog}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Manage Team Member</DialogTitle>
-            <DialogDescription>
-              Update role, permissions, or remove this team member.
-            </DialogDescription>
-          </DialogHeader>
-          {selectedTeamMember && (
-            <div className="space-y-4 py-4">
-              <div className="flex items-center space-x-3 pb-2 border-b">
-                <div className="rounded-full bg-blue-100 p-2 flex items-center justify-center">
-                  <span className="text-sm font-medium text-blue-600">
-                    {selectedTeamMember.firstName?.[0]?.toUpperCase() || selectedTeamMember.username[0]?.toUpperCase()}
-                    {selectedTeamMember.lastName?.[0]?.toUpperCase() || ''}
-                  </span>
-                </div>
-                <div>
-                  <p className="font-medium">
-                    {selectedTeamMember.firstName && selectedTeamMember.lastName 
-                      ? `${selectedTeamMember.firstName} ${selectedTeamMember.lastName}` 
-                      : selectedTeamMember.username}
-                  </p>
-                  <p className="text-sm text-gray-500">{selectedTeamMember.email}</p>
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="member-role">Role</Label>
-                <Select defaultValue="administrator">
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select role" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="administrator">Administrator</SelectItem>
-                    <SelectItem value="email-manager">Email Manager</SelectItem>
-                    <SelectItem value="contact-manager">Contact Manager</SelectItem>
-                    <SelectItem value="viewer">Viewer</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div className="space-y-2">
-                <Label>Access Level</Label>
-                <div className="space-y-2">
-                  <div className="flex items-center space-x-2">
-                    <Switch id="campaigns-access" defaultChecked />
-                    <Label htmlFor="campaigns-access">Campaigns</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Switch id="contacts-access" defaultChecked />
-                    <Label htmlFor="contacts-access">Contacts & Lists</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Switch id="templates-access" defaultChecked />
-                    <Label htmlFor="templates-access">Templates</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Switch id="settings-access" />
-                    <Label htmlFor="settings-access">Settings</Label>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-          <DialogFooter className="flex justify-between">
-            <Button variant="outline" className="text-red-500 hover:text-red-700 hover:bg-red-50">
-              Remove User
-            </Button>
-            <div className="space-x-2">
-              <Button variant="outline" onClick={() => setShowManageDialog(false)}>
-                Cancel
-              </Button>
-              <Button onClick={handleUpdateMember}>
-                Save Changes
-              </Button>
-            </div>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-      
-      {/* Edit Role Permissions Dialog */}
-      <Dialog open={showPermissionsDialog} onOpenChange={setShowPermissionsDialog}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Edit {selectedRole} Permissions</DialogTitle>
-            <DialogDescription>
-              Customize which features this role can access.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-4">
-              <div>
-                <h3 className="font-medium mb-2">Campaign Management</h3>
-                <div className="grid grid-cols-1 gap-1.5">
-                  <div className="flex items-center space-x-2">
-                    <Switch id="create-campaigns" defaultChecked />
-                    <Label htmlFor="create-campaigns">Create Campaigns</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Switch id="edit-campaigns" defaultChecked />
-                    <Label htmlFor="edit-campaigns">Edit Campaigns</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Switch id="delete-campaigns" defaultChecked={selectedRole === "Administrator"} />
-                    <Label htmlFor="delete-campaigns">Delete Campaigns</Label>
-                  </div>
-                </div>
-              </div>
-              
-              <div>
-                <h3 className="font-medium mb-2">Contact Management</h3>
-                <div className="grid grid-cols-1 gap-1.5">
-                  <div className="flex items-center space-x-2">
-                    <Switch id="import-contacts" defaultChecked />
-                    <Label htmlFor="import-contacts">Import Contacts</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Switch id="export-contacts" defaultChecked />
-                    <Label htmlFor="export-contacts">Export Contacts</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Switch id="delete-contacts" defaultChecked={["Administrator", "Contact Manager"].includes(selectedRole || "")} />
-                    <Label htmlFor="delete-contacts">Delete Contacts</Label>
-                  </div>
-                </div>
-              </div>
-              
-              <div>
-                <h3 className="font-medium mb-2">Administration</h3>
-                <div className="grid grid-cols-1 gap-1.5">
-                  <div className="flex items-center space-x-2">
-                    <Switch id="manage-team" defaultChecked={selectedRole === "Administrator"} />
-                    <Label htmlFor="manage-team">Manage Team</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Switch id="manage-billing" defaultChecked={selectedRole === "Administrator"} />
-                    <Label htmlFor="manage-billing">Manage Billing</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Switch id="api-access" defaultChecked={selectedRole === "Administrator"} />
-                    <Label htmlFor="api-access">API Access</Label>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowPermissionsDialog(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleUpdatePermissions}>
-              Save Permissions
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

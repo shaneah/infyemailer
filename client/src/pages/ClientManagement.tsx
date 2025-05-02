@@ -3,7 +3,6 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Pencil, Trash2, Plus, CreditCard, BarChart4, User, Mail, Building2, Check, X, Loader2, Info as InfoIcon, PlusCircle, Shield } from 'lucide-react';
 import { queryClient, apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
-import { Link } from 'wouter';
 
 import {
   Card,
@@ -192,94 +191,46 @@ const ClientManagement = () => {
   }, [selectedClientId, clients]);
 
   // Selected client's users
-  const { data: clientUsersData, isLoading: isLoadingUsers } = useQuery<any>({
+  const { data: clientUsers = [], isLoading: isLoadingUsers } = useQuery<ClientUser[]>({
     queryKey: ['/api/clients', selectedClientId, 'users'],
     queryFn: async () => {
-      if (!selectedClientId) return { users: [] };
-      
-      try {
-        const response = await fetch(`/api/clients/${selectedClientId}/users`);
-        const data = await response.json();
-        return data;
-      } catch (error) {
-        console.error('Error fetching client users:', error);
-        return { users: [] };
-      }
+      if (!selectedClientId) return [];
+      const response = await fetch(`/api/clients/${selectedClientId}/users`);
+      return response.json();
     },
     enabled: !!selectedClientId,
   });
-  
-  // Ensure clientUsers is always an array
-  const clientUsers = Array.isArray(clientUsersData) 
-    ? clientUsersData 
-    : (clientUsersData?.users && Array.isArray(clientUsersData.users) 
-        ? clientUsersData.users 
-        : []);
 
   // Selected client's credit history
-  const { data: creditHistoryData, isLoading: isLoadingHistory } = useQuery<any>({
+  const { data: creditHistory = [], isLoading: isLoadingHistory } = useQuery<CreditHistory[]>({
     queryKey: ['/api/clients', selectedClientId, 'credit-history'],
     queryFn: async () => {
-      if (!selectedClientId) return { history: [] };
+      if (!selectedClientId) return [];
       const response = await fetch(`/api/clients/${selectedClientId}/email-credits/history`);
       return response.json();
     },
     enabled: !!selectedClientId,
   });
   
-  // Ensure creditHistory is always an array
-  const creditHistory = Array.isArray(creditHistoryData) 
-    ? creditHistoryData 
-    : (creditHistoryData?.history && Array.isArray(creditHistoryData.history) 
-        ? creditHistoryData.history 
-        : []);
-  
   // Selected client's providers
-  const { data: clientProvidersData, isLoading: isLoadingProviders } = useQuery<any>({
+  const { data: clientProviders = [], isLoading: isLoadingProviders } = useQuery<ClientProvider[]>({
     queryKey: ['/api/clients', selectedClientId, 'providers'],
     queryFn: async () => {
-      if (!selectedClientId) return { providers: [] };
-      
-      try {
-        const response = await fetch(`/api/clients/${selectedClientId}/providers`);
-        const data = await response.json();
-        return data;
-      } catch (error) {
-        console.error('Error fetching client providers:', error);
-        return { providers: [] };
-      }
+      if (!selectedClientId) return [];
+      const response = await fetch(`/api/clients/${selectedClientId}/providers`);
+      return response.json();
     },
     enabled: !!selectedClientId,
   });
   
-  // Ensure clientProviders is always an array
-  const clientProviders = Array.isArray(clientProvidersData) 
-    ? clientProvidersData 
-    : (clientProvidersData?.providers && Array.isArray(clientProvidersData.providers) 
-        ? clientProvidersData.providers 
-        : []);
-  
   // Available email providers
-  const { data: availableProvidersData, isLoading: isLoadingAvailableProviders } = useQuery<any>({
+  const { data: availableProviders = [], isLoading: isLoadingAvailableProviders } = useQuery<EmailProvider[]>({
     queryKey: ['/api/email-providers'],
     queryFn: async () => {
-      try {
-        const response = await fetch('/api/email-providers');
-        const data = await response.json();
-        return data;
-      } catch (error) {
-        console.error('Error fetching available providers:', error);
-        return { providers: [] };
-      }
+      const response = await fetch('/api/email-providers');
+      return response.json();
     },
   });
-  
-  // Ensure availableProviders is always an array
-  const availableProviders = Array.isArray(availableProvidersData) 
-    ? availableProvidersData 
-    : (availableProvidersData?.providers && Array.isArray(availableProvidersData.providers) 
-        ? availableProvidersData.providers 
-        : []);
 
   // Form for adding/editing client
   const clientForm = useForm<z.infer<typeof clientFormSchema>>({
@@ -311,13 +262,13 @@ const ClientManagement = () => {
       password: "",
       status: "active",
       permissions: {
-        emailValidation: true,  // Set all permissions to true by default
-        campaigns: true,
-        contacts: true,
-        templates: true,
-        reporting: true,
-        domains: true,
-        abTesting: true
+        emailValidation: false,
+        campaigns: false,
+        contacts: false,
+        templates: false,
+        reporting: false,
+        domains: false,
+        abTesting: false
       },
       metadata: {}
     }
@@ -346,29 +297,10 @@ const ClientManagement = () => {
   // Create client mutation
   const createClientMutation = useMutation({
     mutationFn: async (data: z.infer<typeof clientFormSchema>) => {
-      console.log('Sending client data to API:', data);
-      
-      // Prepare the client data with required structure
-      const clientData = {
-        ...data,
-        metadata: {},
-        emailCredits: Number(data.emailCredits || 0),
-        // Set default values for required fields if not provided
-        status: data.status || 'active'
-      };
-      
-      try {
-        const res = await apiRequest('POST', '/api/clients', clientData);
-        const jsonResponse = await res.json();
-        console.log('Server response:', jsonResponse);
-        return jsonResponse;
-      } catch (error) {
-        console.error('API request error:', error);
-        throw error;
-      }
+      const res = await apiRequest('POST', '/api/clients', data);
+      return await res.json();
     },
-    onSuccess: (data) => {
-      console.log('Client created successfully:', data);
+    onSuccess: () => {
       toast({
         title: 'Success',
         description: 'Client created successfully.',
@@ -378,7 +310,6 @@ const ClientManagement = () => {
       clientForm.reset();
     },
     onError: (error: Error) => {
-      console.error('Client creation error:', error);
       toast({
         title: 'Error',
         description: `Failed to create client: ${error.message}`,
@@ -391,33 +322,18 @@ const ClientManagement = () => {
   const updateClientMutation = useMutation({
     mutationFn: async (data: z.infer<typeof clientFormSchema> & { id: number }) => {
       const { id, ...clientData } = data;
-      console.log("Updating client with data:", { id, ...clientData });
       const res = await apiRequest('PATCH', `/api/clients/${id}`, clientData);
       return await res.json();
     },
-    onSuccess: (updatedClient) => {
+    onSuccess: () => {
       toast({
         title: 'Success',
         description: 'Client updated successfully.',
       });
-      
-      // Update the selected client data if it matches the updated client
-      if (selectedClient && selectedClient.id === updatedClient.id) {
-        setSelectedClient(updatedClient);
-      }
-      
-      // Invalidate and refetch client data
       queryClient.invalidateQueries({ queryKey: ['/api/clients'] });
-      
-      // Also invalidate the specific client's data
-      if (updatedClient.id) {
-        queryClient.invalidateQueries({ queryKey: ['/api/clients', updatedClient.id] });
-      }
-      
       setIsEditDialogOpen(false);
     },
     onError: (error: Error) => {
-      console.error("Client update error:", error);
       toast({
         title: 'Error',
         description: `Failed to update client: ${error.message}`,
@@ -458,40 +374,20 @@ const ClientManagement = () => {
       operation: string; 
       amount: number;
     }) => {
-      console.log(`Updating client ${clientId} credits: ${operation} ${amount}`);
       const res = await apiRequest(
         'POST', 
         `/api/clients/${clientId}/email-credits/${operation}`, 
-        { amount, reason: `Manual ${operation} by admin` }
+        { amount }
       );
       return await res.json();
     },
-    onSuccess: (updatedData) => {
+    onSuccess: () => {
       toast({
         title: 'Success',
         description: 'Credits updated successfully.',
       });
-      
-      console.log("Credit update successful", updatedData);
-      
-      // Update the selected client data if applicable
-      if (selectedClient && updatedData && updatedData.id === selectedClient.id) {
-        setSelectedClient(prev => ({
-          ...prev!,
-          emailCredits: updatedData.emailCredits,
-          emailCreditsUsed: updatedData.emailCreditsUsed,
-          emailCreditsPurchased: updatedData.emailCreditsPurchased
-        }));
-      }
-      
-      // Invalidate and refetch client and history data
       queryClient.invalidateQueries({ queryKey: ['/api/clients'] });
-      
-      if (selectedClientId) {
-        queryClient.invalidateQueries({ queryKey: ['/api/clients', selectedClientId] });
-        queryClient.invalidateQueries({ queryKey: ['/api/clients', selectedClientId, 'credit-history'] });
-      }
-      
+      queryClient.invalidateQueries({ queryKey: ['/api/clients', selectedClientId, 'credit-history'] });
       setIsCreditDialogOpen(false);
       creditForm.reset({
         amount: 100,
@@ -499,7 +395,6 @@ const ClientManagement = () => {
       });
     },
     onError: (error: Error) => {
-      console.error("Credit management error:", error);
       toast({
         title: 'Error',
         description: `Failed to update credits: ${error.message}`,
@@ -577,28 +472,15 @@ const ClientManagement = () => {
         throw new Error("No client selected");
       }
       
-      console.log('Creating client user with data:', userData);
-      
       const clientUserData = {
         ...userData,
-        // Convert client ID to number
-        clientId: Number(selectedClientId),
-        // Ensure metadata is an object
-        metadata: userData.metadata || {}
+        clientId: selectedClientId
       };
       
-      try {
-        const response = await apiRequest('POST', '/api/client-users', clientUserData);
-        const jsonResponse = await response.json();
-        console.log('Client user created:', jsonResponse);
-        return jsonResponse;
-      } catch (error) {
-        console.error('Error creating client user:', error);
-        throw error;
-      }
+      const response = await apiRequest('POST', '/api/client-users', clientUserData);
+      return response.json();
     },
-    onSuccess: (data) => {
-      console.log('Client user created successfully:', data);
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/clients', selectedClientId, 'users'] });
       toast({
         title: "User added",
@@ -608,7 +490,6 @@ const ClientManagement = () => {
       newUserForm.reset();
     },
     onError: (error: Error) => {
-      console.error('Client user creation error:', error);
       toast({
         title: "Error",
         description: `Failed to add client user: ${error.message}`,
@@ -997,34 +878,13 @@ const ClientManagement = () => {
                     <div className="space-y-3">
                       <h3 className="font-semibold text-sm text-gray-500">QUICK ACTIONS</h3>
                       <div className="space-y-2">
-                        <Button 
-                          className="w-full justify-start" 
-                          variant="outline"
-                          onClick={() => window.location.href = `/email-performance?clientId=${selectedClient.id}`}
-                        >
+                        <Button className="w-full justify-start" variant="outline">
                           <BarChart4 className="mr-2 h-4 w-4" /> View Campaign Analytics
                         </Button>
-                        <Button 
-                          className="w-full justify-start" 
-                          variant="outline"
-                          onClick={() => handleManageCredits(selectedClient)}
-                        >
-                          <CreditCard className="mr-2 h-4 w-4" /> Manage Credits
+                        <Button className="w-full justify-start" variant="outline">
+                          <Mail className="mr-2 h-4 w-4" /> Send Test Email
                         </Button>
-                        <Button 
-                          className="w-full justify-start" 
-                          variant="outline"
-                          onClick={() => {
-                            // Automatically scroll to users tab
-                            const usersTab = document.querySelector('[data-value="users"]');
-                            if (usersTab instanceof HTMLElement) {
-                              usersTab.click();
-                              setTimeout(() => {
-                                usersTab.scrollIntoView({ behavior: 'smooth' });
-                              }, 100);
-                            }
-                          }}
-                        >
+                        <Button className="w-full justify-start" variant="outline">
                           <User className="mr-2 h-4 w-4" /> Manage Users
                         </Button>
                       </div>
