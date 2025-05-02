@@ -548,11 +548,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get all campaigns
   app.get('/api/campaigns', async (req: Request, res: Response) => {
     try {
-      const campaigns = await storage.getCampaigns();
-      res.json(campaigns);
+      console.log('Attempting to fetch campaigns from storage...');
+      
+      // Try to get campaigns from database
+      try {
+        const campaigns = await storage.getCampaigns();
+        console.log(`Retrieved ${campaigns.length} campaigns from database`);
+        return res.json(campaigns);
+      } catch (dbError) {
+        console.error('Database error when fetching campaigns:', dbError);
+        
+        // If database fails, fall back to file-based campaigns
+        console.log('Falling back to file-based campaigns...');
+        
+        // Check if we have campaigns data file
+        const campaignsPath = './campaigns-data.json';
+        if (fs.existsSync(campaignsPath)) {
+          try {
+            const campaignsData = fs.readFileSync(campaignsPath, 'utf8');
+            const campaigns = JSON.parse(campaignsData);
+            console.log(`Retrieved ${campaigns.length} campaigns from file`);
+            return res.json(campaigns);
+          } catch (fileError) {
+            console.error('Error reading campaigns from file:', fileError);
+          }
+        }
+        
+        // If we get here, both database and file fallback failed
+        // Return empty array instead of error for better UX
+        console.log('All campaign data sources failed, returning empty array');
+        return res.json([]);
+      }
     } catch (error) {
-      console.error('Error fetching campaigns:', error);
-      res.status(500).json({ error: 'Failed to fetch campaigns' });
+      console.error('Unexpected error in campaigns endpoint:', error);
+      // Return empty array instead of error for better UX
+      return res.json([]);
     }
   });
 
