@@ -1107,4 +1107,5 @@ export class DbStorage implements IStorage {
 }
 
 // Create a singleton instance of the database storage
-export const dbStorage = new DbStorage();
+// Don't export a singleton instance here, it causes conflicts with storageManager.ts
+// The instance should only be created in storageManager.ts

@@ -28,12 +28,16 @@ function setupDatabaseConnection() {
 
     log('Connecting to PostgreSQL database using Neon serverless driver', 'db');
     
-    // Create Neon PostgreSQL connection
+    // Create Neon PostgreSQL connection with better error handling
     pool = new Pool({ 
       connectionString: databaseUrl,
       ssl: {
         rejectUnauthorized: false // For compatibility with many PostgreSQL providers
-      }
+      },
+      // Add connection timeout for better error handling
+      connectionTimeoutMillis: 10000,
+      // Increase max clients for better concurrency
+      max: 20
     });
     
     // Extract only table schemas from the schema object, excluding relation definitions
@@ -43,6 +47,8 @@ function setupDatabaseConnection() {
       // Check if the item is a table schema (has name property)
       if (typeof item === 'object' && item !== null && 'name' in item) {
         tableSchemas[key] = item;
+        // Log which tables we're using from the schema
+        log(`Loaded table schema: ${key}`, 'db');
       }
     }
     

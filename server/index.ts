@@ -73,8 +73,34 @@ import { initializeRolesAndPermissions } from './init-roles-permissions';
       try {
         // Extra verification query to ensure database is fully ready
         const { pool } = await import('./db');
-        const verifyResult = await pool.query('SELECT COUNT(*) FROM clients');
-        log(`Database verification successful - found ${verifyResult.rows[0].count} clients`, 'server');
+        
+        // First verify tables exist with a more robust check
+        const tablesQuery = await pool.query(`
+          SELECT table_name FROM information_schema.tables 
+          WHERE table_schema = 'public'
+        `);
+        
+        if (tablesQuery.rows.length > 0) {
+          log(`Database verification: Found ${tablesQuery.rows.length} tables in schema`, 'server');
+          
+          // Now check the clients table specifically
+          const verifyResult = await pool.query('SELECT COUNT(*) FROM clients');
+          log(`Database verification successful - found ${verifyResult.rows[0].count} clients`, 'server');
+          
+          // Add one more check to make sure contacts are accessible
+          const contactsCheck = await pool.query('SELECT COUNT(*) FROM contacts');
+          log(`Database verification for contacts - found ${contactsCheck.rows[0].count} contacts`, 'server');
+          
+          // Verify contact_lists table structure
+          const listRelationsCheck = await pool.query(`
+            SELECT column_name, data_type 
+            FROM information_schema.columns 
+            WHERE table_name = 'contact_lists'
+          `);
+          log(`Contact-list relations columns: ${listRelationsCheck.rows.map(r => r.column_name).join(', ')}`, 'server');
+        } else {
+          log('Warning: No tables found in database schema!', 'server');
+        }
       } catch (verifyError) {
         log(`Database verification warning: ${verifyError.message}`, 'server');
         // Continue anyway as we've already determined database is available

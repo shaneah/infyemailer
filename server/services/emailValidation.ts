@@ -6,7 +6,7 @@ import {
   EmailValidationResult,
   isDisposableEmail
 } from "../../shared/validation";
-import { dbStorage } from "../dbStorage";
+import { getStorage } from "../storageManager";
 import { eq } from "drizzle-orm";
 import { contacts } from "../../shared/schema";
 
@@ -134,7 +134,8 @@ export class EmailValidationService {
 
     // Check if the email already exists in the database
     try {
-      const existingContact = await dbStorage.getContactByEmail(normalizedEmail);
+      const storage = getStorage();
+      const existingContact = await storage.getContactByEmail(normalizedEmail);
       if (existingContact) {
         return { 
           isValid: false, 
@@ -177,6 +178,7 @@ export class EmailValidationService {
     
     // Check for existing emails in the database
     const existingEmails: string[] = [];
+    const storage = getStorage();
     
     // We'll batch this in groups of 50 to avoid overloading the database
     const batchSize = 50;
@@ -187,7 +189,7 @@ export class EmailValidationService {
       const existingBatch = await Promise.all(
         batch.map(async (email) => {
           try {
-            const contact = await dbStorage.getContactByEmail(email);
+            const contact = await storage.getContactByEmail(email);
             return contact ? email : null;
           } catch (error) {
             console.error(`Database check failed for ${email}:`, error);
@@ -249,9 +251,10 @@ export class EmailValidationService {
     const disposable = isDisposableEmail(normalizedEmail);
     
     // Check for duplicate in database
+    const storage = getStorage();
     let isDuplicate = false;
     try {
-      const existing = await dbStorage.getContactByEmail(normalizedEmail);
+      const existing = await storage.getContactByEmail(normalizedEmail);
       isDuplicate = !!existing;
     } catch (error) {
       console.error(`Database check failed for ${email}:`, error);
