@@ -11,7 +11,7 @@ import {
   FileUp, FileDown, FileType, FileJson, FileText as FileTextIcon, 
   ChevronUp, ChevronDown, Sparkles, Copy, Wand2, MailCheck, 
   ShieldCheck, Zap, Shield, Mail, Globe, Trash2, FileCheck, AlertTriangle,
-  Eye, BarChart3, BarChart4, Layers, Gem, Lightbulb, Check, Mail as MailIcon
+  Eye, BarChart3, BarChart4, Layers, Gem, Lightbulb, Check, Mail as MailIcon, X
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
@@ -640,19 +640,24 @@ const EmailValidation = () => {
               <CardContent className="p-6">
                 <div className="flex flex-col space-y-5">
                   <div className="grid gap-3">
-                    <Label htmlFor="single-email" className="text-indigo-900 font-medium flex items-center gap-2">
-                      <Lightbulb className="h-4 w-4 text-indigo-600" />
-                      Enter email address to validate
+                    <Label htmlFor="single-email" className="text-blue-900 font-medium flex items-center gap-2">
+                      <Lightbulb className="h-5 w-5 text-blue-600" />
+                      <span className="text-lg">Enter email address to validate</span>
                     </Label>
-                    <div className="relative">
-                      <Input
-                        id="single-email"
-                        placeholder="email@example.com"
-                        value={singleEmail}
-                        onChange={(e) => setSingleEmail(e.target.value)}
-                        className="pl-10 pr-4 py-3 border-indigo-300 focus:border-indigo-500 focus:ring-indigo-500/20 shadow-sm rounded-lg"
-                      />
-                      <Mail className="absolute left-3 top-3 h-5 w-5 text-indigo-400" />
+                    <div className="relative mt-2">
+                      <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 to-cyan-400 rounded-xl blur-sm opacity-30"></div>
+                      <div className="relative">
+                        <Input
+                          id="single-email"
+                          placeholder="email@example.com"
+                          value={singleEmail}
+                          onChange={(e) => setSingleEmail(e.target.value)}
+                          className="pl-12 pr-4 py-6 border-blue-300 focus:border-blue-500 focus:ring-blue-400/30 shadow-md rounded-xl text-lg"
+                        />
+                        <div className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center justify-center h-8 w-8 rounded-full bg-gradient-to-br from-blue-500/20 to-cyan-500/20 backdrop-blur-sm">
+                          <Mail className="h-5 w-5 text-blue-500" />
+                        </div>
+                      </div>
                     </div>
                   </div>
                   
@@ -682,13 +687,13 @@ const EmailValidation = () => {
                         variant="outline" 
                         onClick={checkEmailHealth} 
                         disabled={isLoading}
-                        className="w-full border-indigo-300 text-indigo-700 hover:bg-indigo-50 shadow-sm"
+                        className="w-full bg-gradient-to-r from-indigo-50 to-purple-50 border-purple-300 text-purple-700 hover:bg-gradient-to-r hover:from-indigo-100 hover:to-purple-100 shadow-sm shadow-purple-500/5 py-6 rounded-xl"
                       >
                         {isLoading ? 
-                          <RefreshCw className="h-4 w-4 animate-spin mr-2" /> : 
-                          <ShieldCheck className="h-4 w-4 mr-2 text-indigo-600" />
+                          <RefreshCw className="h-5 w-5 animate-spin mr-2" /> : 
+                          <ShieldCheck className="h-5 w-5 mr-2 text-purple-600" />
                         }
-                        Deep Health Analysis
+                        <span className="font-medium">Deep Health Analysis</span>
                       </Button>
                     </motion.div>
                   </div>
@@ -750,16 +755,19 @@ const EmailValidation = () => {
                         exit={{ opacity: 0, height: 0 }}
                         transition={{ duration: 0.3 }}
                       >
-                        <Card className="mt-4 overflow-hidden border border-indigo-200 shadow-lg">
-                          <CardHeader className="pb-2 bg-gradient-to-br from-indigo-50 to-purple-50 border-b border-indigo-100">
-                            <CardTitle className="text-lg flex items-center text-indigo-900">
-                              <div className="mr-3 flex items-center justify-center h-8 w-8 rounded-lg bg-indigo-100">
+                        <Card className="mt-4 overflow-hidden border border-purple-200 shadow-xl">
+                          <CardHeader className="pb-3 bg-gradient-to-br from-indigo-600 via-purple-600 to-purple-700 border-b border-purple-500/30">
+                            <CardTitle className="text-lg flex items-center text-white">
+                              <div className="mr-3 flex items-center justify-center h-10 w-10 rounded-lg bg-gradient-to-br from-indigo-500/40 to-purple-600/40 backdrop-blur-sm shadow-md shadow-purple-800/20 border border-purple-500/30">
                                 {singleHealthResult.isValid 
-                                  ? <ShieldCheck className="h-5 w-5 text-indigo-600" /> 
-                                  : <AlertTriangle className="h-5 w-5 text-amber-500" />
+                                  ? <ShieldCheck className="h-6 w-6 text-purple-100" /> 
+                                  : <AlertTriangle className="h-6 w-6 text-amber-300" />
                                 }
                               </div>
-                              Email Health Analysis
+                              <div className="flex flex-col">
+                                <span className="font-semibold text-lg">Advanced Email Health Analysis</span>
+                                <span className="text-purple-100 text-sm mt-1 font-normal">Comprehensive diagnostic results for deliverability optimization</span>
+                              </div>
                             </CardTitle>
                           </CardHeader>
                           <CardContent className="p-5">
@@ -851,40 +859,58 @@ const EmailValidation = () => {
                             
                             {singleHealthResult.suggestedFix && (
                               <motion.div 
-                                className="mt-5 p-4 bg-gradient-to-r from-indigo-50 to-purple-50 text-indigo-900 rounded-lg border border-indigo-200 shadow-sm"
+                                className="mt-5 relative rounded-xl overflow-hidden shadow-lg"
                                 initial={{ opacity: 0, y: -10 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.2 }}
                               >
-                                <div className="flex items-start">
-                                  <div className="flex-shrink-0 mr-3 bg-indigo-100 p-2 rounded-lg">
-                                    <Wand2 className="h-5 w-5 text-indigo-600" />
-                                  </div>
-                                  <div className="flex-1">
-                                    <h3 className="font-medium">AI Suggestion</h3>
-                                    <p className="text-indigo-800 mt-1">
-                                      Did you mean <span className="text-indigo-700 font-semibold">{singleHealthResult.suggestedFix}</span>?
-                                    </p>
-                                    <Button 
-                                      variant="outline" 
-                                      size="sm" 
-                                      className="mt-3 bg-white border-indigo-300 text-indigo-700 hover:bg-indigo-50"
-                                      onClick={() => setSingleEmail(singleHealthResult.suggestedFix || '')}
-                                    >
-                                      <Sparkles className="h-4 w-4 mr-2 text-indigo-500" />
-                                      Apply Suggestion
-                                    </Button>
+                                <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-600 opacity-90"></div>
+                                <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 to-purple-600 opacity-20 blur-xl"></div>
+                                <div className="relative p-5">
+                                  <div className="flex items-start">
+                                    <div className="flex-shrink-0 mr-4 bg-white/20 backdrop-blur-sm p-3 rounded-lg shadow-md">
+                                      <Wand2 className="h-6 w-6 text-white" />
+                                    </div>
+                                    <div className="flex-1">
+                                      <h3 className="font-semibold text-lg text-white flex items-center">
+                                        <Sparkles className="h-5 w-5 mr-2 text-yellow-300" />
+                                        AI Smart Correction
+                                      </h3>
+                                      <p className="text-blue-100 mt-2 text-lg">
+                                        Did you mean <span className="text-white font-bold bg-blue-700/30 px-2 py-0.5 rounded-md">{singleHealthResult.suggestedFix}</span>?
+                                      </p>
+                                      <div className="mt-4 flex space-x-3">
+                                        <Button 
+                                          className="bg-white hover:bg-blue-50 text-blue-700 border-none shadow-md"
+                                          onClick={() => setSingleEmail(singleHealthResult.suggestedFix || '')}
+                                        >
+                                          <Sparkles className="h-4 w-4 mr-2 text-blue-500" />
+                                          Apply Correction
+                                        </Button>
+                                        <Button 
+                                          variant="ghost" 
+                                          className="border border-white/30 text-white hover:bg-white/10"
+                                        >
+                                          <X className="h-4 w-4 mr-2" />
+                                          Dismiss
+                                        </Button>
+                                      </div>
+                                    </div>
                                   </div>
                                 </div>
                               </motion.div>
                             )}
                             
-                            <div className="mt-5 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                              <h3 className="text-gray-700 font-medium flex items-center mb-1">
-                                <Eye className="h-4 w-4 mr-2 text-indigo-600" />
-                                Detailed Analysis
+                            <div className="mt-5 p-5 rounded-xl bg-gradient-to-r from-indigo-50 via-purple-50 to-blue-50 border border-indigo-200 shadow-md">
+                              <h3 className="text-indigo-800 font-semibold flex items-center mb-3 text-lg">
+                                <div className="flex items-center justify-center h-8 w-8 rounded-full bg-gradient-to-r from-indigo-100 to-blue-100 p-1.5 mr-3 shadow-sm">
+                                  <Eye className="h-5 w-5 text-indigo-600" />
+                                </div>
+                                Advanced Analysis Report
                               </h3>
-                              <p className="text-gray-600 text-sm">{singleHealthResult.details}</p>
+                              <div className="p-4 bg-white/80 backdrop-blur-sm rounded-lg border border-indigo-100 shadow-sm">
+                                <p className="text-indigo-700 leading-relaxed">{singleHealthResult.details}</p>
+                              </div>
                             </div>
                           </CardContent>
                         </Card>
