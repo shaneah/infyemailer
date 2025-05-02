@@ -70,6 +70,16 @@ const insertCampaignVariantSchema = createInsertSchema(campaignVariants).omit({ 
 const insertVariantAnalyticsSchema = createInsertSchema(variantAnalytics).omit({ id: true });
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Set up file upload middleware for template imports
+  app.use(fileUpload({
+    createParentPath: true,
+    limits: { fileSize: 50 * 1024 * 1024 }, // 50MB max file size
+    abortOnLimit: true,
+    useTempFiles: true,
+    tempFileDir: '/tmp/',
+    debug: true
+  }));
+  
   // Client email performance API routes
   app.get('/api/client/email-performance/metrics', (req: Request, res: Response) => {
     console.log('GET /api/client/email-performance/metrics', req.query);
@@ -819,6 +829,150 @@ export async function registerRoutes(app: Express): Promise<Server> {
         message: 'Error processing your request',
         response: 'I apologize, but I encountered an error processing your request. Please try again later.'
       });
+    }
+  });
+
+  // Template Management - ZIP Import endpoint
+  app.post('/api/templates/import-zip', async (req: Request, res: Response) => {
+    try {
+      // Get the template name from the request
+      const { name } = req.body;
+      
+      if (!name) {
+        return res.status(400).json({ error: 'Template name is required' });
+      }
+      
+      // Check if a file was uploaded
+      if (!req.files || Object.keys(req.files).length === 0) {
+        return res.status(400).json({ error: 'No file was uploaded' });
+      }
+      
+      // Get the uploaded file
+      const uploadedFile = req.files.file as UploadedFile;
+      
+      // Validate that it's a ZIP file
+      if (!uploadedFile.name || 
+         !(uploadedFile.name.toLowerCase().endsWith('.zip') || 
+           uploadedFile.mimetype === 'application/zip' || 
+           uploadedFile.mimetype === 'application/x-zip-compressed')) {
+        return res.status(400).json({ error: 'Invalid file format. Please upload a ZIP file.' });
+      }
+      
+      // Now let's actually process the ZIP file
+      try {
+        // Create a new AdmZip instance with the uploaded file
+        const zip = new AdmZip(uploadedFile.tempFilePath || uploadedFile.data);
+        
+        // Get the entries
+        const zipEntries = zip.getEntries();
+        
+        // Look for the index.html file first
+        let indexHtmlEntry = zipEntries.find(entry => 
+          entry.entryName.toLowerCase() === 'index.html' ||
+          entry.entryName.toLowerCase().endsWith('/index.html')
+        );
+        
+        // If index.html isn't found, look for any HTML file
+        if (!indexHtmlEntry) {
+          indexHtmlEntry = zipEntries.find(entry => 
+            entry.entryName.toLowerCase().endsWith('.html') ||
+            entry.entryName.toLowerCase().endsWith('.htm')
+          );
+        }
+        
+        if (!indexHtmlEntry) {
+          return res.status(400).json({ 
+            error: 'Invalid ZIP file. No HTML files found in the archive.' 
+          });
+        }
+        
+        // Extract the content of the HTML file
+        const htmlContent = indexHtmlEntry.getData().toString('utf8');
+        
+        // Create a template content object with JSON structure
+        const templateContent = {
+          name: name,
+          subject: `${name}`,
+          previewText: `${name} - Imported ZIP Template`,
+          sections: [
+            {
+              id: `section-${Date.now()}`,
+              elements: [
+                {
+                  id: `element-${Date.now()}`,
+                  type: "text",
+                  content: { 
+                    text: "This template was imported from a ZIP file. You can now edit it using the drag-and-drop editor." 
+                  },
+                  styles: { 
+                    fontSize: "16px", 
+                    color: "#666666", 
+                    textAlign: "left" 
+                  }
+                },
+                {
+                  id: `element-${Date.now() + 1}`,
+                  type: "html",
+                  content: { 
+                    html: htmlContent 
+                  },
+                  styles: {}
+                }
+              ],
+              styles: {
+                backgroundColor: "#ffffff",
+                padding: "12px"
+              }
+            }
+          ],
+          styles: {
+            fontFamily: "Arial, sans-serif",
+            backgroundColor: "#f4f4f4",
+            maxWidth: "600px"
+          }
+        };
+        
+        // Generate a list of all the resources in the ZIP
+        const resources = zipEntries
+          .filter(entry => !entry.isDirectory && 
+                          entry.entryName !== indexHtmlEntry.entryName &&
+                          !entry.entryName.startsWith('__MACOSX/')) // Skip macOS specific files
+          .map(entry => ({
+            name: entry.entryName,
+            size: entry.header.size
+          }));
+        
+        // Create the template with additional logging
+        console.log(`Importing ZIP template: ${name}`);
+        
+        const template = await storage.createTemplate({
+          name: name,
+          content: JSON.stringify(templateContent),
+          description: `Imported ZIP template: ${name}`,
+          category: 'imported',
+          metadata: {
+            importedFromZip: true,
+            originalFileName: uploadedFile.name,
+            fileSizeKB: Math.round(uploadedFile.size / 1024),
+            importDate: new Date().toISOString(),
+            originalHtml: htmlContent,
+            resources: resources,
+            htmlFileName: indexHtmlEntry.entryName,
+            new: true
+          }
+        });
+        
+        console.log(`ZIP template imported successfully with ID: ${template.id}`);
+        res.status(201).json(template);
+      } catch (zipError: any) {
+        console.error('Error processing ZIP file:', zipError);
+        return res.status(500).json({ 
+          error: 'Failed to process ZIP file: ' + (zipError.message || 'Unknown error')
+        });
+      }
+    } catch (error: any) {
+      console.error('Error importing ZIP template:', error);
+      res.status(500).json({ error: 'Failed to import template' });
     }
   });
 
