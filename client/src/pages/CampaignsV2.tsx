@@ -50,12 +50,23 @@ const CampaignCard = ({ campaign }: { campaign: any }) => {
   const statusClass = statusColors[campaign.status.label as keyof typeof statusColors] || "bg-gray-100 text-gray-800 border-gray-200";
   const iconBg = getIconBg(campaign.icon.color);
 
+  // Get a unique background gradient based on campaign ID
+  const bgGradients = [
+    "bg-gradient-to-br from-violet-50 to-purple-50 border-purple-200",
+    "bg-gradient-to-br from-emerald-50 to-teal-50 border-teal-200",
+    "bg-gradient-to-br from-amber-50 to-orange-50 border-orange-200", 
+    "bg-gradient-to-br from-blue-50 to-indigo-50 border-indigo-200",
+    "bg-gradient-to-br from-pink-50 to-rose-50 border-rose-200"
+  ];
+  
+  const bgGradient = bgGradients[campaign.id % bgGradients.length];
+
   return (
     <motion.div 
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden hover:shadow-md hover:border-blue-200 transition-all duration-300"
+      className={`${bgGradient} rounded-xl border shadow-sm overflow-hidden hover:shadow-md transition-all duration-300`}
     >
       <div className="p-5">
         <div className="flex items-center justify-between mb-3">
@@ -135,12 +146,12 @@ const StatCard = ({ stat, index }: { stat: any, index: number }) => {
   if (stat.title.includes('Sent')) StatIcon = Send;
   if (stat.title.includes('Subscriber')) StatIcon = Users;
   
-  // Determine gradient colors based on index
+  // More vibrant, colorful gradient combinations
   const gradients = [
-    "from-blue-500 to-indigo-600",
-    "from-emerald-500 to-teal-600",
-    "from-amber-500 to-orange-600",
-    "from-rose-500 to-pink-600"
+    "from-purple-500 to-pink-600",
+    "from-emerald-400 to-teal-600",
+    "from-amber-400 to-orange-500",
+    "from-blue-400 to-indigo-600"
   ];
   
   const gradientClass = gradients[index % gradients.length];
@@ -246,13 +257,19 @@ export default function CampaignsV2() {
       animate={{ opacity: 1 }}
       className="px-4 py-6 max-w-[1600px] mx-auto"
     >
-      {/* Header section with gradient background */}
+      {/* Header section with vibrant gradient background */}
       <motion.div 
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.5 }}
-        className="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-xl p-6 shadow-lg mb-8 text-white"
+        className="bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 rounded-xl p-6 shadow-lg mb-8 text-white overflow-hidden relative"
       >
+        {/* Decorative elements for visual appeal */}
+        <div className="absolute top-0 left-0 w-full h-full overflow-hidden opacity-10">
+          <div className="absolute -top-8 -left-8 w-40 h-40 rounded-full bg-white"></div>
+          <div className="absolute top-1/2 right-0 w-60 h-60 rounded-full bg-white transform -translate-y-1/2 translate-x-1/3"></div>
+          <div className="absolute bottom-0 left-1/3 w-20 h-20 rounded-full bg-white"></div>
+        </div>
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold mb-2">Email Campaigns</h1>
@@ -326,41 +343,54 @@ export default function CampaignsV2() {
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
         <div className="relative w-full sm:max-w-md">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Search className="h-4 w-4 text-gray-400" />
+            <Search className="h-4 w-4 text-purple-400" />
           </div>
           <input
             type="text"
-            className="pl-10 pr-4 py-2 w-full border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+            className="pl-10 pr-4 py-2.5 w-full border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-400 focus:border-purple-400 text-sm bg-white/70 shadow-sm"
             placeholder="Search campaigns..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
+          <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none opacity-50">
+            <div className="text-xs font-medium text-purple-500">
+              {filteredCampaigns.length} results
+            </div>
+          </div>
         </div>
         
         <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-start">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-auto">
-            <TabsList className="bg-gray-100 p-1">
+            <TabsList className="bg-gradient-to-r from-purple-50 to-indigo-50 border border-purple-100 p-1 rounded-lg">
               <TabsTrigger 
                 value="all" 
-                className={`text-xs px-3 py-1.5 ${activeTab === 'all' ? 'bg-white text-blue-700 shadow-sm' : 'text-gray-500'}`}
+                className={`text-xs px-3 py-1.5 ${activeTab === 'all' ? 
+                'bg-gradient-to-r from-purple-500 to-indigo-500 text-white shadow-md' : 
+                'text-gray-600 hover:text-purple-600 transition-colors'}`}
               >
                 All
               </TabsTrigger>
               <TabsTrigger 
                 value="active" 
-                className={`text-xs px-3 py-1.5 ${activeTab === 'active' ? 'bg-white text-blue-700 shadow-sm' : 'text-gray-500'}`}
+                className={`text-xs px-3 py-1.5 ${activeTab === 'active' ? 
+                'bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-md' : 
+                'text-gray-600 hover:text-emerald-600 transition-colors'}`}
               >
                 Active
               </TabsTrigger>
               <TabsTrigger 
                 value="sent" 
-                className={`text-xs px-3 py-1.5 ${activeTab === 'sent' ? 'bg-white text-blue-700 shadow-sm' : 'text-gray-500'}`}
+                className={`text-xs px-3 py-1.5 ${activeTab === 'sent' ? 
+                'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md' : 
+                'text-gray-600 hover:text-amber-600 transition-colors'}`}
               >
                 Sent
               </TabsTrigger>
               <TabsTrigger 
                 value="draft" 
-                className={`text-xs px-3 py-1.5 ${activeTab === 'draft' ? 'bg-white text-blue-700 shadow-sm' : 'text-gray-500'}`}
+                className={`text-xs px-3 py-1.5 ${activeTab === 'draft' ? 
+                'bg-gradient-to-r from-blue-500 to-sky-500 text-white shadow-md' : 
+                'text-gray-600 hover:text-blue-600 transition-colors'}`}
               >
                 Drafts
               </TabsTrigger>
@@ -368,11 +398,19 @@ export default function CampaignsV2() {
           </Tabs>
 
           <div className="hidden lg:flex items-center gap-2">
-            <Button variant="outline" size="sm" className="text-xs border-gray-200">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="text-xs border border-purple-200 text-purple-700 hover:bg-purple-50 hover:text-purple-800 transition-colors"
+            >
               <Filter className="h-3.5 w-3.5 mr-1" />
               Filter
             </Button>
-            <Button variant="outline" size="sm" className="text-xs border-gray-200">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="text-xs border border-indigo-200 text-indigo-700 hover:bg-indigo-50 hover:text-indigo-800 transition-colors"
+            >
               <Download className="h-3.5 w-3.5 mr-1" />
               Export
             </Button>
@@ -417,39 +455,64 @@ export default function CampaignsV2() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: 0.3 }}
-            className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-100 border-dashed shadow-sm flex flex-col items-center justify-center p-5 hover:shadow-md hover:border-blue-300 transition-all duration-300 cursor-pointer"
+            className="bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50 rounded-xl border border-pink-200 border-dashed shadow-sm flex flex-col items-center justify-center p-5 hover:shadow-md hover:border-pink-300 transition-all duration-300 cursor-pointer overflow-hidden relative"
             onClick={() => setShowNewCampaignModal(true)}
           >
-            <div className="rounded-full bg-blue-100 p-3 mb-4">
-              <PlusCircle className="h-8 w-8 text-blue-600" />
+            {/* Decorative elements */}
+            <div className="absolute top-0 left-0 w-full h-full overflow-hidden opacity-20 pointer-events-none">
+              <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-gradient-to-br from-purple-300 to-pink-300"></div>
+              <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-gradient-to-tr from-orange-300 to-rose-300"></div>
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Create New Campaign</h3>
-            <p className="text-sm text-gray-500 text-center mb-2">Get started with a new email campaign</p>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="mt-2 bg-white border-blue-200 text-blue-700 hover:bg-blue-50"
-            >
-              <Plus className="h-4 w-4 mr-1" />
-              New Campaign
-            </Button>
+            
+            <div className="relative z-10">
+              <div className="rounded-full bg-gradient-to-r from-purple-500 to-pink-500 p-3 mb-4 transform hover:rotate-12 transition-transform shadow-md">
+                <PlusCircle className="h-8 w-8 text-white" />
+              </div>
+              <h3 className="text-lg font-semibold text-transparent bg-clip-text bg-gradient-to-r from-purple-700 to-pink-700 mb-2">
+                Create New Campaign
+              </h3>
+              <p className="text-sm text-gray-600 text-center mb-4">Launch your next stunning email campaign</p>
+              <Button 
+                size="sm" 
+                className="mt-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white border-0 hover:from-purple-700 hover:to-pink-700 shadow-sm"
+              >
+                <Plus className="h-4 w-4 mr-1" />
+                New Campaign
+              </Button>
+            </div>
           </motion.div>
         </div>
       ) : (
-        <div className="bg-gray-50 rounded-xl border border-gray-200 p-8 text-center">
-          <div className="bg-white rounded-full p-3 inline-flex items-center justify-center mb-4 shadow-sm">
-            <Mail className="h-8 w-8 text-blue-500" />
+        <div className="bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50 rounded-xl border border-pink-200 p-8 text-center relative overflow-hidden">
+          {/* Decorative elements */}
+          <div className="absolute top-0 left-0 w-full h-full overflow-hidden opacity-10 pointer-events-none">
+            <div className="absolute top-0 right-0 w-64 h-64 rounded-full bg-gradient-to-br from-purple-300 to-pink-300 transform translate-x-1/3 -translate-y-1/3"></div>
+            <div className="absolute bottom-0 left-0 w-64 h-64 rounded-full bg-gradient-to-tr from-orange-300 to-rose-300 transform -translate-x-1/3 translate-y-1/3"></div>
           </div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">No campaigns found</h3>
-          <p className="text-sm text-gray-500 max-w-md mx-auto mb-6">
-            {searchQuery.trim() !== "" 
-              ? `No campaigns matching "${searchQuery}" were found. Try a different search term.` 
-              : "You don't have any campaigns yet. Create your first campaign to get started with email marketing."}
-          </p>
-          <Button onClick={() => setShowNewCampaignModal(true)}>
-            <Plus className="h-4 w-4 mr-2" />
-            Create Campaign
-          </Button>
+          
+          <div className="relative z-10">
+            <div className="bg-gradient-to-r from-purple-500 to-pink-500 rounded-full p-3 inline-flex items-center justify-center mb-4 shadow-md">
+              <Mail className="h-8 w-8 text-white" />
+            </div>
+            
+            <h3 className="text-xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-purple-700 to-pink-700 mb-2">
+              {searchQuery.trim() !== "" ? "No matching campaigns" : "Start your email marketing journey"}
+            </h3>
+            
+            <p className="text-sm text-gray-600 max-w-md mx-auto mb-6">
+              {searchQuery.trim() !== "" 
+                ? <span>No campaigns matching "<span className="font-medium text-purple-600">{searchQuery}</span>" were found. Try a different search term.</span> 
+                : "Create your first email campaign to engage with your audience. Our intuitive tools make it easy to design, send, and track effective email marketing campaigns."}
+            </p>
+            
+            <Button 
+              onClick={() => setShowNewCampaignModal(true)}
+              className="bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700 shadow-md"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              {searchQuery.trim() !== "" ? "Create New Campaign" : "Get Started"}
+            </Button>
+          </div>
         </div>
       )}
 
