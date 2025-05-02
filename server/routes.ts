@@ -838,6 +838,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Get the template name from the request
       const { name } = req.body;
       
+      console.log(`ZIP template import request for template: ${name}`);
+      console.log(`Request files:`, req.files ? Object.keys(req.files) : 'No files');
+      
       if (!name) {
         return res.status(400).json({ error: 'Template name is required' });
       }
@@ -849,6 +852,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Get the uploaded file
       const uploadedFile = req.files.file as UploadedFile;
+      console.log(`Received file: ${uploadedFile.name}, Size: ${uploadedFile.size}, MIME: ${uploadedFile.mimetype}`);
       
       // Validate that it's a ZIP file
       if (!uploadedFile.name || 
@@ -860,11 +864,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Now let's actually process the ZIP file
       try {
+        // Check for tempFilePath or data
+        if (!uploadedFile.tempFilePath && !uploadedFile.data) {
+          console.error('Neither tempFilePath nor data is available in the uploaded file');
+          return res.status(500).json({ error: 'Invalid file upload data' });
+        }
+        
         // Create a new AdmZip instance with the uploaded file
         const zip = new AdmZip(uploadedFile.tempFilePath || uploadedFile.data);
         
         // Get the entries
         const zipEntries = zip.getEntries();
+        console.log(`ZIP file has ${zipEntries.length} entries`);
         
         // Look for the index.html file first
         let indexHtmlEntry = zipEntries.find(entry => 
@@ -885,6 +896,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
             error: 'Invalid ZIP file. No HTML files found in the archive.' 
           });
         }
+        
+        console.log(`Found HTML file: ${indexHtmlEntry.entryName}`);
         
         // Extract the content of the HTML file
         const htmlContent = indexHtmlEntry.getData().toString('utf8');
@@ -942,28 +955,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
             size: entry.header.size
           }));
         
-        // Create the template with additional logging
-        console.log(`Importing ZIP template: ${name}`);
+        console.log(`Found ${resources.length} additional resources in ZIP`);
         
-        const template = await storage.createTemplate({
-          name: name,
-          content: JSON.stringify(templateContent),
-          description: `Imported ZIP template: ${name}`,
-          category: 'imported',
-          metadata: {
-            importedFromZip: true,
-            originalFileName: uploadedFile.name,
-            fileSizeKB: Math.round(uploadedFile.size / 1024),
-            importDate: new Date().toISOString(),
-            originalHtml: htmlContent,
-            resources: resources,
-            htmlFileName: indexHtmlEntry.entryName,
-            new: true
-          }
-        });
-        
-        console.log(`ZIP template imported successfully with ID: ${template.id}`);
-        res.status(201).json(template);
+        try {
+          // Create the template with additional logging
+          console.log(`Importing ZIP template: ${name}`);
+          
+          const template = await storage.createTemplate({
+            name: name,
+            content: JSON.stringify(templateContent),
+            description: `Imported ZIP template: ${name}`,
+            category: 'imported',
+            metadata: {
+              importedFromZip: true,
+              originalFileName: uploadedFile.name,
+              fileSizeKB: Math.round(uploadedFile.size / 1024),
+              importDate: new Date().toISOString(),
+              originalHtml: htmlContent,
+              resources: resources,
+              htmlFileName: indexHtmlEntry.entryName,
+              new: true
+            }
+          });
+          
+          console.log(`ZIP template imported successfully with ID: ${template.id}`);
+          // Return a proper JSON response
+          return res.status(201).json({
+            id: template.id,
+            name: template.name,
+            description: template.description,
+            message: 'Template imported successfully'
+          });
+        } catch (storageError: any) {
+          console.error('Error saving template to storage:', storageError);
+          return res.status(500).json({ 
+            error: 'Failed to save template: ' + (storageError.message || 'Unknown error')
+          });
+        }
       } catch (zipError: any) {
         console.error('Error processing ZIP file:', zipError);
         return res.status(500).json({ 
@@ -972,7 +1000,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
     } catch (error: any) {
       console.error('Error importing ZIP template:', error);
-      res.status(500).json({ error: 'Failed to import template' });
+      return res.status(500).json({ error: 'Failed to import template: ' + (error.message || 'Unknown error') });
     }
   });
 

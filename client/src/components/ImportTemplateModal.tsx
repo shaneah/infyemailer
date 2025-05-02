@@ -124,9 +124,17 @@ export default function ImportTemplateModal({ open, onOpenChange, onImportSucces
   // Import ZIP template mutation
   const importZipMutation = useMutation({
     mutationFn: async (data: { name: string; file: File }) => {
+      console.log("Preparing ZIP upload for template:", data.name);
+      
       const formData = new FormData();
       formData.append("name", data.name);
       formData.append("file", data.file);
+      
+      console.log("File information:", {
+        name: data.file.name,
+        type: data.file.type,
+        size: data.file.size
+      });
       
       // Use regular fetch for file uploads instead of apiRequest
       // This avoids issues with Content-Type and JSON stringification
@@ -136,12 +144,42 @@ export default function ImportTemplateModal({ open, onOpenChange, onImportSucces
         credentials: "include"
       });
       
+      console.log("Response status:", response.status, response.statusText);
+      
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || `Server returned ${response.status}: ${response.statusText}`);
+        // Try to parse error response as JSON
+        let errorMessage = `Server returned ${response.status}: ${response.statusText}`;
+        
+        try {
+          const contentType = response.headers.get("content-type");
+          if (contentType && contentType.includes("application/json")) {
+            const errorData = await response.json();
+            if (errorData && errorData.error) {
+              errorMessage = errorData.error;
+            }
+          } else {
+            // If not JSON, try to get text
+            const errorText = await response.text();
+            if (errorText) {
+              errorMessage = `Server error: ${errorText.substring(0, 100)}${errorText.length > 100 ? '...' : ''}`;
+            }
+          }
+        } catch (parseError) {
+          console.error("Error parsing error response:", parseError);
+        }
+        
+        throw new Error(errorMessage);
       }
       
-      return await response.json();
+      // Parse successful response
+      try {
+        const result = await response.json();
+        console.log("Template import successful:", result);
+        return result;
+      } catch (jsonError) {
+        console.error("Error parsing success response:", jsonError);
+        throw new Error("Invalid response from server: not valid JSON");
+      }
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['/api/templates'] });
