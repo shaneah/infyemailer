@@ -1043,6 +1043,8 @@ export default function Contacts() {
       ...values,
       list: values.list === "_none" ? undefined : values.list
     };
+    
+    console.log("Submitting contact with values:", submitValues);
     addContactMutation.mutate(submitValues);
   }
 

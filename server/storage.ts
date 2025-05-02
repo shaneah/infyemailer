@@ -174,10 +174,13 @@ export interface IStorage {
 
   // Contact-List methods
   getContactLists(): Promise<ContactList[]>;
+  getContactListRelations(contactId: number, listId?: number): Promise<ContactList[]>;
   addContactToList(contactList: InsertContactList): Promise<ContactList>;
   removeContactFromList(contactId: number, listId: number): Promise<boolean>;
+  getContactsInList(listId: number): Promise<Contact[]>;
   getContactsByList(listId: number): Promise<Contact[]>;
   getListsByContact(contactId: number): Promise<List[]>;
+  getListCount(listId: number): Promise<number>;
 
   // Campaign methods
   getCampaigns(): Promise<Campaign[]>;
