@@ -19,6 +19,7 @@ import Contacts from "@/pages/Contacts";
 import ListDetails from "@/pages/ListDetails";
 import ABTesting from "@/pages/ABTesting";
 import EmailPerformance from "@/pages/EmailPerformance";
+import EmailPerformanceV2 from "@/pages/EmailPerformanceV2";
 import BasicTemplateBuilder from "@/pages/BasicTemplateBuilder";
 import DragAndDropTemplateBuilder from "@/pages/DragAndDropTemplateBuilder";
 import Domains from "@/pages/Domains";
@@ -231,7 +232,7 @@ function App() {
                     <ProtectedRoute path="lists/:id" component={ListDetails} />
                     <ProtectedRoute path="ab-testing" component={ABTesting} />
                     <ProtectedRoute path="ab-testing/:id" component={ABTesting} />
-                    <ProtectedRoute path="email-performance" component={EmailPerformance} />
+                    <ProtectedRoute path="email-performance" component={EmailPerformanceV2} />
                     <ProtectedRoute path="template-builder" component={BasicTemplateBuilder} />
                     <ProtectedRoute path="template-builder/:id" component={BasicTemplateBuilder} />
                     <ProtectedRoute path="drag-drop-builder" component={DragAndDropTemplateBuilder} />
