@@ -33,7 +33,7 @@ import fs from "fs";
 import path from "path";
 import OpenAI from "openai";
 import AdmZip from "adm-zip";
-import fileUpload, { UploadedFile } from "express-fileupload";
+import fileUpload, { UploadedFile, FileArray } from "express-fileupload";
 import { setupAuth } from "./auth";
 import { registerEmailProviderRoutes } from "./routes/emailProviders";
 import { registerEmailSettingsRoutes } from "./routes/emailSettings";
@@ -71,6 +71,7 @@ const insertVariantAnalyticsSchema = createInsertSchema(variantAnalytics).omit({
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Set up file upload middleware for template imports
+  // Configure file upload middleware with optimized settings for template imports
   app.use(fileUpload({
     createParentPath: true,
     limits: { 
@@ -86,10 +87,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     uploadTimeout: 60000, // 60 second timeout
     responseOnLimit: 'File size limit exceeded (max: 50MB)',
     uriDecodeFileNames: true,
-    // Add a debug handler to log upload issues
-    debug: (debugMessage: any) => {
-      console.log('File upload debug:', debugMessage);
-    }
+    debug: true // Enable debug mode
   }));
   
   // Add debug log for multipart requests
