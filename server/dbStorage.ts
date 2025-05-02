@@ -672,8 +672,50 @@ export class DbStorage implements IStorage {
   // Campaigns methods
   async getCampaign(id: number) {
     try {
-      const [campaign] = await db.select().from(schema.campaigns).where(eq(schema.campaigns.id, id));
-      return campaign;
+      if (!db || !db.select) {
+        console.error('Database not properly initialized for getCampaign');
+        throw new Error('Database not properly initialized');
+      }
+      
+      // Try direct SQL first as a more reliable approach
+      try {
+        console.log(`Attempting to fetch campaign ID ${id} via direct SQL`);
+        const result = await pool.query(`
+          SELECT id, name, description, status, subject, 
+                 created_at as "createdAt", sender_email as "senderEmail", 
+                 sender_name as "senderName", metadata, is_ab_test as "isAbTest"
+          FROM campaigns
+          WHERE id = $1
+        `, [id]);
+        
+        if (result && result.rows && result.rows.length > 0) {
+          console.log(`Found campaign ${id} via direct SQL: ${result.rows[0].name}`);
+          return result.rows[0];
+        } else {
+          console.log(`No campaign found with ID ${id} via direct SQL`);
+        }
+      } catch (sqlError) {
+        console.error(`Error with direct SQL in getCampaign ID ${id}:`, sqlError);
+      }
+      
+      // Fall back to ORM if direct SQL fails
+      try {
+        console.log(`Trying ORM approach for campaign ID ${id}`);
+        const [campaign] = await db.select().from(schema.campaigns).where(eq(schema.campaigns.id, id));
+        
+        if (campaign) {
+          console.log(`Found campaign ${id} via ORM: ${campaign.name}`);
+          return campaign;
+        } else {
+          console.log(`No campaign found with ID ${id} via ORM`);
+        }
+      } catch (ormError) {
+        console.error(`Error with ORM in getCampaign ID ${id}:`, ormError);
+      }
+      
+      // If both methods fail, return undefined
+      console.log(`All methods failed to find campaign ID ${id}`);
+      return undefined;
     } catch (error) {
       console.error('Error getting campaign:', error);
       return undefined;
@@ -1276,14 +1318,50 @@ export class DbStorage implements IStorage {
   
   async getAbTestCampaigns(): Promise<schema.Campaign[]> {
     try {
-      const campaigns = await safeDbOperation(
-        db.select()
-          .from(schema.campaigns)
-          .where(eq(schema.campaigns.isAbTest, true)),
-        []
-      );
+      if (!db || !db.select) {
+        console.error('Database not properly initialized for getAbTestCampaigns');
+        throw new Error('Database not properly initialized');
+      }
       
-      return campaigns;
+      // Try direct SQL first as a more reliable approach
+      try {
+        console.log('Attempting to fetch A/B test campaigns via direct SQL');
+        const result = await pool.query(`
+          SELECT id, name, description, status, subject, 
+                 created_at as "createdAt", sender_email as "senderEmail", 
+                 sender_name as "senderName", metadata, is_ab_test as "isAbTest"
+          FROM campaigns
+          WHERE is_ab_test = true
+          ORDER BY created_at DESC
+        `);
+        
+        if (result && result.rows) {
+          console.log(`Retrieved ${result.rows.length} A/B test campaigns via direct SQL`);
+          return result.rows;
+        }
+      } catch (sqlError) {
+        console.error('Error with direct SQL in getAbTestCampaigns:', sqlError);
+      }
+      
+      // Try ORM with safeDbOperation as fallback
+      try {
+        console.log('Trying ORM approach for A/B test campaigns');
+        const campaigns = await safeDbOperation(
+          db.select()
+            .from(schema.campaigns)
+            .where(eq(schema.campaigns.isAbTest, true)),
+          []
+        );
+        
+        console.log(`Retrieved ${campaigns.length} A/B test campaigns via ORM`);
+        return campaigns;
+      } catch (ormError) {
+        console.error('Error with ORM in getAbTestCampaigns:', ormError);
+      }
+      
+      // If all methods fail, return empty array
+      console.log('All A/B test campaign data sources failed, returning empty array');
+      return [];
     } catch (error) {
       console.error("Error fetching A/B test campaigns:", error);
       return [];
