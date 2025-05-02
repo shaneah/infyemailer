@@ -1370,13 +1370,41 @@ export class DbStorage implements IStorage {
 
   async getTemplates() {
     try {
+      console.log('Looking up all templates');
+      
       // Check if db is properly initialized
       if (!db || !db.select) {
         console.error('Database not properly initialized for getTemplates - falling back to direct SQL');
         try {
           // Fallback to direct SQL query
-          const result = await pool.query('SELECT * FROM templates ORDER BY created_at DESC');
-          return result.rows || [];
+          console.log('Attempting direct SQL query for templates');
+          const result = await pool.query(`
+            SELECT id, name, content, description, category, client_id as "clientId", 
+                   is_global as "isGlobal", created_at as "createdAt", updated_at as "updatedAt", 
+                   subject, metadata, version, rating, rating_count as "ratingCount", thumbnail_url as "thumbnailUrl"
+            FROM templates 
+            ORDER BY created_at DESC
+          `);
+          
+          console.log(`Retrieved ${result.rows?.length || 0} templates via direct SQL`);
+          
+          // Convert content from JSON string if needed
+          const templatesWithParsedContent = (result.rows || []).map(template => {
+            try {
+              if (typeof template.content === 'string') {
+                // Only try to parse if it looks like JSON
+                if (template.content.trim().startsWith('{')) {
+                  template.content = JSON.parse(template.content);
+                }
+              }
+            } catch (e) {
+              console.warn(`Failed to parse template content for template ID ${template.id}:`, e);
+              // Keep the content as string if parsing fails
+            }
+            return template;
+          });
+          
+          return templatesWithParsedContent;
         } catch (sqlError) {
           console.error('Direct SQL also failed for templates:', sqlError);
           return [];
@@ -1384,17 +1412,62 @@ export class DbStorage implements IStorage {
       }
       
       try {
+        console.log('Attempting ORM query for templates');
         const templates = await db.select().from(schema.templates).orderBy(desc(schema.templates.createdAt));
-        return templates;
+        console.log(`Retrieved ${templates.length} templates via ORM`);
+        
+        // Convert content from JSON string if needed
+        const templatesWithParsedContent = templates.map(template => {
+          try {
+            if (typeof template.content === 'string') {
+              // Only try to parse if it looks like JSON
+              if (template.content.trim().startsWith('{')) {
+                template.content = JSON.parse(template.content);
+              }
+            }
+          } catch (e) {
+            console.warn(`Failed to parse template content for template ID ${template.id}:`, e);
+            // Keep the content as string if parsing fails
+          }
+          return template;
+        });
+        
+        return templatesWithParsedContent;
       } catch (ormError) {
         console.error('ORM query failed for templates:', ormError);
         
         // Fallback to direct SQL query
         try {
-          const result = await pool.query('SELECT * FROM templates ORDER BY created_at DESC');
-          return result.rows || [];
+          console.log('Attempting direct SQL fallback for templates');
+          const result = await pool.query(`
+            SELECT id, name, content, description, category, client_id as "clientId", 
+                   is_global as "isGlobal", created_at as "createdAt", updated_at as "updatedAt", 
+                   subject, metadata, version, rating, rating_count as "ratingCount", thumbnail_url as "thumbnailUrl"
+            FROM templates 
+            ORDER BY created_at DESC
+          `);
+          
+          console.log(`Retrieved ${result.rows?.length || 0} templates via direct SQL fallback`);
+          
+          // Convert content from JSON string if needed
+          const templatesWithParsedContent = (result.rows || []).map(template => {
+            try {
+              if (typeof template.content === 'string') {
+                // Only try to parse if it looks like JSON
+                if (template.content.trim().startsWith('{')) {
+                  template.content = JSON.parse(template.content);
+                }
+              }
+            } catch (e) {
+              console.warn(`Failed to parse template content for template ID ${template.id}:`, e);
+              // Keep the content as string if parsing fails
+            }
+            return template;
+          });
+          
+          return templatesWithParsedContent;
         } catch (sqlError) {
-          console.error('Direct SQL also failed for templates:', sqlError);
+          console.error('Direct SQL fallback also failed for templates:', sqlError);
           return [];
         }
       }
