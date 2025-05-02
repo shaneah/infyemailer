@@ -196,8 +196,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Contact Management API routes
   app.get('/api/contacts', async (req: Request, res: Response) => {
     try {
-      console.log('GET /api/contacts');
+      console.log('GET /api/contacts - fetching all contacts');
+      
+      // Try direct SQL first
+      try {
+        console.log('Attempting direct SQL query to fetch contacts');
+        const sqlResult = await pool.query('SELECT * FROM contacts ORDER BY id');
+        console.log(`Found ${sqlResult.rows.length} contacts via direct SQL`);
+        
+        if (sqlResult.rows && sqlResult.rows.length > 0) {
+          // Map the snake_case column names to camelCase for consistency
+          const contacts = sqlResult.rows.map(row => ({
+            id: row.id,
+            name: row.name,
+            email: row.email,
+            status: row.status,
+            createdAt: row.created_at,
+            metadata: row.metadata || {}
+          }));
+          
+          return res.json(contacts);
+        } else {
+          return res.json([]);
+        }
+      } catch (sqlError: any) {
+        console.error('Error with direct SQL query for contacts:', sqlError);
+      }
+      
+      // Fallback to storage interface if direct SQL fails
+      console.log('Falling back to storage.getContacts method');
       const contacts = await storage.getContacts();
+      console.log(`Found ${contacts.length} contacts via storage interface`);
       res.json(contacts);
     } catch (error) {
       console.error('Error fetching contacts:', error);
@@ -212,11 +241,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: 'Invalid contact ID' });
       }
       
+      // Try direct SQL first
+      try {
+        console.log(`Attempting direct SQL query to fetch contact with ID ${id}`);
+        const sqlResult = await pool.query('SELECT * FROM contacts WHERE id = $1', [id]);
+        
+        if (sqlResult.rows && sqlResult.rows.length > 0) {
+          console.log(`Found contact via direct SQL: ${sqlResult.rows[0].name}`);
+          
+          // Map to camelCase for consistency
+          const contact = {
+            id: sqlResult.rows[0].id,
+            name: sqlResult.rows[0].name,
+            email: sqlResult.rows[0].email,
+            status: sqlResult.rows[0].status,
+            createdAt: sqlResult.rows[0].created_at,
+            metadata: sqlResult.rows[0].metadata || {}
+          };
+          
+          return res.json(contact);
+        } else {
+          console.log(`No contact found with ID ${id} via direct SQL`);
+        }
+      } catch (sqlError: any) {
+        console.error('Error with direct SQL query for contact by ID:', sqlError);
+      }
+      
+      // Fallback to storage interface
+      console.log(`Falling back to storage.getContact method for ID ${id}`);
       const contact = await storage.getContact(id);
+      
       if (!contact) {
         return res.status(404).json({ error: 'Contact not found' });
       }
       
+      console.log(`Found contact via storage interface: ${contact.name}`);
       res.json(contact);
     } catch (error) {
       console.error('Error fetching contact:', error);
