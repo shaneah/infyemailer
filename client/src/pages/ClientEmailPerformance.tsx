@@ -1,17 +1,21 @@
-import { useState, useMemo, useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useState, useMemo, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Card, 
   CardContent, 
   CardDescription, 
   CardHeader, 
-  CardTitle 
+  CardTitle,
+  CardFooter
 } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Separator } from '@/components/ui/separator';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
   Area,
   AreaChart,
@@ -24,31 +28,53 @@ import {
   LineChart,
   Pie,
   PieChart,
+  RadialBar,
+  RadialBarChart,
   ResponsiveContainer,
-  Tooltip,
+  Tooltip as RechartsTooltip,
   XAxis,
   YAxis,
 } from 'recharts';
-import { Loader2 } from 'lucide-react';
-
-// Sample data for now - will be replaced with API data
-const emailPerformanceData = [
-  { day: 'Mon', opens: 120, clicks: 45, conversions: 12 },
-  { day: 'Tue', opens: 140, clicks: 55, conversions: 15 },
-  { day: 'Wed', opens: 180, clicks: 70, conversions: 18 },
-  { day: 'Thu', opens: 190, clicks: 65, conversions: 20 },
-  { day: 'Fri', opens: 210, clicks: 80, conversions: 22 },
-  { day: 'Sat', opens: 150, clicks: 45, conversions: 14 },
-  { day: 'Sun', opens: 130, clicks: 40, conversions: 10 },
-];
-
-const engagementByDevice = [
-  { name: 'Desktop', value: 45 },
-  { name: 'Mobile', value: 40 },
-  { name: 'Tablet', value: 15 },
-];
-
-const COLORS = ['#1e40af', '#d4af37', '#1a3a5f'];
+import {
+  ActivityIcon,
+  AlertCircle,
+  ArrowDownIcon,
+  ArrowRightIcon,
+  ArrowUpIcon,
+  BarChart3Icon,
+  BarChart4,
+  BookOpenIcon,
+  BriefcaseIcon,
+  CheckCircle2,
+  ChevronRightIcon,
+  ClockIcon,
+  Download,
+  ExternalLinkIcon,
+  Eye,
+  FileBarChart,
+  FileText,
+  Globe,
+  HelpCircle,
+  HistoryIcon,
+  InfoIcon,
+  LayoutDashboard,
+  Loader2,
+  Mail,
+  MousePointerClick,
+  PieChart as PieChartIcon,
+  RefreshCw,
+  SendIcon,
+  ShareIcon,
+  ShoppingBag,
+  SlidersHorizontal,
+  Sparkles,
+  TabletSmartphone,
+  Tag,
+  Timer,
+  TrendingUp,
+  Users,
+  XCircle
+} from 'lucide-react';
 
 // Define interfaces for our API data
 interface MetricRate {
@@ -105,41 +131,189 @@ interface MetricCardProps {
   subValue?: string;
   trend?: 'up' | 'down' | 'neutral';
   trendValue?: string;
+  icon?: React.ReactNode;
+  color?: 'blue' | 'green' | 'red' | 'purple' | 'orange' | 'teal';
+  delay?: number;
 }
 
-// Metric Card Component
+// Enhanced Metric Card Component
 const MetricCard: React.FC<MetricCardProps> = ({ 
   title, 
   value, 
   subValue, 
   trend = 'neutral',
-  trendValue
+  trendValue,
+  icon,
+  color = 'blue',
+  delay = 0
 }) => {
+  const colorClasses = {
+    blue: {
+      bg: 'bg-blue-50',
+      border: 'border-blue-100',
+      iconBg: 'bg-blue-100',
+      iconText: 'text-blue-700',
+      title: 'text-blue-800',
+      value: 'text-blue-900',
+      trendUp: 'bg-blue-100 text-blue-800',
+      trendDown: 'bg-red-100 text-red-800',
+      trendNeutral: 'bg-gray-100 text-gray-800'
+    },
+    green: {
+      bg: 'bg-green-50',
+      border: 'border-green-100',
+      iconBg: 'bg-green-100',
+      iconText: 'text-green-700',
+      title: 'text-green-800',
+      value: 'text-green-900',
+      trendUp: 'bg-green-100 text-green-800',
+      trendDown: 'bg-red-100 text-red-800',
+      trendNeutral: 'bg-gray-100 text-gray-800'
+    },
+    red: {
+      bg: 'bg-red-50',
+      border: 'border-red-100',
+      iconBg: 'bg-red-100',
+      iconText: 'text-red-700',
+      title: 'text-red-800',
+      value: 'text-red-900',
+      trendUp: 'bg-green-100 text-green-800',
+      trendDown: 'bg-red-100 text-red-800',
+      trendNeutral: 'bg-gray-100 text-gray-800'
+    },
+    purple: {
+      bg: 'bg-purple-50',
+      border: 'border-purple-100',
+      iconBg: 'bg-purple-100',
+      iconText: 'text-purple-700',
+      title: 'text-purple-800',
+      value: 'text-purple-900',
+      trendUp: 'bg-purple-100 text-purple-800',
+      trendDown: 'bg-red-100 text-red-800',
+      trendNeutral: 'bg-gray-100 text-gray-800'
+    },
+    orange: {
+      bg: 'bg-orange-50',
+      border: 'border-orange-100',
+      iconBg: 'bg-orange-100',
+      iconText: 'text-orange-700',
+      title: 'text-orange-800',
+      value: 'text-orange-900',
+      trendUp: 'bg-green-100 text-green-800',
+      trendDown: 'bg-orange-100 text-orange-800',
+      trendNeutral: 'bg-gray-100 text-gray-800'
+    },
+    teal: {
+      bg: 'bg-teal-50',
+      border: 'border-teal-100',
+      iconBg: 'bg-teal-100',
+      iconText: 'text-teal-700',
+      title: 'text-teal-800',
+      value: 'text-teal-900',
+      trendUp: 'bg-teal-100 text-teal-800',
+      trendDown: 'bg-red-100 text-red-800',
+      trendNeutral: 'bg-gray-100 text-gray-800'
+    }
+  };
+  
+  const classes = colorClasses[color];
+  
   return (
-    <Card>
-      <CardHeader className="pb-2">
-        <CardTitle className="text-sm font-medium text-gray-500">{title}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="flex items-baseline justify-between">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, delay: delay * 0.1 }}
+    >
+      <Card className={`${classes.bg} border ${classes.border} shadow-sm h-full`}>
+        <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
           <div>
-            <div className="text-2xl font-bold">{value}</div>
-            {subValue && <p className="text-sm text-gray-500">{subValue}</p>}
+            <CardTitle className={`text-sm font-medium ${classes.title}`}>{title}</CardTitle>
           </div>
-          {trend && trendValue && (
-            <Badge variant={trend === 'up' ? 'default' : trend === 'down' ? 'destructive' : 'outline'}>
-              {trend === 'up' ? '↑' : trend === 'down' ? '↓' : '–'} {trendValue}
-            </Badge>
+          {icon && (
+            <div className={`p-2 rounded-full ${classes.iconBg}`}>
+              <span className={classes.iconText}>{icon}</span>
+            </div>
           )}
-        </div>
-      </CardContent>
-    </Card>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-baseline justify-between">
+            <div>
+              <div className={`text-2xl font-bold ${classes.value}`}>{value}</div>
+              {subValue && <p className="text-sm text-gray-500 mt-1">{subValue}</p>}
+            </div>
+            {trend && trendValue && (
+              <Badge className={
+                trend === 'up' 
+                  ? classes.trendUp 
+                  : trend === 'down' 
+                    ? classes.trendDown 
+                    : classes.trendNeutral
+              }>
+                {trend === 'up' ? <ArrowUpIcon className="h-3 w-3 mr-1" /> : 
+                 trend === 'down' ? <ArrowDownIcon className="h-3 w-3 mr-1" /> : 
+                 <ArrowRightIcon className="h-3 w-3 mr-1" />} 
+                {trendValue}
+              </Badge>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    </motion.div>
   );
 };
 
+// Enhanced Chart Card Component
+interface ChartCardProps {
+  title: string;
+  description?: string;
+  children: React.ReactNode;
+  className?: string;
+  delay?: number;
+  action?: React.ReactNode;
+}
+
+const ChartCard: React.FC<ChartCardProps> = ({ 
+  title, 
+  description, 
+  children, 
+  className = '',
+  delay = 0,
+  action
+}) => {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, delay: delay * 0.1 }}
+      className={className}
+    >
+      <Card className="h-full">
+        <CardHeader className="pb-3">
+          <div className="flex items-start justify-between">
+            <div>
+              <CardTitle className="text-lg font-semibold">{title}</CardTitle>
+              {description && <CardDescription>{description}</CardDescription>}
+            </div>
+            {action && (
+              <div>
+                {action}
+              </div>
+            )}
+          </div>
+        </CardHeader>
+        <CardContent className="p-0">
+          {children}
+        </CardContent>
+      </Card>
+    </motion.div>
+  );
+};
+
+// Enhanced Analytics Dashboard
 const ClientEmailPerformance: React.FC = () => {
   const [timeframe, setTimeframe] = useState('7days');
   const [campaignFilter, setCampaignFilter] = useState('all');
+  const [activeDashboardTab, setActiveDashboardTab] = useState('overview');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<{ 
@@ -147,6 +321,9 @@ const ClientEmailPerformance: React.FC = () => {
     charts: ChartData,
     realtime: RealtimeActivity[]
   } | null>(null);
+  
+  // Reference for the auto-refresh timer
+  const timerRef = useRef<number | null>(null);
   
   // Get client info from sessionStorage as that's where ClientSidebar stores it
   const clientInfo = useMemo(() => {
@@ -173,8 +350,20 @@ const ClientEmailPerformance: React.FC = () => {
 
   // Safe fallback chart data
   const fallbackChartData: ChartData = {
-    weeklyPerformance: emailPerformanceData,
-    deviceBreakdown: engagementByDevice,
+    weeklyPerformance: [
+      { day: 'Mon', opens: 120, clicks: 45, conversions: 12 },
+      { day: 'Tue', opens: 140, clicks: 55, conversions: 15 },
+      { day: 'Wed', opens: 180, clicks: 70, conversions: 18 },
+      { day: 'Thu', opens: 190, clicks: 65, conversions: 20 },
+      { day: 'Fri', opens: 210, clicks: 80, conversions: 22 },
+      { day: 'Sat', opens: 150, clicks: 45, conversions: 14 },
+      { day: 'Sun', opens: 130, clicks: 40, conversions: 10 }
+    ],
+    deviceBreakdown: [
+      { name: 'Desktop', value: 45 },
+      { name: 'Mobile', value: 40 },
+      { name: 'Tablet', value: 15 }
+    ],
     clickDistribution: [
       { link: 'Primary CTA', clicks: 350 },
       { link: 'Secondary Link', clicks: 210 },
@@ -263,75 +452,70 @@ const ClientEmailPerformance: React.FC = () => {
     { time: '18 mins ago', type: 'Open', email: 'offers@company.com', user: 't.miller@example.com' }
   ];
 
-  // Use useEffect to fetch data safely
-  useEffect(() => {
-    const fetchData = async () => {
+  // Function to refresh data
+  const refreshData = async (showLoading = true) => {
+    if (showLoading) {
       setLoading(true);
-      setError(null);
+    }
+    setError(null);
+    
+    try {
+      // Set up common URL params
+      const clientId = clientInfo?.clientId;
+      const clientIdParam = clientId ? `&clientId=${clientId}` : '';
       
-      try {
-        // Set up common URL params
-        const clientId = clientInfo?.clientId;
-        const clientIdParam = clientId ? `&clientId=${clientId}` : '';
-        
-        // Fetch metrics data
-        const metricsRes = await fetch(`/api/email-performance/metrics?timeframe=${timeframe}&campaignFilter=${campaignFilter}${clientIdParam}`);
-        const metrics = metricsRes.ok ? await metricsRes.json() : fallbackMetricsData;
-        
-        // Fetch chart data
-        const chartsRes = await fetch(`/api/email-performance/charts?timeframe=${timeframe}&campaignFilter=${campaignFilter}${clientIdParam}`);
-        const charts = chartsRes.ok ? await chartsRes.json() : fallbackChartData;
-        
-        // Fetch realtime data
-        const realtimeRes = await fetch(`/api/email-performance/realtime${clientId ? `?clientId=${clientId}` : ''}`);
-        const realtime = realtimeRes.ok ? await realtimeRes.json() : fallbackRealtimeData;
-        
-        // Set all data together
-        setData({
-          metrics,
-          charts,
-          realtime
-        });
-      } catch (err) {
-        console.error('Error fetching email performance data:', err);
-        setError('Failed to load email performance data. Please try again later.');
-        
-        // Set fallback data if fetch fails
-        setData({
-          metrics: fallbackMetricsData,
-          charts: fallbackChartData,
-          realtime: fallbackRealtimeData
-        });
-      } finally {
+      // Fetch metrics data
+      const metricsRes = await fetch(`/api/email-performance/metrics?timeframe=${timeframe}&campaignFilter=${campaignFilter}${clientIdParam}`);
+      const metrics = metricsRes.ok ? await metricsRes.json() : fallbackMetricsData;
+      
+      // Fetch chart data
+      const chartsRes = await fetch(`/api/email-performance/charts?timeframe=${timeframe}&campaignFilter=${campaignFilter}${clientIdParam}`);
+      const charts = chartsRes.ok ? await chartsRes.json() : fallbackChartData;
+      
+      // Fetch realtime data
+      const realtimeRes = await fetch(`/api/email-performance/realtime${clientId ? `?clientId=${clientId}` : ''}`);
+      const realtime = realtimeRes.ok ? await realtimeRes.json() : fallbackRealtimeData;
+      
+      // Set all data together
+      setData({
+        metrics,
+        charts,
+        realtime
+      });
+    } catch (err) {
+      console.error('Error fetching email performance data:', err);
+      setError('Failed to load email performance data. Please try again later.');
+      
+      // Set fallback data if fetch fails
+      setData({
+        metrics: fallbackMetricsData,
+        charts: fallbackChartData,
+        realtime: fallbackRealtimeData
+      });
+    } finally {
+      if (showLoading) {
         setLoading(false);
       }
-    };
-    
-    fetchData();
+    }
+  };
+
+  // Use useEffect to fetch data safely
+  useEffect(() => {
+    refreshData();
     
     // Set up interval to fetch realtime data
     const interval = setInterval(() => {
-      const fetchRealtimeOnly = async () => {
-        try {
-          const clientId = clientInfo?.clientId;
-          const realtimeRes = await fetch(`/api/email-performance/realtime${clientId ? `?clientId=${clientId}` : ''}`);
-          
-          if (realtimeRes.ok) {
-            const newRealtimeData = await realtimeRes.json();
-            setData(prevData => prevData ? {
-              ...prevData,
-              realtime: newRealtimeData
-            } : null);
-          }
-        } catch (err) {
-          console.error('Error refreshing realtime data:', err);
-        }
-      };
-      
-      fetchRealtimeOnly();
+      refreshData(false);
     }, 30000);
     
-    return () => clearInterval(interval);
+    // Store the interval ID
+    timerRef.current = interval as unknown as number;
+    
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+    };
   }, [timeframe, campaignFilter, clientInfo]);
   
   // Sample campaign data for filter
@@ -342,24 +526,56 @@ const ClientEmailPerformance: React.FC = () => {
     { id: 4, name: 'Customer Re-engagement' },
   ];
   
+  // Color configurations for charts
+  const chartColors = {
+    opens: '#3b82f6',
+    clicks: '#8b5cf6', 
+    conversions: '#10b981',
+    bounces: '#ef4444',
+    desktop: '#3b82f6',
+    mobile: '#8b5cf6',
+    tablet: '#10b981',
+    gmail: '#ea4335',
+    outlook: '#0078d4',
+    apple: '#a3aaae',
+    yahoo: '#6001d2'
+  };
+  
+  // Custom formatter for X-axis tick text with adaptive rotation
+  const formatXAxisTickText = (tickItem: string) => {
+    if (tickItem.length > 10) {
+      return tickItem.substring(0, 10) + '...';
+    }
+    return tickItem;
+  };
+  
+  // Device color configuration for pie charts
+  const DEVICE_COLORS = ['#3b82f6', '#8b5cf6', '#10b981'];
+  
+  // Email client color configuration for pie charts
+  const EMAIL_CLIENT_COLORS = ['#ea4335', '#0078d4', '#a3aaae', '#6001d2', '#94a3b8'];
+  
+  // Subscriber segment color configuration
+  const SUBSCRIBER_COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444'];
+  
   // Loading state
   if (loading) {
     return (
       <div className="container mx-auto py-6">
         <div className="flex justify-between items-center mb-6">
           <div>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">
-              Email Performance Dashboard
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-700 bg-clip-text text-transparent">
+              Email Performance Analytics
             </h1>
-            <p className="text-gray-500">Track and analyze your email campaign metrics</p>
+            <p className="text-gray-500">Advanced insights and real-time tracking</p>
           </div>
         </div>
         
         <div className="flex items-center justify-center min-h-[60vh]">
           <div className="text-center">
-            <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-primary" />
-            <p className="text-lg font-medium">Loading performance data...</p>
-            <p className="text-sm text-muted-foreground">This may take a moment</p>
+            <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-blue-600" />
+            <p className="text-lg font-medium">Loading analytics data...</p>
+            <p className="text-sm text-muted-foreground">Processing performance metrics and engagement insights</p>
           </div>
         </div>
       </div>
@@ -372,17 +588,26 @@ const ClientEmailPerformance: React.FC = () => {
       <div className="container mx-auto py-6">
         <div className="flex justify-between items-center mb-6">
           <div>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">
-              Email Performance Dashboard
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-700 bg-clip-text text-transparent">
+              Email Performance Analytics
             </h1>
-            <p className="text-gray-500">Track and analyze your email campaign metrics</p>
+            <p className="text-gray-500">Advanced insights and real-time tracking</p>
           </div>
         </div>
         
-        <div className="bg-destructive/10 border border-destructive rounded-lg p-6 mb-6 text-center">
-          <h3 className="text-xl font-medium text-destructive mb-2">Error Loading Data</h3>
-          <p className="mb-4">{error}</p>
-          <Button onClick={() => window.location.reload()} variant="outline">Retry</Button>
+        <div className="bg-destructive/10 border border-destructive rounded-lg p-6 mb-6">
+          <div className="flex items-start">
+            <AlertCircle className="h-6 w-6 text-destructive mr-3 mt-0.5" />
+            <div>
+              <h3 className="text-xl font-medium text-destructive mb-2">Error Loading Analytics Data</h3>
+              <p className="mb-4">{error}</p>
+              <Button onClick={() => refreshData()} variant="outline" className="mr-2">
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Retry
+              </Button>
+              <Button onClick={() => window.location.reload()}>Refresh Page</Button>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -393,17 +618,27 @@ const ClientEmailPerformance: React.FC = () => {
   const chartData = data?.charts;
   const realtimeData = data?.realtime;
   
+  // Format numbers with commas
+  const formatNumber = (num: number): string => {
+    return num.toLocaleString();
+  };
+  
+  // Format percentages
+  const formatPercent = (num: number): string => {
+    return num.toFixed(1) + '%';
+  };
+  
   // Main content when data is loaded
   return (
     <div className="container mx-auto py-6">
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
         <div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">
-            Email Performance Dashboard
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-700 bg-clip-text text-transparent">
+            Email Performance Analytics
           </h1>
-          <p className="text-gray-500">Track and analyze your email campaign metrics</p>
+          <p className="text-gray-500">Advanced insights and real-time tracking</p>
         </div>
-        <div className="flex space-x-4">
+        <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
           <Select value={timeframe} onValueChange={setTimeframe}>
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Select Timeframe" />
@@ -430,920 +665,1312 @@ const ClientEmailPerformance: React.FC = () => {
               ))}
             </SelectContent>
           </Select>
+          
+          <Button variant="outline" size="icon" onClick={() => refreshData()}>
+            <RefreshCw className="h-4 w-4" />
+          </Button>
         </div>
       </div>
       
-      {/* Key Metrics Section */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <MetricCard 
-          title="Open Rate" 
-          value={metricsData?.openRate?.value ? `${metricsData.openRate.value.toFixed(1)}%` : "24.8%"} 
-          subValue={metricsData?.openRate?.industryAvg ? `Industry avg: ${metricsData.openRate.industryAvg.toFixed(1)}%` : "Industry avg: 21.5%"} 
-          trend={metricsData?.openRate?.trend ? metricsData.openRate.trend as 'up' | 'down' | 'neutral' : "up"} 
-          trendValue={metricsData?.openRate?.trendValue ? metricsData.openRate.trendValue : "3.2%"}
-        />
-        <MetricCard 
-          title="Click Rate" 
-          value={metricsData?.clickRate?.value ? `${metricsData.clickRate.value.toFixed(1)}%` : "3.6%"} 
-          subValue={metricsData?.clickRate?.industryAvg ? `Industry avg: ${metricsData.clickRate.industryAvg.toFixed(1)}%` : "Industry avg: 2.7%"} 
-          trend={metricsData?.clickRate?.trend ? metricsData.clickRate.trend as 'up' | 'down' | 'neutral' : "up"} 
-          trendValue={metricsData?.clickRate?.trendValue ? metricsData.clickRate.trendValue : "0.9%"}
-        />
-        <MetricCard 
-          title="Conversion Rate" 
-          value={metricsData?.conversionRate?.value ? `${metricsData.conversionRate.value.toFixed(1)}%` : "1.2%"} 
-          subValue={metricsData?.conversionRate?.goal ? `Goal: ${metricsData.conversionRate.goal.toFixed(1)}%` : "Goal: 1.5%"} 
-          trend={metricsData?.conversionRate?.trend ? metricsData.conversionRate.trend as 'up' | 'down' | 'neutral' : "down"} 
-          trendValue={metricsData?.conversionRate?.trendValue ? metricsData.conversionRate.trendValue : "0.3%"}
-        />
-        <MetricCard 
-          title="Bounce Rate" 
-          value={metricsData?.bounceRate?.value ? `${metricsData.bounceRate.value.toFixed(1)}%` : "0.8%"} 
-          subValue={metricsData?.bounceRate?.industryAvg ? `Industry avg: ${metricsData.bounceRate.industryAvg.toFixed(1)}%` : "Industry avg: 1.2%"} 
-          trend={metricsData?.bounceRate?.trend ? metricsData.bounceRate.trend as 'up' | 'down' | 'neutral' : "up"} 
-          trendValue={metricsData?.bounceRate?.trendValue ? metricsData.bounceRate.trendValue : "0.4%"}
-        />
-      </div>
-      
-      {/* Extended Metrics Section */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <MetricCard 
-          title="Total Sent" 
-          value={typeof metricsData?.totalSent === 'number' ? metricsData.totalSent.toLocaleString() : "42,857"} 
-          subValue={`Last ${timeframe === '7days' ? '7 days' : timeframe === '30days' ? '30 days' : timeframe === '90days' ? '90 days' : timeframe}`}
-        />
-        <MetricCard 
-          title="Total Opens" 
-          value={typeof metricsData?.totalOpens === 'number' ? metricsData.totalOpens.toLocaleString() : "10,628"} 
-          subValue={typeof metricsData?.totalOpens === 'number' && typeof metricsData?.totalSent === 'number' ? 
-            `${(metricsData.totalOpens / metricsData.totalSent * 100).toFixed(1)}% of sent` : "24.8% of sent"}
-        />
-        <MetricCard 
-          title="Total Clicks" 
-          value={typeof metricsData?.totalClicks === 'number' ? metricsData.totalClicks.toLocaleString() : "1,543"} 
-          subValue={typeof metricsData?.totalClicks === 'number' && typeof metricsData?.totalSent === 'number' ? 
-            `${(metricsData.totalClicks / metricsData.totalSent * 100).toFixed(1)}% of sent` : "3.6% of sent"}
-        />
-        <MetricCard 
-          title="Unsubscribes" 
-          value={typeof metricsData?.unsubscribes === 'number' ? metricsData.unsubscribes.toLocaleString() : "38"} 
-          subValue={typeof metricsData?.unsubscribes === 'number' && typeof metricsData?.totalSent === 'number' ? 
-            `${(metricsData.unsubscribes / metricsData.totalSent * 100).toFixed(2)}% of sent` : "0.09% of sent"}
-        />
-      </div>
-      
-      {/* Main Dashboard Content */}
-      <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="opens">Email Opens</TabsTrigger>
-          <TabsTrigger value="engagement">Engagement Metrics</TabsTrigger>
-          <TabsTrigger value="campaigns">Campaign Comparison</TabsTrigger>
-          <TabsTrigger value="audience">Audience Insights</TabsTrigger>
+      <Tabs 
+        value={activeDashboardTab} 
+        onValueChange={setActiveDashboardTab}
+        className="space-y-6"
+      >
+        <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:grid-cols-5 mb-4">
+          <TabsTrigger value="overview" className="flex items-center gap-2">
+            <LayoutDashboard className="h-4 w-4" />
+            <span className="hidden sm:inline">Overview</span>
+          </TabsTrigger>
+          <TabsTrigger value="engagement" className="flex items-center gap-2">
+            <Users className="h-4 w-4" />
+            <span className="hidden sm:inline">Engagement</span>
+          </TabsTrigger>
+          <TabsTrigger value="devices" className="flex items-center gap-2">
+            <TabletSmartphone className="h-4 w-4" />
+            <span className="hidden sm:inline">Devices & Clients</span>
+          </TabsTrigger>
+          <TabsTrigger value="campaigns" className="flex items-center gap-2">
+            <Mail className="h-4 w-4" />
+            <span className="hidden sm:inline">Campaigns</span>
+          </TabsTrigger>
+          <TabsTrigger value="insights" className="flex items-center gap-2">
+            <Sparkles className="h-4 w-4" />
+            <span className="hidden sm:inline">Smart Insights</span>
+          </TabsTrigger>
         </TabsList>
         
         {/* Overview Tab */}
-        <TabsContent value="overview" className="space-y-4">
-          {/* Email Heatmap Section */}
-          <Card className="mb-4">
-            <CardHeader>
-              <CardTitle>Email Click Heatmap</CardTitle>
-              <CardDescription>Visual representation of where users click in your emails</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="relative border rounded-md p-2">
-                  <h4 className="text-center text-sm font-medium mb-2">Monthly Newsletter Template</h4>
-                  <div className="relative bg-gray-100 rounded-md overflow-hidden" style={{ height: '400px' }}>
-                    {/* Email Header */}
-                    <div className="p-4 bg-[#1e40af] text-white text-center">
-                      <div className="text-lg font-bold">Company Newsletter</div>
-                      <div className="text-xs">Monthly Updates & Insights</div>
+        <TabsContent value="overview" className="space-y-6">
+          {/* Key Metrics Section */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <MetricCard 
+              title="Average Open Rate" 
+              value={formatPercent(metricsData?.openRate.value || 0)} 
+              subValue={`Industry avg: ${formatPercent(metricsData?.openRate.industryAvg || 0)}`}
+              trend={metricsData?.openRate.trend as 'up' | 'down' | 'neutral'}
+              trendValue={metricsData?.openRate.trendValue}
+              icon={<Eye className="h-4 w-4" />}
+              color="blue"
+              delay={0}
+            />
+            
+            <MetricCard 
+              title="Average Click Rate" 
+              value={formatPercent(metricsData?.clickRate.value || 0)} 
+              subValue={`Industry avg: ${formatPercent(metricsData?.clickRate.industryAvg || 0)}`}
+              trend={metricsData?.clickRate.trend as 'up' | 'down' | 'neutral'}
+              trendValue={metricsData?.clickRate.trendValue}
+              icon={<MousePointerClick className="h-4 w-4" />}
+              color="purple"
+              delay={1}
+            />
+            
+            <MetricCard 
+              title="Conversion Rate" 
+              value={formatPercent(metricsData?.conversionRate.value || 0)} 
+              subValue={`Goal: ${formatPercent(metricsData?.conversionRate.goal || 0)}`}
+              trend={metricsData?.conversionRate.trend as 'up' | 'down' | 'neutral'}
+              trendValue={metricsData?.conversionRate.trendValue}
+              icon={<ShoppingBag className="h-4 w-4" />}
+              color="green"
+              delay={2}
+            />
+            
+            <MetricCard 
+              title="Bounce Rate" 
+              value={formatPercent(metricsData?.bounceRate.value || 0)} 
+              subValue={`Industry avg: ${formatPercent(metricsData?.bounceRate.industryAvg || 0)}`}
+              trend={metricsData?.bounceRate.trend === 'up' ? 'down' : 'up'}
+              trendValue={metricsData?.bounceRate.trendValue}
+              icon={<XCircle className="h-4 w-4" />}
+              color="red"
+              delay={3}
+            />
+          </div>
+          
+          {/* Volume Metrics Section */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <MetricCard 
+              title="Total Emails Sent" 
+              value={formatNumber(metricsData?.totalSent || 0)} 
+              icon={<SendIcon className="h-4 w-4" />}
+              color="teal"
+              delay={4}
+            />
+            
+            <MetricCard 
+              title="Total Opens" 
+              value={formatNumber(metricsData?.totalOpens || 0)} 
+              icon={<Mail className="h-4 w-4" />}
+              color="blue"
+              delay={5}
+            />
+            
+            <MetricCard 
+              title="Total Clicks" 
+              value={formatNumber(metricsData?.totalClicks || 0)} 
+              icon={<MousePointerClick className="h-4 w-4" />}
+              color="purple"
+              delay={6}
+            />
+            
+            <MetricCard 
+              title="Unsubscribes" 
+              value={formatNumber(metricsData?.unsubscribes || 0)} 
+              icon={<UserMinus className="h-4 w-4" />}
+              color="orange"
+              delay={7}
+            />
+          </div>
+          
+          {/* Main Charts Section */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <ChartCard 
+              title="Weekly Performance Trends" 
+              description="Opens, clicks, and conversions over the past week"
+              delay={0}
+            >
+              <div className="p-6 h-80">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={chartData?.weeklyPerformance}
+                    margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                    <XAxis 
+                      dataKey="day"
+                      tick={{ fontSize: 12 }}
+                      tickFormatter={formatXAxisTickText}
+                    />
+                    <YAxis 
+                      tick={{ fontSize: 12 }}
+                      tickFormatter={(value) => `${value}`}
+                    />
+                    <RechartsTooltip 
+                      formatter={(value: number) => [value, '']}
+                      labelFormatter={(label) => `Day: ${label}`}
+                      contentStyle={{ backgroundColor: 'white', borderRadius: '8px', border: '1px solid #e2e8f0', padding: '8px 12px' }}
+                    />
+                    <Legend />
+                    <Bar 
+                      dataKey="opens" 
+                      name="Opens" 
+                      fill={chartColors.opens} 
+                      radius={[4, 4, 0, 0]}
+                      barSize={20} 
+                    />
+                    <Bar 
+                      dataKey="clicks" 
+                      name="Clicks" 
+                      fill={chartColors.clicks} 
+                      radius={[4, 4, 0, 0]}
+                      barSize={20} 
+                    />
+                    <Bar 
+                      dataKey="conversions" 
+                      name="Conversions" 
+                      fill={chartColors.conversions} 
+                      radius={[4, 4, 0, 0]}
+                      barSize={20} 
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </ChartCard>
+            
+            <ChartCard 
+              title="Engagement Over Time" 
+              description="Open, click, and conversion rates by date"
+              delay={1}
+            >
+              <div className="p-6 h-80">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart
+                    data={chartData?.engagementOverTime}
+                    margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                    <XAxis 
+                      dataKey="date"
+                      tick={{ fontSize: 12 }}
+                    />
+                    <YAxis 
+                      tick={{ fontSize: 12 }}
+                      tickFormatter={(value) => `${value}%`}
+                    />
+                    <RechartsTooltip 
+                      formatter={(value: number) => [`${value.toFixed(1)}%`, '']}
+                      labelFormatter={(label) => `Date: ${label}`}
+                      contentStyle={{ backgroundColor: 'white', borderRadius: '8px', border: '1px solid #e2e8f0', padding: '8px 12px' }}
+                    />
+                    <Legend />
+                    <Line 
+                      type="monotone" 
+                      dataKey="open" 
+                      name="Open Rate" 
+                      stroke={chartColors.opens} 
+                      strokeWidth={2}
+                      dot={{ r: 4, fill: chartColors.opens, strokeWidth: 0 }}
+                      activeDot={{ r: 6 }}
+                    />
+                    <Line 
+                      type="monotone" 
+                      dataKey="click" 
+                      name="Click Rate" 
+                      stroke={chartColors.clicks} 
+                      strokeWidth={2}
+                      dot={{ r: 4, fill: chartColors.clicks, strokeWidth: 0 }}
+                      activeDot={{ r: 6 }}
+                    />
+                    <Line 
+                      type="monotone" 
+                      dataKey="conversion" 
+                      name="Conversion Rate" 
+                      stroke={chartColors.conversions} 
+                      strokeWidth={2}
+                      dot={{ r: 4, fill: chartColors.conversions, strokeWidth: 0 }}
+                      activeDot={{ r: 6 }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </ChartCard>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <ChartCard 
+              title="Device Breakdown" 
+              description="Email opens by device type"
+              delay={2}
+            >
+              <div className="p-6 h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={chartData?.deviceBreakdown}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={80}
+                      paddingAngle={2}
+                      dataKey="value"
+                      label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                      labelLine={false}
+                    >
+                      {chartData?.deviceBreakdown.map((entry, index) => (
+                        <Cell 
+                          key={`cell-${index}`} 
+                          fill={DEVICE_COLORS[index % DEVICE_COLORS.length]} 
+                        />
+                      ))}
+                    </Pie>
+                    <RechartsTooltip 
+                      formatter={(value: number) => [`${value}%`, '']}
+                      contentStyle={{ backgroundColor: 'white', borderRadius: '8px', border: '1px solid #e2e8f0', padding: '8px 12px' }}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="px-6 pb-4">
+                <div className="flex flex-wrap gap-3 justify-center">
+                  {chartData?.deviceBreakdown.map((entry, index) => (
+                    <div key={index} className="flex items-center">
+                      <div 
+                        className="w-3 h-3 rounded-full mr-1.5" 
+                        style={{ backgroundColor: DEVICE_COLORS[index % DEVICE_COLORS.length] }}
+                      ></div>
+                      <span className="text-sm">{entry.name}</span>
                     </div>
-                    
-                    {/* Hero Section */}
-                    <div className="p-4 bg-white text-center border-b">
-                      <h3 className="text-lg font-bold mb-2">April Edition: New Product Launch</h3>
-                      <div className="bg-gray-200 mx-auto mb-2" style={{ height: '100px', width: '90%' }}></div>
-                      <div className="inline-block px-3 py-1 bg-[#d4af37] text-white rounded relative">
-                        Read More
-                        {/* High click area overlay */}
-                        <div className="absolute inset-0 bg-red-500 rounded opacity-40"></div>
+                  ))}
+                </div>
+              </div>
+            </ChartCard>
+            
+            <ChartCard 
+              title="Email Client Distribution" 
+              description="Opens by email client"
+              delay={3}
+            >
+              <div className="p-6 h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={chartData?.emailClientDistribution}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={80}
+                      paddingAngle={2}
+                      dataKey="value"
+                      label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                      labelLine={false}
+                    >
+                      {chartData?.emailClientDistribution.map((entry, index) => (
+                        <Cell 
+                          key={`cell-${index}`} 
+                          fill={EMAIL_CLIENT_COLORS[index % EMAIL_CLIENT_COLORS.length]} 
+                        />
+                      ))}
+                    </Pie>
+                    <RechartsTooltip 
+                      formatter={(value: number) => [`${value}%`, '']}
+                      contentStyle={{ backgroundColor: 'white', borderRadius: '8px', border: '1px solid #e2e8f0', padding: '8px 12px' }}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="px-6 pb-4">
+                <div className="flex flex-wrap gap-3 justify-center">
+                  {chartData?.emailClientDistribution.map((entry, index) => (
+                    <div key={index} className="flex items-center">
+                      <div 
+                        className="w-3 h-3 rounded-full mr-1.5" 
+                        style={{ backgroundColor: EMAIL_CLIENT_COLORS[index % EMAIL_CLIENT_COLORS.length] }}
+                      ></div>
+                      <span className="text-sm">{entry.name}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </ChartCard>
+            
+            <ChartCard 
+              title="Real-time Activity" 
+              description="Latest email interactions"
+              delay={4}
+              action={
+                <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                  <span className="flex items-center">
+                    <span className="h-2 w-2 rounded-full bg-blue-500 animate-pulse mr-1.5"></span>
+                    Live
+                  </span>
+                </Badge>
+              }
+            >
+              <div className="h-[calc(100%-2rem)] overflow-y-auto p-3">
+                <ul className="space-y-3">
+                  {realtimeData?.map((activity, index) => (
+                    <motion.li 
+                      key={index}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.3, delay: index * 0.05 }}
+                      className="flex items-start p-2 rounded-md bg-gray-50"
+                    >
+                      <div className={`
+                        h-8 w-8 rounded-full flex items-center justify-center mr-3
+                        ${activity.type === 'Open' ? 'bg-blue-100 text-blue-700' : 
+                          activity.type === 'Click' ? 'bg-purple-100 text-purple-700' : 
+                          'bg-green-100 text-green-700'}
+                      `}>
+                        {activity.type === 'Open' ? (
+                          <Eye className="h-4 w-4" />
+                        ) : activity.type === 'Click' ? (
+                          <MousePointerClick className="h-4 w-4" />
+                        ) : (
+                          <ShoppingBag className="h-4 w-4" />
+                        )}
                       </div>
-                    </div>
-                    
-                    {/* Content Section */}
-                    <div className="grid grid-cols-2 gap-2 p-3">
-                      <div className="bg-white p-2 rounded">
-                        <div className="bg-gray-200 mb-1" style={{ height: '40px', width: '100%' }}></div>
-                        <div className="bg-gray-200 mb-1" style={{ height: '20px', width: '80%' }}></div>
-                        <div className="bg-gray-200 mb-1" style={{ height: '20px', width: '90%' }}></div>
-                        <div className="inline-block px-2 py-1 text-xs bg-[#1e40af] text-white rounded mt-1 relative">
-                          Learn More
-                          {/* Medium click area overlay */}
-                          <div className="absolute inset-0 bg-orange-500 rounded opacity-40"></div>
+                      <div>
+                        <div className="flex items-center">
+                          <span className={`
+                            text-xs font-medium px-1.5 py-0.5 rounded mr-2
+                            ${activity.type === 'Open' ? 'bg-blue-100 text-blue-700' : 
+                              activity.type === 'Click' ? 'bg-purple-100 text-purple-700' : 
+                              'bg-green-100 text-green-700'}
+                          `}>
+                            {activity.type}
+                          </span>
+                          <span className="text-xs text-gray-500">{activity.time}</span>
                         </div>
+                        <p className="text-sm font-medium truncate mt-0.5">{activity.user}</p>
+                        <p className="text-xs text-gray-500 truncate">{activity.email}</p>
                       </div>
-                      <div className="bg-white p-2 rounded">
-                        <div className="bg-gray-200 mb-1" style={{ height: '40px', width: '100%' }}></div>
-                        <div className="bg-gray-200 mb-1" style={{ height: '20px', width: '70%' }}></div>
-                        <div className="bg-gray-200 mb-1" style={{ height: '20px', width: '85%' }}></div>
-                        <div className="inline-block px-2 py-1 text-xs bg-[#1e40af] text-white rounded mt-1 relative">
-                          View Details
-                          {/* Low click area overlay */}
-                          <div className="absolute inset-0 bg-yellow-500 rounded opacity-40"></div>
-                        </div>
-                      </div>
+                    </motion.li>
+                  ))}
+                </ul>
+              </div>
+            </ChartCard>
+          </div>
+        </TabsContent>
+        
+        {/* Engagement Tab */}
+        <TabsContent value="engagement" className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <ChartCard 
+              title="Click Distribution" 
+              description="Performance of email links"
+              delay={0}
+            >
+              <div className="p-6 h-80">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={chartData?.clickDistribution}
+                    layout="vertical"
+                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} />
+                    <XAxis type="number" tick={{ fontSize: 12 }} />
+                    <YAxis 
+                      dataKey="link" 
+                      type="category" 
+                      tick={{ fontSize: 12 }} 
+                      width={120}
+                    />
+                    <RechartsTooltip
+                      formatter={(value: number) => [`${value} clicks`, '']}
+                      labelFormatter={(label) => `Link: ${label}`}
+                      contentStyle={{ backgroundColor: 'white', borderRadius: '8px', border: '1px solid #e2e8f0', padding: '8px 12px' }}
+                    />
+                    <Bar 
+                      dataKey="clicks" 
+                      fill={chartColors.clicks}
+                      radius={[0, 4, 4, 0]}
+                      barSize={20}
+                    >
+                      {chartData?.clickDistribution.map((entry, index) => (
+                        <Cell 
+                          key={`cell-${index}`}
+                          fill={`hsl(265, ${50 + (index * 10)}%, ${60 - (index * 4)}%)`}
+                        />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </ChartCard>
+            
+            <ChartCard 
+              title="Engagement by Time of Day" 
+              description="When your audience is most active"
+              delay={1}
+            >
+              <div className="p-6 h-80">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart
+                    data={chartData?.engagementByTimeOfDay}
+                    margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+                  >
+                    <defs>
+                      <linearGradient id="colorOpens" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor={chartColors.opens} stopOpacity={0.8}/>
+                        <stop offset="95%" stopColor={chartColors.opens} stopOpacity={0.2}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                    <XAxis dataKey="hour" tick={{ fontSize: 12 }} />
+                    <YAxis tick={{ fontSize: 12 }} />
+                    <RechartsTooltip
+                      formatter={(value: number) => [`${value} opens`, '']}
+                      labelFormatter={(label) => `Time: ${label}`}
+                      contentStyle={{ backgroundColor: 'white', borderRadius: '8px', border: '1px solid #e2e8f0', padding: '8px 12px' }}
+                    />
+                    <Area 
+                      type="monotone" 
+                      dataKey="opens" 
+                      stroke={chartColors.opens} 
+                      fillOpacity={1} 
+                      fill="url(#colorOpens)" 
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            </ChartCard>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <ChartCard 
+              title="Subscriber Engagement Segments" 
+              description="Distribution of subscriber activity levels"
+              delay={2}
+            >
+              <div className="p-6 h-80">
+                <ResponsiveContainer width="100%" height="100%">
+                  <RadialBarChart 
+                    cx="50%" 
+                    cy="50%" 
+                    innerRadius="20%" 
+                    outerRadius="90%" 
+                    barSize={20} 
+                    data={chartData?.subscriberEngagementSegments}
+                  >
+                    <RadialBar
+                      label={{ position: 'insideStart', fill: '#fff', fontWeight: 600 }}
+                      background
+                      dataKey="value"
+                    >
+                      {chartData?.subscriberEngagementSegments.map((entry, index) => (
+                        <Cell 
+                          key={`cell-${index}`} 
+                          fill={SUBSCRIBER_COLORS[index % SUBSCRIBER_COLORS.length]} 
+                        />
+                      ))}
+                    </RadialBar>
+                    <RechartsTooltip
+                      formatter={(value: number, name: string, props: any) => {
+                        const segment = props.payload;
+                        return [`${value}% (${formatNumber(segment.count)} subscribers)`, segment.segment];
+                      }}
+                      contentStyle={{ backgroundColor: 'white', borderRadius: '8px', border: '1px solid #e2e8f0', padding: '8px 12px' }}
+                    />
+                  </RadialBarChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="px-6 pb-4">
+                <div className="flex flex-wrap gap-3 justify-center">
+                  {chartData?.subscriberEngagementSegments.map((entry, index) => (
+                    <div key={index} className="flex items-center">
+                      <div 
+                        className="w-3 h-3 rounded-full mr-1.5" 
+                        style={{ backgroundColor: SUBSCRIBER_COLORS[index % SUBSCRIBER_COLORS.length] }}
+                      ></div>
+                      <span className="text-sm">{entry.segment}</span>
                     </div>
+                  ))}
+                </div>
+              </div>
+            </ChartCard>
+            
+            <ChartCard 
+              title="Geographical Distribution" 
+              description="Email opens by country"
+              delay={3}
+            >
+              <div className="p-6 h-80">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={chartData?.geographicalDistribution}
+                    layout="vertical"
+                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} />
+                    <XAxis type="number" tick={{ fontSize: 12 }} />
+                    <YAxis 
+                      dataKey="country" 
+                      type="category" 
+                      tick={{ fontSize: 12 }} 
+                      width={100}
+                    />
+                    <RechartsTooltip
+                      formatter={(value: number) => [`${value} opens`, '']}
+                      labelFormatter={(label) => `${label}`}
+                      contentStyle={{ backgroundColor: 'white', borderRadius: '8px', border: '1px solid #e2e8f0', padding: '8px 12px' }}
+                    />
+                    <Bar 
+                      dataKey="opens" 
+                      fill={chartColors.opens}
+                      radius={[0, 4, 4, 0]}
+                      barSize={20}
+                    >
+                      {chartData?.geographicalDistribution.map((entry, index) => (
+                        <Cell 
+                          key={`cell-${index}`}
+                          fill={`hsl(220, ${50 + (index * 8)}%, ${60 - (index * 5)}%)`}
+                        />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </ChartCard>
+          </div>
+        </TabsContent>
+        
+        {/* Devices Tab */}
+        <TabsContent value="devices" className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <ChartCard 
+              title="Device Breakdown" 
+              description="Email opens by device type"
+              delay={0}
+            >
+              <div className="p-6 h-80">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={chartData?.deviceBreakdown}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={90}
+                      paddingAngle={2}
+                      dataKey="value"
+                      label={({ name, value, percent }) => `${name}: ${value}% (${(percent * 100).toFixed(1)}%)`}
+                    >
+                      {chartData?.deviceBreakdown.map((entry, index) => (
+                        <Cell 
+                          key={`cell-${index}`} 
+                          fill={DEVICE_COLORS[index % DEVICE_COLORS.length]} 
+                        />
+                      ))}
+                    </Pie>
+                    <RechartsTooltip 
+                      formatter={(value: number) => [`${value}%`, '']}
+                      contentStyle={{ backgroundColor: 'white', borderRadius: '8px', border: '1px solid #e2e8f0', padding: '8px 12px' }}
+                    />
+                    <Legend />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            </ChartCard>
+            
+            <ChartCard 
+              title="Device Usage Over Time" 
+              description="Trends in device usage over months"
+              delay={1}
+            >
+              <div className="p-6 h-80">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart
+                    data={chartData?.deviceOverTime}
+                    margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+                    stackOffset="expand"
+                  >
+                    <defs>
+                      <linearGradient id="colorDesktop" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor={chartColors.desktop} stopOpacity={0.8}/>
+                        <stop offset="95%" stopColor={chartColors.desktop} stopOpacity={0.2}/>
+                      </linearGradient>
+                      <linearGradient id="colorMobile" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor={chartColors.mobile} stopOpacity={0.8}/>
+                        <stop offset="95%" stopColor={chartColors.mobile} stopOpacity={0.2}/>
+                      </linearGradient>
+                      <linearGradient id="colorTablet" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor={chartColors.tablet} stopOpacity={0.8}/>
+                        <stop offset="95%" stopColor={chartColors.tablet} stopOpacity={0.2}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                    <XAxis dataKey="month" tick={{ fontSize: 12 }} />
+                    <YAxis tickFormatter={(value) => `${value}%`} tick={{ fontSize: 12 }} />
+                    <RechartsTooltip
+                      formatter={(value: number) => [`${value}%`, '']}
+                      contentStyle={{ backgroundColor: 'white', borderRadius: '8px', border: '1px solid #e2e8f0', padding: '8px 12px' }}
+                    />
+                    <Legend />
+                    <Area 
+                      type="monotone" 
+                      dataKey="desktop" 
+                      stackId="1"
+                      stroke={chartColors.desktop} 
+                      fill={chartColors.desktop} 
+                    />
+                    <Area 
+                      type="monotone" 
+                      dataKey="mobile" 
+                      stackId="1"
+                      stroke={chartColors.mobile} 
+                      fill={chartColors.mobile} 
+                    />
+                    <Area 
+                      type="monotone" 
+                      dataKey="tablet" 
+                      stackId="1"
+                      stroke={chartColors.tablet} 
+                      fill={chartColors.tablet} 
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            </ChartCard>
+          </div>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <ChartCard 
+              title="Email Client Distribution" 
+              description="Opens by email client"
+              delay={2}
+            >
+              <div className="p-6 h-80">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={chartData?.emailClientDistribution}
+                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                    <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+                    <YAxis tickFormatter={(value) => `${value}%`} tick={{ fontSize: 12 }} />
+                    <RechartsTooltip
+                      formatter={(value: number) => [`${value}%`, '']}
+                      contentStyle={{ backgroundColor: 'white', borderRadius: '8px', border: '1px solid #e2e8f0', padding: '8px 12px' }}
+                    />
+                    <Legend />
+                    <Bar 
+                      dataKey="value" 
+                      name="Percentage"
+                      radius={[4, 4, 0, 0]}
+                      barSize={40}
+                    >
+                      {chartData?.emailClientDistribution.map((entry, index) => (
+                        <Cell 
+                          key={`cell-${index}`} 
+                          fill={EMAIL_CLIENT_COLORS[index % EMAIL_CLIENT_COLORS.length]} 
+                        />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </ChartCard>
+            
+            <ChartCard 
+              title="Device Insights" 
+              description="Actionable information about device usage"
+              delay={3}
+            >
+              <div className="p-6">
+                <div className="space-y-6">
+                  <div>
+                    <h4 className="font-medium text-lg mb-2 flex items-center">
+                      <TabletSmartphone className="h-5 w-5 mr-2 text-blue-600" />
+                      Device Optimization Recommendations
+                    </h4>
+                    <div className="space-y-3">
+                      {chartData?.deviceBreakdown[0]?.name === 'Mobile' && chartData?.deviceBreakdown[0]?.value > 50 ? (
+                        <Alert className="bg-blue-50 border-blue-200">
+                          <div className="flex">
+                            <InfoIcon className="h-4 w-4 text-blue-600 mr-2" />
+                            <AlertDescription>
+                              <strong>Mobile First:</strong> Over 50% of your audience uses mobile devices. Prioritize mobile-optimized email designs.
+                            </AlertDescription>
+                          </div>
+                        </Alert>
+                      ) : (
+                        <Alert className="bg-blue-50 border-blue-200">
+                          <div className="flex">
+                            <InfoIcon className="h-4 w-4 text-blue-600 mr-2" />
+                            <AlertDescription>
+                              <strong>Multi-device Strategy:</strong> Your audience uses various devices. Ensure responsive design for all screen sizes.
+                            </AlertDescription>
+                          </div>
+                        </Alert>
+                      )}
+                      
+                      {chartData?.emailClientDistribution[0]?.name === 'Gmail' && chartData?.emailClientDistribution[0]?.value > 40 ? (
+                        <Alert className="bg-blue-50 border-blue-200">
+                          <div className="flex">
+                            <InfoIcon className="h-4 w-4 text-blue-600 mr-2" />
+                            <AlertDescription>
+                              <strong>Gmail Dominance:</strong> A large portion of your audience uses Gmail. Test with Gmail's rendering and promotions tab placement.
+                            </AlertDescription>
+                          </div>
+                        </Alert>
+                      ) : (
+                        <Alert className="bg-blue-50 border-blue-200">
+                          <div className="flex">
+                            <InfoIcon className="h-4 w-4 text-blue-600 mr-2" />
+                            <AlertDescription>
+                              <strong>Client Diversity:</strong> Your audience uses multiple email clients. Test across all major platforms for consistency.
+                            </AlertDescription>
+                          </div>
+                        </Alert>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <h4 className="font-medium text-lg mb-2 flex items-center">
+                      <TrendingUp className="h-5 w-5 mr-2 text-green-600" />
+                      Trend Analysis
+                    </h4>
                     
-                    {/* Footer */}
-                    <div className="p-3 bg-gray-200 text-center text-xs">
-                      <div className="mb-1">© 2025 Your Company</div>
-                      <div className="flex justify-center gap-2">
-                        <span className="underline relative">Unsubscribe
-                          {/* Medium click area overlay */}
-                          <div className="absolute inset-0 bg-orange-500 opacity-30"></div>
+                    <div className="space-y-3">
+                      {chartData?.deviceOverTime[0]?.mobile < chartData?.deviceOverTime[chartData.deviceOverTime.length - 1]?.mobile ? (
+                        <Alert className="bg-green-50 border-green-200">
+                          <div className="flex">
+                            <TrendingUp className="h-4 w-4 text-green-600 mr-2" />
+                            <AlertDescription>
+                              <strong>Mobile Growth:</strong> Mobile usage has increased by approximately {Math.round(chartData.deviceOverTime[chartData.deviceOverTime.length - 1].mobile - chartData.deviceOverTime[0].mobile)}% since {chartData.deviceOverTime[0].month}. Continue optimizing for mobile devices.
+                            </AlertDescription>
+                          </div>
+                        </Alert>
+                      ) : (
+                        <Alert className="bg-orange-50 border-orange-200">
+                          <div className="flex">
+                            <InfoIcon className="h-4 w-4 text-orange-600 mr-2" />
+                            <AlertDescription>
+                              <strong>Device Shift:</strong> Consider testing new designs optimized for your audience's evolving device preferences.
+                            </AlertDescription>
+                          </div>
+                        </Alert>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </ChartCard>
+          </div>
+        </TabsContent>
+        
+        {/* Campaigns Tab */}
+        <TabsContent value="campaigns" className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <ChartCard 
+              title="Campaign Comparison" 
+              description="Open, click and conversion rates by campaign"
+              delay={0}
+            >
+              <div className="p-6 h-80">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={chartData?.campaignComparison}
+                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                    <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+                    <YAxis 
+                      tickFormatter={(value) => `${value}%`} 
+                      tick={{ fontSize: 12 }} 
+                    />
+                    <RechartsTooltip
+                      formatter={(value: number) => [`${value}%`, '']}
+                      contentStyle={{ backgroundColor: 'white', borderRadius: '8px', border: '1px solid #e2e8f0', padding: '8px 12px' }}
+                    />
+                    <Legend />
+                    <Bar 
+                      dataKey="open" 
+                      name="Open Rate" 
+                      fill={chartColors.opens}
+                      radius={[4, 4, 0, 0]} 
+                      barSize={16}
+                    />
+                    <Bar 
+                      dataKey="click" 
+                      name="Click Rate" 
+                      fill={chartColors.clicks}
+                      radius={[4, 4, 0, 0]} 
+                      barSize={16}
+                    />
+                    <Bar 
+                      dataKey="conversion" 
+                      name="Conversion Rate" 
+                      fill={chartColors.conversions}
+                      radius={[4, 4, 0, 0]} 
+                      barSize={16}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </ChartCard>
+            
+            <ChartCard 
+              title="Subject Line Performance" 
+              description="How different subject line types perform"
+              delay={1}
+            >
+              <div className="p-6 h-80">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={chartData?.subjectLinePerformance}
+                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                    layout="vertical"
+                  >
+                    <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} />
+                    <XAxis 
+                      type="number" 
+                      tickFormatter={(value) => `${value}%`} 
+                      tick={{ fontSize: 12 }} 
+                    />
+                    <YAxis 
+                      dataKey="type" 
+                      type="category"
+                      width={120}
+                      tick={{ fontSize: 12 }} 
+                    />
+                    <RechartsTooltip
+                      formatter={(value: number) => [`${value}% open rate`, '']}
+                      contentStyle={{ backgroundColor: 'white', borderRadius: '8px', border: '1px solid #e2e8f0', padding: '8px 12px' }}
+                    />
+                    <Bar 
+                      dataKey="rate" 
+                      name="Open Rate" 
+                      fill={chartColors.opens}
+                      radius={[0, 4, 4, 0]} 
+                      barSize={16}
+                    >
+                      {chartData?.subjectLinePerformance.map((entry, index) => (
+                        <Cell 
+                          key={`cell-${index}`}
+                          fill={`hsl(220, ${90 - (index * 8)}%, ${50 + (index * 3)}%)`}
+                        />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </ChartCard>
+          </div>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <ChartCard 
+              title="Send Time Effectiveness" 
+              description="Open rates by day and time"
+              delay={2}
+            >
+              <div className="p-6 h-80">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={chartData?.sendTimeEffectiveness}
+                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                    <XAxis dataKey="day" tick={{ fontSize: 12 }} />
+                    <YAxis 
+                      tickFormatter={(value) => `${value}%`} 
+                      tick={{ fontSize: 12 }} 
+                    />
+                    <RechartsTooltip
+                      formatter={(value: number) => [`${value}% open rate`, '']}
+                      contentStyle={{ backgroundColor: 'white', borderRadius: '8px', border: '1px solid #e2e8f0', padding: '8px 12px' }}
+                    />
+                    <Legend />
+                    <Bar 
+                      dataKey="morning" 
+                      name="Morning" 
+                      fill="#3b82f6"
+                      radius={[4, 4, 0, 0]} 
+                      barSize={12}
+                    />
+                    <Bar 
+                      dataKey="afternoon" 
+                      name="Afternoon" 
+                      fill="#8b5cf6"
+                      radius={[4, 4, 0, 0]} 
+                      barSize={12}
+                    />
+                    <Bar 
+                      dataKey="evening" 
+                      name="Evening" 
+                      fill="#10b981"
+                      radius={[4, 4, 0, 0]} 
+                      barSize={12}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </ChartCard>
+            
+            <ChartCard 
+              title="Campaign Recommendations" 
+              description="Automated insights for better campaigns"
+              delay={3}
+            >
+              <div className="p-6">
+                <div className="space-y-4">
+                  <div className="bg-blue-50 border border-blue-100 rounded-lg p-4">
+                    <h4 className="text-blue-800 font-semibold text-sm mb-2 flex items-center">
+                      <Timer className="h-4 w-4 mr-2" />
+                      Best Sending Times
+                    </h4>
+                    <p className="text-blue-700 text-sm">
+                      Based on your data, emails sent on <strong>Wednesday afternoons</strong> have the highest open rates (26.9%). Consider scheduling your important campaigns at this time.
+                    </p>
+                  </div>
+                  
+                  <div className="bg-green-50 border border-green-100 rounded-lg p-4">
+                    <h4 className="text-green-800 font-semibold text-sm mb-2 flex items-center">
+                      <Tag className="h-4 w-4 mr-2" />
+                      Subject Line Strategy
+                    </h4>
+                    <p className="text-green-700 text-sm">
+                      <strong>Personalized subject lines</strong> are your top performers with 31.2% open rate. This is 5.4% higher than your average open rate. Consider increasing the use of personalization.
+                    </p>
+                  </div>
+                  
+                  <div className="bg-purple-50 border border-purple-100 rounded-lg p-4">
+                    <h4 className="text-purple-800 font-semibold text-sm mb-2 flex items-center">
+                      <TrendingUp className="h-4 w-4 mr-2" />
+                      High-performing Campaign
+                    </h4>
+                    <p className="text-purple-700 text-sm">
+                      <strong>Campaign C</strong> has your best performance metrics with a 28.9% open rate and 6.1% click rate. Review this campaign's content, subject line, and timing to apply those tactics in future campaigns.
+                    </p>
+                  </div>
+                  
+                  <Button variant="outline" className="w-full flex items-center justify-center gap-2 mt-2">
+                    <FileBarChart className="h-4 w-4" />
+                    View Detailed Campaign Analytics
+                  </Button>
+                </div>
+              </div>
+            </ChartCard>
+          </div>
+        </TabsContent>
+        
+        {/* Smart Insights Tab */}
+        <TabsContent value="insights" className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+            <MetricCard 
+              title="AI-Generated Engagement Score" 
+              value="87/100" 
+              subValue="Better than 73% of similar senders"
+              trend="up"
+              trendValue="5 points"
+              icon={<Sparkles className="h-4 w-4" />}
+              color="purple"
+              delay={0}
+            />
+            
+            <MetricCard 
+              title="Predicted Monthly Growth" 
+              value="8.3%" 
+              subValue="Based on current trend analysis"
+              trend="up"
+              trendValue="1.2%"
+              icon={<TrendingUp className="h-4 w-4" />}
+              color="green"
+              delay={1}
+            />
+            
+            <MetricCard 
+              title="Audience Health Score" 
+              value="92/100" 
+              subValue="List quality and engagement metrics"
+              trend="up"
+              trendValue="3 points"
+              icon={<Users className="h-4 w-4" />}
+              color="blue"
+              delay={2}
+            />
+          </div>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <ChartCard 
+              title="Smart Insights" 
+              description="AI-powered recommendations"
+              delay={0}
+            >
+              <div className="p-6">
+                <div className="space-y-5">
+                  <div className="flex">
+                    <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center mr-4 flex-shrink-0">
+                      <Sparkles className="h-5 w-5 text-purple-700" />
+                    </div>
+                    <div>
+                      <h4 className="text-base font-medium mb-1">Audience Engagement Insights</h4>
+                      <p className="text-sm text-gray-600 mb-2">Your highly engaged segment (28%) shows strong interaction with your content. Consider a loyalty program or exclusive content for this group to further boost engagement.</p>
+                      <Button variant="link" size="sm" className="px-0 h-auto text-sm text-purple-700">
+                        Analyze Engaged Segment
+                        <ChevronRightIcon className="ml-1 h-3 w-3" />
+                      </Button>
+                    </div>
+                  </div>
+                  
+                  <Separator />
+                  
+                  <div className="flex">
+                    <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-4 flex-shrink-0">
+                      <ActivityIcon className="h-5 w-5 text-blue-700" />
+                    </div>
+                    <div>
+                      <h4 className="text-base font-medium mb-1">Content Performance Analysis</h4>
+                      <p className="text-sm text-gray-600 mb-2">Email campaigns with product education content have a 23% higher click rate than promotional content. Consider increasing educational content in your email strategy.</p>
+                      <Button variant="link" size="sm" className="px-0 h-auto text-sm text-blue-700">
+                        View Content Analytics
+                        <ChevronRightIcon className="ml-1 h-3 w-3" />
+                      </Button>
+                    </div>
+                  </div>
+                  
+                  <Separator />
+                  
+                  <div className="flex">
+                    <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center mr-4 flex-shrink-0">
+                      <BriefcaseIcon className="h-5 w-5 text-green-700" />
+                    </div>
+                    <div>
+                      <h4 className="text-base font-medium mb-1">Revenue Opportunity</h4>
+                      <p className="text-sm text-gray-600 mb-2">Based on your current conversion rates, a 2% increase in click-through rate could generate approximately 15% more revenue from email campaigns.</p>
+                      <Button variant="link" size="sm" className="px-0 h-auto text-sm text-green-700">
+                        Explore Revenue Impact
+                        <ChevronRightIcon className="ml-1 h-3 w-3" />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </ChartCard>
+            
+            <ChartCard 
+              title="Performance Benchmarks" 
+              description="How you compare to industry standards"
+              delay={1}
+            >
+              <div className="p-6 space-y-5">
+                <div>
+                  <div className="flex justify-between mb-2">
+                    <div className="flex items-center">
+                      <Eye className="h-4 w-4 text-blue-600 mr-2" />
+                      <span className="text-sm font-medium">Open Rate</span>
+                    </div>
+                    <span className="text-sm font-medium">24.8% vs. 21.5% (Industry)</span>
+                  </div>
+                  <div className="relative pt-1">
+                    <div className="flex mb-2 items-center justify-between">
+                      <div>
+                        <span className="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-blue-600 bg-blue-100">
+                          Your performance: +15.3%
                         </span>
-                        <span className="underline">Preferences</span>
-                        <span className="underline">View in Browser</span>
                       </div>
+                    </div>
+                    <div className="overflow-hidden h-2 text-xs flex rounded bg-gray-100">
+                      <div style={{ width: "80%" }} className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-blue-600"></div>
                     </div>
                   </div>
                 </div>
                 
                 <div>
-                  <h4 className="text-sm font-medium mb-4">Click Distribution Analysis</h4>
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center">
-                          <div className="w-3 h-3 bg-red-500 opacity-70 mr-2"></div>
-                          <span className="text-sm">High Click Areas (15%+ CTR)</span>
-                        </div>
-                        <span className="text-sm font-medium">24.8%</span>
-                      </div>
-                      <Progress value={24.8} className="h-2" style={{ '--progress-foreground': 'rgb(239, 68, 68)' } as React.CSSProperties} />
+                  <div className="flex justify-between mb-2">
+                    <div className="flex items-center">
+                      <MousePointerClick className="h-4 w-4 text-purple-600 mr-2" />
+                      <span className="text-sm font-medium">Click Rate</span>
                     </div>
-                    
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center">
-                          <div className="w-3 h-3 bg-orange-500 opacity-70 mr-2"></div>
-                          <span className="text-sm">Medium Click Areas (5-15% CTR)</span>
-                        </div>
-                        <span className="text-sm font-medium">12.3%</span>
+                    <span className="text-sm font-medium">3.6% vs. 2.7% (Industry)</span>
+                  </div>
+                  <div className="relative pt-1">
+                    <div className="flex mb-2 items-center justify-between">
+                      <div>
+                        <span className="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-purple-600 bg-purple-100">
+                          Your performance: +33.3%
+                        </span>
                       </div>
-                      <Progress value={12.3} className="h-2" style={{ '--progress-foreground': 'rgb(249, 115, 22)' } as React.CSSProperties} />
                     </div>
-                    
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center">
-                          <div className="w-3 h-3 bg-yellow-500 opacity-70 mr-2"></div>
-                          <span className="text-sm">Low Click Areas (&lt;5% CTR)</span>
-                        </div>
-                        <span className="text-sm font-medium">3.2%</span>
+                    <div className="overflow-hidden h-2 text-xs flex rounded bg-gray-100">
+                      <div style={{ width: "85%" }} className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-purple-600"></div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div>
+                  <div className="flex justify-between mb-2">
+                    <div className="flex items-center">
+                      <ShoppingBag className="h-4 w-4 text-green-600 mr-2" />
+                      <span className="text-sm font-medium">Conversion Rate</span>
+                    </div>
+                    <span className="text-sm font-medium">1.2% vs. 1.5% (Goal)</span>
+                  </div>
+                  <div className="relative pt-1">
+                    <div className="flex mb-2 items-center justify-between">
+                      <div>
+                        <span className="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-red-600 bg-red-100">
+                          Your performance: -20.0%
+                        </span>
                       </div>
-                      <Progress value={3.2} className="h-2" style={{ '--progress-foreground': 'rgb(234, 179, 8)' } as React.CSSProperties} />
                     </div>
-                    
-                    <div className="mt-6">
-                      <h4 className="text-sm font-medium mb-2">Content Effectiveness</h4>
-                      <div className="space-y-3">
-                        <div>
-                          <div className="flex items-center justify-between mt-2">
-                            <span className="text-sm">CTA Buttons</span>
-                            <span className="text-sm font-medium">23.5% CTR</span>
-                          </div>
-                          <Progress value={23.5} className="h-2" style={{ '--progress-foreground': '#1e40af' } as React.CSSProperties} />
-                        </div>
-                        <div>
-                          <div className="flex items-center justify-between mt-2">
-                            <span className="text-sm">Links in Text</span>
-                            <span className="text-sm font-medium">8.7% CTR</span>
-                          </div>
-                          <Progress value={8.7} className="h-2" style={{ '--progress-foreground': '#d4af37' } as React.CSSProperties} />
-                        </div>
-                        <div>
-                          <div className="flex items-center justify-between mt-2">
-                            <span className="text-sm">Image + Text CTAs</span>
-                            <span className="text-sm font-medium">18.3% CTR</span>
-                          </div>
-                          <Progress value={18.3} className="h-2" style={{ '--progress-foreground': '#1a3a5f' } as React.CSSProperties} />
+                    <div className="overflow-hidden h-2 text-xs flex rounded bg-gray-100">
+                      <div style={{ width: "60%" }} className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-red-500"></div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div>
+                  <div className="flex justify-between mb-2">
+                    <div className="flex items-center">
+                      <XCircle className="h-4 w-4 text-red-600 mr-2" />
+                      <span className="text-sm font-medium">Bounce Rate</span>
+                    </div>
+                    <span className="text-sm font-medium">0.8% vs. 1.2% (Industry)</span>
+                  </div>
+                  <div className="relative pt-1">
+                    <div className="flex mb-2 items-center justify-between">
+                      <div>
+                        <span className="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-green-600 bg-green-100">
+                          Your performance: +33.3%
+                        </span>
+                      </div>
+                    </div>
+                    <div className="overflow-hidden h-2 text-xs flex rounded bg-gray-100">
+                      <div style={{ width: "90%" }} className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-green-600"></div>
+                    </div>
+                  </div>
+                </div>
+                
+                <Button variant="outline" className="w-full flex items-center justify-center gap-2 mt-3">
+                  <FileText className="h-4 w-4" />
+                  Download Benchmark Report
+                </Button>
+              </div>
+            </ChartCard>
+          </div>
+          
+          <div className="grid grid-cols-1 gap-6">
+            <ChartCard 
+              title="AI-Powered Recommendations" 
+              description="Smart suggestions to improve your email performance"
+              delay={2}
+            >
+              <div className="p-6">
+                <div className="space-y-5">
+                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-lg p-4">
+                    <div className="flex items-start">
+                      <div className="bg-white p-2 rounded-full shadow-sm mr-4">
+                        <Sparkles className="h-5 w-5 text-blue-600" />
+                      </div>
+                      <div>
+                        <h4 className="text-blue-800 font-semibold mb-1">
+                          Subject Line Enhancement
+                        </h4>
+                        <p className="text-blue-700 text-sm mb-3">
+                          Personalized subject lines perform 31.2% better than other types. Consider adding customer names or browsing history references to increase open rates.
+                        </p>
+                        <div className="flex items-center text-sm">
+                          <Badge variant="outline" className="bg-blue-100 text-blue-700 border-blue-300 mr-2">
+                            High Impact
+                          </Badge>
+                          <Button variant="outline" size="sm" className="h-7 bg-white">
+                            Apply to Next Campaign
+                          </Button>
                         </div>
                       </div>
                     </div>
                   </div>
+                  
+                  <div className="bg-gradient-to-r from-purple-50 to-fuchsia-50 border border-purple-100 rounded-lg p-4">
+                    <div className="flex items-start">
+                      <div className="bg-white p-2 rounded-full shadow-sm mr-4">
+                        <Clock className="h-5 w-5 text-purple-600" />
+                      </div>
+                      <div>
+                        <h4 className="text-purple-800 font-semibold mb-1">
+                          Optimal Send Time Adjustment
+                        </h4>
+                        <p className="text-purple-700 text-sm mb-3">
+                          Your data indicates Wednesday afternoons (2-4pm) have a 26.9% higher open rate than your current average send time. Consider rescheduling campaigns.
+                        </p>
+                        <div className="flex items-center text-sm">
+                          <Badge variant="outline" className="bg-purple-100 text-purple-700 border-purple-300 mr-2">
+                            Medium Impact
+                          </Badge>
+                          <Button variant="outline" size="sm" className="h-7 bg-white">
+                            Adjust Send Schedule
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-100 rounded-lg p-4">
+                    <div className="flex items-start">
+                      <div className="bg-white p-2 rounded-full shadow-sm mr-4">
+                        <TabletSmartphone className="h-5 w-5 text-green-600" />
+                      </div>
+                      <div>
+                        <h4 className="text-green-800 font-semibold mb-1">
+                          Mobile Optimization
+                        </h4>
+                        <p className="text-green-700 text-sm mb-3">
+                          With mobile usage at 63% in May (up from 55% in January), focus on mobile-first design to improve click rates. Simplify layouts and use larger touch targets.
+                        </p>
+                        <div className="flex items-center text-sm">
+                          <Badge variant="outline" className="bg-green-100 text-green-700 border-green-300 mr-2">
+                            High Impact
+                          </Badge>
+                          <Button variant="outline" size="sm" className="h-7 bg-white">
+                            Get Mobile Templates
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex justify-center">
+                    <Button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700">
+                      <Sparkles className="h-4 w-4 mr-2" />
+                      Get Personalized Strategy Consultation
+                    </Button>
+                  </div>
                 </div>
               </div>
-            </CardContent>
-          </Card>
-          
-          {/* Email performance over time */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Performance Over Time</CardTitle>
-                <CardDescription>Opens, clicks and conversions by day</CardDescription>
-              </CardHeader>
-              <CardContent className="h-80">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart
-                    data={chartData?.weeklyPerformance || emailPerformanceData}
-                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
-                    <XAxis dataKey="day" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Line type="monotone" dataKey="opens" stroke="#1e40af" activeDot={{ r: 8 }} strokeWidth={2} />
-                    <Line type="monotone" dataKey="clicks" stroke="#d4af37" activeDot={{ r: 6 }} strokeWidth={2} />
-                    <Line type="monotone" dataKey="conversions" stroke="#1a3a5f" strokeWidth={2} />
-                  </LineChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader>
-                <CardTitle>Device Breakdown</CardTitle>
-                <CardDescription>Email opens by device type</CardDescription>
-              </CardHeader>
-              <CardContent className="h-80">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={chartData?.deviceBreakdown || engagementByDevice}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                      outerRadius={80}
-                      fill="#8884d8"
-                      dataKey="value"
-                    >
-                      {(chartData?.deviceBreakdown || engagementByDevice).map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip formatter={(value) => `${value}%`} />
-                    <Legend />
-                  </PieChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-          </div>
-          
-          {/* Engagement by Time of Day & Email Clients */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Engagement by Time of Day</CardTitle>
-                <CardDescription>When your audience opens emails</CardDescription>
-              </CardHeader>
-              <CardContent className="h-80">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart
-                    data={chartData?.engagementByTimeOfDay || [
-                      { hour: '12am-4am', opens: 120 },
-                      { hour: '4am-8am', opens: 380 },
-                      { hour: '8am-12pm', opens: 980 },
-                      { hour: '12pm-4pm', opens: 850 },
-                      { hour: '4pm-8pm', opens: 620 },
-                      { hour: '8pm-12am', opens: 450 }
-                    ]}
-                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
-                    <XAxis dataKey="hour" />
-                    <YAxis />
-                    <Tooltip />
-                    <Bar dataKey="opens" fill="#1e40af" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader>
-                <CardTitle>Email Client Distribution</CardTitle>
-                <CardDescription>What your audience uses to read emails</CardDescription>
-              </CardHeader>
-              <CardContent className="h-80">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart
-                    data={chartData?.emailClientDistribution || [
-                      { name: 'Gmail', value: 42 },
-                      { name: 'Apple Mail', value: 28 },
-                      { name: 'Outlook', value: 18 },
-                      { name: 'Yahoo Mail', value: 8 },
-                      { name: 'Samsung Mail', value: 3 },
-                      { name: 'Other', value: 1 }
-                    ]}
-                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                    layout="vertical"
-                  >
-                    <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
-                    <XAxis type="number" />
-                    <YAxis dataKey="name" type="category" width={100} />
-                    <Tooltip />
-                    <Bar dataKey="value" fill="#d4af37" name="Percentage" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-        
-        {/* Email Opens Tab Content - Detailed breakdown */}
-        <TabsContent value="opens">
-          <DetailedOpens />
-        </TabsContent>
-        
-        {/* Engagement Metrics Tab */}
-        <TabsContent value="engagement" className="space-y-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Subject Line Performance</CardTitle>
-                <CardDescription>Open rates by subject line type</CardDescription>
-              </CardHeader>
-              <CardContent className="h-80">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart
-                    data={chartData?.subjectLinePerformance || [
-                      { type: 'Question-based', rate: 28.4 },
-                      { type: 'Emoji in subject', rate: 22.7 },
-                      { type: 'Personalized', rate: 31.2 },
-                      { type: 'Urgent/FOMO', rate: 26.8 },
-                      { type: 'Discount mention', rate: 29.5 },
-                      { type: 'Curiosity gap', rate: 25.3 }
-                    ]}
-                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
-                    <XAxis dataKey="type" />
-                    <YAxis />
-                    <Tooltip />
-                    <Bar dataKey="rate" fill="#1e40af" name="Open Rate %" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader>
-                <CardTitle>Send Time Effectiveness</CardTitle>
-                <CardDescription>Open rates by day and time</CardDescription>
-              </CardHeader>
-              <CardContent className="h-80">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart
-                    data={chartData?.sendTimeEffectiveness || [
-                      { day: 'Monday', morning: 23.4, afternoon: 21.2, evening: 18.7 },
-                      { day: 'Tuesday', morning: 24.8, afternoon: 22.5, evening: 19.2 },
-                      { day: 'Wednesday', morning: 25.2, afternoon: 23.8, evening: 19.5 },
-                      { day: 'Thursday', morning: 23.1, afternoon: 21.9, evening: 18.4 },
-                      { day: 'Friday', morning: 21.5, afternoon: 19.8, evening: 17.2 },
-                      { day: 'Saturday', morning: 18.9, afternoon: 20.1, evening: 21.3 },
-                      { day: 'Sunday', morning: 19.2, afternoon: 20.8, evening: 22.4 }
-                    ]}
-                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
-                    <XAxis dataKey="day" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Bar dataKey="morning" fill="#1e40af" name="Morning (6am-12pm)" />
-                    <Bar dataKey="afternoon" fill="#d4af37" name="Afternoon (12pm-6pm)" />
-                    <Bar dataKey="evening" fill="#1a3a5f" name="Evening (6pm-12am)" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-          </div>
-          
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Engagement Over Time</CardTitle>
-                <CardDescription>Tracking opens, clicks and conversions over time</CardDescription>
-              </CardHeader>
-              <CardContent className="h-80">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart
-                    data={chartData?.engagementOverTime || [
-                      { date: 'Jan', open: 24.2, click: 3.8, conversion: 1.2 },
-                      { date: 'Feb', open: 23.8, click: 3.5, conversion: 1.1 },
-                      { date: 'Mar', open: 25.1, click: 4.0, conversion: 1.3 },
-                      { date: 'Apr', open: 26.4, click: 4.2, conversion: 1.4 },
-                      { date: 'May', open: 24.8, click: 3.7, conversion: 1.2 },
-                      { date: 'Jun', open: 23.5, click: 3.5, conversion: 1.0 }
-                    ]}
-                    margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
-                    <XAxis dataKey="date" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Area type="monotone" dataKey="open" stackId="1" stroke="#1e40af" fill="#1e40af" fillOpacity={0.8} name="Open Rate %" />
-                    <Area type="monotone" dataKey="click" stackId="2" stroke="#d4af37" fill="#d4af37" fillOpacity={0.8} name="Click Rate %" />
-                    <Area type="monotone" dataKey="conversion" stackId="3" stroke="#1a3a5f" fill="#1a3a5f" fillOpacity={0.8} name="Conversion Rate %" />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader>
-                <CardTitle>Click Distribution</CardTitle>
-                <CardDescription>Most clicked links in your emails</CardDescription>
-              </CardHeader>
-              <CardContent className="h-80">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart
-                    data={chartData?.clickDistribution || [
-                      { link: 'Product Page', clicks: 423 },
-                      { link: 'Pricing', clicks: 356 },
-                      { link: 'Blog Post', clicks: 289 },
-                      { link: 'Special Offer', clicks: 475 },
-                      { link: 'Documentation', clicks: 187 },
-                      { link: 'Contact Us', clicks: 142 }
-                    ]}
-                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                    layout="vertical"
-                  >
-                    <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
-                    <XAxis type="number" />
-                    <YAxis dataKey="link" type="category" width={100} />
-                    <Tooltip />
-                    <Bar dataKey="clicks" fill="#1a3a5f" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-        
-        {/* Campaign Comparison Tab */}
-        <TabsContent value="campaigns" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Campaign Performance Comparison</CardTitle>
-              <CardDescription>Compare open, click, and conversion rates across campaigns</CardDescription>
-            </CardHeader>
-            <CardContent className="h-96">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  data={chartData?.campaignComparison || [
-                    { name: 'Monthly Newsletter', open: 25.4, click: 3.9, conversion: 1.2 },
-                    { name: 'Product Launch', open: 31.8, click: 4.7, conversion: 1.8 },
-                    { name: 'Summer Sale', open: 28.2, click: 5.3, conversion: 2.1 },
-                    { name: 'Customer Re-engagement', open: 22.5, click: 3.2, conversion: 0.9 },
-                    { name: 'Weekly Digest', open: 24.3, click: 3.5, conversion: 1.0 }
-                  ]}
-                  margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Bar dataKey="open" fill="#1e40af" name="Open Rate %" />
-                  <Bar dataKey="click" fill="#d4af37" name="Click Rate %" />
-                  <Bar dataKey="conversion" fill="#1a3a5f" name="Conversion Rate %" />
-                </BarChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-        </TabsContent>
-        
-        {/* Audience Insights Tab */}
-        <TabsContent value="audience" className="space-y-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Geographical Distribution</CardTitle>
-                <CardDescription>Opens by geographical location</CardDescription>
-              </CardHeader>
-              <CardContent className="h-80">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart
-                    data={[
-                      { country: 'United States', opens: 5240 },
-                      { country: 'United Kingdom', opens: 1820 },
-                      { country: 'Canada', opens: 1350 },
-                      { country: 'Australia', opens: 980 },
-                      { country: 'Germany', opens: 780 },
-                      { country: 'France', opens: 650 },
-                      { country: 'Other', opens: 1540 },
-                    ]}
-                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                    layout="vertical"
-                  >
-                    <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
-                    <XAxis type="number" />
-                    <YAxis dataKey="country" type="category" width={100} />
-                    <Tooltip />
-                    <Legend />
-                    <Bar dataKey="opens" fill="#1e40af" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader>
-                <CardTitle>Device Breakdown Over Time</CardTitle>
-                <CardDescription>Changing device preferences</CardDescription>
-              </CardHeader>
-              <CardContent className="h-80">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart
-                    data={[
-                      { month: 'Jan', desktop: 48, mobile: 40, tablet: 12 },
-                      { month: 'Feb', desktop: 47, mobile: 41, tablet: 12 },
-                      { month: 'Mar', desktop: 46, mobile: 42, tablet: 12 },
-                      { month: 'Apr', desktop: 45, mobile: 43, tablet: 12 },
-                      { month: 'May', desktop: 43, mobile: 45, tablet: 12 },
-                      { month: 'Jun', desktop: 42, mobile: 47, tablet: 11 },
-                    ]}
-                    margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
-                    <XAxis dataKey="month" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Area type="monotone" dataKey="desktop" stackId="1" stroke="#1e40af" fill="#1e40af" />
-                    <Area type="monotone" dataKey="mobile" stackId="1" stroke="#d4af37" fill="#d4af37" />
-                    <Area type="monotone" dataKey="tablet" stackId="1" stroke="#1a3a5f" fill="#1a3a5f" />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-            
-            <Card className="col-span-2">
-              <CardHeader>
-                <CardTitle>Subscriber Engagement Segments</CardTitle>
-                <CardDescription>Distribution of subscribers by engagement level</CardDescription>
-              </CardHeader>
-              <CardContent className="h-80">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart
-                    data={[
-                      { segment: 'Highly Engaged (3+ clicks/email)', value: 15, count: 3658 },
-                      { segment: 'Engaged (1-2 clicks/email)', value: 28, count: 6789 },
-                      { segment: 'Passive (opens only)', value: 32, count: 7865 },
-                      { segment: 'Dormant (no opens in 30 days)', value: 18, count: 4321 },
-                      { segment: 'At Risk (no opens in 60 days)', value: 7, count: 1654 },
-                    ]}
-                    margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
-                    <XAxis dataKey="segment" />
-                    <YAxis />
-                    <Tooltip formatter={(value, name, props) => {
-                      return name === 'value' ? `${value}% (${props.payload.count} subscribers)` : value;
-                    }} />
-                    <Bar dataKey="value" fill="#1e40af" name="Percentage" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
+            </ChartCard>
           </div>
         </TabsContent>
       </Tabs>
-      
-      {/* Real-time activity feed */}
-      <Card className="mt-6">
-        <CardHeader>
-          <CardTitle>Real-time Activity</CardTitle>
-          <CardDescription>Latest email interactions</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {(realtimeData ? realtimeData.slice(0, 5) : [
-              { time: '2 mins ago', type: 'open', email: 'Weekly Newsletter', user: 'john.doe@example.com' },
-              { time: '5 mins ago', type: 'click', email: 'Product Launch', user: 'maria.smith@example.com' },
-              { time: '8 mins ago', type: 'conversion', email: 'Summer Sale', user: 'robert.jones@example.com' },
-              { time: '15 mins ago', type: 'open', email: 'Weekly Newsletter', user: 'alice.johnson@example.com' },
-              { time: '18 mins ago', type: 'click', email: 'Customer Re-engagement', user: 'david.wilson@example.com' },
-            ]).map((activity: any, index: number) => (
-              <div key={index} className="flex items-center justify-between border-b pb-2">
-                <div className="flex items-center space-x-2">
-                  <div className="rounded-full w-2 h-2 bg-primary"></div>
-                  <span className="font-medium">{activity.user}</span>
-                  <Badge variant={activity.type === 'open' ? 'outline' : activity.type === 'click' ? 'secondary' : 'default'}>
-                    {activity.type === 'open' ? 'Opened' : activity.type === 'click' ? 'Clicked' : 'Converted'}
-                  </Badge>
-                  <span>{activity.email}</span>
-                </div>
-                <span className="text-sm text-gray-500">{activity.time}</span>
-              </div>
-            ))}
-          </div>
-          <div className="mt-4 text-center">
-            <Button variant="outline">View All Activity</Button>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 };
 
-// Detailed Opens component to show which emails have been opened
-const DetailedOpens = () => {
-  const [selectedCampaign, setSelectedCampaign] = useState<string>("all");
-  const [searchTerm, setSearchTerm] = useState<string>("");
-  
-  // Get client info from sessionStorage as that's where ClientSidebar stores it
-  const clientInfo = useMemo(() => {
-    try {
-      const stored = sessionStorage.getItem('clientUser');
-      return stored ? JSON.parse(stored) : null;
-    } catch (e) {
-      console.error('Error parsing client info from sessionStorage', e);
-      return null;
-    }
-  }, []);
+// Export the component
+export default ClientEmailPerformance;
 
-  // Sample fallback campaign data for when API request fails
-  const fallbackCampaigns = [
-    { id: 1, name: 'Summer Sale Campaign' },
-    { id: 2, name: 'Product Launch' },
-    { id: 3, name: 'Weekly Newsletter' },
-    { id: 4, name: 'Customer Re-engagement' },
-  ];
-
-  // Sample fallback opens data
-  const fallbackOpensData = {
-    emails: [
-      {
-        id: 1,
-        emailName: 'Monthly Newsletter - April',
-        recipient: 'john.smith@example.com',
-        openCount: 3,
-        lastOpenedAt: '2025-04-15T10:23:45Z',
-        device: 'iPhone',
-        campaignId: 1,
-        campaignName: 'Monthly Newsletter'
-      },
-      {
-        id: 2,
-        emailName: 'Spring Sale Announcement',
-        recipient: 'jane.doe@example.com',
-        openCount: 2,
-        lastOpenedAt: '2025-04-15T09:15:30Z',
-        device: 'Chrome/Desktop',
-        campaignId: 3,
-        campaignName: 'Spring Sale'
-      },
-      {
-        id: 3,
-        emailName: 'Product Launch - XYZ',
-        recipient: 'michael.johnson@example.com',
-        openCount: 1,
-        lastOpenedAt: '2025-04-14T14:45:22Z',
-        device: 'Gmail/Android',
-        campaignId: 2,
-        campaignName: 'Product Launch'
-      },
-      {
-        id: 4,
-        emailName: 'Weekly Digest',
-        recipient: 'sarah.williams@example.com',
-        openCount: 4,
-        lastOpenedAt: '2025-04-15T11:05:17Z',
-        device: 'Safari/Desktop',
-        campaignId: 1,
-        campaignName: 'Weekly Newsletter'
-      },
-      {
-        id: 5,
-        emailName: 'Welcome Series - Message 1',
-        recipient: 'robert.davis@example.com',
-        openCount: 1,
-        lastOpenedAt: '2025-04-15T08:30:45Z',
-        device: 'Outlook/Desktop',
-        campaignId: 4,
-        campaignName: 'Customer Re-engagement'
-      }
-    ]
-  };
-  
-  // Fetch campaigns for the filter dropdown
-  const { data: campaignsData } = useQuery<Array<{ id: number; name: string }>>({
-    queryKey: ['/api/campaigns'],
-    queryFn: async () => {
-      try {
-        const clientId = clientInfo?.clientId;
-        const res = await fetch(`/api/campaigns${clientId ? `?clientId=${clientId}` : ''}`);
-        if (!res.ok) {
-          throw new Error('Failed to fetch campaigns');
-        }
-        console.log("Campaigns data:", await res.json());
-        // Re-fetch to avoid "body already read" error
-        const secondRes = await fetch(`/api/campaigns${clientId ? `?clientId=${clientId}` : ''}`);
-        return await secondRes.json();
-      } catch (error) {
-        console.error('Error fetching campaigns:', error);
-        return [];
-      }
-    },
-    retry: 3,
-    refetchOnWindowFocus: false,
-    staleTime: 300000, // 5 minutes
-    gcTime: 600000, // 10 minutes
-  });
-  
-  // Using React Query to fetch detailed open data
-  const { data: openData, isLoading } = useQuery<{
-    emails: Array<{
-      id: number;
-      emailName: string;
-      recipient: string;
-      openCount: number;
-      lastOpenedAt: string;
-      device: string;
-      campaignId: number;
-      campaignName: string;
-    }>
-  }>({
-    queryKey: ['/api/email-performance/detailed-opens', selectedCampaign],
-    queryFn: async () => {
-      try {
-        const res = await fetch(`/api/email-performance/detailed-opens${selectedCampaign !== "all" ? `?campaignId=${selectedCampaign}` : ''}`);
-        if (!res.ok) throw new Error('Failed to fetch open data');
-        return res.json();
-      } catch (error) {
-        console.error("Error fetching detailed opens data:", error);
-        // Return fallback data when API fails
-        return fallbackOpensData;
-      }
-    },
-    retry: 3,
-    refetchOnWindowFocus: false,
-    staleTime: 300000, // 5 minutes
-    gcTime: 600000, // 10 minutes
-  });
-
-  // Define the EmailOpen type
-  type EmailOpen = {
-    id: number;
-    emailName: string;
-    recipient: string;
-    openCount: number;
-    lastOpenedAt: string;
-    device: string;
-    campaignId: number;
-    campaignName: string;
-  };
-
-  // Filter emails based on search term
-  const filteredEmails = useMemo(() => {
-    if (!openData?.emails) return [];
-    return openData.emails.filter((email: EmailOpen) => 
-      email.emailName.toLowerCase().includes(searchTerm.toLowerCase()) || 
-      email.recipient.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      email.campaignName.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }, [openData, searchTerm]);
-
-  // Function to download email opens data as CSV
-  const handleDownload = () => {
-    if (!filteredEmails || filteredEmails.length === 0) return;
-    
-    // Create CSV content
-    const headers = ["Email Name", "Recipient", "Opens", "Last Opened", "Device", "Campaign"];
-    const csvRows = [headers];
-    
-    filteredEmails.forEach((email: EmailOpen) => {
-      csvRows.push([
-        email.emailName,
-        email.recipient,
-        email.openCount.toString(),
-        email.lastOpenedAt,
-        email.device,
-        email.campaignName
-      ]);
-    });
-    
-    // Convert to CSV format
-    const csvContent = csvRows.map(row => row.join(",")).join("\n");
-    
-    // Create download link
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.setAttribute('href', url);
-    link.setAttribute('download', `email-opens-report-${new Date().toISOString().slice(0, 10)}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
+// Custom hook component
+const UserMinus = ({ className }: { className?: string }) => {
   return (
-    <Card className="h-full">
-      <CardHeader>
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <div>
-            <CardTitle>Detailed Email Opens</CardTitle>
-            <CardDescription>Specific emails that have been opened</CardDescription>
-          </div>
-          <Button onClick={handleDownload} variant="outline" size="sm" className="flex items-center">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="mr-2"
-            >
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-              <polyline points="7 10 12 15 17 10"></polyline>
-              <line x1="12" y1="15" x2="12" y2="3"></line>
-            </svg>
-            Download CSV
-          </Button>
-        </div>
-        <div className="flex flex-col sm:flex-row gap-4 pt-2">
-          <div className="flex-1">
-            <label htmlFor="search-opens" className="text-sm font-medium mb-1 block">Search</label>
-            <input
-              id="search-opens"
-              type="text"
-              placeholder="Search by email or recipient..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full px-3 py-2 border rounded-md text-sm"
-            />
-          </div>
-          <div>
-            <label htmlFor="campaign-filter" className="text-sm font-medium mb-1 block">Filter by Campaign</label>
-            <select
-              id="campaign-filter"
-              value={selectedCampaign}
-              onChange={(e) => setSelectedCampaign(e.target.value)}
-              className="w-full px-3 py-2 border rounded-md text-sm"
-            >
-              <option value="all">All Campaigns</option>
-              {campaignsData?.map(campaign => (
-                <option key={campaign.id} value={campaign.id.toString()}>
-                  {campaign.name}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent>
-        {isLoading ? (
-          <div className="text-center py-4 text-gray-400">Loading open data...</div>
-        ) : (
-          <div className="overflow-auto max-h-96">
-            <table className="w-full border-collapse">
-              <thead>
-                <tr className="border-b">
-                  <th className="text-left py-2 px-4 font-medium text-gray-500">Email</th>
-                  <th className="text-left py-2 px-4 font-medium text-gray-500">Recipient</th>
-                  <th className="text-center py-2 px-4 font-medium text-gray-500">Opens</th>
-                  <th className="text-left py-2 px-4 font-medium text-gray-500">Last Opened</th>
-                  <th className="text-left py-2 px-4 font-medium text-gray-500">Device</th>
-                  <th className="text-left py-2 px-4 font-medium text-gray-500">Campaign</th>
-                </tr>
-              </thead>
-              <tbody>
-                {!filteredEmails || filteredEmails.length === 0 ? (
-                  <tr>
-                    <td colSpan={6} className="text-center py-4 text-gray-400">No email open data available</td>
-                  </tr>
-                ) : (
-                  filteredEmails.map((email: EmailOpen) => (
-                    <tr key={email.id} className="border-b hover:bg-gray-50">
-                      <td className="py-3 px-4">{email.emailName}</td>
-                      <td className="py-3 px-4">{email.recipient}</td>
-                      <td className="py-3 px-4 text-center font-medium">{email.openCount}</td>
-                      <td className="py-3 px-4">{email.lastOpenedAt}</td>
-                      <td className="py-3 px-4">{email.device}</td>
-                      <td className="py-3 px-4">{email.campaignName}</td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </CardContent>
-    </Card>
+    <svg 
+      xmlns="http://www.w3.org/2000/svg" 
+      width="24" 
+      height="24" 
+      viewBox="0 0 24 24" 
+      fill="none" 
+      stroke="currentColor" 
+      strokeWidth="2" 
+      strokeLinecap="round" 
+      strokeLinejoin="round" 
+      className={className}
+    >
+      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+      <circle cx="9" cy="7" r="4" />
+      <line x1="22" x2="16" y1="11" y2="11" />
+    </svg>
   );
 };
-
-export default ClientEmailPerformance;

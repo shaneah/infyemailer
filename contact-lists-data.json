@@ -3,28 +3,34 @@
     "name": "Newsletter Subscribers",
     "description": "People who subscribed to the newsletter",
     "id": 1,
-    "createdAt": "2025-04-26T00:48:24.318Z",
-    "updatedAt": "2025-04-26T00:48:24.318Z"
+    "createdAt": "2025-05-02T20:05:47.076Z",
+    "updatedAt": "2025-05-02T20:05:47.076Z"
   },
   {
     "name": "Product Updates",
     "description": "People interested in product updates",
     "id": 2,
-    "createdAt": "2025-04-26T00:48:24.319Z",
-    "updatedAt": "2025-04-26T00:48:24.319Z"
+    "createdAt": "2025-05-02T20:05:47.076Z",
+    "updatedAt": "2025-05-02T20:05:47.076Z"
   },
   {
     "name": "New Customers",
     "description": "Recently acquired customers",
     "id": 3,
-    "createdAt": "2025-04-26T00:48:24.319Z",
-    "updatedAt": "2025-04-26T00:48:24.319Z"
+    "createdAt": "2025-05-02T20:05:47.076Z",
+    "updatedAt": "2025-05-02T20:05:47.076Z"
   },
   {
     "name": "VIP Members",
     "description": "Premium customers",
     "id": 4,
-    "createdAt": "2025-04-26T00:48:24.319Z",
-    "updatedAt": "2025-04-26T00:48:24.319Z"
+    "createdAt": "2025-05-02T20:05:47.076Z",
+    "updatedAt": "2025-05-02T20:05:47.076Z"
+  },
+  {
+    "name": "Aadi Mughal",
+    "id": 5,
+    "createdAt": "2025-05-02T20:10:31.267Z",
+    "updatedAt": "2025-05-02T20:10:31.267Z"
   }
 ]
