@@ -33,6 +33,7 @@ import fs from "fs";
 import path from "path";
 import OpenAI from "openai";
 import AdmZip from "adm-zip";
+import fileUpload, { UploadedFile } from "express-fileupload";
 import { setupAuth } from "./auth";
 import { registerEmailProviderRoutes } from "./routes/emailProviders";
 import { registerEmailSettingsRoutes } from "./routes/emailSettings";
