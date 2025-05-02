@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import DashboardWidgets from "@/components/widgets/DashboardWidgets";
 import WidgetManager from "@/components/widgets/WidgetManager";
 import { Widget, WidgetsProvider, defaultWidgets } from "@/hooks/useWidgets";
+import DynamicWelcomeMessage from "@/components/DynamicWelcomeMessage";
 
 type ClientDashboardProps = {
   clientId?: string;
@@ -226,7 +227,7 @@ export default function ClientDashboard({ onOpenSidebar }: ClientDashboardProps)
       <div className="flex min-h-screen bg-white">
         <div className="flex-1 flex flex-col overflow-hidden">
           {/* Header */}
-          <header className="relative z-20 flex items-center justify-between p-4 bg-white border-b border-gray-200">
+          <header className="relative z-20 flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-white border-b border-gray-200">
             <div className="flex items-center">
               <Button 
                 variant="ghost" 
@@ -239,11 +240,14 @@ export default function ClientDashboard({ onOpenSidebar }: ClientDashboardProps)
               <h1 className="text-xl font-semibold text-purple-800">Dashboard</h1>
             </div>
             
-            <div className="flex items-center gap-2">
+            <div className="flex items-center mt-2 sm:mt-0">
               {clientData && (
-                <span className="text-sm text-gray-600 hidden md:inline-block">
-                  Welcome, <span className="font-medium">{clientData.clientName}</span>
-                </span>
+                <div className="bg-purple-50 px-3 py-1.5 rounded-full border border-purple-100">
+                  <DynamicWelcomeMessage 
+                    clientName={clientData.clientName} 
+                    className="text-purple-800"
+                  />
+                </div>
               )}
             </div>
           </header>

@@ -20,7 +20,7 @@ const SimpleClientLoginV2: React.FC = () => {
   const [error, setError] = useState('');
   const [, setLocation] = useLocation();
   
-  // Set welcome message based on time of day and check for returning user
+  // Set welcome message based on local time of day and check for returning user
   useEffect(() => {
     // Check for previous login
     const savedUserData = localStorage.getItem('clientUser');
@@ -39,29 +39,75 @@ const SimpleClientLoginV2: React.FC = () => {
       }
     }
     
-    const hour = new Date().getHours();
-    let timeMessage = '';
+    // Get user's local time
+    const date = new Date();
+    const hour = date.getHours();
+    const minutes = date.getMinutes();
+    const day = date.toLocaleDateString('en-US', { weekday: 'long' });
+    const month = date.toLocaleDateString('en-US', { month: 'long' });
+    const dayOfMonth = date.getDate();
     
+    let timeMessage = '';
+    let timeContext = '';
+    
+    // Set different greeting based on time of day
     if (hour >= 5 && hour < 12) {
       timeMessage = 'Good morning';
+      timeContext = 'Start your day with a perfect email campaign';
       setWelcomeIcon(<Coffee className="h-5 w-5 text-amber-500" />);
     } else if (hour >= 12 && hour < 17) {
       timeMessage = 'Good afternoon';
+      timeContext = 'Afternoon is perfect for analyzing campaign results';
       setWelcomeIcon(<Sun className="h-5 w-5 text-amber-500" />);
     } else if (hour >= 17 && hour < 21) {
       timeMessage = 'Good evening';
+      timeContext = 'Wrap up your day with a quick overview';
       setWelcomeIcon(<Sunset className="h-5 w-5 text-amber-500" />);
     } else {
       timeMessage = 'Good night';
+      timeContext = 'Working late? Don\'t forget to schedule your campaigns';
       setWelcomeIcon(<Moon className="h-5 w-5 text-blue-500" />);
+    }
+    
+    // Add a local time message
+    const localTimeStr = `${hour}:${minutes < 10 ? '0' + minutes : minutes}`;
+    
+    // Special occasions
+    let specialMessage = '';
+    if (month === 'January' && dayOfMonth === 1) {
+      specialMessage = ' Happy New Year!';
+    } else if (month === 'December' && dayOfMonth === 25) {
+      specialMessage = ' Merry Christmas!';
+    } else if (day === 'Friday') {
+      specialMessage = ' Happy Friday!';
+    } else if (day === 'Monday') {
+      specialMessage = ' Ready for a productive week?';
     }
     
     // Personalize message if we have user data
     if (userName) {
-      setWelcomeMessage(`${timeMessage}, ${userName}! Welcome back.`);
+      setWelcomeMessage(`${timeMessage}, ${userName}!${specialMessage} It's ${day}, ${localTimeStr}.`);
     } else {
-      setWelcomeMessage(`${timeMessage}!`);
+      setWelcomeMessage(`${timeMessage}!${specialMessage} It's ${day}, ${localTimeStr}.`);
     }
+    
+    // Update time message every minute
+    const timer = setInterval(() => {
+      const newDate = new Date();
+      const newHour = newDate.getHours();
+      const newMinutes = newDate.getMinutes();
+      const newLocalTimeStr = `${newHour}:${newMinutes < 10 ? '0' + newMinutes : newMinutes}`;
+      
+      // Update welcome message with current time
+      if (userName) {
+        setWelcomeMessage(`${timeMessage}, ${userName}!${specialMessage} It's ${day}, ${newLocalTimeStr}.`);
+      } else {
+        setWelcomeMessage(`${timeMessage}!${specialMessage} It's ${day}, ${newLocalTimeStr}.`);
+      }
+    }, 60000); // Update every minute
+    
+    // Clean up interval on component unmount
+    return () => clearInterval(timer);
   }, []);
 
   // Handle login
