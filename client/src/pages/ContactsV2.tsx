@@ -587,33 +587,7 @@ const ContactsV2 = () => {
     setSelectedContacts([]);
   }, [searchQuery, selectedListFilter, selectedStatusFilter]);
 
-  const contactStatusColors = {
-    active: {
-      bg: "bg-gradient-to-r from-green-500 to-emerald-500",
-      text: "text-white",
-      badge: "border-green-200 bg-green-100 text-green-700"
-    },
-    inactive: {
-      bg: "bg-gradient-to-r from-gray-400 to-gray-500",
-      text: "text-white",
-      badge: "border-gray-200 bg-gray-100 text-gray-700"
-    },
-    unsubscribed: {
-      bg: "bg-gradient-to-r from-orange-400 to-orange-500",
-      text: "text-white",
-      badge: "border-orange-200 bg-orange-100 text-orange-700"
-    },
-    bounced: {
-      bg: "bg-gradient-to-r from-red-400 to-red-500",
-      text: "text-white",
-      badge: "border-red-200 bg-red-100 text-red-700"
-    }
-  };
-
-  // Get status color for a contact
-  const getStatusColor = (status: string) => {
-    return contactStatusColors[status as keyof typeof contactStatusColors] || contactStatusColors.inactive;
-  };
+  // Status color handling is now done inline with conditional rendering based on the status.color property
 
   // Get random gradient for avatar
   const getAvatarGradient = (id: number) => {
@@ -1097,12 +1071,26 @@ const ContactsV2 = () => {
                         <TableCell className="truncate max-w-[180px]">{contact.email}</TableCell>
                         <TableCell>{contact.company || "-"}</TableCell>
                         <TableCell>
-                          <Badge 
-                            variant="outline" 
-                            className={getStatusColor(contact.status || 'inactive').badge}
-                          >
-                            {contact.status || "Unknown"}
-                          </Badge>
+                          {contact.status?.label ? (
+                            <Badge 
+                              variant="outline" 
+                              className={`${
+                                contact.status.color === 'success' ? 'border-green-200 bg-green-100 text-green-700' :
+                                contact.status.color === 'warning' ? 'border-yellow-200 bg-yellow-100 text-yellow-700' :
+                                contact.status.color === 'danger' ? 'border-red-200 bg-red-100 text-red-700' :
+                                'border-blue-200 bg-blue-100 text-blue-700'
+                              }`}
+                            >
+                              {contact.status.label}
+                            </Badge>
+                          ) : (
+                            <Badge 
+                              variant="outline" 
+                              className="border-gray-200 bg-gray-100 text-gray-700"
+                            >
+                              {typeof contact.status === 'string' ? contact.status : "Unknown"}
+                            </Badge>
+                          )}
                         </TableCell>
                         <TableCell>
                           <div className="flex flex-wrap gap-1 max-w-[150px]">
@@ -1244,7 +1232,13 @@ const ContactsV2 = () => {
                   transition={{ duration: 0.2 }}
                 >
                   <Card className="border-none shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-                    <div className={`${getStatusColor(contact.status || 'inactive').bg} h-2`}></div>
+                    <div className={`${
+                      contact.status?.color === 'success' ? 'bg-gradient-to-r from-green-500 to-emerald-500' :
+                      contact.status?.color === 'warning' ? 'bg-gradient-to-r from-orange-400 to-orange-500' :
+                      contact.status?.color === 'danger' ? 'bg-gradient-to-r from-red-400 to-red-500' :
+                      typeof contact.status === 'string' && contact.status === 'active' ? 'bg-gradient-to-r from-green-500 to-emerald-500' :
+                      'bg-gradient-to-r from-gray-400 to-gray-500'
+                    } h-2`}></div>
                     <CardContent className="p-6">
                       <div className="flex items-start justify-between">
                         <div className="flex items-center">
@@ -1269,12 +1263,26 @@ const ContactsV2 = () => {
                       
                       <div className="mt-4 space-y-3">
                         <div className="flex items-center text-sm">
-                          <Badge 
-                            variant="outline" 
-                            className={getStatusColor(contact.status || 'inactive').badge}
-                          >
-                            {contact.status || "Unknown"}
-                          </Badge>
+                          {contact.status?.label ? (
+                            <Badge 
+                              variant="outline" 
+                              className={`${
+                                contact.status.color === 'success' ? 'border-green-200 bg-green-100 text-green-700' :
+                                contact.status.color === 'warning' ? 'border-yellow-200 bg-yellow-100 text-yellow-700' :
+                                contact.status.color === 'danger' ? 'border-red-200 bg-red-100 text-red-700' :
+                                'border-blue-200 bg-blue-100 text-blue-700'
+                              }`}
+                            >
+                              {contact.status.label}
+                            </Badge>
+                          ) : (
+                            <Badge 
+                              variant="outline" 
+                              className="border-gray-200 bg-gray-100 text-gray-700"
+                            >
+                              {typeof contact.status === 'string' ? contact.status : "Unknown"}
+                            </Badge>
+                          )}
                         </div>
                         
                         {contact.company && (
@@ -1796,12 +1804,26 @@ const ContactsV2 = () => {
                 <h2 className="text-xl font-bold">{selectedContact.name}</h2>
                 <p className="text-gray-500">{selectedContact.email}</p>
                 <div className="mt-2">
-                  <Badge 
-                    variant="outline" 
-                    className={getStatusColor(selectedContact.status || 'inactive').badge}
-                  >
-                    {selectedContact.status || "Unknown"}
-                  </Badge>
+                  {selectedContact.status?.label ? (
+                    <Badge 
+                      variant="outline" 
+                      className={`${
+                        selectedContact.status.color === 'success' ? 'border-green-200 bg-green-100 text-green-700' :
+                        selectedContact.status.color === 'warning' ? 'border-yellow-200 bg-yellow-100 text-yellow-700' :
+                        selectedContact.status.color === 'danger' ? 'border-red-200 bg-red-100 text-red-700' :
+                        'border-blue-200 bg-blue-100 text-blue-700'
+                      }`}
+                    >
+                      {selectedContact.status.label}
+                    </Badge>
+                  ) : (
+                    <Badge 
+                      variant="outline" 
+                      className="border-gray-200 bg-gray-100 text-gray-700"
+                    >
+                      {typeof selectedContact.status === 'string' ? selectedContact.status : "Unknown"}
+                    </Badge>
+                  )}
                 </div>
               </div>
               
