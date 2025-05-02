@@ -436,10 +436,29 @@ export class DbStorage implements IStorage {
       }
       
       try {
-        // Using SQL tagged template with the db.execute method
-        const result = await db.execute(
-          sql`SELECT * FROM users WHERE id = ${id} LIMIT 1`
-        );
+        // Use a safer approach with proper error handling
+        let result;
+        try {
+          // First try with the ORM
+          const [user] = await db.select().from(schema.users).where(eq(schema.users.id, id));
+          if (user) {
+            return user;
+          }
+        } catch (ormSelectError) {
+          console.warn('ORM select failed in getUser, trying execute:', ormSelectError);
+          
+          // If ORM select fails, try with execute
+          try {
+            result = await db.execute(
+              sql`SELECT * FROM users WHERE id = ${id} LIMIT 1`
+            );
+          } catch (executeError) {
+            console.warn('SQL execute also failed in getUser:', executeError);
+            
+            // Let it fall through to the next fallback
+            result = { rows: [] };
+          }
+        }
         
         if (result && result.rows && result.rows.length > 0) {
           return result.rows[0];
@@ -537,7 +556,13 @@ export class DbStorage implements IStorage {
       }
       
       try {
-        // Using SQL tagged template with the db.execute method
+        // First try with the ORM
+        const [user] = await db.select().from(schema.users).where(eq(schema.users.username, username));
+        if (user) {
+          return user;
+        }
+        
+        // If ORM select fails or returns nothing, try with execute
         const result = await db.execute(
           sql`SELECT * FROM users WHERE username = ${username} LIMIT 1`
         );
@@ -638,7 +663,13 @@ export class DbStorage implements IStorage {
       }
       
       try {
-        // Using SQL tagged template with the db.execute method
+        // First try with the ORM
+        const [user] = await db.select().from(schema.users).where(eq(schema.users.email, email));
+        if (user) {
+          return user;
+        }
+        
+        // If ORM select fails or returns nothing, try with execute
         const result = await db.execute(
           sql`SELECT * FROM users WHERE email = ${email} LIMIT 1`
         );
