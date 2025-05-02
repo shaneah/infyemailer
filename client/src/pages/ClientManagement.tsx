@@ -203,15 +203,22 @@ const ClientManagement = () => {
   });
 
   // Selected client's credit history
-  const { data: creditHistory = [], isLoading: isLoadingHistory } = useQuery<CreditHistory[]>({
+  const { data: creditHistoryData, isLoading: isLoadingHistory } = useQuery<any>({
     queryKey: ['/api/clients', selectedClientId, 'credit-history'],
     queryFn: async () => {
-      if (!selectedClientId) return [];
+      if (!selectedClientId) return { history: [] };
       const response = await fetch(`/api/clients/${selectedClientId}/email-credits/history`);
       return response.json();
     },
     enabled: !!selectedClientId,
   });
+  
+  // Ensure creditHistory is always an array
+  const creditHistory = Array.isArray(creditHistoryData) 
+    ? creditHistoryData 
+    : (creditHistoryData?.history && Array.isArray(creditHistoryData.history) 
+        ? creditHistoryData.history 
+        : []);
   
   // Selected client's providers
   const { data: clientProviders = [], isLoading: isLoadingProviders } = useQuery<ClientProvider[]>({
