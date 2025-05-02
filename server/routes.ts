@@ -1028,8 +1028,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // If a list is specified, add the contact to it
       if (req.body.list) {
+        console.log('Received list ID from request:', req.body.list);
         const listId = parseInt(req.body.list);
-        await storage.addContactToList({ contactId: contact.id, listId });
+        console.log('Parsed list ID:', listId);
+        console.log('Contact ID:', contact.id);
+        try {
+          const result = await storage.addContactToList({ contactId: contact.id, listId });
+          console.log('Result from addContactToList:', result);
+        } catch (error) {
+          console.error('Error adding contact to list:', error);
+        }
       }
 
       res.status(201).json(contact);
