@@ -999,8 +999,34 @@ export class DbStorage implements IStorage {
 
   async getTemplates() {
     try {
-      const templates = await db.select().from(schema.templates).orderBy(desc(schema.templates.createdAt));
-      return templates;
+      // Check if db is properly initialized
+      if (!db || !db.select) {
+        console.error('Database not properly initialized for getTemplates - falling back to direct SQL');
+        try {
+          // Fallback to direct SQL query
+          const result = await pool.query('SELECT * FROM templates ORDER BY created_at DESC');
+          return result.rows || [];
+        } catch (sqlError) {
+          console.error('Direct SQL also failed for templates:', sqlError);
+          return [];
+        }
+      }
+      
+      try {
+        const templates = await db.select().from(schema.templates).orderBy(desc(schema.templates.createdAt));
+        return templates;
+      } catch (ormError) {
+        console.error('ORM query failed for templates:', ormError);
+        
+        // Fallback to direct SQL query
+        try {
+          const result = await pool.query('SELECT * FROM templates ORDER BY created_at DESC');
+          return result.rows || [];
+        } catch (sqlError) {
+          console.error('Direct SQL also failed for templates:', sqlError);
+          return [];
+        }
+      }
     } catch (error) {
       console.error('Error getting templates:', error);
       return [];
