@@ -160,12 +160,12 @@ const DashboardV2 = () => {
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-2xl p-8 mb-8 text-white shadow-lg"
+        className="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-2xl p-8 mb-8 shadow-lg"
       >
         <div className="flex flex-col md:flex-row justify-between items-center">
           <div className="mb-6 md:mb-0">
-            <h1 className="text-3xl font-bold mb-2">Welcome to Infinity Mailer</h1>
-            <p className="opacity-90 max-w-xl">
+            <h1 className="text-3xl font-bold mb-2 text-white">Welcome to Infinity Mailer</h1>
+            <p className="text-white/90 max-w-xl">
               Your dashboard provides a comprehensive overview of your email marketing performance. 
               Create new campaigns, track analytics, and manage your audience all in one place.
             </p>
