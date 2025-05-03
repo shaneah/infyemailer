@@ -3,7 +3,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./lib/queryClient";
 import { Toaster } from "@/components/ui/toaster";
 import AuthPage from "@/pages/auth-page";
-import Dashboard from "@/pages/Dashboard";
+import DashboardV2 from "@/components/DashboardV2";
 import MainSidebar from "@/components/MainSidebar";
 import ClientSidebar from "@/components/ClientSidebar";
 import Navbar from "@/components/Navbar";
@@ -12,8 +12,8 @@ import { AuthProvider } from "@/hooks/use-auth";
 import { ProtectedRoute } from "@/lib/protected-route";
 import NotFound from "@/pages/not-found";
 import { AIAssistantProvider } from "@/contexts/AIAssistantContext";
-import Campaigns from "@/pages/CampaignsV2";
-import Templates from "@/pages/TemplatesV2";
+import CampaignsV2 from "@/pages/CampaignsV2";
+import TemplatesV2 from "@/pages/TemplatesV2";
 import Contacts from "@/pages/Contacts";
 import ContactsV2 from "@/pages/ContactsV2";
 import ContactsV3 from "@/pages/ContactsV3";
@@ -25,7 +25,7 @@ import EmailPerformance from "@/pages/EmailPerformance";
 import EmailPerformanceV2 from "@/pages/EmailPerformanceV2";
 import BasicTemplateBuilder from "@/pages/BasicTemplateBuilder";
 import DragAndDropTemplateBuilder from "@/pages/DragAndDropTemplateBuilder";
-import Domains from "@/pages/DomainsV2";
+import DomainsV2 from "@/pages/DomainsV2";
 
 import Clients from "@/pages/Clients";
 import Settings from "@/pages/Settings";
@@ -34,9 +34,9 @@ import EmailValidation from "@/pages/EmailValidation";
 import EmailChecklist from "@/pages/EmailChecklist";
 // Emails import removed
 import Reporting from "@/pages/Reporting";
-import EmailProviders from "@/pages/EmailProvidersV2";
-import UserManagement from "@/pages/UserManagementV2";
-import ClientManagement from "@/pages/ClientManagementV2";
+import EmailProvidersV2 from "@/pages/EmailProvidersV2";
+import UserManagementV2 from "@/pages/UserManagementV2";
+import ClientManagementV2 from "@/pages/ClientManagementV2";
 // AudiencePersonas component removed
 import EmailPreview from "@/pages/EmailPreview";
 import ClientCollaboration from "@/pages/ClientCollaboration";
@@ -225,45 +225,47 @@ function App() {
               />
               
               <div className="flex-1 flex flex-col overflow-hidden">
-                <main className="flex-1 overflow-y-auto p-4">
-                  <Switch>
-                    <ProtectedRoute path="/" component={Dashboard} />
-                    <ProtectedRoute path="dashboard" component={Dashboard} />
-                    <ProtectedRoute path="campaigns" component={Campaigns} />
-                    <ProtectedRoute path="templates" component={Templates} />
-                    <ProtectedRoute path="contacts" component={ContactsV5} />
-                    <ProtectedRoute path="lists/:id" component={ListDetails} />
-                    <ProtectedRoute path="ab-testing" component={ABTesting} />
-                    <ProtectedRoute path="ab-testing/:id" component={ABTesting} />
-                    <ProtectedRoute path="email-performance" component={EmailPerformanceV2} />
-                    <ProtectedRoute path="template-builder" component={BasicTemplateBuilder} />
-                    <ProtectedRoute path="template-builder/:id" component={BasicTemplateBuilder} />
-                    <ProtectedRoute path="drag-drop-builder" component={DragAndDropTemplateBuilder} />
-                    <ProtectedRoute path="drag-drop-builder/:id" component={DragAndDropTemplateBuilder} />
-                    <ProtectedRoute path="domains" component={Domains} />
-                    <ProtectedRoute path="clients" component={Clients} />
-                    <ProtectedRoute path="user-management" component={UserManagement} />
-                    <ProtectedRoute path="settings" component={Settings} />
-                    <ProtectedRoute path="profile" component={Settings} />
-                    <ProtectedRoute path="admin" component={AdminPanel} />
-                    <ProtectedRoute path="email-validation" component={EmailValidation} />
-                    <ProtectedRoute path="email-checklist" component={EmailChecklist} />
-                    {/* Emails route removed */}
-                    <ProtectedRoute path="reporting" component={Reporting} />
-                    <ProtectedRoute path="email-providers" component={EmailProviders} />
-                    <ProtectedRoute path="client-management" component={ClientManagement} />
-                    {/* Audience Personas route removed */}
-                    <ProtectedRoute path="analytics" component={Analytics} />
-                    <ProtectedRoute path="email-test" component={EmailTest} />
-                    <ProtectedRoute path="email-preview" component={EmailPreview} />
-                    <ProtectedRoute path="email-preview/:id" component={EmailPreview} />
-                    <ProtectedRoute path="email-performance-dashboard" component={EmailPerformanceDashboard} />
-                    <ProtectedRoute path="client-collaboration" component={ClientCollaboration} />
-                    <ProtectedRoute path="collaborative-template-editor" component={CollaborativeTemplateEditor} />
-                    <ProtectedRoute path="collaborative-template-editor/:id" component={CollaborativeTemplateEditor} />
+                <main className="flex-1 overflow-y-auto p-4 md:p-6 bg-gray-50 min-h-screen">
+                  <div className="max-w-[1920px] mx-auto">
+                    <Switch>
+                      <ProtectedRoute path="/" component={DashboardV2} />
+                      <ProtectedRoute path="dashboard" component={DashboardV2} />
+                      <ProtectedRoute path="campaigns" component={CampaignsV2} />
+                      <ProtectedRoute path="templates" component={TemplatesV2} />
+                      <ProtectedRoute path="contacts" component={ContactsV5} />
+                      <ProtectedRoute path="lists/:id" component={ListDetails} />
+                      <ProtectedRoute path="ab-testing" component={ABTesting} />
+                      <ProtectedRoute path="ab-testing/:id" component={ABTesting} />
+                      <ProtectedRoute path="email-performance" component={EmailPerformanceV2} />
+                      <ProtectedRoute path="template-builder" component={BasicTemplateBuilder} />
+                      <ProtectedRoute path="template-builder/:id" component={BasicTemplateBuilder} />
+                      <ProtectedRoute path="drag-drop-builder" component={DragAndDropTemplateBuilder} />
+                      <ProtectedRoute path="drag-drop-builder/:id" component={DragAndDropTemplateBuilder} />
+                      <ProtectedRoute path="domains" component={DomainsV2} />
+                      <ProtectedRoute path="clients" component={Clients} />
+                      <ProtectedRoute path="user-management" component={UserManagementV2} />
+                      <ProtectedRoute path="settings" component={Settings} />
+                      <ProtectedRoute path="profile" component={Settings} />
+                      <ProtectedRoute path="admin" component={AdminPanel} />
+                      <ProtectedRoute path="email-validation" component={EmailValidation} />
+                      <ProtectedRoute path="email-checklist" component={EmailChecklist} />
+                      {/* Emails route removed */}
+                      <ProtectedRoute path="reporting" component={Reporting} />
+                      <ProtectedRoute path="email-providers" component={EmailProvidersV2} />
+                      <ProtectedRoute path="client-management" component={ClientManagementV2} />
+                      {/* Audience Personas route removed */}
+                      <ProtectedRoute path="analytics" component={Analytics} />
+                      <ProtectedRoute path="email-test" component={EmailTest} />
+                      <ProtectedRoute path="email-preview" component={EmailPreview} />
+                      <ProtectedRoute path="email-preview/:id" component={EmailPreview} />
+                      <ProtectedRoute path="email-performance-dashboard" component={EmailPerformanceDashboard} />
+                      <ProtectedRoute path="client-collaboration" component={ClientCollaboration} />
+                      <ProtectedRoute path="collaborative-template-editor" component={CollaborativeTemplateEditor} />
+                      <ProtectedRoute path="collaborative-template-editor/:id" component={CollaborativeTemplateEditor} />
 
-                    <Route component={NotFound} />
-                  </Switch>
+                      <Route component={NotFound} />
+                    </Switch>
+                  </div>
                 </main>
               </div>
               
