@@ -765,13 +765,13 @@ const UserManagementV2 = () => {
   }
 
   return (
-    <div className="space-y-8 pb-10">
+    <div className="container mx-auto px-4 md:px-6 space-y-6 pb-10">
       {/* Header with Gradient */}
       <div className="relative rounded-xl overflow-hidden">
-        <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-8 text-white">
+        <div className="bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 p-6 md:p-8 text-white">
           <div className="relative z-10">
-            <h1 className="text-3xl font-bold mb-2">User Management</h1>
-            <p className="text-indigo-100 max-w-3xl">
+            <h1 className="text-2xl md:text-3xl font-bold mb-2">User Management</h1>
+            <p className="text-indigo-100 max-w-3xl text-sm md:text-base">
               Manage system users, roles, and permissions. Control access to features and functionality.
             </p>
           </div>
@@ -780,7 +780,7 @@ const UserManagementV2 = () => {
       </div>
       
       {/* Stats Section */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
         <StatCard 
           title="Total Users" 
           value={totalUsers} 
@@ -955,9 +955,9 @@ const UserManagementV2 = () => {
               </div>
             </CardHeader>
             
-            <CardContent>
+            <CardContent className="p-3 md:p-4">
               {viewMode === "grid" ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
                   {filteredUsers.length === 0 ? (
                     <div className="col-span-full text-center py-10">
                       <Users className="h-10 w-10 text-gray-400 mx-auto mb-4" />
@@ -1091,10 +1091,10 @@ const UserManagementV2 = () => {
         
         {/* Roles Tab Content */}
         <TabsContent value="roles" className="space-y-6">
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
             {/* Roles Management */}
-            <Card className="md:col-span-1 h-min">
-              <CardHeader className="border-b">
+            <Card className="lg:col-span-1 h-min">
+              <CardHeader className="border-b p-4">
                 <div className="flex justify-between items-center">
                   <CardTitle>Roles</CardTitle>
                   
@@ -1189,9 +1189,9 @@ const UserManagementV2 = () => {
             </Card>
 
             {/* Permissions Management */}
-            <Card className="md:col-span-2">
-              <CardHeader className="border-b">
-                <div className="flex justify-between items-start">
+            <Card className="lg:col-span-2">
+              <CardHeader className="border-b p-4">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2">
                   <div>
                     <CardTitle>
                       {selectedRole ? `Permissions for ${selectedRole.name}` : "Permissions"}
@@ -1204,8 +1204,8 @@ const UserManagementV2 = () => {
                   </div>
                   
                   {selectedRole && (
-                    <div className="space-y-1 text-right">
-                      <p className="text-sm font-medium">
+                    <div className="sm:space-y-1 sm:text-right flex flex-row sm:flex-col items-center sm:items-end gap-3 sm:gap-0">
+                      <p className="text-sm font-medium bg-indigo-50 px-2 py-1 rounded-md sm:bg-transparent sm:px-0 sm:py-0">
                         {getRolePermissionsCount(selectedRole.id)} permissions assigned
                       </p>
                       {selectedRole.name === "Administrator" && (
@@ -1229,8 +1229,8 @@ const UserManagementV2 = () => {
                     </p>
                   </div>
                 ) : (
-                  <ScrollArea className="h-[calc(100vh-400px)] pr-4">
-                    <div className="space-y-6">
+                  <ScrollArea className="h-[400px] md:h-[500px] pr-4">
+                    <div className="space-y-4">
                       {Object.keys(permissionsByCategory).length === 0 ? (
                         <div className="text-center py-8">
                           <p className="text-gray-500">No permissions defined in the system.</p>
