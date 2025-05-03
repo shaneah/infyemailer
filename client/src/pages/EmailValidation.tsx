@@ -11,7 +11,7 @@ import {
   FileUp, FileDown, FileType, FileJson, FileText as FileTextIcon, 
   ChevronUp, ChevronDown, Sparkles, Copy, Wand2, MailCheck, 
   ShieldCheck, Zap, Shield, Mail, Globe, Trash2, FileCheck, AlertTriangle,
-  Eye, BarChart3, BarChart4, Layers, Gem, Lightbulb, Check, Mail as MailIcon, X
+  Eye, BarChart3, BarChart4, Layers, Gem, Lightbulb, Check, Mail as MailIcon
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
@@ -356,7 +356,7 @@ const EmailValidation = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <motion.div 
-        className="relative overflow-hidden rounded-xl p-8 md:p-10 mb-10 shadow-2xl bg-gradient-to-br from-purple-600 via-fuchsia-500 to-pink-500"
+        className="relative overflow-hidden rounded-xl p-8 md:p-10 mb-10 shadow-2xl bg-gradient-to-r from-purple-900 via-indigo-800 to-purple-900"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
@@ -368,43 +368,17 @@ const EmailValidation = () => {
               backgroundSize: "30px 30px"
             }}
           ></div>
-          <div className="absolute bottom-0 left-0 right-0 h-64 bg-gradient-to-t from-pink-600/30 to-transparent"></div>
-          
-          {/* Animated circles */}
-          <motion.div 
-            className="absolute -top-24 -right-24 w-64 h-64 rounded-full bg-gradient-to-br from-yellow-400/30 to-pink-600/30 blur-xl"
-            animate={{ 
-              scale: [1, 1.2, 1],
-              opacity: [0.4, 0.6, 0.4]
-            }}
-            transition={{
-              duration: 8,
-              repeat: Infinity,
-              repeatType: "reverse"
-            }}
-          ></motion.div>
-          
-          <motion.div 
-            className="absolute -bottom-32 -left-32 w-96 h-96 rounded-full bg-gradient-to-tr from-cyan-500/20 to-blue-500/20 blur-xl"
-            animate={{ 
-              scale: [1, 1.1, 1],
-              opacity: [0.3, 0.5, 0.3]
-            }}
-            transition={{
-              duration: 6,
-              repeat: Infinity,
-              repeatType: "reverse",
-              delay: 1
-            }}
-          ></motion.div>
+          <div className="absolute bottom-0 left-0 right-0 h-64 bg-gradient-to-t from-purple-900/30 to-transparent"></div>
+          <div className="absolute -top-24 -right-24 w-64 h-64 rounded-full bg-gradient-to-br from-indigo-500/30 to-purple-600/30 blur-xl"></div>
+          <div className="absolute -bottom-32 -left-32 w-96 h-96 rounded-full bg-gradient-to-tr from-indigo-600/20 to-purple-500/20 blur-xl"></div>
         </div>
         
         <div className="relative z-10">
           <div className="flex items-center mb-4">
-            <div className="flex items-center justify-center h-12 w-12 rounded-lg bg-gradient-to-r from-amber-400 to-orange-500 shadow-lg shadow-orange-500/20 mr-3">
-              <Sparkles className="h-7 w-7 text-white" />
+            <div className="flex items-center justify-center h-10 w-10 rounded-lg bg-indigo-600/70 backdrop-blur-sm mr-3">
+              <Gem className="h-6 w-6 text-white" />
             </div>
-            <Badge className="bg-gradient-to-r from-blue-500 to-cyan-400 text-white py-1.5 px-4 rounded-full shadow-md shadow-blue-500/20">
+            <Badge className="bg-indigo-500/80 backdrop-blur-sm text-white py-1 px-3 rounded-full">
               Premium Feature
             </Badge>
           </div>
@@ -415,24 +389,17 @@ const EmailValidation = () => {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2, duration: 0.5 }}
           >
-            <span className="inline-block bg-clip-text text-transparent bg-gradient-to-r from-white via-amber-200 to-white">
-              Intelligent Email
+            <span className="inline-block bg-clip-text text-transparent bg-gradient-to-r from-white via-indigo-200 to-white">
+              AI-Powered Email
             </span>
-            <div className="relative inline-block mt-2">
-              <span className="inline-block bg-clip-text text-transparent bg-gradient-to-r from-cyan-300 via-rose-200 to-purple-300">
-                Validation & Analytics
-              </span>
-              <motion.div 
-                className="absolute -bottom-3 left-0 right-0 h-1 bg-gradient-to-r from-cyan-400 via-fuchsia-400 to-purple-400 rounded-full"
-                initial={{ width: 0, opacity: 0 }}
-                animate={{ width: "100%", opacity: 1 }}
-                transition={{ delay: 0.5, duration: 0.8 }}
-              />
-            </div>
+            <br />
+            <span className="inline-block bg-clip-text text-transparent bg-gradient-to-r from-indigo-300 via-purple-200 to-indigo-300">
+              Validation & Intelligence
+            </span>
           </motion.h1>
           
           <motion.p 
-            className="text-white text-base md:text-xl max-w-3xl mb-6 md:mb-8 leading-relaxed"
+            className="text-indigo-100 text-base md:text-xl max-w-3xl mb-6 md:mb-8 leading-relaxed"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3, duration: 0.5 }}
@@ -593,16 +560,16 @@ const EmailValidation = () => {
         transition={{ duration: 0.5, delay: 0.3 }}
       >
         <Tabs defaultValue="single" className="mb-8">
-          <div className="bg-gradient-to-r from-blue-900/90 via-indigo-800/90 to-purple-900/90 rounded-xl shadow-xl p-2 border border-indigo-600/20">
-            <TabsList className="grid w-full grid-cols-2 gap-2 bg-transparent backdrop-blur-xl">
+          <div className="bg-gradient-to-r from-indigo-900/90 to-purple-900/90 rounded-xl shadow-inner p-1">
+            <TabsList className="grid w-full grid-cols-2 gap-1 bg-transparent">
               <div>
                 <TabsTrigger 
                   value="single" 
-                  className="w-full data-[state=active]:bg-gradient-to-br data-[state=active]:from-cyan-500 data-[state=active]:to-blue-600 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-blue-500/20 text-indigo-100 hover:bg-white/5 rounded-lg transition-all duration-200 ease-out p-0.5"
+                  className="w-full data-[state=active]:bg-gradient-to-br data-[state=active]:from-indigo-600 data-[state=active]:to-purple-700 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg transition-all duration-200 ease-in-out p-0.5"
                 >
                   <div className="flex items-center py-2 px-2">
-                    <div className="mr-2 flex items-center justify-center h-8 w-8 rounded-full bg-gradient-to-br from-cyan-400/80 to-blue-500/80 shadow-md shadow-blue-500/20">
-                      <MailIcon className="h-4 w-4 text-white" />
+                    <div className="mr-2 flex items-center justify-center h-6 w-6 rounded-full bg-gradient-to-br from-indigo-400/80 to-purple-500/80">
+                      <MailIcon className="h-3 w-3 text-white" />
                     </div>
                     <span className="font-medium">Single Email Validation</span>
                   </div>
@@ -611,11 +578,11 @@ const EmailValidation = () => {
               <div>
                 <TabsTrigger 
                   value="bulk" 
-                  className="w-full data-[state=active]:bg-gradient-to-br data-[state=active]:from-fuchsia-500 data-[state=active]:to-purple-600 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-purple-500/20 text-indigo-100 hover:bg-white/5 rounded-lg transition-all duration-200 ease-out p-0.5"
+                  className="w-full data-[state=active]:bg-gradient-to-br data-[state=active]:from-indigo-600 data-[state=active]:to-purple-700 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg transition-all duration-200 ease-in-out p-0.5"
                 >
                   <div className="flex items-center py-2 px-2">
-                    <div className="mr-2 flex items-center justify-center h-8 w-8 rounded-full bg-gradient-to-br from-fuchsia-400/80 to-purple-500/80 shadow-md shadow-purple-500/20">
-                      <Layers className="h-4 w-4 text-white" />
+                    <div className="mr-2 flex items-center justify-center h-6 w-6 rounded-full bg-gradient-to-br from-indigo-400/80 to-purple-500/80">
+                      <Layers className="h-3 w-3 text-white" />
                     </div>
                     <span className="font-medium">Bulk Email Validation</span>
                   </div>
@@ -631,14 +598,14 @@ const EmailValidation = () => {
             transition={{ duration: 0.5 }}
           >
             <Card className="border-0 shadow-2xl overflow-hidden border border-indigo-500/20 bg-white">
-              <CardHeader className="bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 border-b border-blue-700/30 shadow-md shadow-blue-500/10">
+              <CardHeader className="bg-gradient-to-r from-indigo-900 to-purple-900 border-b border-indigo-600/30">
                 <CardTitle className="text-xl text-white flex items-center">
-                  <div className="mr-3 flex items-center justify-center h-10 w-10 rounded-lg bg-gradient-to-br from-blue-500/60 to-indigo-600/60 backdrop-blur-sm shadow-lg shadow-blue-700/20 border border-blue-500/30">
-                    <MailIcon className="h-5 w-5 text-white" />
+                  <div className="mr-3 flex items-center justify-center h-8 w-8 rounded-lg bg-indigo-500/40 backdrop-blur-sm">
+                    <MailIcon className="h-4 w-4 text-white" />
                   </div>
                   <div className="flex flex-col">
-                    <span className="font-semibold text-blue-50">Validate Individual Email</span>
-                    <CardDescription className="text-blue-100 mt-1">
+                    <span>Validate Individual Email</span>
+                    <CardDescription className="text-indigo-200 mt-1">
                       Smart check for validity, deliverability, and domain health
                     </CardDescription>
                   </div>
@@ -647,32 +614,19 @@ const EmailValidation = () => {
               <CardContent className="p-6">
                 <div className="flex flex-col space-y-5">
                   <div className="grid gap-3">
-                    <Label htmlFor="single-email" className="text-blue-900 font-medium flex items-center gap-2">
-                      <Lightbulb className="h-5 w-5 text-blue-600" />
-                      <span className="text-lg">Enter email address to validate</span>
+                    <Label htmlFor="single-email" className="text-indigo-900 font-medium flex items-center gap-2">
+                      <Lightbulb className="h-4 w-4 text-indigo-600" />
+                      Enter email address to validate
                     </Label>
-                    <div className="relative mt-2">
-                      <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 via-cyan-500 to-purple-600 rounded-xl blur opacity-40 group-hover:opacity-75 transition duration-1000 group-hover:duration-200 animate-gradient-xy"></div>
-                      <div className="relative">
-                        <Input
-                          id="single-email"
-                          placeholder="email@example.com"
-                          value={singleEmail}
-                          onChange={(e) => setSingleEmail(e.target.value)}
-                          className="pl-14 pr-4 py-7 border-transparent focus:border-transparent bg-white/95 backdrop-blur-md focus:ring-2 focus:ring-blue-500/50 shadow-lg rounded-xl text-lg"
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter') {
-                              e.preventDefault();
-                              validateSingleEmail();
-                            }
-                          }}
-                        />
-                        <div className="absolute left-3 top-1/2 -translate-y-1/2">
-                          <div className="flex items-center justify-center h-10 w-10 rounded-full bg-gradient-to-br from-blue-600 to-cyan-500 shadow-lg">
-                            <Mail className="h-5 w-5 text-white" />
-                          </div>
-                        </div>
-                      </div>
+                    <div className="relative">
+                      <Input
+                        id="single-email"
+                        placeholder="email@example.com"
+                        value={singleEmail}
+                        onChange={(e) => setSingleEmail(e.target.value)}
+                        className="pl-10 pr-4 py-3 border-indigo-300 focus:border-indigo-500 focus:ring-indigo-500/20 shadow-sm rounded-lg"
+                      />
+                      <Mail className="absolute left-3 top-3 h-5 w-5 text-indigo-400" />
                     </div>
                   </div>
                   
@@ -684,19 +638,13 @@ const EmailValidation = () => {
                       <Button 
                         onClick={validateSingleEmail} 
                         disabled={isLoading}
-                        className="w-full relative overflow-hidden bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-500 hover:from-blue-700 hover:via-indigo-700 hover:to-cyan-600 text-white border border-blue-700/30 shadow-xl shadow-blue-500/20 py-6 rounded-xl group"
+                        className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white border border-indigo-700/30 shadow-md"
                       >
-                        <div className="absolute top-0 left-0 w-full h-full bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                        <div className="absolute -inset-1 bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-500 rounded-xl blur opacity-20 group-hover:opacity-30 transition duration-1000 group-hover:duration-200 animate-gradient-x"></div>
-                        <div className="relative flex items-center justify-center">
-                          <div className="absolute -left-10 -top-10 w-20 h-20 rounded-full bg-white/10 blur-xl"></div>
-                          <div className="absolute -right-10 -bottom-10 w-20 h-20 rounded-full bg-white/10 blur-xl"></div>
-                          {isLoading ? 
-                            <RefreshCw className="h-5 w-5 animate-spin mr-2" /> : 
-                            <MailCheck className="h-5 w-5 mr-2" />
-                          }
-                          <span className="font-medium text-lg">Validate Email</span>
-                        </div>
+                        {isLoading ? 
+                          <RefreshCw className="h-4 w-4 animate-spin mr-2" /> : 
+                          <MailCheck className="h-4 w-4 mr-2" />
+                        }
+                        Validate Email
                       </Button>
                     </motion.div>
                     
@@ -708,22 +656,13 @@ const EmailValidation = () => {
                         variant="outline" 
                         onClick={checkEmailHealth} 
                         disabled={isLoading}
-                        className="w-full relative overflow-hidden bg-gradient-to-r from-purple-50 to-fuchsia-50 border-2 border-purple-300/50 text-purple-700 hover:border-purple-400/70 shadow-lg py-6 rounded-xl group"
+                        className="w-full border-indigo-300 text-indigo-700 hover:bg-indigo-50 shadow-sm"
                       >
-                        <div className="absolute inset-0 bg-gradient-to-r from-purple-600/5 via-fuchsia-500/5 to-pink-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                        <div className="absolute -inset-1 bg-gradient-to-r from-purple-400/20 via-fuchsia-400/20 to-pink-400/20 rounded-xl blur opacity-0 group-hover:opacity-80 transition duration-300 group-hover:duration-200"></div>
-                        <div className="relative flex items-center justify-center">
-                          <div className="absolute -left-10 -top-10 w-24 h-24 rounded-full bg-purple-200/10 blur-2xl group-hover:bg-purple-300/20 transition-all duration-300"></div>
-                          <div className="absolute -right-10 -bottom-10 w-24 h-24 rounded-full bg-fuchsia-200/10 blur-2xl group-hover:bg-fuchsia-300/20 transition-all duration-300"></div>
-                          {isLoading ? 
-                            <RefreshCw className="h-5 w-5 animate-spin mr-2 text-purple-500" /> : 
-                            <div className="relative">
-                              <div className="absolute -inset-1 rounded-full bg-purple-400/20 blur-sm animate-pulse"></div>
-                              <ShieldCheck className="h-5 w-5 mr-2 text-purple-600 relative" />
-                            </div>
-                          }
-                          <span className="font-medium text-lg bg-clip-text text-transparent bg-gradient-to-r from-purple-700 to-fuchsia-600">Deep Health Analysis</span>
-                        </div>
+                        {isLoading ? 
+                          <RefreshCw className="h-4 w-4 animate-spin mr-2" /> : 
+                          <ShieldCheck className="h-4 w-4 mr-2 text-indigo-600" />
+                        }
+                        Deep Health Analysis
                       </Button>
                     </motion.div>
                   </div>
@@ -737,66 +676,43 @@ const EmailValidation = () => {
                         exit={{ opacity: 0, height: 0 }}
                         transition={{ duration: 0.3 }}
                       >
-                        <div className="relative">
-                          {singleValidationResult.isValid ? (
-                            <div className="absolute -inset-1 bg-gradient-to-r from-emerald-500 via-green-500 to-teal-500 rounded-xl opacity-70 blur"></div>
-                          ) : (
-                            <div className="absolute -inset-1 bg-gradient-to-r from-rose-500 via-red-500 to-orange-500 rounded-xl opacity-70 blur"></div>
-                          )}
-                          <Alert 
-                            variant={singleValidationResult.isValid ? "default" : "destructive"}
-                            className={`
-                              relative border-0 rounded-lg shadow-lg
+                        <Alert 
+                          variant={singleValidationResult.isValid ? "default" : "destructive"}
+                          className={`
+                            border-l-4 
+                            ${singleValidationResult.isValid 
+                              ? 'bg-gradient-to-r from-green-50 to-green-100 border-green-500 text-green-800' 
+                              : 'bg-gradient-to-r from-red-50 to-red-100 border-red-500 text-red-800'}
+                          `}
+                        >
+                          <div className="flex items-center">
+                            <div className={`
+                              flex items-center justify-center h-10 w-10 rounded-full mr-3
                               ${singleValidationResult.isValid 
-                                ? 'bg-gradient-to-r from-green-50 to-emerald-100 text-green-800' 
-                                : 'bg-gradient-to-r from-red-50 to-rose-100 text-red-800'}
-                            `}
-                          >
-                            <div className="flex items-center">
-                              <div className={`
-                                relative flex items-center justify-center h-12 w-12 rounded-full mr-4
-                                ${singleValidationResult.isValid 
-                                  ? 'bg-gradient-to-br from-green-500/80 to-emerald-600/80 text-white shadow-lg shadow-green-500/40' 
-                                  : 'bg-gradient-to-br from-red-500/80 to-rose-600/80 text-white shadow-lg shadow-red-500/40'}
-                              `}>
-                                {singleValidationResult.isValid ? (
-                                  <>
-                                    <div className="absolute inset-0 rounded-full animate-ping-slow bg-green-400/40"></div>
-                                    <CheckCircle2 className="h-6 w-6 relative" />
-                                  </>
-                                ) : (
-                                  <>
-                                    <div className="absolute inset-0 rounded-full animate-pulse bg-red-400/40"></div>
-                                    <XCircle className="h-6 w-6 relative" />
-                                  </>
-                                )}
-                              </div>
-                              <div>
-                                <AlertTitle className="font-bold text-lg">
-                                  {singleValidationResult.isValid 
-                                    ? "Email is valid and deliverable" 
-                                    : "Email validation failed"
-                                  }
-                                </AlertTitle>
-                                <AlertDescription className="mt-2 text-sm opacity-90">
-                                  {singleValidationResult.isValid 
-                                    ? (
-                                      <div className="flex items-center">
-                                        <span className="font-medium mr-2">Normalized:</span>
-                                        <code className="px-2 py-1 bg-green-200/50 rounded-md">{singleValidationResult.normalizedEmail}</code>
-                                      </div>
-                                    ) 
-                                    : (
-                                      <div className="bg-red-200/50 px-3 py-2 rounded-md">
-                                        {singleValidationResult.error}
-                                      </div>
-                                    )
-                                  }
-                                </AlertDescription>
-                              </div>
+                                ? 'bg-green-100 text-green-600' 
+                                : 'bg-red-100 text-red-600'}
+                            `}>
+                              {singleValidationResult.isValid 
+                                ? <CheckCircle2 className="h-6 w-6" /> 
+                                : <XCircle className="h-6 w-6" />
+                              }
                             </div>
-                          </Alert>
-                        </div>
+                            <div>
+                              <AlertTitle className="font-bold text-base">
+                                {singleValidationResult.isValid 
+                                  ? "Email is valid and deliverable" 
+                                  : "Email validation failed"
+                                }
+                              </AlertTitle>
+                              <AlertDescription className="mt-1 text-sm opacity-90">
+                                {singleValidationResult.isValid 
+                                  ? `Normalized: ${singleValidationResult.normalizedEmail}` 
+                                  : singleValidationResult.error
+                                }
+                              </AlertDescription>
+                            </div>
+                          </div>
+                        </Alert>
                       </motion.div>
                     )}
                     
@@ -808,33 +724,16 @@ const EmailValidation = () => {
                         exit={{ opacity: 0, height: 0 }}
                         transition={{ duration: 0.3 }}
                       >
-                        <Card className="mt-4 overflow-hidden border border-purple-200 shadow-xl">
-                          <CardHeader className="relative pb-4 overflow-hidden">
-                            <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-fuchsia-700"></div>
-                            <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxkZWZzPjxwYXR0ZXJuIGlkPSJwYXR0ZXJuIiB4PSIwIiB5PSIwIiB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHBhdHRlcm5Vbml0cz0idXNlclNwYWNlT25Vc2UiIHBhdHRlcm5UcmFuc2Zvcm09InJvdGF0ZSgzMCkiPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjAzKSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNwYXR0ZXJuKSIvPjwvc3ZnPg==')]"></div>
-                            <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-purple-500/0 via-purple-500/80 to-purple-500/0"></div>
-                            
-                            <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-fuchsia-500 to-purple-600 opacity-20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3"></div>
-                            <div className="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-br from-indigo-500 to-blue-600 opacity-20 rounded-full blur-3xl translate-y-1/2 -translate-x-1/3"></div>
-                            
-                            <CardTitle className="relative z-10 flex items-center text-white">
-                              <div className="relative mr-4 group animate-pulse">
-                                <div className="absolute -inset-1 rounded-lg bg-white/10 blur-sm group-hover:bg-white/20 transition-all duration-300"></div>
-                                <div className="flex items-center justify-center relative h-12 w-12 rounded-lg bg-gradient-to-br from-indigo-500/50 to-purple-600/50 backdrop-blur-sm shadow-lg shadow-purple-800/30 border border-purple-500/40 group-hover:from-indigo-500/60 group-hover:to-purple-600/60 transition-all duration-300">
-                                  {singleHealthResult.isValid 
-                                    ? <ShieldCheck className="h-6 w-6 text-white" /> 
-                                    : <AlertTriangle className="h-6 w-6 text-amber-300" />
-                                  }
-                                </div>
+                        <Card className="mt-4 overflow-hidden border border-indigo-200 shadow-lg">
+                          <CardHeader className="pb-2 bg-gradient-to-br from-indigo-50 to-purple-50 border-b border-indigo-100">
+                            <CardTitle className="text-lg flex items-center text-indigo-900">
+                              <div className="mr-3 flex items-center justify-center h-8 w-8 rounded-lg bg-indigo-100">
+                                {singleHealthResult.isValid 
+                                  ? <ShieldCheck className="h-5 w-5 text-indigo-600" /> 
+                                  : <AlertTriangle className="h-5 w-5 text-amber-500" />
+                                }
                               </div>
-                              <div className="flex flex-col">
-                                <span className="font-bold text-xl tracking-tight">
-                                  <span className="bg-clip-text text-transparent bg-gradient-to-r from-white to-purple-100">
-                                    Advanced Email Health Analysis
-                                  </span>
-                                </span>
-                                <span className="text-purple-100 text-sm mt-1 font-normal">Comprehensive diagnostic results for deliverability optimization</span>
-                              </div>
+                              Email Health Analysis
                             </CardTitle>
                           </CardHeader>
                           <CardContent className="p-5">
@@ -926,58 +825,40 @@ const EmailValidation = () => {
                             
                             {singleHealthResult.suggestedFix && (
                               <motion.div 
-                                className="mt-5 relative rounded-xl overflow-hidden shadow-lg"
+                                className="mt-5 p-4 bg-gradient-to-r from-indigo-50 to-purple-50 text-indigo-900 rounded-lg border border-indigo-200 shadow-sm"
                                 initial={{ opacity: 0, y: -10 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.2 }}
                               >
-                                <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-600 opacity-90"></div>
-                                <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 to-purple-600 opacity-20 blur-xl"></div>
-                                <div className="relative p-5">
-                                  <div className="flex items-start">
-                                    <div className="flex-shrink-0 mr-4 bg-white/20 backdrop-blur-sm p-3 rounded-lg shadow-md">
-                                      <Wand2 className="h-6 w-6 text-white" />
-                                    </div>
-                                    <div className="flex-1">
-                                      <h3 className="font-semibold text-lg text-white flex items-center">
-                                        <Sparkles className="h-5 w-5 mr-2 text-yellow-300" />
-                                        AI Smart Correction
-                                      </h3>
-                                      <p className="text-blue-100 mt-2 text-lg">
-                                        Did you mean <span className="text-white font-bold bg-blue-700/30 px-2 py-0.5 rounded-md">{singleHealthResult.suggestedFix}</span>?
-                                      </p>
-                                      <div className="mt-4 flex space-x-3">
-                                        <Button 
-                                          className="bg-white hover:bg-blue-50 text-blue-700 border-none shadow-md"
-                                          onClick={() => setSingleEmail(singleHealthResult.suggestedFix || '')}
-                                        >
-                                          <Sparkles className="h-4 w-4 mr-2 text-blue-500" />
-                                          Apply Correction
-                                        </Button>
-                                        <Button 
-                                          variant="ghost" 
-                                          className="border border-white/30 text-white hover:bg-white/10"
-                                        >
-                                          <X className="h-4 w-4 mr-2" />
-                                          Dismiss
-                                        </Button>
-                                      </div>
-                                    </div>
+                                <div className="flex items-start">
+                                  <div className="flex-shrink-0 mr-3 bg-indigo-100 p-2 rounded-lg">
+                                    <Wand2 className="h-5 w-5 text-indigo-600" />
+                                  </div>
+                                  <div className="flex-1">
+                                    <h3 className="font-medium">AI Suggestion</h3>
+                                    <p className="text-indigo-800 mt-1">
+                                      Did you mean <span className="text-indigo-700 font-semibold">{singleHealthResult.suggestedFix}</span>?
+                                    </p>
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm" 
+                                      className="mt-3 bg-white border-indigo-300 text-indigo-700 hover:bg-indigo-50"
+                                      onClick={() => setSingleEmail(singleHealthResult.suggestedFix || '')}
+                                    >
+                                      <Sparkles className="h-4 w-4 mr-2 text-indigo-500" />
+                                      Apply Suggestion
+                                    </Button>
                                   </div>
                                 </div>
                               </motion.div>
                             )}
                             
-                            <div className="mt-5 p-5 rounded-xl bg-gradient-to-r from-indigo-50 via-purple-50 to-blue-50 border border-indigo-200 shadow-md">
-                              <h3 className="text-indigo-800 font-semibold flex items-center mb-3 text-lg">
-                                <div className="flex items-center justify-center h-8 w-8 rounded-full bg-gradient-to-r from-indigo-100 to-blue-100 p-1.5 mr-3 shadow-sm">
-                                  <Eye className="h-5 w-5 text-indigo-600" />
-                                </div>
-                                Advanced Analysis Report
+                            <div className="mt-5 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                              <h3 className="text-gray-700 font-medium flex items-center mb-1">
+                                <Eye className="h-4 w-4 mr-2 text-indigo-600" />
+                                Detailed Analysis
                               </h3>
-                              <div className="p-4 bg-white/80 backdrop-blur-sm rounded-lg border border-indigo-100 shadow-sm">
-                                <p className="text-indigo-700 leading-relaxed">{singleHealthResult.details}</p>
-                              </div>
+                              <p className="text-gray-600 text-sm">{singleHealthResult.details}</p>
                             </div>
                           </CardContent>
                         </Card>
@@ -997,14 +878,14 @@ const EmailValidation = () => {
             transition={{ duration: 0.5 }}
           >
             <Card className="border-0 shadow-2xl overflow-hidden border border-indigo-500/20 bg-white">
-              <CardHeader className="bg-gradient-to-br from-fuchsia-600 via-purple-700 to-indigo-800 border-b border-purple-700/30 shadow-md shadow-purple-500/10">
+              <CardHeader className="bg-gradient-to-r from-indigo-900 to-purple-900 border-b border-indigo-600/30">
                 <CardTitle className="text-xl text-white flex items-center">
-                  <div className="mr-3 flex items-center justify-center h-10 w-10 rounded-lg bg-gradient-to-br from-fuchsia-500/60 to-purple-600/60 backdrop-blur-sm shadow-lg shadow-purple-700/20 border border-purple-500/30">
-                    <Layers className="h-5 w-5 text-white" />
+                  <div className="mr-3 flex items-center justify-center h-8 w-8 rounded-lg bg-indigo-500/40 backdrop-blur-sm">
+                    <Layers className="h-4 w-4 text-white" />
                   </div>
                   <div className="flex flex-col">
-                    <span className="font-semibold text-purple-50">Bulk Email Validation</span>
-                    <CardDescription className="text-purple-100 mt-1">
+                    <span>Bulk Email Validation</span>
+                    <CardDescription className="text-indigo-200 mt-1">
                       Clean entire lists, find & fix issues in batch processing
                     </CardDescription>
                   </div>
@@ -1032,28 +913,20 @@ const EmailValidation = () => {
                       </TooltipProvider>
                     </div>
                     <div className="relative">
-                      <div className="absolute -inset-1 bg-gradient-to-r from-indigo-600 via-purple-600 to-fuchsia-600 rounded-xl opacity-20 blur group-hover:opacity-30 transition duration-1000 group-hover:duration-200"></div>
-                      <div className="relative">
-                        <Textarea
-                          id="bulk-emails"
-                          placeholder="Enter emails separated by line breaks, commas, or semicolons:
+                      <Textarea
+                        id="bulk-emails"
+                        placeholder="Enter emails separated by line breaks, commas, or semicolons:
 email1@example.com
 email2@example.com
 email3@domain.com"
-                          className="min-h-[220px] border-transparent focus:border-transparent bg-white/95 backdrop-blur-md focus:ring-2 focus:ring-purple-500/50 shadow-lg rounded-xl p-4 text-base"
-                          value={bulkEmails}
-                          onChange={(e) => setBulkEmails(e.target.value)}
-                        />
-                        <div className="absolute top-3 right-3">
-                          <div className="flex items-center justify-center h-8 w-8 rounded-full bg-gradient-to-br from-purple-500/40 to-fuchsia-500/40 shadow-md transition-all duration-300 hover:from-purple-500/60 hover:to-fuchsia-500/60">
-                            <Mail className="h-4 w-4 text-white" />
-                          </div>
-                        </div>
-                      </div>
+                        className="min-h-[220px] border-indigo-300 focus:border-indigo-500 focus:ring-indigo-500/20 shadow-sm rounded-lg pl-4 pr-4 py-3"
+                        value={bulkEmails}
+                        onChange={(e) => setBulkEmails(e.target.value)}
+                      />
                     </div>
                   </div>
                   
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <motion.div
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
@@ -1061,16 +934,13 @@ email3@domain.com"
                       <Button 
                         onClick={validateBulkEmails} 
                         disabled={isLoading} 
-                        className="w-full relative overflow-hidden bg-gradient-to-r from-indigo-600 via-purple-600 to-fuchsia-600 hover:from-indigo-700 hover:via-purple-700 hover:to-fuchsia-700 text-white border border-indigo-700/30 shadow-xl py-6 rounded-xl group"
+                        className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white border border-indigo-700/30 shadow-md h-11"
                       >
-                        <div className="absolute -inset-1 bg-gradient-to-r from-indigo-400 via-purple-500 to-fuchsia-500 rounded-xl blur opacity-20 group-hover:opacity-30 transition duration-1000 group-hover:duration-200 animate-gradient-x"></div>
-                        <div className="relative flex items-center justify-center">
-                          {isLoading ? 
-                            <RefreshCw className="h-5 w-5 animate-spin mr-2" /> : 
-                            <MailCheck className="h-5 w-5 mr-2" />
-                          }
-                          <span className="font-medium text-lg">Analyze & Clean Email List</span>
-                        </div>
+                        {isLoading ? 
+                          <RefreshCw className="h-4 w-4 animate-spin mr-2" /> : 
+                          <MailCheck className="h-4 w-4 mr-2" />
+                        }
+                        Analyze & Clean Email List
                       </Button>
                     </motion.div>
                     
@@ -1081,17 +951,10 @@ email3@domain.com"
                       <Button 
                         variant="outline" 
                         onClick={handleImportEmails} 
-                        className="w-full relative overflow-hidden bg-gradient-to-r from-indigo-50 to-purple-50 border-2 border-indigo-300/50 text-indigo-700 hover:border-indigo-400/70 shadow-lg py-6 rounded-xl group"
+                        className="w-full border-indigo-300 text-indigo-700 hover:bg-indigo-50 h-11 shadow-sm"
                       >
-                        <div className="absolute inset-0 bg-gradient-to-r from-indigo-600/5 via-purple-500/5 to-fuchsia-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                        <div className="absolute -inset-1 bg-gradient-to-r from-indigo-400/20 via-purple-400/20 to-fuchsia-400/20 rounded-xl blur opacity-0 group-hover:opacity-80 transition duration-300 group-hover:duration-200"></div>
-                        <div className="relative flex items-center justify-center">
-                          <div className="absolute -left-10 -top-10 w-24 h-24 rounded-full bg-indigo-200/10 blur-2xl group-hover:bg-indigo-300/20 transition-all duration-300"></div>
-                          <div className="absolute -right-10 -bottom-10 w-24 h-24 rounded-full bg-purple-200/10 blur-2xl group-hover:bg-purple-300/20 transition-all duration-300"></div>
-                          
-                          <FileUp className="h-5 w-5 mr-2 text-indigo-600 relative" />
-                          <span className="font-medium text-lg bg-clip-text text-transparent bg-gradient-to-r from-indigo-700 to-purple-600">Import from File</span>
-                        </div>
+                        <FileUp className="h-4 w-4 mr-2 text-indigo-600" />
+                        Import from File
                       </Button>
                     </motion.div>
                     <input
@@ -1145,205 +1008,158 @@ email3@domain.com"
                         exit={{ opacity: 0, y: -20 }}
                         transition={{ duration: 0.4 }}
                       >
-                        <Card className="overflow-hidden border-0 shadow-2xl">
-                          <div className="relative">
-                            <div className="absolute -top-20 -right-20 w-40 h-40 bg-gradient-to-br from-purple-500/20 to-fuchsia-600/20 rounded-full blur-3xl"></div>
-                            <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-gradient-to-br from-indigo-500/20 to-blue-600/20 rounded-full blur-3xl"></div>
-                            
-                            <CardHeader className="relative p-6 border-b border-indigo-100/80 bg-gradient-to-br from-indigo-600 via-purple-600 to-fuchsia-800">
-                              <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxkZWZzPjxwYXR0ZXJuIGlkPSJwYXR0ZXJuIiB4PSIwIiB5PSIwIiB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHBhdHRlcm5Vbml0cz0idXNlclNwYWNlT25Vc2UiIHBhdHRlcm5UcmFuc2Zvcm09InJvdGF0ZSgzMCkiPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjAzKSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNwYXR0ZXJuKSIvPjwvc3ZnPg==')]"></div>
-                              <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-indigo-400/0 via-indigo-400/70 to-indigo-400/0"></div>
-                                                           
-                              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5 relative z-10">
-                                <div className="flex items-center">
-                                  <div className="relative mr-4 group animate-pulse">
-                                    <div className="absolute -inset-1 rounded-lg bg-white/10 blur-sm"></div>
-                                    <div className="flex items-center justify-center h-12 w-12 rounded-lg bg-gradient-to-br from-white/20 to-white/10 backdrop-blur-sm shadow-lg shadow-purple-800/30 border border-white/20">
-                                      <FileCheck className="h-6 w-6 text-white" />
-                                    </div>
-                                  </div>
-                                  <div>
-                                    <CardTitle className="text-xl font-semibold text-white">
-                                      <span className="bg-clip-text text-transparent bg-gradient-to-r from-white to-indigo-100">
-                                        Smart Email List Analysis
-                                      </span>
-                                    </CardTitle>
-                                    <CardDescription className="text-indigo-100 font-medium">
-                                      Successfully processed {bulkAnalysisResult.summary.total.toLocaleString()} emails
-                                    </CardDescription>
-                                  </div>
+                        <Card className="overflow-hidden border border-indigo-200 shadow-lg bg-white">
+                          <CardHeader className="p-5 bg-gradient-to-br from-indigo-50 to-purple-50 border-b border-indigo-100">
+                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                              <div className="flex items-center">
+                                <div className="mr-3 flex items-center justify-center h-10 w-10 rounded-lg bg-indigo-100">
+                                  <FileCheck className="h-6 w-6 text-indigo-600" />
                                 </div>
-                                
-                                <div className="flex flex-wrap gap-2 sm:gap-3">
-                                  <Select value={exportFormat} onValueChange={value => setExportFormat(value as any)}>
-                                    <SelectTrigger className="border-indigo-300/30 text-white bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-colors shadow-md">
-                                      <SelectValue placeholder="Format" />
-                                    </SelectTrigger>
-                                    <SelectContent className="bg-white/95 backdrop-blur-md border-indigo-200">
-                                      <SelectItem value="txt">Text (.txt)</SelectItem>
-                                      <SelectItem value="csv">CSV (.csv)</SelectItem>
-                                      <SelectItem value="json">JSON (.json)</SelectItem>
-                                    </SelectContent>
-                                  </Select>
-                                  
-                                  <Button 
-                                    variant="outline" 
-                                    onClick={downloadValidEmails}
-                                    className="border-white/30 text-white hover:bg-white/10 bg-white/5 backdrop-blur-sm shadow-md"
-                                  >
-                                    <div className="relative">
-                                      <div className="absolute -inset-1 rounded-full bg-white/10 blur-sm animate-pulse"></div>
-                                      <FileDown className="h-4 w-4 mr-2 relative" />
-                                    </div>
-                                    Download Valid
-                                  </Button>
-                                  
-                                  <Button 
-                                    variant="outline" 
-                                    onClick={downloadReport}
-                                    className="border-white/30 text-white hover:bg-white/10 bg-white/5 backdrop-blur-sm shadow-md"
-                                  >
-                                    <div className="relative">
-                                      <div className="absolute -inset-1 rounded-full bg-white/10 blur-sm animate-pulse"></div>
-                                      <FileTextIcon className="h-4 w-4 mr-2 relative" />
-                                    </div>
-                                    Full Report
-                                  </Button>
+                                <div>
+                                  <CardTitle className="text-lg text-indigo-900">Email List Analysis</CardTitle>
+                                  <CardDescription className="text-indigo-700">
+                                    Processed {bulkAnalysisResult.summary.total.toLocaleString()} emails
+                                  </CardDescription>
                                 </div>
                               </div>
-                            </CardHeader>
-                          </div>
+                              
+                              <div className="flex flex-wrap gap-2 sm:gap-3">
+                                <Select value={exportFormat} onValueChange={value => setExportFormat(value as any)}>
+                                  <SelectTrigger className="w-[120px] border-indigo-300 text-indigo-700 bg-white">
+                                    <SelectValue placeholder="Format" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="txt">Text (.txt)</SelectItem>
+                                    <SelectItem value="csv">CSV (.csv)</SelectItem>
+                                    <SelectItem value="json">JSON (.json)</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                                
+                                <Button 
+                                  variant="outline" 
+                                  size="sm"
+                                  onClick={downloadValidEmails}
+                                  className="border-indigo-300 text-indigo-700 hover:bg-indigo-50 shadow-sm"
+                                >
+                                  <FileDown className="h-4 w-4 mr-2 text-indigo-600" />
+                                  Download Valid
+                                </Button>
+                                
+                                <Button 
+                                  variant="outline" 
+                                  size="sm"
+                                  onClick={downloadReport}
+                                  className="border-indigo-300 text-indigo-700 hover:bg-indigo-50 shadow-sm"
+                                >
+                                  <FileTextIcon className="h-4 w-4 mr-2 text-indigo-600" />
+                                  Full Report
+                                </Button>
+                              </div>
+                            </div>
+                          </CardHeader>
                           
-                          <CardContent className="p-6 bg-white">
+                          <CardContent className="p-5">
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-5 mb-6">
                               <motion.div
-                                className="group"
-                                whileHover={{ y: -5, scale: 1.02 }}
-                                whileTap={{ scale: 0.98 }}
+                                className="rounded-lg overflow-hidden border border-green-200 shadow-sm"
+                                whileHover={{ y: -3, boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.05)' }}
                               >
-                                <div className="rounded-xl overflow-hidden border-0 shadow-lg relative h-full">
-                                  <div className="absolute inset-0 bg-gradient-to-br from-green-500 to-emerald-600 opacity-90"></div>
-                                  <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxkZWZzPjxwYXR0ZXJuIGlkPSJwYXR0ZXJuIiB4PSIwIiB5PSIwIiB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHBhdHRlcm5Vbml0cz0idXNlclNwYWNlT25Vc2UiIHBhdHRlcm5UcmFuc2Zvcm09InJvdGF0ZSgzMCkiPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjAzKSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNwYXR0ZXJuKSIvPjwvc3ZnPg==')]"></div>
-                                  <div className="relative p-4 flex flex-col items-start h-full">
-                                    <div className="flex items-center mb-2 justify-between w-full">
-                                      <h3 className="text-base font-medium text-white">Valid Emails</h3>
-                                      <div className="flex items-center justify-center h-9 w-9 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 shadow-inner group-hover:scale-110 transition-transform">
-                                        <CheckCircle2 className="h-5 w-5 text-white" />
-                                      </div>
+                                <div className="p-4 bg-gradient-to-br from-green-50 to-green-100">
+                                  <div className="flex items-center justify-between mb-2">
+                                    <h3 className="text-base font-medium text-green-800">Valid</h3>
+                                    <div className="flex items-center justify-center h-7 w-7 rounded-full bg-green-200/80">
+                                      <CheckCircle2 className="h-4 w-4 text-green-700" />
                                     </div>
-                                    <div className="mt-auto pt-2 w-full">
-                                      <div className="text-3xl font-bold text-white mb-1">{bulkAnalysisResult.summary.valid.toLocaleString()}</div>
-                                      <div className="flex items-center">
-                                        <div className="h-2 flex-grow bg-white/20 rounded-full overflow-hidden">
-                                          <div 
-                                            className="h-full bg-white" 
-                                            style={{ width: `${Math.round((bulkAnalysisResult.summary.valid / bulkAnalysisResult.summary.total) * 100)}%` }}
-                                          ></div>
-                                        </div>
-                                        <span className="ml-2 text-sm text-white font-medium">
-                                          {Math.round((bulkAnalysisResult.summary.valid / bulkAnalysisResult.summary.total) * 100)}%
-                                        </span>
-                                      </div>
+                                  </div>
+                                  <div className="text-2xl font-bold text-green-700">{bulkAnalysisResult.summary.valid.toLocaleString()}</div>
+                                  <div className="flex items-center mt-1">
+                                    <div className="h-1.5 w-16 bg-green-200 rounded-full overflow-hidden">
+                                      <div 
+                                        className="h-full bg-green-500" 
+                                        style={{ width: `${Math.round((bulkAnalysisResult.summary.valid / bulkAnalysisResult.summary.total) * 100)}%` }}
+                                      ></div>
                                     </div>
+                                    <span className="ml-2 text-xs text-green-600">
+                                      {Math.round((bulkAnalysisResult.summary.valid / bulkAnalysisResult.summary.total) * 100)}%
+                                    </span>
                                   </div>
                                 </div>
                               </motion.div>
                               
                               <motion.div
-                                className="group"
-                                whileHover={{ y: -5, scale: 1.02 }}
-                                whileTap={{ scale: 0.98 }}
+                                className="rounded-lg overflow-hidden border border-red-200 shadow-sm"
+                                whileHover={{ y: -3, boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.05)' }}
                               >
-                                <div className="rounded-xl overflow-hidden border-0 shadow-lg relative h-full">
-                                  <div className="absolute inset-0 bg-gradient-to-br from-red-500 to-rose-600 opacity-90"></div>
-                                  <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxkZWZzPjxwYXR0ZXJuIGlkPSJwYXR0ZXJuIiB4PSIwIiB5PSIwIiB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHBhdHRlcm5Vbml0cz0idXNlclNwYWNlT25Vc2UiIHBhdHRlcm5UcmFuc2Zvcm09InJvdGF0ZSgzMCkiPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjAzKSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNwYXR0ZXJuKSIvPjwvc3ZnPg==')]"></div>
-                                  <div className="relative p-4 flex flex-col items-start h-full">
-                                    <div className="flex items-center mb-2 justify-between w-full">
-                                      <h3 className="text-base font-medium text-white">Invalid Emails</h3>
-                                      <div className="flex items-center justify-center h-9 w-9 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 shadow-inner group-hover:scale-110 transition-transform">
-                                        <XCircle className="h-5 w-5 text-white" />
-                                      </div>
+                                <div className="p-4 bg-gradient-to-br from-red-50 to-red-100">
+                                  <div className="flex items-center justify-between mb-2">
+                                    <h3 className="text-base font-medium text-red-800">Invalid</h3>
+                                    <div className="flex items-center justify-center h-7 w-7 rounded-full bg-red-200/80">
+                                      <XCircle className="h-4 w-4 text-red-700" />
                                     </div>
-                                    <div className="mt-auto pt-2 w-full">
-                                      <div className="text-3xl font-bold text-white mb-1">{bulkAnalysisResult.summary.invalid.toLocaleString()}</div>
-                                      <div className="flex items-center">
-                                        <div className="h-2 flex-grow bg-white/20 rounded-full overflow-hidden">
-                                          <div 
-                                            className="h-full bg-white" 
-                                            style={{ width: `${Math.round((bulkAnalysisResult.summary.invalid / bulkAnalysisResult.summary.total) * 100)}%` }}
-                                          ></div>
-                                        </div>
-                                        <span className="ml-2 text-sm text-white font-medium">
-                                          {Math.round((bulkAnalysisResult.summary.invalid / bulkAnalysisResult.summary.total) * 100)}%
-                                        </span>
-                                      </div>
+                                  </div>
+                                  <div className="text-2xl font-bold text-red-700">{bulkAnalysisResult.summary.invalid.toLocaleString()}</div>
+                                  <div className="flex items-center mt-1">
+                                    <div className="h-1.5 w-16 bg-red-200 rounded-full overflow-hidden">
+                                      <div 
+                                        className="h-full bg-red-500" 
+                                        style={{ width: `${Math.round((bulkAnalysisResult.summary.invalid / bulkAnalysisResult.summary.total) * 100)}%` }}
+                                      ></div>
                                     </div>
+                                    <span className="ml-2 text-xs text-red-600">
+                                      {Math.round((bulkAnalysisResult.summary.invalid / bulkAnalysisResult.summary.total) * 100)}%
+                                    </span>
                                   </div>
                                 </div>
                               </motion.div>
                               
                               <motion.div
-                                className="group"
-                                whileHover={{ y: -5, scale: 1.02 }}
-                                whileTap={{ scale: 0.98 }}
+                                className="rounded-lg overflow-hidden border border-amber-200 shadow-sm"
+                                whileHover={{ y: -3, boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.05)' }}
                               >
-                                <div className="rounded-xl overflow-hidden border-0 shadow-lg relative h-full">
-                                  <div className="absolute inset-0 bg-gradient-to-br from-amber-500 to-orange-600 opacity-90"></div>
-                                  <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxkZWZzPjxwYXR0ZXJuIGlkPSJwYXR0ZXJuIiB4PSIwIiB5PSIwIiB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHBhdHRlcm5Vbml0cz0idXNlclNwYWNlT25Vc2UiIHBhdHRlcm5UcmFuc2Zvcm09InJvdGF0ZSgzMCkiPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjAzKSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNwYXR0ZXJuKSIvPjwvc3ZnPg==')]"></div>
-                                  <div className="relative p-4 flex flex-col items-start h-full">
-                                    <div className="flex items-center mb-2 justify-between w-full">
-                                      <h3 className="text-base font-medium text-white">Duplicates</h3>
-                                      <div className="flex items-center justify-center h-9 w-9 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 shadow-inner group-hover:scale-110 transition-transform">
-                                        <Copy className="h-5 w-5 text-white" />
-                                      </div>
+                                <div className="p-4 bg-gradient-to-br from-amber-50 to-amber-100">
+                                  <div className="flex items-center justify-between mb-2">
+                                    <h3 className="text-base font-medium text-amber-800">Duplicates</h3>
+                                    <div className="flex items-center justify-center h-7 w-7 rounded-full bg-amber-200/80">
+                                      <Copy className="h-4 w-4 text-amber-700" />
                                     </div>
-                                    <div className="mt-auto pt-2 w-full">
-                                      <div className="text-3xl font-bold text-white mb-1">{bulkAnalysisResult.summary.duplicates.toLocaleString()}</div>
-                                      <div className="flex items-center">
-                                        <div className="h-2 flex-grow bg-white/20 rounded-full overflow-hidden">
-                                          <div 
-                                            className="h-full bg-white" 
-                                            style={{ width: `${Math.round((bulkAnalysisResult.summary.duplicates / bulkAnalysisResult.summary.total) * 100)}%` }}
-                                          ></div>
-                                        </div>
-                                        <span className="ml-2 text-sm text-white font-medium">
-                                          {Math.round((bulkAnalysisResult.summary.duplicates / bulkAnalysisResult.summary.total) * 100)}%
-                                        </span>
-                                      </div>
+                                  </div>
+                                  <div className="text-2xl font-bold text-amber-700">{bulkAnalysisResult.summary.duplicates.toLocaleString()}</div>
+                                  <div className="flex items-center mt-1">
+                                    <div className="h-1.5 w-16 bg-amber-200 rounded-full overflow-hidden">
+                                      <div 
+                                        className="h-full bg-amber-500" 
+                                        style={{ width: `${Math.round((bulkAnalysisResult.summary.duplicates / bulkAnalysisResult.summary.total) * 100)}%` }}
+                                      ></div>
                                     </div>
+                                    <span className="ml-2 text-xs text-amber-600">
+                                      {Math.round((bulkAnalysisResult.summary.duplicates / bulkAnalysisResult.summary.total) * 100)}%
+                                    </span>
                                   </div>
                                 </div>
                               </motion.div>
                               
                               <motion.div
-                                className="group"
-                                whileHover={{ y: -5, scale: 1.02 }}
-                                whileTap={{ scale: 0.98 }}
+                                className="rounded-lg overflow-hidden border border-purple-200 shadow-sm"
+                                whileHover={{ y: -3, boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.05)' }}
                               >
-                                <div className="rounded-xl overflow-hidden border-0 shadow-lg relative h-full">
-                                  <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-indigo-600 opacity-90"></div>
-                                  <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxkZWZzPjxwYXR0ZXJuIGlkPSJwYXR0ZXJuIiB4PSIwIiB5PSIwIiB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHBhdHRlcm5Vbml0cz0idXNlclNwYWNlT25Vc2UiIHBhdHRlcm5UcmFuc2Zvcm09InJvdGF0ZSgzMCkiPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjAzKSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNwYXR0ZXJuKSIvPjwvc3ZnPg==')]"></div>
-                                  <div className="relative p-4 flex flex-col items-start h-full">
-                                    <div className="flex items-center mb-2 justify-between w-full">
-                                      <h3 className="text-base font-medium text-white">Disposable</h3>
-                                      <div className="flex items-center justify-center h-9 w-9 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 shadow-inner group-hover:scale-110 transition-transform">
-                                        <Trash2 className="h-5 w-5 text-white" />
-                                      </div>
+                                <div className="p-4 bg-gradient-to-br from-purple-50 to-purple-100">
+                                  <div className="flex items-center justify-between mb-2">
+                                    <h3 className="text-base font-medium text-purple-800">Disposable</h3>
+                                    <div className="flex items-center justify-center h-7 w-7 rounded-full bg-purple-200/80">
+                                      <Trash2 className="h-4 w-4 text-purple-700" />
                                     </div>
-                                    <div className="mt-auto pt-2 w-full">
-                                      <div className="text-3xl font-bold text-white mb-1">{bulkAnalysisResult.summary.disposable.toLocaleString()}</div>
-                                      <div className="flex items-center">
-                                        <div className="h-2 flex-grow bg-white/20 rounded-full overflow-hidden">
-                                          <div 
-                                            className="h-full bg-white" 
-                                            style={{ width: `${Math.round((bulkAnalysisResult.summary.disposable / bulkAnalysisResult.summary.total) * 100)}%` }}
-                                          ></div>
-                                        </div>
-                                        <span className="ml-2 text-sm text-white font-medium">
-                                          {Math.round((bulkAnalysisResult.summary.disposable / bulkAnalysisResult.summary.total) * 100)}%
-                                        </span>
-                                      </div>
+                                  </div>
+                                  <div className="text-2xl font-bold text-purple-700">{bulkAnalysisResult.summary.disposable.toLocaleString()}</div>
+                                  <div className="flex items-center mt-1">
+                                    <div className="h-1.5 w-16 bg-purple-200 rounded-full overflow-hidden">
+                                      <div 
+                                        className="h-full bg-purple-500" 
+                                        style={{ width: `${Math.round((bulkAnalysisResult.summary.disposable / bulkAnalysisResult.summary.total) * 100)}%` }}
+                                      ></div>
                                     </div>
+                                    <span className="ml-2 text-xs text-purple-600">
+                                      {Math.round((bulkAnalysisResult.summary.disposable / bulkAnalysisResult.summary.total) * 100)}%
+                                    </span>
                                   </div>
                                 </div>
                               </motion.div>

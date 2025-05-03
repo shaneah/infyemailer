@@ -10,14 +10,6 @@
     "name": "Aadi Mughal",
     "email": "adimughal@hotmail.ca",
     "id": 2,
-    "createdAt": "2025-05-02T21:42:02.156Z",
-    "lastActivityAt": null
-  },
-  {
-    "name": "Romaan Qadir",
-    "email": "whitehataadi@gmail.com",
-    "status": "active",
-    "id": 3,
-    "createdAt": "2025-05-02T23:57:50.832Z"
+    "createdAt": "2025-05-02T21:42:02.156Z"
   }
 ]

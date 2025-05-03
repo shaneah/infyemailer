@@ -79,24 +79,6 @@ export default {
             height: "0",
           },
         },
-        "gradient-xy": {
-          "0%, 100%": { 
-            "background-position": "0% 0%",
-            "background-size": "400% 400%" 
-          },
-          "25%": { 
-            "background-position": "100% 0%", 
-            "background-size": "400% 400%" 
-          },
-          "50%": { 
-            "background-position": "100% 100%", 
-            "background-size": "400% 400%" 
-          },
-          "75%": { 
-            "background-position": "0% 100%", 
-            "background-size": "400% 400%" 
-          },
-        },
         "glitch-1": {
           "0%, 100%": { transform: "translate(0)" },
           "20%": { transform: "translate(-5px, 5px)" },
@@ -172,7 +154,6 @@ export default {
         "glitch-1": "glitch-1 0.7s infinite linear alternate-reverse",
         "glitch-2": "glitch-2 0.7s infinite linear alternate-reverse",
         "gradient-x": "gradient-x 10s ease infinite",
-        "gradient-xy": "gradient-xy 15s ease infinite",
         "fade-in-down": "fade-in-down 0.5s ease-out forwards",
         "pulse-ring": "pulse-ring 2s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite",
         "flicker-1": "flicker-1 0.3s infinite",
