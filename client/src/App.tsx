@@ -36,7 +36,7 @@ import EmailChecklist from "@/pages/EmailChecklist";
 import Reporting from "@/pages/Reporting";
 import EmailProviders from "@/pages/EmailProvidersV2";
 import UserManagement from "@/pages/UserManagementV2";
-import ClientManagement from "@/pages/ClientManagement";
+import ClientManagement from "@/pages/ClientManagementV2";
 // AudiencePersonas component removed
 import EmailPreview from "@/pages/EmailPreview";
 import ClientCollaboration from "@/pages/ClientCollaboration";
