@@ -416,12 +416,19 @@ const EmailValidation = () => {
             transition={{ delay: 0.2, duration: 0.5 }}
           >
             <span className="inline-block bg-clip-text text-transparent bg-gradient-to-r from-white via-amber-200 to-white">
-              Smart Email
+              Intelligent Email
             </span>
-            <br />
-            <span className="inline-block bg-clip-text text-transparent bg-gradient-to-r from-cyan-300 via-blue-200 to-purple-300">
-              Validation & Intelligence
-            </span>
+            <div className="relative inline-block mt-2">
+              <span className="inline-block bg-clip-text text-transparent bg-gradient-to-r from-cyan-300 via-rose-200 to-purple-300">
+                Validation & Analytics
+              </span>
+              <motion.div 
+                className="absolute -bottom-3 left-0 right-0 h-1 bg-gradient-to-r from-cyan-400 via-fuchsia-400 to-purple-400 rounded-full"
+                initial={{ width: 0, opacity: 0 }}
+                animate={{ width: "100%", opacity: 1 }}
+                transition={{ delay: 0.5, duration: 0.8 }}
+              />
+            </div>
           </motion.h1>
           
           <motion.p 
@@ -645,17 +652,25 @@ const EmailValidation = () => {
                       <span className="text-lg">Enter email address to validate</span>
                     </Label>
                     <div className="relative mt-2">
-                      <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 to-cyan-400 rounded-xl blur-sm opacity-30"></div>
+                      <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 via-cyan-500 to-purple-600 rounded-xl blur opacity-40 group-hover:opacity-75 transition duration-1000 group-hover:duration-200 animate-gradient-xy"></div>
                       <div className="relative">
                         <Input
                           id="single-email"
                           placeholder="email@example.com"
                           value={singleEmail}
                           onChange={(e) => setSingleEmail(e.target.value)}
-                          className="pl-12 pr-4 py-6 border-blue-300 focus:border-blue-500 focus:ring-blue-400/30 shadow-md rounded-xl text-lg"
+                          className="pl-14 pr-4 py-7 border-transparent focus:border-transparent bg-white/95 backdrop-blur-md focus:ring-2 focus:ring-blue-500/50 shadow-lg rounded-xl text-lg"
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault();
+                              validateSingleEmail();
+                            }
+                          }}
                         />
-                        <div className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center justify-center h-8 w-8 rounded-full bg-gradient-to-br from-blue-500/20 to-cyan-500/20 backdrop-blur-sm">
-                          <Mail className="h-5 w-5 text-blue-500" />
+                        <div className="absolute left-3 top-1/2 -translate-y-1/2">
+                          <div className="flex items-center justify-center h-10 w-10 rounded-full bg-gradient-to-br from-blue-600 to-cyan-500 shadow-lg">
+                            <Mail className="h-5 w-5 text-white" />
+                          </div>
                         </div>
                       </div>
                     </div>
