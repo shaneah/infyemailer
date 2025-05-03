@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { ContextualTooltip } from "@/components/ui/contextual-tooltip";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
@@ -120,7 +121,24 @@ function StatsCard({
   return (
     <div className="border rounded-lg p-5 bg-white shadow-sm hover:shadow-md transition-all duration-200">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-medium text-gray-500">{title}</h3>
+        <div className="flex items-center gap-1.5">
+          <h3 className="text-sm font-medium text-gray-500">{title}</h3>
+          <ContextualTooltip 
+            variant="help"
+            content={
+              <div>
+                <p className="font-medium mb-1">{title} Explained</p>
+                <p>{description}</p>
+                {title === "Verified Domains" && (
+                  <p className="mt-1 text-xs">Verified domains have passed authentication checks and are ready for use.</p>
+                )}
+                {title === "Default Domain" && (
+                  <p className="mt-1 text-xs">The default domain is used when no specific domain is selected for a campaign.</p>
+                )}
+              </div>
+            }
+          />
+        </div>
         <div className="p-2.5 rounded-md bg-gray-50 border border-gray-100">
           {icon}
         </div>
@@ -261,7 +279,26 @@ function DomainCard({
         
         <CardContent className="pt-3 pb-3 flex-grow">
           <div className="flex justify-between items-center mb-3">
-            <span className="text-sm font-medium">Verification Status</span>
+            <div className="flex items-center gap-1.5">
+              <span className="text-sm font-medium">Verification Status</span>
+              <ContextualTooltip
+                variant="help"
+                content={
+                  <div className="max-w-xs">
+                    <p className="font-medium mb-1">Domain Verification</p>
+                    <p className="mb-1">Verification ensures that your domain is properly configured for email sending.</p>
+                    <p className="text-xs mt-2">A complete verification requires:</p>
+                    <ul className="text-xs list-disc pl-4 mt-1">
+                      <li>Domain ownership verification</li>
+                      <li>DKIM authentication setup</li>
+                      <li>SPF record configuration</li>
+                      <li>DMARC policy implementation</li>
+                    </ul>
+                  </div>
+                }
+                width="260px"
+              />
+            </div>
             <span className="text-sm font-semibold text-gray-700">
               {verificationPercent.toFixed(0)}%
             </span>
@@ -270,40 +307,72 @@ function DomainCard({
           <Progress value={verificationPercent} className="h-2 mb-4" />
           
           <div className="grid grid-cols-2 gap-2">
-            <div className={`px-3 py-2 rounded text-xs font-medium flex items-center ${domain.verified ? 'bg-emerald-50 text-emerald-700' : 'bg-gray-100 text-gray-600'}`}>
-              {domain.verified ? (
-                <CheckCircle className="h-3.5 w-3.5 mr-1.5" />
-              ) : (
-                <X className="h-3.5 w-3.5 mr-1.5" />
-              )}
-              <span>Domain</span>
+            <div className={`px-3 py-2 rounded text-xs font-medium flex items-center justify-between ${domain.verified ? 'bg-emerald-50 text-emerald-700' : 'bg-gray-100 text-gray-600'}`}>
+              <div className="flex items-center">
+                {domain.verified ? (
+                  <CheckCircle className="h-3.5 w-3.5 mr-1.5" />
+                ) : (
+                  <X className="h-3.5 w-3.5 mr-1.5" />
+                )}
+                <span>Domain</span>
+              </div>
+              <ContextualTooltip
+                content={
+                  <p className="text-sm">Confirms you own this domain</p>
+                }
+                side="top"
+              />
             </div>
             
-            <div className={`px-3 py-2 rounded text-xs font-medium flex items-center ${domain.dkimVerified ? 'bg-emerald-50 text-emerald-700' : 'bg-gray-100 text-gray-600'}`}>
-              {domain.dkimVerified ? (
-                <CheckCircle className="h-3.5 w-3.5 mr-1.5" />
-              ) : (
-                <X className="h-3.5 w-3.5 mr-1.5" />
-              )}
-              <span>DKIM</span>
+            <div className={`px-3 py-2 rounded text-xs font-medium flex items-center justify-between ${domain.dkimVerified ? 'bg-emerald-50 text-emerald-700' : 'bg-gray-100 text-gray-600'}`}>
+              <div className="flex items-center">
+                {domain.dkimVerified ? (
+                  <CheckCircle className="h-3.5 w-3.5 mr-1.5" />
+                ) : (
+                  <X className="h-3.5 w-3.5 mr-1.5" />
+                )}
+                <span>DKIM</span>
+              </div>
+              <ContextualTooltip
+                content={
+                  <p className="text-sm">Digital signature verification</p>
+                }
+                side="top"
+              />
             </div>
             
-            <div className={`px-3 py-2 rounded text-xs font-medium flex items-center ${domain.spfVerified ? 'bg-emerald-50 text-emerald-700' : 'bg-gray-100 text-gray-600'}`}>
-              {domain.spfVerified ? (
-                <CheckCircle className="h-3.5 w-3.5 mr-1.5" />
-              ) : (
-                <X className="h-3.5 w-3.5 mr-1.5" />
-              )}
-              <span>SPF</span>
+            <div className={`px-3 py-2 rounded text-xs font-medium flex items-center justify-between ${domain.spfVerified ? 'bg-emerald-50 text-emerald-700' : 'bg-gray-100 text-gray-600'}`}>
+              <div className="flex items-center">
+                {domain.spfVerified ? (
+                  <CheckCircle className="h-3.5 w-3.5 mr-1.5" />
+                ) : (
+                  <X className="h-3.5 w-3.5 mr-1.5" />
+                )}
+                <span>SPF</span>
+              </div>
+              <ContextualTooltip
+                content={
+                  <p className="text-sm">Authorizes sending servers</p>
+                }
+                side="top"
+              />
             </div>
             
-            <div className={`px-3 py-2 rounded text-xs font-medium flex items-center ${domain.dmarcVerified ? 'bg-emerald-50 text-emerald-700' : 'bg-gray-100 text-gray-600'}`}>
-              {domain.dmarcVerified ? (
-                <CheckCircle className="h-3.5 w-3.5 mr-1.5" />
-              ) : (
-                <X className="h-3.5 w-3.5 mr-1.5" />
-              )}
-              <span>DMARC</span>
+            <div className={`px-3 py-2 rounded text-xs font-medium flex items-center justify-between ${domain.dmarcVerified ? 'bg-emerald-50 text-emerald-700' : 'bg-gray-100 text-gray-600'}`}>
+              <div className="flex items-center">
+                {domain.dmarcVerified ? (
+                  <CheckCircle className="h-3.5 w-3.5 mr-1.5" />
+                ) : (
+                  <X className="h-3.5 w-3.5 mr-1.5" />
+                )}
+                <span>DMARC</span>
+              </div>
+              <ContextualTooltip
+                content={
+                  <p className="text-sm">Policy for handling failures</p>
+                }
+                side="top"
+              />
             </div>
           </div>
 
@@ -420,6 +489,14 @@ function DnsRecordsCard({
   domain: Domain;
   onCopyRecord: (type: string, value: string) => void;
 }) {
+  // DNS Record type explanations
+  const dnsExplanations = {
+    domain: "Domain verification confirms ownership of your domain name. This ensures you have permission to send emails from this domain.",
+    dkim: "DomainKeys Identified Mail (DKIM) adds a digital signature to your emails, allowing receiving mail servers to verify they haven't been tampered with during transit.",
+    spf: "Sender Policy Framework (SPF) specifies which mail servers are authorized to send email on behalf of your domain, helping prevent email spoofing.",
+    dmarc: "Domain-based Message Authentication, Reporting & Conformance (DMARC) builds on SPF and DKIM to improve protection against phishing and spoofing."
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -440,6 +517,19 @@ function DnsRecordsCard({
                 <span className="ml-2 text-sm font-medium">
                   {domain.dkimSelector}._domainkey.{domain.name}
                 </span>
+                <ContextualTooltip 
+                  variant="info"
+                  content={
+                    <div className="max-w-xs">
+                      <p className="font-medium mb-1">DKIM Record</p>
+                      <p className="mb-1">{dnsExplanations.dkim}</p>
+                      <p className="text-xs mt-1">Record Type: TXT</p>
+                      <p className="text-xs">Name: {domain.dkimSelector}._domainkey</p>
+                    </div>
+                  }
+                  side="right"
+                  width="260px"
+                />
               </div>
               <Button 
                 variant="ghost" 
@@ -464,6 +554,19 @@ function DnsRecordsCard({
                 <span className="ml-2 text-sm font-medium">
                   {domain.name}
                 </span>
+                <ContextualTooltip 
+                  variant="info"
+                  content={
+                    <div className="max-w-xs">
+                      <p className="font-medium mb-1">SPF Record</p>
+                      <p className="mb-1">{dnsExplanations.spf}</p>
+                      <p className="text-xs mt-1">Record Type: TXT</p>
+                      <p className="text-xs">Name: @ (root domain)</p>
+                    </div>
+                  }
+                  side="right"
+                  width="260px"
+                />
               </div>
               <Button 
                 variant="ghost" 
@@ -488,6 +591,19 @@ function DnsRecordsCard({
                 <span className="ml-2 text-sm font-medium">
                   _dmarc.{domain.name}
                 </span>
+                <ContextualTooltip 
+                  variant="info"
+                  content={
+                    <div className="max-w-xs">
+                      <p className="font-medium mb-1">DMARC Record</p>
+                      <p className="mb-1">{dnsExplanations.dmarc}</p>
+                      <p className="text-xs mt-1">Record Type: TXT</p>
+                      <p className="text-xs">Name: _dmarc</p>
+                    </div>
+                  }
+                  side="right"
+                  width="260px"
+                />
               </div>
               <Button 
                 variant="ghost" 
