@@ -12,7 +12,6 @@ import { AuthProvider } from "@/hooks/use-auth";
 import { ProtectedRoute } from "@/lib/protected-route";
 import NotFound from "@/pages/not-found";
 import { AIAssistantProvider } from "@/contexts/AIAssistantContext";
-import { AIAssistantButton } from "@/components/AIAssistant";
 import Campaigns from "@/pages/CampaignsV2";
 import Templates from "@/pages/Templates";
 import Contacts from "@/pages/Contacts";
@@ -268,8 +267,6 @@ function App() {
               </div>
               
               <Toaster />
-              {/* AI Assistant Button added here to be available throughout the app */}
-              <AIAssistantButton />
             </div>
           </AuthProvider>
         </Route>
