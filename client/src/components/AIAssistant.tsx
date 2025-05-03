@@ -354,25 +354,35 @@ export const AIAssistant: React.FC = () => {
 export const AIAssistantButton: React.FC = () => {
   const { toggleAssistant, isOpen } = useAIAssistant();
   
+  // Enhanced event handler to ensure the toggle action works
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleAssistant();
+    console.log("AI Assistant button clicked, isOpen:", !isOpen); // Debugging log
+  };
+  
   return (
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Button
-            onClick={toggleAssistant}
-            variant="default"
-            size="icon"
-            className="fixed bottom-4 right-4 z-40 rounded-full h-12 w-12 shadow-lg"
-            aria-label="Open AI Assistant"
-            data-state={isOpen ? 'open' : 'closed'}
-          >
-            <Sparkles className="h-5 w-5" />
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent side="left">
-          <p>AI Assistant</p>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
+    <div className="fixed bottom-4 right-4 z-50">
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              onClick={handleClick}
+              variant="default"
+              size="icon"
+              className="rounded-full h-12 w-12 shadow-lg bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 border-0"
+              aria-label="Open AI Assistant"
+              data-state={isOpen ? 'open' : 'closed'}
+            >
+              <Sparkles className="h-5 w-5 text-white" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="left">
+            <p>AI Assistant</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    </div>
   );
 };
