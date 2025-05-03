@@ -17,7 +17,8 @@
     },
     "id": 1,
     "createdAt": "2025-05-03T19:59:11.281Z",
-    "lastCampaignAt": null
+    "lastCampaignAt": null,
+    "lastCreditUpdateAt": null
   },
   {
     "name": "Jane Smith",
@@ -37,7 +38,8 @@
     },
     "id": 2,
     "createdAt": "2025-05-03T19:59:11.281Z",
-    "lastCampaignAt": null
+    "lastCampaignAt": null,
+    "lastCreditUpdateAt": null
   },
   {
     "name": "Robert Johnson",
@@ -57,6 +59,18 @@
     },
     "id": 3,
     "createdAt": "2025-05-03T19:59:11.282Z",
+    "lastCampaignAt": null,
+    "lastCreditUpdateAt": null
+  },
+  {
+    "name": "Aadi Mughal",
+    "email": "adimughal@hotmail.ca",
+    "company": "Ingenious Digital Marketing",
+    "status": "active",
+    "industry": "",
+    "metadata": {},
+    "id": 4,
+    "createdAt": "2025-05-03T20:11:08.677Z",
     "lastCampaignAt": null
   }
 ]
