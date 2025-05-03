@@ -106,6 +106,7 @@ import {
 const clientFormSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
   email: z.string().email({ message: "Please enter a valid email address." }),
+  company: z.string().min(2, { message: "Company name must be at least 2 characters." }),
   industry: z.string().optional(),
   website: z.string().optional(),
   phone: z.string().optional(),
@@ -279,6 +280,7 @@ const ClientManagementV2 = () => {
     defaultValues: {
       name: '',
       email: '',
+      company: '',
       industry: '',
       website: '',
       phone: '',
@@ -522,6 +524,7 @@ const ClientManagementV2 = () => {
     clientForm.reset({
       name: client.name || '',
       email: client.email || '',
+      company: client.company || '',
       industry: client.industry || '',
       website: client.website || '',
       phone: client.phone || '',
@@ -1137,6 +1140,20 @@ const ClientManagementV2 = () => {
                       <FormLabel>Email</FormLabel>
                       <FormControl>
                         <Input type="email" placeholder="client@example.com" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={clientForm.control}
+                  name="company"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Company</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Company name" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
