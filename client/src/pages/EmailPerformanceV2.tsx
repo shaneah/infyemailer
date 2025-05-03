@@ -527,12 +527,12 @@ const EmailPerformanceV2: React.FC = () => {
       <div className={`bg-gradient-to-r ${getGradientColor()} px-6 py-10 mb-8 shadow-md`}>
         <div className="container mx-auto">
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
-            <div className="text-white space-y-2 max-w-2xl">
+            <div className="space-y-2 max-w-2xl">
               <motion.h1 
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
-                className="text-3xl md:text-4xl font-bold"
+                className="text-3xl md:text-4xl font-bold text-white"
               >
                 Email Performance Analytics
               </motion.h1>
@@ -550,14 +550,14 @@ const EmailPerformanceV2: React.FC = () => {
                 transition={{ duration: 0.5, delay: 0.3 }}
                 className="flex flex-wrap gap-3 pt-2"
               >
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-white/20 backdrop-blur-sm">
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-white/20 backdrop-blur-sm text-white">
                   <span className="mr-1 h-2 w-2 rounded-full bg-green-400 animate-pulse"></span>
                   Live Data
                 </span>
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-white/20 backdrop-blur-sm">
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-white/20 backdrop-blur-sm text-white">
                   AI-Powered Insights
                 </span>
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-white/20 backdrop-blur-sm">
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-white/20 backdrop-blur-sm text-white">
                   {timeframe === '7days' ? 'Last 7 Days' : 
                    timeframe === '30days' ? 'Last 30 Days' : 
                    timeframe === '90days' ? 'Last 90 Days' : 
