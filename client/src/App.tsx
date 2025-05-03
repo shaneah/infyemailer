@@ -25,7 +25,7 @@ import EmailPerformance from "@/pages/EmailPerformance";
 import EmailPerformanceV2 from "@/pages/EmailPerformanceV2";
 import BasicTemplateBuilder from "@/pages/BasicTemplateBuilder";
 import DragAndDropTemplateBuilder from "@/pages/DragAndDropTemplateBuilder";
-import Domains from "@/pages/Domains";
+import Domains from "@/pages/DomainsV2";
 
 import Clients from "@/pages/Clients";
 import Settings from "@/pages/Settings";
