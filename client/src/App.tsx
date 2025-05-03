@@ -34,7 +34,7 @@ import EmailChecklist from "@/pages/EmailChecklist";
 // Emails import removed
 import Reporting from "@/pages/Reporting";
 import EmailProviders from "@/pages/EmailProvidersV2";
-import UserManagement from "@/pages/UserManagement";
+import UserManagement from "@/pages/UserManagementV2";
 import ClientManagement from "@/pages/ClientManagement";
 // AudiencePersonas component removed
 import EmailPreview from "@/pages/EmailPreview";
