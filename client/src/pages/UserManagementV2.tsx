@@ -768,10 +768,10 @@ const UserManagementV2 = () => {
     <div className="container mx-auto px-4 md:px-6 space-y-6 pb-10">
       {/* Header with Gradient */}
       <div className="relative rounded-xl overflow-hidden">
-        <div className="bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 p-6 md:p-8 text-white">
+        <div className="bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 p-6 md:p-8">
           <div className="relative z-10">
-            <h1 className="text-2xl md:text-3xl font-bold mb-2">User Management</h1>
-            <p className="text-indigo-100 max-w-3xl text-sm md:text-base">
+            <h1 className="text-2xl md:text-3xl font-bold mb-2 text-white">User Management</h1>
+            <p className="text-white/90 max-w-3xl text-sm md:text-base">
               Manage system users, roles, and permissions. Control access to features and functionality.
             </p>
           </div>
