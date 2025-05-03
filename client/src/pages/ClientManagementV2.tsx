@@ -104,16 +104,22 @@ import {
 
 // Define schema for client form
 const clientFormSchema = z.object({
-  name: z.string().min(2, { message: "Name must be at least 2 characters." }),
-  email: z.string().email({ message: "Please enter a valid email address." }),
-  company: z.string().min(2, { message: "Company name must be at least 2 characters." }),
+  name: z.string()
+    .min(2, { message: "Name must be at least 2 characters." })
+    .nonempty({ message: "Name is required." }),
+  email: z.string()
+    .email({ message: "Please enter a valid email address." })
+    .nonempty({ message: "Email is required." }),
+  company: z.string()
+    .min(2, { message: "Company name must be at least 2 characters." })
+    .nonempty({ message: "Company name is required." }),
   industry: z.string().optional(),
   website: z.string().optional(),
   phone: z.string().optional(),
   address: z.string().optional(),
   contactPerson: z.string().optional(),
   status: z.string().default("active"),
-  metadata: z.record(z.any()).optional()
+  metadata: z.record(z.any()).optional().default({})
 });
 
 // Define schema for client user form
@@ -354,19 +360,32 @@ const ClientManagementV2 = () => {
   // Create client mutation
   const createClientMutation = useMutation({
     mutationFn: async (client: z.infer<typeof clientFormSchema>) => {
-      const response = await apiRequest('POST', '/api/clients', client);
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        // If we get a 400 with email already exists error
-        if (response.status === 400 && errorData.error && errorData.error.includes('email already exists')) {
-          throw new Error('A client with this email already exists. Please use a different email address.');
+      try {
+        // Log the data being sent
+        console.log('Creating client with data:', client);
+        
+        const response = await apiRequest('POST', '/api/clients', client);
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          console.error('Client creation failed:', errorData);
+          
+          // If we get a 400 with email already exists error
+          if (response.status === 400 && errorData.error && errorData.error.includes('email already exists')) {
+            throw new Error('A client with this email already exists. Please use a different email address.');
+          }
+          
+          // For other errors
+          throw new Error(errorData.error || 'Failed to create client');
         }
-        // For other errors
-        throw new Error(errorData.error || 'Failed to create client');
+        
+        const data = await response.json();
+        console.log('Client created successfully:', data);
+        return data;
+      } catch (error) {
+        console.error('Error in createClientMutation:', error);
+        throw error;
       }
-      
-      return await response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/clients'] });
@@ -378,6 +397,7 @@ const ClientManagementV2 = () => {
       });
     },
     onError: (error: any) => {
+      console.error('Client creation error:', error);
       toast({
         title: "Error",
         description: error.message || "Failed to create client.",
@@ -528,6 +548,36 @@ const ClientManagementV2 = () => {
 
   // Handle client form submission
   const onClientSubmit = (data: z.infer<typeof clientFormSchema>) => {
+    console.log('Form submission data:', data);
+    
+    // Validate required fields
+    if (!data.name || data.name.trim() === '') {
+      toast({
+        title: "Validation Error",
+        description: "Client name is required.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (!data.email || data.email.trim() === '') {
+      toast({
+        title: "Validation Error",
+        description: "Email is required.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (!data.company || data.company.trim() === '') {
+      toast({
+        title: "Validation Error",
+        description: "Company name is required.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     // Check if email already exists
     if (!selectedClient && emailExists(data.email)) {
       toast({
@@ -548,12 +598,18 @@ const ClientManagementV2 = () => {
       return;
     }
     
+    // Make sure the metadata is an object
+    const formattedData = {
+      ...data,
+      metadata: data.metadata || {}
+    };
+    
     if (selectedClient) {
       // Update existing client
-      updateClientMutation.mutate({ id: selectedClient.id, data });
+      updateClientMutation.mutate({ id: selectedClient.id, data: formattedData });
     } else {
       // Create new client
-      createClientMutation.mutate(data);
+      createClientMutation.mutate(formattedData);
     }
   };
 
@@ -1213,7 +1269,9 @@ const ClientManagementV2 = () => {
                   name="company"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Company</FormLabel>
+                      <FormLabel>
+                        Company <span className="text-red-500">*</span>
+                      </FormLabel>
                       <FormControl>
                         <Input placeholder="Company name" {...field} />
                       </FormControl>
