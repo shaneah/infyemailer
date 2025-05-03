@@ -219,7 +219,7 @@ export default function TemplatesV2() {
     setSearchQuery(e.target.value);
   };
 
-  const handleTemplateGenerated = (template: Template) => {
+  const handleTemplateGenerated = (template: any) => {
     toast({
       title: "Template Created",
       description: "Your AI template has been generated and saved to the library",
@@ -228,7 +228,7 @@ export default function TemplatesV2() {
     setSelectedTemplate(template);
   };
   
-  const handleImportSuccess = (template: Template) => {
+  const handleImportSuccess = (template: any) => {
     toast({
       title: "Template Imported",
       description: "Your template has been successfully imported",
@@ -1441,20 +1441,22 @@ export default function TemplatesV2() {
             
             <AdvancedTemplateGenerator 
               onTemplateGenerated={handleTemplateGenerated}
-              onCancel={() => setShowAIGenerator(false)}
             />
+            <DialogFooter className="mt-4">
+              <Button variant="outline" onClick={() => setShowAIGenerator(false)}>
+                Cancel
+              </Button>
+            </DialogFooter>
           </DialogContent>
         </Dialog>
       )}
       
       {/* Import Template Modal */}
-      {showImportModal && (
-        <ImportTemplateModal 
-          isOpen={showImportModal}
-          onClose={() => setShowImportModal(false)}
-          onSuccess={handleImportSuccess}
-        />
-      )}
+      <ImportTemplateModal 
+        open={showImportModal}
+        onOpenChange={setShowImportModal}
+        onImportSuccess={handleImportSuccess}
+      />
     </div>
   );
 }
