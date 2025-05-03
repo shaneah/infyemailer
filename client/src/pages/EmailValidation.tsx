@@ -1046,7 +1046,7 @@ email3@domain.com"
                         />
                         <div className="absolute top-3 right-3">
                           <div className="flex items-center justify-center h-8 w-8 rounded-full bg-gradient-to-br from-purple-500/40 to-fuchsia-500/40 shadow-md transition-all duration-300 hover:from-purple-500/60 hover:to-fuchsia-500/60">
-                            <MousePointerSquare className="h-4 w-4 text-white" />
+                            <Mail className="h-4 w-4 text-white" />
                           </div>
                         </div>
                       </div>
@@ -1214,108 +1214,136 @@ email3@domain.com"
                             </CardHeader>
                           </div>
                           
-                          <CardContent className="p-5">
+                          <CardContent className="p-6 bg-white">
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-5 mb-6">
                               <motion.div
-                                className="rounded-lg overflow-hidden border border-green-200 shadow-sm"
-                                whileHover={{ y: -3, boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.05)' }}
+                                className="group"
+                                whileHover={{ y: -5, scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
                               >
-                                <div className="p-4 bg-gradient-to-br from-green-50 to-green-100">
-                                  <div className="flex items-center justify-between mb-2">
-                                    <h3 className="text-base font-medium text-green-800">Valid</h3>
-                                    <div className="flex items-center justify-center h-7 w-7 rounded-full bg-green-200/80">
-                                      <CheckCircle2 className="h-4 w-4 text-green-700" />
+                                <div className="rounded-xl overflow-hidden border-0 shadow-lg relative h-full">
+                                  <div className="absolute inset-0 bg-gradient-to-br from-green-500 to-emerald-600 opacity-90"></div>
+                                  <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxkZWZzPjxwYXR0ZXJuIGlkPSJwYXR0ZXJuIiB4PSIwIiB5PSIwIiB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHBhdHRlcm5Vbml0cz0idXNlclNwYWNlT25Vc2UiIHBhdHRlcm5UcmFuc2Zvcm09InJvdGF0ZSgzMCkiPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjAzKSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNwYXR0ZXJuKSIvPjwvc3ZnPg==')]"></div>
+                                  <div className="relative p-4 flex flex-col items-start h-full">
+                                    <div className="flex items-center mb-2 justify-between w-full">
+                                      <h3 className="text-base font-medium text-white">Valid Emails</h3>
+                                      <div className="flex items-center justify-center h-9 w-9 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 shadow-inner group-hover:scale-110 transition-transform">
+                                        <CheckCircle2 className="h-5 w-5 text-white" />
+                                      </div>
                                     </div>
-                                  </div>
-                                  <div className="text-2xl font-bold text-green-700">{bulkAnalysisResult.summary.valid.toLocaleString()}</div>
-                                  <div className="flex items-center mt-1">
-                                    <div className="h-1.5 w-16 bg-green-200 rounded-full overflow-hidden">
-                                      <div 
-                                        className="h-full bg-green-500" 
-                                        style={{ width: `${Math.round((bulkAnalysisResult.summary.valid / bulkAnalysisResult.summary.total) * 100)}%` }}
-                                      ></div>
+                                    <div className="mt-auto pt-2 w-full">
+                                      <div className="text-3xl font-bold text-white mb-1">{bulkAnalysisResult.summary.valid.toLocaleString()}</div>
+                                      <div className="flex items-center">
+                                        <div className="h-2 flex-grow bg-white/20 rounded-full overflow-hidden">
+                                          <div 
+                                            className="h-full bg-white" 
+                                            style={{ width: `${Math.round((bulkAnalysisResult.summary.valid / bulkAnalysisResult.summary.total) * 100)}%` }}
+                                          ></div>
+                                        </div>
+                                        <span className="ml-2 text-sm text-white font-medium">
+                                          {Math.round((bulkAnalysisResult.summary.valid / bulkAnalysisResult.summary.total) * 100)}%
+                                        </span>
+                                      </div>
                                     </div>
-                                    <span className="ml-2 text-xs text-green-600">
-                                      {Math.round((bulkAnalysisResult.summary.valid / bulkAnalysisResult.summary.total) * 100)}%
-                                    </span>
                                   </div>
                                 </div>
                               </motion.div>
                               
                               <motion.div
-                                className="rounded-lg overflow-hidden border border-red-200 shadow-sm"
-                                whileHover={{ y: -3, boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.05)' }}
+                                className="group"
+                                whileHover={{ y: -5, scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
                               >
-                                <div className="p-4 bg-gradient-to-br from-red-50 to-red-100">
-                                  <div className="flex items-center justify-between mb-2">
-                                    <h3 className="text-base font-medium text-red-800">Invalid</h3>
-                                    <div className="flex items-center justify-center h-7 w-7 rounded-full bg-red-200/80">
-                                      <XCircle className="h-4 w-4 text-red-700" />
+                                <div className="rounded-xl overflow-hidden border-0 shadow-lg relative h-full">
+                                  <div className="absolute inset-0 bg-gradient-to-br from-red-500 to-rose-600 opacity-90"></div>
+                                  <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxkZWZzPjxwYXR0ZXJuIGlkPSJwYXR0ZXJuIiB4PSIwIiB5PSIwIiB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHBhdHRlcm5Vbml0cz0idXNlclNwYWNlT25Vc2UiIHBhdHRlcm5UcmFuc2Zvcm09InJvdGF0ZSgzMCkiPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjAzKSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNwYXR0ZXJuKSIvPjwvc3ZnPg==')]"></div>
+                                  <div className="relative p-4 flex flex-col items-start h-full">
+                                    <div className="flex items-center mb-2 justify-between w-full">
+                                      <h3 className="text-base font-medium text-white">Invalid Emails</h3>
+                                      <div className="flex items-center justify-center h-9 w-9 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 shadow-inner group-hover:scale-110 transition-transform">
+                                        <XCircle className="h-5 w-5 text-white" />
+                                      </div>
                                     </div>
-                                  </div>
-                                  <div className="text-2xl font-bold text-red-700">{bulkAnalysisResult.summary.invalid.toLocaleString()}</div>
-                                  <div className="flex items-center mt-1">
-                                    <div className="h-1.5 w-16 bg-red-200 rounded-full overflow-hidden">
-                                      <div 
-                                        className="h-full bg-red-500" 
-                                        style={{ width: `${Math.round((bulkAnalysisResult.summary.invalid / bulkAnalysisResult.summary.total) * 100)}%` }}
-                                      ></div>
+                                    <div className="mt-auto pt-2 w-full">
+                                      <div className="text-3xl font-bold text-white mb-1">{bulkAnalysisResult.summary.invalid.toLocaleString()}</div>
+                                      <div className="flex items-center">
+                                        <div className="h-2 flex-grow bg-white/20 rounded-full overflow-hidden">
+                                          <div 
+                                            className="h-full bg-white" 
+                                            style={{ width: `${Math.round((bulkAnalysisResult.summary.invalid / bulkAnalysisResult.summary.total) * 100)}%` }}
+                                          ></div>
+                                        </div>
+                                        <span className="ml-2 text-sm text-white font-medium">
+                                          {Math.round((bulkAnalysisResult.summary.invalid / bulkAnalysisResult.summary.total) * 100)}%
+                                        </span>
+                                      </div>
                                     </div>
-                                    <span className="ml-2 text-xs text-red-600">
-                                      {Math.round((bulkAnalysisResult.summary.invalid / bulkAnalysisResult.summary.total) * 100)}%
-                                    </span>
                                   </div>
                                 </div>
                               </motion.div>
                               
                               <motion.div
-                                className="rounded-lg overflow-hidden border border-amber-200 shadow-sm"
-                                whileHover={{ y: -3, boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.05)' }}
+                                className="group"
+                                whileHover={{ y: -5, scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
                               >
-                                <div className="p-4 bg-gradient-to-br from-amber-50 to-amber-100">
-                                  <div className="flex items-center justify-between mb-2">
-                                    <h3 className="text-base font-medium text-amber-800">Duplicates</h3>
-                                    <div className="flex items-center justify-center h-7 w-7 rounded-full bg-amber-200/80">
-                                      <Copy className="h-4 w-4 text-amber-700" />
+                                <div className="rounded-xl overflow-hidden border-0 shadow-lg relative h-full">
+                                  <div className="absolute inset-0 bg-gradient-to-br from-amber-500 to-orange-600 opacity-90"></div>
+                                  <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxkZWZzPjxwYXR0ZXJuIGlkPSJwYXR0ZXJuIiB4PSIwIiB5PSIwIiB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHBhdHRlcm5Vbml0cz0idXNlclNwYWNlT25Vc2UiIHBhdHRlcm5UcmFuc2Zvcm09InJvdGF0ZSgzMCkiPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjAzKSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNwYXR0ZXJuKSIvPjwvc3ZnPg==')]"></div>
+                                  <div className="relative p-4 flex flex-col items-start h-full">
+                                    <div className="flex items-center mb-2 justify-between w-full">
+                                      <h3 className="text-base font-medium text-white">Duplicates</h3>
+                                      <div className="flex items-center justify-center h-9 w-9 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 shadow-inner group-hover:scale-110 transition-transform">
+                                        <Copy className="h-5 w-5 text-white" />
+                                      </div>
                                     </div>
-                                  </div>
-                                  <div className="text-2xl font-bold text-amber-700">{bulkAnalysisResult.summary.duplicates.toLocaleString()}</div>
-                                  <div className="flex items-center mt-1">
-                                    <div className="h-1.5 w-16 bg-amber-200 rounded-full overflow-hidden">
-                                      <div 
-                                        className="h-full bg-amber-500" 
-                                        style={{ width: `${Math.round((bulkAnalysisResult.summary.duplicates / bulkAnalysisResult.summary.total) * 100)}%` }}
-                                      ></div>
+                                    <div className="mt-auto pt-2 w-full">
+                                      <div className="text-3xl font-bold text-white mb-1">{bulkAnalysisResult.summary.duplicates.toLocaleString()}</div>
+                                      <div className="flex items-center">
+                                        <div className="h-2 flex-grow bg-white/20 rounded-full overflow-hidden">
+                                          <div 
+                                            className="h-full bg-white" 
+                                            style={{ width: `${Math.round((bulkAnalysisResult.summary.duplicates / bulkAnalysisResult.summary.total) * 100)}%` }}
+                                          ></div>
+                                        </div>
+                                        <span className="ml-2 text-sm text-white font-medium">
+                                          {Math.round((bulkAnalysisResult.summary.duplicates / bulkAnalysisResult.summary.total) * 100)}%
+                                        </span>
+                                      </div>
                                     </div>
-                                    <span className="ml-2 text-xs text-amber-600">
-                                      {Math.round((bulkAnalysisResult.summary.duplicates / bulkAnalysisResult.summary.total) * 100)}%
-                                    </span>
                                   </div>
                                 </div>
                               </motion.div>
                               
                               <motion.div
-                                className="rounded-lg overflow-hidden border border-purple-200 shadow-sm"
-                                whileHover={{ y: -3, boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.05)' }}
+                                className="group"
+                                whileHover={{ y: -5, scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
                               >
-                                <div className="p-4 bg-gradient-to-br from-purple-50 to-purple-100">
-                                  <div className="flex items-center justify-between mb-2">
-                                    <h3 className="text-base font-medium text-purple-800">Disposable</h3>
-                                    <div className="flex items-center justify-center h-7 w-7 rounded-full bg-purple-200/80">
-                                      <Trash2 className="h-4 w-4 text-purple-700" />
+                                <div className="rounded-xl overflow-hidden border-0 shadow-lg relative h-full">
+                                  <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-indigo-600 opacity-90"></div>
+                                  <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxkZWZzPjxwYXR0ZXJuIGlkPSJwYXR0ZXJuIiB4PSIwIiB5PSIwIiB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHBhdHRlcm5Vbml0cz0idXNlclNwYWNlT25Vc2UiIHBhdHRlcm5UcmFuc2Zvcm09InJvdGF0ZSgzMCkiPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjAzKSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNwYXR0ZXJuKSIvPjwvc3ZnPg==')]"></div>
+                                  <div className="relative p-4 flex flex-col items-start h-full">
+                                    <div className="flex items-center mb-2 justify-between w-full">
+                                      <h3 className="text-base font-medium text-white">Disposable</h3>
+                                      <div className="flex items-center justify-center h-9 w-9 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 shadow-inner group-hover:scale-110 transition-transform">
+                                        <Trash2 className="h-5 w-5 text-white" />
+                                      </div>
                                     </div>
-                                  </div>
-                                  <div className="text-2xl font-bold text-purple-700">{bulkAnalysisResult.summary.disposable.toLocaleString()}</div>
-                                  <div className="flex items-center mt-1">
-                                    <div className="h-1.5 w-16 bg-purple-200 rounded-full overflow-hidden">
-                                      <div 
-                                        className="h-full bg-purple-500" 
-                                        style={{ width: `${Math.round((bulkAnalysisResult.summary.disposable / bulkAnalysisResult.summary.total) * 100)}%` }}
-                                      ></div>
+                                    <div className="mt-auto pt-2 w-full">
+                                      <div className="text-3xl font-bold text-white mb-1">{bulkAnalysisResult.summary.disposable.toLocaleString()}</div>
+                                      <div className="flex items-center">
+                                        <div className="h-2 flex-grow bg-white/20 rounded-full overflow-hidden">
+                                          <div 
+                                            className="h-full bg-white" 
+                                            style={{ width: `${Math.round((bulkAnalysisResult.summary.disposable / bulkAnalysisResult.summary.total) * 100)}%` }}
+                                          ></div>
+                                        </div>
+                                        <span className="ml-2 text-sm text-white font-medium">
+                                          {Math.round((bulkAnalysisResult.summary.disposable / bulkAnalysisResult.summary.total) * 100)}%
+                                        </span>
+                                      </div>
                                     </div>
-                                    <span className="ml-2 text-xs text-purple-600">
-                                      {Math.round((bulkAnalysisResult.summary.disposable / bulkAnalysisResult.summary.total) * 100)}%
-                                    </span>
                                   </div>
                                 </div>
                               </motion.div>
