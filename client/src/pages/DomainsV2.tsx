@@ -118,16 +118,16 @@ function StatsCard({
   description: string;
 }) {
   return (
-    <div className="border rounded-lg p-4 bg-white shadow-sm">
+    <div className="border rounded-lg p-5 bg-white shadow-sm hover:shadow-md transition-all duration-200">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-medium text-gray-500">{title}</h3>
-        <div className="p-2 rounded-md bg-gray-50">
+        <div className="p-2.5 rounded-md bg-gray-50 border border-gray-100">
           {icon}
         </div>
       </div>
-      <div className="mt-3">
+      <div className="mt-4">
         <p className="text-2xl font-bold">{value}</p>
-        <p className="text-xs text-gray-500 mt-1">{description}</p>
+        <p className="text-xs text-gray-500 mt-1.5">{description}</p>
       </div>
     </div>
   );
@@ -821,7 +821,12 @@ export default function DomainsV2() {
       </motion.div>
       
       {/* Metrics Section */}
-      <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+      <motion.div 
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.1 }}
+        className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 mb-2"
+      >
         <StatsCard 
           title="Total Domains" 
           value={totalDomains} 
@@ -846,39 +851,43 @@ export default function DomainsV2() {
           icon={<Star className="h-5 w-5 text-orange-500" />}
           description="Used for all campaigns" 
         />
-      </div>
+      </motion.div>
       
       {/* Tabs Navigation */}
       <Tabs value={tab} onValueChange={setTab} className="space-y-6">
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-center mt-8 mb-2">
+          <div className="flex flex-col">
+            <h2 className="text-xl font-semibold mb-1">Domain List</h2>
+            <p className="text-sm text-gray-500">View and manage all your sending domains</p>
+          </div>
           <TabsList className="bg-background border">
             <TabsTrigger 
               value="all" 
-              className="data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-700"
+              className="data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-700 font-medium"
             >
               All Domains
             </TabsTrigger>
             <TabsTrigger 
               value="active" 
-              className="data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-700"
+              className="data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-700 font-medium"
             >
               Active
             </TabsTrigger>
             <TabsTrigger 
               value="pending" 
-              className="data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-700"
+              className="data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-700 font-medium"
             >
               Pending
             </TabsTrigger>
             <TabsTrigger 
               value="inactive" 
-              className="data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-700"
+              className="data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-700 font-medium"
             >
               Inactive
             </TabsTrigger>
             <TabsTrigger 
               value="failed" 
-              className="data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-700"
+              className="data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-700 font-medium"
             >
               Failed
             </TabsTrigger>
