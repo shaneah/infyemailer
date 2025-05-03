@@ -323,6 +323,13 @@ const ClientManagementV2 = () => {
     },
     initialData: []
   });
+  
+  // Helper function to check if email already exists
+  const emailExists = (email: string, excludeClientId?: number) => {
+    return clients.some((client: any) => 
+      client.email === email && client.id !== excludeClientId
+    );
+  };
 
   // Fetch client users
   const fetchClientUsers = async (clientId: number) => {
@@ -334,6 +341,17 @@ const ClientManagementV2 = () => {
   const createClientMutation = useMutation({
     mutationFn: async (client: z.infer<typeof clientFormSchema>) => {
       const response = await apiRequest('POST', '/api/clients', client);
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        // If we get a 400 with email already exists error
+        if (response.status === 400 && errorData.error && errorData.error.includes('email already exists')) {
+          throw new Error('A client with this email already exists. Please use a different email address.');
+        }
+        // For other errors
+        throw new Error(errorData.error || 'Failed to create client');
+      }
+      
       return await response.json();
     },
     onSuccess: () => {
@@ -496,6 +514,26 @@ const ClientManagementV2 = () => {
 
   // Handle client form submission
   const onClientSubmit = (data: z.infer<typeof clientFormSchema>) => {
+    // Check if email already exists
+    if (!selectedClient && emailExists(data.email)) {
+      toast({
+        title: "Error",
+        description: "A client with this email already exists. Please use a different email address.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    // Check if updating client with an email that already exists
+    if (selectedClient && data.email !== selectedClient.email && emailExists(data.email, selectedClient.id)) {
+      toast({
+        title: "Error",
+        description: "Another client is already using this email address. Please use a different email.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     if (selectedClient) {
       // Update existing client
       updateClientMutation.mutate({ id: selectedClient.id, data });
