@@ -211,7 +211,7 @@ const UserCard = ({
             </div>
             <div className="flex items-center text-sm">
               <Calendar className="h-4 w-4 mr-2 text-gray-500" />
-              <span>Joined {formatDate(user.createdAt)}</span>
+              <span>Joined {new Date(user.createdAt).toLocaleDateString()}</span>
             </div>
             <div className="flex items-center text-sm">
               <div className={`h-2 w-2 rounded-full mr-2 ${
@@ -375,6 +375,16 @@ const PermissionCategory = ({
       </AnimatePresence>
     </div>
   );
+};
+
+// Helper functions
+const formatDate = (dateString: string | null) => {
+  if (!dateString) return "Never";
+  return new Date(dateString).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
 };
 
 // User Management Component
