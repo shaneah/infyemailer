@@ -326,9 +326,23 @@ const ClientManagementV2 = () => {
   
   // Helper function to check if email already exists
   const emailExists = (email: string, excludeClientId?: number) => {
-    return clients.some((client: any) => 
-      client.email === email && client.id !== excludeClientId
-    );
+    console.log('Checking if email exists:', email);
+    console.log('Current clients:', clients);
+    
+    const exists = clients.some((client: any) => {
+      // Case insensitive email comparison
+      const emailMatch = client.email && client.email.toLowerCase() === email.toLowerCase();
+      const idMatch = excludeClientId ? client.id !== excludeClientId : true;
+      
+      if (emailMatch && idMatch) {
+        console.log('Email match found:', client);
+      }
+      
+      return emailMatch && idMatch;
+    });
+    
+    console.log('Email exists:', exists);
+    return exists;
   };
 
   // Fetch client users
@@ -1161,7 +1175,9 @@ const ClientManagementV2 = () => {
                   name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Name</FormLabel>
+                      <FormLabel>
+                        Name <span className="text-red-500">*</span>
+                      </FormLabel>
                       <FormControl>
                         <Input placeholder="Client name" {...field} />
                       </FormControl>
@@ -1175,11 +1191,19 @@ const ClientManagementV2 = () => {
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Email</FormLabel>
+                      <FormLabel>
+                        Email <span className="text-red-500">*</span>
+                        <span className="ml-2 text-xs text-muted-foreground font-normal">(Must be unique)</span>
+                      </FormLabel>
                       <FormControl>
                         <Input type="email" placeholder="client@example.com" {...field} />
                       </FormControl>
                       <FormMessage />
+                      {!selectedClient && (
+                        <p className="text-xs text-amber-600 mt-1">
+                          This email address must not exist in the system already.
+                        </p>
+                      )}
                     </FormItem>
                   )}
                 />
