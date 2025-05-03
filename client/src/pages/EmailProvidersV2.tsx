@@ -721,12 +721,12 @@ export default function EmailProvidersV2() {
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="relative rounded-xl p-6 md:p-8 mb-4 bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-lg overflow-hidden"
+        className="relative rounded-xl p-6 md:p-8 mb-4 bg-gradient-to-r from-violet-600 to-indigo-600 shadow-lg overflow-hidden"
       >
         <div className="absolute inset-0 bg-grid-white/10" />
         <div className="relative z-10 flex flex-col md:flex-row gap-4 md:items-center md:justify-between">
           <div className="space-y-2">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight text-white">
               Email Providers
             </h1>
             <p className="text-violet-100 md:text-lg max-w-3xl">
