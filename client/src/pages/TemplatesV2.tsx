@@ -555,10 +555,10 @@ export default function TemplatesV2() {
     <div className="container mx-auto px-4 py-6 space-y-6 max-w-[1600px]">
       {/* Header with Gradient */}
       <div className="relative rounded-xl overflow-hidden">
-        <div className="bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 p-6 md:p-8 text-white">
+        <div className="bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 p-6 md:p-8">
           <div className="relative z-10">
-            <h1 className="text-2xl md:text-3xl font-bold mb-2">Email Templates</h1>
-            <p className="text-indigo-100 max-w-3xl text-sm md:text-base">
+            <h1 className="text-2xl md:text-3xl font-bold mb-2 text-white">Email Templates</h1>
+            <p className="text-white/90 max-w-3xl text-sm md:text-base">
               Create professional email templates that engage your audience and drive results. Use our template builder or generate templates with AI.
             </p>
             
@@ -1028,17 +1028,18 @@ export default function TemplatesV2() {
                 </Badge>
               )}
             </DialogTitle>
-            <DialogDescription>
-              <div className="flex flex-wrap gap-2 mt-2">
-                {selectedTemplate && getCategoryBadge(selectedTemplate.category)}
-                <Badge variant="outline" className="text-xs text-gray-500 border-gray-200">
-                  ID: {selectedTemplate?.id}
-                </Badge>
-                <Badge variant="outline" className="text-xs text-gray-500 border-gray-200">
-                  Created: {selectedTemplate?.createdAt ? new Date(selectedTemplate?.createdAt).toLocaleDateString() : 'Unknown'}
-                </Badge>
-              </div>
+            <DialogDescription className="text-sm text-gray-500">
+              {selectedTemplate?.description}
             </DialogDescription>
+            <div className="flex flex-wrap gap-2 mt-2">
+              {selectedTemplate && getCategoryBadge(selectedTemplate.category)}
+              <Badge variant="outline" className="text-xs text-gray-500 border-gray-200">
+                ID: {selectedTemplate?.id}
+              </Badge>
+              <Badge variant="outline" className="text-xs text-gray-500 border-gray-200">
+                Created: {selectedTemplate?.createdAt ? new Date(selectedTemplate?.createdAt).toLocaleDateString() : 'Unknown'}
+              </Badge>
+            </div>
           </DialogHeader>
           
           <div className="flex flex-col lg:flex-row gap-6 overflow-hidden">
