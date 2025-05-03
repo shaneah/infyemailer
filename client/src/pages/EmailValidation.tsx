@@ -684,13 +684,19 @@ const EmailValidation = () => {
                       <Button 
                         onClick={validateSingleEmail} 
                         disabled={isLoading}
-                        className="w-full bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600 text-white border border-blue-700/30 shadow-md shadow-blue-500/10 py-6 rounded-xl"
+                        className="w-full relative overflow-hidden bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-500 hover:from-blue-700 hover:via-indigo-700 hover:to-cyan-600 text-white border border-blue-700/30 shadow-xl shadow-blue-500/20 py-6 rounded-xl group"
                       >
-                        {isLoading ? 
-                          <RefreshCw className="h-5 w-5 animate-spin mr-2" /> : 
-                          <MailCheck className="h-5 w-5 mr-2" />
-                        }
-                        <span className="font-medium">Validate Email</span>
+                        <div className="absolute top-0 left-0 w-full h-full bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <div className="absolute -inset-1 bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-500 rounded-xl blur opacity-20 group-hover:opacity-30 transition duration-1000 group-hover:duration-200 animate-gradient-x"></div>
+                        <div className="relative flex items-center justify-center">
+                          <div className="absolute -left-10 -top-10 w-20 h-20 rounded-full bg-white/10 blur-xl"></div>
+                          <div className="absolute -right-10 -bottom-10 w-20 h-20 rounded-full bg-white/10 blur-xl"></div>
+                          {isLoading ? 
+                            <RefreshCw className="h-5 w-5 animate-spin mr-2" /> : 
+                            <MailCheck className="h-5 w-5 mr-2" />
+                          }
+                          <span className="font-medium text-lg">Validate Email</span>
+                        </div>
                       </Button>
                     </motion.div>
                     
@@ -702,13 +708,22 @@ const EmailValidation = () => {
                         variant="outline" 
                         onClick={checkEmailHealth} 
                         disabled={isLoading}
-                        className="w-full bg-gradient-to-r from-indigo-50 to-purple-50 border-purple-300 text-purple-700 hover:bg-gradient-to-r hover:from-indigo-100 hover:to-purple-100 shadow-sm shadow-purple-500/5 py-6 rounded-xl"
+                        className="w-full relative overflow-hidden bg-gradient-to-r from-purple-50 to-fuchsia-50 border-2 border-purple-300/50 text-purple-700 hover:border-purple-400/70 shadow-lg py-6 rounded-xl group"
                       >
-                        {isLoading ? 
-                          <RefreshCw className="h-5 w-5 animate-spin mr-2" /> : 
-                          <ShieldCheck className="h-5 w-5 mr-2 text-purple-600" />
-                        }
-                        <span className="font-medium">Deep Health Analysis</span>
+                        <div className="absolute inset-0 bg-gradient-to-r from-purple-600/5 via-fuchsia-500/5 to-pink-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <div className="absolute -inset-1 bg-gradient-to-r from-purple-400/20 via-fuchsia-400/20 to-pink-400/20 rounded-xl blur opacity-0 group-hover:opacity-80 transition duration-300 group-hover:duration-200"></div>
+                        <div className="relative flex items-center justify-center">
+                          <div className="absolute -left-10 -top-10 w-24 h-24 rounded-full bg-purple-200/10 blur-2xl group-hover:bg-purple-300/20 transition-all duration-300"></div>
+                          <div className="absolute -right-10 -bottom-10 w-24 h-24 rounded-full bg-fuchsia-200/10 blur-2xl group-hover:bg-fuchsia-300/20 transition-all duration-300"></div>
+                          {isLoading ? 
+                            <RefreshCw className="h-5 w-5 animate-spin mr-2 text-purple-500" /> : 
+                            <div className="relative">
+                              <div className="absolute -inset-1 rounded-full bg-purple-400/20 blur-sm animate-pulse"></div>
+                              <ShieldCheck className="h-5 w-5 mr-2 text-purple-600 relative" />
+                            </div>
+                          }
+                          <span className="font-medium text-lg bg-clip-text text-transparent bg-gradient-to-r from-purple-700 to-fuchsia-600">Deep Health Analysis</span>
+                        </div>
                       </Button>
                     </motion.div>
                   </div>
@@ -722,43 +737,66 @@ const EmailValidation = () => {
                         exit={{ opacity: 0, height: 0 }}
                         transition={{ duration: 0.3 }}
                       >
-                        <Alert 
-                          variant={singleValidationResult.isValid ? "default" : "destructive"}
-                          className={`
-                            border-l-4 
-                            ${singleValidationResult.isValid 
-                              ? 'bg-gradient-to-r from-green-50 to-green-100 border-green-500 text-green-800' 
-                              : 'bg-gradient-to-r from-red-50 to-red-100 border-red-500 text-red-800'}
-                          `}
-                        >
-                          <div className="flex items-center">
-                            <div className={`
-                              flex items-center justify-center h-10 w-10 rounded-full mr-3
+                        <div className="relative">
+                          {singleValidationResult.isValid ? (
+                            <div className="absolute -inset-1 bg-gradient-to-r from-emerald-500 via-green-500 to-teal-500 rounded-xl opacity-70 blur"></div>
+                          ) : (
+                            <div className="absolute -inset-1 bg-gradient-to-r from-rose-500 via-red-500 to-orange-500 rounded-xl opacity-70 blur"></div>
+                          )}
+                          <Alert 
+                            variant={singleValidationResult.isValid ? "default" : "destructive"}
+                            className={`
+                              relative border-0 rounded-lg shadow-lg
                               ${singleValidationResult.isValid 
-                                ? 'bg-green-100 text-green-600' 
-                                : 'bg-red-100 text-red-600'}
-                            `}>
-                              {singleValidationResult.isValid 
-                                ? <CheckCircle2 className="h-6 w-6" /> 
-                                : <XCircle className="h-6 w-6" />
-                              }
+                                ? 'bg-gradient-to-r from-green-50 to-emerald-100 text-green-800' 
+                                : 'bg-gradient-to-r from-red-50 to-rose-100 text-red-800'}
+                            `}
+                          >
+                            <div className="flex items-center">
+                              <div className={`
+                                relative flex items-center justify-center h-12 w-12 rounded-full mr-4
+                                ${singleValidationResult.isValid 
+                                  ? 'bg-gradient-to-br from-green-500/80 to-emerald-600/80 text-white shadow-lg shadow-green-500/40' 
+                                  : 'bg-gradient-to-br from-red-500/80 to-rose-600/80 text-white shadow-lg shadow-red-500/40'}
+                              `}>
+                                {singleValidationResult.isValid ? (
+                                  <>
+                                    <div className="absolute inset-0 rounded-full animate-ping-slow bg-green-400/40"></div>
+                                    <CheckCircle2 className="h-6 w-6 relative" />
+                                  </>
+                                ) : (
+                                  <>
+                                    <div className="absolute inset-0 rounded-full animate-pulse bg-red-400/40"></div>
+                                    <XCircle className="h-6 w-6 relative" />
+                                  </>
+                                )}
+                              </div>
+                              <div>
+                                <AlertTitle className="font-bold text-lg">
+                                  {singleValidationResult.isValid 
+                                    ? "Email is valid and deliverable" 
+                                    : "Email validation failed"
+                                  }
+                                </AlertTitle>
+                                <AlertDescription className="mt-2 text-sm opacity-90">
+                                  {singleValidationResult.isValid 
+                                    ? (
+                                      <div className="flex items-center">
+                                        <span className="font-medium mr-2">Normalized:</span>
+                                        <code className="px-2 py-1 bg-green-200/50 rounded-md">{singleValidationResult.normalizedEmail}</code>
+                                      </div>
+                                    ) 
+                                    : (
+                                      <div className="bg-red-200/50 px-3 py-2 rounded-md">
+                                        {singleValidationResult.error}
+                                      </div>
+                                    )
+                                  }
+                                </AlertDescription>
+                              </div>
                             </div>
-                            <div>
-                              <AlertTitle className="font-bold text-base">
-                                {singleValidationResult.isValid 
-                                  ? "Email is valid and deliverable" 
-                                  : "Email validation failed"
-                                }
-                              </AlertTitle>
-                              <AlertDescription className="mt-1 text-sm opacity-90">
-                                {singleValidationResult.isValid 
-                                  ? `Normalized: ${singleValidationResult.normalizedEmail}` 
-                                  : singleValidationResult.error
-                                }
-                              </AlertDescription>
-                            </div>
-                          </div>
-                        </Alert>
+                          </Alert>
+                        </div>
                       </motion.div>
                     )}
                     
@@ -771,16 +809,30 @@ const EmailValidation = () => {
                         transition={{ duration: 0.3 }}
                       >
                         <Card className="mt-4 overflow-hidden border border-purple-200 shadow-xl">
-                          <CardHeader className="pb-3 bg-gradient-to-br from-indigo-600 via-purple-600 to-purple-700 border-b border-purple-500/30">
-                            <CardTitle className="text-lg flex items-center text-white">
-                              <div className="mr-3 flex items-center justify-center h-10 w-10 rounded-lg bg-gradient-to-br from-indigo-500/40 to-purple-600/40 backdrop-blur-sm shadow-md shadow-purple-800/20 border border-purple-500/30">
-                                {singleHealthResult.isValid 
-                                  ? <ShieldCheck className="h-6 w-6 text-purple-100" /> 
-                                  : <AlertTriangle className="h-6 w-6 text-amber-300" />
-                                }
+                          <CardHeader className="relative pb-4 overflow-hidden">
+                            <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-fuchsia-700"></div>
+                            <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxkZWZzPjxwYXR0ZXJuIGlkPSJwYXR0ZXJuIiB4PSIwIiB5PSIwIiB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHBhdHRlcm5Vbml0cz0idXNlclNwYWNlT25Vc2UiIHBhdHRlcm5UcmFuc2Zvcm09InJvdGF0ZSgzMCkiPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjAzKSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNwYXR0ZXJuKSIvPjwvc3ZnPg==')]"></div>
+                            <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-purple-500/0 via-purple-500/80 to-purple-500/0"></div>
+                            
+                            <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-fuchsia-500 to-purple-600 opacity-20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3"></div>
+                            <div className="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-br from-indigo-500 to-blue-600 opacity-20 rounded-full blur-3xl translate-y-1/2 -translate-x-1/3"></div>
+                            
+                            <CardTitle className="relative z-10 flex items-center text-white">
+                              <div className="relative mr-4 group animate-pulse">
+                                <div className="absolute -inset-1 rounded-lg bg-white/10 blur-sm group-hover:bg-white/20 transition-all duration-300"></div>
+                                <div className="flex items-center justify-center relative h-12 w-12 rounded-lg bg-gradient-to-br from-indigo-500/50 to-purple-600/50 backdrop-blur-sm shadow-lg shadow-purple-800/30 border border-purple-500/40 group-hover:from-indigo-500/60 group-hover:to-purple-600/60 transition-all duration-300">
+                                  {singleHealthResult.isValid 
+                                    ? <ShieldCheck className="h-6 w-6 text-white" /> 
+                                    : <AlertTriangle className="h-6 w-6 text-amber-300" />
+                                  }
+                                </div>
                               </div>
                               <div className="flex flex-col">
-                                <span className="font-semibold text-lg">Advanced Email Health Analysis</span>
+                                <span className="font-bold text-xl tracking-tight">
+                                  <span className="bg-clip-text text-transparent bg-gradient-to-r from-white to-purple-100">
+                                    Advanced Email Health Analysis
+                                  </span>
+                                </span>
                                 <span className="text-purple-100 text-sm mt-1 font-normal">Comprehensive diagnostic results for deliverability optimization</span>
                               </div>
                             </CardTitle>
