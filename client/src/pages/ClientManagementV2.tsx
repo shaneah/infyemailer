@@ -312,6 +312,13 @@ const ClientManagementV2 = () => {
     refetch: refetchClients
   } = useQuery({
     queryKey: ['/api/clients'],
+    queryFn: async () => {
+      const response = await fetch('/api/clients');
+      if (!response.ok) {
+        throw new Error('Failed to fetch clients');
+      }
+      return await response.json();
+    },
     initialData: []
   });
 
