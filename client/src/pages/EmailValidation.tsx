@@ -1032,20 +1032,28 @@ const EmailValidation = () => {
                       </TooltipProvider>
                     </div>
                     <div className="relative">
-                      <Textarea
-                        id="bulk-emails"
-                        placeholder="Enter emails separated by line breaks, commas, or semicolons:
+                      <div className="absolute -inset-1 bg-gradient-to-r from-indigo-600 via-purple-600 to-fuchsia-600 rounded-xl opacity-20 blur group-hover:opacity-30 transition duration-1000 group-hover:duration-200"></div>
+                      <div className="relative">
+                        <Textarea
+                          id="bulk-emails"
+                          placeholder="Enter emails separated by line breaks, commas, or semicolons:
 email1@example.com
 email2@example.com
 email3@domain.com"
-                        className="min-h-[220px] border-indigo-300 focus:border-indigo-500 focus:ring-indigo-500/20 shadow-sm rounded-lg pl-4 pr-4 py-3"
-                        value={bulkEmails}
-                        onChange={(e) => setBulkEmails(e.target.value)}
-                      />
+                          className="min-h-[220px] border-transparent focus:border-transparent bg-white/95 backdrop-blur-md focus:ring-2 focus:ring-purple-500/50 shadow-lg rounded-xl p-4 text-base"
+                          value={bulkEmails}
+                          onChange={(e) => setBulkEmails(e.target.value)}
+                        />
+                        <div className="absolute top-3 right-3">
+                          <div className="flex items-center justify-center h-8 w-8 rounded-full bg-gradient-to-br from-purple-500/40 to-fuchsia-500/40 shadow-md transition-all duration-300 hover:from-purple-500/60 hover:to-fuchsia-500/60">
+                            <MousePointerSquare className="h-4 w-4 text-white" />
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                   
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-6">
                     <motion.div
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
@@ -1053,13 +1061,16 @@ email3@domain.com"
                       <Button 
                         onClick={validateBulkEmails} 
                         disabled={isLoading} 
-                        className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white border border-indigo-700/30 shadow-md h-11"
+                        className="w-full relative overflow-hidden bg-gradient-to-r from-indigo-600 via-purple-600 to-fuchsia-600 hover:from-indigo-700 hover:via-purple-700 hover:to-fuchsia-700 text-white border border-indigo-700/30 shadow-xl py-6 rounded-xl group"
                       >
-                        {isLoading ? 
-                          <RefreshCw className="h-4 w-4 animate-spin mr-2" /> : 
-                          <MailCheck className="h-4 w-4 mr-2" />
-                        }
-                        Analyze & Clean Email List
+                        <div className="absolute -inset-1 bg-gradient-to-r from-indigo-400 via-purple-500 to-fuchsia-500 rounded-xl blur opacity-20 group-hover:opacity-30 transition duration-1000 group-hover:duration-200 animate-gradient-x"></div>
+                        <div className="relative flex items-center justify-center">
+                          {isLoading ? 
+                            <RefreshCw className="h-5 w-5 animate-spin mr-2" /> : 
+                            <MailCheck className="h-5 w-5 mr-2" />
+                          }
+                          <span className="font-medium text-lg">Analyze & Clean Email List</span>
+                        </div>
                       </Button>
                     </motion.div>
                     
@@ -1070,10 +1081,17 @@ email3@domain.com"
                       <Button 
                         variant="outline" 
                         onClick={handleImportEmails} 
-                        className="w-full border-indigo-300 text-indigo-700 hover:bg-indigo-50 h-11 shadow-sm"
+                        className="w-full relative overflow-hidden bg-gradient-to-r from-indigo-50 to-purple-50 border-2 border-indigo-300/50 text-indigo-700 hover:border-indigo-400/70 shadow-lg py-6 rounded-xl group"
                       >
-                        <FileUp className="h-4 w-4 mr-2 text-indigo-600" />
-                        Import from File
+                        <div className="absolute inset-0 bg-gradient-to-r from-indigo-600/5 via-purple-500/5 to-fuchsia-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <div className="absolute -inset-1 bg-gradient-to-r from-indigo-400/20 via-purple-400/20 to-fuchsia-400/20 rounded-xl blur opacity-0 group-hover:opacity-80 transition duration-300 group-hover:duration-200"></div>
+                        <div className="relative flex items-center justify-center">
+                          <div className="absolute -left-10 -top-10 w-24 h-24 rounded-full bg-indigo-200/10 blur-2xl group-hover:bg-indigo-300/20 transition-all duration-300"></div>
+                          <div className="absolute -right-10 -bottom-10 w-24 h-24 rounded-full bg-purple-200/10 blur-2xl group-hover:bg-purple-300/20 transition-all duration-300"></div>
+                          
+                          <FileUp className="h-5 w-5 mr-2 text-indigo-600 relative" />
+                          <span className="font-medium text-lg bg-clip-text text-transparent bg-gradient-to-r from-indigo-700 to-purple-600">Import from File</span>
+                        </div>
                       </Button>
                     </motion.div>
                     <input
@@ -1127,55 +1145,74 @@ email3@domain.com"
                         exit={{ opacity: 0, y: -20 }}
                         transition={{ duration: 0.4 }}
                       >
-                        <Card className="overflow-hidden border border-indigo-200 shadow-lg bg-white">
-                          <CardHeader className="p-5 bg-gradient-to-br from-indigo-50 to-purple-50 border-b border-indigo-100">
-                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                              <div className="flex items-center">
-                                <div className="mr-3 flex items-center justify-center h-10 w-10 rounded-lg bg-indigo-100">
-                                  <FileCheck className="h-6 w-6 text-indigo-600" />
+                        <Card className="overflow-hidden border-0 shadow-2xl">
+                          <div className="relative">
+                            <div className="absolute -top-20 -right-20 w-40 h-40 bg-gradient-to-br from-purple-500/20 to-fuchsia-600/20 rounded-full blur-3xl"></div>
+                            <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-gradient-to-br from-indigo-500/20 to-blue-600/20 rounded-full blur-3xl"></div>
+                            
+                            <CardHeader className="relative p-6 border-b border-indigo-100/80 bg-gradient-to-br from-indigo-600 via-purple-600 to-fuchsia-800">
+                              <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxkZWZzPjxwYXR0ZXJuIGlkPSJwYXR0ZXJuIiB4PSIwIiB5PSIwIiB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHBhdHRlcm5Vbml0cz0idXNlclNwYWNlT25Vc2UiIHBhdHRlcm5UcmFuc2Zvcm09InJvdGF0ZSgzMCkiPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjAzKSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNwYXR0ZXJuKSIvPjwvc3ZnPg==')]"></div>
+                              <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-indigo-400/0 via-indigo-400/70 to-indigo-400/0"></div>
+                                                           
+                              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5 relative z-10">
+                                <div className="flex items-center">
+                                  <div className="relative mr-4 group animate-pulse">
+                                    <div className="absolute -inset-1 rounded-lg bg-white/10 blur-sm"></div>
+                                    <div className="flex items-center justify-center h-12 w-12 rounded-lg bg-gradient-to-br from-white/20 to-white/10 backdrop-blur-sm shadow-lg shadow-purple-800/30 border border-white/20">
+                                      <FileCheck className="h-6 w-6 text-white" />
+                                    </div>
+                                  </div>
+                                  <div>
+                                    <CardTitle className="text-xl font-semibold text-white">
+                                      <span className="bg-clip-text text-transparent bg-gradient-to-r from-white to-indigo-100">
+                                        Smart Email List Analysis
+                                      </span>
+                                    </CardTitle>
+                                    <CardDescription className="text-indigo-100 font-medium">
+                                      Successfully processed {bulkAnalysisResult.summary.total.toLocaleString()} emails
+                                    </CardDescription>
+                                  </div>
                                 </div>
-                                <div>
-                                  <CardTitle className="text-lg text-indigo-900">Email List Analysis</CardTitle>
-                                  <CardDescription className="text-indigo-700">
-                                    Processed {bulkAnalysisResult.summary.total.toLocaleString()} emails
-                                  </CardDescription>
+                                
+                                <div className="flex flex-wrap gap-2 sm:gap-3">
+                                  <Select value={exportFormat} onValueChange={value => setExportFormat(value as any)}>
+                                    <SelectTrigger className="border-indigo-300/30 text-white bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-colors shadow-md">
+                                      <SelectValue placeholder="Format" />
+                                    </SelectTrigger>
+                                    <SelectContent className="bg-white/95 backdrop-blur-md border-indigo-200">
+                                      <SelectItem value="txt">Text (.txt)</SelectItem>
+                                      <SelectItem value="csv">CSV (.csv)</SelectItem>
+                                      <SelectItem value="json">JSON (.json)</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                  
+                                  <Button 
+                                    variant="outline" 
+                                    onClick={downloadValidEmails}
+                                    className="border-white/30 text-white hover:bg-white/10 bg-white/5 backdrop-blur-sm shadow-md"
+                                  >
+                                    <div className="relative">
+                                      <div className="absolute -inset-1 rounded-full bg-white/10 blur-sm animate-pulse"></div>
+                                      <FileDown className="h-4 w-4 mr-2 relative" />
+                                    </div>
+                                    Download Valid
+                                  </Button>
+                                  
+                                  <Button 
+                                    variant="outline" 
+                                    onClick={downloadReport}
+                                    className="border-white/30 text-white hover:bg-white/10 bg-white/5 backdrop-blur-sm shadow-md"
+                                  >
+                                    <div className="relative">
+                                      <div className="absolute -inset-1 rounded-full bg-white/10 blur-sm animate-pulse"></div>
+                                      <FileTextIcon className="h-4 w-4 mr-2 relative" />
+                                    </div>
+                                    Full Report
+                                  </Button>
                                 </div>
                               </div>
-                              
-                              <div className="flex flex-wrap gap-2 sm:gap-3">
-                                <Select value={exportFormat} onValueChange={value => setExportFormat(value as any)}>
-                                  <SelectTrigger className="w-[120px] border-indigo-300 text-indigo-700 bg-white">
-                                    <SelectValue placeholder="Format" />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    <SelectItem value="txt">Text (.txt)</SelectItem>
-                                    <SelectItem value="csv">CSV (.csv)</SelectItem>
-                                    <SelectItem value="json">JSON (.json)</SelectItem>
-                                  </SelectContent>
-                                </Select>
-                                
-                                <Button 
-                                  variant="outline" 
-                                  size="sm"
-                                  onClick={downloadValidEmails}
-                                  className="border-indigo-300 text-indigo-700 hover:bg-indigo-50 shadow-sm"
-                                >
-                                  <FileDown className="h-4 w-4 mr-2 text-indigo-600" />
-                                  Download Valid
-                                </Button>
-                                
-                                <Button 
-                                  variant="outline" 
-                                  size="sm"
-                                  onClick={downloadReport}
-                                  className="border-indigo-300 text-indigo-700 hover:bg-indigo-50 shadow-sm"
-                                >
-                                  <FileTextIcon className="h-4 w-4 mr-2 text-indigo-600" />
-                                  Full Report
-                                </Button>
-                              </div>
-                            </div>
-                          </CardHeader>
+                            </CardHeader>
+                          </div>
                           
                           <CardContent className="p-5">
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-5 mb-6">
