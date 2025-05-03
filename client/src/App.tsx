@@ -13,7 +13,7 @@ import { ProtectedRoute } from "@/lib/protected-route";
 import NotFound from "@/pages/not-found";
 import { AIAssistantProvider } from "@/contexts/AIAssistantContext";
 import Campaigns from "@/pages/CampaignsV2";
-import Templates from "@/pages/Templates";
+import Templates from "@/pages/TemplatesV2";
 import Contacts from "@/pages/Contacts";
 import ContactsV2 from "@/pages/ContactsV2";
 import ContactsV3 from "@/pages/ContactsV3";
