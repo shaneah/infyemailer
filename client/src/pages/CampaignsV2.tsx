@@ -272,8 +272,8 @@ export default function CampaignsV2() {
         </div>
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold mb-2">Email Campaigns</h1>
-            <p className="text-blue-100 max-w-2xl">
+            <h1 className="text-2xl sm:text-3xl font-bold mb-2 text-white">Email Campaigns</h1>
+            <p className="text-white/90 max-w-2xl">
               Create, manage, and track the performance of your email marketing campaigns all in one place.
               Leverage analytics to optimize your marketing strategy and achieve better results.
             </p>
