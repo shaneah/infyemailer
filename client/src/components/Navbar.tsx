@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { DoorOpen, Bell, HelpCircle, Settings, LogOut, Mail, Users, BarChart2, FileText, Plus, Search, Menu, PanelLeftClose, PanelLeftOpen, UserCircle } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import ThemeSwitcher from '@/components/ThemeSwitcher';
+import MoodSelector from '@/components/MoodSelector';
 
 interface NavbarProps {
   sidebarOpen: boolean;
@@ -202,7 +203,10 @@ const Navbar = ({
             </div>
             
             {/* Theme Switcher */}
-            <ThemeSwitcher />
+            <div className="flex items-center space-x-2">
+              <MoodSelector />
+              <ThemeSwitcher />
+            </div>
 
             {/* Notifications */}
             <div className="relative" ref={notificationsRef}>

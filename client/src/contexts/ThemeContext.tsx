@@ -171,6 +171,58 @@ const focusedColors: ThemeColors = {
   gradient: 'linear-gradient(to right, #4f46e5, #818cf8)'
 };
 
+// Additional creative mood-based themes
+const energeticColors: ThemeColors = {
+  primary: '#ef4444',
+  secondary: '#dc2626',
+  accent: '#fca5a5',
+  background: '#fef2f2',
+  cardBg: '#ffffff',
+  border: '#fee2e2',
+  textPrimary: '#991b1b',
+  textSecondary: '#ef4444',
+  textMuted: '#f87171',
+  success: '#059669',
+  warning: '#d97706',
+  error: '#dc2626',
+  info: '#2563eb',
+  gradient: 'linear-gradient(to right, #ef4444, #f87171)'
+};
+
+const relaxedColors: ThemeColors = {
+  primary: '#10b981',
+  secondary: '#059669',
+  accent: '#6ee7b7',
+  background: '#ecfdf5',
+  cardBg: '#ffffff',
+  border: '#d1fae5',
+  textPrimary: '#065f46',
+  textSecondary: '#10b981',
+  textMuted: '#34d399',
+  success: '#059669',
+  warning: '#d97706',
+  error: '#dc2626',
+  info: '#2563eb',
+  gradient: 'linear-gradient(to right, #10b981, #34d399)'
+};
+
+const creativeColors: ThemeColors = {
+  primary: '#c026d3',
+  secondary: '#a21caf',
+  accent: '#e879f9',
+  background: '#fdf4ff',
+  cardBg: '#ffffff',
+  border: '#f5d0fe',
+  textPrimary: '#701a75',
+  textSecondary: '#c026d3',
+  textMuted: '#d946ef',
+  success: '#059669',
+  warning: '#d97706',
+  error: '#dc2626',
+  info: '#2563eb',
+  gradient: 'linear-gradient(to right, #c026d3, #e879f9)'
+};
+
 // Create the theme context
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
@@ -181,45 +233,86 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     return (savedTheme as ThemeMode) || 'light';
   });
   
+  const [currentMood, setCurrentMood] = useState<MoodType>(() => {
+    const savedMood = localStorage.getItem('currentMood');
+    return (savedMood as MoodType) || 'happy';
+  });
+  
+  const [currentTimeOfDay, setCurrentTimeOfDay] = useState<TimeOfDay>('morning');
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [themeColors, setThemeColors] = useState<ThemeColors>(defaultColors);
   
-  // Save theme mode to localStorage when it changes
+  // Save theme preferences to localStorage when they change
   useEffect(() => {
     localStorage.setItem('themeMode', themeMode);
-  }, [themeMode]);
+    localStorage.setItem('currentMood', currentMood);
+  }, [themeMode, currentMood]);
   
-  // Update theme colors based on mode and time
+  // Update current time of day based on hour
   useEffect(() => {
-    const updateThemeByTime = () => {
+    const updateTimeOfDay = () => {
       const hour = new Date().getHours();
       
+      if (hour >= 5 && hour < 12) {
+        setCurrentTimeOfDay('morning');
+      } else if (hour >= 12 && hour < 18) {
+        setCurrentTimeOfDay('afternoon');
+      } else if (hour >= 18 && hour < 22) {
+        setCurrentTimeOfDay('evening');
+      } else {
+        setCurrentTimeOfDay('night');
+      }
+    };
+    
+    updateTimeOfDay();
+    
+    // Update time of day every hour
+    const interval = setInterval(updateTimeOfDay, 60 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, []);
+  
+  // Update theme colors based on mode, time, and mood
+  useEffect(() => {
+    const updateThemeColors = () => {
       if (themeMode === 'auto') {
-        if (hour >= 5 && hour < 12) {
-          // Morning (5am - 12pm)
+        // Time-based colors
+        if (currentTimeOfDay === 'morning') {
           setThemeColors(morningColors);
           setIsDarkMode(false);
-        } else if (hour >= 12 && hour < 18) {
-          // Afternoon (12pm - 6pm)
+        } else if (currentTimeOfDay === 'afternoon') {
           setThemeColors(afternoonColors);
           setIsDarkMode(false);
-        } else {
-          // Evening/Night (6pm - 5am)
+        } else if (currentTimeOfDay === 'evening') {
           setThemeColors(eveningColors);
-          setIsDarkMode(hour >= 20 || hour < 5);
+          setIsDarkMode(false);
+        } else {
+          // Night time
+          setThemeColors({...eveningColors, background: '#1a1a2e', cardBg: '#16213e', textPrimary: '#f1f1f1', gradient: 'linear-gradient(to right, #c026d3, #9333ea)'});
+          setIsDarkMode(true);
         }
       } else if (themeMode === 'mood') {
-        // Mood-based colors - this could be connected to AI in future to detect user's mood
-        // For now, just cycle through different moods based on day of week or hour
-        const day = new Date().getDay();
-        const mood = hour % 3; // Simple cycle through 3 moods
-        
-        if (mood === 0) {
-          setThemeColors(happyColors);
-        } else if (mood === 1) {
-          setThemeColors(calmColors);
-        } else {
-          setThemeColors(focusedColors);
+        // Mood-based colors
+        switch(currentMood) {
+          case 'happy':
+            setThemeColors(happyColors);
+            break;
+          case 'calm':
+            setThemeColors(calmColors);
+            break;
+          case 'focused':
+            setThemeColors(focusedColors);
+            break;
+          case 'energetic':
+            setThemeColors(energeticColors);
+            break;
+          case 'relaxed':
+            setThemeColors(relaxedColors);
+            break;
+          case 'creative':
+            setThemeColors(creativeColors);
+            break;
+          default:
+            setThemeColors(happyColors);
         }
         setIsDarkMode(false);
       } else if (themeMode === 'dark') {
@@ -232,17 +325,8 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       }
     };
     
-    updateThemeByTime();
-    
-    // Update theme every hour if using auto mode
-    const interval = setInterval(() => {
-      if (themeMode === 'auto') {
-        updateThemeByTime();
-      }
-    }, 60 * 60 * 1000); // Every hour
-    
-    return () => clearInterval(interval);
-  }, [themeMode]);
+    updateThemeColors();
+  }, [themeMode, currentMood, currentTimeOfDay]);
   
   // Apply theme to document body
   useEffect(() => {
@@ -256,7 +340,15 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   }, [themeColors, isDarkMode]);
   
   return (
-    <ThemeContext.Provider value={{ themeMode, setThemeMode, themeColors, isDarkMode }}>
+    <ThemeContext.Provider value={{ 
+      themeMode, 
+      setThemeMode, 
+      themeColors, 
+      isDarkMode, 
+      currentMood, 
+      setCurrentMood, 
+      currentTimeOfDay 
+    }}>
       {children}
     </ThemeContext.Provider>
   );
