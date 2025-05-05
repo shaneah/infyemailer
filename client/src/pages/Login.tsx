@@ -74,7 +74,21 @@ export default function Login() {
   // Admin login mutation
   const adminLoginMutation = useMutation({
     mutationFn: async (data: AdminLoginFormValues) => {
-      const response = await apiRequest('POST', '/api/login', data);
+      // Make sure we're using the proper credentials option
+      const response = await fetch('/api/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+        credentials: 'include',  // Important: This ensures cookies are sent with the request
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Authentication failed');
+      }
+      
       return response.json();
     },
     onSuccess: (data) => {
@@ -82,11 +96,20 @@ export default function Login() {
         title: "Login successful",
         description: "Welcome back to the admin dashboard!"
       });
-      // Store user data in localStorage or sessionStorage based on remember me
+      // Store minimal user info for UI purposes only (not for authentication)
+      // Authentication will now use HTTP-only cookies
       if (adminForm.getValues().rememberMe) {
-        localStorage.setItem('user', JSON.stringify(data));
+        localStorage.setItem('userInfo', JSON.stringify({
+          username: data.username,
+          role: data.role,
+          id: data.id
+        }));
       } else {
-        sessionStorage.setItem('user', JSON.stringify(data));
+        sessionStorage.setItem('userInfo', JSON.stringify({
+          username: data.username,
+          role: data.role,
+          id: data.id
+        }));
       }
       setLocation('/');
     },
@@ -102,31 +125,46 @@ export default function Login() {
     }
   });
 
-  // Client login (direct demo implementation mirroring SimpleClientLogin functionality)
+  // Client login (making real API call to authenticate client users)
   const clientLoginMutation = useMutation({
     mutationFn: async (data: ClientLoginFormValues) => {
-      // For demo, we'll validate directly here instead of making a server call
-      if (data.username !== 'client1') {
-        throw new Error('Invalid username. Please use "client1" for demo purposes.');
-      }
-      
-      // Create mock user data for demo purposes
-      return {
-        id: 5,
-        username: data.username,
-        clientId: 1,
-        clientName: 'Demo Client',
-        clientCompany: 'ACME Corp',
-        permissions: {
-          emailValidation: true,
-          campaigns: true,
-          contacts: true,
-          templates: true,
-          reporting: true,
-          domains: true,
-          abTesting: true
+      // Demo mode client login
+      if (data.username === 'client1' && data.password === 'clientdemo') {
+        // Make API call to login endpoint with credentials
+        const response = await fetch('/api/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            usernameOrEmail: data.username,
+            password: data.password
+          }),
+          credentials: 'include',  // Important: This ensures cookies are sent with the request
+        });
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Authentication failed');
         }
-      };
+        
+        const user = await response.json();
+        return {
+          ...user,
+          clientUser: true,
+          permissions: user.metadata?.permissions || {
+            emailValidation: true,
+            campaigns: true,
+            contacts: true,
+            templates: true,
+            reporting: true,
+            domains: true,
+            abTesting: true
+          }
+        };
+      } else {
+        throw new Error('Invalid username or password. For demo, use: client1 / clientdemo');
+      }
     },
     onSuccess: (data) => {
       toast({
@@ -134,11 +172,22 @@ export default function Login() {
         description: "Welcome to InfyMailer client portal!"
       });
       
-      // Store user data in localStorage or sessionStorage based on remember me
+      // Store minimal user info for UI purposes
+      // Authentication will now use HTTP-only cookies
       if (clientForm.getValues().rememberMe) {
-        localStorage.setItem('clientUser', JSON.stringify(data));
+        localStorage.setItem('clientUserInfo', JSON.stringify({
+          id: data.id,
+          username: data.username,
+          clientUser: true,
+          role: data.role
+        }));
       } else {
-        sessionStorage.setItem('clientUser', JSON.stringify(data));
+        sessionStorage.setItem('clientUserInfo', JSON.stringify({
+          id: data.id,
+          username: data.username,
+          clientUser: true,
+          role: data.role
+        }));
       }
       
       // Short delay to show loading state
