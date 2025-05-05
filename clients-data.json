@@ -16,9 +16,8 @@
       "contactPreference": "email"
     },
     "id": 1,
-    "createdAt": "2025-05-05T08:17:02.449Z",
-    "lastCampaignAt": null,
-    "lastCreditUpdateAt": null
+    "createdAt": "2025-05-05T09:02:33.441Z",
+    "lastCampaignAt": null
   },
   {
     "name": "Jane Smith",
@@ -37,9 +36,8 @@
       "contactPreference": "phone"
     },
     "id": 2,
-    "createdAt": "2025-05-05T08:17:02.449Z",
-    "lastCampaignAt": null,
-    "lastCreditUpdateAt": null
+    "createdAt": "2025-05-05T09:02:33.441Z",
+    "lastCampaignAt": null
   },
   {
     "name": "Robert Johnson",
@@ -58,19 +56,7 @@
       "contactPreference": "email"
     },
     "id": 3,
-    "createdAt": "2025-05-05T08:17:02.450Z",
-    "lastCampaignAt": null,
-    "lastCreditUpdateAt": null
-  },
-  {
-    "name": "Muhammad Adeel Arshad",
-    "email": "whitehataadi@gmail.com",
-    "company": "Ingenious Digital Marketing",
-    "status": "active",
-    "industry": "",
-    "metadata": {},
-    "id": 4,
-    "createdAt": "2025-05-05T08:57:22.471Z",
+    "createdAt": "2025-05-05T09:02:33.441Z",
     "lastCampaignAt": null
   }
 ]
