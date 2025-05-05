@@ -665,6 +665,13 @@ const ClientManagementV2 = () => {
   // Handle edit user
   const handleEditUser = (user: any) => {
     setSelectedUser(user);
+    
+    // Ensure metadata has proper structure with permissions
+    const metadata = {
+      ...user.metadata || {},
+      permissions: user.metadata?.permissions || ['read', 'write']
+    };
+    
     clientUserForm.reset({
       username: user.username || '',
       email: user.email || '',
@@ -674,8 +681,11 @@ const ClientManagementV2 = () => {
       clientId: user.clientId || selectedClientForUsers?.id || 0,
       role: user.role || 'client_user',
       status: user.status || 'active',
-      metadata: user.metadata || { permissions: ['read', 'write'] }
+      metadata: metadata
     });
+    
+    // Make sure permissions view is visible when editing users
+    setIsPermissionsViewVisible(true);
     setIsUserDialogOpen(true);
   };
 
@@ -800,8 +810,10 @@ const ClientManagementV2 = () => {
                     setSelectedUser(null);
                     clientUserForm.reset({
                       ...clientUserForm.getValues(),
-                      clientId: selectedClientForUsers.id
+                      clientId: selectedClientForUsers.id,
+                      metadata: { permissions: ['read', 'write', 'edit', 'delete', 'invite'] }
                     });
+                    setIsPermissionsViewVisible(true);
                     setIsUserDialogOpen(true);
                   }}
                 >
