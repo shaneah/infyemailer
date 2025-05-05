@@ -911,12 +911,15 @@ const ContactsV7 = () => {
             {/* Contact List Selection */}
             <div className="space-y-2">
               <Label htmlFor="contact-list">Add to Contact List (Optional)</Label>
-              <Select value={selectedListId?.toString() || ""} onValueChange={(value) => setSelectedListId(value ? parseInt(value, 10) : null)}>
+              <Select 
+                value={selectedListId?.toString() || "none"} 
+                onValueChange={(value) => setSelectedListId(value !== "none" ? parseInt(value, 10) : null)}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select a list (optional)" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">None</SelectItem>
+                  <SelectItem value="none">None</SelectItem>
                   {contactLists.map((list) => (
                     <SelectItem key={list.id} value={list.id.toString()}>
                       {list.name}
@@ -941,6 +944,7 @@ const ContactsV7 = () => {
             <Button variant="outline" onClick={() => {
               setImportDialogOpen(false);
               setSelectedFile(null);
+              setSelectedListId(null);
               setUploadProgress(0);
             }}>
               Cancel
