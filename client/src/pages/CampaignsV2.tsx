@@ -316,6 +316,7 @@ export default function CampaignsV2() {
               className="bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-sm w-full sm:w-auto"
               variant="outline"
               size="sm"
+              onClick={() => window.location.href = '/templates'}
             >
               <BookOpen className="h-4 w-4 mr-2" />
               View Templates
@@ -417,6 +418,10 @@ export default function CampaignsV2() {
               variant="outline" 
               size="sm" 
               className="text-xs border border-purple-200 text-purple-700 hover:bg-purple-50 hover:text-purple-800 transition-colors"
+              onClick={() => {
+                // Open filter modal or drawer here when implemented
+                alert('Filter functionality will be available soon!');
+              }}
             >
               <Filter className="h-3.5 w-3.5 mr-1" />
               Filter
@@ -425,6 +430,10 @@ export default function CampaignsV2() {
               variant="outline" 
               size="sm" 
               className="text-xs border border-indigo-200 text-indigo-700 hover:bg-indigo-50 hover:text-indigo-800 transition-colors"
+              onClick={() => {
+                // Export functionality 
+                alert('Export functionality will be available soon!');
+              }}
             >
               <Download className="h-3.5 w-3.5 mr-1" />
               Export
@@ -490,6 +499,7 @@ export default function CampaignsV2() {
               <Button 
                 size="sm" 
                 className="mt-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white border-0 hover:from-purple-700 hover:to-pink-700 shadow-sm"
+                onClick={() => setShowNewCampaignModal(true)}
               >
                 <Plus className="h-4 w-4 mr-1" />
                 New Campaign
