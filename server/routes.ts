@@ -366,14 +366,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get all campaigns
   app.get('/api/campaigns', async (req: Request, res: Response) => {
     try {
-      const campaigns = await storage.getCampaigns();
-      console.log(`Retrieved ${campaigns.length} campaigns from storage`);
+      // Use the dbHelper for safer database operations with fallback
+      const campaigns = await withDbFallback(
+        storage.getCampaigns(),
+        [],
+        'Failed to fetch campaigns'
+      );
       
-      // If database is active but there are no campaigns, return empty array
-      // This ensures we don't show sample data when the database is cleared
-      if (isDatabaseAvailable && campaigns.length === 0) {
-        return res.json([]);
-      }
+      console.log(`Retrieved ${campaigns.length} campaigns from storage`);
       
       // Create an array to store the formatted campaigns
       const formattedCampaigns = [];
