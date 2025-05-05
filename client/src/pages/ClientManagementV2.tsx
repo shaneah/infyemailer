@@ -2332,7 +2332,7 @@ const ClientManagementV2 = () => {
           }} className="space-y-6">
             <div className="space-y-4">
               <div className="space-y-2">
-                <FormLabel>Operation</FormLabel>
+                <Label>Operation</Label>
                 <RadioGroup
                   value={creditForm.watch('operation')}
                   onValueChange={(value) => creditForm.setValue('operation', value)}
@@ -2340,21 +2340,21 @@ const ClientManagementV2 = () => {
                 >
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="add" id="add" />
-                    <FormLabel htmlFor="add" className="font-normal cursor-pointer">
+                    <Label htmlFor="add" className="font-normal cursor-pointer">
                       Add Credits
-                    </FormLabel>
+                    </Label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="deduct" id="deduct" />
-                    <FormLabel htmlFor="deduct" className="font-normal cursor-pointer">
+                    <Label htmlFor="deduct" className="font-normal cursor-pointer">
                       Deduct Credits
-                    </FormLabel>
+                    </Label>
                   </div>
                 </RadioGroup>
               </div>
               
               <div className="space-y-2">
-                <FormLabel>Amount</FormLabel>
+                <Label>Amount</Label>
                 <Input
                   type="number"
                   min="1"
@@ -2365,7 +2365,7 @@ const ClientManagementV2 = () => {
               </div>
               
               <div className="space-y-2">
-                <FormLabel>Reason (Optional)</FormLabel>
+                <Label>Reason (Optional)</Label>
                 <Textarea
                   placeholder="Reason for credit adjustment"
                   value={creditForm.watch('reason')}
