@@ -1257,6 +1257,8 @@ const ClientManagementV2 = () => {
                       setIsDeleteDialogOpen(true);
                     }}
                     onManageUsers={handleManageUsers}
+                    onManageProviders={handleManageProviders}
+                    onManageCredits={handleManageCredits}
                   />
                 ))}
               </div>
