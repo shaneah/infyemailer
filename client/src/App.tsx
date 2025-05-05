@@ -22,6 +22,7 @@ import ContactsV3 from "@/pages/ContactsV3";
 import ContactsV4 from "@/pages/ContactsV4";
 import ContactsV6 from "@/pages/ContactsV6";
 import ContactsV7 from "@/pages/ContactsV7";
+import ContactsV8 from "@/pages/ContactsV8";
 import ContactListsV2 from "@/pages/ContactListsV2";
 import ListDetails from "@/pages/ListDetails";
 import ABTesting from "@/pages/ABTesting";
@@ -241,7 +242,7 @@ function App() {
                       <ProtectedRoute path="dashboard" component={DashboardV2} />
                       <ProtectedRoute path="campaigns" component={CampaignsV2} />
                       <ProtectedRoute path="templates" component={TemplatesV2} />
-                      <ProtectedRoute path="contacts" component={ContactsV7} />
+                      <ProtectedRoute path="contacts" component={ContactsV8} />
                       <ProtectedRoute path="contact-lists" component={ContactListsV2} />
                       <ProtectedRoute path="lists/:id" component={ListDetails} />
                       <ProtectedRoute path="ab-testing" component={ABTesting} />
