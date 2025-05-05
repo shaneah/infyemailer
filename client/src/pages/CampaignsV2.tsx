@@ -122,15 +122,30 @@ const CampaignCard = ({ campaign }: { campaign: any }) => {
       </div>
       
       <div className="border-t border-gray-100 p-3 flex justify-between">
-        <Button variant="ghost" size="sm" className="text-xs">
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          className="text-xs"
+          onClick={() => window.location.href = `/campaigns/${campaign.id}`}
+        >
           <CheckCircle2 className="h-3.5 w-3.5 mr-1" />
           View
         </Button>
-        <Button variant="ghost" size="sm" className="text-xs">
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          className="text-xs"
+          onClick={() => window.location.href = `/email-performance?campaignId=${campaign.id}`}
+        >
           <BarChart4 className="h-3.5 w-3.5 mr-1" />
           Analytics
         </Button>
-        <Button variant="ghost" size="sm" className="text-xs">
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          className="text-xs"
+          onClick={() => window.open(`/email-preview/${campaign.id}`, '_blank')}
+        >
           <ArrowUpRight className="h-3.5 w-3.5" />
         </Button>
       </div>
