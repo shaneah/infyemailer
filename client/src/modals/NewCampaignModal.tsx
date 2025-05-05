@@ -247,18 +247,15 @@ const NewCampaignModal = ({ onClose, initialTemplateId = null }: NewCampaignModa
     // Submit with mutation
     createCampaignMutation.mutate(campaignData, {
       onSuccess: () => {
-        // Dismiss the loading toast
+        // Show success toast
         toast({
-          id: loadingToastId,
           title: "Campaign Created",
           description: "Your campaign has been created successfully!",
-          variant: "success",
         });
       },
       onError: (error) => {
-        // Dismiss the loading toast and show error
+        // Show error toast
         toast({
-          id: loadingToastId,
           title: "Creation Failed",
           description: `Failed to create campaign: ${error.message}`,
           variant: "destructive",
