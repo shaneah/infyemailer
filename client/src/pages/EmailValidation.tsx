@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -11,7 +11,10 @@ import {
   FileUp, FileDown, FileType, FileJson, FileText as FileTextIcon, 
   ChevronUp, ChevronDown, Sparkles, Copy, Wand2, MailCheck, 
   ShieldCheck, Zap, Shield, Mail, Globe, Trash2, FileCheck, AlertTriangle,
-  Eye, BarChart3, BarChart4, Layers, Gem, Lightbulb, Check, Mail as MailIcon
+  Eye, BarChart3, BarChart4, Layers, Gem, Lightbulb, Check, Mail as MailIcon,
+  Network, Send, Scan, Radar, Orbit, ServerCrash, MoveUpRight, Filter, 
+  BadgeCheck, Verified, ThumbsUp, ArrowUpRight, ChevronRight, 
+  Heart, CheckCircle, Clock, BarChart, Database, TrendingUp, CloudOff, Activity
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
@@ -96,45 +99,27 @@ const EmailValidation = () => {
 
     setIsLoading(true);
     setSingleValidationResult(null);
+    setSingleHealthResult(null);
 
     try {
       const response = await apiRequest('POST', '/api/email-validation/single', { email: singleEmail });
       const result = await response.json();
       setSingleValidationResult(result);
+      
+      // Automatically run health check as well
+      try {
+        const healthResponse = await apiRequest('POST', '/api/email-validation/health-check', { email: singleEmail });
+        const healthResult = await healthResponse.json();
+        setSingleHealthResult(healthResult);
+      } catch (error) {
+        console.error("Email health check error:", error);
+      }
+      
     } catch (error) {
       console.error("Email validation error:", error);
       toast({
         title: "Validation failed",
         description: "Unable to validate email. Please try again.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const checkEmailHealth = async () => {
-    if (!singleEmail.trim()) {
-      toast({
-        title: "Email required",
-        description: "Please enter an email address to check",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    setIsLoading(true);
-    setSingleHealthResult(null);
-
-    try {
-      const response = await apiRequest('POST', '/api/email-validation/health-check', { email: singleEmail });
-      const result = await response.json();
-      setSingleHealthResult(result);
-    } catch (error) {
-      console.error("Email health check error:", error);
-      toast({
-        title: "Health check failed",
-        description: "Unable to check email health. Please try again.",
         variant: "destructive"
       });
     } finally {
@@ -334,964 +319,672 @@ const EmailValidation = () => {
     URL.revokeObjectURL(url);
   };
 
-  const getSingleValidationStatusColor = () => {
-    if (!singleValidationResult) return "bg-gray-200";
-    return singleValidationResult.isValid ? "bg-green-500" : "bg-red-500";
-  };
-
-  const getHealthStatusColor = (status: boolean | undefined) => {
-    if (status === undefined) return "bg-gray-200";
-    return status ? "bg-green-500" : "bg-red-500";
-  };
-
   // Mock stats for the component
-  const [validationStats, setValidationStats] = useState({
+  const validationStats = {
     totalValidated: 254892,
     averageDeliverability: 98.7,
     duplicatesDetected: 12345,
     disposablesFiltered: 7893,
     lastUpdated: new Date().toISOString()
-  });
+  };
 
   return (
     <div className="container mx-auto px-4 py-8">
+      {/* Modern, Teal/Blue/Green themed header */}
       <motion.div 
-        className="relative overflow-hidden rounded-xl p-8 md:p-10 mb-10 shadow-2xl bg-gradient-to-r from-purple-900 via-indigo-800 to-purple-900"
+        className="relative overflow-hidden rounded-2xl p-8 md:p-10 mb-8 shadow-lg bg-gradient-to-r from-teal-600 to-emerald-600"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute inset-0 opacity-20" 
-            style={{ 
-              backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.2'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-              backgroundSize: "30px 30px"
-            }}
-          ></div>
-          <div className="absolute bottom-0 left-0 right-0 h-64 bg-gradient-to-t from-purple-900/30 to-transparent"></div>
-          <div className="absolute -top-24 -right-24 w-64 h-64 rounded-full bg-gradient-to-br from-indigo-500/30 to-purple-600/30 blur-xl"></div>
-          <div className="absolute -bottom-32 -left-32 w-96 h-96 rounded-full bg-gradient-to-tr from-indigo-600/20 to-purple-500/20 blur-xl"></div>
+        <div className="absolute inset-0 opacity-20">
+          <svg width="100%" height="100%" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse">
+                <path d="M 10 0 L 0 0 0 10" fill="none" stroke="white" strokeWidth="0.5" />
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#grid)" />
+          </svg>
+          <div className="absolute top-1/4 right-1/4 w-48 h-48 rounded-full bg-gradient-to-br from-emerald-400/30 to-teal-300/20 blur-xl"></div>
+          <div className="absolute bottom-0 left-0 w-96 h-64 rounded-full bg-gradient-to-tr from-emerald-300/20 to-teal-400/20 blur-xl"></div>
         </div>
         
         <div className="relative z-10">
           <div className="flex items-center mb-4">
-            <div className="flex items-center justify-center h-10 w-10 rounded-lg bg-indigo-600/70 backdrop-blur-sm mr-3">
-              <Gem className="h-6 w-6 text-white" />
+            <div className="flex items-center justify-center h-10 w-10 rounded-lg bg-emerald-500/80 mr-3 shadow-md">
+              <MailCheck className="h-5 w-5 text-white" />
             </div>
-            <Badge className="bg-indigo-500/80 backdrop-blur-sm text-white py-1 px-3 rounded-full">
-              Premium Feature
+            <Badge className="bg-emerald-500/80 text-white py-1 px-3 rounded-full text-xs">
+              Smart Email Tools
             </Badge>
           </div>
           
-          <motion.h1 
-            className="text-3xl sm:text-4xl md:text-5xl font-extrabold mb-3 text-white leading-tight"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.2, duration: 0.5 }}
-          >
-            <span className="inline-block bg-clip-text text-transparent bg-gradient-to-r from-white via-indigo-200 to-white">
-              AI-Powered Email
+          <h1 className="text-3xl sm:text-4xl font-bold mb-3 text-white leading-tight">
+            Email Validation Center
+            <span className="block text-lg font-normal text-emerald-50/90 mt-1">
+              Verify email addresses with professional tools
             </span>
-            <br />
-            <span className="inline-block bg-clip-text text-transparent bg-gradient-to-r from-indigo-300 via-purple-200 to-indigo-300">
-              Validation & Intelligence
-            </span>
-          </motion.h1>
+          </h1>
           
-          <motion.p 
-            className="text-indigo-100 text-base md:text-xl max-w-3xl mb-6 md:mb-8 leading-relaxed"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3, duration: 0.5 }}
-          >
-            Maximize your email marketing ROI with advanced validation algorithms that ensure pristine email lists, 
-            enhanced deliverability, and actionable intelligence for smarter campaigns.
-          </motion.p>
-          
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-            <motion.div 
-              className="flex flex-col items-center bg-white/10 backdrop-blur-sm rounded-lg p-4 shadow-lg border border-white/20"
-              whileHover={{ y: -5, backgroundColor: 'rgba(255, 255, 255, 0.15)' }}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4, duration: 0.3 }}
-            >
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger>
-                    <div className="mb-2 flex items-center justify-center h-12 w-12 rounded-full bg-gradient-to-br from-indigo-400/80 to-purple-600/80 shadow-lg">
-                      <MailCheck className="h-6 w-6 text-white" />
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Total emails validated by our system</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-              <h3 className="text-sm text-indigo-200 font-medium">Validated</h3>
-              <p className="text-white text-xl font-bold">{validationStats.totalValidated.toLocaleString()}</p>
-            </motion.div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+            <div className="rounded-xl bg-white/10 backdrop-blur-sm p-4 border border-white/20">
+              <div className="flex items-center mb-2">
+                <div className="h-8 w-8 rounded-lg bg-emerald-500/20 flex items-center justify-center mr-2">
+                  <CheckCircle className="h-4 w-4 text-emerald-50" />
+                </div>
+                <p className="text-xs font-medium text-emerald-50 uppercase tracking-wide">Accuracy</p>
+              </div>
+              <p className="text-2xl font-bold text-white">{validationStats.averageDeliverability}%</p>
+              <div className="mt-2 flex items-center">
+                <div className="h-1.5 bg-emerald-200/20 rounded-full w-full">
+                  <div 
+                    className="h-1.5 bg-emerald-300 rounded-full" 
+                    style={{ width: `${validationStats.averageDeliverability}%` }}
+                  ></div>
+                </div>
+              </div>
+            </div>
             
-            <motion.div 
-              className="flex flex-col items-center bg-white/10 backdrop-blur-sm rounded-lg p-4 shadow-lg border border-white/20"
-              whileHover={{ y: -5, backgroundColor: 'rgba(255, 255, 255, 0.15)' }}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5, duration: 0.3 }}
-            >
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger>
-                    <div className="mb-2 flex items-center justify-center h-12 w-12 rounded-full bg-gradient-to-br from-indigo-400/80 to-purple-600/80 shadow-lg">
-                      <ShieldCheck className="h-6 w-6 text-white" />
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Average deliverability rate achieved</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-              <h3 className="text-sm text-indigo-200 font-medium">Deliverability</h3>
-              <p className="text-white text-xl font-bold">{validationStats.averageDeliverability}%</p>
-            </motion.div>
+            <div className="rounded-xl bg-white/10 backdrop-blur-sm p-4 border border-white/20">
+              <div className="flex items-center mb-2">
+                <div className="h-8 w-8 rounded-lg bg-emerald-500/20 flex items-center justify-center mr-2">
+                  <Mail className="h-4 w-4 text-emerald-50" />
+                </div>
+                <p className="text-xs font-medium text-emerald-50 uppercase tracking-wide">Processed</p>
+              </div>
+              <p className="text-2xl font-bold text-white">{(validationStats.totalValidated / 1000).toFixed(0)}k</p>
+              <p className="text-xs text-emerald-100/80 mt-1">Total emails verified</p>
+            </div>
             
-            <motion.div 
-              className="flex flex-col items-center bg-white/10 backdrop-blur-sm rounded-lg p-4 shadow-lg border border-white/20"
-              whileHover={{ y: -5, backgroundColor: 'rgba(255, 255, 255, 0.15)' }}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6, duration: 0.3 }}
-            >
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger>
-                    <div className="mb-2 flex items-center justify-center h-12 w-12 rounded-full bg-gradient-to-br from-indigo-400/80 to-purple-600/80 shadow-lg">
-                      <Trash2 className="h-6 w-6 text-white" />
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Total disposable email accounts detected and filtered</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-              <h3 className="text-sm text-indigo-200 font-medium">Disposables</h3>
-              <p className="text-white text-xl font-bold">{validationStats.disposablesFiltered.toLocaleString()}</p>
-            </motion.div>
+            <div className="rounded-xl bg-white/10 backdrop-blur-sm p-4 border border-white/20">
+              <div className="flex items-center mb-2">
+                <div className="h-8 w-8 rounded-lg bg-emerald-500/20 flex items-center justify-center mr-2">
+                  <Filter className="h-4 w-4 text-emerald-50" />
+                </div>
+                <p className="text-xs font-medium text-emerald-50 uppercase tracking-wide">Filtered</p>
+              </div>
+              <p className="text-2xl font-bold text-white">{(validationStats.disposablesFiltered / 1000).toFixed(1)}k</p>
+              <p className="text-xs text-emerald-100/80 mt-1">Temporary addresses</p>
+            </div>
             
-            <motion.div 
-              className="flex flex-col items-center bg-white/10 backdrop-blur-sm rounded-lg p-4 shadow-lg border border-white/20"
-              whileHover={{ y: -5, backgroundColor: 'rgba(255, 255, 255, 0.15)' }}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.7, duration: 0.3 }}
-            >
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger>
-                    <div className="mb-2 flex items-center justify-center h-12 w-12 rounded-full bg-gradient-to-br from-indigo-400/80 to-purple-600/80 shadow-lg">
-                      <Copy className="h-6 w-6 text-white" />
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Duplicate addresses identified in lists</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-              <h3 className="text-sm text-indigo-200 font-medium">Duplicates</h3>
-              <p className="text-white text-xl font-bold">{validationStats.duplicatesDetected.toLocaleString()}</p>
-            </motion.div>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
-            <motion.div 
-              className="flex items-center p-4 rounded-lg bg-indigo-800/70 backdrop-blur-sm border border-indigo-500/30 shadow-lg"
-              whileHover={{ scale: 1.03 }}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.8, duration: 0.3 }}
-            >
-              <div className="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500/40 mr-4">
-                <Shield className="h-5 w-5 text-indigo-200" />
+            <div className="rounded-xl bg-white/10 backdrop-blur-sm p-4 border border-white/20">
+              <div className="flex items-center mb-2">
+                <div className="h-8 w-8 rounded-lg bg-emerald-500/20 flex items-center justify-center mr-2">
+                  <Globe className="h-4 w-4 text-emerald-50" />
+                </div>
+                <p className="text-xs font-medium text-emerald-50 uppercase tracking-wide">Domains</p>
               </div>
-              <div>
-                <h3 className="text-indigo-200 font-semibold">Advanced Protection</h3>
-                <p className="text-indigo-300 text-sm">Defend against spam traps & honeypots</p>
-              </div>
-            </motion.div>
-            
-            <motion.div 
-              className="flex items-center p-4 rounded-lg bg-indigo-800/70 backdrop-blur-sm border border-indigo-500/30 shadow-lg"
-              whileHover={{ scale: 1.03 }}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.9, duration: 0.3 }}
-            >
-              <div className="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500/40 mr-4">
-                <Zap className="h-5 w-5 text-indigo-200" />
-              </div>
-              <div>
-                <h3 className="text-indigo-200 font-semibold">AI-Powered Fixes</h3>
-                <p className="text-indigo-300 text-sm">Auto-correct typos & syntax errors</p>
-              </div>
-            </motion.div>
-            
-            <motion.div 
-              className="flex items-center p-4 rounded-lg bg-indigo-800/70 backdrop-blur-sm border border-indigo-500/30 shadow-lg"
-              whileHover={{ scale: 1.03 }}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 1, duration: 0.3 }}
-            >
-              <div className="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500/40 mr-4">
-                <Globe className="h-5 w-5 text-indigo-200" />
-              </div>
-              <div>
-                <h3 className="text-indigo-200 font-semibold">Domain Intelligence</h3>
-                <p className="text-indigo-300 text-sm">Verify MX records & domain health</p>
-              </div>
-            </motion.div>
+              <p className="text-2xl font-bold text-white">5.2k+</p>
+              <p className="text-xs text-emerald-100/80 mt-1">Verified domains</p>
+            </div>
           </div>
         </div>
       </motion.div>
       
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }} 
-        animate={{ opacity: 1, y: 0 }} 
-        transition={{ duration: 0.5, delay: 0.3 }}
+      {/* Main content with tabs */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
       >
         <Tabs defaultValue="single" className="mb-8">
-          <div className="bg-gradient-to-r from-indigo-900/90 to-purple-900/90 rounded-xl shadow-inner p-1">
-            <TabsList className="grid w-full grid-cols-2 gap-1 bg-transparent">
-              <div>
-                <TabsTrigger 
-                  value="single" 
-                  className="w-full data-[state=active]:bg-gradient-to-br data-[state=active]:from-indigo-600 data-[state=active]:to-purple-700 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg transition-all duration-200 ease-in-out p-0.5"
-                >
-                  <div className="flex items-center py-2 px-2">
-                    <div className="mr-2 flex items-center justify-center h-6 w-6 rounded-full bg-gradient-to-br from-indigo-400/80 to-purple-500/80">
-                      <MailIcon className="h-3 w-3 text-white" />
-                    </div>
-                    <span className="font-medium">Single Email Validation</span>
-                  </div>
-                </TabsTrigger>
+          <TabsList className="w-full grid grid-cols-2 bg-gray-100/80 p-1 rounded-lg mb-6">
+            <TabsTrigger 
+              value="single" 
+              className="data-[state=active]:bg-white data-[state=active]:text-emerald-700 data-[state=active]:shadow-sm rounded-md text-gray-600 transition-all duration-200"
+            >
+              <div className="flex items-center py-2 px-3">
+                <Mail className="h-4 w-4 mr-2" />
+                <span className="font-medium">Single Email</span>
               </div>
-              <div>
-                <TabsTrigger 
-                  value="bulk" 
-                  className="w-full data-[state=active]:bg-gradient-to-br data-[state=active]:from-indigo-600 data-[state=active]:to-purple-700 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg transition-all duration-200 ease-in-out p-0.5"
-                >
-                  <div className="flex items-center py-2 px-2">
-                    <div className="mr-2 flex items-center justify-center h-6 w-6 rounded-full bg-gradient-to-br from-indigo-400/80 to-purple-500/80">
-                      <Layers className="h-3 w-3 text-white" />
-                    </div>
-                    <span className="font-medium">Bulk Email Validation</span>
-                  </div>
-                </TabsTrigger>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="bulk" 
+              className="data-[state=active]:bg-white data-[state=active]:text-emerald-700 data-[state=active]:shadow-sm rounded-md text-gray-600 transition-all duration-200"
+            >
+              <div className="flex items-center py-2 px-3">
+                <Layers className="h-4 w-4 mr-2" />
+                <span className="font-medium">Bulk Validation</span>
               </div>
-            </TabsList>
-          </div>
+            </TabsTrigger>
+          </TabsList>
         
-        <TabsContent value="single">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            <Card className="border-0 shadow-2xl overflow-hidden border border-indigo-500/20 bg-white">
-              <CardHeader className="bg-gradient-to-r from-indigo-900 to-purple-900 border-b border-indigo-600/30">
-                <CardTitle className="text-xl text-white flex items-center">
-                  <div className="mr-3 flex items-center justify-center h-8 w-8 rounded-lg bg-indigo-500/40 backdrop-blur-sm">
-                    <MailIcon className="h-4 w-4 text-white" />
-                  </div>
-                  <div className="flex flex-col">
-                    <span>Validate Individual Email</span>
-                    <CardDescription className="text-indigo-200 mt-1">
-                      Smart check for validity, deliverability, and domain health
-                    </CardDescription>
-                  </div>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-6">
-                <div className="flex flex-col space-y-5">
-                  <div className="grid gap-3">
-                    <Label htmlFor="single-email" className="text-indigo-900 font-medium flex items-center gap-2">
-                      <Lightbulb className="h-4 w-4 text-indigo-600" />
-                      Enter email address to validate
-                    </Label>
-                    <div className="relative">
-                      <Input
-                        id="single-email"
-                        placeholder="email@example.com"
-                        value={singleEmail}
-                        onChange={(e) => setSingleEmail(e.target.value)}
-                        className="pl-10 pr-4 py-3 border-indigo-300 focus:border-indigo-500 focus:ring-indigo-500/20 shadow-sm rounded-lg"
-                      />
-                      <Mail className="absolute left-3 top-3 h-5 w-5 text-indigo-400" />
+          {/* Single Email Tab */}
+          <TabsContent value="single">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <Card className="border border-gray-200 shadow-md bg-white overflow-hidden">
+                <CardHeader className="bg-gradient-to-r from-emerald-50 to-teal-50 border-b border-emerald-100 pb-4">
+                  <CardTitle className="text-lg text-emerald-800 flex items-center">
+                    <div className="mr-3 flex items-center justify-center h-8 w-8 rounded-md bg-emerald-600 shadow-sm">
+                      <MailCheck className="h-4 w-4 text-white" />
                     </div>
-                  </div>
-                  
-                  <div className="flex flex-col sm:flex-row gap-3">
-                    <motion.div className="flex-1"
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                    >
-                      <Button 
-                        onClick={validateSingleEmail} 
-                        disabled={isLoading}
-                        className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white border border-indigo-700/30 shadow-md"
-                      >
-                        {isLoading ? 
-                          <RefreshCw className="h-4 w-4 animate-spin mr-2" /> : 
-                          <MailCheck className="h-4 w-4 mr-2" />
-                        }
-                        Validate Email
-                      </Button>
-                    </motion.div>
-                    
-                    <motion.div className="flex-1"
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                    >
-                      <Button 
-                        variant="outline" 
-                        onClick={checkEmailHealth} 
-                        disabled={isLoading}
-                        className="w-full border-indigo-300 text-indigo-700 hover:bg-indigo-50 shadow-sm"
-                      >
-                        {isLoading ? 
-                          <RefreshCw className="h-4 w-4 animate-spin mr-2" /> : 
-                          <ShieldCheck className="h-4 w-4 mr-2 text-indigo-600" />
-                        }
-                        Deep Health Analysis
-                      </Button>
-                    </motion.div>
-                  </div>
-                  
-                  <AnimatePresence mode="wait">
-                    {singleValidationResult && (
-                      <motion.div
-                        key="single-validation-result"
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: 'auto' }}
-                        exit={{ opacity: 0, height: 0 }}
-                        transition={{ duration: 0.3 }}
-                      >
-                        <Alert 
-                          variant={singleValidationResult.isValid ? "default" : "destructive"}
-                          className={`
-                            border-l-4 
-                            ${singleValidationResult.isValid 
-                              ? 'bg-gradient-to-r from-green-50 to-green-100 border-green-500 text-green-800' 
-                              : 'bg-gradient-to-r from-red-50 to-red-100 border-red-500 text-red-800'}
-                          `}
+                    Verify Single Email
+                  </CardTitle>
+                  <CardDescription className="text-emerald-700 mt-1">
+                    Check an individual email address for validity and deliverability
+                  </CardDescription>
+                </CardHeader>
+                
+                <CardContent className="p-6">
+                  <div className="space-y-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="single-email" className="text-sm font-medium">Email Address</Label>
+                      <div className="flex gap-3">
+                        <div className="relative flex-1">
+                          <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                          <Input
+                            id="single-email"
+                            type="email"
+                            placeholder="Enter email to validate"
+                            value={singleEmail}
+                            onChange={(e) => setSingleEmail(e.target.value)}
+                            className="pl-10 border-gray-200 focus:border-emerald-500 focus:ring-emerald-500"
+                          />
+                        </div>
+                        <Button 
+                          onClick={validateSingleEmail} 
+                          disabled={isLoading}
+                          className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm"
                         >
-                          <div className="flex items-center">
-                            <div className={`
-                              flex items-center justify-center h-10 w-10 rounded-full mr-3
-                              ${singleValidationResult.isValid 
-                                ? 'bg-green-100 text-green-600' 
-                                : 'bg-red-100 text-red-600'}
-                            `}>
-                              {singleValidationResult.isValid 
-                                ? <CheckCircle2 className="h-6 w-6" /> 
-                                : <XCircle className="h-6 w-6" />
-                              }
-                            </div>
-                            <div>
-                              <AlertTitle className="font-bold text-base">
-                                {singleValidationResult.isValid 
-                                  ? "Email is valid and deliverable" 
-                                  : "Email validation failed"
-                                }
-                              </AlertTitle>
-                              <AlertDescription className="mt-1 text-sm opacity-90">
-                                {singleValidationResult.isValid 
-                                  ? `Normalized: ${singleValidationResult.normalizedEmail}` 
-                                  : singleValidationResult.error
-                                }
-                              </AlertDescription>
-                            </div>
-                          </div>
-                        </Alert>
-                      </motion.div>
-                    )}
+                          {isLoading ? (
+                            <>
+                              <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                              Verifying...
+                            </>
+                          ) : (
+                            <>
+                              <Scan className="h-4 w-4 mr-2" />
+                              Verify Email
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                      <p className="text-xs text-gray-500 mt-1">
+                        We'll check syntax, domain records, and mailbox existence
+                      </p>
+                    </div>
                     
-                    {singleHealthResult && (
-                      <motion.div
-                        key="single-health-result"
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: 'auto' }}
-                        exit={{ opacity: 0, height: 0 }}
-                        transition={{ duration: 0.3 }}
-                      >
-                        <Card className="mt-4 overflow-hidden border border-indigo-200 shadow-lg">
-                          <CardHeader className="pb-2 bg-gradient-to-br from-indigo-50 to-purple-50 border-b border-indigo-100">
-                            <CardTitle className="text-lg flex items-center text-indigo-900">
-                              <div className="mr-3 flex items-center justify-center h-8 w-8 rounded-lg bg-indigo-100">
-                                {singleHealthResult.isValid 
-                                  ? <ShieldCheck className="h-5 w-5 text-indigo-600" /> 
-                                  : <AlertTriangle className="h-5 w-5 text-amber-500" />
+                    {/* Single email validation results */}
+                    <AnimatePresence>
+                      {singleValidationResult && (
+                        <motion.div
+                          key="single-validation-result"
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: 'auto' }}
+                          exit={{ opacity: 0, height: 0 }}
+                          transition={{ duration: 0.3 }}
+                        >
+                          <Alert className={`
+                            border-l-4 shadow-sm
+                            ${singleValidationResult.isValid ? 'border-l-emerald-500 bg-emerald-50' : 'border-l-red-500 bg-red-50'}
+                          `}>
+                            <div className="flex gap-3">
+                              <div className={`
+                                flex items-center justify-center h-10 w-10 rounded-full shadow-sm
+                                ${singleValidationResult.isValid ? 'bg-emerald-100 text-emerald-600' : 'bg-red-100 text-red-600'}
+                              `}>
+                                {singleValidationResult.isValid 
+                                  ? <CheckCircle2 className="h-5 w-5" /> 
+                                  : <XCircle className="h-5 w-5" />
                                 }
                               </div>
-                              Email Health Analysis
-                            </CardTitle>
-                          </CardHeader>
-                          <CardContent className="p-5">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
-                              <motion.div 
-                                className={`flex items-center p-3.5 rounded-lg border ${singleHealthResult.hasMxRecords 
-                                  ? 'bg-green-50 border-green-200' 
-                                  : 'bg-amber-50 border-amber-200'}`}
-                                whileHover={{ y: -2, boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}
-                              >
-                                <div className={`flex-shrink-0 mr-3 h-9 w-9 rounded-full flex items-center justify-center ${
-                                  singleHealthResult.hasMxRecords
-                                    ? 'bg-green-100 text-green-600'
-                                    : 'bg-amber-100 text-amber-600'
-                                }`}>
-                                  <Globe className="h-5 w-5" />
-                                </div>
-                                <div className="flex-1">
-                                  <h3 className="font-medium text-gray-900">MX Records</h3>
-                                  <p className={`text-sm ${singleHealthResult.hasMxRecords ? 'text-green-700' : 'text-amber-700'}`}>
-                                    {singleHealthResult.hasMxRecords ? "Valid records found" : "MX records missing"}
-                                  </p>
-                                </div>
-                              </motion.div>
-
-                              <motion.div 
-                                className={`flex items-center p-3.5 rounded-lg border ${!singleHealthResult.isDisposable 
-                                  ? 'bg-green-50 border-green-200' 
-                                  : 'bg-red-50 border-red-200'}`}
-                                whileHover={{ y: -2, boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}
-                              >
-                                <div className={`flex-shrink-0 mr-3 h-9 w-9 rounded-full flex items-center justify-center ${
-                                  !singleHealthResult.isDisposable
-                                    ? 'bg-green-100 text-green-600'
-                                    : 'bg-red-100 text-red-600'
-                                }`}>
-                                  <Shield className="h-5 w-5" />
-                                </div>
-                                <div className="flex-1">
-                                  <h3 className="font-medium text-gray-900">Domain Type</h3>
-                                  <p className={`text-sm ${!singleHealthResult.isDisposable ? 'text-green-700' : 'text-red-700'}`}>
-                                    {singleHealthResult.isDisposable ? "Disposable email detected" : "Legitimate domain"}
-                                  </p>
-                                </div>
-                              </motion.div>
-
-                              <motion.div 
-                                className={`flex items-center p-3.5 rounded-lg border ${!singleHealthResult.isDuplicate 
-                                  ? 'bg-green-50 border-green-200' 
-                                  : 'bg-amber-50 border-amber-200'}`}
-                                whileHover={{ y: -2, boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}
-                              >
-                                <div className={`flex-shrink-0 mr-3 h-9 w-9 rounded-full flex items-center justify-center ${
-                                  !singleHealthResult.isDuplicate
-                                    ? 'bg-green-100 text-green-600'
-                                    : 'bg-amber-100 text-amber-600'
-                                }`}>
-                                  <Copy className="h-5 w-5" />
-                                </div>
-                                <div className="flex-1">
-                                  <h3 className="font-medium text-gray-900">Duplicate Check</h3>
-                                  <p className={`text-sm ${!singleHealthResult.isDuplicate ? 'text-green-700' : 'text-amber-700'}`}>
-                                    {singleHealthResult.isDuplicate ? "Duplicate email found" : "Unique email address"}
-                                  </p>
-                                </div>
-                              </motion.div>
-
-                              <motion.div 
-                                className={`flex items-center p-3.5 rounded-lg border ${!singleHealthResult.hasSyntaxErrors 
-                                  ? 'bg-green-50 border-green-200' 
-                                  : 'bg-red-50 border-red-200'}`}
-                                whileHover={{ y: -2, boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}
-                              >
-                                <div className={`flex-shrink-0 mr-3 h-9 w-9 rounded-full flex items-center justify-center ${
-                                  !singleHealthResult.hasSyntaxErrors
-                                    ? 'bg-green-100 text-green-600'
-                                    : 'bg-red-100 text-red-600'
-                                }`}>
-                                  <FileCheck className="h-5 w-5" />
-                                </div>
-                                <div className="flex-1">
-                                  <h3 className="font-medium text-gray-900">Syntax Check</h3>
-                                  <p className={`text-sm ${!singleHealthResult.hasSyntaxErrors ? 'text-green-700' : 'text-red-700'}`}>
-                                    {singleHealthResult.hasSyntaxErrors ? "Syntax errors detected" : "Proper email format"}
-                                  </p>
-                                </div>
-                              </motion.div>
+                              <div>
+                                <AlertTitle className="font-bold text-base">
+                                  {singleValidationResult.isValid 
+                                    ? "Email is valid and deliverable" 
+                                    : "Email validation failed"
+                                  }
+                                </AlertTitle>
+                                <AlertDescription className="mt-1 text-sm">
+                                  {singleValidationResult.isValid 
+                                    ? `Normalized: ${singleValidationResult.normalizedEmail}` 
+                                    : singleValidationResult.error
+                                  }
+                                </AlertDescription>
+                              </div>
                             </div>
-                            
-                            {singleHealthResult.suggestedFix && (
-                              <motion.div 
-                                className="mt-5 p-4 bg-gradient-to-r from-indigo-50 to-purple-50 text-indigo-900 rounded-lg border border-indigo-200 shadow-sm"
-                                initial={{ opacity: 0, y: -10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.2 }}
-                              >
-                                <div className="flex items-start">
-                                  <div className="flex-shrink-0 mr-3 bg-indigo-100 p-2 rounded-lg">
-                                    <Wand2 className="h-5 w-5 text-indigo-600" />
+                          </Alert>
+                        </motion.div>
+                      )}
+                      
+                      {singleHealthResult && (
+                        <motion.div
+                          key="single-health-result"
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: 'auto' }}
+                          exit={{ opacity: 0, height: 0 }}
+                          transition={{ duration: 0.3, delay: 0.1 }}
+                          className="mt-4"
+                        >
+                          <Card className="border border-gray-200">
+                            <CardHeader className="py-4 px-5">
+                              <CardTitle className="text-base flex items-center">
+                                <div className="mr-2 p-1.5 rounded-full bg-emerald-100">
+                                  <Activity className="h-4 w-4 text-emerald-600" />
+                                </div>
+                                Email Health Report
+                              </CardTitle>
+                            </CardHeader>
+                            <div className="px-5 pb-5">
+                              <div className="grid grid-cols-2 gap-4 mb-4">
+                                <div className="space-y-2">
+                                  <div className="flex justify-between items-center text-sm">
+                                    <span className="text-gray-600">MX Records</span>
+                                    <Badge className={singleHealthResult.hasMxRecords ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700"}>
+                                      {singleHealthResult.hasMxRecords ? "Valid" : "Missing"}
+                                    </Badge>
                                   </div>
-                                  <div className="flex-1">
-                                    <h3 className="font-medium">AI Suggestion</h3>
-                                    <p className="text-indigo-800 mt-1">
-                                      Did you mean <span className="text-indigo-700 font-semibold">{singleHealthResult.suggestedFix}</span>?
-                                    </p>
-                                    <Button 
-                                      variant="outline" 
-                                      size="sm" 
-                                      className="mt-3 bg-white border-indigo-300 text-indigo-700 hover:bg-indigo-50"
-                                      onClick={() => setSingleEmail(singleHealthResult.suggestedFix || '')}
-                                    >
-                                      <Sparkles className="h-4 w-4 mr-2 text-indigo-500" />
-                                      Apply Suggestion
-                                    </Button>
+                                  <div className="flex justify-between items-center text-sm">
+                                    <span className="text-gray-600">Disposable Email</span>
+                                    <Badge className={!singleHealthResult.isDisposable ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700"}>
+                                      {!singleHealthResult.isDisposable ? "No" : "Yes"}
+                                    </Badge>
                                   </div>
                                 </div>
-                              </motion.div>
-                            )}
-                            
-                            <div className="mt-5 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                              <h3 className="text-gray-700 font-medium flex items-center mb-1">
-                                <Eye className="h-4 w-4 mr-2 text-indigo-600" />
-                                Detailed Analysis
-                              </h3>
-                              <p className="text-gray-600 text-sm">{singleHealthResult.details}</p>
+                                <div className="space-y-2">
+                                  <div className="flex justify-between items-center text-sm">
+                                    <span className="text-gray-600">Syntax</span>
+                                    <Badge className={!singleHealthResult.hasSyntaxErrors ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"}>
+                                      {!singleHealthResult.hasSyntaxErrors ? "Valid" : "Issues"}
+                                    </Badge>
+                                  </div>
+                                  <div className="flex justify-between items-center text-sm">
+                                    <span className="text-gray-600">Duplicate</span>
+                                    <Badge className={!singleHealthResult.isDuplicate ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"}>
+                                      {!singleHealthResult.isDuplicate ? "No" : "Yes"}
+                                    </Badge>
+                                  </div>
+                                </div>
+                              </div>
+                              
+                              {singleHealthResult.suggestedFix && (
+                                <div className="bg-amber-50 border border-amber-200 rounded-md p-3 mt-2">
+                                  <div className="flex items-start gap-2">
+                                    <Lightbulb className="h-4 w-4 text-amber-600 mt-0.5" />
+                                    <div>
+                                      <p className="text-sm font-medium text-amber-800">Suggested Fix</p>
+                                      <p className="text-sm text-amber-700">{singleHealthResult.suggestedFix}</p>
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
+                              
+                              <div className="mt-4 text-sm text-gray-600">
+                                <p>
+                                  {singleHealthResult.details}
+                                </p>
+                              </div>
                             </div>
-                          </CardContent>
-                        </Card>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-        </TabsContent>
+                          </Card>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </TabsContent>
         
-        <TabsContent value="bulk">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            <Card className="border-0 shadow-2xl overflow-hidden border border-indigo-500/20 bg-white">
-              <CardHeader className="bg-gradient-to-r from-indigo-900 to-purple-900 border-b border-indigo-600/30">
-                <CardTitle className="text-xl text-white flex items-center">
-                  <div className="mr-3 flex items-center justify-center h-8 w-8 rounded-lg bg-indigo-500/40 backdrop-blur-sm">
-                    <Layers className="h-4 w-4 text-white" />
-                  </div>
-                  <div className="flex flex-col">
-                    <span>Bulk Email Validation</span>
-                    <CardDescription className="text-indigo-200 mt-1">
-                      Clean entire lists, find & fix issues in batch processing
-                    </CardDescription>
-                  </div>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-6">
-                <div className="flex flex-col space-y-6">
-                  <div className="grid gap-3">
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="bulk-emails" className="text-indigo-900 font-medium flex items-center gap-2">
-                        <BarChart3 className="h-4 w-4 text-indigo-600" />
-                        Email List Processing
-                      </Label>
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger>
-                            <div>
-                              <Badge className="bg-indigo-100 text-indigo-800 hover:bg-indigo-200 cursor-help">AI-Powered</Badge>
-                            </div>
-                          </TooltipTrigger>
-                          <TooltipContent className="max-w-sm">
-                            <p>Our advanced AI algorithms detect typos, syntax errors, and domain issues for maximum deliverability</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
+          {/* Bulk Email Tab */}
+          <TabsContent value="bulk">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <Card className="border border-gray-200 shadow-md bg-white overflow-hidden">
+                <CardHeader className="bg-gradient-to-r from-emerald-50 to-teal-50 border-b border-emerald-100 pb-4">
+                  <CardTitle className="text-lg text-emerald-800 flex items-center">
+                    <div className="mr-3 flex items-center justify-center h-8 w-8 rounded-md bg-emerald-600 shadow-sm">
+                      <Layers className="h-4 w-4 text-white" />
                     </div>
-                    <div className="relative">
+                    Bulk Email Validation
+                  </CardTitle>
+                  <CardDescription className="text-emerald-700 mt-1">
+                    Verify multiple email addresses at once and analyze your list quality
+                  </CardDescription>
+                </CardHeader>
+                
+                <CardContent className="p-6">
+                  <div className="space-y-6">
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <Label htmlFor="bulk-emails" className="text-sm font-medium">Email Addresses</Label>
+                        <div className="text-xs text-gray-500">
+                          One email per line or separated by commas
+                        </div>
+                      </div>
+                      
                       <Textarea
                         id="bulk-emails"
-                        placeholder="Enter emails separated by line breaks, commas, or semicolons:
-email1@example.com
-email2@example.com
-email3@domain.com"
-                        className="min-h-[220px] border-indigo-300 focus:border-indigo-500 focus:ring-indigo-500/20 shadow-sm rounded-lg pl-4 pr-4 py-3"
+                        placeholder="Enter or paste multiple email addresses..."
                         value={bulkEmails}
                         onChange={(e) => setBulkEmails(e.target.value)}
+                        rows={6}
+                        className="border-gray-200 focus:border-emerald-500 focus:ring-emerald-500 resize-none"
                       />
+                      
+                      <div className="flex flex-wrap gap-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={handleImportEmails}
+                          className="text-xs flex items-center border-gray-200 text-gray-700"
+                        >
+                          <Upload className="h-3 w-3 mr-1" />
+                          Import File
+                        </Button>
+                        <input
+                          type="file"
+                          ref={fileInputRef}
+                          accept=".txt,.csv"
+                          className="hidden"
+                          onChange={processImportedFile}
+                        />
+                      </div>
                     </div>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <motion.div
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                    >
+                    
+                    {isLoading && processingStatus.total > 0 && (
+                      <div className="space-y-2">
+                        <div className="flex justify-between text-xs text-gray-500">
+                          <span>Processing emails...</span>
+                          <span>{processingStatus.current} of {processingStatus.total}</span>
+                        </div>
+                        <Progress value={(processingStatus.current / processingStatus.total) * 100} className="h-2" />
+                      </div>
+                    )}
+                    
+                    <div className="flex gap-3">
                       <Button 
                         onClick={validateBulkEmails} 
-                        disabled={isLoading} 
-                        className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white border border-indigo-700/30 shadow-md h-11"
+                        disabled={isLoading}
+                        className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm"
                       >
-                        {isLoading ? 
-                          <RefreshCw className="h-4 w-4 animate-spin mr-2" /> : 
-                          <MailCheck className="h-4 w-4 mr-2" />
-                        }
-                        Analyze & Clean Email List
+                        {isLoading ? (
+                          <>
+                            <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                            Validating...
+                          </>
+                        ) : (
+                          <>
+                            <Scan className="h-4 w-4 mr-2" />
+                            Validate All Emails
+                          </>
+                        )}
                       </Button>
-                    </motion.div>
+                    </div>
                     
-                    <motion.div
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                    >
-                      <Button 
-                        variant="outline" 
-                        onClick={handleImportEmails} 
-                        className="w-full border-indigo-300 text-indigo-700 hover:bg-indigo-50 h-11 shadow-sm"
-                      >
-                        <FileUp className="h-4 w-4 mr-2 text-indigo-600" />
-                        Import from File
-                      </Button>
-                    </motion.div>
-                    <input
-                      type="file"
-                      ref={fileInputRef}
-                      className="hidden"
-                      accept=".txt,.csv,.json"
-                      onChange={processImportedFile}
-                    />
-                  </div>
-                  
-                  <AnimatePresence mode="wait">
-                    {isLoading && (
-                      <motion.div 
-                        key="bulk-loading"
-                        className="space-y-3"
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: 'auto' }}
-                        exit={{ opacity: 0, height: 0 }}
-                      >
-                        <div className="flex justify-between items-center">
-                          <div className="flex items-center">
-                            <div className="h-9 w-9 rounded-full bg-indigo-100 flex items-center justify-center mr-3">
-                              <RefreshCw className="h-5 w-5 text-indigo-600 animate-spin" />
-                            </div>
-                            <div>
-                              <h3 className="font-medium text-indigo-900">Processing Email List</h3>
-                              <p className="text-sm text-indigo-600">
-                                Analyzing {processingStatus.total} emails...
-                              </p>
-                            </div>
-                          </div>
-                          <div className="text-xl font-bold text-indigo-700">
-                            {Math.round((processingStatus.current / processingStatus.total) * 100)}%
-                          </div>
-                        </div>
-                        <Progress 
-                          value={(processingStatus.current / processingStatus.total) * 100} 
-                          className="h-2.5 bg-indigo-100" 
-                        />
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                  
-                  <AnimatePresence mode="wait">
-                    {bulkAnalysisResult && (
-                      <motion.div
-                        key="bulk-analysis-result"
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -20 }}
-                        transition={{ duration: 0.4 }}
-                      >
-                        <Card className="overflow-hidden border border-indigo-200 shadow-lg bg-white">
-                          <CardHeader className="p-5 bg-gradient-to-br from-indigo-50 to-purple-50 border-b border-indigo-100">
-                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                              <div className="flex items-center">
-                                <div className="mr-3 flex items-center justify-center h-10 w-10 rounded-lg bg-indigo-100">
-                                  <FileCheck className="h-6 w-6 text-indigo-600" />
-                                </div>
-                                <div>
-                                  <CardTitle className="text-lg text-indigo-900">Email List Analysis</CardTitle>
-                                  <CardDescription className="text-indigo-700">
-                                    Processed {bulkAnalysisResult.summary.total.toLocaleString()} emails
-                                  </CardDescription>
-                                </div>
-                              </div>
-                              
-                              <div className="flex flex-wrap gap-2 sm:gap-3">
-                                <Select value={exportFormat} onValueChange={value => setExportFormat(value as any)}>
-                                  <SelectTrigger className="w-[120px] border-indigo-300 text-indigo-700 bg-white">
-                                    <SelectValue placeholder="Format" />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    <SelectItem value="txt">Text (.txt)</SelectItem>
-                                    <SelectItem value="csv">CSV (.csv)</SelectItem>
-                                    <SelectItem value="json">JSON (.json)</SelectItem>
-                                  </SelectContent>
-                                </Select>
-                                
-                                <Button 
-                                  variant="outline" 
-                                  size="sm"
-                                  onClick={downloadValidEmails}
-                                  className="border-indigo-300 text-indigo-700 hover:bg-indigo-50 shadow-sm"
-                                >
-                                  <FileDown className="h-4 w-4 mr-2 text-indigo-600" />
-                                  Download Valid
-                                </Button>
-                                
-                                <Button 
-                                  variant="outline" 
-                                  size="sm"
-                                  onClick={downloadReport}
-                                  className="border-indigo-300 text-indigo-700 hover:bg-indigo-50 shadow-sm"
-                                >
-                                  <FileTextIcon className="h-4 w-4 mr-2 text-indigo-600" />
-                                  Full Report
-                                </Button>
-                              </div>
-                            </div>
-                          </CardHeader>
-                          
-                          <CardContent className="p-5">
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-5 mb-6">
-                              <motion.div
-                                className="rounded-lg overflow-hidden border border-green-200 shadow-sm"
-                                whileHover={{ y: -3, boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.05)' }}
-                              >
-                                <div className="p-4 bg-gradient-to-br from-green-50 to-green-100">
-                                  <div className="flex items-center justify-between mb-2">
-                                    <h3 className="text-base font-medium text-green-800">Valid</h3>
-                                    <div className="flex items-center justify-center h-7 w-7 rounded-full bg-green-200/80">
-                                      <CheckCircle2 className="h-4 w-4 text-green-700" />
-                                    </div>
-                                  </div>
-                                  <div className="text-2xl font-bold text-green-700">{bulkAnalysisResult.summary.valid.toLocaleString()}</div>
-                                  <div className="flex items-center mt-1">
-                                    <div className="h-1.5 w-16 bg-green-200 rounded-full overflow-hidden">
-                                      <div 
-                                        className="h-full bg-green-500" 
-                                        style={{ width: `${Math.round((bulkAnalysisResult.summary.valid / bulkAnalysisResult.summary.total) * 100)}%` }}
-                                      ></div>
-                                    </div>
-                                    <span className="ml-2 text-xs text-green-600">
-                                      {Math.round((bulkAnalysisResult.summary.valid / bulkAnalysisResult.summary.total) * 100)}%
-                                    </span>
-                                  </div>
-                                </div>
-                              </motion.div>
-                              
-                              <motion.div
-                                className="rounded-lg overflow-hidden border border-red-200 shadow-sm"
-                                whileHover={{ y: -3, boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.05)' }}
-                              >
-                                <div className="p-4 bg-gradient-to-br from-red-50 to-red-100">
-                                  <div className="flex items-center justify-between mb-2">
-                                    <h3 className="text-base font-medium text-red-800">Invalid</h3>
-                                    <div className="flex items-center justify-center h-7 w-7 rounded-full bg-red-200/80">
-                                      <XCircle className="h-4 w-4 text-red-700" />
-                                    </div>
-                                  </div>
-                                  <div className="text-2xl font-bold text-red-700">{bulkAnalysisResult.summary.invalid.toLocaleString()}</div>
-                                  <div className="flex items-center mt-1">
-                                    <div className="h-1.5 w-16 bg-red-200 rounded-full overflow-hidden">
-                                      <div 
-                                        className="h-full bg-red-500" 
-                                        style={{ width: `${Math.round((bulkAnalysisResult.summary.invalid / bulkAnalysisResult.summary.total) * 100)}%` }}
-                                      ></div>
-                                    </div>
-                                    <span className="ml-2 text-xs text-red-600">
-                                      {Math.round((bulkAnalysisResult.summary.invalid / bulkAnalysisResult.summary.total) * 100)}%
-                                    </span>
-                                  </div>
-                                </div>
-                              </motion.div>
-                              
-                              <motion.div
-                                className="rounded-lg overflow-hidden border border-amber-200 shadow-sm"
-                                whileHover={{ y: -3, boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.05)' }}
-                              >
-                                <div className="p-4 bg-gradient-to-br from-amber-50 to-amber-100">
-                                  <div className="flex items-center justify-between mb-2">
-                                    <h3 className="text-base font-medium text-amber-800">Duplicates</h3>
-                                    <div className="flex items-center justify-center h-7 w-7 rounded-full bg-amber-200/80">
-                                      <Copy className="h-4 w-4 text-amber-700" />
-                                    </div>
-                                  </div>
-                                  <div className="text-2xl font-bold text-amber-700">{bulkAnalysisResult.summary.duplicates.toLocaleString()}</div>
-                                  <div className="flex items-center mt-1">
-                                    <div className="h-1.5 w-16 bg-amber-200 rounded-full overflow-hidden">
-                                      <div 
-                                        className="h-full bg-amber-500" 
-                                        style={{ width: `${Math.round((bulkAnalysisResult.summary.duplicates / bulkAnalysisResult.summary.total) * 100)}%` }}
-                                      ></div>
-                                    </div>
-                                    <span className="ml-2 text-xs text-amber-600">
-                                      {Math.round((bulkAnalysisResult.summary.duplicates / bulkAnalysisResult.summary.total) * 100)}%
-                                    </span>
-                                  </div>
-                                </div>
-                              </motion.div>
-                              
-                              <motion.div
-                                className="rounded-lg overflow-hidden border border-purple-200 shadow-sm"
-                                whileHover={{ y: -3, boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.05)' }}
-                              >
-                                <div className="p-4 bg-gradient-to-br from-purple-50 to-purple-100">
-                                  <div className="flex items-center justify-between mb-2">
-                                    <h3 className="text-base font-medium text-purple-800">Disposable</h3>
-                                    <div className="flex items-center justify-center h-7 w-7 rounded-full bg-purple-200/80">
-                                      <Trash2 className="h-4 w-4 text-purple-700" />
-                                    </div>
-                                  </div>
-                                  <div className="text-2xl font-bold text-purple-700">{bulkAnalysisResult.summary.disposable.toLocaleString()}</div>
-                                  <div className="flex items-center mt-1">
-                                    <div className="h-1.5 w-16 bg-purple-200 rounded-full overflow-hidden">
-                                      <div 
-                                        className="h-full bg-purple-500" 
-                                        style={{ width: `${Math.round((bulkAnalysisResult.summary.disposable / bulkAnalysisResult.summary.total) * 100)}%` }}
-                                      ></div>
-                                    </div>
-                                    <span className="ml-2 text-xs text-purple-600">
-                                      {Math.round((bulkAnalysisResult.summary.disposable / bulkAnalysisResult.summary.total) * 100)}%
-                                    </span>
-                                  </div>
-                                </div>
-                              </motion.div>
-                            </div>
-                            
-                            <AnimatePresence mode="wait">
-                              {bulkAnalysisResult.suggestedFixes.length > 0 && (
-                                <motion.div 
-                                  key="suggested-fixes"
-                                  className="mb-6 p-5 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg border border-indigo-200 shadow-sm"
-                                  initial={{ opacity: 0, y: -10 }}
-                                  animate={{ opacity: 1, y: 0 }}
-                                  transition={{ delay: 0.2 }}
-                                >
-                                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                                    <div className="flex items-start">
-                                      <div className="flex-shrink-0 h-10 w-10 rounded-lg bg-indigo-100 flex items-center justify-center mr-3">
-                                        <Wand2 className="h-5 w-5 text-indigo-600" />
-                                      </div>
-                                      <div>
-                                        <h3 className="font-medium text-lg text-indigo-900">AI-Powered Corrections</h3>
-                                        <p className="text-indigo-700">
-                                          Found {bulkAnalysisResult.suggestedFixes.length} potential typos that can be fixed automatically
-                                        </p>
-                                      </div>
-                                    </div>
-                                    <Button 
-                                      onClick={handleFixSuggestions}
-                                      className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-md"
-                                    >
-                                      <Sparkles className="h-4 w-4 mr-2" />
-                                      Apply All Fixes
-                                    </Button>
-                                  </div>
-                                </motion.div>
-                              )}
-                            </AnimatePresence>
-                            
-                            <div className="flex items-center justify-between mb-3">
-                              <h3 className="font-medium text-lg text-indigo-900 flex items-center">
-                                <Eye className="h-5 w-5 mr-2 text-indigo-600" />
-                                Detailed Analysis
-                              </h3>
-                              <Button 
-                                variant="ghost" 
-                                size="sm" 
-                                onClick={() => setShowDetailedReport(!showDetailedReport)}
-                                className="text-indigo-700 hover:bg-indigo-50 hover:text-indigo-800"
-                              >
-                                {showDetailedReport ? (
-                                  <>
-                                    <ChevronUp className="h-4 w-4 mr-2" />
-                                    Hide Details
-                                  </>
-                                ) : (
-                                  <>
-                                    <ChevronDown className="h-4 w-4 mr-2" />
-                                    Show Details
-                                  </>
-                                )}
-                              </Button>
-                            </div>
-                            
-                            <AnimatePresence mode="wait">
-                              {showDetailedReport && (
-                                <motion.div
-                                  key="detailed-report"
-                                  initial={{ opacity: 0, height: 0 }}
-                                  animate={{ opacity: 1, height: 'auto' }}
-                                  exit={{ opacity: 0, height: 0 }}
-                                  transition={{ duration: 0.3 }}
-                                >
-                                  <div className="space-y-6">
-                                    {bulkAnalysisResult.invalidEmails.length > 0 && (
-                                      <div>
-                                        <div className="flex items-center mb-3">
-                                          <Badge className="bg-red-100 text-red-800 mr-2">Issues</Badge>
-                                          <h4 className="font-medium text-gray-700">
-                                            Invalid Emails ({bulkAnalysisResult.invalidEmails.length})
-                                          </h4>
-                                        </div>
-                                        <div className="max-h-64 overflow-y-auto border border-gray-200 rounded-lg divide-y bg-white shadow-sm">
-                                          {bulkAnalysisResult.invalidEmails.map((item, index) => (
-                                            <div key={index} className="p-3 text-sm hover:bg-gray-50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
-                                              <div className="font-medium text-gray-900">{item.email}</div>
-                                              <div className="text-red-600 sm:text-right">{item.reason}</div>
-                                            </div>
-                                          ))}
-                                        </div>
-                                      </div>
+                    {/* Bulk validation results */}
+                    <AnimatePresence>
+                      {bulkAnalysisResult && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -20 }}
+                          transition={{ duration: 0.5 }}
+                          className="space-y-6"
+                        >
+                          <Card className="border border-gray-200">
+                            <CardHeader className="py-4 px-5 bg-gray-50 border-b">
+                              <div className="flex justify-between items-center">
+                                <CardTitle className="text-base flex items-center">
+                                  <BarChart className="h-4 w-4 mr-2 text-emerald-600" />
+                                  Validation Results
+                                </CardTitle>
+                                <div className="flex gap-2">
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm"
+                                    className="h-8 text-xs"
+                                    onClick={() => setShowDetailedReport(!showDetailedReport)}
+                                  >
+                                    {showDetailedReport ? (
+                                      <>
+                                        <ChevronUp className="h-3 w-3 mr-1" />
+                                        Hide Details
+                                      </>
+                                    ) : (
+                                      <>
+                                        <ChevronDown className="h-3 w-3 mr-1" />
+                                        Show Details
+                                      </>
                                     )}
-                                    
-                                    {bulkAnalysisResult.suggestedFixes.length > 0 && (
-                                      <div>
-                                        <div className="flex items-center mb-3">
-                                          <Badge className="bg-indigo-100 text-indigo-800 mr-2">Suggestions</Badge>
-                                          <h4 className="font-medium text-gray-700">
-                                            Suggested Fixes ({bulkAnalysisResult.suggestedFixes.length})
-                                          </h4>
+                                  </Button>
+                                </div>
+                              </div>
+                            </CardHeader>
+                            
+                            <div className="p-5">
+                              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                                <div className="bg-gray-50 rounded-md p-3 border border-gray-100">
+                                  <div className="text-xs text-gray-500 mb-1">Total Processed</div>
+                                  <div className="text-2xl font-bold text-gray-800">
+                                    {bulkAnalysisResult.summary.total}
+                                  </div>
+                                </div>
+                                
+                                <div className="bg-emerald-50 rounded-md p-3 border border-emerald-100">
+                                  <div className="text-xs text-emerald-600 mb-1">Valid Emails</div>
+                                  <div className="text-2xl font-bold text-emerald-700">
+                                    {bulkAnalysisResult.summary.valid} 
+                                    <span className="text-sm font-normal ml-1 text-emerald-600">
+                                      ({Math.round(bulkAnalysisResult.summary.valid / bulkAnalysisResult.summary.total * 100)}%)
+                                    </span>
+                                  </div>
+                                </div>
+                                
+                                <div className="bg-red-50 rounded-md p-3 border border-red-100">
+                                  <div className="text-xs text-red-600 mb-1">Invalid Emails</div>
+                                  <div className="text-2xl font-bold text-red-700">
+                                    {bulkAnalysisResult.summary.invalid}
+                                    <span className="text-sm font-normal ml-1 text-red-600">
+                                      ({Math.round(bulkAnalysisResult.summary.invalid / bulkAnalysisResult.summary.total * 100)}%)
+                                    </span>
+                                  </div>
+                                </div>
+                                
+                                <div className="bg-amber-50 rounded-md p-3 border border-amber-100">
+                                  <div className="text-xs text-amber-600 mb-1">Duplicate Emails</div>
+                                  <div className="text-2xl font-bold text-amber-700">
+                                    {bulkAnalysisResult.summary.duplicates}
+                                    <span className="text-sm font-normal ml-1 text-amber-600">
+                                      ({Math.round(bulkAnalysisResult.summary.duplicates / bulkAnalysisResult.summary.total * 100)}%)
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                              
+                              <div className="space-y-4 mb-6">
+                                <div className="flex justify-between items-center">
+                                  <div className="flex gap-2 items-center">
+                                    <Shield className="h-4 w-4 text-emerald-600" />
+                                    <span className="text-sm font-medium">List Health Score</span>
+                                  </div>
+                                  <Badge className="px-2 py-1 text-xs bg-emerald-100 text-emerald-800 rounded-md">
+                                    {Math.round(bulkAnalysisResult.summary.valid / bulkAnalysisResult.summary.total * 100)}%
+                                  </Badge>
+                                </div>
+                                
+                                <Progress 
+                                  value={Math.round(bulkAnalysisResult.summary.valid / bulkAnalysisResult.summary.total * 100)} 
+                                  className="h-2.5 bg-gray-100"
+                                />
+                                
+                                <div className="grid grid-cols-3 text-xs text-gray-500 pt-1">
+                                  <div>Poor (0-60%)</div>
+                                  <div className="text-center">Good (60-90%)</div>
+                                  <div className="text-right">Excellent (90-100%)</div>
+                                </div>
+                              </div>
+                              
+                              {bulkAnalysisResult.suggestedFixes.length > 0 && (
+                                <div className="bg-amber-50 rounded-md p-4 border border-amber-200 mb-4">
+                                  <div className="flex items-start gap-3">
+                                    <div className="p-2 rounded-full bg-amber-100">
+                                      <Wand2 className="h-4 w-4 text-amber-600" />
+                                    </div>
+                                    <div>
+                                      <h4 className="text-sm font-medium text-amber-800">
+                                        {bulkAnalysisResult.suggestedFixes.length} Potential Fixes Found
+                                      </h4>
+                                      <p className="text-xs text-amber-700 mt-1 mb-3">
+                                        We've detected some emails with potential issues that can be fixed automatically.
+                                      </p>
+                                      <Button
+                                        size="sm"
+                                        onClick={handleFixSuggestions}
+                                        className="bg-amber-600 hover:bg-amber-700 text-white text-xs h-8"
+                                      >
+                                        <Sparkles className="h-3 w-3 mr-1" />
+                                        Apply Suggestions
+                                      </Button>
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
+                              
+                              {/* Detailed report */}
+                              <AnimatePresence>
+                                {showDetailedReport && (
+                                  <motion.div
+                                    initial={{ opacity: 0, height: 0 }}
+                                    animate={{ opacity: 1, height: 'auto' }}
+                                    exit={{ opacity: 0, height: 0 }}
+                                    transition={{ duration: 0.3 }}
+                                    className="border border-gray-200 rounded-md mt-6 overflow-hidden"
+                                  >
+                                    <div className="bg-gray-50 px-4 py-3 border-b border-gray-200 flex justify-between items-center">
+                                      <h4 className="font-medium text-sm text-gray-700">Detailed Validation Report</h4>
+                                      <div className="flex gap-2">
+                                        <div className="flex items-center gap-1.5">
+                                          <div className="h-2 w-2 rounded-full bg-emerald-500"></div>
+                                          <span className="text-xs">Valid</span>
                                         </div>
-                                        <div className="max-h-64 overflow-y-auto border border-gray-200 rounded-lg divide-y bg-white shadow-sm">
-                                          {bulkAnalysisResult.suggestedFixes.map((item, index) => (
-                                            <div key={index} className="p-3 text-sm hover:bg-gray-50">
-                                              <div className="flex flex-col sm:flex-row sm:items-center gap-1">
-                                                <div className="flex-1 flex items-center">
-                                                  <span className="text-red-600 font-medium">{item.original}</span>
-                                                  <svg className="h-5 w-5 mx-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                                                  </svg>
-                                                </div>
-                                                <div className="flex-1 text-green-600 font-medium">{item.suggestion}</div>
+                                        <div className="flex items-center gap-1.5">
+                                          <div className="h-2 w-2 rounded-full bg-red-500"></div>
+                                          <span className="text-xs">Invalid</span>
+                                        </div>
+                                        <div className="flex items-center gap-1.5">
+                                          <div className="h-2 w-2 rounded-full bg-amber-500"></div>
+                                          <span className="text-xs">Duplicates</span>
+                                        </div>
+                                      </div>
+                                    </div>
+                                    
+                                    <div className="max-h-[300px] overflow-auto p-4">
+                                      <div className="space-y-6">
+                                        {bulkAnalysisResult.validEmails.length > 0 && (
+                                          <div>
+                                            <h5 className="text-sm font-medium text-emerald-800 mb-2 flex items-center">
+                                              <CheckCircle2 className="h-4 w-4 mr-1.5 text-emerald-600" />
+                                              Valid Emails ({bulkAnalysisResult.validEmails.length})
+                                            </h5>
+                                            <div className="bg-gray-50 p-2 rounded-md max-h-[120px] overflow-auto border border-gray-100">
+                                              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+                                                {bulkAnalysisResult.validEmails.map((email, index) => (
+                                                  <div key={`valid-${index}`} className="text-xs text-gray-700 bg-emerald-50 rounded px-2 py-1 border border-emerald-100 flex items-center">
+                                                    <div className="h-1.5 w-1.5 bg-emerald-500 rounded-full mr-1.5"></div>
+                                                    <span className="truncate">{email}</span>
+                                                  </div>
+                                                ))}
                                               </div>
                                             </div>
-                                          ))}
-                                        </div>
+                                          </div>
+                                        )}
+                                        
+                                        {bulkAnalysisResult.invalidEmails.length > 0 && (
+                                          <div>
+                                            <h5 className="text-sm font-medium text-red-800 mb-2 flex items-center">
+                                              <AlertCircle className="h-4 w-4 mr-1.5 text-red-600" />
+                                              Invalid Emails ({bulkAnalysisResult.invalidEmails.length})
+                                            </h5>
+                                            <div className="space-y-1.5 max-h-[150px] overflow-auto">
+                                              {bulkAnalysisResult.invalidEmails.map(({ email, reason }, index) => (
+                                                <div key={`invalid-${index}`} className="text-xs bg-red-50 rounded px-3 py-2 border border-red-100">
+                                                  <div className="font-medium text-red-800 mb-0.5">{email}</div>
+                                                  <div className="text-red-600">{reason}</div>
+                                                </div>
+                                              ))}
+                                            </div>
+                                          </div>
+                                        )}
+                                        
+                                        {bulkAnalysisResult.suggestedFixes.length > 0 && (
+                                          <div>
+                                            <h5 className="text-sm font-medium text-amber-800 mb-2 flex items-center">
+                                              <Wand2 className="h-4 w-4 mr-1.5 text-amber-600" />
+                                              Suggested Fixes ({bulkAnalysisResult.suggestedFixes.length})
+                                            </h5>
+                                            <div className="space-y-1.5 max-h-[150px] overflow-auto">
+                                              {bulkAnalysisResult.suggestedFixes.map(({ original, suggestion }, index) => (
+                                                <div key={`fix-${index}`} className="text-xs bg-amber-50 rounded px-3 py-2 border border-amber-100 flex items-center gap-2">
+                                                  <div className="text-amber-800 line-through">{original}</div>
+                                                  <ArrowUpRight className="h-3 w-3 text-amber-600" />
+                                                  <div className="text-emerald-700 font-medium">{suggestion}</div>
+                                                </div>
+                                              ))}
+                                            </div>
+                                          </div>
+                                        )}
                                       </div>
-                                    )}
+                                    </div>
+                                  </motion.div>
+                                )}
+                              </AnimatePresence>
+                              
+                              <div className="flex flex-wrap gap-3 mt-6">
+                                <div className="flex-1 min-w-[180px]">
+                                  <div className="flex gap-2 mb-2">
+                                    <Label htmlFor="export-format" className="text-xs">Export Format</Label>
                                   </div>
-                                </motion.div>
-                              )}
-                            </AnimatePresence>
-                          </CardContent>
-                        </Card>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-        </TabsContent>
-      </Tabs>
+                                  <Select value={exportFormat} onValueChange={(value: any) => setExportFormat(value)}>
+                                    <SelectTrigger className="h-9 text-sm">
+                                      <SelectValue placeholder="Select format" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="txt">Text File (.txt)</SelectItem>
+                                      <SelectItem value="csv">CSV File (.csv)</SelectItem>
+                                      <SelectItem value="json">JSON File (.json)</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                                
+                                <div className="flex gap-2 flex-1 min-w-[180px]">
+                                  <Button
+                                    variant="outline"
+                                    className="flex-1 border-emerald-200 text-emerald-700 hover:bg-emerald-50"
+                                    onClick={downloadValidEmails}
+                                  >
+                                    <Download className="h-4 w-4 mr-2" />
+                                    Download Valid Emails
+                                  </Button>
+                                  
+                                  <Button
+                                    variant="outline"
+                                    className="flex-1 border-gray-200 text-gray-700 hover:bg-gray-50"
+                                    onClick={downloadReport}
+                                  >
+                                    <FileTextIcon className="h-4 w-4 mr-2" />
+                                    Full Report
+                                  </Button>
+                                </div>
+                              </div>
+                            </div>
+                          </Card>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </TabsContent>
+        </Tabs>
       </motion.div>
     </div>
   );
