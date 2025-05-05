@@ -48,6 +48,7 @@ export const users = pgTable("users", {
   firstName: text("first_name"),
   lastName: text("last_name"),
   status: text("status").notNull().default("active"),
+  role: text("role").default("user"),
   lastLoginAt: timestamp("last_login_at"),
   createdAt: timestamp("created_at").defaultNow(),
   avatarUrl: text("avatar_url"),
@@ -61,6 +62,7 @@ export const insertUserSchema = createInsertSchema(users).pick({
   firstName: true,
   lastName: true,
   status: true,
+  role: true,
   avatarUrl: true,
   metadata: true,
 });
