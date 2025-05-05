@@ -12,6 +12,8 @@ import { AuthProvider } from "@/hooks/use-auth";
 import { ProtectedRoute } from "@/lib/protected-route";
 import NotFound from "@/pages/not-found";
 import { AIAssistantProvider } from "@/contexts/AIAssistantContext";
+import { ThemeProvider } from "@/contexts/ThemeContext";
+import ThemeSwitcher from "@/components/ThemeSwitcher";
 import CampaignsV2 from "@/pages/CampaignsV2";
 import TemplatesV2 from "@/pages/TemplatesV2";
 import Contacts from "@/pages/Contacts";
@@ -76,8 +78,9 @@ function App() {
   
   return (
     <QueryClientProvider client={queryClient}>
-      <AIAssistantProvider>
-        <Switch>
+      <ThemeProvider>
+        <AIAssistantProvider>
+          <Switch>
           {/* Authentication Routes */}
         <Route path="login">
           <div className="bg-background min-h-screen">
@@ -274,7 +277,8 @@ function App() {
           </AuthProvider>
         </Route>
       </Switch>
-      </AIAssistantProvider>
+        </AIAssistantProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }
