@@ -277,6 +277,7 @@ const ClientManagementV2 = () => {
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<{ id: number, type: 'client' | 'user' } | null>(null);
+  const [isPermissionsViewVisible, setIsPermissionsViewVisible] = useState(true);
 
   const { toast } = useToast();
 
@@ -615,14 +616,25 @@ const ClientManagementV2 = () => {
 
   // Handle client user form submission
   const onClientUserSubmit = (data: z.infer<typeof clientUserFormSchema>) => {
+    // Ensure metadata and permissions are properly structured
+    const formattedData = {
+      ...data,
+      metadata: {
+        ...data.metadata,
+        permissions: data.metadata?.permissions || ['read', 'write']
+      }
+    };
+    
+    console.log('Form submission data with permissions:', formattedData);
+    
     if (selectedUser) {
       // For update, we don't want to send the password if it's empty
-      const { password, ...restData } = data;
+      const { password, ...restData } = formattedData;
       const updateData = password ? { ...restData, password } : restData;
       updateClientUserMutation.mutate({ id: selectedUser.id, data: updateData });
     } else {
       // Create new user
-      createClientUserMutation.mutate(data);
+      createClientUserMutation.mutate(formattedData);
     }
   };
 
@@ -1174,11 +1186,22 @@ const ClientManagementV2 = () => {
                               </TableCell>
                               <TableCell>
                                 <div className="flex flex-wrap gap-1">
-                                  {user.metadata?.permissions?.map((perm: string, idx: number) => (
-                                    <Badge key={idx} variant="outline" className="text-xs bg-blue-50 text-blue-800 capitalize">
-                                      {perm}
-                                    </Badge>
-                                  ))}
+                                  {user.metadata?.permissions ? (
+                                    user.metadata.permissions.length > 0 ? (
+                                      user.metadata.permissions.map((perm: string, idx: number) => (
+                                        <Badge key={idx} variant="outline" className="text-xs bg-blue-50 text-blue-800 capitalize">
+                                          {perm}
+                                        </Badge>
+                                      ))
+                                    ) : (
+                                      <span className="text-gray-400 text-xs">No permissions</span>
+                                    )
+                                  ) : (
+                                    <>
+                                      <Badge variant="outline" className="text-xs bg-blue-50 text-blue-800 capitalize">read</Badge>
+                                      <Badge variant="outline" className="text-xs bg-blue-50 text-blue-800 capitalize">write</Badge>
+                                    </>
+                                  )}
                                 </div>
                               </TableCell>
                               <TableCell className="text-right">
@@ -1515,54 +1538,69 @@ const ClientManagementV2 = () => {
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <h4 className="text-sm font-medium">Permissions</h4>
-                  <Button 
-                    type="button" 
-                    variant="ghost" 
-                    size="sm" 
-                    className="h-8 text-xs"
-                    onClick={() => {
-                      const currentMetadata = clientUserForm.getValues().metadata || {};
-                      clientUserForm.setValue('metadata', {
-                        ...currentMetadata,
-                        permissions: ['read', 'write', 'edit', 'delete', 'invite']
-                      });
-                    }}
-                  >
-                    Select All
-                  </Button>
-                </div>
-                
-                <div className="bg-gray-50 p-3 rounded-md border border-gray-200">
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
-                    {['read', 'write', 'edit', 'delete', 'invite'].map((permission) => (
-                      <div key={permission} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={`permission-${permission}`}
-                          checked={clientUserForm.getValues().metadata?.permissions?.includes(permission)}
-                          onCheckedChange={(checked) => {
-                            const currentMetadata = clientUserForm.getValues().metadata || {};
-                            const currentPermissions = currentMetadata.permissions || [];
-                            
-                            const newPermissions = checked
-                              ? [...currentPermissions, permission]
-                              : currentPermissions.filter((p: string) => p !== permission);
-                            
-                            clientUserForm.setValue('metadata', {
-                              ...currentMetadata,
-                              permissions: newPermissions
-                            });
-                          }}
-                        />
-                        <label
-                          htmlFor={`permission-${permission}`}
-                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 capitalize"
-                        >
-                          {permission}
-                        </label>
-                      </div>
-                    ))}
+                  <div className="flex items-center space-x-2">
+                    <Button 
+                      type="button" 
+                      variant="ghost" 
+                      size="sm" 
+                      className="h-8 text-xs"
+                      onClick={() => setIsPermissionsViewVisible(!isPermissionsViewVisible)}
+                    >
+                      {isPermissionsViewVisible ? 'Hide Permissions' : 'Show Permissions'}
+                    </Button>
+                    {isPermissionsViewVisible && (
+                      <Button 
+                        type="button" 
+                        variant="ghost" 
+                        size="sm" 
+                        className="h-8 text-xs"
+                        onClick={() => {
+                          const currentMetadata = clientUserForm.getValues().metadata || {};
+                          clientUserForm.setValue('metadata', {
+                            ...currentMetadata,
+                            permissions: ['read', 'write', 'edit', 'delete', 'invite']
+                          });
+                        }}
+                      >
+                        Select All
+                      </Button>
+                    )}
                   </div>
                 </div>
+                
+                {isPermissionsViewVisible && (
+                  <div className="bg-gray-50 p-3 rounded-md border border-gray-200">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
+                      {['read', 'write', 'edit', 'delete', 'invite'].map((permission) => (
+                        <div key={permission} className="flex items-center space-x-2">
+                          <Checkbox
+                            id={`permission-${permission}`}
+                            checked={clientUserForm.getValues().metadata?.permissions?.includes(permission)}
+                            onCheckedChange={(checked) => {
+                              const currentMetadata = clientUserForm.getValues().metadata || {};
+                              const currentPermissions = currentMetadata.permissions || [];
+                              
+                              const newPermissions = checked
+                                ? [...currentPermissions, permission]
+                                : currentPermissions.filter((p: string) => p !== permission);
+                              
+                              clientUserForm.setValue('metadata', {
+                                ...currentMetadata,
+                                permissions: newPermissions
+                              });
+                            }}
+                          />
+                          <label
+                            htmlFor={`permission-${permission}`}
+                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 capitalize"
+                          >
+                            {permission}
+                          </label>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
               
               <DialogFooter>
