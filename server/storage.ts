@@ -325,6 +325,14 @@ export class MemStorage implements IStorage {
   async initializeWithSampleData(): Promise<boolean> {
     try {
       console.log('Initializing memory storage with sample data');
+      
+      // Load clients from file storage if available
+      await this.loadClientsFromFile();
+      
+      // Add more loading methods for other data as needed
+      // await this.loadContactsFromFile();
+      // await this.loadTemplatesFromFile();
+
       return true;
     } catch (error) {
       console.error('Failed to initialize memory storage with sample data:', error);

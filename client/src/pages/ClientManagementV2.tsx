@@ -377,6 +377,9 @@ const ClientManagementV2 = () => {
       }
       return await response.json();
     },
+    refetchOnWindowFocus: true, // Refetch when window regains focus
+    refetchOnMount: true, // Refetch when component mounts
+    staleTime: 0, // Consider data immediately stale
     initialData: []
   });
   
