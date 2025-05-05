@@ -282,7 +282,6 @@ export default function CampaignsV2() {
         {/* Decorative elements for visual appeal */}
         <div className="absolute top-0 left-0 w-full h-full overflow-hidden opacity-10">
           <div className="absolute -top-8 -left-8 w-40 h-40 rounded-full bg-white"></div>
-          <div className="absolute top-1/2 right-0 w-60 h-60 rounded-full bg-white transform -translate-y-1/2 translate-x-1/3"></div>
           <div className="absolute bottom-0 left-1/3 w-20 h-20 rounded-full bg-white"></div>
         </div>
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
