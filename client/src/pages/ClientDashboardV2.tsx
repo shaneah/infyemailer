@@ -8,10 +8,11 @@ import {
   Menu, BarChart3, Mail, Users, Bell, Settings, LogOut, 
   ChevronRight, Calendar, BarChart, PieChart, UserPlus, 
   Zap, Award, Target, TrendingUp, Clock, Activity, Star,
-  BadgeCheck, Sparkles, PenTool, Layout, Lightbulb, 
+  BadgeCheck, Sparkles, PenTool, Layout as LayoutIcon, Lightbulb, 
   MessageCircle, ArrowRight, ArrowUp, ArrowDown,
   Shield, PlayCircle, Send, Eye, BarChart2, MousePointer,
-  CheckCircle2, Share2, FileText, Gauge, RefreshCw, Timer
+  CheckCircle2, Share2, FileText, Gauge, RefreshCw, Timer,
+  Smartphone, Tablet
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Progress } from "@/components/ui/progress";
@@ -572,7 +573,7 @@ export default function ClientDashboardV2({ onOpenSidebar }: ClientDashboardProp
                 value="overview" 
                 className={`data-[state=active]:bg-gradient-to-r data-[state=active]:${theme.accentGradient} data-[state=active]:text-white rounded-lg text-sm h-10 hover:text-white`}
               >
-                <LayoutDashboard className="h-4 w-4 mr-2" />
+                <LayoutIcon className="h-4 w-4 mr-2" />
                 Overview
               </TabsTrigger>
               <TabsTrigger 
@@ -1304,7 +1305,7 @@ export default function ClientDashboardV2({ onOpenSidebar }: ClientDashboardProp
                     <CardHeader className="pb-2">
                       <CardTitle className="text-base font-medium bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-300">
                         <div className="flex items-center">
-                          <TabletSmartphone className="h-4 w-4 mr-2 text-purple-400" />
+                          <Smartphone className="h-4 w-4 mr-2 text-purple-400" />
                           Device Breakdown
                         </div>
                       </CardTitle>
