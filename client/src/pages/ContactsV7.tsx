@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   Table,
@@ -91,6 +91,10 @@ const ContactsV7 = () => {
   const [showAddContactDialog, setShowAddContactDialog] = useState(false);
   const [newContact, setNewContact] = useState({ name: "", email: "", status: "active" });
   const [importDialogOpen, setImportDialogOpen] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [uploadProgress, setUploadProgress] = useState<number>(0);
+  const [isUploading, setIsUploading] = useState<boolean>(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
   // Fetch contacts
   const {
@@ -163,6 +167,93 @@ const ContactsV7 = () => {
     e.preventDefault();
     addContactMutation.mutate(newContact);
   };
+
+  // Handle file selection
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      setSelectedFile(e.target.files[0]);
+    }
+  };
+  
+  // Handle file drop
+  const handleFileDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      setSelectedFile(e.dataTransfer.files[0]);
+    }
+  };
+  
+  // Prevent default behavior for drag events
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+  };
+  
+  // Import contacts from file
+  const importContactsMutation = useMutation({
+    mutationFn: async () => {
+      if (!selectedFile) {
+        throw new Error("No file selected");
+      }
+      
+      setIsUploading(true);
+      setUploadProgress(0);
+      
+      const formData = new FormData();
+      formData.append("file", selectedFile);
+      
+      try {
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", "/api/contacts/import", true);
+        
+        // Track upload progress
+        xhr.upload.onprogress = (event) => {
+          if (event.lengthComputable) {
+            const progress = Math.round((event.loaded / event.total) * 100);
+            setUploadProgress(progress);
+          }
+        };
+        
+        return new Promise((resolve, reject) => {
+          xhr.onload = () => {
+            if (xhr.status >= 200 && xhr.status < 300) {
+              resolve(JSON.parse(xhr.responseText));
+            } else {
+              reject(new Error(`Upload failed: ${xhr.statusText}`));
+            }
+          };
+          
+          xhr.onerror = () => {
+            reject(new Error("Network error occurred"));
+          };
+          
+          xhr.send(formData);
+        });
+      } catch (error) {
+        console.error("File upload error:", error);
+        throw error;
+      } finally {
+        setIsUploading(false);
+      }
+    },
+    onSuccess: (data: any) => {
+      setImportDialogOpen(false);
+      setSelectedFile(null);
+      setUploadProgress(0);
+      queryClient.invalidateQueries({ queryKey: ["/api/contacts"] });
+      toast({
+        title: "Contacts imported",
+        description: `Successfully imported ${data.valid || 0} contacts.`,
+      });
+    },
+    onError: (error: any) => {
+      setUploadProgress(0);
+      toast({
+        title: "Import failed",
+        description: error.message || "There was an error importing contacts.",
+        variant: "destructive",
+      });
+    },
+  });
 
   // Select/deselect all contacts
   useEffect(() => {
@@ -724,14 +815,59 @@ const ContactsV7 = () => {
           </DialogHeader>
           
           <div className="grid gap-4 py-4">
-            <div className="border-2 border-dashed rounded-lg p-10 text-center">
+            <input 
+              type="file" 
+              ref={fileInputRef} 
+              className="hidden" 
+              accept=".csv,.xlsx,.json,.txt"
+              onChange={handleFileSelect}
+            />
+            
+            <div 
+              className={`border-2 border-dashed rounded-lg p-10 text-center ${selectedFile ? 'border-green-500 bg-green-50' : 'border-gray-300'}`}
+              onDragOver={handleDragOver}
+              onDrop={handleFileDrop}
+              onClick={() => fileInputRef.current?.click()}
+              style={{ cursor: 'pointer' }}
+            >
               <div className="flex flex-col items-center">
-                <Upload className="h-8 w-8 text-gray-400 mb-2" />
-                <h3 className="text-lg font-medium">Drag and drop your file here</h3>
-                <p className="text-sm text-gray-500 mb-4">or click to browse files</p>
-                <Button variant="outline">Select File</Button>
+                {selectedFile ? (
+                  <>
+                    <CheckCircle className="h-8 w-8 text-green-500 mb-2" />
+                    <h3 className="text-lg font-medium">File selected</h3>
+                    <p className="text-sm text-gray-500 mb-2">{selectedFile.name}</p>
+                    <p className="text-xs text-gray-500">
+                      {(selectedFile.size / 1024).toFixed(1)} KB • Click to change
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <Upload className="h-8 w-8 text-gray-400 mb-2" />
+                    <h3 className="text-lg font-medium">Drag and drop your file here</h3>
+                    <p className="text-sm text-gray-500 mb-4">or click to browse files</p>
+                    <Button 
+                      variant="outline" 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        fileInputRef.current?.click();
+                      }}
+                    >
+                      Select File
+                    </Button>
+                  </>
+                )}
               </div>
             </div>
+            
+            {isUploading && (
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span>Uploading...</span>
+                  <span>{uploadProgress}%</span>
+                </div>
+                <Progress value={uploadProgress} />
+              </div>
+            )}
             
             <div className="bg-muted rounded-md p-3">
               <h4 className="text-sm font-medium mb-2">Supported formats</h4>
@@ -745,11 +881,18 @@ const ContactsV7 = () => {
           </div>
           
           <DialogFooter>
-            <Button variant="outline" onClick={() => setImportDialogOpen(false)}>
+            <Button variant="outline" onClick={() => {
+              setImportDialogOpen(false);
+              setSelectedFile(null);
+              setUploadProgress(0);
+            }}>
               Cancel
             </Button>
-            <Button disabled={true}>
-              Import Contacts
+            <Button 
+              onClick={() => importContactsMutation.mutate()}
+              disabled={!selectedFile || isUploading}
+            >
+              {isUploading ? `Uploading ${uploadProgress}%` : 'Import Contacts'}
             </Button>
           </DialogFooter>
         </DialogContent>

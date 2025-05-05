@@ -10,6 +10,14 @@
     "name": "Aadi Mughal",
     "email": "adimughal@hotmail.ca",
     "id": 2,
-    "createdAt": "2025-05-02T21:42:02.156Z"
+    "createdAt": "2025-05-02T21:42:02.156Z",
+    "lastActivityAt": null
+  },
+  {
+    "name": "Aadi Mughal",
+    "email": "adimughal_1746465332039@hotmail.ca",
+    "status": "active",
+    "id": 3,
+    "createdAt": "2025-05-05T17:15:33.679Z"
   }
 ]
