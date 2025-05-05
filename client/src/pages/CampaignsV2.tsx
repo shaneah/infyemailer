@@ -26,6 +26,8 @@ import {
 
 // Custom campaign card component
 const CampaignCard = ({ campaign }: { campaign: any }) => {
+  const [, setLocation] = useLocation();
+  
   const statusColors = {
     "Sent": "bg-emerald-100 text-emerald-800 border-emerald-200",
     "Draft": "bg-gray-100 text-gray-800 border-gray-200",
@@ -126,7 +128,7 @@ const CampaignCard = ({ campaign }: { campaign: any }) => {
           variant="ghost" 
           size="sm" 
           className="text-xs"
-          onClick={() => window.location.href = `/campaigns/${campaign.id}`}
+          onClick={() => setLocation(`/campaigns/${campaign.id}`)}
         >
           <CheckCircle2 className="h-3.5 w-3.5 mr-1" />
           View
@@ -135,7 +137,7 @@ const CampaignCard = ({ campaign }: { campaign: any }) => {
           variant="ghost" 
           size="sm" 
           className="text-xs"
-          onClick={() => window.location.href = `/email-performance?campaignId=${campaign.id}`}
+          onClick={() => setLocation(`/email-performance?campaignId=${campaign.id}`)}
         >
           <BarChart4 className="h-3.5 w-3.5 mr-1" />
           Analytics
@@ -212,16 +214,22 @@ export default function CampaignsV2() {
   const [initialTemplateId, setInitialTemplateId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [location] = useLocation();
+  const [location, setLocation] = useLocation();
   
   const { data: campaignStats, isLoading: statsLoading } = useQuery<any[]>({
     queryKey: ['/api/campaigns/stats'],
     initialData: [],
+    staleTime: 60000,
+    refetchOnWindowFocus: true,
+    retry: 3,
   });
   
   const { data: campaigns = [], isLoading: campaignsLoading } = useQuery<any[]>({
     queryKey: ['/api/campaigns'],
     initialData: [],
+    staleTime: 60000,
+    refetchOnWindowFocus: true,
+    retry: 3,
   });
   
   useEffect(() => {
@@ -315,7 +323,7 @@ export default function CampaignsV2() {
               className="bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-sm w-full sm:w-auto"
               variant="outline"
               size="sm"
-              onClick={() => window.location.href = '/templates'}
+              onClick={() => setLocation('/templates')}
             >
               <BookOpen className="h-4 w-4 mr-2" />
               View Templates
