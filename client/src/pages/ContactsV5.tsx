@@ -405,6 +405,13 @@ const ContactsV5: React.FC = () => {
     refetch: refetchContacts
   } = useQuery<any[]>({
     queryKey: ['/api/contacts'],
+    queryFn: async () => {
+      const res = await fetch('/api/contacts');
+      if (!res.ok) {
+        throw new Error(`Failed to fetch contacts: ${res.status} ${res.statusText}`);
+      }
+      return res.json();
+    },
     initialData: [],
   });
   
