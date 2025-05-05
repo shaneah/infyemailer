@@ -392,7 +392,9 @@ const EmailPerformanceV2: React.FC = () => {
         if (campaignFilter && campaignFilter !== 'all') params.append('campaignId', campaignFilter);
         
         const queryString = params.toString() ? `?${params.toString()}` : '';
-        const res = await fetch(`/api/email-performance/metrics${queryString}`);
+        const res = await fetch(`/api/email-performance/metrics${queryString}`, {
+          credentials: 'include'  // Include credentials to pass cookies for authentication
+        });
         
         if (!res.ok) {
           console.error(`Error fetching metrics: ${res.status} ${res.statusText}`);
@@ -436,7 +438,9 @@ const EmailPerformanceV2: React.FC = () => {
         if (campaignFilter && campaignFilter !== 'all') params.append('campaignId', campaignFilter);
         
         const queryString = params.toString() ? `?${params.toString()}` : '';
-        const res = await fetch(`/api/email-performance/charts${queryString}`);
+        const res = await fetch(`/api/email-performance/charts${queryString}`, {
+          credentials: 'include'  // Include credentials to pass cookies for authentication
+        });
         
         if (!res.ok) {
           console.error(`Error fetching chart data: ${res.status} ${res.statusText}`);
@@ -483,7 +487,9 @@ const EmailPerformanceV2: React.FC = () => {
     refetchInterval: 30000, // Refetch every 30 seconds
     queryFn: async () => {
       try {
-        const res = await fetch('/api/email-performance/realtime');
+        const res = await fetch('/api/email-performance/realtime', {
+          credentials: 'include'  // Include credentials to pass cookies for authentication
+        });
         
         if (!res.ok) {
           console.error(`Error fetching realtime data: ${res.status} ${res.statusText}`);
