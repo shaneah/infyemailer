@@ -233,8 +233,8 @@ function App() {
                   sidebarCollapsed={sidebarCollapsed}
                   setSidebarCollapsed={setSidebarCollapsed}
                 />
-                <main className="flex-1 overflow-y-auto p-4 md:p-6 bg-gray-50 min-h-screen">
-                  <div className="max-w-[1920px] mx-auto">
+                <main className="flex-1 overflow-y-auto bg-gray-50 min-h-screen">
+                  <div className="w-full">
                     <Switch>
                       <ProtectedRoute path="/" component={DashboardV2} />
                       <ProtectedRoute path="dashboard" component={DashboardV2} />
