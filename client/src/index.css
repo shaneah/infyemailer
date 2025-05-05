@@ -2,6 +2,54 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Theme CSS variables - For adaptive theme system */
+:root {
+  /* These will be dynamically updated by ThemeContext */
+  --color-primary: #6366f1;
+  --color-secondary: #2a3050;
+  --color-accent: #d4af37;
+  --color-background: #f8f9fa;
+  --color-cardBg: #ffffff;
+  --color-border: #e2e8f0;
+  --color-textPrimary: #1a202c;
+  --color-textSecondary: #4a5568;
+  --color-textMuted: #718096;
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+  --color-info: #3b82f6;
+  --color-gradient: linear-gradient(to right, #6366f1, #8b5cf6);
+}
+
+/* Dark mode overrides */
+.dark-mode {
+  --color-background: #111827;
+  --color-cardBg: #1f2937;
+  --color-border: #374151;
+  --color-textPrimary: #f3f4f6;
+  --color-textSecondary: #d1d5db;
+  --color-textMuted: #9ca3af;
+}
+
+/* Adaptive theme utility classes */
+.bg-adaptive-primary { background-color: var(--color-primary); }
+.bg-adaptive-secondary { background-color: var(--color-secondary); }
+.bg-adaptive-accent { background-color: var(--color-accent); }
+.bg-adaptive-background { background-color: var(--color-background); }
+.bg-adaptive-card { background-color: var(--color-cardBg); }
+
+.text-adaptive-primary { color: var(--color-primary); }
+.text-adaptive-secondary { color: var(--color-secondary); }
+.text-adaptive-accent { color: var(--color-accent); }
+.text-adaptive-foreground { color: var(--color-textPrimary); }
+.text-adaptive-muted { color: var(--color-textMuted); }
+
+.border-adaptive { border-color: var(--color-border); }
+.border-adaptive-primary { border-color: var(--color-primary); }
+.border-adaptive-accent { border-color: var(--color-accent); }
+
+.gradient-adaptive { background: var(--color-gradient); }
+
 /* Template preview container */
 .template-preview {
   font-family: Arial, sans-serif;
@@ -331,26 +379,31 @@
   }
 
   body {
-    @apply font-sans antialiased bg-gray-50 text-gray-800;
+    @apply font-sans antialiased;
     overflow-x: hidden;
+    background-color: var(--color-background);
+    color: var(--color-textPrimary);
   }
   
   h1, h2, h3, h4, h5, h6 {
-    @apply font-semibold tracking-tight text-gray-900;
+    @apply font-semibold tracking-tight;
+    color: var(--color-textPrimary);
   }
   
   h1 {
     @apply text-2xl md:text-3xl mb-4;
-    background: linear-gradient(to right, hsl(270, 100%, 55%), hsl(270, 100%, 65%));
+    background: var(--color-gradient);
     @apply bg-clip-text text-transparent;
   }
   
   h2 {
-    @apply text-xl md:text-2xl mb-3 text-gray-800;
+    @apply text-xl md:text-2xl mb-3;
+    color: var(--color-textSecondary);
   }
   
   h3 {
-    @apply text-lg md:text-xl mb-2 text-gray-700;
+    @apply text-lg md:text-xl mb-2;
+    color: var(--color-textSecondary);
   }
 
   /* Add subtle pattern to background */
@@ -668,34 +721,37 @@
 }
 
 .card {
-  @apply rounded-md shadow-sm border border-gray-200;
-  background: white;
+  @apply rounded-md shadow-sm border;
+  background-color: var(--color-cardBg);
   transition: all 0.3s ease;
-  border-color: rgba(212, 175, 55, 0.15); /* Light gold */
+  border-color: var(--color-border);
 }
 
 .card:hover {
-  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.2);
-  border-color: rgba(212, 175, 55, 0.3);
+  box-shadow: 0 4px 12px rgba(var(--color-primary), 0.2);
+  border-color: var(--color-primary);
 }
 
 .card-header {
-  @apply font-medium p-4 border-b bg-white rounded-t-md;
-  border-color: rgba(212, 175, 55, 0.2); /* Light gold */
+  @apply font-medium p-4 border-b rounded-t-md;
+  background-color: var(--color-cardBg);
+  border-color: var(--color-border);
 }
 
 .card-header h3, .card-header h4 {
-  color: #1a3a5f; /* Rich blue */
+  color: var(--color-primary);
   font-weight: 600;
 }
 
 .card-body {
   @apply p-4;
+  background-color: var(--color-cardBg);
 }
 
 .card-footer {
-  @apply p-4 border-t bg-white rounded-b-md;
-  border-color: rgba(212, 175, 55, 0.2); /* Light gold */
+  @apply p-4 border-t rounded-b-md;
+  background-color: var(--color-cardBg);
+  border-color: var(--color-border);
 }
 
 .form-label {
