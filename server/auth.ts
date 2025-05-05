@@ -88,6 +88,8 @@ export function setupAuth(app: Express) {
     cookie: {
       maxAge: 1000 * 60 * 60 * 24, // 1 day
       secure: false,
+      sameSite: 'lax',  // Allow cookies to be sent with same-site requests
+      path: '/',        // Ensure cookie is available across the entire site
     }
   };
 
