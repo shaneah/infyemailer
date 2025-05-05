@@ -137,7 +137,9 @@ const DetailedOpens = () => {
     queryKey: ['/api/campaigns'],
     queryFn: async () => {
       try {
-        const res = await fetch('/api/campaigns');
+        const res = await fetch('/api/campaigns', {
+          credentials: 'include'  // Include credentials to pass cookies for authentication
+        });
         
         if (!res.ok) {
           console.error(`Error fetching campaigns: ${res.status} ${res.statusText}`);
