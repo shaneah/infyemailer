@@ -36,6 +36,12 @@ interface SubMenuProps {
   collapsed: boolean;
   isActive: boolean;
   children: React.ReactNode;
+  badge?: {
+    count?: number;
+    variant?: 'default' | 'warning' | 'success' | 'error';
+    dot?: boolean;
+    pulse?: boolean;
+  };
 }
 
 const SubMenu: React.FC<SubMenuProps> = ({ 
@@ -43,9 +49,34 @@ const SubMenu: React.FC<SubMenuProps> = ({
   icon, 
   collapsed, 
   isActive,
-  children 
+  children,
+  badge
 }) => {
   const [isOpen, setIsOpen] = useState(isActive);
+  
+  // Badge styling based on variant
+  const getBadgeStyles = () => {
+    const baseStyles = "flex items-center justify-center text-xs font-bold rounded-full";
+    
+    if (!badge) return baseStyles;
+    
+    if (badge.dot) {
+      return `${baseStyles} h-2 w-2 ${
+        badge.variant === 'warning' ? 'bg-amber-500' : 
+        badge.variant === 'success' ? 'bg-emerald-500' : 
+        badge.variant === 'error' ? 'bg-red-500' : 
+        'bg-[#d4af37]'
+      } ${badge.pulse ? 'animate-pulse' : ''}`;
+    }
+    
+    const variant = badge.variant || 'default';
+    return `${baseStyles} h-5 min-w-5 px-1 ${
+      variant === 'warning' ? 'bg-amber-500' : 
+      variant === 'success' ? 'bg-emerald-500' : 
+      variant === 'error' ? 'bg-red-500' : 
+      'bg-[#d4af37]'
+    } text-white`;
+  };
   
   return (
     <li>
@@ -61,12 +92,36 @@ const SubMenu: React.FC<SubMenuProps> = ({
             className: `h-5 w-5 mr-3 ${isActive ? 'text-[#d4af37]' : ''}` 
           })}
           {!collapsed && <span>{title}</span>}
+          
+          {/* Badge - always shown for dots, only shown in expanded view for counters if not collapsed */}
+          {badge && (badge.dot || (!collapsed && badge.count !== undefined)) && (
+            <div className="relative ml-2">
+              {badge.dot ? (
+                <span className={getBadgeStyles()}></span>
+              ) : (
+                <span className={getBadgeStyles()}>
+                  {badge.count && badge.count > 99 ? '99+' : badge.count}
+                </span>
+              )}
+            </div>
+          )}
         </div>
-        {!collapsed && (
-          <div className="text-gray-400">
-            {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-          </div>
-        )}
+        
+        <div className="flex items-center">
+          {/* Badge for collapsed view - only show counters */}
+          {collapsed && badge && badge.count !== undefined && (
+            <span className={getBadgeStyles()}>
+              {badge.count && badge.count > 99 ? '99+' : badge.count}
+            </span>
+          )}
+          
+          {/* Chevron for expand/collapse */}
+          {!collapsed && (
+            <div className="text-gray-400 ml-2">
+              {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+            </div>
+          )}
+        </div>
       </div>
       
       {!collapsed && isOpen && (
@@ -225,6 +280,7 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
               icon={<Users />} 
               collapsed={collapsed}
               isActive={location === '/contacts' || location === '/contact-lists'}
+              badge={{ count: 2583, variant: 'default' }}
             >
               {/* All Contacts */}
               <Link 
@@ -267,6 +323,7 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
               icon={<BarChart2 />} 
               collapsed={collapsed}
               isActive={location === '/email-performance' || location.startsWith('/ab-testing')}
+              badge={{ count: 8, variant: 'success' }}
             >
               {/* Email Performance */}
               <Link 
@@ -324,6 +381,7 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
               icon={<Mail />} 
               collapsed={collapsed}
               isActive={location === '/email-validation' || location === '/email-providers' || location === '/email-test'}
+              badge={{ dot: true, variant: 'error', pulse: true }}
             >
               {/* Email Validation */}
               <Link 
@@ -386,6 +444,7 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
               icon={<ShieldCheck />} 
               collapsed={collapsed}
               isActive={location === '/user-management' || location === '/admin' || location === '/settings'}
+              badge={{ count: 3, variant: 'warning' }}
             >
               {/* User Management */}
               <Link 
