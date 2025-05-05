@@ -48,11 +48,11 @@ const campaignSchema = z.object({
   isAbTest: z.boolean().optional().default(false),
   variants: z.array(z.object({
     name: z.string().min(1, "Variant name is required"),
-    subject: z.string().min(1, "Subject is required"),
-    previewText: z.string().optional(),
+    subject: z.string().min(1, "Variant subject is required"),
+    previewText: z.string().min(1, "Variant preview text is required"),
     content: z.string().optional(),
-    weight: z.number().min(1).max(99).optional().default(50),
-  })).optional().default([]),
+    weight: z.number().min(1, "Weight must be at least 1").default(50),
+  })).optional(),
 });
 
 interface NewCampaignModalProps {
@@ -150,13 +150,22 @@ const NewCampaignModal = ({ onClose, initialTemplateId = null }: NewCampaignModa
   });
   
   const onSubmit = (values: z.infer<typeof campaignSchema>) => {
+    // Validate required fields for campaign creation
+    if (!selectedTemplateId) {
+      toast({
+        title: "Template Required",
+        description: "Please select a template for your campaign",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     if (selectedLists.length === 0) {
       toast({
-        title: "No Contact Lists Selected",
+        title: "Audience Required",
         description: "Please select at least one contact list for your campaign",
-        variant: "destructive"
+        variant: "destructive",
       });
-      setActiveTab('audience');
       return;
     }
     
@@ -198,20 +207,31 @@ const NewCampaignModal = ({ onClose, initialTemplateId = null }: NewCampaignModa
     queryKey: ['/api/templates'],
   });
   
-  // Fetch lists from the server
-  const { data: serverLists = [], isLoading: isLoadingLists } = useQuery<{ id: number | string, name: string, count: number }[]>({ 
+  // Fetch contact lists from the server
+  const { data: serverLists = [], isLoading: isLoadingLists } = useQuery<any[]>({ 
     queryKey: ['/api/lists'],
   });
   
-  // Use mock data if the server endpoint doesn't return any data
+  // Use server data if available, otherwise use mock data
   const templates = serverTemplates.length > 0 ? serverTemplates : mockTemplates;
   const lists = serverLists.length > 0 ? serverLists : mockLists;
+  
+  // Used to ensure Dialog doesn't unmount during animations
+  const [isOpen, setIsOpen] = useState(true);
+  
+  // Close the dialog and then call the parent's onClose after animation
+  const handleClose = () => {
+    setIsOpen(false);
+    setTimeout(() => {
+      onClose();
+    }, 300); // Match animation duration
+  };
   
   console.log("Templates:", templates.length > 0 ? "Using data" : "Using mocks", "Lists:", lists.length > 0 ? "Using data" : "Using mocks");
   console.log("Template count:", templates.length, "List count:", lists.length);
 
   return (
-    <Dialog open={true} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="bg-white rounded-xl max-w-4xl p-0 overflow-hidden">
         <div className="bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 p-5 text-white relative">
           {/* Decorative elements */}
@@ -229,7 +249,7 @@ const NewCampaignModal = ({ onClose, initialTemplateId = null }: NewCampaignModa
           </div>
           
           <button 
-            onClick={onClose} 
+            onClick={handleClose} 
             className="absolute top-2 right-2 rounded-full p-1 text-white/80 hover:text-white hover:bg-white/10 transition-colors"
           >
             <X className="h-5 w-5" />
@@ -317,7 +337,7 @@ const NewCampaignModal = ({ onClose, initialTemplateId = null }: NewCampaignModa
             {activeTab === 'details' && (
                 <div>
                   <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)}>
+                    <form onSubmit={(e) => { e.preventDefault(); }}>
                       <FormField
                         control={form.control}
                         name="name"
@@ -468,49 +488,35 @@ const NewCampaignModal = ({ onClose, initialTemplateId = null }: NewCampaignModa
                           { bg: "from-orange-500 to-amber-600", text: "text-orange-700", border: "border-orange-200", hover: "hover:border-orange-300" },
                         ];
                         
-                        const colorIndex = (Number(template.id) - 1) % colors.length;
-                        const color = colors[colorIndex];
+                        const templateIndex = typeof template.id === 'number' ? template.id % colors.length : 0;
+                        const color = colors[templateIndex];
                         
                         return (
-                          <div className="group" key={template.id}>
-                            <motion.div 
-                              className={`relative flex flex-col rounded-xl overflow-hidden transition-all duration-200 cursor-pointer 
-                                ${selectedTemplateId === template.id.toString() 
-                                  ? `border-2 border-${color.bg.split(' ')[0].replace('from-', '')} shadow-md` 
-                                  : `border border-gray-200 ${color.hover} shadow-sm hover:shadow`}
-                              `}
-                              onClick={() => setSelectedTemplateId(template.id.toString())}
-                              whileHover={{ y: -4 }}
-                              transition={{ duration: 0.2 }}
-                            >
-                              {/* Header with gradient */}
-                              <div className={`h-24 bg-gradient-to-r ${color.bg} flex items-center justify-center p-4`}>
-                                <FileText className="h-10 w-10 text-white" />
-                                
-                                {/* Selection indicator */}
-                                {selectedTemplateId === template.id.toString() && (
-                                  <div className="absolute top-2 right-2 bg-white rounded-full p-1">
-                                    <CheckCircle className="h-5 w-5 text-green-600" />
-                                  </div>
+                          <Card 
+                            key={template.id}
+                            className={`cursor-pointer transition-all border ${color.border} ${color.hover} ${selectedTemplateId === String(template.id) ? 'ring-2 ring-purple-400 shadow-md' : ''}`}
+                            onClick={() => setSelectedTemplateId(String(template.id))}
+                          >
+                            <CardHeader className={`p-4 bg-gradient-to-r ${color.bg} text-white pb-12`}>
+                              <div className="flex items-center justify-between">
+                                <CardTitle className="text-base font-medium">{template.name}</CardTitle>
+                                {selectedTemplateId === String(template.id) && (
+                                  <CheckCircle className="h-5 w-5 text-white" />
                                 )}
                               </div>
-                              
-                              {/* Content */}
-                              <div className="p-4 flex-grow bg-white">
-                                <h3 className={`font-medium mb-1 ${color.text}`}>{template.name}</h3>
-                                <p className="text-sm text-gray-500 line-clamp-2">{template.description}</p>
+                            </CardHeader>
+                            <div className="px-4 -mt-8">
+                              <div className="bg-white border border-gray-200 rounded-md shadow-sm p-3 mb-3">
+                                <div className="text-xs text-gray-500 mb-1">Preview</div>
+                                <div className="bg-gray-100 rounded h-16"></div>
                               </div>
-                                
-                              {/* Footer */}
-                              <div className="px-4 py-3 bg-gray-50 text-xs text-gray-500 border-t border-gray-100">
-                                {template.category && (
-                                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                                    {template.category}
-                                  </span>
-                                )}
-                              </div>
-                            </motion.div>
-                          </div>
+                            </div>
+                            <CardContent className="p-4 pt-0">
+                              <CardDescription className="text-sm text-gray-600">
+                                {template.description || "A professional email template"}
+                              </CardDescription>
+                            </CardContent>
+                          </Card>
                         );
                       })}
                     </div>
@@ -529,23 +535,13 @@ const NewCampaignModal = ({ onClose, initialTemplateId = null }: NewCampaignModa
                     
                     <div className="space-x-2">
                       <Button 
-                        type="button"
-                        variant="outline"
-                        className="border-purple-200 text-purple-700 hover:bg-purple-50 hover:text-purple-800"
+                        type="button" 
+                        className="bg-gradient-to-r from-green-600 to-emerald-600 text-white hover:from-green-700 hover:to-emerald-700 shadow-md"
                         onClick={() => {
                           if (!selectedTemplateId) {
                             toast({
                               title: "No Template Selected",
                               description: "Please select a template first",
-                              variant: "destructive"
-                            });
-                            return;
-                          }
-                            
-                          if (selectedLists.length === 0) {
-                            toast({
-                              title: "No Contact Lists Selected",
-                              description: "Please select at least one contact list for your campaign",
                               variant: "destructive"
                             });
                             setActiveTab('audience');
@@ -602,285 +598,155 @@ const NewCampaignModal = ({ onClose, initialTemplateId = null }: NewCampaignModa
               
               {activeTab === 'audience' && (
                 <div>
-                  {console.log("Audience tab rendered, available lists:", lists)}
-                  
+                  <h3 className="text-lg font-medium mb-4 text-gray-800">Select Your Target Audience</h3>
                   <div className="mb-6">
-                    <h3 className="text-lg font-medium mb-2 text-gray-800">Select Your Audience</h3>
-                    <p className="text-sm text-gray-500 mb-4">Choose one or more contact lists to receive your campaign</p>
-                    
-                    <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden mb-4">
-                      {lists.map((list, index) => (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {lists.map((list: any) => (
                         <div 
-                          key={list.id} 
-                          className={`flex items-center p-3 hover:bg-purple-50 transition-colors cursor-pointer ${
-                            index !== lists.length - 1 ? 'border-b border-gray-100' : ''
-                          } ${
-                            selectedLists.includes(list.id.toString()) ? 'bg-purple-50' : ''
+                          key={list.id}
+                          className={`border rounded-lg p-4 cursor-pointer transition-all ${
+                            selectedLists.includes(String(list.id)) 
+                              ? 'border-purple-400 bg-purple-50 shadow-sm' 
+                              : 'border-gray-200 hover:border-purple-300 hover:bg-purple-50/50'
                           }`}
                           onClick={() => {
-                            if (selectedLists.includes(list.id.toString())) {
-                              setSelectedLists(selectedLists.filter(id => id !== list.id.toString()));
-                            } else {
-                              setSelectedLists([...selectedLists, list.id.toString()]);
-                            }
+                            const listId = String(list.id);
+                            setSelectedLists(prev => 
+                              prev.includes(listId)
+                                ? prev.filter(id => id !== listId)
+                                : [...prev, listId]
+                            );
                           }}
                         >
-                          <div className="flex items-center flex-1">
-                            <div className={`w-5 h-5 rounded-md border flex items-center justify-center mr-3 ${
-                              selectedLists.includes(list.id.toString()) 
-                                ? 'bg-gradient-to-r from-purple-600 to-pink-600 border-transparent' 
-                                : 'border-gray-300'
-                            }`}>
-                              {selectedLists.includes(list.id.toString()) && (
-                                <CheckCircle className="h-4 w-4 text-white" />
+                          <div className="flex items-start justify-between">
+                            <div>
+                              <div className="font-medium text-gray-900">{list.name}</div>
+                              <div className="text-sm text-gray-600 mt-1">
+                                {list.count} contacts · Last updated: {list.lastUpdated || "Recently"}
+                              </div>
+                            </div>
+                            <div className="h-5 w-5 border rounded-full grid place-items-center bg-white">
+                              {selectedLists.includes(String(list.id)) && (
+                                <div className="h-3 w-3 rounded-full bg-purple-500"></div>
                               )}
-                            </div>
-                            
-                            <div className="flex-1">
-                              <span className="font-medium text-gray-800">{list.name}</span>
-                            </div>
-                            
-                            <div className="ml-4">
-                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gradient-to-r from-purple-100 to-pink-100 text-purple-800">
-                                {list.count.toLocaleString()} contacts
-                              </span>
                             </div>
                           </div>
                         </div>
                       ))}
-                      
-                      {lists.length === 0 && (
-                        <div className="p-8 text-center">
-                          <div className="inline-flex items-center justify-center p-3 rounded-full bg-purple-100 mb-4">
-                            <Users className="h-6 w-6 text-purple-600" />
-                          </div>
-                          <h4 className="text-gray-800 font-medium mb-2">No contact lists available</h4>
-                          <p className="text-gray-500 mb-4">You need to create a contact list first</p>
-                          <a 
-                            href="/contacts" 
-                            className="inline-flex items-center px-4 py-2 rounded-md bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700 shadow-sm text-sm font-medium"
-                          >
-                            Create a contact list
-                          </a>
-                        </div>
-                      )}
                     </div>
+                  </div>
+                  
+                  <div className="flex justify-between mt-6">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setActiveTab('content')}
+                      className="flex items-center"
+                    >
+                      <ChevronLeft className="mr-2 h-4 w-4" />
+                      Back
+                    </Button>
                     
-                    {lists.length > 0 && (
-                      <div className="bg-gray-50 rounded-lg border border-gray-200 p-4 mb-6">
-                        <div className="flex items-center text-sm">
-                          <div className="mr-3 bg-purple-100 p-2 rounded-full">
-                            <Users className="h-5 w-5 text-purple-600" />
-                          </div>
-                          <div>
-                            <span className="font-medium">Total audience: </span>
-                            <span className="text-gray-700">
-                              {selectedLists.length > 0 
-                                ? lists
-                                    .filter(list => selectedLists.includes(list.id.toString()))
-                                    .reduce((sum, list) => sum + list.count, 0)
-                                    .toLocaleString()
-                                : 0} contacts
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                    
-                    <div className="flex justify-between mt-6">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => setActiveTab('content')}
-                        className="flex items-center"
-                      >
-                        <ChevronLeft className="mr-2 h-4 w-4" />
-                        Back
-                      </Button>
-                      
-                      <Button 
-                        type="button"
-                        className="bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700 shadow-md"
-                        onClick={() => {
-                          if (selectedLists.length === 0) {
-                            toast({
-                              title: "No Contact Lists Selected",
-                              description: "Please select at least one contact list for your campaign",
-                              variant: "destructive"
-                            });
-                            return;
-                          }
-                          
-                          // Go to A/B testing tab
-                          setActiveTab('testing');
-                        }}
-                      >
-                        <ChevronRight className="mr-2 h-4 w-4" />
-                        Next: A/B Testing
-                      </Button>
-                    </div>
+                    <Button 
+                      type="button" 
+                      className="bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700 shadow-md"
+                      onClick={() => {
+                        if (selectedLists.length === 0) {
+                          toast({
+                            title: "No Lists Selected",
+                            description: "Please select at least one contact list",
+                            variant: "destructive"
+                          });
+                          return;
+                        }
+                        
+                        // Go to A/B testing tab
+                        setActiveTab('testing');
+                      }}
+                    >
+                      <ChevronRight className="mr-2 h-4 w-4" />
+                      Next: A/B Testing
+                    </Button>
                   </div>
                 </div>
               )}
               
               {activeTab === 'testing' && (
                 <div>
-                  <h3 className="text-lg font-medium mb-3 text-gray-800">A/B Testing Configuration</h3>
-                  <p className="text-sm text-gray-500 mb-4">Create multiple variants of your email to test different subject lines and content</p>
-                    
-                  <div className="flex items-center p-4 bg-gray-50 rounded-lg border border-gray-200 mb-6">
-                    <div className="flex-grow">
-                      <p className="font-medium mb-0.5">Enable A/B Testing</p>
-                      <p className="text-sm text-gray-500">Test different subject lines, preview text, or content versions</p>
-                    </div>
-                    <Switch 
-                      checked={isAbTesting}
-                      onCheckedChange={setIsAbTesting}
-                    />
-                  </div>
-
-                  {isAbTesting && (
-                    <div className="space-y-6">
-                      <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-4 rounded-lg border border-purple-100 mb-4">
-                        <div className="flex">
-                          <div className="mr-3 text-purple-500">
-                            <Info className="h-5 w-5" />
-                          </div>
-                          <div className="space-y-1">
-                            <p className="font-medium text-purple-800">How A/B Testing Works</p>
-                            <p className="text-sm text-purple-700">
-                              Create multiple variants of your email with different subjects, content, or preview text. 
-                              We'll distribute these variants to your audience and track which performs better, allowing you 
-                              to determine the winning variant based on open rates, clicks, and conversions.
-                            </p>
-                          </div>
-                        </div>
+                  <h3 className="text-lg font-medium mb-2 text-gray-800">A/B Testing Options</h3>
+                  <p className="text-gray-600 text-sm mb-4">
+                    Test different versions of your email to optimize performance.
+                  </p>
+                  
+                  <div className="border border-gray-200 rounded-lg p-4 mb-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h4 className="font-medium text-gray-800">Enable A/B Testing</h4>
+                        <p className="text-sm text-gray-600">Create multiple variants of your campaign to test effectiveness</p>
                       </div>
-                        
-                      <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
-                        <div className="bg-gradient-to-r from-purple-600 to-pink-600 px-4 py-2 text-white flex justify-between items-center">
-                          <h3 className="text-base font-medium m-0 flex items-center">
-                            <BadgePercent className="h-4 w-4 mr-2" />
-                            Email Variants
-                          </h3>
-                          {variants.length > 0 && (
-                            <span className="text-xs bg-white/20 text-white px-2 py-0.5 rounded-full">
-                              {variants.length} variant{variants.length !== 1 ? 's' : ''}
-                            </span>
-                          )}
-                        </div>
-                          
-                        <div className="p-4">
-                          {variants.length > 0 ? (
-                            <div className="space-y-3">
-                              {variants.map((variant, index) => (
-                                <div 
-                                  key={variant.id} 
-                                  className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden"
-                                >
-                                  <div className="bg-gray-50 px-4 py-2 border-b border-gray-200 flex justify-between items-center">
-                                    <h4 className="text-sm font-medium m-0 flex items-center text-gray-800">
-                                      Variant {index + 1}: {variant.name}
-                                    </h4>
-                                    <div className="flex space-x-1">
-                                      <Button 
-                                        size="sm"
-                                        variant="ghost"
-                                        className="h-7 px-2 text-gray-500 hover:text-gray-800"
-                                        onClick={() => {
-                                          // Implement edit variant functionality
-                                          const newName = prompt("Enter a new name for this variant:", variant.name);
-                                          if (newName && newName.trim() !== '') {
-                                            const updatedVariants = [...variants];
-                                            updatedVariants[index] = {
-                                              ...variant,
-                                              name: newName.trim()
-                                            };
-                                            setVariants(updatedVariants);
-                                          }
-                                        }}
-                                      >
-                                        Edit
-                                      </Button>
-                                      <Button 
-                                        size="sm"
-                                        variant="ghost"
-                                        className="h-7 px-2 text-red-600 hover:text-red-700 hover:bg-red-50"
-                                        onClick={() => {
-                                          setVariants(variants.filter(v => v.id !== variant.id));
-                                        }}
-                                      >
-                                        <Trash className="h-4 w-4" />
-                                      </Button>
-                                    </div>
-                                  </div>
-                                  <div className="p-4">
-                                    <div className="space-y-3">
-                                      <div className="flex items-start">
-                                        <div className="flex-shrink-0">
-                                          <span className="flex h-7 w-7 rounded-full bg-purple-100 text-purple-600 text-xs items-center justify-center font-medium">A</span>
-                                        </div>
-                                        <div className="ml-3">
-                                          <p className="text-xs text-gray-500 mb-1">Subject Line</p>
-                                          <p className="text-sm font-medium text-gray-800">{variant.subject}</p>
-                                        </div>
-                                      </div>
-                                        
-                                      <div className="flex items-start">
-                                        <div className="flex-shrink-0">
-                                          <span className="flex h-7 w-7 rounded-full bg-gray-100 text-gray-600 text-xs items-center justify-center font-medium">P</span>
-                                        </div>
-                                        <div className="ml-3">
-                                          <p className="text-xs text-gray-500 mb-1">Preview Text</p>
-                                          <p className="text-sm text-gray-700">{variant.previewText}</p>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </div>
+                      <Switch
+                        checked={isAbTesting}
+                        onCheckedChange={setIsAbTesting}
+                      />
+                    </div>
+                  </div>
+                  
+                  {isAbTesting && (
+                    <div className="border border-gray-200 rounded-lg p-4 mb-6">
+                      <h4 className="font-medium text-gray-800 mb-3">Variant Manager</h4>
+                      
+                      <div className="space-y-4">
+                        {variants.length > 0 ? (
+                          variants.map((variant, index) => (
+                            <div key={variant.id} className="border border-gray-200 rounded-lg p-3">
+                              <div className="flex justify-between mb-2">
+                                <div className="font-medium text-gray-800">
+                                  Variant {index + 1}: {variant.name}
                                 </div>
-                              ))}
-                            </div>
-                          ) : (
-                            <div className="text-center py-8">
-                              <div className="inline-flex items-center justify-center p-3 rounded-full bg-purple-100 mb-3">
-                                <BadgePercent className="h-6 w-6 text-purple-600" />
+                                <button
+                                  className="text-gray-400 hover:text-red-500"
+                                  onClick={() => {
+                                    setVariants(variants.filter(v => v.id !== variant.id));
+                                  }}
+                                >
+                                  <Trash className="h-4 w-4" />
+                                </button>
                               </div>
-                              <h4 className="text-gray-800 font-medium mb-1">No Variants Added Yet</h4>
-                              <p className="text-gray-500 mb-4 text-sm">Create at least one variant to use A/B testing</p>
+                              <div className="text-sm text-gray-600">
+                                <div>Subject: {variant.subject}</div>
+                                <div>Preview: {variant.previewText}</div>
+                                <div>Weight: {variant.weight}%</div>
+                              </div>
                             </div>
-                          )}
-                            
-                          <div className="mt-4">
-                            <Button
-                              type="button"
-                              onClick={() => {
-                                // Get current form values
-                                const formValues = form.getValues();
-                                
-                                // Generate random ID
-                                const variantId = Date.now().toString();
-                                
-                                // Create new variant
-                                const newVariant = {
-                                  id: variantId,
-                                  name: `Variant ${variants.length + 1}`,
-                                  subject: formValues.subject || "",
-                                  previewText: formValues.previewText || "",
-                                  content: "", // Empty content for now
-                                  weight: 50
-                                };
-                                
-                                // Add to variants array
-                                setVariants([...variants, newVariant]);
-                              }}
-                              className="w-full flex items-center justify-center bg-gray-50 hover:bg-gray-100 text-gray-700 border border-gray-200"
-                              variant="outline"
-                            >
-                              <PlusCircle className="h-4 w-4 mr-2" />
-                              Add New Variant
-                            </Button>
+                          ))
+                        ) : (
+                          <div className="text-center py-4 border border-dashed border-gray-200 rounded-lg">
+                            <div className="text-gray-500">No variants added yet</div>
+                            <p className="text-xs text-gray-400 mt-1">Add at least one variant to use A/B testing</p>
                           </div>
-                        </div>
+                        )}
+                        
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="w-full border-dashed border-purple-300 text-purple-600 hover:bg-purple-50 flex items-center justify-center"
+                          onClick={() => {
+                            // Add a new variant
+                            const newVariant = {
+                              id: `variant-${Date.now()}`,
+                              name: `Variant ${variants.length + 1}`,
+                              subject: form.getValues("subject") + (variants.length > 0 ? ` (v${variants.length + 1})` : ""),
+                              previewText: form.getValues("previewText"),
+                              weight: Math.floor(100 / (variants.length + 1)),
+                              content: ""
+                            };
+                            
+                            setVariants([...variants, newVariant]);
+                          }}
+                        >
+                          <PlusCircle className="h-4 w-4 mr-2" />
+                          Add Variant
+                        </Button>
                       </div>
                     </div>
                   )}
@@ -897,20 +763,20 @@ const NewCampaignModal = ({ onClose, initialTemplateId = null }: NewCampaignModa
                     </Button>
                     
                     <Button 
-                      type="button"
+                      type="button" 
                       className="bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700 shadow-md"
                       onClick={() => {
-                        // If A/B testing is enabled, make sure there's at least one variant
+                        // Validate A/B testing setup if enabled
                         if (isAbTesting && variants.length === 0) {
                           toast({
                             title: "No Variants Added",
-                            description: "Please add at least one variant or disable A/B testing",
+                            description: "Please add at least one variant for A/B testing, or disable it",
                             variant: "destructive"
                           });
                           return;
                         }
                         
-                        // Move to settings tab
+                        // Go to settings tab
                         setActiveTab('settings');
                       }}
                     >
@@ -923,130 +789,100 @@ const NewCampaignModal = ({ onClose, initialTemplateId = null }: NewCampaignModa
               
               {activeTab === 'settings' && (
                 <div>
-                  <h3 className="text-lg font-medium mb-3 text-gray-800">Schedule & Send</h3>
-                  <p className="text-sm text-gray-500 mb-5">Choose when to send your campaign</p>
+                  <h3 className="text-lg font-medium mb-2 text-gray-800">Schedule & Send Options</h3>
+                  <p className="text-gray-600 text-sm mb-4">
+                    Choose when to send your campaign to your audience.
+                  </p>
                   
-                  <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden mb-6">
-                    <div className="p-5">
-                      <div className="space-y-5">
-                        <div 
-                          className={`flex items-start p-3 rounded-lg cursor-pointer ${
-                            sendOption === 'now' ? 'bg-purple-50 border border-purple-200' : 'bg-gray-50 border border-gray-200 hover:bg-gray-100'
-                          }`}
-                          onClick={() => setSendOption('now')}
-                        >
-                          <div className={`h-5 w-5 rounded-full border flex items-center justify-center mr-3 mt-0.5 ${
-                            sendOption === 'now' ? 'bg-purple-600 border-transparent' : 'border-gray-300'
-                          }`}>
-                            {sendOption === 'now' && (
-                              <div className="h-2 w-2 rounded-full bg-white"></div>
-                            )}
-                          </div>
+                  <div className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div 
+                        className={`border rounded-lg p-4 cursor-pointer transition-all ${
+                          sendOption === 'now' 
+                            ? 'border-purple-400 bg-purple-50 shadow-sm' 
+                            : 'border-gray-200 hover:border-purple-300 hover:bg-purple-50/50'
+                        }`}
+                        onClick={() => setSendOption('now')}
+                      >
+                        <div className="h-10 w-10 rounded-full bg-gradient-to-r from-green-400 to-emerald-500 flex items-center justify-center mb-3">
+                          <Send className="h-5 w-5 text-white" />
+                        </div>
+                        <h4 className="font-medium text-gray-800">Send Now</h4>
+                        <p className="text-sm text-gray-600 mt-1">
+                          Send your campaign immediately after creation
+                        </p>
+                      </div>
+                      
+                      <div 
+                        className={`border rounded-lg p-4 cursor-pointer transition-all ${
+                          sendOption === 'schedule' 
+                            ? 'border-purple-400 bg-purple-50 shadow-sm' 
+                            : 'border-gray-200 hover:border-purple-300 hover:bg-purple-50/50'
+                        }`}
+                        onClick={() => setSendOption('schedule')}
+                      >
+                        <div className="h-10 w-10 rounded-full bg-gradient-to-r from-blue-400 to-indigo-500 flex items-center justify-center mb-3">
+                          <CalendarCheck className="h-5 w-5 text-white" />
+                        </div>
+                        <h4 className="font-medium text-gray-800">Schedule</h4>
+                        <p className="text-sm text-gray-600 mt-1">
+                          Pick a date and time to automatically send
+                        </p>
+                      </div>
+                      
+                      <div 
+                        className={`border rounded-lg p-4 cursor-pointer transition-all ${
+                          sendOption === 'draft' 
+                            ? 'border-purple-400 bg-purple-50 shadow-sm' 
+                            : 'border-gray-200 hover:border-purple-300 hover:bg-purple-50/50'
+                        }`}
+                        onClick={() => setSendOption('draft')}
+                      >
+                        <div className="h-10 w-10 rounded-full bg-gradient-to-r from-gray-400 to-gray-500 flex items-center justify-center mb-3">
+                          <FileText className="h-5 w-5 text-white" />
+                        </div>
+                        <h4 className="font-medium text-gray-800">Save as Draft</h4>
+                        <p className="text-sm text-gray-600 mt-1">
+                          Save your campaign to send later
+                        </p>
+                      </div>
+                    </div>
+                    
+                    {sendOption === 'schedule' && (
+                      <div className="border border-blue-200 rounded-lg p-4 bg-blue-50">
+                        <h4 className="font-medium text-gray-800 mb-3">Schedule Settings</h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
-                            <h4 className="text-base font-medium mb-1">Send immediately</h4>
-                            <p className="text-sm text-gray-500">Your campaign will be sent right after creation</p>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
+                            <input 
+                              type="date" 
+                              className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                              value={form.getValues("scheduledDate")}
+                              onChange={(e) => form.setValue("scheduledDate", e.target.value)}
+                              min={new Date().toISOString().split('T')[0]}
+                            />
+                          </div>
+                          
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Time</label>
+                            <input 
+                              type="time" 
+                              className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                              value={form.getValues("scheduledTime")}
+                              onChange={(e) => form.setValue("scheduledTime", e.target.value)}
+                            />
                           </div>
                         </div>
                         
-                        <div 
-                          className={`flex items-start p-3 rounded-lg cursor-pointer ${
-                            sendOption === 'schedule' ? 'bg-purple-50 border border-purple-200' : 'bg-gray-50 border border-gray-200 hover:bg-gray-100'
-                          }`}
-                          onClick={() => setSendOption('schedule')}
-                        >
-                          <div className={`h-5 w-5 rounded-full border flex items-center justify-center mr-3 mt-0.5 ${
-                            sendOption === 'schedule' ? 'bg-purple-600 border-transparent' : 'border-gray-300'
-                          }`}>
-                            {sendOption === 'schedule' && (
-                              <div className="h-2 w-2 rounded-full bg-white"></div>
-                            )}
-                          </div>
-                          <div className="flex-grow">
-                            <h4 className="text-base font-medium mb-1">Schedule for later</h4>
-                            <p className="text-sm text-gray-500 mb-3">Choose a specific date and time to send your campaign</p>
-                            
-                            {sendOption === 'schedule' && (
-                              <div className="grid grid-cols-2 gap-3">
-                                <div>
-                                  <p className="text-sm text-gray-700 mb-1">Date</p>
-                                  <Input
-                                    type="date"
-                                    value={form.getValues("scheduledDate")}
-                                    onChange={(e) => form.setValue("scheduledDate", e.target.value)}
-                                    min={new Date().toISOString().split('T')[0]}
-                                    className="border-gray-300"
-                                  />
-                                </div>
-                                <div>
-                                  <p className="text-sm text-gray-700 mb-1">Time</p>
-                                  <Input
-                                    type="time"
-                                    value={form.getValues("scheduledTime")}
-                                    onChange={(e) => form.setValue("scheduledTime", e.target.value)}
-                                    className="border-gray-300"
-                                  />
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                        
-                        <div 
-                          className={`flex items-start p-3 rounded-lg cursor-pointer ${
-                            sendOption === 'draft' ? 'bg-purple-50 border border-purple-200' : 'bg-gray-50 border border-gray-200 hover:bg-gray-100'
-                          }`}
-                          onClick={() => setSendOption('draft')}
-                        >
-                          <div className={`h-5 w-5 rounded-full border flex items-center justify-center mr-3 mt-0.5 ${
-                            sendOption === 'draft' ? 'bg-purple-600 border-transparent' : 'border-gray-300'
-                          }`}>
-                            {sendOption === 'draft' && (
-                              <div className="h-2 w-2 rounded-full bg-white"></div>
-                            )}
-                          </div>
-                          <div>
-                            <h4 className="text-base font-medium mb-1">Save as draft</h4>
-                            <p className="text-sm text-gray-500">Your campaign will be saved and can be sent later</p>
-                          </div>
+                        <div className="mt-3 flex items-start">
+                          <Info className="h-4 w-4 text-blue-500 mt-0.5 mr-2 flex-shrink-0" />
+                          <p className="text-xs text-blue-700">
+                            The campaign will be automatically sent at the specified date and time. Make sure to complete all 
+                            campaign setup before scheduling.
+                          </p>
                         </div>
                       </div>
-                    </div>
-                  </div>
-                  
-                  <div className="bg-purple-50 rounded-lg border border-purple-100 p-4 mb-6">
-                    <div className="flex">
-                      <div className="mr-3 text-purple-500">
-                        <AlertCircle className="h-5 w-5" />
-                      </div>
-                      <div>
-                        <h4 className="text-sm font-medium text-purple-800 mb-1">Campaign Summary</h4>
-                        <ul className="text-sm text-purple-700 space-y-1">
-                          <li><span className="font-medium">Name:</span> {form.getValues("name")}</li>
-                          <li><span className="font-medium">Subject:</span> {form.getValues("subject")}</li>
-                          <li><span className="font-medium">Template:</span> {templates.find(t => t.id.toString() === selectedTemplateId)?.name || "None"}</li>
-                          <li>
-                            <span className="font-medium">Recipients:</span> {
-                              selectedLists.length > 0 
-                                ? lists
-                                    .filter(list => selectedLists.includes(list.id.toString()))
-                                    .reduce((sum, list) => sum + list.count, 0)
-                                    .toLocaleString()
-                                : 0
-                            } contacts
-                          </li>
-                          <li><span className="font-medium">A/B Testing:</span> {isAbTesting ? `Enabled (${variants.length} variants)` : "Disabled"}</li>
-                          <li>
-                            <span className="font-medium">Delivery:</span> {
-                              sendOption === 'now' 
-                                ? "Send immediately" 
-                                : sendOption === 'schedule' 
-                                  ? `Scheduled for ${form.getValues("scheduledDate")} at ${form.getValues("scheduledTime")}` 
-                                  : "Save as draft"
-                            }
-                          </li>
-                        </ul>
-                      </div>
-                    </div>
+                    )}
                   </div>
                   
                   <div className="flex justify-between mt-6">
