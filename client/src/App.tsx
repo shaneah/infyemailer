@@ -80,7 +80,8 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <AIAssistantProvider>
-          <Switch>
+          <AuthProvider>
+            <Switch>
           {/* Authentication Routes */}
         <Route path="login">
           <div className="bg-background min-h-screen">
@@ -208,17 +209,14 @@ function App() {
         
         {/* Auth Route */}
         <Route path="auth">
-          <AuthProvider>
             <div className="bg-background min-h-screen">
               <AuthPage />
               <Toaster />
             </div>
-          </AuthProvider>
         </Route>
         
         {/* Main App Routes */}
         <Route>
-          <AuthProvider>
             <div className="flex h-screen bg-background">
               <MainSidebar 
                 open={sidebarOpen} 
@@ -274,10 +272,10 @@ function App() {
               
               <Toaster />
             </div>
-          </AuthProvider>
         </Route>
       </Switch>
-        </AIAssistantProvider>
+      </AuthProvider>
+      </AIAssistantProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );

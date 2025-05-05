@@ -38,17 +38,33 @@ export default function Login() {
   const [isClientLoading, setIsClientLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<string>("admin");
   
-  // Check if user is already logged in
+  // Check if user is already logged in by checking both storage and cookies
   useEffect(() => {
-    const user = localStorage.getItem('user') || sessionStorage.getItem('user');
-    if (user) {
+    // First check for localStorage/sessionStorage (backward compatibility)
+    const userInfo = localStorage.getItem('userInfo') || sessionStorage.getItem('userInfo');
+    if (userInfo) {
+      // User info exists in storage, we assume they're logged in
       setLocation('/');
+      return;
     }
     
     const clientUser = localStorage.getItem('clientUser') || sessionStorage.getItem('clientUser');
     if (clientUser) {
       setLocation('/client-dashboard');
+      return;
     }
+    
+    // Check if user might be authenticated via cookies by making an API call
+    fetch('/api/user', { credentials: 'include' })
+      .then(response => {
+        if (response.ok) {
+          // User is authenticated via cookies, redirect
+          setLocation('/');
+        }
+      })
+      .catch(error => {
+        console.error('Error checking auth status:', error);
+      });
   }, [setLocation]);
   
   // Admin login form
