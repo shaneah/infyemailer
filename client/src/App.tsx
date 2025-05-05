@@ -21,8 +21,6 @@ import ContactsV2 from "@/pages/ContactsV2";
 import ContactsV3 from "@/pages/ContactsV3";
 import ContactsV4 from "@/pages/ContactsV4";
 import ContactsV6 from "@/pages/ContactsV6";
-import ContactsV7 from "@/pages/ContactsV7";
-import ContactsV8 from "@/pages/ContactsV8";
 import ContactListsV2 from "@/pages/ContactListsV2";
 import ListDetails from "@/pages/ListDetails";
 import ABTesting from "@/pages/ABTesting";
@@ -235,14 +233,14 @@ function App() {
                   sidebarCollapsed={sidebarCollapsed}
                   setSidebarCollapsed={setSidebarCollapsed}
                 />
-                <main className="flex-1 overflow-y-auto bg-gray-50 min-h-screen">
-                  <div className="w-full">
+                <main className="flex-1 overflow-y-auto p-4 md:p-6 bg-gray-50 min-h-screen">
+                  <div className="max-w-[1920px] mx-auto">
                     <Switch>
                       <ProtectedRoute path="/" component={DashboardV2} />
                       <ProtectedRoute path="dashboard" component={DashboardV2} />
                       <ProtectedRoute path="campaigns" component={CampaignsV2} />
                       <ProtectedRoute path="templates" component={TemplatesV2} />
-                      <ProtectedRoute path="contacts" component={ContactsV8} />
+                      <ProtectedRoute path="contacts" component={ContactsV6} />
                       <ProtectedRoute path="contact-lists" component={ContactListsV2} />
                       <ProtectedRoute path="lists/:id" component={ListDetails} />
                       <ProtectedRoute path="ab-testing" component={ABTesting} />
