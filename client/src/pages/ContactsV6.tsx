@@ -1141,7 +1141,7 @@ const ContactsV6: React.FC = () => {
                 )}
               />
               
-              <DialogFooter>
+              <DialogFooter className="flex flex-col sm:flex-row gap-3 sm:gap-2 mt-6 sm:mt-4">
                 <Button 
                   type="button" 
                   variant="outline" 
@@ -1150,16 +1150,18 @@ const ContactsV6: React.FC = () => {
                     setCurrentContact(null);
                     form.reset();
                   }}
+                  className="w-full sm:w-auto h-12 sm:h-10 text-base sm:text-sm"
                 >
                   Cancel
                 </Button>
                 <Button 
                   type="submit"
                   disabled={createContactMutation.isPending || updateContactMutation.isPending}
+                  className="w-full sm:w-auto h-12 sm:h-10 text-base sm:text-sm"
                 >
                   {createContactMutation.isPending || updateContactMutation.isPending ? (
                     <>
-                      <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                      <RefreshCw className="h-5 w-5 sm:h-4 sm:w-4 mr-2 animate-spin" />
                       {currentContact ? "Updating..." : "Saving..."}
                     </>
                   ) : (
