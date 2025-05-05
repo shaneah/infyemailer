@@ -130,50 +130,64 @@ const ClientLogin = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#1e293b]">
+    <div className="min-h-screen flex flex-col md:flex-row bg-gradient-to-br from-purple-700 via-violet-900 to-indigo-900 relative overflow-hidden">
       {/* Meta tag for proper mobile viewport */}
       <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
       
+      {/* Decorative background elements */}
+      <div className="absolute -top-24 -left-24 w-96 h-96 bg-pink-500 rounded-full mix-blend-soft-light filter blur-[120px] opacity-20 animate-pulse"></div>
+      <div className="absolute top-1/2 -right-24 w-96 h-96 bg-cyan-500 rounded-full mix-blend-soft-light filter blur-[120px] opacity-20 animate-pulse delay-1000"></div>
+      <div className="absolute -bottom-24 left-1/3 w-96 h-96 bg-yellow-400 rounded-full mix-blend-soft-light filter blur-[120px] opacity-20 animate-pulse delay-2000"></div>
+      
       {/* Left side - Login form */}
-      <div className="w-full md:w-1/2 flex items-center justify-center p-4 sm:p-8 md:p-12 lg:p-16">
-        <div className="w-full max-w-md space-y-6">
+      <div className="w-full md:w-1/2 flex items-center justify-center p-4 sm:p-8 md:p-12 lg:p-16 relative z-10">
+        <div className="w-full max-w-md space-y-8">
           {/* Mobile logo only shown on small screens */}
-          <div className="md:hidden flex flex-col items-center justify-center mb-6">
+          <div className="md:hidden flex flex-col items-center justify-center mb-8">
             <img 
               src={infinityLogo} 
               alt="Infinity Tech Logo" 
-              className="h-16 mb-3" 
+              className="h-20 mb-4" 
             />
-            <h2 className="text-2xl font-bold text-white">Client Portal</h2>
-            <p className="text-slate-300 text-sm">Access your email marketing dashboard</p>
+            <h2 className="text-3xl font-bold text-white mb-1">Client Portal</h2>
+            <p className="text-indigo-100/80 text-sm">Access your email marketing dashboard</p>
           </div>
           
-          <div className="space-y-2 hidden md:block">
-            <h1 className="text-3xl font-extrabold tracking-tight text-white">
+          <div className="space-y-3 hidden md:block">
+            <div className="inline-block rounded-full p-1 bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 mb-4">
+              <div className="bg-white rounded-full p-1">
+                <img 
+                  src={infinityLogo} 
+                  alt="Infinity Tech Logo" 
+                  className="h-12 w-12" 
+                />
+              </div>
+            </div>
+            <h1 className="text-4xl font-extrabold tracking-tight text-white bg-clip-text text-transparent bg-gradient-to-r from-white to-indigo-100">
               Welcome back
             </h1>
-            <p className="text-slate-400">
-              Please sign in to your client account
+            <p className="text-indigo-200/80 text-lg">
+              Sign in to your client dashboard
             </p>
           </div>
           
-          <div className="bg-slate-800/50 backdrop-blur-md rounded-xl border border-slate-700 shadow-xl p-4 sm:p-6">
+          <div className="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] p-6 sm:p-8">
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
                 <FormField
                   control={form.control}
                   name="username"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-slate-200 text-sm font-medium">Username</FormLabel>
+                    <FormItem className="space-y-2.5">
+                      <FormLabel className="text-white text-sm font-medium">Username</FormLabel>
                       <FormControl>
-                        <div className="relative">
-                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <Mail className="h-4 w-4 text-slate-400" />
+                        <div className="relative group">
+                          <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                            <Mail className="h-5 w-5 text-indigo-300 group-focus-within:text-white transition-colors" />
                           </div>
                           <Input 
                             placeholder="Enter your username" 
-                            className="pl-10 bg-slate-900/50 border-slate-600 focus:border-blue-500 text-white rounded-lg text-base sm:text-sm py-6 sm:py-2" 
+                            className="pl-11 h-12 sm:h-11 bg-white/5 border-indigo-300/30 focus:border-indigo-400 text-white rounded-xl text-base sm:text-sm py-6 sm:py-3 ring-offset-indigo-900 focus:ring-indigo-400" 
                             {...field}
                             autoCapitalize="none"
                             autoCorrect="off"
@@ -182,7 +196,7 @@ const ClientLogin = () => {
                           />
                         </div>
                       </FormControl>
-                      <FormMessage className="text-rose-300 text-xs" />
+                      <FormMessage className="text-pink-300 text-xs font-medium" />
                     </FormItem>
                   )}
                 />
@@ -191,36 +205,36 @@ const ClientLogin = () => {
                   control={form.control}
                   name="password"
                   render={({ field }) => (
-                    <FormItem>
-                      <div className="flex items-center justify-between mb-1">
-                        <FormLabel className="text-slate-200 text-sm font-medium">Password</FormLabel>
-                        <a href="#" className="text-xs text-blue-400 hover:text-blue-300">
+                    <FormItem className="space-y-2.5">
+                      <div className="flex items-center justify-between">
+                        <FormLabel className="text-white text-sm font-medium">Password</FormLabel>
+                        <a href="#" className="text-xs text-indigo-300 hover:text-white transition-colors">
                           Forgot password?
                         </a>
                       </div>
                       <FormControl>
-                        <div className="relative">
-                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <Lock className="h-4 w-4 text-slate-400" />
+                        <div className="relative group">
+                          <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                            <Lock className="h-5 w-5 text-indigo-300 group-focus-within:text-white transition-colors" />
                           </div>
                           <Input 
                             type={showPassword ? "text" : "password"}
                             placeholder="••••••••••" 
-                            className="pl-10 bg-slate-900/50 border-slate-600 focus:border-blue-500 text-white rounded-lg pr-10 text-base sm:text-sm py-6 sm:py-2" 
+                            className="pl-11 h-12 sm:h-11 bg-white/5 border-indigo-300/30 focus:border-indigo-400 text-white rounded-xl pr-10 text-base sm:text-sm py-6 sm:py-3 ring-offset-indigo-900 focus:ring-indigo-400" 
                             {...field}
                             autoComplete="current-password"
                           />
                           <button 
                             type="button"
-                            className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-200 transition-colors touch-manipulation"
+                            className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-indigo-300 hover:text-white transition-colors touch-manipulation"
                             onClick={() => setShowPassword(!showPassword)}
                             aria-label={showPassword ? "Hide password" : "Show password"}
                           >
-                            {showPassword ? <EyeOff className="h-5 w-5 sm:h-4 sm:w-4" /> : <Eye className="h-5 w-5 sm:h-4 sm:w-4" />}
+                            {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                           </button>
                         </div>
                       </FormControl>
-                      <FormMessage className="text-rose-300 text-xs" />
+                      <FormMessage className="text-pink-300 text-xs font-medium" />
                     </FormItem>
                   )}
                 />
@@ -228,7 +242,7 @@ const ClientLogin = () => {
                 <Button 
                   type="submit" 
                   disabled={isLoading}
-                  className="w-full h-12 sm:h-11 rounded-lg py-2.5 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-indigo-500 text-white shadow-md shadow-blue-900/20 hover:shadow-lg hover:shadow-blue-900/30 transition duration-200 text-base sm:text-sm font-medium mt-2"
+                  className="w-full h-12 sm:h-11 rounded-xl py-3 bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 hover:from-pink-600 hover:via-purple-600 hover:to-indigo-600 text-white shadow-lg shadow-indigo-900/30 hover:shadow-xl hover:shadow-indigo-900/40 transition-all duration-300 text-base sm:text-sm font-medium mt-3"
                 >
                   {isLoading ? (
                     <div className="flex items-center justify-center">
@@ -247,32 +261,32 @@ const ClientLogin = () => {
                 
                 <div className="relative mt-6">
                   <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t border-slate-700"></span>
+                    <span className="w-full border-t border-indigo-300/20"></span>
                   </div>
                   <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-slate-800/50 px-2 text-slate-400">Demo Account</span>
+                    <span className="bg-transparent px-3 text-indigo-200 font-semibold">Demo Account</span>
                   </div>
                 </div>
                 
-                <div className="p-4 sm:p-3 bg-slate-900/40 rounded-lg border border-slate-700 text-sm sm:text-xs">
+                <div className="p-4 rounded-xl bg-gradient-to-r from-white/10 to-white/5 border border-white/10 text-sm">
                   <div className="flex flex-col md:flex-row items-center justify-between">
                     <div className="flex flex-col items-start md:items-center md:flex-row w-full md:w-auto">
-                      <span className="text-slate-400">Username:</span>
-                      <span className="font-mono font-medium text-blue-400 ml-0 md:ml-2">client1</span>
+                      <span className="text-indigo-200/80">Username:</span>
+                      <span className="font-mono font-medium text-pink-300 ml-0 md:ml-2">client1</span>
                     </div>
                     <div className="flex flex-col items-start md:items-center md:flex-row mt-2 md:mt-0 w-full md:w-auto">
-                      <span className="text-slate-400">Password:</span>
-                      <span className="font-mono font-medium text-blue-400 ml-0 md:ml-2">clientdemo</span>
+                      <span className="text-indigo-200/80">Password:</span>
+                      <span className="font-mono font-medium text-pink-300 ml-0 md:ml-2">clientdemo</span>
                     </div>
                   </div>
                 </div>
               </form>
             </Form>
             
-            <div className="mt-6 text-center text-xs">
-              <div className="flex justify-center items-center space-x-1 text-slate-400">
+            <div className="mt-6 text-center">
+              <div className="flex justify-center items-center space-x-1 text-indigo-200/80">
                 <a href="#" onClick={(e) => { e.preventDefault(); setLocation('auth'); }} 
-                  className="text-blue-400 hover:text-blue-300 underline-offset-4 hover:underline p-2 touch-manipulation">
+                  className="text-indigo-200 hover:text-white underline-offset-4 hover:underline p-2 touch-manipulation transition-colors font-medium">
                   Switch to Admin Login
                 </a>
               </div>
@@ -282,63 +296,77 @@ const ClientLogin = () => {
       </div>
       
       {/* Right side - Brand imagery and features */}
-      <div className="w-full md:w-1/2 hidden md:block relative bg-gradient-to-tr from-blue-900 to-indigo-800 overflow-hidden">
-        {/* Abstract glow effects */}
-        <div className="absolute top-1/3 -left-32 w-96 h-96 bg-blue-500 rounded-full mix-blend-overlay filter blur-3xl opacity-30"></div>
-        <div className="absolute bottom-1/3 -right-32 w-96 h-96 bg-indigo-600 rounded-full mix-blend-overlay filter blur-3xl opacity-30"></div>
+      <div className="w-full md:w-1/2 hidden md:block relative overflow-hidden">
+        {/* Abstract wave pattern */}
+        <div className="absolute inset-0 bg-gradient-to-b from-indigo-800/70 to-transparent z-10"></div>
+        <div className="absolute inset-0 bg-pattern-dots opacity-10"></div>
         
         {/* Content */}
         <div className="relative z-10 flex flex-col items-center justify-center h-full p-12">
-          <img src={infinityLogo} alt="Infinity Tech Logo" className="h-28 mb-10" />
+          <div className="absolute top-0 right-0 p-8">
+            <div className="flex items-center space-x-1">
+              <div className="w-3 h-3 rounded-full bg-pink-500"></div>
+              <div className="w-3 h-3 rounded-full bg-purple-500"></div>
+              <div className="w-3 h-3 rounded-full bg-indigo-500"></div>
+            </div>
+          </div>
           
-          <h2 className="text-3xl font-bold text-white mb-6 text-center">
+          <img src={infinityLogo} alt="Infinity Tech Logo" className="h-20 mb-12" />
+          
+          <h2 className="text-4xl font-bold text-white mb-8 text-center bg-clip-text text-transparent bg-gradient-to-r from-white to-indigo-100">
             Premium Email Marketing Platform
           </h2>
           
           <div className="max-w-md">
-            <div className="space-y-4">
-              <div className="flex items-start space-x-3">
-                <CheckCircle className="h-5 w-5 text-cyan-400 mt-1 flex-shrink-0" />
+            <div className="space-y-6">
+              <div className="flex items-start">
+                <div className="mt-1 mr-4 flex-shrink-0 rounded-full bg-gradient-to-r from-pink-500 to-purple-500 p-2">
+                  <CheckCircle className="h-5 w-5 text-white" />
+                </div>
                 <div>
-                  <h3 className="text-lg font-medium text-white">Campaign Analytics</h3>
-                  <p className="text-slate-300 text-sm">Access real-time performance metrics for all your email campaigns</p>
+                  <h3 className="text-xl font-medium text-white mb-1">Campaign Analytics</h3>
+                  <p className="text-indigo-100/80 text-base">Access real-time performance metrics and detailed insights for all your email campaigns</p>
                 </div>
               </div>
               
-              <div className="flex items-start space-x-3">
-                <CheckCircle className="h-5 w-5 text-cyan-400 mt-1 flex-shrink-0" />
+              <div className="flex items-start">
+                <div className="mt-1 mr-4 flex-shrink-0 rounded-full bg-gradient-to-r from-purple-500 to-indigo-500 p-2">
+                  <CheckCircle className="h-5 w-5 text-white" />
+                </div>
                 <div>
-                  <h3 className="text-lg font-medium text-white">AI-Powered Templates</h3>
-                  <p className="text-slate-300 text-sm">Create stunning emails with our intelligent design assistant</p>
+                  <h3 className="text-xl font-medium text-white mb-1">AI-Powered Templates</h3>
+                  <p className="text-indigo-100/80 text-base">Create stunning emails with our intelligent design assistant and advanced customization tools</p>
                 </div>
               </div>
               
-              <div className="flex items-start space-x-3">
-                <CheckCircle className="h-5 w-5 text-cyan-400 mt-1 flex-shrink-0" />
+              <div className="flex items-start">
+                <div className="mt-1 mr-4 flex-shrink-0 rounded-full bg-gradient-to-r from-indigo-500 to-cyan-500 p-2">
+                  <CheckCircle className="h-5 w-5 text-white" />
+                </div>
                 <div>
-                  <h3 className="text-lg font-medium text-white">Contact Management</h3>
-                  <p className="text-slate-300 text-sm">Organize and segment your audience with powerful list management tools</p>
+                  <h3 className="text-xl font-medium text-white mb-1">Contact Management</h3>
+                  <p className="text-indigo-100/80 text-base">Organize and segment your audience with powerful list management and automation tools</p>
                 </div>
               </div>
             </div>
           </div>
           
-          <div className="mt-12 flex items-center justify-center space-x-4">
-            <div className="h-16 w-16 bg-white/10 backdrop-filter backdrop-blur-md rounded-xl flex items-center justify-center">
-              <svg viewBox="0 0 24 24" className="w-8 h-8 text-slate-300" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <div className="mt-16 flex items-center justify-center space-x-6">
+            <div className="h-16 w-16 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center transform hover:rotate-6 transition-transform duration-300">
+              <svg viewBox="0 0 24 24" className="w-8 h-8 text-white" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M2 12L3 9H21L22 12" stroke="currentColor" strokeWidth="1.5"/>
                 <path d="M3.5 9L5.5 5H18.5L20.5 9" stroke="currentColor" strokeWidth="1.5"/>
                 <rect x="2" y="12" width="20" height="7" rx="1" stroke="currentColor" strokeWidth="1.5"/>
                 <path d="M9 15V16H15V15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
               </svg>
             </div>
-            <div className="h-16 w-16 bg-white/10 backdrop-filter backdrop-blur-md rounded-xl flex items-center justify-center">
-              <svg viewBox="0 0 24 24" className="w-8 h-8 text-slate-300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <div className="h-16 w-16 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center transform hover:rotate-6 transition-transform duration-300">
+              <svg viewBox="0 0 24 24" className="w-8 h-8 text-white" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M12 4L14 8H19L16 12L17 17L12 14L7 17L8 12L5 8H10L12 4Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
               </svg>
             </div>
-            <div className="h-16 w-16 bg-white/10 backdrop-filter backdrop-blur-md rounded-xl flex items-center justify-center">
-              <svg viewBox="0 0 24 24" className="w-8 h-8 text-slate-300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <div className="h-16 w-16 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center transform hover:rotate-6 transition-transform duration-300">
+              <svg viewBox="0 0 24 24" className="w-8 h-8 text-white" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M5 10H7C9 10 10 9 10 7V5C10 3 9 2 7 2H5C3 2 2 3 2 5V7C2 9 3 10 5 10Z" stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
                 <path d="M17 10H19C21 10 22 9 22 7V5C22 3 21 2 19 2H17C15 2 14 3 14 5V7C14 9 15 10 17 10Z" stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
                 <path d="M17 22H19C21 22 22 21 22 19V17C22 15 21 14 19 14H17C15 14 14 15 14 17V19C14 21 15 22 17 22Z" stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
