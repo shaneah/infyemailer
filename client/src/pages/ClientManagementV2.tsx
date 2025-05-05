@@ -185,7 +185,7 @@ const StatsCard = ({ title, value, icon, description, trend, color = "blue" }: a
 };
 
 // Client Card Component
-const ClientCard = ({ client, onEdit, onDelete, onManageUsers }: any) => {
+const ClientCard = ({ client, onEdit, onDelete, onManageUsers, onManageProviders, onManageCredits }: any) => {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -215,6 +215,12 @@ const ClientCard = ({ client, onEdit, onDelete, onManageUsers }: any) => {
               <DropdownMenuItem onClick={() => onManageUsers(client)}>
                 <Users className="mr-2 h-4 w-4" /> Manage Users
               </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onManageProviders(client)}>
+                <Mail className="mr-2 h-4 w-4" /> Email Providers
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onManageCredits(client)}>
+                <CreditCard className="mr-2 h-4 w-4" /> Email Credits
+              </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => onDelete(client.id)} className="text-red-600">
                 <Trash2 className="mr-2 h-4 w-4" /> Delete Client
@@ -230,6 +236,19 @@ const ClientCard = ({ client, onEdit, onDelete, onManageUsers }: any) => {
           <Building2 className="h-4 w-4 mr-1" /> 
           <span>{client.industry || "N/A"}</span>
         </div>
+        
+        {/* Credit stats */}
+        <div className="mb-3 mt-2 bg-gray-50 rounded-md p-2 border border-gray-100">
+          <div className="text-xs text-gray-500 mb-1">Email Credits</div>
+          <div className="flex justify-between">
+            <div className="text-sm">
+              <span className="font-semibold">{client.emailCredits?.toLocaleString() || "0"}</span> available
+            </div>
+            <div className="text-sm text-gray-500">
+              <span className="font-semibold">{client.emailCreditsUsed?.toLocaleString() || "0"}</span> used
+            </div>
+          </div>
+        </div>
 
         <div className="flex justify-between items-center mt-4 pt-3 border-t border-gray-100">
           <Badge variant={client.status === 'active' ? 'success' : 'default'} className="text-xs">
@@ -243,24 +262,46 @@ const ClientCard = ({ client, onEdit, onDelete, onManageUsers }: any) => {
       </div>
       
       <div className="bg-gray-50 px-5 py-3 flex justify-between items-center border-t border-gray-200">
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          className="text-xs"
-          onClick={() => onManageUsers(client)}
-        >
-          <Users className="h-3 w-3 mr-1" />
-          Users
-        </Button>
-        <Button 
-          variant="ghost" 
-          size="sm"
-          className="text-xs"
-          onClick={() => onEdit(client)}
-        >
-          <Pencil className="h-3 w-3 mr-1" />
-          Edit
-        </Button>
+        <div className="flex space-x-1">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="text-xs"
+            onClick={() => onManageUsers(client)}
+          >
+            <Users className="h-3 w-3 mr-1" />
+            Users
+          </Button>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="text-xs"
+            onClick={() => onManageProviders(client)}
+          >
+            <Mail className="h-3 w-3 mr-1" />
+            Providers
+          </Button>
+        </div>
+        <div className="flex space-x-1">
+          <Button 
+            variant="ghost" 
+            size="sm"
+            className="text-xs"
+            onClick={() => onManageCredits(client)}
+          >
+            <CreditCard className="h-3 w-3 mr-1" />
+            Credits
+          </Button>
+          <Button 
+            variant="ghost" 
+            size="sm"
+            className="text-xs"
+            onClick={() => onEdit(client)}
+          >
+            <Pencil className="h-3 w-3 mr-1" />
+            Edit
+          </Button>
+        </div>
       </div>
     </motion.div>
   );
@@ -1482,6 +1523,307 @@ const ClientManagementV2 = () => {
                     </Table>
                   </div>
                 )}
+              </>
+            )}
+          </TabsContent>
+
+          <TabsContent value="providers" className="mt-0">
+            {!selectedClientForProviders ? (
+              <div className="bg-gray-50 rounded-lg border border-gray-200 p-12 text-center">
+                <div className="flex flex-col items-center max-w-md mx-auto">
+                  <div className="rounded-full bg-gray-100 p-4 mb-4">
+                    <Mail className="h-8 w-8 text-gray-400" />
+                  </div>
+                  <h3 className="text-lg font-semibold mb-2">No client selected</h3>
+                  <p className="text-gray-500 mb-6">
+                    Please select a client to manage their email providers.
+                  </p>
+                  <Button 
+                    variant="outline"
+                    onClick={() => setActiveTab('clients')}
+                  >
+                    <Building2 className="h-4 w-4 mr-2" />
+                    View Clients
+                  </Button>
+                </div>
+              </div>
+            ) : isClientProvidersLoading || isProvidersLoading ? (
+              <div className="flex justify-center py-10">
+                <div className="flex flex-col items-center">
+                  <Loader2 className="h-10 w-10 animate-spin text-primary" />
+                  <p className="mt-2 text-sm text-gray-500">Loading providers...</p>
+                </div>
+              </div>
+            ) : (
+              <>
+                <div className="mb-6 bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg border border-blue-100">
+                  <div className="flex flex-col md:flex-row md:items-center justify-between">
+                    <div className="flex items-center mb-4 md:mb-0">
+                      <Avatar className="h-10 w-10 mr-3">
+                        <AvatarFallback className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white">
+                          {selectedClientForProviders.name.substring(0, 2).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <h3 className="font-semibold text-lg">{selectedClientForProviders.name}</h3>
+                        <p className="text-sm text-gray-500">{selectedClientForProviders.email}</p>
+                      </div>
+                    </div>
+                    <div className="flex space-x-2">
+                      <Button 
+                        size="sm"
+                        onClick={() => setIsProviderDialogOpen(true)}
+                      >
+                        <Mail className="h-4 w-4 mr-2" />
+                        Manage Providers
+                      </Button>
+                      <Button 
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setActiveTab('clients')}
+                      >
+                        <Building2 className="h-4 w-4 mr-2" />
+                        Back to Clients
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+
+                {emailProviders.length === 0 ? (
+                  <div className="bg-gray-50 rounded-lg border border-gray-200 p-12 text-center">
+                    <div className="flex flex-col items-center max-w-md mx-auto">
+                      <div className="rounded-full bg-gray-100 p-4 mb-4">
+                        <Mail className="h-8 w-8 text-gray-400" />
+                      </div>
+                      <h3 className="text-lg font-semibold mb-2">No email providers available</h3>
+                      <p className="text-gray-500 mb-6">
+                        There are no email providers in the system. Add email providers first.
+                      </p>
+                    </div>
+                  </div>
+                ) : clientProviders.length === 0 ? (
+                  <div className="bg-gray-50 rounded-lg border border-gray-200 p-12 text-center">
+                    <div className="flex flex-col items-center max-w-md mx-auto">
+                      <div className="rounded-full bg-gray-100 p-4 mb-4">
+                        <Mail className="h-8 w-8 text-gray-400" />
+                      </div>
+                      <h3 className="text-lg font-semibold mb-2">No providers assigned</h3>
+                      <p className="text-gray-500 mb-6">
+                        This client doesn't have any email providers assigned yet.
+                      </p>
+                      <Button 
+                        onClick={() => setIsProviderDialogOpen(true)}
+                      >
+                        <Mail className="h-4 w-4 mr-2" />
+                        Assign Providers
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                    <div className="p-6">
+                      <h3 className="text-lg font-semibold mb-4">Assigned Email Providers</h3>
+                      <div className="space-y-3">
+                        {clientProviders.map((cp: any) => {
+                          const provider = emailProviders.find((p: any) => p.id === cp.providerId);
+                          if (!provider) return null;
+                          
+                          return (
+                            <div 
+                              key={cp.id}
+                              className="flex items-center justify-between p-3 rounded-lg border border-green-200 bg-green-50"
+                            >
+                              <div className="flex items-center space-x-3">
+                                <div className="p-2 rounded-full bg-green-100">
+                                  <Mail className="h-5 w-5 text-green-600" />
+                                </div>
+                                <div>
+                                  <p className="font-medium">{provider.name}</p>
+                                  <p className="text-xs text-gray-500">{provider.provider}</p>
+                                </div>
+                              </div>
+                              
+                              <Button
+                                variant="destructive"
+                                size="sm"
+                                onClick={() => handleRemoveProvider(provider.id)}
+                                disabled={removeProviderMutation.isPending}
+                              >
+                                {removeProviderMutation.isPending && (
+                                  <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+                                )}
+                                Remove
+                              </Button>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+          </TabsContent>
+
+          <TabsContent value="credits" className="mt-0">
+            {!selectedClientForCredits ? (
+              <div className="bg-gray-50 rounded-lg border border-gray-200 p-12 text-center">
+                <div className="flex flex-col items-center max-w-md mx-auto">
+                  <div className="rounded-full bg-gray-100 p-4 mb-4">
+                    <CreditCard className="h-8 w-8 text-gray-400" />
+                  </div>
+                  <h3 className="text-lg font-semibold mb-2">No client selected</h3>
+                  <p className="text-gray-500 mb-6">
+                    Please select a client to manage their email credits.
+                  </p>
+                  <Button 
+                    variant="outline"
+                    onClick={() => setActiveTab('clients')}
+                  >
+                    <Building2 className="h-4 w-4 mr-2" />
+                    View Clients
+                  </Button>
+                </div>
+              </div>
+            ) : isCreditHistoryLoading ? (
+              <div className="flex justify-center py-10">
+                <div className="flex flex-col items-center">
+                  <Loader2 className="h-10 w-10 animate-spin text-primary" />
+                  <p className="mt-2 text-sm text-gray-500">Loading credit history...</p>
+                </div>
+              </div>
+            ) : (
+              <>
+                <div className="mb-6 bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg border border-blue-100">
+                  <div className="flex flex-col md:flex-row md:items-center justify-between">
+                    <div className="flex items-center mb-4 md:mb-0">
+                      <Avatar className="h-10 w-10 mr-3">
+                        <AvatarFallback className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white">
+                          {selectedClientForCredits.name.substring(0, 2).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <h3 className="font-semibold text-lg">{selectedClientForCredits.name}</h3>
+                        <p className="text-sm text-gray-500">{selectedClientForCredits.email}</p>
+                      </div>
+                    </div>
+                    <div className="flex space-x-2">
+                      <Button 
+                        size="sm"
+                        onClick={() => {
+                          creditForm.reset({
+                            amount: 100,
+                            operation: 'add',
+                            reason: ''
+                          });
+                          setIsCreditDialogOpen(true);
+                        }}
+                      >
+                        <CreditCard className="h-4 w-4 mr-2" />
+                        Manage Credits
+                      </Button>
+                      <Button 
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setActiveTab('clients')}
+                      >
+                        <Building2 className="h-4 w-4 mr-2" />
+                        Back to Clients
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid gap-6 grid-cols-1 md:grid-cols-3 mb-6">
+                  <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm font-medium text-gray-500">Available Credits</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">
+                        {selectedClientForCredits.emailCredits?.toLocaleString() || "0"}
+                      </div>
+                      <p className="text-xs text-gray-500 mt-1">
+                        Total credits available for campaigns
+                      </p>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm font-medium text-gray-500">Credits Used</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">
+                        {selectedClientForCredits.emailCreditsUsed?.toLocaleString() || "0"}
+                      </div>
+                      <p className="text-xs text-gray-500 mt-1">
+                        Credits used in campaigns
+                      </p>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm font-medium text-gray-500">Credits Purchased</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">
+                        {selectedClientForCredits.emailCreditsPurchased?.toLocaleString() || "0"}
+                      </div>
+                      <p className="text-xs text-gray-500 mt-1">
+                        Total credits purchased
+                      </p>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Credit History</CardTitle>
+                    <CardDescription>
+                      View all credit transactions for this client
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    {creditHistory.length === 0 ? (
+                      <div className="text-center py-6">
+                        <p className="text-sm text-gray-500">No credit history available</p>
+                        <p className="text-xs text-gray-400 mt-1">Credits have not been adjusted yet</p>
+                      </div>
+                    ) : (
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Date</TableHead>
+                            <TableHead>Operation</TableHead>
+                            <TableHead>Amount</TableHead>
+                            <TableHead>Reason</TableHead>
+                            <TableHead>Performed By</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {creditHistory.map((record: any) => (
+                            <TableRow key={record.id}>
+                              <TableCell>{new Date(record.createdAt).toLocaleDateString()}</TableCell>
+                              <TableCell>
+                                <Badge variant={record.type === 'add' ? 'success' : 'destructive'}>
+                                  {record.type === 'add' ? 'Added' : 'Deducted'}
+                                </Badge>
+                              </TableCell>
+                              <TableCell className="font-semibold">
+                                {record.type === 'deduct' ? '-' : '+'}
+                                {record.amount.toLocaleString()}
+                              </TableCell>
+                              <TableCell>{record.reason || 'N/A'}</TableCell>
+                              <TableCell>{record.performedBy || 'System'}</TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    )}
+                  </CardContent>
+                </Card>
               </>
             )}
           </TabsContent>
