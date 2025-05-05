@@ -94,6 +94,7 @@ const ContactsV7 = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
   const [isUploading, setIsUploading] = useState<boolean>(false);
+  const [selectedListId, setSelectedListId] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   // Fetch contacts
@@ -103,6 +104,14 @@ const ContactsV7 = () => {
     error: contactsError,
   } = useQuery<Contact[]>({
     queryKey: ["/api/contacts"],
+  });
+  
+  // Fetch contact lists for import dropdown
+  const {
+    data: contactLists = [],
+    isLoading: isLoadingLists,
+  } = useQuery<{ id: number; name: string; description?: string }[]>({
+    queryKey: ["/api/lists"],
   });
 
   // Mutations
@@ -201,28 +210,49 @@ const ContactsV7 = () => {
       const formData = new FormData();
       formData.append("file", selectedFile);
       
+      // If list is selected, append list ID
+      if (selectedListId) {
+        formData.append("listId", selectedListId.toString());
+      }
+      
+      console.log("Uploading file:", selectedFile.name, "type:", selectedFile.type, "size:", selectedFile.size);
+      
       try {
         const xhr = new XMLHttpRequest();
         xhr.open("POST", "/api/contacts/import", true);
+        
+        // Important: Do NOT set Content-Type header when sending FormData
+        // The browser will automatically set the correct multipart/form-data boundary
         
         // Track upload progress
         xhr.upload.onprogress = (event) => {
           if (event.lengthComputable) {
             const progress = Math.round((event.loaded / event.total) * 100);
+            console.log(`Upload progress: ${progress}%`);
             setUploadProgress(progress);
           }
         };
         
         return new Promise((resolve, reject) => {
           xhr.onload = () => {
+            console.log("Upload response status:", xhr.status);
             if (xhr.status >= 200 && xhr.status < 300) {
-              resolve(JSON.parse(xhr.responseText));
+              try {
+                const response = JSON.parse(xhr.responseText);
+                console.log("Upload response:", response);
+                resolve(response);
+              } catch (e) {
+                console.error("Failed to parse response:", xhr.responseText);
+                reject(new Error("Invalid response format"));
+              }
             } else {
+              console.error("Upload failed:", xhr.status, xhr.statusText, xhr.responseText);
               reject(new Error(`Upload failed: ${xhr.statusText}`));
             }
           };
           
           xhr.onerror = () => {
+            console.error("Network error during upload");
             reject(new Error("Network error occurred"));
           };
           
@@ -868,6 +898,24 @@ const ContactsV7 = () => {
                 <Progress value={uploadProgress} />
               </div>
             )}
+            
+            {/* Contact List Selection */}
+            <div className="space-y-2">
+              <Label htmlFor="contact-list">Add to Contact List (Optional)</Label>
+              <Select value={selectedListId?.toString() || ""} onValueChange={(value) => setSelectedListId(value ? parseInt(value, 10) : null)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a list (optional)" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">None</SelectItem>
+                  {contactLists.map((list) => (
+                    <SelectItem key={list.id} value={list.id.toString()}>
+                      {list.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             
             <div className="bg-muted rounded-md p-3">
               <h4 className="text-sm font-medium mb-2">Supported formats</h4>
