@@ -952,18 +952,23 @@ const ContactsV6: React.FC = () => {
           </DialogHeader>
           
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-4">
                 <FormField
                   control={form.control}
                   name="name"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Name</FormLabel>
+                    <FormItem className="space-y-2">
+                      <FormLabel className="text-sm font-medium">Name</FormLabel>
                       <FormControl>
-                        <Input placeholder="Full name" {...field} />
+                        <Input 
+                          placeholder="Full name" 
+                          {...field} 
+                          className="py-6 sm:py-2 text-base sm:text-sm"
+                          inputMode="text"
+                        />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className="text-xs" />
                     </FormItem>
                   )}
                 />
@@ -972,12 +977,18 @@ const ContactsV6: React.FC = () => {
                   control={form.control}
                   name="email"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email</FormLabel>
+                    <FormItem className="space-y-2">
+                      <FormLabel className="text-sm font-medium">Email</FormLabel>
                       <FormControl>
-                        <Input type="email" placeholder="Email address" {...field} />
+                        <Input 
+                          type="email" 
+                          placeholder="Email address" 
+                          {...field} 
+                          className="py-6 sm:py-2 text-base sm:text-sm"
+                          inputMode="email"
+                        />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className="text-xs" />
                     </FormItem>
                   )}
                 />
@@ -986,12 +997,17 @@ const ContactsV6: React.FC = () => {
                   control={form.control}
                   name="phone"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Phone (Optional)</FormLabel>
+                    <FormItem className="space-y-2">
+                      <FormLabel className="text-sm font-medium">Phone (Optional)</FormLabel>
                       <FormControl>
-                        <Input placeholder="Phone number" {...field} />
+                        <Input 
+                          placeholder="Phone number" 
+                          {...field} 
+                          className="py-6 sm:py-2 text-base sm:text-sm"
+                          inputMode="tel"
+                        />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className="text-xs" />
                     </FormItem>
                   )}
                 />
@@ -1000,14 +1016,14 @@ const ContactsV6: React.FC = () => {
                   control={form.control}
                   name="status"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Status</FormLabel>
+                    <FormItem className="space-y-2">
+                      <FormLabel className="text-sm font-medium">Status</FormLabel>
                       <Select
                         onValueChange={field.onChange}
                         defaultValue={field.value}
                       >
                         <FormControl>
-                          <SelectTrigger>
+                          <SelectTrigger className="h-12 sm:h-10 text-base sm:text-sm">
                             <SelectValue placeholder="Select a status" />
                           </SelectTrigger>
                         </FormControl>
@@ -1027,12 +1043,16 @@ const ContactsV6: React.FC = () => {
                   control={form.control}
                   name="tags"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Tags (Comma Separated)</FormLabel>
+                    <FormItem className="space-y-2">
+                      <FormLabel className="text-sm font-medium">Tags (Comma Separated)</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g. VIP, Newsletter, Lead" {...field} />
+                        <Input 
+                          placeholder="e.g. VIP, Newsletter, Lead" 
+                          {...field} 
+                          className="py-6 sm:py-2 text-base sm:text-sm"
+                        />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className="text-xs" />
                     </FormItem>
                   )}
                 />
@@ -1041,14 +1061,14 @@ const ContactsV6: React.FC = () => {
                   control={form.control}
                   name="source"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Source</FormLabel>
+                    <FormItem className="space-y-2">
+                      <FormLabel className="text-sm font-medium">Source</FormLabel>
                       <Select
                         onValueChange={field.onChange}
                         defaultValue={field.value}
                       >
                         <FormControl>
-                          <SelectTrigger>
+                          <SelectTrigger className="h-12 sm:h-10 text-base sm:text-sm">
                             <SelectValue placeholder="Select a source" />
                           </SelectTrigger>
                         </FormControl>
@@ -1070,12 +1090,16 @@ const ContactsV6: React.FC = () => {
                   control={form.control}
                   name="company"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Company (Optional)</FormLabel>
+                    <FormItem className="space-y-2">
+                      <FormLabel className="text-sm font-medium">Company (Optional)</FormLabel>
                       <FormControl>
-                        <Input placeholder="Company name" {...field} />
+                        <Input 
+                          placeholder="Company name" 
+                          {...field} 
+                          className="py-6 sm:py-2 text-base sm:text-sm"
+                        />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className="text-xs" />
                     </FormItem>
                   )}
                 />
@@ -1084,12 +1108,16 @@ const ContactsV6: React.FC = () => {
                   control={form.control}
                   name="jobTitle"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Job Title (Optional)</FormLabel>
+                    <FormItem className="space-y-2">
+                      <FormLabel className="text-sm font-medium">Job Title (Optional)</FormLabel>
                       <FormControl>
-                        <Input placeholder="Job title" {...field} />
+                        <Input 
+                          placeholder="Job title" 
+                          {...field} 
+                          className="py-6 sm:py-2 text-base sm:text-sm"
+                        />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className="text-xs" />
                     </FormItem>
                   )}
                 />
@@ -1099,16 +1127,16 @@ const ContactsV6: React.FC = () => {
                 control={form.control}
                 name="notes"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Notes (Optional)</FormLabel>
+                  <FormItem className="space-y-2">
+                    <FormLabel className="text-sm font-medium">Notes (Optional)</FormLabel>
                     <FormControl>
                       <Textarea 
                         placeholder="Any additional information about this contact..." 
-                        className="min-h-[100px]"
+                        className="min-h-[100px] py-3 text-base sm:text-sm"
                         {...field} 
                       />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-xs" />
                   </FormItem>
                 )}
               />
