@@ -462,7 +462,7 @@ const ClientManagementV2 = () => {
   // Update client mutation
   const updateClientMutation = useMutation({
     mutationFn: async ({ id, data }: { id: number, data: z.infer<typeof clientFormSchema> }) => {
-      const response = await apiRequest('PUT', `/api/clients/${id}`, data);
+      const response = await apiRequest('PATCH', `/api/clients/${id}`, data);
       return await response.json();
     },
     onSuccess: () => {
@@ -537,7 +537,7 @@ const ClientManagementV2 = () => {
   // Update client user mutation
   const updateClientUserMutation = useMutation({
     mutationFn: async ({ id, data }: { id: number, data: Partial<z.infer<typeof clientUserFormSchema>> }) => {
-      const response = await apiRequest('PUT', `/api/client-users/${id}`, data);
+      const response = await apiRequest('PATCH', `/api/client-users/${id}`, data);
       return await response.json();
     },
     onSuccess: () => {
