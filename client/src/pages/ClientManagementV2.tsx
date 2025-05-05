@@ -93,6 +93,7 @@ import { Switch } from '@/components/ui/switch';
 import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Textarea } from '@/components/ui/textarea';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
@@ -278,7 +279,14 @@ const ClientManagementV2 = () => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<{ id: number, type: 'client' | 'user' } | null>(null);
   const [isPermissionsViewVisible, setIsPermissionsViewVisible] = useState(true);
-
+  
+  // New state variables for email providers and credits
+  const [isCreditDialogOpen, setIsCreditDialogOpen] = useState(false);
+  const [isProviderDialogOpen, setIsProviderDialogOpen] = useState(false);
+  const [selectedProvider, setSelectedProvider] = useState<any>(null);
+  const [selectedClientForCredits, setSelectedClientForCredits] = useState<any>(null);
+  const [selectedClientForProviders, setSelectedClientForProviders] = useState<any>(null);
+  
   const { toast } = useToast();
 
   // Client form
