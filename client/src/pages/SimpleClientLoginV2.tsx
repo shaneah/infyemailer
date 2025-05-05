@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { Shield, EyeOff, Eye, Lock, User, ChevronRight, Coffee, Sun, Moon, Sunset } from 'lucide-react';
-import LogoColor from '@assets/Logo-white.png';
+import LogoColor from '@assets/Infinity Tech Logo-06.png';
 
 const SimpleClientLoginV2: React.FC = () => {
   // Form state
@@ -142,8 +142,8 @@ const SimpleClientLoginV2: React.FC = () => {
           <div className="mb-8">
             <img 
               src={LogoColor} 
-              alt="InfyMailer" 
-              className="h-10 mb-6" 
+              alt="Infinity Tech" 
+              className="h-16 mb-6" 
             />
             
             {/* Dynamic welcome message */}
@@ -303,7 +303,7 @@ const SimpleClientLoginV2: React.FC = () => {
         {/* Feature showcase section */}
         <div className="hidden md:block w-1/2 bg-gradient-to-br from-blue-800 to-blue-900 p-12 text-white">
           <div className="h-full flex flex-col">
-            <h2 className="text-2xl font-bold mb-4">Welcome to InfyMailer</h2>
+            <h2 className="text-2xl font-bold mb-4">Welcome to Infinity Tech</h2>
             <p className="mb-8 text-blue-50">
               Your complete email marketing solution with advanced analytics and AI-powered optimization.
             </p>
@@ -354,7 +354,7 @@ const SimpleClientLoginV2: React.FC = () => {
 
             <div className="mt-8 pt-6 border-t border-blue-700">
               <p className="text-sm text-blue-200">
-                © {new Date().getFullYear()} InfyMailer · All rights reserved
+                © {new Date().getFullYear()} Infinity Tech · All rights reserved
               </p>
             </div>
           </div>
