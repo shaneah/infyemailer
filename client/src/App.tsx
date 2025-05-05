@@ -58,6 +58,7 @@ import EmailTest from "@/pages/EmailTest";
 import Login from "@/pages/Login";
 import EmailPerformanceDashboard from "@/pages/EmailPerformanceDashboard";
 import ClientPlaceholderPage from "@/pages/ClientPlaceholderPage";
+import ClientEmailPerformanceV2 from "@/pages/ClientEmailPerformanceV2";
 
 
 function App() {
@@ -171,7 +172,7 @@ function App() {
         </Route>
         <Route path="client-email-performance">
           <div className="bg-background min-h-screen">
-            <ClientRoutes />
+            <ClientEmailPerformanceV2 />
             <Toaster />
           </div>
         </Route>
