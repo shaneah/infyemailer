@@ -941,9 +941,9 @@ const ContactsV6: React.FC = () => {
       
       {/* Add/Edit Contact Dialog */}
       <Dialog open={showAddContactDialog} onOpenChange={setShowAddContactDialog}>
-        <DialogContent className="sm:max-w-[600px]">
-          <DialogHeader>
-            <DialogTitle>{currentContact ? "Edit Contact" : "Add New Contact"}</DialogTitle>
+        <DialogContent className="w-[calc(100%-32px)] sm:max-w-[600px] p-4 sm:p-6 max-h-[90vh] overflow-y-auto">
+          <DialogHeader className="mb-4">
+            <DialogTitle className="text-xl">{currentContact ? "Edit Contact" : "Add New Contact"}</DialogTitle>
             <DialogDescription>
               {currentContact 
                 ? "Update contact information and preferences." 
