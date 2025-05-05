@@ -742,12 +742,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Create a new contact
   // Import contacts
   app.post('/api/contacts/import', async (req: Request, res: Response) => {
-    const { emails, contacts, format, listId } = req.body;
-    
-    console.log(`Contact import started. Format: ${format}, List ID: ${listId || 'none'}`);
-    console.log(`Contacts data type: ${Array.isArray(contacts) ? 'Array' : typeof contacts}`);
-    console.log(`Emails data type: ${Array.isArray(emails) ? 'Array' : typeof emails}`);
-    
     // Initialize results object
     const results = {
       total: 0,
@@ -758,22 +752,164 @@ export async function registerRoutes(app: Express): Promise<Server> {
     };
     
     try {
+      // Check if it's a file upload
+      const uploadedFile = req.files?.file as UploadedFile;
+      let emails: string[] = [];
+      let contacts: any[] = [];
+      let format = 'unknown';
+      const listId = req.body.listId;
+      
+      console.log(`Contact import started. List ID: ${listId || 'none'}`);
+      
+      // Check if we have a file upload
+      if (uploadedFile) {
+        console.log(`File upload detected: ${uploadedFile.name}, type: ${uploadedFile.mimetype}, size: ${uploadedFile.size} bytes`);
+        
+        // Determine file format
+        const fileExtension = uploadedFile.name.split('.').pop()?.toLowerCase();
+        format = fileExtension || 'unknown';
+        
+        // Process the file based on its format
+        if (format === 'csv') {
+          // Simple CSV processing - assumes first column is email, second is name
+          const content = uploadedFile.data.toString();
+          const lines = content.split('\n').filter(line => line.trim());
+          
+          // Check if first line is header
+          const hasHeader = lines[0].toLowerCase().includes('email') || 
+                           lines[0].toLowerCase().includes('name');
+          
+          // Process each line (skip header if present)
+          for (let i = hasHeader ? 1 : 0; i < lines.length; i++) {
+            const parts = lines[i].split(',').map(p => p.trim());
+            if (parts.length >= 1 && parts[0]) {
+              if (parts.length >= 2 && parts[1]) {
+                contacts.push({ email: parts[0], name: parts[1] });
+              } else {
+                contacts.push({ email: parts[0] });
+              }
+            }
+          }
+        } else if (format === 'json') {
+          // Parse JSON file
+          try {
+            const content = uploadedFile.data.toString();
+            const parsed = JSON.parse(content);
+            
+            if (Array.isArray(parsed)) {
+              contacts = parsed;
+            } else if (parsed && typeof parsed === 'object') {
+              // Handle case where JSON might be an object with contacts array
+              if (Array.isArray(parsed.contacts)) {
+                contacts = parsed.contacts;
+              } else if (Array.isArray(parsed.data)) {
+                contacts = parsed.data;
+              } else {
+                // If it's a single contact object, wrap it in an array
+                contacts = [parsed];
+              }
+            } else {
+              return res.status(400).json({
+                error: 'Invalid JSON format. Expected an array of contacts or object with contacts array',
+                results
+              });
+            }
+          } catch (jsonError) {
+            return res.status(400).json({
+              error: 'Failed to parse JSON file',
+              details: [jsonError.message],
+              results
+            });
+          }
+        } else if (format === 'xlsx') {
+          // Process Excel file
+          try {
+            // For xlsx, we're going to take a simpler approach since direct parsing of xlsx is complex
+            // We'll convert it to CSV-like format by detecting lines in the data
+            const content = uploadedFile.data.toString();
+            
+            // Split by newlines and process similar to CSV
+            const lines = content.split(/[\r\n]+/).filter(line => line.trim());
+            
+            // Check if first line looks like a header
+            const hasHeader = lines[0] && (
+              lines[0].toLowerCase().includes('email') || 
+              lines[0].toLowerCase().includes('name')
+            );
+            
+            // Process each line
+            for (let i = hasHeader ? 1 : 0; i < lines.length; i++) {
+              const parts = lines[i].split(/[,\t;]/).map(p => p.trim());
+              if (parts.length >= 1 && parts[0] && parts[0].includes('@')) {
+                if (parts.length >= 2 && parts[1]) {
+                  contacts.push({ email: parts[0], name: parts[1] });
+                } else {
+                  contacts.push({ email: parts[0] });
+                }
+              }
+            }
+          } catch (excelError) {
+            console.error("Excel parsing error:", excelError);
+            return res.status(400).json({
+              error: 'Failed to parse Excel file',
+              details: [excelError.message],
+              results
+            });
+          }
+        } else if (format === 'txt') {
+          // Simple text file - one email per line
+          const content = uploadedFile.data.toString();
+          emails = content.split('\n')
+            .map(line => line.trim())
+            .filter(line => line && line.includes('@'));
+        } else {
+          // Unknown format
+          return res.status(400).json({
+            error: `Unsupported file format: ${format}`,
+            results
+          });
+        }
+      } else {
+        // No file uploaded, fallback to JSON data in request body
+        const { emails: emailsArray, contacts: contactsArray, format: bodyFormat } = req.body;
+        format = bodyFormat || 'unknown';
+        
+        console.log(`Contact import started. Format: ${format}, List ID: ${listId || 'none'}`);
+        console.log(`Contacts data type: ${Array.isArray(contactsArray) ? 'Array' : typeof contactsArray}`);
+        console.log(`Emails data type: ${Array.isArray(emailsArray) ? 'Array' : typeof emailsArray}`);
+        
+        if (Array.isArray(contactsArray) && contactsArray.length > 0) {
+          contacts = contactsArray;
+        } else if (Array.isArray(emailsArray) && emailsArray.length > 0) {
+          emails = emailsArray;
+        } else {
+          return res.status(400).json({ 
+            error: 'Invalid import data. Requires either contacts or emails array, or a file upload.',
+            total: 0,
+            valid: 0,
+            invalid: 0,
+            duplicates: 0,
+            details: ['No valid data provided']
+          });
+        }
+      }
+      
       // Determine which data source to use (contacts or emails)
       let processData: Array<any> = [];
       let useDetailedData = false;
       
-      if (Array.isArray(contacts) && contacts.length > 0) {
+      if (contacts.length > 0) {
         processData = contacts;
         useDetailedData = true;
         results.total = contacts.length;
         console.log(`Using detailed contact data. Count: ${contacts.length}`);
-      } else if (Array.isArray(emails) && emails.length > 0) {
+      } else if (emails.length > 0) {
         processData = emails;
         results.total = emails.length;
         console.log(`Using simple email array. Count: ${emails.length}`);
       } else {
         return res.status(400).json({ 
-          error: 'Invalid import data. Requires either contacts or emails array.',
+          error: 'No valid data found to import.',
           total: 0,
           valid: 0,
           invalid: 0,
