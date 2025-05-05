@@ -110,24 +110,8 @@ const Navbar = ({
             </div>
           </div>
 
-          {/* Center - Main navigation menu */}
-          <nav className="hidden md:flex items-center space-x-8">
-            <a href="/dashboard" className="flex items-center font-medium text-sm py-3 px-4 border-b-2 border-transparent hover:border-[#d4af37] transition-all duration-200 bg-gradient-to-r from-[#1a3a5f] to-[#1a3a5f] bg-clip-text text-transparent hover:from-[#d4af37] hover:to-[#c19b2c]">
-              Dashboard
-            </a>
-            <a href="/campaigns" className="flex items-center font-medium text-sm py-3 px-4 border-b-2 border-transparent hover:border-[#d4af37] transition-all duration-200 bg-gradient-to-r from-[#1a3a5f] to-[#1a3a5f] bg-clip-text text-transparent hover:from-[#d4af37] hover:to-[#c19b2c]">
-              Campaigns
-            </a>
-            <a href="/templates" className="flex items-center font-medium text-sm py-3 px-4 border-b-2 border-transparent hover:border-[#d4af37] transition-all duration-200 bg-gradient-to-r from-[#1a3a5f] to-[#1a3a5f] bg-clip-text text-transparent hover:from-[#d4af37] hover:to-[#c19b2c]">
-              Templates
-            </a>
-            <a href="/contacts" className="flex items-center font-medium text-sm py-3 px-4 border-b-2 border-transparent hover:border-[#d4af37] transition-all duration-200 bg-gradient-to-r from-[#1a3a5f] to-[#1a3a5f] bg-clip-text text-transparent hover:from-[#d4af37] hover:to-[#c19b2c]">
-              Contacts
-            </a>
-            <a href="/analytics" className="flex items-center font-medium text-sm py-3 px-4 border-b-2 border-transparent hover:border-[#d4af37] transition-all duration-200 bg-gradient-to-r from-[#1a3a5f] to-[#1a3a5f] bg-clip-text text-transparent hover:from-[#d4af37] hover:to-[#c19b2c]">
-              Analytics
-            </a>
-          </nav>
+          {/* Center - empty space */}
+          <div className="flex-1"></div>
 
           {/* Right side - User menu, notifications, create button, and client login */}
           <div className="flex items-center space-x-3">
