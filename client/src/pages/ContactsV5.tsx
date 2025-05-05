@@ -602,6 +602,13 @@ const ContactsV5: React.FC = () => {
                 variant="outline" 
                 size="sm" 
                 className="bg-transparent border-white/30 text-white hover:bg-white/10 hover:border-white/50 flex items-center gap-2"
+                onClick={() => {
+                  toast({
+                    title: "Import feature",
+                    description: "Contact import functionality is being implemented.",
+                  });
+                  // Future implementation of file upload dialog
+                }}
               >
                 <Upload className="h-4 w-4" />
                 <span>Import Contacts</span>
@@ -742,6 +749,16 @@ const ContactsV5: React.FC = () => {
             variant="outline" 
             size="sm"
             className="flex items-center"
+            onClick={() => {
+              toast({
+                title: "Exporting contacts",
+                description: `Exporting ${filteredContacts.length} contacts to CSV.`,
+              });
+              
+              // Future implementation: 
+              // In a real implementation, this would trigger a request to
+              // /api/contacts/export to download a CSV file
+            }}
           >
             <Download className="h-4 w-4 mr-1" />
             <span className="text-xs">Export</span>
@@ -911,7 +928,18 @@ const ContactsV5: React.FC = () => {
                         </TableCell>
                         <TableCell className="text-right">
                           <div className="opacity-0 group-hover:opacity-100 transition-opacity flex justify-end">
-                            <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-500">
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              className="h-8 w-8 text-gray-500"
+                              onClick={() => {
+                                toast({
+                                  title: "Contact details", 
+                                  description: `Viewing details for ${contact.name}`,
+                                });
+                                // Future implementation: Show a detailed view modal
+                              }}
+                            >
                               <Eye className="h-4 w-4" />
                             </Button>
                             <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-500" onClick={() => handleEditContact(contact.id)}>
