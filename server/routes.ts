@@ -3903,7 +3903,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(charts);
   });
   
-  app.get('/api/email-performance/realtime', (req: Request, res: Response) => {
+  app.get('/api/email-performance/realtime', isAuthenticated, (req: Request, res: Response) => {
     // Mock real-time activity data
     const activities = [
       { time: '2 mins ago', type: 'open', email: 'Weekly Newsletter', user: 'john.doe@example.com' },
@@ -3921,7 +3921,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(activities);
   });
 
-  app.get('/api/email-performance/detailed-opens', async (req: Request, res: Response) => {
+  app.get('/api/email-performance/detailed-opens', isAuthenticated, async (req: Request, res: Response) => {
     try {
       // Get the campaign ID from query parameters if provided
       const campaignId = req.query.campaignId ? parseInt(req.query.campaignId as string) : undefined;
