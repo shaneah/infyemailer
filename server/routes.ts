@@ -19,6 +19,7 @@ import reportingRoutes from "./routes/reporting-routes";
 import { emailService } from "./services/EmailService";
 import { defaultEmailSettings } from "./routes/emailSettings";
 import { registerAIAssistantRoutes } from "./routes/ai-assistant-routes";
+import { isAuthenticated, isClientAuthenticated } from "./helpers/auth-helpers";
 
 // Extend Express Request type to include files property
 declare global {
@@ -3674,7 +3675,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Email Performance Dashboard routes
-  app.get('/api/email-performance/metrics', (req: Request, res: Response) => {
+  app.get('/api/email-performance/metrics', isAuthenticated, (req: Request, res: Response) => {
     const timeframe = req.query.timeframe as string || '7days';
     const campaignId = req.query.campaign as string;
     
@@ -3758,7 +3759,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(metrics);
   });
   
-  app.get('/api/email-performance/charts', (req: Request, res: Response) => {
+  app.get('/api/email-performance/charts', isAuthenticated, (req: Request, res: Response) => {
     const timeframe = req.query.timeframe as string || '7days';
     const campaignId = req.query.campaign as string;
     
