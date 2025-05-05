@@ -52,6 +52,7 @@ import SimpleClientLogin from "@/pages/SimpleClientLogin";
 import SimpleClientLoginV2 from "@/pages/SimpleClientLoginV2";
 import AdvancedClientLogin from "@/pages/AdvancedClientLogin";
 import ClientDashboard from "@/pages/ClientDashboard";
+import ClientDashboardV2 from "@/pages/ClientDashboardV2";
 import ClientRoutes from "@/pages/ClientRoutes";
 import Analytics from "@/pages/Analytics";
 import EmailTest from "@/pages/EmailTest";
@@ -102,8 +103,8 @@ function App() {
         </Route>
         
         <Route path="client-dashboard">
-          <div className="bg-background min-h-screen">
-            <ClientRoutes />
+          <div className="min-h-screen">
+            <ClientDashboardV2 />
             <Toaster />
           </div>
         </Route>
