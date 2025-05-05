@@ -180,7 +180,9 @@ const DetailedOpens = () => {
           ? `?campaignId=${encodeURIComponent(selectedCampaign)}` 
           : '';
           
-        const res = await fetch(`/api/email-performance/detailed-opens${campaignParam}`);
+        const res = await fetch(`/api/email-performance/detailed-opens${campaignParam}`, {
+          credentials: 'include'  // Include credentials to pass cookies for authentication
+        });
         
         if (!res.ok) {
           console.error(`Error fetching open data: ${res.status} ${res.statusText}`);

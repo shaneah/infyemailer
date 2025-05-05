@@ -43,7 +43,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     queryKey: ["/api/user"],
     queryFn: async () => {
       try {
-        const response = await fetch('/api/user');
+        const response = await fetch('/api/user', {
+          credentials: "include", // Include credentials to pass cookies for authentication
+        });
         if (response.status === 401) {
           return null;
         }
