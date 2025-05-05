@@ -20,7 +20,8 @@ import Contacts from "@/pages/Contacts";
 import ContactsV2 from "@/pages/ContactsV2";
 import ContactsV3 from "@/pages/ContactsV3";
 import ContactsV4 from "@/pages/ContactsV4";
-import ContactsV5 from "@/pages/ContactsV5";
+import ContactsV6 from "@/pages/ContactsV6";
+import ContactListsV2 from "@/pages/ContactListsV2";
 import ListDetails from "@/pages/ListDetails";
 import ABTesting from "@/pages/ABTesting";
 import EmailPerformance from "@/pages/EmailPerformance";
@@ -233,7 +234,8 @@ function App() {
                       <ProtectedRoute path="dashboard" component={DashboardV2} />
                       <ProtectedRoute path="campaigns" component={CampaignsV2} />
                       <ProtectedRoute path="templates" component={TemplatesV2} />
-                      <ProtectedRoute path="contacts" component={ContactsV5} />
+                      <ProtectedRoute path="contacts" component={ContactsV6} />
+                      <ProtectedRoute path="contact-lists" component={ContactListsV2} />
                       <ProtectedRoute path="lists/:id" component={ListDetails} />
                       <ProtectedRoute path="ab-testing" component={ABTesting} />
                       <ProtectedRoute path="ab-testing/:id" component={ABTesting} />
