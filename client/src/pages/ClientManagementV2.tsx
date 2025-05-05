@@ -542,6 +542,134 @@ const ClientManagementV2 = () => {
       });
     }
   });
+  
+  // Credit management form
+  const creditForm = useForm({
+    defaultValues: {
+      amount: 100,
+      operation: 'add',
+      reason: ''
+    }
+  });
+
+  // Credit management mutation
+  const manageCreditsMutation = useMutation({
+    mutationFn: async ({ 
+      clientId, 
+      operation, 
+      amount,
+      reason 
+    }: { 
+      clientId: number; 
+      operation: string; 
+      amount: number;
+      reason?: string;
+    }) => {
+      const res = await apiRequest(
+        'POST', 
+        `/api/clients/${clientId}/email-credits/${operation}`, 
+        { amount, reason }
+      );
+      return await res.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: 'Success',
+        description: 'Credits updated successfully.',
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/clients'] });
+      if (selectedClientForCredits) {
+        queryClient.invalidateQueries({ 
+          queryKey: ['/api/clients', selectedClientForCredits.id, 'credit-history'] 
+        });
+      }
+      setIsCreditDialogOpen(false);
+      creditForm.reset({
+        amount: 100,
+        operation: 'add',
+        reason: ''
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: 'Error',
+        description: `Failed to update credits: ${error.message}`,
+        variant: 'destructive',
+      });
+    },
+  });
+  
+  // Add provider to client mutation
+  const addProviderMutation = useMutation({
+    mutationFn: async ({ 
+      clientId, 
+      providerId 
+    }: { 
+      clientId: number; 
+      providerId: number;
+    }) => {
+      const res = await apiRequest(
+        'POST', 
+        `/api/clients/${clientId}/providers`, 
+        { providerId }
+      );
+      return await res.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: 'Success',
+        description: 'Provider assigned to client successfully.',
+      });
+      if (selectedClientForProviders) {
+        queryClient.invalidateQueries({ 
+          queryKey: ['/api/clients', selectedClientForProviders.id, 'providers'] 
+        });
+      }
+      setIsProviderDialogOpen(false);
+    },
+    onError: (error: Error) => {
+      toast({
+        title: 'Error',
+        description: `Failed to assign provider: ${error.message}`,
+        variant: 'destructive',
+      });
+    },
+  });
+  
+  // Remove provider from client mutation
+  const removeProviderMutation = useMutation({
+    mutationFn: async ({ 
+      clientId, 
+      providerId 
+    }: { 
+      clientId: number; 
+      providerId: number;
+    }) => {
+      const res = await apiRequest(
+        'DELETE', 
+        `/api/clients/${clientId}/providers/${providerId}`
+      );
+      return await res.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: 'Success',
+        description: 'Provider removed from client successfully.',
+      });
+      if (selectedClientForProviders) {
+        queryClient.invalidateQueries({ 
+          queryKey: ['/api/clients', selectedClientForProviders.id, 'providers'] 
+        });
+      }
+    },
+    onError: (error: Error) => {
+      toast({
+        title: 'Error',
+        description: `Failed to remove provider: ${error.message}`,
+        variant: 'destructive',
+      });
+    },
+  });
 
   // Query for client users when a client is selected
   const { 
@@ -552,6 +680,51 @@ const ClientManagementV2 = () => {
     queryKey: ['/api/clients', selectedClientForUsers?.id, 'users'],
     queryFn: () => selectedClientForUsers ? fetchClientUsers(selectedClientForUsers.id) : [],
     enabled: !!selectedClientForUsers,
+    initialData: []
+  });
+  
+  // Query to fetch all email providers
+  const {
+    data: emailProviders = [],
+    isLoading: isProvidersLoading
+  } = useQuery({
+    queryKey: ['/api/email-providers'],
+    queryFn: async () => {
+      const response = await apiRequest('GET', '/api/email-providers');
+      return await response.json();
+    },
+    initialData: []
+  });
+  
+  // Query to fetch client's assigned email providers
+  const {
+    data: clientProviders = [],
+    isLoading: isClientProvidersLoading,
+    refetch: refetchClientProviders
+  } = useQuery({
+    queryKey: ['/api/clients', selectedClientForProviders?.id, 'providers'],
+    queryFn: async () => {
+      if (!selectedClientForProviders) return [];
+      const response = await apiRequest('GET', `/api/clients/${selectedClientForProviders.id}/providers`);
+      return await response.json();
+    },
+    enabled: !!selectedClientForProviders,
+    initialData: []
+  });
+  
+  // Query to fetch client's credit history
+  const {
+    data: creditHistory = [],
+    isLoading: isCreditHistoryLoading,
+    refetch: refetchCreditHistory
+  } = useQuery({
+    queryKey: ['/api/clients', selectedClientForCredits?.id, 'credit-history'],
+    queryFn: async () => {
+      if (!selectedClientForCredits) return [];
+      const response = await apiRequest('GET', `/api/clients/${selectedClientForCredits.id}/email-credits/history`);
+      return await response.json();
+    },
+    enabled: !!selectedClientForCredits,
     initialData: []
   });
 
@@ -706,6 +879,55 @@ const ClientManagementV2 = () => {
     } else {
       deleteClientUserMutation.mutate(itemToDelete.id);
     }
+  };
+  
+  // Handle manage credits
+  const handleManageCredits = (client: any) => {
+    setSelectedClientForCredits(client);
+    creditForm.reset({
+      amount: 100,
+      operation: 'add',
+      reason: ''
+    });
+    setIsCreditDialogOpen(true);
+  };
+  
+  // Handle credit form submission
+  const onCreditSubmit = (data: any) => {
+    if (!selectedClientForCredits) return;
+    
+    manageCreditsMutation.mutate({
+      clientId: selectedClientForCredits.id,
+      operation: data.operation,
+      amount: parseInt(data.amount),
+      reason: data.reason
+    });
+  };
+  
+  // Handle manage providers
+  const handleManageProviders = (client: any) => {
+    setSelectedClientForProviders(client);
+    setActiveTab('providers');
+  };
+  
+  // Handle assign provider
+  const handleAssignProvider = (providerId: number) => {
+    if (!selectedClientForProviders) return;
+    
+    addProviderMutation.mutate({
+      clientId: selectedClientForProviders.id,
+      providerId
+    });
+  };
+  
+  // Handle remove provider
+  const handleRemoveProvider = (providerId: number) => {
+    if (!selectedClientForProviders) return;
+    
+    removeProviderMutation.mutate({
+      clientId: selectedClientForProviders.id,
+      providerId
+    });
   };
 
   // Filter clients based on search query
@@ -889,6 +1111,18 @@ const ClientManagementV2 = () => {
                 <TabsTrigger value="users">
                   <Users className="w-4 h-4 mr-2" />
                   {selectedClientForUsers.name} - Users
+                </TabsTrigger>
+              )}
+              {selectedClientForProviders && (
+                <TabsTrigger value="providers">
+                  <Mail className="w-4 h-4 mr-2" />
+                  {selectedClientForProviders.name} - Providers
+                </TabsTrigger>
+              )}
+              {selectedClientForCredits && (
+                <TabsTrigger value="credits">
+                  <CreditCard className="w-4 h-4 mr-2" />
+                  {selectedClientForCredits.name} - Credits
                 </TabsTrigger>
               )}
             </TabsList>
@@ -1675,6 +1909,181 @@ const ClientManagementV2 = () => {
               Delete
             </Button>
           </div>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Credit Management Dialog */}
+      <Dialog open={isCreditDialogOpen} onOpenChange={setIsCreditDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>
+              {selectedClientForCredits && `Manage Email Credits: ${selectedClientForCredits.name}`}
+            </DialogTitle>
+            <DialogDescription>
+              Add or deduct email credits for this client.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <form onSubmit={(e) => {
+            e.preventDefault();
+            onCreditSubmit(creditForm.getValues());
+          }} className="space-y-6">
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <FormLabel>Operation</FormLabel>
+                <RadioGroup
+                  value={creditForm.watch('operation')}
+                  onValueChange={(value) => creditForm.setValue('operation', value)}
+                  className="flex flex-col space-y-1"
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="add" id="add" />
+                    <FormLabel htmlFor="add" className="font-normal cursor-pointer">
+                      Add Credits
+                    </FormLabel>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="deduct" id="deduct" />
+                    <FormLabel htmlFor="deduct" className="font-normal cursor-pointer">
+                      Deduct Credits
+                    </FormLabel>
+                  </div>
+                </RadioGroup>
+              </div>
+              
+              <div className="space-y-2">
+                <FormLabel>Amount</FormLabel>
+                <Input
+                  type="number"
+                  min="1"
+                  placeholder="Enter amount"
+                  value={creditForm.watch('amount')}
+                  onChange={(e) => creditForm.setValue('amount', parseInt(e.target.value) || 0)}
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <FormLabel>Reason (Optional)</FormLabel>
+                <Textarea
+                  placeholder="Reason for credit adjustment"
+                  value={creditForm.watch('reason')}
+                  onChange={(e) => creditForm.setValue('reason', e.target.value)}
+                />
+              </div>
+            </div>
+            
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsCreditDialogOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={manageCreditsMutation.isPending || !creditForm.watch('amount')}
+              >
+                {manageCreditsMutation.isPending && (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                )}
+                {creditForm.watch('operation') === 'add' ? 'Add Credits' : 'Deduct Credits'}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Email Provider Assignment Dialog */}
+      <Dialog open={isProviderDialogOpen} onOpenChange={setIsProviderDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>
+              {selectedClientForProviders && `Assign Email Provider: ${selectedClientForProviders.name}`}
+            </DialogTitle>
+            <DialogDescription>
+              Select an email provider to assign to this client.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            {isProvidersLoading ? (
+              <div className="flex justify-center py-4">
+                <Loader2 className="h-6 w-6 animate-spin text-primary" />
+              </div>
+            ) : emailProviders.length === 0 ? (
+              <div className="text-center py-4">
+                <p className="text-sm text-gray-500">No email providers available.</p>
+                <p className="text-xs text-gray-400 mt-1">Add email providers first.</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {emailProviders.map((provider: any) => {
+                  const isAssigned = clientProviders.some(
+                    (cp: any) => cp.providerId === provider.id
+                  );
+                  
+                  return (
+                    <div 
+                      key={provider.id}
+                      className={`flex items-center justify-between p-3 rounded-lg border ${
+                        isAssigned ? 'bg-green-50 border-green-200' : 'bg-white border-gray-200'
+                      }`}
+                    >
+                      <div className="flex items-center space-x-3">
+                        <div className={`p-2 rounded-full ${
+                          isAssigned ? 'bg-green-100' : 'bg-gray-100'
+                        }`}>
+                          <Mail className={`h-5 w-5 ${
+                            isAssigned ? 'text-green-600' : 'text-gray-600'
+                          }`} />
+                        </div>
+                        <div>
+                          <p className="font-medium">{provider.name}</p>
+                          <p className="text-xs text-gray-500">{provider.provider}</p>
+                        </div>
+                      </div>
+                      
+                      {isAssigned ? (
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => handleRemoveProvider(provider.id)}
+                          disabled={removeProviderMutation.isPending}
+                        >
+                          {removeProviderMutation.isPending && (
+                            <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+                          )}
+                          Remove
+                        </Button>
+                      ) : (
+                        <Button
+                          variant="default"
+                          size="sm"
+                          onClick={() => handleAssignProvider(provider.id)}
+                          disabled={addProviderMutation.isPending}
+                        >
+                          {addProviderMutation.isPending && (
+                            <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+                          )}
+                          Assign
+                        </Button>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+          
+          <DialogFooter>
+            <Button
+              type="button"
+              onClick={() => setIsProviderDialogOpen(false)}
+            >
+              Close
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
