@@ -141,21 +141,26 @@ export default function Templates() {
   
   const { data: savedTemplates = [], isLoading: isLoadingTemplates } = useQuery({
     queryKey: ['/api/templates'],
-    staleTime: 5000, // Consider data fresh for 5 seconds
-    refetchOnMount: true, // Refetch when component mounts
+    staleTime: 0, // Always revalidate to ensure fresh data
+    refetchOnMount: 'always', // Always refetch when component mounts
     refetchOnWindowFocus: true, // Refetch when window regains focus
-    refetchInterval: 30000, // Poll every 30 seconds
+    refetchInterval: 10000, // Poll every 10 seconds for fresh data
     retry: 3, // Retry failed requests 3 times
     queryFn: async () => {
       console.log("Fetching templates...");
       try {
-        const response = await fetch('/api/templates');
+        const response = await fetch('/api/templates', {
+          headers: {
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache'
+          }
+        });
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({}));
           throw new Error(errorData.message || `Failed with status: ${response.status}`);
         }
         const data = await response.json();
-        console.log(`Successfully fetched ${data.length} templates`);
+        console.log(`Successfully fetched ${data.length} templates:`, data);
         return data;
       } catch (error) {
         console.error("Error fetching templates:", error);
