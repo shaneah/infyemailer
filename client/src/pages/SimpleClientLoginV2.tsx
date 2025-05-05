@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { Shield, EyeOff, Eye, Lock, User, ChevronRight, Coffee, Sun, Moon, Sunset } from 'lucide-react';
-import LogoColor from '@assets/Infinity Tech Logo-06.png';
+// Import logo from the assets directory
+import LogoColor from '@assets/Infinity Tech Logo-01.png';
 
 const SimpleClientLoginV2: React.FC = () => {
   // Form state
