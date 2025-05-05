@@ -219,17 +219,21 @@ export default function CampaignsV2() {
   const { data: campaignStats, isLoading: statsLoading } = useQuery<any[]>({
     queryKey: ['/api/campaigns/stats'],
     initialData: [],
-    staleTime: 60000,
+    staleTime: 30000, // Refresh every 30 seconds
     refetchOnWindowFocus: true,
-    retry: 3,
+    retry: 5,
+    refetchOnMount: true,
+    refetchInterval: 60000, // Poll every minute for updates
   });
   
   const { data: campaigns = [], isLoading: campaignsLoading } = useQuery<any[]>({
     queryKey: ['/api/campaigns'],
     initialData: [],
-    staleTime: 60000,
+    staleTime: 30000, // Refresh every 30 seconds
     refetchOnWindowFocus: true,
-    retry: 3,
+    retry: 5,
+    refetchOnMount: true,
+    refetchInterval: 60000, // Poll every minute for updates
   });
   
   useEffect(() => {

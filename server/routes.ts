@@ -366,12 +366,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get all campaigns
   app.get('/api/campaigns', async (req: Request, res: Response) => {
     try {
-      // Use the dbHelper for safer database operations with fallback
-      const campaigns = await withDbFallback(
-        storage.getCampaigns(),
-        [],
-        'Failed to fetch campaigns'
-      );
+      // Get campaigns safely with fallback to empty array if database error occurs
+      let campaigns;
+      try {
+        campaigns = await storage.getCampaigns();
+        console.log(`Successfully retrieved ${campaigns.length} campaigns from database`);
+      } catch (dbError) {
+        console.error('Database error when fetching campaigns:', dbError);
+        campaigns = [];
+      }
       
       console.log(`Retrieved ${campaigns.length} campaigns from storage`);
       

@@ -108,16 +108,26 @@ const NewCampaignModal = ({ onClose, initialTemplateId = null }: NewCampaignModa
     mutationFn: async (values: z.infer<typeof campaignSchema>) => {
       console.log("Creating campaign with values:", values);
       
-      const response = await apiRequest("POST", "/api/campaigns", {
-        ...values,
-        templateId: selectedTemplateId,
-        contactLists: selectedLists,
-        sendOption
-      });
-      
-      const data = await response.json();
-      console.log("Campaign created successfully:", data);
-      return data;
+      try {
+        const response = await apiRequest("POST", "/api/campaigns", {
+          ...values,
+          templateId: selectedTemplateId,
+          contactLists: selectedLists,
+          sendOption
+        });
+        
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.error || `Failed with status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log("Campaign created successfully:", data);
+        return data;
+      } catch (error) {
+        console.error("Error during campaign creation:", error);
+        throw error; // Re-throw to be handled by onError
+      }
     },
     onSuccess: (data) => {
       console.log("Invalidating /api/campaigns query cache");
@@ -126,11 +136,15 @@ const NewCampaignModal = ({ onClose, initialTemplateId = null }: NewCampaignModa
       queryClient.invalidateQueries({ queryKey: ['/api/campaigns'] });
       queryClient.invalidateQueries({ queryKey: ['/api/campaigns/stats'] });
       
+      // Force an immediate refetch to ensure data is up-to-date
+      queryClient.refetchQueries({ queryKey: ['/api/campaigns'] });
+      queryClient.refetchQueries({ queryKey: ['/api/campaigns/stats'] });
+      
+      // Schedule another refetch after a delay to catch any delayed database updates
       setTimeout(() => {
-        // Force a refetch after a short delay
         queryClient.refetchQueries({ queryKey: ['/api/campaigns'] });
         queryClient.refetchQueries({ queryKey: ['/api/campaigns/stats'] });
-      }, 300);
+      }, 500);
       
       toast({
         title: "Success",
@@ -169,14 +183,88 @@ const NewCampaignModal = ({ onClose, initialTemplateId = null }: NewCampaignModa
       return;
     }
     
+    // Add icon and other metadata
+    const iconColor = 
+      values.name.toLowerCase().includes('welcome') ? 'success' :
+      values.name.toLowerCase().includes('sale') || values.name.toLowerCase().includes('discount') ? 'danger' :
+      values.name.toLowerCase().includes('newsletter') ? 'secondary' :
+      'primary';
+    
+    const iconName = 
+      values.name.toLowerCase().includes('newsletter') ? 'envelope-fill' :
+      values.name.toLowerCase().includes('welcome') ? 'chat-fill' :
+      values.name.toLowerCase().includes('sale') || values.name.toLowerCase().includes('discount') ? 'megaphone-fill' :
+      values.name.toLowerCase().includes('product') ? 'box-fill' :
+      values.name.toLowerCase().includes('testing') ? 'bar-chart-fill' :
+      'envelope-fill';
+      
+    // Calculate estimated recipients from selected lists
+    const estimatedRecipients = selectedLists.reduce((total, listId) => {
+      const list = lists.find(l => l.id.toString() === listId);
+      return total + (list ? (list.count || 0) : 0);
+    }, 0);
+    
     // Add A/B testing data if enabled
     const campaignData = {
       ...values,
       isAbTest: isAbTesting,
-      variants: isAbTesting ? variants : []
+      variants: isAbTesting ? variants : [],
+      sendOption,
+      // Add additional metadata for better display in the campaigns list
+      metadata: {
+        subtitle: values.previewText?.substring(0, 30) || '',
+        icon: { 
+          name: iconName, 
+          color: iconColor 
+        },
+        recipients: estimatedRecipients,
+        openRate: 0,
+        clickRate: 0,
+        date: sendOption === 'schedule' && values.scheduledDate 
+          ? new Date(values.scheduledDate).toLocaleDateString('en-US', { 
+              month: 'short', 
+              day: 'numeric', 
+              year: 'numeric' 
+            }) 
+          : new Date().toLocaleDateString('en-US', { 
+              month: 'short', 
+              day: 'numeric', 
+              year: 'numeric' 
+            })
+      }
     };
     
-    createCampaignMutation.mutate(campaignData);
+    // Log the data being sent
+    console.log("Submitting campaign:", campaignData);
+    
+    // Show loading toast
+    const loadingToastId = toast({
+      title: "Creating Campaign",
+      description: "Please wait while we create your campaign...",
+      duration: 60000, // Long duration as we'll dismiss it manually
+    });
+    
+    // Submit with mutation
+    createCampaignMutation.mutate(campaignData, {
+      onSuccess: () => {
+        // Dismiss the loading toast
+        toast({
+          id: loadingToastId,
+          title: "Campaign Created",
+          description: "Your campaign has been created successfully!",
+          variant: "success",
+        });
+      },
+      onError: (error) => {
+        // Dismiss the loading toast and show error
+        toast({
+          id: loadingToastId,
+          title: "Creation Failed",
+          description: `Failed to create campaign: ${error.message}`,
+          variant: "destructive",
+        });
+      }
+    });
   };
   
   // Define template interface
