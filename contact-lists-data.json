@@ -3,28 +3,28 @@
     "name": "Newsletter Subscribers",
     "description": "People who subscribed to the newsletter",
     "id": 1,
-    "createdAt": "2025-05-05T05:51:21.490Z",
-    "updatedAt": "2025-05-05T05:51:21.490Z"
+    "createdAt": "2025-05-05T06:28:43.933Z",
+    "updatedAt": "2025-05-05T06:28:43.933Z"
   },
   {
     "name": "Product Updates",
     "description": "People interested in product updates",
     "id": 2,
-    "createdAt": "2025-05-05T05:51:21.490Z",
-    "updatedAt": "2025-05-05T05:51:21.490Z"
+    "createdAt": "2025-05-05T06:28:43.933Z",
+    "updatedAt": "2025-05-05T06:28:43.933Z"
   },
   {
     "name": "New Customers",
     "description": "Recently acquired customers",
     "id": 3,
-    "createdAt": "2025-05-05T05:51:21.491Z",
-    "updatedAt": "2025-05-05T05:51:21.491Z"
+    "createdAt": "2025-05-05T06:28:43.933Z",
+    "updatedAt": "2025-05-05T06:28:43.933Z"
   },
   {
     "name": "VIP Members",
     "description": "Premium customers",
     "id": 4,
-    "createdAt": "2025-05-05T05:51:21.491Z",
-    "updatedAt": "2025-05-05T05:51:21.491Z"
+    "createdAt": "2025-05-05T06:28:43.933Z",
+    "updatedAt": "2025-05-05T06:28:43.933Z"
   }
 ]
