@@ -217,37 +217,33 @@ const ContactsV7 = () => {
       
       console.log("Uploading file:", selectedFile.name, "type:", selectedFile.type, "size:", selectedFile.size);
       
+      // Use XMLHttpRequest to track upload progress
       try {
-        const xhr = new XMLHttpRequest();
-        xhr.open("POST", "/api/contacts/import", true);
-        
-        // Important: Do NOT set Content-Type header when sending FormData
-        // The browser will automatically set the correct multipart/form-data boundary
-        
-        // Track upload progress
-        xhr.upload.onprogress = (event) => {
-          if (event.lengthComputable) {
-            const progress = Math.round((event.loaded / event.total) * 100);
-            console.log(`Upload progress: ${progress}%`);
-            setUploadProgress(progress);
-          }
-        };
-        
-        return new Promise((resolve, reject) => {
-          xhr.onload = () => {
-            console.log("Upload response status:", xhr.status);
+        return await new Promise((resolve, reject) => {
+          const xhr = new XMLHttpRequest();
+          
+          // Set up progress tracking
+          xhr.upload.onprogress = (event) => {
+            if (event.lengthComputable) {
+              const progress = Math.round((event.loaded / event.total) * 100);
+              console.log(`Upload progress: ${progress}%`);
+              setUploadProgress(progress);
+            }
+          };
+          
+          xhr.onload = async () => {
             if (xhr.status >= 200 && xhr.status < 300) {
               try {
-                const response = JSON.parse(xhr.responseText);
-                console.log("Upload response:", response);
-                resolve(response);
+                const data = JSON.parse(xhr.responseText);
+                console.log("Upload response:", data);
+                resolve(data);
               } catch (e) {
                 console.error("Failed to parse response:", xhr.responseText);
                 reject(new Error("Invalid response format"));
               }
             } else {
               console.error("Upload failed:", xhr.status, xhr.statusText, xhr.responseText);
-              reject(new Error(`Upload failed: ${xhr.statusText}`));
+              reject(new Error(`Upload failed: ${xhr.statusText || "Server error"}`));
             }
           };
           
@@ -255,6 +251,11 @@ const ContactsV7 = () => {
             console.error("Network error during upload");
             reject(new Error("Network error occurred"));
           };
+          
+          xhr.open("POST", "/api/contacts/import", true);
+          
+          // Important: Do NOT set Content-Type header, let browser set it
+          xhr.withCredentials = true; // Add credentials
           
           xhr.send(formData);
         });
@@ -269,10 +270,18 @@ const ContactsV7 = () => {
       setImportDialogOpen(false);
       setSelectedFile(null);
       setUploadProgress(0);
+      setSelectedListId(null);
       queryClient.invalidateQueries({ queryKey: ["/api/contacts"] });
+      
+      // Also invalidate lists if a list was selected
+      if (selectedListId) {
+        queryClient.invalidateQueries({ queryKey: ["/api/lists"] });
+        queryClient.invalidateQueries({ queryKey: [`/api/lists/${selectedListId}/contacts`] });
+      }
+      
       toast({
         title: "Contacts imported",
-        description: `Successfully imported ${data.valid || 0} contacts.`,
+        description: `Successfully imported ${data.valid || 0} contacts${data.duplicates ? `, ${data.duplicates} duplicates skipped` : ''}.`,
       });
     },
     onError: (error: any) => {
