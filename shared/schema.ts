@@ -273,6 +273,7 @@ export const templates = pgTable("templates", {
   description: text("description"),
   content: text("content").notNull(),
   category: text("category").notNull(),
+  subject: text("subject"), // Adding subject field that was missing
   clientId: integer("client_id").references(() => clients.id),
   isGlobal: boolean("is_global").default(false),
   isPromoted: boolean("is_promoted").default(false), // Featured or promoted templates
@@ -291,6 +292,7 @@ export const insertTemplateSchema = createInsertSchema(templates).pick({
   description: true,
   content: true,
   category: true,
+  subject: true, // Added subject field to the insert schema
   clientId: true,
   isGlobal: true,
   isPromoted: true,
