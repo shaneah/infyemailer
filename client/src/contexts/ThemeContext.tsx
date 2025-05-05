@@ -1,6 +1,8 @@
 import React, { createContext, ReactNode, useContext, useEffect, useState } from 'react';
 
 type ThemeMode = 'light' | 'dark' | 'auto' | 'mood';
+type MoodType = 'happy' | 'calm' | 'focused' | 'energetic' | 'relaxed' | 'creative';
+type TimeOfDay = 'morning' | 'afternoon' | 'evening' | 'night';
 
 interface ThemeColors {
   primary: string;
@@ -16,6 +18,7 @@ interface ThemeColors {
   warning: string;
   error: string;
   info: string;
+  gradient: string;
 }
 
 interface ThemeContextType {
@@ -23,6 +26,9 @@ interface ThemeContextType {
   setThemeMode: (mode: ThemeMode) => void;
   themeColors: ThemeColors;
   isDarkMode: boolean;
+  currentMood: MoodType;
+  setCurrentMood: (mood: MoodType) => void;
+  currentTimeOfDay: TimeOfDay;
 }
 
 const defaultColors: ThemeColors = {
@@ -38,7 +44,8 @@ const defaultColors: ThemeColors = {
   success: '#10b981',
   warning: '#f59e0b',
   error: '#ef4444',
-  info: '#3b82f6'
+  info: '#3b82f6',
+  gradient: 'linear-gradient(to right, #6366f1, #8b5cf6)'
 };
 
 const darkColors: ThemeColors = {
@@ -54,7 +61,8 @@ const darkColors: ThemeColors = {
   success: '#34d399',
   warning: '#fbbf24',
   error: '#f87171',
-  info: '#60a5fa'
+  info: '#60a5fa',
+  gradient: 'linear-gradient(to right, #4338ca, #6366f1)'
 };
 
 // Morning colors (refreshing, energetic)
@@ -71,7 +79,8 @@ const morningColors: ThemeColors = {
   success: '#10b981',
   warning: '#f59e0b',
   error: '#ef4444',
-  info: '#0284c7'
+  info: '#0284c7',
+  gradient: 'linear-gradient(to right, #3b82f6, #60a5fa)'
 };
 
 // Afternoon colors (productive, focused)
@@ -88,7 +97,8 @@ const afternoonColors: ThemeColors = {
   success: '#059669',
   warning: '#d97706',
   error: '#dc2626',
-  info: '#2563eb'
+  info: '#2563eb',
+  gradient: 'linear-gradient(to right, #8b5cf6, #c084fc)'
 };
 
 // Evening colors (calm, relaxing)
@@ -105,7 +115,8 @@ const eveningColors: ThemeColors = {
   success: '#059669',
   warning: '#d97706',
   error: '#dc2626',
-  info: '#2563eb'
+  info: '#2563eb',
+  gradient: 'linear-gradient(to right, #ec4899, #f472b6)'
 };
 
 // Mood-based colors
@@ -122,7 +133,8 @@ const happyColors: ThemeColors = {
   success: '#059669',
   warning: '#d97706',
   error: '#dc2626',
-  info: '#2563eb'
+  info: '#2563eb',
+  gradient: 'linear-gradient(to right, #f59e0b, #fbbf24)'
 };
 
 const calmColors: ThemeColors = {
@@ -138,7 +150,8 @@ const calmColors: ThemeColors = {
   success: '#059669',
   warning: '#d97706',
   error: '#dc2626',
-  info: '#2563eb'
+  info: '#2563eb',
+  gradient: 'linear-gradient(to right, #06b6d4, #22d3ee)'
 };
 
 const focusedColors: ThemeColors = {
@@ -154,7 +167,8 @@ const focusedColors: ThemeColors = {
   success: '#059669',
   warning: '#d97706',
   error: '#dc2626',
-  info: '#2563eb'
+  info: '#2563eb',
+  gradient: 'linear-gradient(to right, #4f46e5, #818cf8)'
 };
 
 // Create the theme context
