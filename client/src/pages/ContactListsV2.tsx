@@ -19,6 +19,8 @@ import {
   SelectTrigger, 
   SelectValue
 } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Slider } from "@/components/ui/slider";
 import { 
   Dialog, 
   DialogContent, 
@@ -304,6 +306,7 @@ const ContactListsV2: React.FC = () => {
   const [selectedTag, setSelectedTag] = useState<string>("all");
   const [sortBy, setSortBy] = useState<string>("name");
   const [showCreateListDialog, setShowCreateListDialog] = useState(false);
+  const [showFilterDialog, setShowFilterDialog] = useState(false);
   const [currentList, setCurrentList] = useState<any>(null);
   
   // Toast notifications
@@ -626,7 +629,11 @@ const ContactListsV2: React.FC = () => {
             </SelectContent>
           </Select>
           
-          <Button variant="outline" size="icon">
+          <Button 
+            variant="outline" 
+            size="icon"
+            onClick={() => setShowFilterDialog(true)}
+          >
             <Filter className="h-4 w-4" />
           </Button>
         </div>
@@ -748,6 +755,166 @@ const ContactListsV2: React.FC = () => {
               </Button>
             </DialogFooter>
           </form>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Filter Dialog */}
+      <Dialog open={showFilterDialog} onOpenChange={setShowFilterDialog}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Filter Contact Lists</DialogTitle>
+            <DialogDescription>
+              Refine your lists based on specific criteria and engagement metrics.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="status">List Status</Label>
+              <Select defaultValue="all">
+                <SelectTrigger>
+                  <SelectValue placeholder="Select status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Statuses</SelectItem>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="inactive">Inactive</SelectItem>
+                  <SelectItem value="archived">Archived</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="tags">Tags</Label>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="flex items-center space-x-2">
+                  <Checkbox id="tag-newsletter" />
+                  <label htmlFor="tag-newsletter" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                    Newsletter
+                  </label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Checkbox id="tag-vip" />
+                  <label htmlFor="tag-vip" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                    VIP
+                  </label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Checkbox id="tag-customer" />
+                  <label htmlFor="tag-customer" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                    Customer
+                  </label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Checkbox id="tag-event" />
+                  <label htmlFor="tag-event" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                    Event
+                  </label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Checkbox id="tag-webinar" />
+                  <label htmlFor="tag-webinar" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                    Webinar
+                  </label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Checkbox id="tag-product" />
+                  <label htmlFor="tag-product" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                    Product
+                  </label>
+                </div>
+              </div>
+            </div>
+            
+            <div className="space-y-2">
+              <Label>Contact Count</Label>
+              <div className="flex items-center space-x-4">
+                <div className="grid flex-1 gap-2">
+                  <Label htmlFor="min-contacts" className="text-xs text-gray-500">Minimum</Label>
+                  <Input
+                    id="min-contacts"
+                    type="number"
+                    placeholder="0"
+                    className="col-span-2"
+                  />
+                </div>
+                <div className="grid flex-1 gap-2">
+                  <Label htmlFor="max-contacts" className="text-xs text-gray-500">Maximum</Label>
+                  <Input
+                    id="max-contacts"
+                    type="number" 
+                    placeholder="10000"
+                    className="col-span-2"
+                  />
+                </div>
+              </div>
+            </div>
+            
+            <div className="space-y-2">
+              <Label>Engagement Rate</Label>
+              <div className="px-2">
+                <Slider defaultValue={[0, 100]} max={100} step={1} />
+                <div className="flex justify-between mt-2">
+                  <span className="text-xs text-gray-500">0%</span>
+                  <span className="text-xs text-gray-500">50%</span>
+                  <span className="text-xs text-gray-500">100%</span>
+                </div>
+              </div>
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="date-created">Created Date</Label>
+              <Select defaultValue="any">
+                <SelectTrigger>
+                  <SelectValue placeholder="Select time period" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="any">Any time</SelectItem>
+                  <SelectItem value="today">Today</SelectItem>
+                  <SelectItem value="week">Last 7 days</SelectItem>
+                  <SelectItem value="month">Last 30 days</SelectItem>
+                  <SelectItem value="quarter">Last 3 months</SelectItem>
+                  <SelectItem value="year">Last year</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          
+          <DialogFooter className="flex justify-between">
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={() => setShowFilterDialog(false)}
+            >
+              Cancel
+            </Button>
+            <div className="flex gap-2">
+              <Button 
+                variant="outline" 
+                onClick={() => {
+                  // Reset filter logic would go here
+                  toast({
+                    title: "Filters cleared",
+                    description: "All filters have been reset to default values."
+                  });
+                }}
+              >
+                Reset
+              </Button>
+              <Button 
+                onClick={() => {
+                  // Apply filter logic would go here
+                  toast({
+                    title: "Filters applied",
+                    description: "The list has been filtered according to your criteria."
+                  });
+                  setShowFilterDialog(false);
+                }}
+              >
+                Apply Filters
+              </Button>
+            </div>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
