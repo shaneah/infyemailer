@@ -281,45 +281,86 @@ export default function CampaignsV2() {
       className="px-4 py-6 max-w-[1600px] mx-auto"
     >
       {/* Header section with vibrant gradient background */}
-      <motion.div 
+      <motion.div
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.5 }}
-        className="bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 rounded-xl p-6 shadow-lg mb-8 text-white overflow-hidden relative"
+        className="bg-gradient-to-br from-indigo-600 via-blue-600 to-cyan-500 rounded-2xl p-8 shadow-2xl mb-8 text-white overflow-hidden relative"
       >
-        {/* Decorative elements for visual appeal */}
-        <div className="absolute top-0 left-0 w-full h-full overflow-hidden opacity-10">
-          <div className="absolute bottom-0 left-1/3 w-20 h-20 rounded-full bg-white"></div>
-        </div>
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        {/* Advanced decorative elements for a modern look */}
+        <div className="absolute -top-20 -right-20 w-64 h-64 rounded-full bg-gradient-to-br from-purple-400 to-pink-400 mix-blend-overlay opacity-20 blur-2xl"></div>
+        <div className="absolute -bottom-20 -left-20 w-64 h-64 rounded-full bg-gradient-to-tr from-blue-400 to-teal-400 mix-blend-overlay opacity-20 blur-2xl"></div>
+        <div className="absolute top-0 left-0 w-full h-full bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXR0ZXJuIGlkPSJwYXR0ZXJuLWNpcmNsZXMiIHg9IjAiIHk9IjAiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgcGF0dGVyblRyYW5zZm9ybT0icm90YXRlKDEzKSI+PGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMS41IiBmaWxsPSJ3aGl0ZSIgZmlsbC1vcGFjaXR5PSIwLjA1Ii8+PC9wYXR0ZXJuPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjcGF0dGVybi1jaXJjbGVzKSIvPjwvc3ZnPg==')] opacity-30"></div>
+        
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative z-10">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold mb-2 text-white">Email Campaigns</h1>
-            <p className="text-white/90 max-w-2xl">
+            <div className="inline-flex items-center bg-white/10 backdrop-blur-md rounded-full px-4 py-1 border border-white/20 mb-4">
+              <div className="h-2 w-2 rounded-full bg-emerald-400 mr-2 animate-pulse"></div>
+              <span className="text-xs font-medium text-white/90">Campaign Dashboard</span>
+            </div>
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3 text-white flex items-center">
+              Email Campaigns
+              <span className="ml-3 text-xs font-normal bg-cyan-400/20 text-cyan-100 px-2 py-0.5 rounded-md border border-cyan-400/30">
+                {campaigns.length} Campaigns
+              </span>
+            </h1>
+            <p className="text-white/90 max-w-2xl text-base">
               Create, manage, and track the performance of your email marketing campaigns all in one place.
-              Leverage analytics to optimize your marketing strategy and achieve better results.
+              Leverage advanced analytics to optimize your strategy for better results.
             </p>
-            <div className="flex flex-wrap items-center gap-3 mt-4">
-              <div className="bg-white/10 backdrop-blur-sm rounded-lg px-3 py-2 border border-white/20">
-                <p className="text-xs text-white/70">Active Campaigns</p>
-                <p className="text-xl font-bold">{campaigns.filter(c => c.status.label === "Active").length}</p>
+            
+            <div className="flex flex-wrap items-center gap-4 mt-6">
+              <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-md rounded-xl px-4 py-3 border border-white/20 shadow-lg shadow-black/5">
+                <div className="flex items-center">
+                  <div className="p-2 bg-emerald-400/20 rounded-lg mr-3">
+                    <svg className="h-5 w-5 text-emerald-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="text-xs font-medium text-white/70">Active Campaigns</p>
+                    <p className="text-2xl font-bold">{campaigns.filter(c => c.status.label === "Active").length}</p>
+                  </div>
+                </div>
               </div>
-              <div className="bg-white/10 backdrop-blur-sm rounded-lg px-3 py-2 border border-white/20">
-                <p className="text-xs text-white/70">Sent Last 30 Days</p>
-                <p className="text-xl font-bold">
-                  {campaigns.filter(c => c.status.label === "Sent").length}
-                </p>
+              
+              <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-md rounded-xl px-4 py-3 border border-white/20 shadow-lg shadow-black/5">
+                <div className="flex items-center">
+                  <div className="p-2 bg-blue-400/20 rounded-lg mr-3">
+                    <svg className="h-5 w-5 text-blue-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="text-xs font-medium text-white/70">Sent Last 30 Days</p>
+                    <p className="text-2xl font-bold">
+                      {campaigns.filter(c => c.status.label === "Sent").length}
+                    </p>
+                  </div>
+                </div>
               </div>
-              <div className="bg-white/10 backdrop-blur-sm rounded-lg px-3 py-2 border border-white/20">
-                <p className="text-xs text-white/70">Avg. Open Rate</p>
-                <p className="text-xl font-bold">
-                  {Math.round(campaigns.reduce((sum, c) => sum + c.openRate, 0) / (campaigns.length || 1))}%
-                </p>
+              
+              <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-md rounded-xl px-4 py-3 border border-white/20 shadow-lg shadow-black/5">
+                <div className="flex items-center">
+                  <div className="p-2 bg-purple-400/20 rounded-lg mr-3">
+                    <svg className="h-5 w-5 text-purple-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="text-xs font-medium text-white/70">Avg. Open Rate</p>
+                    <p className="text-2xl font-bold">
+                      {Math.round(campaigns.reduce((sum, c) => sum + c.openRate, 0) / (campaigns.length || 1))}%
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
+          
           <div className="flex flex-col sm:flex-row items-center gap-3 mt-4 lg:mt-0">
             <Button 
-              className="bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-sm w-full sm:w-auto"
+              className="bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-md w-full sm:w-auto transition-all duration-300"
               variant="outline"
               size="sm"
               onClick={() => setLocation('/templates')}
@@ -328,7 +369,7 @@ export default function CampaignsV2() {
               View Templates
             </Button>
             <Button 
-              className="bg-white text-indigo-700 hover:bg-blue-50 hover:text-indigo-800 border-0 shadow-md w-full sm:w-auto"
+              className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white shadow-lg shadow-emerald-900/20 hover:shadow-emerald-900/30 border-0 w-full sm:w-auto transition-all duration-300"
               size="sm"
               onClick={() => setShowNewCampaignModal(true)}
             >
