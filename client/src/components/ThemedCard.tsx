@@ -1,6 +1,6 @@
 import React, { ReactNode } from 'react';
 import { useTheme } from '@/contexts/ThemeContext';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { motion } from 'framer-motion';
 
 interface ThemedCardProps {
   title?: string;
@@ -20,73 +20,92 @@ const ThemedCard: React.FC<ThemedCardProps> = ({
   footer,
   className = '',
   noPadding = false,
-  hover = true,
+  hover = false,
   variant = 'default'
 }) => {
-  const { themeColors } = useTheme();
+  const { themeColors, isDarkMode } = useTheme();
   
-  // Different card styling based on variant
-  const getCardStyle = () => {
-    switch (variant) {
-      case 'accent':
-        return {
-          border: `1px solid ${themeColors.accent}30`,
-          backgroundColor: `${themeColors.accent}08`, // Very light tint
-          boxShadow: hover ? `0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06), 0 0 0 1px ${themeColors.accent}20` : undefined
-        };
-      case 'secondary':
-        return {
-          border: `1px solid ${themeColors.secondary}30`,
-          backgroundColor: `${themeColors.secondary}08`, // Very light tint
-          boxShadow: hover ? `0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06), 0 0 0 1px ${themeColors.secondary}20` : undefined
-        };
-      case 'subtle':
-        return {
-          border: `1px solid ${themeColors.border}`,
-          backgroundColor: themeColors.cardBg,
-          boxShadow: hover ? '0 1px 3px rgba(0, 0, 0, 0.05)' : undefined
-        };
-      default:
-        return {
-          border: `1px solid ${themeColors.border}`,
-          backgroundColor: themeColors.cardBg,
-          boxShadow: hover ? '0 1px 3px rgba(0, 0, 0, 0.1)' : undefined
-        };
-    }
+  // Style variables based on theme and variant
+  let cardBgColor = themeColors.cardBg;
+  let headerBgColor;
+  let borderColor = themeColors.border;
+  let titleColor = themeColors.textPrimary;
+  let descriptionColor = themeColors.textSecondary;
+  
+  switch (variant) {
+    case 'accent':
+      headerBgColor = themeColors.primary;
+      titleColor = 'white';
+      descriptionColor = 'rgba(255, 255, 255, 0.8)';
+      borderColor = themeColors.primary;
+      break;
+    case 'secondary':
+      headerBgColor = themeColors.secondary;
+      titleColor = 'white';
+      descriptionColor = 'rgba(255, 255, 255, 0.8)';
+      borderColor = themeColors.secondary;
+      break;
+    case 'subtle':
+      cardBgColor = isDarkMode 
+        ? `${themeColors.background}` 
+        : `${themeColors.background}`;
+      break;
+    default:
+      headerBgColor = undefined;
+  }
+  
+  const cardStyle: React.CSSProperties = {
+    backgroundColor: cardBgColor,
+    borderColor: borderColor,
+    transition: 'all 0.2s ease-in-out'
   };
-
-  const cardStyle = getCardStyle();
   
-  const hoverClass = hover 
-    ? 'transition-all duration-200 hover:shadow-md' 
-    : '';
-
+  const headerStyle: React.CSSProperties = headerBgColor ? {
+    backgroundColor: headerBgColor,
+    color: 'white'
+  } : {};
+  
   return (
-    <Card 
-      className={`${className} ${hoverClass}`}
+    <motion.div
+      className={`rounded-lg border shadow ${hover ? 'hover:shadow-md' : ''} ${className}`}
       style={cardStyle}
+      whileHover={hover ? { y: -5 } : undefined}
+      transition={{ duration: 0.2 }}
     >
       {(title || description) && (
-        <CardHeader className={noPadding ? 'p-0 pb-2' : undefined}>
-          {title && <CardTitle style={{ color: themeColors.textPrimary }}>{title}</CardTitle>}
-          {description && (
-            <CardDescription style={{ color: themeColors.textSecondary }}>
-              {description}
-            </CardDescription>
+        <div 
+          className={`px-4 py-3 ${headerBgColor ? 'rounded-t-lg' : 'border-b'}`} 
+          style={headerStyle}
+        >
+          {title && (
+            <h3 
+              className="text-lg font-semibold" 
+              style={{ color: titleColor }}
+            >
+              {title}
+            </h3>
           )}
-        </CardHeader>
+          {description && (
+            <p 
+              className="text-sm mt-1" 
+              style={{ color: descriptionColor }}
+            >
+              {description}
+            </p>
+          )}
+        </div>
       )}
       
-      <CardContent className={noPadding ? 'p-0' : undefined}>
+      <div className={noPadding ? '' : 'p-4'}>
         {children}
-      </CardContent>
+      </div>
       
       {footer && (
-        <CardFooter className={noPadding ? 'p-0 pt-4' : undefined}>
+        <div className="px-4 py-3 border-t" style={{ borderColor: themeColors.border }}>
           {footer}
-        </CardFooter>
+        </div>
       )}
-    </Card>
+    </motion.div>
   );
 };
 

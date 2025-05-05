@@ -3,6 +3,7 @@ import { Link, useLocation } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { DoorOpen, Bell, HelpCircle, Settings, LogOut, Mail, Users, BarChart2, FileText, Plus, Search, Menu, PanelLeftClose, PanelLeftOpen, UserCircle } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
+import ThemeSwitcher from '@/components/ThemeSwitcher';
 
 interface NavbarProps {
   sidebarOpen: boolean;
@@ -199,6 +200,9 @@ const Navbar = ({
                 </div>
               )}
             </div>
+            
+            {/* Theme Switcher */}
+            <ThemeSwitcher />
 
             {/* Notifications */}
             <div className="relative" ref={notificationsRef}>

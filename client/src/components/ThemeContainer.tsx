@@ -14,18 +14,19 @@ const ThemeContainer: React.FC<ThemeContainerProps> = ({
   className = '',
   applyBackground = true,
   applyTextColor = true,
-  applyBorder = false
+  applyBorder = false,
 }) => {
-  const { themeColors } = useTheme();
+  const { themeColors, isDarkMode } = useTheme();
   
   const containerStyle: React.CSSProperties = {
-    ...(applyBackground && { backgroundColor: themeColors.background }),
-    ...(applyTextColor && { color: themeColors.textPrimary }),
-    ...(applyBorder && { borderColor: themeColors.border })
+    ...(applyBackground ? { backgroundColor: themeColors.background } : {}),
+    ...(applyTextColor ? { color: themeColors.textPrimary } : {}),
+    ...(applyBorder ? { borderColor: themeColors.border } : {}),
+    transition: 'all 0.3s ease'
   };
   
   return (
-    <div className={className} style={containerStyle}>
+    <div className={`${className}`} style={containerStyle}>
       {children}
     </div>
   );
