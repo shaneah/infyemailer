@@ -53,6 +53,7 @@ import SimpleClientLoginV2 from "@/pages/SimpleClientLoginV2";
 import AdvancedClientLogin from "@/pages/AdvancedClientLogin";
 import ClientDashboard from "@/pages/ClientDashboard";
 import ClientDashboardV2 from "@/pages/ClientDashboardV2";
+import ClientDashboardV3 from "@/pages/ClientDashboardV3";
 import ClientRoutes from "@/pages/ClientRoutes";
 import Analytics from "@/pages/Analytics";
 import EmailTest from "@/pages/EmailTest";
@@ -104,7 +105,7 @@ function App() {
         
         <Route path="client-dashboard">
           <div className="min-h-screen">
-            <ClientDashboardV2 />
+            <ClientDashboardV3 />
             <Toaster />
           </div>
         </Route>
