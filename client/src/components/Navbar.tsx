@@ -109,9 +109,6 @@ const Navbar = ({
           </div>
         </div>
 
-        {/* Center - empty space */}
-        <div className="flex-1"></div>
-
         {/* Right side - User menu, notifications, create button, and client login */}
         <div className="flex items-center space-x-3">
           {/* Create button with dropdown */}
