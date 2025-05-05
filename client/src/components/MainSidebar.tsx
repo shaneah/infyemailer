@@ -1,8 +1,10 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation, Link } from 'wouter';
 import { 
   ChevronLeft, 
   ChevronRight, 
+  ChevronDown,
+  ChevronUp,
   LayoutDashboard, 
   Megaphone, 
   FileText, 
@@ -22,8 +24,59 @@ import {
   Settings,
   MessagesSquare,
   HandshakeIcon,
-  ListOrdered
+  ListOrdered,
+  Mail,
+  BarChart2
 } from 'lucide-react';
+
+// SubMenu Component
+interface SubMenuProps {
+  title: string;
+  icon: React.ReactNode;
+  collapsed: boolean;
+  isActive: boolean;
+  children: React.ReactNode;
+}
+
+const SubMenu: React.FC<SubMenuProps> = ({ 
+  title, 
+  icon, 
+  collapsed, 
+  isActive,
+  children 
+}) => {
+  const [isOpen, setIsOpen] = useState(isActive);
+  
+  return (
+    <li>
+      <div 
+        className={`flex items-center justify-between px-3 py-2 rounded-md cursor-pointer 
+          ${isActive 
+            ? 'text-white bg-gradient-to-r from-[#1e293b] to-transparent border-l-4 border-[#d4af37]' 
+            : 'text-gray-300 hover:bg-[#1e293b]/50 hover:text-white'}`}
+        onClick={() => !collapsed && setIsOpen(!isOpen)}
+      >
+        <div className="flex items-center">
+          {React.cloneElement(icon as React.ReactElement, { 
+            className: `h-5 w-5 mr-3 ${isActive ? 'text-[#d4af37]' : ''}` 
+          })}
+          {!collapsed && <span>{title}</span>}
+        </div>
+        {!collapsed && (
+          <div className="text-gray-400">
+            {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+          </div>
+        )}
+      </div>
+      
+      {!collapsed && isOpen && (
+        <div className="pl-10 mt-1 space-y-1">
+          {children}
+        </div>
+      )}
+    </li>
+  );
+};
 
 interface SidebarProps {
   open: boolean;
@@ -166,33 +219,33 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
               </Link>
             </li>
             
-            {/* Contacts */}
-            <li>
+            {/* Contacts SubMenu */}
+            <SubMenu 
+              title="Contacts" 
+              icon={<Users />} 
+              collapsed={collapsed}
+              isActive={location === '/contacts' || location === '/contact-lists'}
+            >
+              {/* All Contacts */}
               <Link 
                 href="/contacts" 
-                className={`flex items-center px-3 py-2 rounded-md ${location === '/contacts' 
-                  ? 'text-white bg-gradient-to-r from-[#1e293b] to-transparent border-l-4 border-[#d4af37]' 
-                  : 'text-gray-300 hover:bg-[#1e293b]/50 hover:text-white'}`}
-                title="Contacts"
+                className={`block py-2 px-3 rounded-md ${location === '/contacts' 
+                  ? 'text-[#d4af37] font-medium' 
+                  : 'text-gray-300 hover:text-white'}`}
               >
-                <Users className={`h-5 w-5 mr-3 ${location === '/contacts' ? 'text-[#d4af37]' : ''}`} />
-                {!collapsed && <span>Contacts</span>}
+                All Contacts
               </Link>
-            </li>
-            
-            {/* Contact Lists */}
-            <li>
+              
+              {/* Contact Lists */}
               <Link 
                 href="/contact-lists" 
-                className={`flex items-center px-3 py-2 rounded-md ${location === '/contact-lists' 
-                  ? 'text-white bg-gradient-to-r from-[#1e293b] to-transparent border-l-4 border-[#d4af37]' 
-                  : 'text-gray-300 hover:bg-[#1e293b]/50 hover:text-white'}`}
-                title="Contact Lists"
+                className={`block py-2 px-3 rounded-md ${location === '/contact-lists' 
+                  ? 'text-[#d4af37] font-medium' 
+                  : 'text-gray-300 hover:text-white'}`}
               >
-                <ListOrdered className={`h-5 w-5 mr-3 ${location === '/contact-lists' ? 'text-[#d4af37]' : ''}`} />
-                {!collapsed && <span>Contact Lists</span>}
+                Contact Lists
               </Link>
-            </li>
+            </SubMenu>
             
             {/* Client Management */}
             <li>
@@ -208,47 +261,51 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
               </Link>
             </li>
             
-            {/* Email Performance */}
-            <li>
+            {/* Analytics & Testing SubMenu */}
+            <SubMenu 
+              title="Analytics & Testing" 
+              icon={<BarChart2 />} 
+              collapsed={collapsed}
+              isActive={location === '/email-performance' || location.startsWith('/ab-testing')}
+            >
+              {/* Email Performance */}
               <Link 
                 href="/email-performance" 
-                className={`flex items-center px-3 py-2 rounded-md ${location === '/email-performance' 
-                  ? 'text-white bg-gradient-to-r from-[#1e293b] to-transparent border-l-4 border-[#d4af37]' 
-                  : 'text-gray-300 hover:bg-[#1e293b]/50 hover:text-white'}`}
-                title="Email Performance"
+                className={`block py-2 px-3 rounded-md ${location === '/email-performance' 
+                  ? 'text-[#d4af37] font-medium' 
+                  : 'text-gray-300 hover:text-white'}`}
               >
-                <Activity className={`h-5 w-5 mr-3 ${location === '/email-performance' ? 'text-[#d4af37]' : ''}`} />
-                {!collapsed && <span>Email Performance</span>}
+                Email Performance
               </Link>
-            </li>
-            
-            {/* A/B Testing */}
-            <li>
+              
+              {/* A/B Testing */}
               <Link 
                 href="/ab-testing" 
-                className={`flex items-center px-3 py-2 rounded-md ${location.startsWith('/ab-testing') 
-                  ? 'text-white bg-gradient-to-r from-[#1e293b] to-transparent border-l-4 border-[#d4af37]' 
-                  : 'text-gray-300 hover:bg-[#1e293b]/50 hover:text-white'}`}
-                title="A/B Testing"
+                className={`block py-2 px-3 rounded-md ${location.startsWith('/ab-testing') 
+                  ? 'text-[#d4af37] font-medium' 
+                  : 'text-gray-300 hover:text-white'}`}
               >
-                <Split className={`h-5 w-5 mr-3 ${location.startsWith('/ab-testing') ? 'text-[#d4af37]' : ''}`} />
-                {!collapsed && <span>A/B Testing</span>}
+                A/B Testing
               </Link>
-            </li>
+            </SubMenu>
             
-            {/* Domains */}
-            <li>
+            {/* Infrastructure SubMenu */}
+            <SubMenu 
+              title="Infrastructure" 
+              icon={<Globe />} 
+              collapsed={collapsed}
+              isActive={location === '/domains'}
+            >
+              {/* Domains */}
               <Link 
                 href="/domains" 
-                className={`flex items-center px-3 py-2 rounded-md ${location === '/domains' 
-                  ? 'text-white bg-gradient-to-r from-[#1e293b] to-transparent border-l-4 border-[#d4af37]' 
-                  : 'text-gray-300 hover:bg-[#1e293b]/50 hover:text-white'}`}
-                title="Domains"
+                className={`block py-2 px-3 rounded-md ${location === '/domains' 
+                  ? 'text-[#d4af37] font-medium' 
+                  : 'text-gray-300 hover:text-white'}`}
               >
-                <Globe className={`h-5 w-5 mr-3 ${location === '/domains' ? 'text-[#d4af37]' : ''}`} />
-                {!collapsed && <span>Domains</span>}
+                Domains
               </Link>
-            </li>
+            </SubMenu>
             
             {collapsed ? (
               <li className="border-t border-[#1e293b] my-2 pt-2">
@@ -261,48 +318,43 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
             )}
             
             {/* Advanced Features */}
-            
-            {/* Audience Personas - REMOVED
-            <li>
-              <Link 
-                href="/audience-personas" 
-                className={`flex items-center px-3 py-2 rounded-md ${location === '/audience-personas' 
-                  ? 'text-white bg-gradient-to-r from-[#1e293b] to-transparent border-l-4 border-[#d4af37]' 
-                  : 'text-gray-300 hover:bg-[#1e293b]/50 hover:text-white'}`}
-                title="Audience Personas"
-              >
-                <UserCircle2 className={`h-5 w-5 mr-3 ${location === '/audience-personas' ? 'text-[#d4af37]' : ''}`} />
-                {!collapsed && <span>Audience Personas</span>}
-              </Link>
-            </li> */}
-            
-            {/* Email Validation */}
-            <li>
+            {/* Email Tools SubMenu */}
+            <SubMenu 
+              title="Email Tools" 
+              icon={<Mail />} 
+              collapsed={collapsed}
+              isActive={location === '/email-validation' || location === '/email-providers' || location === '/email-test'}
+            >
+              {/* Email Validation */}
               <Link 
                 href="/email-validation" 
-                className={`flex items-center px-3 py-2 rounded-md ${location === '/email-validation' 
-                  ? 'text-white bg-gradient-to-r from-[#1e293b] to-transparent border-l-4 border-[#d4af37]' 
-                  : 'text-gray-300 hover:bg-[#1e293b]/50 hover:text-white'}`}
-                title="Email Validation"
+                className={`block py-2 px-3 rounded-md ${location === '/email-validation' 
+                  ? 'text-[#d4af37] font-medium' 
+                  : 'text-gray-300 hover:text-white'}`}
               >
-                <CheckCircle2 className={`h-5 w-5 mr-3 ${location === '/email-validation' ? 'text-[#d4af37]' : ''}`} />
-                {!collapsed && <span>Email Validation</span>}
+                Email Validation
               </Link>
-            </li>
-            
-            {/* Email Providers */}
-            <li>
+              
+              {/* Email Providers */}
               <Link 
                 href="/email-providers" 
-                className={`flex items-center px-3 py-2 rounded-md ${location === '/email-providers' 
-                  ? 'text-white bg-gradient-to-r from-[#1e293b] to-transparent border-l-4 border-[#d4af37]' 
-                  : 'text-gray-300 hover:bg-[#1e293b]/50 hover:text-white'}`}
-                title="Email Providers"
+                className={`block py-2 px-3 rounded-md ${location === '/email-providers' 
+                  ? 'text-[#d4af37] font-medium' 
+                  : 'text-gray-300 hover:text-white'}`}
               >
-                <ServerCog className={`h-5 w-5 mr-3 ${location === '/email-providers' ? 'text-[#d4af37]' : ''}`} />
-                {!collapsed && <span>Email Providers</span>}
+                Email Providers
               </Link>
-            </li>
+              
+              {/* Email Test */}
+              <Link 
+                href="/email-test" 
+                className={`block py-2 px-3 rounded-md ${location === '/email-test' 
+                  ? 'text-[#d4af37] font-medium' 
+                  : 'text-gray-300 hover:text-white'}`}
+              >
+                Email Test
+              </Link>
+            </SubMenu>
             
             {/* Client Collaboration Portal */}
             <li>
@@ -318,20 +370,6 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
               </Link>
             </li>
             
-            {/* Email Test */}
-            <li>
-              <Link 
-                href="/email-test" 
-                className={`flex items-center px-3 py-2 rounded-md ${location === '/email-test' 
-                  ? 'text-white bg-gradient-to-r from-[#1e293b] to-transparent border-l-4 border-[#d4af37]' 
-                  : 'text-gray-300 hover:bg-[#1e293b]/50 hover:text-white'}`}
-                title="Email Test"
-              >
-                <SendHorizonal className={`h-5 w-5 mr-3 ${location === '/email-test' ? 'text-[#d4af37]' : ''}`} />
-                {!collapsed && <span>Email Test</span>}
-              </Link>
-            </li>
-            
             {collapsed ? (
               <li className="border-t border-[#1e293b] my-2 pt-2">
                 <div className="h-1"></div>
@@ -343,48 +381,42 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
             )}
             
             {/* Admin section */}
-            
-            {/* User Management */}
-            <li>
+            <SubMenu 
+              title="Administration" 
+              icon={<ShieldCheck />} 
+              collapsed={collapsed}
+              isActive={location === '/user-management' || location === '/admin' || location === '/settings'}
+            >
+              {/* User Management */}
               <Link 
                 href="/user-management" 
-                className={`flex items-center px-3 py-2 rounded-md ${location === '/user-management' 
-                  ? 'text-white bg-gradient-to-r from-[#1e293b] to-transparent border-l-4 border-[#d4af37]' 
-                  : 'text-gray-300 hover:bg-[#1e293b]/50 hover:text-white'}`}
-                title="User Management"
+                className={`block py-2 px-3 rounded-md ${location === '/user-management' 
+                  ? 'text-[#d4af37] font-medium' 
+                  : 'text-gray-300 hover:text-white'}`}
               >
-                <UserRound className={`h-5 w-5 mr-3 ${location === '/user-management' ? 'text-[#d4af37]' : ''}`} />
-                {!collapsed && <span>User Management</span>}
+                User Management
               </Link>
-            </li>
-            
-            {/* Admin Panel */}
-            <li>
+              
+              {/* Admin Panel */}
               <Link 
                 href="/admin" 
-                className={`flex items-center px-3 py-2 rounded-md ${location === '/admin' 
-                  ? 'text-white bg-gradient-to-r from-[#1e293b] to-transparent border-l-4 border-[#d4af37]' 
-                  : 'text-gray-300 hover:bg-[#1e293b]/50 hover:text-white'}`}
-                title="Admin Panel"
+                className={`block py-2 px-3 rounded-md ${location === '/admin' 
+                  ? 'text-[#d4af37] font-medium' 
+                  : 'text-gray-300 hover:text-white'}`}
               >
-                <ShieldCheck className={`h-5 w-5 mr-3 ${location === '/admin' ? 'text-[#d4af37]' : ''}`} />
-                {!collapsed && <span>Admin Panel</span>}
+                Admin Panel
               </Link>
-            </li>
-            
-            {/* Settings */}
-            <li>
+              
+              {/* Settings */}
               <Link 
                 href="/settings" 
-                className={`flex items-center px-3 py-2 rounded-md ${location === '/settings' 
-                  ? 'text-white bg-gradient-to-r from-[#1e293b] to-transparent border-l-4 border-[#d4af37]' 
-                  : 'text-gray-300 hover:bg-[#1e293b]/50 hover:text-white'}`}
-                title="Settings"
+                className={`block py-2 px-3 rounded-md ${location === '/settings' 
+                  ? 'text-[#d4af37] font-medium' 
+                  : 'text-gray-300 hover:text-white'}`}
               >
-                <Settings className={`h-5 w-5 mr-3 ${location === '/settings' ? 'text-[#d4af37]' : ''}`} />
-                {!collapsed && <span>Settings</span>}
+                Settings
               </Link>
-            </li>
+            </SubMenu>
             
             {/* Client Portal */}
             <li className="mt-6">
