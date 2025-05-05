@@ -1412,33 +1412,54 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get templates
   app.get('/api/templates', async (req: Request, res: Response) => {
     try {
+      console.log("API: Fetching templates from storage");
       const category = req.query.category as string;
       let templates;
       
       if (category && category !== 'all') {
+        console.log(`API: Fetching templates by category: ${category}`);
         templates = await storage.getTemplatesByCategory(category);
       } else {
+        console.log("API: Fetching all templates");
         templates = await storage.getTemplates();
       }
 
-      // Format templates for frontend
+      if (!templates || !Array.isArray(templates)) {
+        console.log("API: No templates found or invalid templates data");
+        return res.json([]);
+      }
+
+      console.log(`API: Found ${templates.length} templates`);
+
+      // Format templates for frontend - include all necessary fields
       const formattedTemplates = templates.map(template => {
         const metadata = template.metadata as any || {};
         return {
           id: template.id,
           name: template.name,
           description: template.description || '',
-          icon: metadata.icon || 'file-earmark-text',
-          iconColor: metadata.iconColor || 'primary',
-          lastUsed: 'May 15, 2023', // Placeholder
-          selected: metadata.selected || false,
-          new: metadata.new || false
+          content: template.content || '',
+          subject: template.subject || '',
+          category: template.category || 'general',
+          createdAt: template.createdAt,
+          updatedAt: template.updatedAt,
+          metadata: {
+            icon: metadata.icon || 'file-earmark-text',
+            iconColor: metadata.iconColor || 'primary',
+            generatedByAI: metadata.generatedByAI || false,
+            new: metadata.new || false,
+            selected: metadata.selected || false,
+            lastUsed: metadata.lastUsed || new Date().toISOString(),
+          }
         };
       });
 
+      // Add cache headers to improve performance
+      res.setHeader('Cache-Control', 'private, max-age=10'); // Cache for 10 seconds
       res.json(formattedTemplates);
     } catch (error) {
-      res.status(500).json({ error: 'Failed to fetch templates' });
+      console.error("API Error: Failed to fetch templates:", error);
+      res.status(500).json({ error: 'Failed to fetch templates', details: error.message });
     }
   });
 
@@ -1491,21 +1512,59 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Update a template
   app.patch('/api/templates/:id', async (req: Request, res: Response) => {
     try {
+      console.log("API: Updating template");
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
+        console.log("API Error: Invalid template ID");
         return res.status(400).json({ error: 'Invalid template ID' });
       }
       
+      console.log(`API: Fetching template with ID ${id}`);
       const template = await storage.getTemplate(id);
       if (!template) {
+        console.log("API Error: Template not found");
         return res.status(404).json({ error: 'Template not found' });
       }
       
-      const updatedTemplate = await storage.updateTemplate(id, req.body);
+      // Validate required fields
+      const { name, content, subject, description, category } = req.body;
+      if (!name || !content) {
+        console.log("API Error: Missing required fields");
+        return res.status(400).json({ error: 'Name and content are required fields' });
+      }
+
+      // Prepare update data - keep existing data if not provided
+      const updateData = {
+        name: name || template.name,
+        content: content || template.content,
+        description: description || template.description,
+        category: category || template.category || 'general',
+        subject: subject || template.subject || name,
+        // Update metadata while preserving existing values
+        metadata: {
+          ...((template.metadata as any) || {}),
+          ...((req.body.metadata as any) || {}),
+          // Add a lastUpdated timestamp
+          lastUpdated: new Date().toISOString()
+        }
+      };
+      
+      console.log(`API: Updating template ${id} with new data`);
+      const updatedTemplate = await storage.updateTemplate(id, updateData);
+      
+      if (!updatedTemplate) {
+        console.log("API Error: Failed to update template");
+        return res.status(500).json({ error: 'Failed to update template' });
+      }
+      
+      console.log(`API: Template ${id} updated successfully`);
       res.json(updatedTemplate);
     } catch (error) {
       console.error('Error updating template:', error);
-      res.status(500).json({ error: 'Failed to update template' });
+      res.status(500).json({ 
+        error: 'Failed to update template', 
+        details: error.message 
+      });
     }
   });
 
