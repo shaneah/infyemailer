@@ -21,7 +21,8 @@ import {
   LogOut,
   Settings,
   MessagesSquare,
-  HandshakeIcon
+  HandshakeIcon,
+  ListOrdered
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -176,6 +177,20 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
               >
                 <Users className={`h-5 w-5 mr-3 ${location === '/contacts' ? 'text-[#d4af37]' : ''}`} />
                 {!collapsed && <span>Contacts</span>}
+              </Link>
+            </li>
+            
+            {/* Contact Lists */}
+            <li>
+              <Link 
+                href="/contact-lists" 
+                className={`flex items-center px-3 py-2 rounded-md ${location === '/contact-lists' 
+                  ? 'text-white bg-gradient-to-r from-[#1e293b] to-transparent border-l-4 border-[#d4af37]' 
+                  : 'text-gray-300 hover:bg-[#1e293b]/50 hover:text-white'}`}
+                title="Contact Lists"
+              >
+                <ListOrdered className={`h-5 w-5 mr-3 ${location === '/contact-lists' ? 'text-[#d4af37]' : ''}`} />
+                {!collapsed && <span>Contact Lists</span>}
               </Link>
             </li>
             
