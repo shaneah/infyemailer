@@ -3,7 +3,7 @@ import { useLocation, Link } from 'wouter';
 import { 
   Mail, Users, ListChecks, FileText, BarChart3, LineChart,
   Globe, CheckSquare, SplitSquareVertical, Settings, LogOut, Menu, X, CreditCard,
-  ShieldAlert, Activity, Building2
+  ShieldAlert, Activity, Building2, TrendingUp
 } from 'lucide-react';
 import Logo from '../assets/infy.png';
 import LogoWhite from '@assets/Logo-white.png';
@@ -186,6 +186,12 @@ const ClientSidebar = ({ isOpen = false, onClose, onLogout }: SidebarProps) => {
               icon={LineChart} 
               label="Email Performance" 
               active={location === '/client-email-performance'} 
+            />
+            <MenuItem 
+              href="/client-advanced-analytics" 
+              icon={TrendingUp} 
+              label="Advanced Analytics" 
+              active={location === '/client-advanced-analytics'} 
             />
             {/* Temporarily removed until the reporting feature is fully implemented
             <MenuItem 

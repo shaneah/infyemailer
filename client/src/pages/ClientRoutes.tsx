@@ -16,6 +16,7 @@ import ClientEmailPerformance from '@/pages/ClientEmailPerformance';
 import ClientABTestingAdvanced from '@/pages/ClientABTestingAdvanced';
 import ClientABTestingNew from '@/pages/ClientABTestingNew';
 import ClientAITools from '@/pages/ClientAITools';
+import ClientAdvancedAnalytics from '@/pages/ClientAdvancedAnalytics';
 import { ReportingComingSoon } from '@/pages/ComingSoonPage';
 import ClientSecurity from '@/pages/ClientSecurity';
 import ClientBilling from '@/pages/ClientBilling';
