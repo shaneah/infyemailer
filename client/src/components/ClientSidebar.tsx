@@ -159,21 +159,18 @@ const ClientSidebar = ({ isOpen = false, onClose, onLogout }: SidebarProps) => {
         } h-full bg-white border-r border-gray-200 text-gray-800 flex flex-col flex-shrink-0`}
       >
         {/* App name and client name header */}
-        <div className="flex flex-col items-center justify-center p-4 pt-6 pb-2 bg-gradient-to-r from-blue-600 to-blue-500">
-          <div className="w-12 h-12 mb-2 flex items-center justify-center bg-white/10 rounded-full">
+        <div className="flex flex-col items-center justify-center p-4 pt-6 pb-3 bg-white border-b border-gray-100 shadow-sm">
+          <div className="w-12 h-12 mb-2 flex items-center justify-center bg-blue-50 rounded-full shadow-inner">
             <img src={LogoWhite} alt="Logo" className="w-8 h-8 object-contain" />
           </div>
           <div className="text-center">
-            <h2 className="font-bold text-xl text-white mb-1">Infinity Tech</h2>
-            <div className="flex items-center justify-center space-x-2 mb-1">
-              <Building2 size={14} className="text-blue-100" />
-              <p className="text-sm font-medium text-white">{clientName}</p>
+            <h2 className="font-bold text-xl text-gray-800 mb-1">Infinity Tech</h2>
+            <div className="flex items-center justify-center space-x-1.5 mb-1 bg-blue-50 px-2 py-1 rounded-full">
+              <Building2 size={14} className="text-blue-500" />
+              <p className="text-sm font-medium text-gray-700">{clientName}</p>
             </div>
           </div>
         </div>
-        
-        {/* Navbar divider */}
-        <div className="border-b border-gray-200 mb-2"></div>
         
         {/* Navigation */}
         <div className="flex-1 overflow-y-auto py-4 px-1">
@@ -268,20 +265,20 @@ const ClientSidebar = ({ isOpen = false, onClose, onLogout }: SidebarProps) => {
         </div>
         
         {/* Footer actions */}
-        <div className="mt-auto border-t border-gray-200 bg-gray-50">
+        <div className="mt-auto border-t border-gray-100">
           <Link
             href="/client-settings"
             className={`group flex items-center px-4 py-3 text-sm transition-all duration-150 ${
               location === '/client-settings' 
-                ? 'bg-blue-100 text-blue-700 shadow-inner' 
-                : 'text-gray-700 hover:bg-blue-50 hover:shadow-inner'
+                ? 'bg-blue-50 text-blue-600 shadow-sm' 
+                : 'text-gray-700 hover:bg-blue-50 hover:text-blue-600 hover:shadow-sm'
             }`}
           >
             <Settings 
               size={18} 
               className={`mr-3 transition-all duration-200 ${
                 location === '/client-settings' 
-                  ? 'text-blue-600 rotate-90' 
+                  ? 'text-blue-500 rotate-90' 
                   : 'text-gray-500 group-hover:text-blue-500 group-hover:rotate-90'
               }`} 
             />
