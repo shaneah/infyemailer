@@ -198,11 +198,11 @@ const SimpleClientLogin = () => {
           </div>
           
           {/* Right side - Company info */}
-          <div className="hidden lg:block bg-gradient-to-br from-blue-600 to-blue-800 text-white p-10">
+          <div className="hidden lg:block bg-gradient-to-br from-blue-800 to-blue-900 text-white p-10">
             <div className="h-full flex flex-col justify-between">
               <div>
-                <h2 className="text-2xl font-bold mb-6">Welcome to InfinityMailer</h2>
-                <p className="mb-8 text-blue-100">
+                <h2 className="text-2xl font-bold mb-6">Welcome to Infinity Tech</h2>
+                <p className="mb-8 text-blue-50">
                   Access your enterprise email marketing platform, manage campaigns, and view analytics with our powerful client portal.
                 </p>
                 
@@ -239,7 +239,7 @@ const SimpleClientLogin = () => {
                 </div>
               </div>
               
-              <div className="mt-auto pt-6 border-t border-blue-500/50 text-blue-200 text-sm">
+              <div className="mt-auto pt-6 border-t border-blue-700 text-blue-200 text-sm">
                 &copy; {new Date().getFullYear()} Infinity Tech. All rights reserved.
               </div>
             </div>
