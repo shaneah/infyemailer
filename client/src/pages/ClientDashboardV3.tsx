@@ -169,38 +169,51 @@ export default function ClientDashboardV3() {
   useEffect(() => {
     const fetchClientData = async () => {
       try {
-        // In a real app, this would be an API call to get client data
-        // For now, use mock data
-        const mockClientData = {
-          clientId: 1,
-          clientName: "John Smith",
-          clientCompany: "Acme Corp",
-          clientEmail: "john@example.com",
-          stats: {
-            contactsCount: 1250,
-            contactsGrowth: 5.2,
-            listsCount: 8,
-            activeCampaigns: 3,
-            totalEmails: 26500,
-            openRate: 28.3,
-            clickRate: 3.7,
-            conversionRate: 0.8
+        const sessionResponse = await fetch('/api/session/verify');
+        const sessionData = await sessionResponse.json();
+        
+        if (!sessionData.verified || !sessionData.user) {
+          console.error("Session not verified or user not found");
+          setLocation("/client-login");
+          return;
+        }
+        
+        const userData = sessionData.user;
+        
+        // Fetch client campaigns data
+        const campaignsResponse = await fetch(`/api/client-campaigns?clientId=${userData.clientId}`);
+        const campaignsData = await campaignsResponse.json();
+        
+        // Fetch client stats
+        const statsResponse = await fetch(`/api/client-stats?clientId=${userData.clientId}`);
+        const statsData = await statsResponse.json();
+        
+        const clientDataObj = {
+          clientId: userData.clientId,
+          clientName: userData.clientName || "Client User",
+          clientCompany: userData.clientCompany || "Company",
+          clientEmail: userData.email || "client@example.com",
+          stats: statsData || {
+            contactsCount: 0,
+            contactsGrowth: 0,
+            listsCount: 0,
+            activeCampaigns: 0,
+            totalEmails: 0,
+            openRate: 0,
+            clickRate: 0,
+            conversionRate: 0
           },
-          campaigns: [
-            { id: 1, name: "Product Launch", status: "Active", sentDate: "Apr 15, 2025", emailsSent: 1200, openRate: 28.6, clickRate: 5.2 },
-            { id: 2, name: "Monthly Newsletter", status: "Sent", sentDate: "Apr 01, 2025", emailsSent: 1150, openRate: 31.2, clickRate: 4.8 },
-            { id: 3, name: "Summer Sale", status: "Draft", sentDate: "-", emailsSent: 0, openRate: 0, clickRate: 0 },
-            { id: 4, name: "Loyalty Program", status: "Scheduled", sentDate: "May 10, 2025", emailsSent: 0, openRate: 0, clickRate: 0 }
-          ]
+          campaigns: campaignsData || []
         };
 
-        setClientData(mockClientData);
+        console.log("Loaded client data:", clientDataObj);
+        setClientData(clientDataObj);
         setLoading(false);
       } catch (error) {
         console.error("Error fetching client data:", error);
         toast({
           title: "Error",
-          description: "Failed to load dashboard data.",
+          description: "Failed to load dashboard data. Please try again or contact support.",
           variant: "destructive",
         });
         setLoading(false);
@@ -208,7 +221,7 @@ export default function ClientDashboardV3() {
     };
 
     fetchClientData();
-  }, [toast]);
+  }, [toast, setLocation]);
 
   // Weekly stats
   const weeklyStats = {

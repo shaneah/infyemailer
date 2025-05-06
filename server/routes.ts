@@ -2427,6 +2427,148 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     }
   });
+  
+  // Client campaigns endpoint
+  app.get('/api/client-campaigns', isClientAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const clientId = req.query.clientId ? parseInt(req.query.clientId as string) : 
+                      (req.session?.clientUser?.clientId || null);
+                      
+      if (!clientId) {
+        return res.status(400).json({ error: 'Client ID is required' });
+      }
+      
+      // Check if client ID in session matches requested client ID (security check)
+      if (req.session?.clientUser?.clientId && req.session.clientUser.clientId !== clientId) {
+        return res.status(403).json({ error: 'Unauthorized access to client campaigns' });
+      }
+      
+      // Get all campaigns for this client
+      let campaigns = await storage.getCampaigns();
+      
+      // Filter for this client
+      campaigns = campaigns.filter(campaign => {
+        const metadata = campaign.metadata as any || {};
+        return metadata.clientId === clientId;
+      });
+      
+      // Format campaigns for client display
+      const formattedCampaigns = campaigns.map(campaign => {
+        const metadata = campaign.metadata as any || {};
+        return {
+          id: campaign.id,
+          name: campaign.name,
+          status: campaign.status,
+          sentDate: campaign.sentAt ? new Date(campaign.sentAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '-',
+          emailsSent: metadata.recipients || 0,
+          openRate: metadata.openRate || 0,
+          clickRate: metadata.clickRate || 0
+        };
+      });
+      
+      res.json(formattedCampaigns);
+    } catch (error) {
+      console.error('Error fetching client campaigns:', error);
+      res.status(500).json({ error: 'Error fetching client campaigns' });
+    }
+  });
+  
+  // Client stats endpoint
+  app.get('/api/client-stats', isClientAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const clientId = req.query.clientId ? parseInt(req.query.clientId as string) : 
+                      (req.session?.clientUser?.clientId || null);
+                      
+      if (!clientId) {
+        return res.status(400).json({ error: 'Client ID is required' });
+      }
+      
+      // Check if client ID in session matches requested client ID (security check)
+      if (req.session?.clientUser?.clientId && req.session.clientUser.clientId !== clientId) {
+        return res.status(403).json({ error: 'Unauthorized access to client stats' });
+      }
+      
+      // Get contacts for this client
+      const allContacts = await storage.getContacts();
+      const clientContacts = allContacts.filter(contact => {
+        const metadata = contact.metadata as any || {};
+        return metadata.clientId === clientId;
+      });
+      
+      // Get lists for this client
+      const allLists = await storage.getLists();
+      const clientLists = allLists.filter(list => {
+        const metadata = list.metadata as any || {};
+        return metadata.clientId === clientId;
+      });
+      
+      // Get campaigns for this client
+      const allCampaigns = await storage.getCampaigns();
+      const clientCampaigns = allCampaigns.filter(campaign => {
+        const metadata = campaign.metadata as any || {};
+        return metadata.clientId === clientId;
+      });
+      
+      // Calculate active campaigns
+      const activeCampaigns = clientCampaigns.filter(campaign => 
+        campaign.status === 'active' || campaign.status === 'scheduled'
+      ).length;
+      
+      // Calculate total emails sent
+      let totalEmails = 0;
+      clientCampaigns.forEach(campaign => {
+        const metadata = campaign.metadata as any || {};
+        totalEmails += metadata.recipients || 0;
+      });
+      
+      // Calculate average open and click rates
+      let totalOpenRate = 0;
+      let openRateCount = 0;
+      let totalClickRate = 0;
+      let clickRateCount = 0;
+      
+      clientCampaigns.forEach(campaign => {
+        const metadata = campaign.metadata as any || {};
+        if (metadata.openRate) {
+          totalOpenRate += metadata.openRate;
+          openRateCount++;
+        }
+        if (metadata.clickRate) {
+          totalClickRate += metadata.clickRate;
+          clickRateCount++;
+        }
+      });
+      
+      const avgOpenRate = openRateCount > 0 ? (totalOpenRate / openRateCount) : 0;
+      const avgClickRate = clickRateCount > 0 ? (totalClickRate / clickRateCount) : 0;
+      
+      // Prepare stats object
+      const stats = {
+        contactsCount: clientContacts.length,
+        contactsGrowth: 0, // Calculate if you have historical data
+        listsCount: clientLists.length,
+        activeCampaigns,
+        totalEmails,
+        openRate: Math.round(avgOpenRate * 10) / 10, // Round to 1 decimal place
+        clickRate: Math.round(avgClickRate * 10) / 10,
+        conversionRate: 0.8 // Placeholder - would need actual conversion tracking data
+      };
+      
+      res.json(stats);
+    } catch (error) {
+      console.error('Error fetching client stats:', error);
+      res.status(500).json({ 
+        contactsCount: 0,
+        contactsGrowth: 0,
+        listsCount: 0,
+        activeCampaigns: 0,
+        totalEmails: 0,
+        openRate: 0,
+        clickRate: 0,
+        conversionRate: 0
+      });
+    }
+  });
 
   app.post('/api/login', async (req: Request, res: Response) => {
     const validatedData = validate(userLoginSchema, req.body);
