@@ -44,6 +44,7 @@ import Reporting from "@/pages/Reporting";
 import EmailProvidersV2 from "@/pages/EmailProvidersV2";
 import UserManagementV2 from "@/pages/UserManagementV2";
 import ClientManagementV2 from "@/pages/ClientManagementV2";
+import AdminMonitoring from "@/pages/AdminMonitoring";
 // AudiencePersonas component removed
 import EmailPreview from "@/pages/EmailPreview";
 import ClientCollaboration from "@/pages/ClientCollaboration";
@@ -278,6 +279,7 @@ function App() {
                       <ProtectedRoute path="email-preview" component={EmailPreview} />
                       <ProtectedRoute path="email-preview/:id" component={EmailPreview} />
                       <ProtectedRoute path="email-performance-dashboard" component={EmailPerformanceDashboard} />
+                      <ProtectedRoute path="admin-monitoring" component={AdminMonitoring} />
                       <ProtectedRoute path="client-collaboration" component={ClientCollaboration} />
                       <ProtectedRoute path="collaborative-template-editor" component={CollaborativeTemplateEditor} />
                       <ProtectedRoute path="collaborative-template-editor/:id" component={CollaborativeTemplateEditor} />
