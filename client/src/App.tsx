@@ -54,6 +54,7 @@ import AdvancedClientLogin from "@/pages/AdvancedClientLogin";
 import ClientDashboard from "@/pages/ClientDashboard";
 import ClientDashboardV2 from "@/pages/ClientDashboardV2";
 import ClientDashboardV3 from "@/pages/ClientDashboardV3";
+import ClientDashboardV4 from "@/pages/ClientDashboardV4";
 import ClientRoutes from "@/pages/ClientRoutes";
 import Analytics from "@/pages/Analytics";
 import EmailTest from "@/pages/EmailTest";
