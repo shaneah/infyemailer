@@ -45,6 +45,7 @@ import EmailProvidersV2 from "@/pages/EmailProvidersV2";
 import UserManagementV2 from "@/pages/UserManagementV2";
 import ClientManagementV2 from "@/pages/ClientManagementV2";
 import AdminMonitoring from "@/pages/AdminMonitoring";
+import AdminClients from "@/pages/AdminClients";
 // AudiencePersonas component removed
 import EmailPreview from "@/pages/EmailPreview";
 import ClientCollaboration from "@/pages/ClientCollaboration";
@@ -267,6 +268,7 @@ function App() {
                       <ProtectedRoute path="profile" component={Settings} />
                       <ProtectedRoute path="admin" component={AdminPanel} />
                       <ProtectedRoute path="admin-dashboard" component={AdminDashboardNew} />
+                      <ProtectedRoute path="admin-clients" component={AdminClients} />
                       <ProtectedRoute path="email-validation" component={EmailValidation} />
                       <ProtectedRoute path="email-checklist" component={EmailChecklist} />
                       {/* Emails route removed */}

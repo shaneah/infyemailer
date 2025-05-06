@@ -246,7 +246,7 @@ const AdminClients = () => {
 
   // Filter and sort clients
   const filteredAndSortedClients = React.useMemo(() => {
-    if (!clients) return [];
+    if (!clients || !Array.isArray(clients)) return [];
     
     let filteredClients = [...clients];
     
@@ -583,9 +583,8 @@ const AdminClients = () => {
                         </div>
                       </TableHead>
                       <TableHead 
-                        className="cursor-pointer"
+                        className="cursor-pointer hidden md:table-cell"
                         onClick={() => requestSort("industry")}
-                        className="hidden md:table-cell"
                       >
                         <div className="flex items-center">
                           Industry
@@ -593,9 +592,8 @@ const AdminClients = () => {
                         </div>
                       </TableHead>
                       <TableHead 
-                        className="cursor-pointer"
+                        className="cursor-pointer hidden md:table-cell"
                         onClick={() => requestSort("emailCredits")}
-                        className="hidden md:table-cell"
                       >
                         <div className="flex items-center">
                           Email Credits
