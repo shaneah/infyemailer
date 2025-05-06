@@ -5,13 +5,12 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useLocation } from "wouter";
 import { 
   Menu, BarChart3, Mail, Users, Bell, Settings, LogOut, 
-  Calendar, PieChart, Search, Zap, Award, Target,
+  Calendar, BarChart, PieChart, Search, Zap, Award, Target,
   TrendingUp, Clock, Activity, Layout as LayoutIcon, Lightbulb,
   ArrowRight, ArrowUp, ArrowDown, Shield, Send, Eye, 
   BarChart2, MousePointer, CheckCircle2, Share2, FileText,
   Gauge, RefreshCw, Timer, Smartphone, Filter, Download,
-  Database, UserRound, ChevronDown, ChevronUp,
-  BarChart as LucideBarChart
+  Database, UserRound, ChevronDown, ChevronUp
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -22,8 +21,6 @@ import {
   Area,
   LineChart,
   Line,
-  BarChart,
-  Bar,
   PieChart as RechartsPieChart,
   Pie,
   ResponsiveContainer,
@@ -32,6 +29,8 @@ import {
   CartesianGrid,
   Tooltip as RechartsTooltip,
   Cell,
+  BarChart as RechartsBarChart,
+  Bar,
   Legend
 } from "recharts";
 
@@ -52,9 +51,6 @@ export default function ClientDashboardV4() {
   const [selectedCampaign, setSelectedCampaign] = useState("All Campaigns");
   const [selectedAdSet, setSelectedAdSet] = useState("All Sets");
   const [selectedDataSource, setSelectedDataSource] = useState("Original");
-  const [showFilters, setShowFilters] = useState(false);
-  const [activeFilters, setActiveFilters] = useState<string[]>([]);
-  const [chartView, setChartView] = useState(false);
   
   // Sample data for dropdowns
   const campaigns = ["All Campaigns", "Spring Sale", "Product Launch", "Newsletter", "Retargeting"];
@@ -242,31 +238,9 @@ export default function ClientDashboardV4() {
   // Toggle sidebar
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
   
-  // Toggle filter visibility
-  const toggleFilter = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setShowFilters(!showFilters);
-    // Close other dropdowns
-    setShowCampaignSelector(false);
-    setShowAdSetSelector(false);
-    setShowDatePicker(false);
-    setShowDataSourceSelector(false);
-  };
-  
-  // Toggle active filter
-  const toggleActiveFilter = (filter: string) => {
-    if (activeFilters.includes(filter)) {
-      setActiveFilters(activeFilters.filter(f => f !== filter));
-    } else {
-      setActiveFilters([...activeFilters, filter]);
-    }
-    
-    toast({
-      title: activeFilters.includes(filter) ? "Filter removed" : "Filter applied",
-      description: `${filter} filter has been ${activeFilters.includes(filter) ? 'removed' : 'applied'}.`,
-      variant: "default",
-    });
-  };
+  // Filter state
+  const [showFilters, setShowFilters] = useState(false);
+  const [activeFilters, setActiveFilters] = useState<string[]>([]);
   
   // We already have these variables defined at the top
   // const [showDatePicker, setShowDatePicker] = useState(false);
@@ -294,7 +268,6 @@ export default function ClientDashboardV4() {
   const handleBarChartClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     console.log("Chart view toggle clicked");
-    setChartView(!chartView);
     toast({
       title: "View changed",
       description: "Chart view has been toggled.",
@@ -377,7 +350,32 @@ export default function ClientDashboardV4() {
     });
   };
   
-  // This section was removed as it was duplicated
+  // Handle filter functionality
+  const toggleFilter = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setShowFilters(!showFilters);
+    // Close other dropdowns when opening filter panel
+    if (!showFilters) {
+      setShowDatePicker(false);
+      setShowCampaignSelector(false);
+      setShowAdSetSelector(false);
+    }
+  };
+  
+  // Add or remove filter from active filters
+  const toggleActiveFilter = (filter: string) => {
+    if (activeFilters.includes(filter)) {
+      setActiveFilters(activeFilters.filter(f => f !== filter));
+    } else {
+      setActiveFilters([...activeFilters, filter]);
+    }
+    
+    toast({
+      title: activeFilters.includes(filter) ? "Filter removed" : "Filter applied",
+      description: `${filter} filter has been ${activeFilters.includes(filter) ? "removed" : "applied"}`,
+      variant: "default",
+    });
+  };
   
   // Close dropdowns when clicking outside
   useEffect(() => {
@@ -855,7 +853,7 @@ export default function ClientDashboardV4() {
                       className="h-6 w-6 text-slate-500 hover:text-slate-700"
                       onClick={handleBarChartClick}
                     >
-                      <LucideBarChart className="h-4 w-4" />
+                      <BarChart className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>
@@ -879,54 +877,30 @@ export default function ClientDashboardV4() {
                 )}
               </CardHeader>
               <CardContent className="p-4">
-                {!chartView ? (
-                  <div className="overflow-x-auto">
-                    <table className="w-full">
-                      <thead>
-                        <tr className="text-left text-xs text-slate-500">
-                          <th className="pb-2 font-medium">Channel</th>
-                          <th className="pb-2 font-medium text-right">Impressions</th>
-                          <th className="pb-2 font-medium text-right">% Δ</th>
-                          <th className="pb-2 font-medium text-right">CTR</th>
-                          <th className="pb-2 font-medium text-right">% Δ</th>
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="text-left text-xs text-slate-500">
+                        <th className="pb-2 font-medium">Channel</th>
+                        <th className="pb-2 font-medium text-right">Impressions</th>
+                        <th className="pb-2 font-medium text-right">% Δ</th>
+                        <th className="pb-2 font-medium text-right">CTR</th>
+                        <th className="pb-2 font-medium text-right">% Δ</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {channelPerformanceData.map((item, index) => (
+                        <tr key={index} className="border-t border-slate-100 text-sm">
+                          <td className="py-2 text-slate-800 font-medium">{item.channel}</td>
+                          <td className="py-2 text-right text-slate-700">{item.impressions}</td>
+                          <td className="py-2 text-right text-slate-700">{item.change}</td>
+                          <td className="py-2 text-right text-slate-700">{item.ctr}</td>
+                          <td className="py-2 text-right text-slate-700">{item.changePercent}</td>
                         </tr>
-                      </thead>
-                      <tbody>
-                        {channelPerformanceData.map((item, index) => (
-                          <tr key={index} className="border-t border-slate-100 text-sm">
-                            <td className="py-2 text-slate-800 font-medium">{item.channel}</td>
-                            <td className="py-2 text-right text-slate-700">{item.impressions}</td>
-                            <td className="py-2 text-right text-slate-700">{item.change}</td>
-                            <td className="py-2 text-right text-slate-700">{item.ctr}</td>
-                            <td className="py-2 text-right text-slate-700">{item.changePercent}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                ) : (
-                  <div className="h-60">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart
-                        data={channelPerformanceData.map(item => ({
-                          name: item.channel,
-                          impressions: parseInt(item.impressions.replace(/[^\d]/g, '')),
-                          ctr: parseFloat(item.ctr.replace(/%/g, ''))
-                        }))}
-                        margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-                      >
-                        <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                        <XAxis dataKey="name" />
-                        <YAxis yAxisId="left" orientation="left" stroke="#8884d8" />
-                        <YAxis yAxisId="right" orientation="right" stroke="#82ca9d" />
-                        <Tooltip />
-                        <Legend />
-                        <Bar yAxisId="left" dataKey="impressions" fill="#8884d8" name="Impressions" />
-                        <Bar yAxisId="right" dataKey="ctr" fill="#82ca9d" name="CTR %" />
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </div>
-                )}
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </CardContent>
             </Card>
 
@@ -963,60 +937,36 @@ export default function ClientDashboardV4() {
                       className="h-6 w-6 text-slate-500 hover:text-slate-700"
                       onClick={handleBarChartClick}
                     >
-                      <LucideBarChart className="h-4 w-4" />
+                      <BarChart className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>
               </CardHeader>
               <CardContent className="p-4">
-                {!chartView ? (
-                  <div className="overflow-x-auto">
-                    <table className="w-full">
-                      <thead>
-                        <tr className="text-left text-xs text-slate-500">
-                          <th className="pb-2 font-medium">Source</th>
-                          <th className="pb-2 font-medium text-right">Impressions</th>
-                          <th className="pb-2 font-medium text-right">% Δ</th>
-                          <th className="pb-2 font-medium text-right">CTR</th>
-                          <th className="pb-2 font-medium text-right">% Δ</th>
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="text-left text-xs text-slate-500">
+                        <th className="pb-2 font-medium">Source</th>
+                        <th className="pb-2 font-medium text-right">Impressions</th>
+                        <th className="pb-2 font-medium text-right">% Δ</th>
+                        <th className="pb-2 font-medium text-right">CTR</th>
+                        <th className="pb-2 font-medium text-right">% Δ</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {dataSourcePerformanceData.map((item, index) => (
+                        <tr key={index} className="border-t border-slate-100 text-sm">
+                          <td className="py-2 text-slate-800 font-medium">{item.source}</td>
+                          <td className="py-2 text-right text-slate-700">{item.impressions}</td>
+                          <td className="py-2 text-right text-slate-700">{item.change}</td>
+                          <td className="py-2 text-right text-slate-700">{item.ctr}</td>
+                          <td className="py-2 text-right text-slate-700">{item.changePercent}</td>
                         </tr>
-                      </thead>
-                      <tbody>
-                        {dataSourcePerformanceData.map((item, index) => (
-                          <tr key={index} className="border-t border-slate-100 text-sm">
-                            <td className="py-2 text-slate-800 font-medium">{item.source}</td>
-                            <td className="py-2 text-right text-slate-700">{item.impressions}</td>
-                            <td className="py-2 text-right text-slate-700">{item.change}</td>
-                            <td className="py-2 text-right text-slate-700">{item.ctr}</td>
-                            <td className="py-2 text-right text-slate-700">{item.changePercent}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                ) : (
-                  <div className="h-60">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart
-                        data={dataSourcePerformanceData.map(item => ({
-                          name: item.source,
-                          impressions: parseInt(item.impressions.replace(/[^\d]/g, '')),
-                          ctr: parseFloat(item.ctr.replace(/%/g, ''))
-                        }))}
-                        margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-                      >
-                        <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                        <XAxis dataKey="name" />
-                        <YAxis yAxisId="left" orientation="left" stroke="#0ea5e9" />
-                        <YAxis yAxisId="right" orientation="right" stroke="#10b981" />
-                        <Tooltip />
-                        <Legend />
-                        <Bar yAxisId="left" dataKey="impressions" fill="#0ea5e9" name="Impressions" />
-                        <Bar yAxisId="right" dataKey="ctr" fill="#10b981" name="CTR %" />
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </div>
-                )}
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </CardContent>
             </Card>
           </div>
@@ -1034,7 +984,7 @@ export default function ClientDashboardV4() {
                     <Filter className="h-4 w-4" />
                   </Button>
                   <Button variant="ghost" size="icon" className="h-6 w-6 text-slate-500 hover:text-slate-700">
-                    <LucideBarChart className="h-4 w-4" />
+                    <BarChart className="h-4 w-4" />
                   </Button>
                 </div>
               </div>
@@ -1130,7 +1080,7 @@ export default function ClientDashboardV4() {
                     <Filter className="h-4 w-4" />
                   </Button>
                   <Button variant="ghost" size="icon" className="h-6 w-6 text-slate-500 hover:text-slate-700">
-                    <LucideBarChart className="h-4 w-4" />
+                    <BarChart className="h-4 w-4" />
                   </Button>
                 </div>
               </div>

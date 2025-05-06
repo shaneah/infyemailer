@@ -135,10 +135,10 @@ const SimpleClientLoginV2: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-blue-50 to-white p-4">
-      {/* Main container with pharma-style clean design */}
-      <div className="w-full max-w-5xl flex flex-col md:flex-row overflow-hidden rounded-xl shadow-xl">
-        {/* Login form section - clean white background */}
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-950 via-blue-900 to-blue-800 p-4">
+      {/* Main container */}
+      <div className="w-full max-w-5xl flex flex-col md:flex-row overflow-hidden rounded-xl shadow-2xl">
+        {/* Login form section */}
         <div className="w-full md:w-1/2 bg-white p-8 md:p-12">
           <div className="mb-8">
             <img 
@@ -147,17 +147,17 @@ const SimpleClientLoginV2: React.FC = () => {
               className="h-16 mb-6" 
             />
             
-            {/* Dynamic welcome message with medical-themed styling */}
-            <div className="flex items-center space-x-2 mb-4 bg-blue-50 px-4 py-3 rounded-lg border border-blue-100">
+            {/* Dynamic welcome message */}
+            <div className="flex items-center space-x-2 mb-3 bg-blue-50 px-4 py-3 rounded-lg border border-blue-100">
               {welcomeIcon}
               <span className="font-medium text-blue-800">{welcomeMessage}</span>
             </div>
             
             <h1 className="text-2xl font-bold text-gray-800 mb-2">
-              Healthcare Partner Portal
+              Client Portal
             </h1>
             <p className="text-gray-600">
-              Secure access to your pharmaceutical communication dashboard
+              Log in to access your campaign management dashboard
             </p>
           </div>
 
@@ -180,14 +180,14 @@ const SimpleClientLoginV2: React.FC = () => {
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                  <User className="h-5 w-5 text-blue-400" />
+                  <User className="h-5 w-5 text-gray-400" />
                 </div>
                 <input
                   id="username"
                   type="text"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                  className={`block w-full pl-10 pr-3 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
                     lastUsername ? 'border-blue-300 bg-blue-50' : 'border-gray-300'
                   }`}
                   placeholder="Enter your username"
@@ -210,14 +210,14 @@ const SimpleClientLoginV2: React.FC = () => {
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                  <Lock className="h-5 w-5 text-blue-400" />
+                  <Lock className="h-5 w-5 text-gray-400" />
                 </div>
                 <input
                   id="password"
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="block w-full pl-10 pr-10 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   placeholder="••••••••••"
                 />
                 <button 
@@ -255,7 +255,7 @@ const SimpleClientLoginV2: React.FC = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-75"
+              className="w-full flex justify-center items-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-75"
             >
               {isLoading ? (
                 <>
@@ -270,15 +270,9 @@ const SimpleClientLoginV2: React.FC = () => {
               )}
             </button>
 
-            {/* Security note - pharmaceutical theme */}
-            <div className="flex items-center justify-center mt-3">
-              <Lock className="h-3 w-3 mr-1 text-green-600" />
-              <span className="text-xs text-gray-500">HIPAA Compliant Secure Connection</span>
-            </div>
-
             {/* Demo credentials */}
-            <div className="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
-              <p className="text-sm text-gray-800 font-medium mb-2">Demo Access:</p>
+            <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-100">
+              <p className="text-sm text-blue-800 font-medium mb-2">Demo Access:</p>
               <div className="grid grid-cols-2 gap-2 text-sm">
                 <div>
                   <p className="text-gray-500">Username:</p>
@@ -307,63 +301,59 @@ const SimpleClientLoginV2: React.FC = () => {
           </div>
         </div>
 
-        {/* Feature showcase section - pharmaceutical themed */}
-        <div className="hidden md:flex w-1/2 bg-gradient-to-br from-blue-600 to-blue-800 p-12 text-white">
+        {/* Feature showcase section */}
+        <div className="hidden md:block w-1/2 bg-gradient-to-br from-blue-800 to-blue-900 p-12 text-white">
           <div className="h-full flex flex-col">
-            <h2 className="text-2xl font-bold text-blue-100 mb-4">Healthcare Communication Portal</h2>
-            <p className="mb-8 text-blue-100">
-              Your secure, compliant email marketing platform designed specifically for pharmaceutical and healthcare organizations.
+            <h2 className="text-2xl font-bold mb-4">Welcome to Infinity Tech</h2>
+            <p className="mb-8 text-blue-50">
+              Your complete email marketing solution with advanced analytics and AI-powered optimization.
             </p>
 
             <div className="space-y-6 mb-auto">
               <div className="flex items-start space-x-4">
-                <div className="bg-white rounded-full p-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                <div className="bg-blue-700/50 p-2 rounded-lg">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-blue-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                   </svg>
                 </div>
                 <div>
-                  <h3 className="font-semibold text-lg text-white">HIPAA Compliant</h3>
+                  <h3 className="font-medium text-lg">Campaign Analytics</h3>
                   <p className="text-sm text-blue-100">
-                    Secure messaging that meets all healthcare regulations and privacy requirements.
+                    Real-time performance metrics and actionable insights for your campaigns.
                   </p>
                 </div>
               </div>
 
               <div className="flex items-start space-x-4">
-                <div className="bg-white rounded-full p-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                <div className="bg-blue-700/50 p-2 rounded-lg">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-blue-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
                   </svg>
                 </div>
                 <div>
-                  <h3 className="font-semibold text-lg text-white">Regulatory Approved</h3>
+                  <h3 className="font-medium text-lg">Campaign Builder</h3>
                   <p className="text-sm text-blue-100">
-                    FDA and EMA compliant platform for pharmaceutical communications and marketing.
+                    Intuitive drag-and-drop editor for creating stunning email campaigns quickly.
                   </p>
                 </div>
               </div>
 
               <div className="flex items-start space-x-4">
-                <div className="bg-white rounded-full p-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                <div className="bg-blue-700/50 p-2 rounded-lg">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-blue-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
                   </svg>
                 </div>
                 <div>
-                  <h3 className="font-semibold text-lg text-white">Content Compliance</h3>
+                  <h3 className="font-medium text-lg">Mobile Optimization</h3>
                   <p className="text-sm text-blue-100">
-                    Built-in tools to ensure all communications meet healthcare advertising standards.
+                    All templates are fully responsive for perfect rendering on any device.
                   </p>
                 </div>
               </div>
             </div>
 
-            <div className="mt-8 pt-6 border-t border-blue-500/30">
-              <div className="flex items-center text-sm text-blue-200 mb-2">
-                <Lock className="h-3 w-3 mr-1" />
-                <span>256-bit Encrypted Connection • 21 CFR Part 11 Compliant</span>
-              </div>
+            <div className="mt-8 pt-6 border-t border-blue-700">
               <p className="text-sm text-blue-200">
                 © {new Date().getFullYear()} Infinity Tech · All rights reserved
               </p>
