@@ -349,12 +349,12 @@ export default function ClientDashboardV4() {
       </button>
       
       {/* Main content area */}
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden">
         {/* Header with filters and date selection */}
         <header className="sticky top-0 z-30 w-full bg-white border-b border-gray-200 shadow-sm">
           <div className="container mx-auto px-4 py-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-4">
+            <div className="flex flex-wrap items-center justify-between">
+              <div className="flex items-center space-x-4 mb-2 sm:mb-0">
                 <Button 
                   variant="ghost" 
                   size="icon"
@@ -365,7 +365,7 @@ export default function ClientDashboardV4() {
                 </Button>
                 
                 {/* Filter dropdowns */}
-                <div className="flex items-center space-x-2">
+                <div className="flex md:flex items-center space-x-2">
                   <div className="relative bg-gray-100 rounded-md border border-gray-200 px-3 py-1.5 text-sm">
                     <div className="flex items-center">
                       <span className="text-gray-500 mr-2">Data Source</span>
