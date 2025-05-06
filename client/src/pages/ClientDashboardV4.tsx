@@ -354,7 +354,13 @@ export default function ClientDashboardV4() {
   
   // Close dropdowns when clicking outside
   useEffect(() => {
-    const handleClickOutside = () => {
+    const handleClickOutside = (event: MouseEvent) => {
+      // Don't close if the click is on a dropdown toggle or dropdown menu item
+      const target = event.target as HTMLElement;
+      if (target.closest('.dropdown-toggle') || target.closest('.dropdown-menu')) {
+        return;
+      }
+      
       setShowFilters(false);
       setShowDatePicker(false);
       setShowCampaignSelector(false);
@@ -519,7 +525,7 @@ export default function ClientDashboardV4() {
                   
                   <div className="relative">
                     <div 
-                      className="relative bg-gray-100 rounded-md border border-gray-200 px-3 py-1.5 text-sm cursor-pointer hover:bg-gray-200 transition-colors"
+                      className="relative bg-gray-100 rounded-md border border-gray-200 px-3 py-1.5 text-sm cursor-pointer hover:bg-gray-200 transition-colors dropdown-toggle"
                       onClick={toggleCampaignSelector}
                     >
                       <div className="flex items-center">
@@ -530,12 +536,15 @@ export default function ClientDashboardV4() {
                     </div>
                     
                     {showCampaignSelector && (
-                      <div className="absolute left-0 mt-1 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-10 py-1">
+                      <div className="absolute left-0 mt-1 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-10 py-1 dropdown-menu">
                         {campaigns.map((campaign) => (
                           <div 
                             key={campaign}
                             className="px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
-                            onClick={() => handleCampaignSelect(campaign)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleCampaignSelect(campaign);
+                            }}
                           >
                             {campaign}
                           </div>
@@ -546,7 +555,7 @@ export default function ClientDashboardV4() {
                   
                   <div className="relative">
                     <div 
-                      className="relative bg-gray-100 rounded-md border border-gray-200 px-3 py-1.5 text-sm cursor-pointer hover:bg-gray-200 transition-colors"
+                      className="relative bg-gray-100 rounded-md border border-gray-200 px-3 py-1.5 text-sm cursor-pointer hover:bg-gray-200 transition-colors dropdown-toggle"
                       onClick={toggleAdSetSelector}
                     >
                       <div className="flex items-center">
@@ -557,12 +566,15 @@ export default function ClientDashboardV4() {
                     </div>
                     
                     {showAdSetSelector && (
-                      <div className="absolute left-0 mt-1 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-10 py-1">
+                      <div className="absolute left-0 mt-1 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-10 py-1 dropdown-menu">
                         {adSets.map((adSet) => (
                           <div 
                             key={adSet}
                             className="px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
-                            onClick={() => handleAdSetSelect(adSet)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleAdSetSelect(adSet);
+                            }}
                           >
                             {adSet}
                           </div>
@@ -576,7 +588,7 @@ export default function ClientDashboardV4() {
               {/* Date range selector */}
               <div className="relative">
                 <div 
-                  className="bg-gray-100 rounded-md border border-gray-200 px-3 py-1.5 text-sm cursor-pointer hover:bg-gray-200 transition-colors"
+                  className="bg-gray-100 rounded-md border border-gray-200 px-3 py-1.5 text-sm cursor-pointer hover:bg-gray-200 transition-colors dropdown-toggle"
                   onClick={toggleDatePicker}
                 >
                   <div className="flex items-center">
@@ -587,12 +599,15 @@ export default function ClientDashboardV4() {
                 </div>
                 
                 {showDatePicker && (
-                  <div className="absolute right-0 mt-1 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-10 py-1">
+                  <div className="absolute right-0 mt-1 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-10 py-1 dropdown-menu">
                     {dateRanges.map((range) => (
                       <div 
                         key={range}
                         className="px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
-                        onClick={() => handleDateRangeSelect(range)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDateRangeSelect(range);
+                        }}
                       >
                         {range}
                       </div>
