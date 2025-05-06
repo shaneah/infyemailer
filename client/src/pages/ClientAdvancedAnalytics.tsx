@@ -124,7 +124,6 @@ const ClientAdvancedAnalytics: React.FC = () => {
   // Sample predictive analytics data
   const [predictiveData, setPredictiveData] = useState<any>(null);
   const [benchmarkingData, setBenchmarkingData] = useState<any>(null);
-  const [attributionData, setAttributionData] = useState<any>(null);
   
   // Fetch analytics data
   useEffect(() => {
@@ -146,12 +145,7 @@ const ClientAdvancedAnalytics: React.FC = () => {
           setBenchmarkingData(data);
         }
         
-        // Fetch attribution data
-        const attributionRes = await fetch(`/api/advanced-analytics/attribution?timeframe=${timeframe}`);
-        if (attributionRes.ok) {
-          const data = await attributionRes.json();
-          setAttributionData(data);
-        }
+        // Attribution data fetch removed as per requirement
       } catch (error) {
         console.error('Error fetching advanced analytics data:', error);
         toast({
@@ -209,36 +203,7 @@ const ClientAdvancedAnalytics: React.FC = () => {
             { quarter: 'Q4 2024', yours: 26.4, industry: 21.9, topPerformers: 33.8 },
           ]
         });
-        
-        setAttributionData({
-          revenueByChannel: [
-            { channel: 'Direct', revenue: 12480, percentage: 35 },
-            { channel: 'Email', revenue: 8560, percentage: 24 },
-            { channel: 'Organic', revenue: 5680, percentage: 16 },
-            { channel: 'Social', revenue: 4960, percentage: 14 },
-            { channel: 'Paid', revenue: 3900, percentage: 11 },
-          ],
-          emailCampaignROI: [
-            { campaign: 'Product Launch', cost: 1200, revenue: 16800, roi: 14 },
-            { campaign: 'Weekly Newsletter', cost: 800, revenue: 5400, roi: 6.75 },
-            { campaign: 'Customer Win-back', cost: 1500, revenue: 9200, roi: 6.13 },
-            { campaign: 'Holiday Special', cost: 2000, revenue: 24500, roi: 12.25 },
-          ],
-          conversionJourney: [
-            { step: 'Email Open', count: 12480, dropoff: 0 },
-            { step: 'Email Click', count: 3120, dropoff: 75 },
-            { step: 'Website Visit', count: 2808, dropoff: 10 },
-            { step: 'Add to Cart', count: 1123, dropoff: 60 },
-            { step: 'Purchase', count: 562, dropoff: 50 },
-          ],
-          timeToConversion: [
-            { period: 'Same day', conversions: 243 },
-            { period: '1-2 days', conversions: 158 },
-            { period: '3-7 days', conversions: 86 },
-            { period: '8-14 days', conversions: 47 },
-            { period: '15+ days', conversions: 28 },
-          ]
-        });
+        // Attribution data removed as per requirement
       } finally {
         // Simulate loading delay
         setTimeout(() => {
@@ -304,7 +269,7 @@ const ClientAdvancedAnalytics: React.FC = () => {
       </div>
       
       <Tabs defaultValue="predictive" value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="predictive" className="flex items-center">
             <TrendingUp className="h-4 w-4 mr-2" />
             Predictive Analytics
@@ -312,10 +277,6 @@ const ClientAdvancedAnalytics: React.FC = () => {
           <TabsTrigger value="benchmarking" className="flex items-center">
             <BarChart4 className="h-4 w-4 mr-2" />
             Competitor Benchmarking
-          </TabsTrigger>
-          <TabsTrigger value="attribution" className="flex items-center">
-            <DollarSign className="h-4 w-4 mr-2" />
-            Revenue Attribution
           </TabsTrigger>
         </TabsList>
         
@@ -655,156 +616,7 @@ const ClientAdvancedAnalytics: React.FC = () => {
             </>
           )}
         </TabsContent>
-        
-        {/* Revenue Attribution Tab */}
-        <TabsContent value="attribution" className="space-y-4">
-          {attributionData && (
-            <>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <ChartCard 
-                  title="Revenue by Channel" 
-                  description="How your revenue is distributed across marketing channels"
-                  isLoading={isLoading}
-                  delay={1}
-                >
-                  <div className="p-6">
-                    <ResponsiveContainer width="100%" height={300}>
-                      <PieChart>
-                        <Pie
-                          data={attributionData.revenueByChannel}
-                          cx="50%"
-                          cy="50%"
-                          labelLine={true}
-                          outerRadius={80}
-                          fill="#8884d8"
-                          dataKey="revenue"
-                          nameKey="channel"
-                          label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                        >
-                          {attributionData.revenueByChannel.map((entry: any, index: number) => (
-                            <Cell key={`cell-${index}`} fill={[
-                              '#3b82f6', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444'
-                            ][index % 5]} />
-                          ))}
-                        </Pie>
-                        <RechartsTooltip formatter={(value: any) => [`$${value.toLocaleString()}`, 'Revenue']} />
-                        <Legend />
-                      </PieChart>
-                    </ResponsiveContainer>
-                  </div>
-                </ChartCard>
-                
-                <ChartCard 
-                  title="Email Campaign ROI" 
-                  description="Return on investment for recent email campaigns"
-                  isLoading={isLoading}
-                  delay={2}
-                >
-                  <div className="px-1">
-                    <div className="overflow-x-auto">
-                      <table className="w-full">
-                        <thead>
-                          <tr className="border-b">
-                            <th className="text-left py-3 px-4 font-medium text-gray-500">Campaign</th>
-                            <th className="text-right py-3 px-4 font-medium text-gray-500">Cost</th>
-                            <th className="text-right py-3 px-4 font-medium text-gray-500">Revenue</th>
-                            <th className="text-right py-3 px-4 font-medium text-gray-500">ROI</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {attributionData.emailCampaignROI.map((campaign: any, index: number) => (
-                            <tr key={index} className="border-b">
-                              <td className="py-3 px-4 font-medium">{campaign.campaign}</td>
-                              <td className="py-3 px-4 text-right text-gray-600">${campaign.cost.toLocaleString()}</td>
-                              <td className="py-3 px-4 text-right text-blue-600 font-medium">${campaign.revenue.toLocaleString()}</td>
-                              <td className="py-3 px-4 text-right">
-                                <span className="text-green-600 font-medium">{campaign.roi}x</span>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </ChartCard>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <ChartCard 
-                  title="Conversion Journey" 
-                  description="Customer journey from email to purchase"
-                  isLoading={isLoading}
-                  delay={3}
-                >
-                  <div className="p-6">
-                    <ResponsiveContainer width="100%" height={300}>
-                      <BarChart 
-                        data={attributionData.conversionJourney} 
-                        margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                      >
-                        <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                        <XAxis dataKey="step" />
-                        <YAxis />
-                        <RechartsTooltip formatter={(value: any) => [value.toLocaleString(), 'Users']} />
-                        <Bar 
-                          dataKey="count" 
-                          name="Users" 
-                          fill="#3b82f6" 
-                          radius={[4, 4, 0, 0]} 
-                        />
-                      </BarChart>
-                    </ResponsiveContainer>
-                    <div className="mt-4">
-                      <h3 className="text-sm font-medium text-gray-500 mb-2">Funnel Analysis</h3>
-                      <div className="flex items-center space-x-1">
-                        {attributionData.conversionJourney.map((step: any, index: number) => (
-                          <div key={index} className="flex-1 flex flex-col items-center">
-                            <div 
-                              className="h-6 w-full bg-blue-600 rounded-sm" 
-                              style={{ 
-                                opacity: 1 - (index * 0.15),
-                                height: `${Math.max(20, (step.count / attributionData.conversionJourney[0].count) * 100)}px`
-                              }}
-                            ></div>
-                            <div className="text-xs text-gray-500 mt-1">{step.step}</div>
-                            <div className="text-xs font-medium">{Math.round((step.count / attributionData.conversionJourney[0].count) * 100)}%</div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </ChartCard>
-                
-                <ChartCard 
-                  title="Time to Conversion" 
-                  description="How long it takes for email recipients to convert"
-                  isLoading={isLoading}
-                  delay={4}
-                >
-                  <div className="p-6">
-                    <ResponsiveContainer width="100%" height={300}>
-                      <BarChart 
-                        data={attributionData.timeToConversion} 
-                        margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                      >
-                        <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                        <XAxis dataKey="period" />
-                        <YAxis />
-                        <RechartsTooltip formatter={(value: any) => [value.toLocaleString(), 'Conversions']} />
-                        <Bar 
-                          dataKey="conversions" 
-                          name="Conversions" 
-                          fill="#8b5cf6" 
-                          radius={[4, 4, 0, 0]} 
-                        />
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </div>
-                </ChartCard>
-              </div>
-            </>
-          )}
-        </TabsContent>
+
       </Tabs>
     </div>
   );
