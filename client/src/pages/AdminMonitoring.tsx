@@ -164,8 +164,8 @@ const AdminMonitoring = () => {
     endDate: new Date()
   });
   const [searchQuery, setSearchQuery] = useState('');
-  const [actionTypeFilter, setActionTypeFilter] = useState('');
-  const [statusFilter, setStatusFilter] = useState('');
+  const [actionTypeFilter, setActionTypeFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState('all');
 
   // Fetch statistics data
   const { 
@@ -957,7 +957,7 @@ const AdminMonitoring = () => {
                     <SelectValue placeholder="Filter by type" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All Types</SelectItem>
+                    <SelectItem value="all">All Types</SelectItem>
                     <SelectItem value="campaign">Campaign</SelectItem>
                     <SelectItem value="contact">Contact</SelectItem>
                     <SelectItem value="template">Template</SelectItem>
@@ -976,7 +976,7 @@ const AdminMonitoring = () => {
                     <SelectValue placeholder="Filter by status" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All Statuses</SelectItem>
+                    <SelectItem value="all">All Statuses</SelectItem>
                     <SelectItem value="completed">Completed</SelectItem>
                     <SelectItem value="processing">Processing</SelectItem>
                     <SelectItem value="pending">Pending</SelectItem>

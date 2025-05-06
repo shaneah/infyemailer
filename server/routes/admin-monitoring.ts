@@ -46,7 +46,7 @@ router.get('/activities', async (req: Request, res: Response) => {
     }
     
     // Apply action type filter
-    if (req.query.actionType) {
+    if (req.query.actionType && req.query.actionType !== 'all') {
       filters.actionType = req.query.actionType as string;
     }
     
@@ -113,7 +113,7 @@ router.get('/uploads', async (req: Request, res: Response) => {
     }
     
     // Apply status filter
-    if (req.query.status) {
+    if (req.query.status && req.query.status !== 'all') {
       filters.status = req.query.status as string;
     }
     
