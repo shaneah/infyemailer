@@ -35,58 +35,58 @@ export default function ClientDashboardV3() {
   const [clientData, setClientData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [currentTab, setCurrentTab] = useState("overview");
-  const [currentTheme, setCurrentTheme] = useState<string>("navy");
+  const [currentTheme, setCurrentTheme] = useState<string>("enterprise");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   
-  // Professional Theme options
+  // Business Professional Theme options
   const themes = {
-    blue: {
-      primary: "from-blue-700 to-blue-600",
-      gradient: "from-blue-900 to-blue-800",
-      accentGradient: "from-blue-700 to-blue-600",
-      accent: "bg-blue-700",
-      accentHover: "hover:bg-blue-800",
-      accentLight: "bg-blue-600/10",
-      accentBorder: "border-blue-600/30",
-      textAccent: "text-blue-600",
-      progressFill: "bg-blue-600",
-      chartColors: ["#2563EB", "#1D4ED8", "#3B82F6", "#60A5FA", "#93C5FD"]
+    corporate: {
+      primary: "from-blue-800 to-blue-900",
+      gradient: "from-blue-950 to-blue-900",
+      accentGradient: "from-blue-800 to-blue-900",
+      accent: "bg-blue-800",
+      accentHover: "hover:bg-blue-900",
+      accentLight: "bg-blue-900/10",
+      accentBorder: "border-blue-900/30",
+      textAccent: "text-blue-800",
+      progressFill: "bg-blue-800",
+      chartColors: ["#1e3a8a", "#1e40af", "#1d4ed8", "#2563eb", "#3b82f6"]
     },
-    navy: {
-      primary: "from-indigo-900 to-blue-900",
-      gradient: "from-indigo-950 to-blue-950",
-      accentGradient: "from-indigo-800 to-blue-800",
-      accent: "bg-indigo-900",
-      accentHover: "hover:bg-indigo-950",
+    executive: {
+      primary: "from-gray-800 to-gray-900",
+      gradient: "from-gray-950 to-gray-900",
+      accentGradient: "from-gray-800 to-gray-900",
+      accent: "bg-gray-800",
+      accentHover: "hover:bg-gray-900",
+      accentLight: "bg-gray-900/10",
+      accentBorder: "border-gray-900/30",
+      textAccent: "text-gray-300",
+      progressFill: "bg-gray-800",
+      chartColors: ["#1f2937", "#374151", "#4b5563", "#6b7280", "#9ca3af"]
+    },
+    professional: {
+      primary: "from-slate-800 to-slate-900",
+      gradient: "from-slate-950 to-slate-900",
+      accentGradient: "from-slate-800 to-slate-900",
+      accent: "bg-slate-800",
+      accentHover: "hover:bg-slate-900",
+      accentLight: "bg-slate-900/10",
+      accentBorder: "border-slate-900/30",
+      textAccent: "text-slate-300",
+      progressFill: "bg-slate-800",
+      chartColors: ["#0f172a", "#1e293b", "#334155", "#475569", "#64748b"]
+    },
+    enterprise: {
+      primary: "from-indigo-800 to-indigo-900",
+      gradient: "from-indigo-950 to-indigo-900",
+      accentGradient: "from-indigo-800 to-indigo-900",
+      accent: "bg-indigo-800",
+      accentHover: "hover:bg-indigo-900",
       accentLight: "bg-indigo-900/10",
       accentBorder: "border-indigo-900/30",
-      textAccent: "text-indigo-600",
-      progressFill: "bg-indigo-600",
-      chartColors: ["#312E81", "#3730A3", "#4338CA", "#4F46E5", "#6366F1"]
-    },
-    gray: {
-      primary: "from-gray-700 to-gray-600",
-      gradient: "from-gray-900 to-gray-800",
-      accentGradient: "from-gray-600 to-gray-500",
-      accent: "bg-gray-700",
-      accentHover: "hover:bg-gray-800",
-      accentLight: "bg-gray-600/10",
-      accentBorder: "border-gray-600/30",
-      textAccent: "text-gray-200",
-      progressFill: "bg-gray-500",
-      chartColors: ["#4B5563", "#6B7280", "#9CA3AF", "#D1D5DB", "#E5E7EB"]
-    },
-    slate: {
-      primary: "from-slate-700 to-slate-600",
-      gradient: "from-slate-900 to-slate-800",
-      accentGradient: "from-slate-600 to-slate-500",
-      accent: "bg-slate-700",
-      accentHover: "hover:bg-slate-800",
-      accentLight: "bg-slate-600/10",
-      accentBorder: "border-slate-600/30",
-      textAccent: "text-slate-300",
-      progressFill: "bg-slate-500",
-      chartColors: ["#334155", "#475569", "#64748B", "#94A3B8", "#CBD5E1"]
+      textAccent: "text-indigo-300",
+      progressFill: "bg-indigo-800",
+      chartColors: ["#312e81", "#3730a3", "#4338ca", "#4f46e5", "#6366f1"]
     }
   };
 
@@ -362,7 +362,7 @@ export default function ClientDashboardV3() {
       {/* Mobile menu button - visible on mobile only */}
       <button
         onClick={toggleSidebar}
-        className="fixed bottom-4 left-4 z-50 lg:hidden flex items-center justify-center w-12 h-12 rounded-md bg-gradient-to-r from-indigo-900 to-blue-900 text-white shadow-lg transition-all duration-150 hover:shadow-xl active:scale-95"
+        className="fixed bottom-4 left-4 z-50 lg:hidden flex items-center justify-center w-12 h-12 rounded-md bg-gradient-to-r from-indigo-800 to-indigo-900 text-white shadow-lg transition-all duration-150 hover:shadow-xl active:scale-95"
       >
         <Menu size={24} className="transition-all duration-200 animate-in fade-in" />
       </button>
@@ -370,30 +370,30 @@ export default function ClientDashboardV3() {
       {/* Main content area */}
       <div className="flex-1 overflow-y-auto">
         {/* Theme Selector (Floating top-right corner) */}
-        <div className="fixed top-4 right-4 bg-gray-800/80 backdrop-blur-sm border border-gray-700 rounded-lg z-40 p-2 flex space-x-2 shadow-xl">
+        <div className="fixed top-4 right-4 bg-gray-900/90 backdrop-blur-sm border border-gray-800 rounded-md z-40 p-2 flex space-x-2 shadow-xl">
           <button 
-            onClick={() => setCurrentTheme("navy")} 
-            className={`h-7 w-7 rounded-md bg-gradient-to-r from-indigo-900 to-blue-900 flex items-center justify-center ${currentTheme === "navy" ? "ring-2 ring-indigo-400 ring-offset-1 ring-offset-gray-800" : "opacity-70"}`} 
+            onClick={() => setCurrentTheme("enterprise")} 
+            className={`h-7 w-7 rounded-md bg-gradient-to-r from-indigo-800 to-indigo-900 flex items-center justify-center ${currentTheme === "enterprise" ? "ring-2 ring-indigo-500 ring-offset-1 ring-offset-gray-900" : "opacity-70"}`} 
           >
-            {currentTheme === "navy" && <CheckCircle2 className="h-4 w-4 text-white" />}
+            {currentTheme === "enterprise" && <CheckCircle2 className="h-4 w-4 text-white" />}
           </button>
           <button 
-            onClick={() => setCurrentTheme("blue")} 
-            className={`h-7 w-7 rounded-md bg-gradient-to-r from-blue-700 to-blue-600 flex items-center justify-center ${currentTheme === "blue" ? "ring-2 ring-blue-400 ring-offset-1 ring-offset-gray-800" : "opacity-70"}`} 
+            onClick={() => setCurrentTheme("corporate")} 
+            className={`h-7 w-7 rounded-md bg-gradient-to-r from-blue-800 to-blue-900 flex items-center justify-center ${currentTheme === "corporate" ? "ring-2 ring-blue-500 ring-offset-1 ring-offset-gray-900" : "opacity-70"}`} 
           >
-            {currentTheme === "blue" && <CheckCircle2 className="h-4 w-4 text-white" />}
+            {currentTheme === "corporate" && <CheckCircle2 className="h-4 w-4 text-white" />}
           </button>
           <button 
-            onClick={() => setCurrentTheme("gray")} 
-            className={`h-7 w-7 rounded-md bg-gradient-to-r from-gray-700 to-gray-600 flex items-center justify-center ${currentTheme === "gray" ? "ring-2 ring-gray-400 ring-offset-1 ring-offset-gray-800" : "opacity-70"}`} 
+            onClick={() => setCurrentTheme("executive")} 
+            className={`h-7 w-7 rounded-md bg-gradient-to-r from-gray-800 to-gray-900 flex items-center justify-center ${currentTheme === "executive" ? "ring-2 ring-gray-500 ring-offset-1 ring-offset-gray-900" : "opacity-70"}`} 
           >
-            {currentTheme === "gray" && <CheckCircle2 className="h-4 w-4 text-white" />}
+            {currentTheme === "executive" && <CheckCircle2 className="h-4 w-4 text-white" />}
           </button>
           <button 
-            onClick={() => setCurrentTheme("slate")} 
-            className={`h-7 w-7 rounded-md bg-gradient-to-r from-slate-700 to-slate-600 flex items-center justify-center ${currentTheme === "slate" ? "ring-2 ring-slate-400 ring-offset-1 ring-offset-gray-800" : "opacity-70"}`} 
+            onClick={() => setCurrentTheme("professional")} 
+            className={`h-7 w-7 rounded-md bg-gradient-to-r from-slate-800 to-slate-900 flex items-center justify-center ${currentTheme === "professional" ? "ring-2 ring-slate-500 ring-offset-1 ring-offset-gray-900" : "opacity-70"}`} 
           >
-            {currentTheme === "slate" && <CheckCircle2 className="h-4 w-4 text-white" />}
+            {currentTheme === "professional" && <CheckCircle2 className="h-4 w-4 text-white" />}
           </button>
         </div>
 
