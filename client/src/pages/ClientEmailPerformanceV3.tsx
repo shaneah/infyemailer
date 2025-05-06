@@ -310,7 +310,8 @@ const ClientEmailPerformanceV3 = () => {
         
         {/* Main dashboard content */}
         <main className="px-4 sm:px-6 lg:px-8 py-8">
-          <TabsContent value="overview" className="mt-0">
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
+            <TabsContent value="overview" className="mt-0">
             {/* Top metrics row */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
               {/* Open Rate Card */}
@@ -731,6 +732,25 @@ const ClientEmailPerformanceV3 = () => {
               <p>Detailed conversion and revenue attribution data will be shown here.</p>
             </div>
           </TabsContent>
+          <TabsContent value="campaigns">
+            <div className="text-center py-10">
+              <h3 className="text-xl font-medium text-gray-700">Campaigns Analytics</h3>
+              <p className="text-gray-500 mt-2">This feature will be available soon.</p>
+            </div>
+          </TabsContent>
+          <TabsContent value="audience">
+            <div className="text-center py-10">
+              <h3 className="text-xl font-medium text-gray-700">Audience Analytics</h3>
+              <p className="text-gray-500 mt-2">This feature will be available soon.</p>
+            </div>
+          </TabsContent>
+          <TabsContent value="conversions">
+            <div className="text-center py-10">
+              <h3 className="text-xl font-medium text-gray-700">Conversion Analytics</h3>
+              <p className="text-gray-500 mt-2">This feature will be available soon.</p>
+            </div>
+          </TabsContent>
+        </Tabs>
         </main>
       </div>
     </div>
