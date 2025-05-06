@@ -357,6 +357,8 @@ export default function ClientDashboardV4() {
     const handleClickOutside = () => {
       setShowFilters(false);
       setShowDatePicker(false);
+      setShowCampaignSelector(false);
+      setShowAdSetSelector(false);
     };
     
     document.addEventListener('click', handleClickOutside);
@@ -542,15 +544,31 @@ export default function ClientDashboardV4() {
                     )}
                   </div>
                   
-                  <div 
-                    className="relative bg-gray-100 rounded-md border border-gray-200 px-3 py-1.5 text-sm cursor-pointer hover:bg-gray-200 transition-colors"
-                    onClick={() => alert("Ad Set selector clicked")}
-                  >
-                    <div className="flex items-center">
-                      <span className="text-gray-500 mr-2">Ad Set</span>
-                      <span className="text-gray-800 font-medium">All Sets</span>
-                      <ChevronDown className="h-3 w-3 ml-2 text-gray-500" />
+                  <div className="relative">
+                    <div 
+                      className="relative bg-gray-100 rounded-md border border-gray-200 px-3 py-1.5 text-sm cursor-pointer hover:bg-gray-200 transition-colors"
+                      onClick={toggleAdSetSelector}
+                    >
+                      <div className="flex items-center">
+                        <span className="text-gray-500 mr-2">Ad Set</span>
+                        <span className="text-gray-800 font-medium">{selectedAdSet}</span>
+                        <ChevronDown className="h-3 w-3 ml-2 text-gray-500" />
+                      </div>
                     </div>
+                    
+                    {showAdSetSelector && (
+                      <div className="absolute left-0 mt-1 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-10 py-1">
+                        {adSets.map((adSet) => (
+                          <div 
+                            key={adSet}
+                            className="px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
+                            onClick={() => handleAdSetSelect(adSet)}
+                          >
+                            {adSet}
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
