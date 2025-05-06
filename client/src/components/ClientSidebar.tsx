@@ -24,8 +24,8 @@ const MenuItem = ({ href, icon: Icon, label, active }: {
       href={href} 
       className={`group flex items-center px-3 py-2.5 text-sm rounded-md transition-all duration-150 ${
         active 
-          ? 'bg-purple-800 text-white shadow-sm' 
-          : 'text-blue-100 hover:bg-purple-800/50 hover:translate-x-1'
+          ? 'bg-blue-100 text-blue-700 shadow-sm' 
+          : 'text-gray-700 hover:bg-blue-50 hover:translate-x-1'
       }`}
     >
       <div className="flex items-center justify-center">
@@ -33,8 +33,8 @@ const MenuItem = ({ href, icon: Icon, label, active }: {
           size={18} 
           className={`mr-3 transition-all duration-200 ${
             active 
-              ? 'text-purple-300 scale-110' 
-              : 'text-blue-200 group-hover:text-purple-300 group-hover:scale-110 transform'
+              ? 'text-blue-600 scale-110' 
+              : 'text-gray-500 group-hover:text-blue-500 group-hover:scale-110 transform'
           }`} 
         />
       </div>
@@ -45,7 +45,7 @@ const MenuItem = ({ href, icon: Icon, label, active }: {
       }`}>{label}</span>
       {active && (
         <div className="ml-auto">
-          <div className="w-1.5 h-1.5 rounded-full bg-purple-300 opacity-90 animate-pulse"></div>
+          <div className="w-1.5 h-1.5 rounded-full bg-blue-500 opacity-90 animate-pulse"></div>
         </div>
       )}
     </Link>
@@ -55,11 +55,11 @@ const MenuItem = ({ href, icon: Icon, label, active }: {
 const MenuSection = ({ title, children }: { title: string; children: React.ReactNode }) => {
   return (
     <div className="mb-4">
-      <div className="px-4 py-1 text-xs font-medium uppercase tracking-wider text-purple-300/90 relative group">
-        <span className="transition-all duration-300 group-hover:text-purple-300 group-hover:translate-x-0.5 inline-block">
+      <div className="px-4 py-1 text-xs font-medium uppercase tracking-wider text-gray-500 relative group">
+        <span className="transition-all duration-300 group-hover:text-blue-600 group-hover:translate-x-0.5 inline-block">
           {title}
         </span>
-        <div className="h-px w-0 bg-purple-300/50 absolute -bottom-0.5 left-4 transition-all duration-300 group-hover:w-12"></div>
+        <div className="h-px w-0 bg-blue-200 absolute -bottom-0.5 left-4 transition-all duration-300 group-hover:w-12"></div>
       </div>
       <nav className="mt-1 space-y-0.5 px-2">
         {children}
@@ -143,7 +143,7 @@ const ClientSidebar = ({ isOpen = false, onClose, onLogout }: SidebarProps) => {
       {/* Mobile menu button */}
       <button
         onClick={() => onClose && onClose()}
-        className="fixed top-4 left-4 z-50 lg:hidden flex items-center justify-center w-10 h-10 rounded-md bg-blue-900 text-white shadow-md transition-all duration-150 hover:bg-blue-800 hover:shadow-lg active:scale-95"
+        className="fixed top-4 left-4 z-50 lg:hidden flex items-center justify-center w-10 h-10 rounded-md bg-blue-600 text-white shadow-md transition-all duration-150 hover:bg-blue-700 hover:shadow-lg active:scale-95"
       >
         {isOpen ? (
           <X size={20} className="transition-all duration-200 animate-in fade-in rotate-in" />
@@ -156,24 +156,24 @@ const ClientSidebar = ({ isOpen = false, onClose, onLogout }: SidebarProps) => {
       <aside 
         className={`fixed inset-y-0 left-0 z-40 w-64 transform transition-all duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-auto lg:z-auto ${
           isOpen ? 'translate-x-0 opacity-100 shadow-xl' : '-translate-x-full opacity-95 shadow-md'
-        } h-full bg-gradient-to-b from-blue-950 to-blue-900 text-white flex flex-col flex-shrink-0`}
+        } h-full bg-white border-r border-gray-200 text-gray-800 flex flex-col flex-shrink-0`}
       >
         {/* App name and client name header */}
-        <div className="flex flex-col items-center justify-center p-4 pt-6 pb-2 bg-gradient-to-r from-purple-900 to-indigo-900">
+        <div className="flex flex-col items-center justify-center p-4 pt-6 pb-2 bg-gradient-to-r from-blue-600 to-blue-500">
           <div className="w-12 h-12 mb-2 flex items-center justify-center bg-white/10 rounded-full">
             <img src={LogoWhite} alt="Logo" className="w-8 h-8 object-contain" />
           </div>
           <div className="text-center">
             <h2 className="font-bold text-xl text-white mb-1">Infinity Tech</h2>
             <div className="flex items-center justify-center space-x-2 mb-1">
-              <Building2 size={14} className="text-purple-300" />
-              <p className="text-sm font-medium text-purple-100">{clientName}</p>
+              <Building2 size={14} className="text-blue-100" />
+              <p className="text-sm font-medium text-white">{clientName}</p>
             </div>
           </div>
         </div>
         
         {/* Navbar divider */}
-        <div className="border-b border-blue-800/50 mb-2"></div>
+        <div className="border-b border-gray-200 mb-2"></div>
         
         {/* Navigation */}
         <div className="flex-1 overflow-y-auto py-4 px-1">
@@ -268,21 +268,21 @@ const ClientSidebar = ({ isOpen = false, onClose, onLogout }: SidebarProps) => {
         </div>
         
         {/* Footer actions */}
-        <div className="mt-auto border-t border-blue-800/50 bg-black/10">
+        <div className="mt-auto border-t border-gray-200 bg-gray-50">
           <Link
             href="/client-settings"
             className={`group flex items-center px-4 py-3 text-sm transition-all duration-150 ${
               location === '/client-settings' 
-                ? 'bg-purple-800 text-white shadow-inner' 
-                : 'text-blue-100 hover:bg-purple-800/40 hover:shadow-inner'
+                ? 'bg-blue-100 text-blue-700 shadow-inner' 
+                : 'text-gray-700 hover:bg-blue-50 hover:shadow-inner'
             }`}
           >
             <Settings 
               size={18} 
               className={`mr-3 transition-all duration-200 ${
                 location === '/client-settings' 
-                  ? 'text-purple-300 rotate-90' 
-                  : 'text-blue-200 group-hover:text-purple-300 group-hover:rotate-90'
+                  ? 'text-blue-600 rotate-90' 
+                  : 'text-gray-500 group-hover:text-blue-500 group-hover:rotate-90'
               }`} 
             />
             <span className="font-medium group-hover:font-semibold transition-all duration-150">
@@ -290,18 +290,18 @@ const ClientSidebar = ({ isOpen = false, onClose, onLogout }: SidebarProps) => {
             </span>
             {location === '/client-settings' && (
               <div className="ml-auto">
-                <div className="w-1.5 h-1.5 rounded-full bg-purple-300 opacity-90 animate-pulse"></div>
+                <div className="w-1.5 h-1.5 rounded-full bg-blue-500 opacity-90 animate-pulse"></div>
               </div>
             )}
           </Link>
           
           <button
             onClick={handleLogout}
-            className="group flex items-center w-full px-4 py-3 text-sm text-blue-100 hover:bg-red-900/20 hover:text-red-100 transition-all duration-150"
+            className="group flex items-center w-full px-4 py-3 text-sm text-gray-700 hover:bg-red-50 hover:text-red-600 transition-all duration-150"
           >
             <LogOut 
               size={18} 
-              className="mr-3 transition-all duration-200 text-blue-200 group-hover:text-red-300 group-hover:translate-x-0.5" 
+              className="mr-3 transition-all duration-200 text-gray-500 group-hover:text-red-500 group-hover:translate-x-0.5" 
             />
             <span className="font-medium group-hover:font-semibold transition-all duration-150">
               Logout

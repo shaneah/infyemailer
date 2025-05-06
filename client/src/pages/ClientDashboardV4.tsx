@@ -299,16 +299,16 @@ export default function ClientDashboardV4() {
   // Loading state with animation
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0e0e29] flex flex-col items-center justify-center p-6">
+      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-6">
         <div className="flex flex-col items-center">
           <div className="relative h-20 w-20 mb-6">
-            <div className="absolute inset-0 rounded-full border-2 border-indigo-600/20 animate-ping"></div>
-            <div className="absolute inset-0 rounded-full border-2 border-indigo-600/40"></div>
-            <div className="absolute top-1/2 left-1/2 w-10 h-10 -translate-x-1/2 -translate-y-1/2 rounded-full bg-indigo-600/20 flex items-center justify-center">
-              <div className="w-6 h-6 rounded-full border-2 border-indigo-600 animate-pulse"></div>
+            <div className="absolute inset-0 rounded-full border-2 border-blue-500/20 animate-ping"></div>
+            <div className="absolute inset-0 rounded-full border-2 border-blue-500/40"></div>
+            <div className="absolute top-1/2 left-1/2 w-10 h-10 -translate-x-1/2 -translate-y-1/2 rounded-full bg-blue-500/20 flex items-center justify-center">
+              <div className="w-6 h-6 rounded-full border-2 border-blue-500 animate-pulse"></div>
             </div>
           </div>
-          <p className="text-indigo-100 text-sm font-medium">Loading Dashboard</p>
+          <p className="text-blue-700 text-sm font-medium">Loading Dashboard</p>
         </div>
       </div>
     );
@@ -316,16 +316,16 @@ export default function ClientDashboardV4() {
 
   if (!clientData) {
     return (
-      <div className="min-h-screen bg-[#0e0e29] flex items-center justify-center p-6">
-        <Card className="w-full max-w-md border-slate-800 bg-slate-900/80 text-slate-100 shadow-xl">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
+        <Card className="w-full max-w-md border border-gray-200 bg-white text-gray-800 shadow-md">
           <CardHeader>
             <CardTitle className="text-lg font-medium">Error Loading Dashboard</CardTitle>
           </CardHeader>
           <CardContent className="pt-4">
-            <p className="text-slate-400 text-sm mb-4">Unable to load dashboard data. Please try again or contact support.</p>
+            <p className="text-gray-500 text-sm mb-4">Unable to load dashboard data. Please try again or contact support.</p>
             <Button 
               onClick={handleClientLogout} 
-              className="bg-indigo-600 hover:bg-indigo-700 text-white w-full"
+              className="bg-blue-600 hover:bg-blue-700 text-white w-full"
             >
               Return to Login
             </Button>
@@ -336,14 +336,14 @@ export default function ClientDashboardV4() {
   }
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[#0e0e29] text-slate-200">
+    <div className="flex h-screen overflow-hidden bg-gray-50 text-gray-800">
       {/* Sidebar for navigation */}
       <ClientSidebar isOpen={sidebarOpen} onClose={toggleSidebar} onLogout={handleClientLogout} />
       
       {/* Mobile menu button */}
       <button
         onClick={toggleSidebar}
-        className="fixed bottom-4 left-4 z-50 lg:hidden flex items-center justify-center w-12 h-12 rounded-md bg-indigo-600 text-white shadow-lg hover:bg-indigo-700 active:scale-95"
+        className="fixed bottom-4 left-4 z-50 lg:hidden flex items-center justify-center w-12 h-12 rounded-md bg-blue-600 text-white shadow-lg hover:bg-blue-700 active:scale-95"
       >
         <Menu size={24} />
       </button>
@@ -351,14 +351,14 @@ export default function ClientDashboardV4() {
       {/* Main content area */}
       <div className="flex-1 overflow-y-auto">
         {/* Header with filters and date selection */}
-        <header className="sticky top-0 z-30 w-full bg-[#0e0e29] border-b border-slate-800">
+        <header className="sticky top-0 z-30 w-full bg-white border-b border-gray-200 shadow-sm">
           <div className="container mx-auto px-4 py-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
                 <Button 
                   variant="ghost" 
                   size="icon"
-                  className="lg:hidden text-slate-400 hover:text-white hover:bg-slate-800/60"
+                  className="lg:hidden text-gray-500 hover:text-gray-700 hover:bg-gray-100"
                   onClick={toggleSidebar}
                 >
                   <Menu size={20} />
@@ -366,34 +366,34 @@ export default function ClientDashboardV4() {
                 
                 {/* Filter dropdowns */}
                 <div className="flex items-center space-x-2">
-                  <div className="relative bg-slate-800/50 rounded-md border border-slate-700 px-3 py-1.5 text-sm">
+                  <div className="relative bg-gray-100 rounded-md border border-gray-200 px-3 py-1.5 text-sm">
                     <div className="flex items-center">
-                      <span className="text-slate-400 mr-2">Data Source</span>
-                      <span className="text-slate-200 font-medium">Original</span>
+                      <span className="text-gray-500 mr-2">Data Source</span>
+                      <span className="text-gray-800 font-medium">Original</span>
                     </div>
                   </div>
                   
-                  <div className="relative bg-slate-800/50 rounded-md border border-slate-700 px-3 py-1.5 text-sm">
+                  <div className="relative bg-gray-100 rounded-md border border-gray-200 px-3 py-1.5 text-sm">
                     <div className="flex items-center">
-                      <span className="text-slate-400 mr-2">Campaign</span>
-                      <span className="text-slate-200 font-medium">All Campaigns</span>
+                      <span className="text-gray-500 mr-2">Campaign</span>
+                      <span className="text-gray-800 font-medium">All Campaigns</span>
                     </div>
                   </div>
                   
-                  <div className="relative bg-slate-800/50 rounded-md border border-slate-700 px-3 py-1.5 text-sm">
+                  <div className="relative bg-gray-100 rounded-md border border-gray-200 px-3 py-1.5 text-sm">
                     <div className="flex items-center">
-                      <span className="text-slate-400 mr-2">Ad Set</span>
-                      <span className="text-slate-200 font-medium">All Sets</span>
+                      <span className="text-gray-500 mr-2">Ad Set</span>
+                      <span className="text-gray-800 font-medium">All Sets</span>
                     </div>
                   </div>
                 </div>
               </div>
               
               {/* Date range selector */}
-              <div className="relative bg-slate-800/50 rounded-md border border-slate-700 px-3 py-1.5 text-sm">
+              <div className="relative bg-gray-100 rounded-md border border-gray-200 px-3 py-1.5 text-sm">
                 <div className="flex items-center">
-                  <Calendar className="h-4 w-4 mr-2 text-slate-400" />
-                  <span className="text-slate-200 font-medium">{dateRange}</span>
+                  <Calendar className="h-4 w-4 mr-2 text-blue-500" />
+                  <span className="text-gray-800 font-medium">{dateRange}</span>
                 </div>
               </div>
             </div>
