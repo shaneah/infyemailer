@@ -308,7 +308,7 @@ const SimpleClientLoginV2: React.FC = () => {
         </div>
 
         {/* Feature showcase section - pharmaceutical themed */}
-        <div className="hidden md:block w-1/2 bg-gradient-to-br from-blue-600 to-blue-800 p-12 text-white">
+        <div className="hidden md:flex w-1/2 bg-gradient-to-br from-blue-600 to-blue-800 p-12 text-white">
           <div className="h-full flex flex-col">
             <h2 className="text-2xl font-bold mb-4">Healthcare Communication Portal</h2>
             <p className="mb-8 text-blue-100">
