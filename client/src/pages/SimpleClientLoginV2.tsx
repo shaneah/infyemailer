@@ -310,7 +310,7 @@ const SimpleClientLoginV2: React.FC = () => {
         {/* Feature showcase section - pharmaceutical themed */}
         <div className="hidden md:flex w-1/2 bg-gradient-to-br from-blue-600 to-blue-800 p-12 text-white">
           <div className="h-full flex flex-col">
-            <h2 className="text-2xl font-bold mb-4">Healthcare Communication Portal</h2>
+            <h2 className="text-2xl font-bold text-blue-100 mb-4">Healthcare Communication Portal</h2>
             <p className="mb-8 text-blue-100">
               Your secure, compliant email marketing platform designed specifically for pharmaceutical and healthcare organizations.
             </p>
@@ -323,7 +323,7 @@ const SimpleClientLoginV2: React.FC = () => {
                   </svg>
                 </div>
                 <div>
-                  <h3 className="font-medium text-lg">HIPAA Compliant</h3>
+                  <h3 className="font-semibold text-lg text-white">HIPAA Compliant</h3>
                   <p className="text-sm text-blue-100">
                     Secure messaging that meets all healthcare regulations and privacy requirements.
                   </p>
@@ -337,7 +337,7 @@ const SimpleClientLoginV2: React.FC = () => {
                   </svg>
                 </div>
                 <div>
-                  <h3 className="font-medium text-lg">Regulatory Approved</h3>
+                  <h3 className="font-semibold text-lg text-white">Regulatory Approved</h3>
                   <p className="text-sm text-blue-100">
                     FDA and EMA compliant platform for pharmaceutical communications and marketing.
                   </p>
@@ -351,7 +351,7 @@ const SimpleClientLoginV2: React.FC = () => {
                   </svg>
                 </div>
                 <div>
-                  <h3 className="font-medium text-lg">Content Compliance</h3>
+                  <h3 className="font-semibold text-lg text-white">Content Compliance</h3>
                   <p className="text-sm text-blue-100">
                     Built-in tools to ensure all communications meet healthcare advertising standards.
                   </p>
