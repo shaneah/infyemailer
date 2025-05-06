@@ -66,67 +66,11 @@ interface RealtimeActivity {
   user: string;
 }
 
-interface MetricCardProps {
-  title: string;
-  value: string | number;
-  subValue?: string;
-  trend?: 'up' | 'down' | 'neutral';
-  trendValue?: string;
-}
+// Import the enhanced MetricCard component with emoji reactions
+import MetricCardWithEmoji from '@/components/metrics/MetricCardWithEmoji';
 
-// Modern Metric Card Component with animations
-const MetricCard: React.FC<MetricCardProps> = ({ 
-  title, 
-  value, 
-  subValue, 
-  trend = 'neutral',
-  trendValue
-}) => {
-  // Define color schemes based on trend
-  const getBgColor = () => {
-    if (trend === 'up') return 'bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20';
-    if (trend === 'down') return 'bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20';
-    return 'bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20';
-  };
-
-  const getTrendColor = () => {
-    if (trend === 'up') return 'text-green-600 dark:text-green-400';
-    if (trend === 'down') return 'text-red-600 dark:text-red-400';
-    return 'text-blue-600 dark:text-blue-400';
-  };
-  
-  const getBadgeColor = () => {
-    if (trend === 'up') return 'bg-green-100 text-green-800 dark:bg-green-800/30 dark:text-green-300';
-    if (trend === 'down') return 'bg-red-100 text-red-800 dark:bg-red-800/30 dark:text-red-300';
-    return 'bg-blue-100 text-blue-800 dark:bg-blue-800/30 dark:text-blue-300';
-  };
-
-  return (
-    <motion.div 
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      className={`rounded-xl p-0.5 shadow-lg transition-all duration-300 hover:shadow-xl ${getBgColor()}`}
-    >
-      <div className="h-full rounded-lg bg-white dark:bg-gray-900 p-4 transition-all duration-300">
-        <div className="flex flex-col space-y-3">
-          <div className="flex justify-between items-center">
-            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">{title}</h3>
-            {trend && trendValue && (
-              <div className={`px-2 py-1 rounded-full text-xs font-medium ${getBadgeColor()}`}>
-                {trend === 'up' ? '↑' : trend === 'down' ? '↓' : '→'} {trendValue}
-              </div>
-            )}
-          </div>
-          <div className="space-y-1">
-            <div className={`text-2xl font-bold ${getTrendColor()}`}>{value}</div>
-            {subValue && <p className="text-xs text-gray-500 dark:text-gray-400">{subValue}</p>}
-          </div>
-        </div>
-      </div>
-    </motion.div>
-  );
-};
+// Use the imported component as MetricCard to maintain compatibility with existing code
+const MetricCard = MetricCardWithEmoji;
 
 const DetailedOpens = () => {
   const [selectedCampaign, setSelectedCampaign] = useState<string>("all");
