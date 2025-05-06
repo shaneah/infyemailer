@@ -15,9 +15,11 @@ interface ImportTemplateModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onImportSuccess: (template: any) => void;
+  isClientPortal?: boolean;
+  clientId?: number;
 }
 
-export default function ImportTemplateModal({ open, onOpenChange, onImportSuccess }: ImportTemplateModalProps) {
+export default function ImportTemplateModal({ open, onOpenChange, onImportSuccess, isClientPortal = false, clientId }: ImportTemplateModalProps) {
   const [activeTab, setActiveTab] = useState<string>("html");
   const [templateName, setTemplateName] = useState<string>("");
   const [htmlContent, setHtmlContent] = useState<string>("");
@@ -90,8 +92,14 @@ export default function ImportTemplateModal({ open, onOpenChange, onImportSucces
           }
         };
 
-        console.log("Sending template data...");
-        const response = await apiRequest("POST", "/api/templates", templateData);
+        console.log("Sending template data...", isClientPortal ? "client portal" : "admin portal");
+        
+        // Use the client-specific endpoint if in client portal mode
+        const endpoint = isClientPortal && clientId 
+          ? `/api/client/${clientId}/templates` 
+          : "/api/templates";
+          
+        const response = await apiRequest("POST", endpoint, templateData);
         return await response.json();
       } catch (error) {
         console.error("Error in mutation function:", error);
@@ -100,7 +108,14 @@ export default function ImportTemplateModal({ open, onOpenChange, onImportSucces
     },
     onSuccess: (data) => {
       console.log("Import success:", data);
-      queryClient.invalidateQueries({ queryKey: ['/api/templates'] });
+      
+      // Invalidate the correct cache based on whether it's client portal or not
+      if (isClientPortal && clientId) {
+        queryClient.invalidateQueries({ queryKey: [`/api/client/${clientId}/templates`] });
+      } else {
+        queryClient.invalidateQueries({ queryKey: ['/api/templates'] });
+      }
+      
       onImportSuccess(data);
       toast({
         title: "Template Imported",
@@ -130,7 +145,13 @@ export default function ImportTemplateModal({ open, onOpenChange, onImportSucces
       
       // Use regular fetch for file uploads instead of apiRequest
       // This avoids issues with Content-Type and JSON stringification
-      const response = await fetch("/api/templates/import-zip", {
+      
+      // Determine the correct endpoint based on whether it's client portal or not
+      const endpoint = isClientPortal && clientId 
+        ? `/api/client/${clientId}/templates/import-zip` 
+        : "/api/templates/import-zip";
+        
+      const response = await fetch(endpoint, {
         method: "POST",
         body: formData,
         credentials: "include"
@@ -144,7 +165,13 @@ export default function ImportTemplateModal({ open, onOpenChange, onImportSucces
       return await response.json();
     },
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['/api/templates'] });
+      // Invalidate the correct cache based on whether it's client portal or not
+      if (isClientPortal && clientId) {
+        queryClient.invalidateQueries({ queryKey: [`/api/client/${clientId}/templates`] });
+      } else {
+        queryClient.invalidateQueries({ queryKey: ['/api/templates'] });
+      }
+      
       onImportSuccess(data);
       toast({
         title: "Template Imported",

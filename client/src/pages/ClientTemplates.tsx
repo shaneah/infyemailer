@@ -1361,6 +1361,8 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
             open={showImportModal}
             onOpenChange={(open) => setShowImportModal(open)}
             onImportSuccess={handleImportSuccess}
+            isClientPortal={true}
+            clientId={clientId}
           />
         )}
         
