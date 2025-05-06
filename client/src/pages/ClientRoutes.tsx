@@ -17,6 +17,7 @@ import ClientABTestingAdvanced from '@/pages/ClientABTestingAdvanced';
 import ClientABTestingNew from '@/pages/ClientABTestingNew';
 import ClientAITools from '@/pages/ClientAITools';
 import ClientAdvancedAnalytics from '@/pages/ClientAdvancedAnalytics';
+import AdvancedAnalyticsTest from '@/pages/AdvancedAnalyticsTest';
 import { ReportingComingSoon } from '@/pages/ComingSoonPage';
 import ClientSecurity from '@/pages/ClientSecurity';
 import ClientBilling from '@/pages/ClientBilling';
@@ -3180,7 +3181,7 @@ export default function ClientRoutes() {
             <ClientEmailPerformance />
           </Route>
           <Route path="/client-advanced-analytics">
-            <ClientAdvancedAnalytics />
+            <AdvancedAnalyticsTest />
           </Route>
           <Route path="/client-reports">
             <ClientReports />
