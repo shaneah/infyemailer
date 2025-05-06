@@ -1,7 +1,9 @@
 import express from 'express';
 import { z } from 'zod';
 import OpenAI from 'openai';
-import { storage } from '../dbStorage';
+import { getStorage } from "../storageManager";
+
+const storage = getStorage();
 
 // Initialize OpenAI client
 // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
@@ -30,8 +32,8 @@ const validateClientAuth = async (req: express.Request, res: express.Response, n
     if (!req.session?.clientUser?.clientId || req.session.clientUser.clientId !== clientId) {
       return res.status(403).json({ error: 'Not authorized to access this client' });
     }
-
-    req.client = client;
+    
+    // We don't need to store client on req object
     next();
   } catch (error) {
     console.error('Error validating client auth:', error);

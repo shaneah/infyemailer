@@ -19,6 +19,7 @@ import reportingRoutes from "./routes/reporting-routes";
 import { emailService } from "./services/EmailService";
 import { defaultEmailSettings } from "./routes/emailSettings";
 import { registerAIAssistantRoutes } from "./routes/ai-assistant-routes";
+import aiRoutes from "./routes/ai";
 import { isAuthenticated, isClientAuthenticated } from "./helpers/auth-helpers";
 
 // Extend Express Request type to include files property
@@ -163,6 +164,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Register AI Assistant routes
   registerAIAssistantRoutes(app);
+  
+  // Register AI Content Optimization routes
+  app.use(aiRoutes);
   
   // Register heat maps routes
   app.use('/api/heat-maps', heatMapsRoutes);
