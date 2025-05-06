@@ -5,12 +5,13 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useLocation } from "wouter";
 import { 
   Menu, BarChart3, Mail, Users, Bell, Settings, LogOut, 
-  Calendar, BarChart, PieChart, Search, Zap, Award, Target,
+  Calendar, PieChart, Search, Zap, Award, Target,
   TrendingUp, Clock, Activity, Layout as LayoutIcon, Lightbulb,
   ArrowRight, ArrowUp, ArrowDown, Shield, Send, Eye, 
   BarChart2, MousePointer, CheckCircle2, Share2, FileText,
   Gauge, RefreshCw, Timer, Smartphone, Filter, Download,
-  Database, UserRound, ChevronDown, ChevronUp
+  Database, UserRound, ChevronDown, ChevronUp,
+  BarChart as LucideBarChart
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -21,6 +22,8 @@ import {
   Area,
   LineChart,
   Line,
+  BarChart,
+  Bar,
   PieChart as RechartsPieChart,
   Pie,
   ResponsiveContainer,
@@ -29,8 +32,6 @@ import {
   CartesianGrid,
   Tooltip as RechartsTooltip,
   Cell,
-  BarChart as RechartsBarChart,
-  Bar,
   Legend
 } from "recharts";
 
@@ -878,30 +879,54 @@ export default function ClientDashboardV4() {
                 )}
               </CardHeader>
               <CardContent className="p-4">
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="text-left text-xs text-slate-500">
-                        <th className="pb-2 font-medium">Channel</th>
-                        <th className="pb-2 font-medium text-right">Impressions</th>
-                        <th className="pb-2 font-medium text-right">% Δ</th>
-                        <th className="pb-2 font-medium text-right">CTR</th>
-                        <th className="pb-2 font-medium text-right">% Δ</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {channelPerformanceData.map((item, index) => (
-                        <tr key={index} className="border-t border-slate-100 text-sm">
-                          <td className="py-2 text-slate-800 font-medium">{item.channel}</td>
-                          <td className="py-2 text-right text-slate-700">{item.impressions}</td>
-                          <td className="py-2 text-right text-slate-700">{item.change}</td>
-                          <td className="py-2 text-right text-slate-700">{item.ctr}</td>
-                          <td className="py-2 text-right text-slate-700">{item.changePercent}</td>
+                {!chartView ? (
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead>
+                        <tr className="text-left text-xs text-slate-500">
+                          <th className="pb-2 font-medium">Channel</th>
+                          <th className="pb-2 font-medium text-right">Impressions</th>
+                          <th className="pb-2 font-medium text-right">% Δ</th>
+                          <th className="pb-2 font-medium text-right">CTR</th>
+                          <th className="pb-2 font-medium text-right">% Δ</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                      </thead>
+                      <tbody>
+                        {channelPerformanceData.map((item, index) => (
+                          <tr key={index} className="border-t border-slate-100 text-sm">
+                            <td className="py-2 text-slate-800 font-medium">{item.channel}</td>
+                            <td className="py-2 text-right text-slate-700">{item.impressions}</td>
+                            <td className="py-2 text-right text-slate-700">{item.change}</td>
+                            <td className="py-2 text-right text-slate-700">{item.ctr}</td>
+                            <td className="py-2 text-right text-slate-700">{item.changePercent}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <div className="h-60">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart
+                        data={channelPerformanceData.map(item => ({
+                          name: item.channel,
+                          impressions: parseInt(item.impressions.replace(/[^\d]/g, '')),
+                          ctr: parseFloat(item.ctr.replace(/%/g, ''))
+                        }))}
+                        margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                        <XAxis dataKey="name" />
+                        <YAxis yAxisId="left" orientation="left" stroke="#8884d8" />
+                        <YAxis yAxisId="right" orientation="right" stroke="#82ca9d" />
+                        <Tooltip />
+                        <Legend />
+                        <Bar yAxisId="left" dataKey="impressions" fill="#8884d8" name="Impressions" />
+                        <Bar yAxisId="right" dataKey="ctr" fill="#82ca9d" name="CTR %" />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                )}
               </CardContent>
             </Card>
 
@@ -944,30 +969,54 @@ export default function ClientDashboardV4() {
                 </div>
               </CardHeader>
               <CardContent className="p-4">
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="text-left text-xs text-slate-500">
-                        <th className="pb-2 font-medium">Source</th>
-                        <th className="pb-2 font-medium text-right">Impressions</th>
-                        <th className="pb-2 font-medium text-right">% Δ</th>
-                        <th className="pb-2 font-medium text-right">CTR</th>
-                        <th className="pb-2 font-medium text-right">% Δ</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {dataSourcePerformanceData.map((item, index) => (
-                        <tr key={index} className="border-t border-slate-100 text-sm">
-                          <td className="py-2 text-slate-800 font-medium">{item.source}</td>
-                          <td className="py-2 text-right text-slate-700">{item.impressions}</td>
-                          <td className="py-2 text-right text-slate-700">{item.change}</td>
-                          <td className="py-2 text-right text-slate-700">{item.ctr}</td>
-                          <td className="py-2 text-right text-slate-700">{item.changePercent}</td>
+                {!chartView ? (
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead>
+                        <tr className="text-left text-xs text-slate-500">
+                          <th className="pb-2 font-medium">Source</th>
+                          <th className="pb-2 font-medium text-right">Impressions</th>
+                          <th className="pb-2 font-medium text-right">% Δ</th>
+                          <th className="pb-2 font-medium text-right">CTR</th>
+                          <th className="pb-2 font-medium text-right">% Δ</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                      </thead>
+                      <tbody>
+                        {dataSourcePerformanceData.map((item, index) => (
+                          <tr key={index} className="border-t border-slate-100 text-sm">
+                            <td className="py-2 text-slate-800 font-medium">{item.source}</td>
+                            <td className="py-2 text-right text-slate-700">{item.impressions}</td>
+                            <td className="py-2 text-right text-slate-700">{item.change}</td>
+                            <td className="py-2 text-right text-slate-700">{item.ctr}</td>
+                            <td className="py-2 text-right text-slate-700">{item.changePercent}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <div className="h-60">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart
+                        data={dataSourcePerformanceData.map(item => ({
+                          name: item.source,
+                          impressions: parseInt(item.impressions.replace(/[^\d]/g, '')),
+                          ctr: parseFloat(item.ctr.replace(/%/g, ''))
+                        }))}
+                        margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                        <XAxis dataKey="name" />
+                        <YAxis yAxisId="left" orientation="left" stroke="#0ea5e9" />
+                        <YAxis yAxisId="right" orientation="right" stroke="#10b981" />
+                        <Tooltip />
+                        <Legend />
+                        <Bar yAxisId="left" dataKey="impressions" fill="#0ea5e9" name="Impressions" />
+                        <Bar yAxisId="right" dataKey="ctr" fill="#10b981" name="CTR %" />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
