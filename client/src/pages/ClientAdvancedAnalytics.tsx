@@ -43,7 +43,7 @@ import {
   Globe,
   HelpCircle,
   InfoIcon,
-  LineChart,
+  LineChartIcon,
   Loader2,
   RefreshCw,
   Share2,

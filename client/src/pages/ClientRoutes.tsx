@@ -3179,6 +3179,9 @@ export default function ClientRoutes() {
           <Route path="/client-email-performance">
             <ClientEmailPerformance />
           </Route>
+          <Route path="/client-advanced-analytics">
+            <ClientAdvancedAnalytics />
+          </Route>
           <Route path="/client-reports">
             <ClientReports />
           </Route>
