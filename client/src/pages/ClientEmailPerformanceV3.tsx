@@ -91,11 +91,14 @@ const formatNumber = (num: number): string => {
 };
 
 // Simple sparkline component
-const Sparkline = ({ data, color = "#3b82f6", height = 30 }: { data: number[], color?: string, height?: number }) => {
+const Sparkline = ({ data, color = "#3b82f6", height = 30 }: { data?: number[], color?: string, height?: number }) => {
+  // Handle undefined or empty data
+  const safeData = Array.isArray(data) && data.length > 0 ? data : [0, 0, 0, 0, 0];
+  
   return (
     <div className="mt-2" style={{ height: `${height}px` }}>
       <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={data.map((value, index) => ({ value, index }))}>
+        <LineChart data={safeData.map((value, index) => ({ value, index }))}>
           <Line
             type="monotone"
             dataKey="value"
@@ -117,10 +120,13 @@ const HorizontalBar = ({
   color = "#3b82f6" 
 }: { 
   value: number, 
-  max: number, 
+  max: number | undefined, 
   color?: string 
 }) => {
-  const percentage = Math.min(100, Math.max(0, (value / max) * 100));
+  // Handle case where max is undefined or 0
+  const safeMax = max && max > 0 ? max : 1;
+  const safeValue = typeof value === 'number' && !isNaN(value) ? value : 0;
+  const percentage = Math.min(100, Math.max(0, (safeValue / safeMax) * 100));
   
   return (
     <div className="w-full h-4 bg-gray-100 rounded-full overflow-hidden">
@@ -193,10 +199,10 @@ const ClientEmailPerformanceV3 = () => {
           // Validate metrics data before assigning
           if (metricsJson && typeof metricsJson === 'object') {
             // Ensure all required fields exist with proper format
-            Object.keys(defaultMetricsData).forEach(key => {
+            (Object.keys(defaultMetricsData) as Array<keyof MetricsData>).forEach(key => {
               if (metricsJson[key] && typeof metricsJson[key] === 'object' && 
                   'value' in metricsJson[key] && 'change' in metricsJson[key]) {
-                metricsResult[key] = metricsJson[key];
+                metricsResult[key] = metricsJson[key] as MetricDataPoint;
               }
             });
           }
@@ -321,10 +327,16 @@ const ClientEmailPerformanceV3 = () => {
   // Color constants for consistency
   const COLORS = ['#3b82f6', '#0ea5e9', '#14b8a6', '#22c55e', '#eab308', '#f97316'];
   
-  // Max values for campaign bars
-  const maxOpenRate = Math.max(...campaignData.map(item => item.opens));
-  const maxClickRate = Math.max(...campaignData.map(item => item.clicks));
-  const maxConvRate = Math.max(...campaignData.map(item => item.conversions));
+  // Max values for campaign bars (with safety checks)
+  const maxOpenRate = campaignData && campaignData.length > 0 
+    ? Math.max(...campaignData.map(item => typeof item.opens === 'number' ? item.opens : 0))
+    : 1;
+  const maxClickRate = campaignData && campaignData.length > 0 
+    ? Math.max(...campaignData.map(item => typeof item.clicks === 'number' ? item.clicks : 0))
+    : 1;
+  const maxConvRate = campaignData && campaignData.length > 0 
+    ? Math.max(...campaignData.map(item => typeof item.conversions === 'number' ? item.conversions : 0))
+    : 1;
 
   return (
     <div className="flex h-screen overflow-hidden bg-gray-50">
