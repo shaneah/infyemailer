@@ -116,6 +116,12 @@ function App() {
             <Toaster />
           </div>
         </Route>
+        <Route path="client-advanced-analytics">
+          <div className="bg-background min-h-screen">
+            <ClientRoutes />
+            <Toaster />
+          </div>
+        </Route>
         
         {/* Client Portal Sub-routes */}
         <Route path="client-campaigns">
