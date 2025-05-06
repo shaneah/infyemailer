@@ -6,6 +6,7 @@ import {
   ShieldAlert, Activity, Building2
 } from 'lucide-react';
 import Logo from '../assets/infy.png';
+import LogoWhite from '@assets/Logo-white.png';
 
 interface SidebarProps {
   isOpen?: boolean;
