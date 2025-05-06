@@ -774,11 +774,23 @@ export default function ClientDashboardV3() {
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-4">
-                        <div className="p-3 rounded-lg bg-gray-800/60 border border-gray-700">
+                        {/* First Insight Card */}
+                        <motion.div 
+                          className="p-3 rounded-lg bg-gray-800/60 border border-gray-700"
+                          whileHover={{ 
+                            scale: 1.02,
+                            boxShadow: "0 0 15px rgba(139, 92, 246, 0.15)"
+                          }}
+                          transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                        >
                           <div className="flex items-center mb-2">
-                            <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 flex items-center justify-center mr-3">
+                            <motion.div 
+                              className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 flex items-center justify-center mr-3"
+                              whileHover={{ rotate: 15 }}
+                              transition={{ duration: 0.2 }}
+                            >
                               <Clock className="h-4 w-4 text-white" />
-                            </div>
+                            </motion.div>
                             <h4 className="font-semibold text-white">Optimal Send Time</h4>
                           </div>
                           <p className="text-sm text-gray-400 mb-2">
@@ -802,13 +814,25 @@ export default function ClientDashboardV3() {
                               <Timer className="h-4 w-4 text-indigo-400" />
                             </div>
                           </div>
-                        </div>
+                        </motion.div>
 
-                        <div className="p-3 rounded-lg bg-gray-800/60 border border-gray-700">
+                        {/* Second Insight Card */}
+                        <motion.div 
+                          className="p-3 rounded-lg bg-gray-800/60 border border-gray-700"
+                          whileHover={{ 
+                            scale: 1.02,
+                            boxShadow: "0 0 15px rgba(139, 92, 246, 0.15)"
+                          }}
+                          transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                        >
                           <div className="flex items-center mb-2">
-                            <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 flex items-center justify-center mr-3">
+                            <motion.div 
+                              className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 flex items-center justify-center mr-3"
+                              whileHover={{ rotate: 15 }}
+                              transition={{ duration: 0.2 }}
+                            >
                               <Lightbulb className="h-4 w-4 text-white" />
-                            </div>
+                            </motion.div>
                             <h4 className="font-semibold text-white">Subject Line Optimization</h4>
                           </div>
                           <p className="text-sm text-gray-400 mb-2">
@@ -820,7 +844,7 @@ export default function ClientDashboardV3() {
                           >
                             View Full Analysis
                           </Button>
-                        </div>
+                        </motion.div>
                       </div>
                     </CardContent>
                   </Card>
@@ -967,20 +991,32 @@ export default function ClientDashboardV3() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="flex items-baseline">
+                    <motion.div 
+                      className="flex items-baseline"
+                      whileHover={{ scale: 1.05 }}
+                      transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                    >
                       <span className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-300">
                         {avgOpenRateLast30Days}%
                       </span>
                       <span className="ml-1 text-xs text-gray-500">last 30 days</span>
-                    </div>
+                    </motion.div>
                     <div className="mt-4">
                       <div className="flex items-center justify-between text-xs mb-1">
                         <span className="text-gray-500">Industry benchmark</span>
                         <span className="text-white font-semibold">21.5%</span>
                       </div>
-                      <div className="h-1.5 rounded-full bg-gray-800 overflow-hidden">
-                        <div className={`h-full rounded-full bg-gradient-to-r ${theme.accentGradient}`} style={{ width: `${(avgOpenRateLast30Days / 40) * 100}%` }}></div>
-                      </div>
+                      <motion.div 
+                        className="h-1.5 rounded-full bg-gray-800 overflow-hidden"
+                        whileHover={{ scale: 1.03 }}
+                      >
+                        <motion.div 
+                          className={`h-full rounded-full bg-gradient-to-r ${theme.accentGradient}`} 
+                          style={{ width: `${(avgOpenRateLast30Days / 40) * 100}%` }}
+                          whileHover={{ opacity: 0.8 }}
+                          transition={{ duration: 0.3 }}
+                        ></motion.div>
+                      </motion.div>
                     </div>
                   </CardContent>
                 </Card>
@@ -1011,9 +1047,17 @@ export default function ClientDashboardV3() {
                         <span className="text-gray-500">Industry benchmark</span>
                         <span className="text-white font-semibold">2.7%</span>
                       </div>
-                      <div className="h-1.5 rounded-full bg-gray-800 overflow-hidden">
-                        <div className={`h-full rounded-full bg-gradient-to-r ${theme.accentGradient}`} style={{ width: `${(avgClickRateLast30Days / 8) * 100}%` }}></div>
-                      </div>
+                      <motion.div 
+                        className="h-1.5 rounded-full bg-gray-800 overflow-hidden"
+                        whileHover={{ scale: 1.03 }}
+                      >
+                        <motion.div 
+                          className={`h-full rounded-full bg-gradient-to-r ${theme.accentGradient}`} 
+                          style={{ width: `${(avgClickRateLast30Days / 8) * 100}%` }}
+                          whileHover={{ opacity: 0.8 }}
+                          transition={{ duration: 0.3 }}
+                        ></motion.div>
+                      </motion.div>
                     </div>
                   </CardContent>
                 </Card>
@@ -1044,9 +1088,17 @@ export default function ClientDashboardV3() {
                         <span className="text-gray-500">Industry benchmark</span>
                         <span className="text-white font-semibold">0.5%</span>
                       </div>
-                      <div className="h-1.5 rounded-full bg-gray-800 overflow-hidden">
-                        <div className={`h-full rounded-full bg-gradient-to-r ${theme.accentGradient}`} style={{ width: `${(avgConversionRateLast30Days / 2) * 100}%` }}></div>
-                      </div>
+                      <motion.div 
+                        className="h-1.5 rounded-full bg-gray-800 overflow-hidden"
+                        whileHover={{ scale: 1.03 }}
+                      >
+                        <motion.div 
+                          className={`h-full rounded-full bg-gradient-to-r ${theme.accentGradient}`} 
+                          style={{ width: `${(avgConversionRateLast30Days / 2) * 100}%` }}
+                          whileHover={{ opacity: 0.8 }}
+                          transition={{ duration: 0.3 }}
+                        ></motion.div>
+                      </motion.div>
                     </div>
                   </CardContent>
                 </Card>
