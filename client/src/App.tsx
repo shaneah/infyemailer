@@ -34,6 +34,7 @@ import DomainsV2 from "@/pages/DomainsV2";
 import Clients from "@/pages/Clients";
 import Settings from "@/pages/Settings";
 import AdminPanel from "@/pages/AdminPanel";
+import AdminDashboard from "@/pages/AdminDashboard";
 import EmailValidation from "@/pages/EmailValidation";
 import EmailChecklist from "@/pages/EmailChecklist";
 // Emails import removed
@@ -262,6 +263,7 @@ function App() {
                       <ProtectedRoute path="settings" component={Settings} />
                       <ProtectedRoute path="profile" component={Settings} />
                       <ProtectedRoute path="admin" component={AdminPanel} />
+                      <ProtectedRoute path="admin-dashboard" component={AdminDashboard} />
                       <ProtectedRoute path="email-validation" component={EmailValidation} />
                       <ProtectedRoute path="email-checklist" component={EmailChecklist} />
                       {/* Emails route removed */}
