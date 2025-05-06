@@ -443,7 +443,7 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
               title="Administration" 
               icon={<ShieldCheck />} 
               collapsed={collapsed}
-              isActive={location === '/user-management' || location === '/admin' || location === '/settings' || location === '/admin-monitoring'}
+              isActive={location === '/user-management' || location === '/admin' || location === '/settings' || location === '/admin-monitoring' || location === '/admin-clients'}
               badge={{ count: 3, variant: 'warning' }}
             >
               {/* User Management */}
@@ -494,6 +494,16 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
                   : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'}`}
               >
                 Activity Monitoring
+              </Link>
+              
+              {/* Admin Clients */}
+              <Link 
+                href="/admin-clients" 
+                className={`block py-2 px-3 rounded-md ${location === '/admin-clients' 
+                  ? 'text-blue-600 font-medium' 
+                  : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'}`}
+              >
+                Client Management
               </Link>
             </SubMenu>
             
