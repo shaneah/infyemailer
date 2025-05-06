@@ -35,58 +35,58 @@ export default function ClientDashboardV3() {
   const [clientData, setClientData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [currentTab, setCurrentTab] = useState("overview");
-  const [currentTheme, setCurrentTheme] = useState<string>("enterprise");
+  const [currentTheme, setCurrentTheme] = useState<string>("premium");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   
-  // Business Professional Theme options
+  // Premium Business Theme options
   const themes = {
-    corporate: {
-      primary: "from-blue-800 to-blue-900",
-      gradient: "from-blue-950 to-blue-900",
-      accentGradient: "from-blue-800 to-blue-900",
-      accent: "bg-blue-800",
-      accentHover: "hover:bg-blue-900",
-      accentLight: "bg-blue-900/10",
-      accentBorder: "border-blue-900/30",
-      textAccent: "text-blue-800",
-      progressFill: "bg-blue-800",
-      chartColors: ["#1e3a8a", "#1e40af", "#1d4ed8", "#2563eb", "#3b82f6"]
-    },
-    executive: {
-      primary: "from-gray-800 to-gray-900",
+    classic: {
+      primary: "from-gray-900 to-gray-800",
       gradient: "from-gray-950 to-gray-900",
-      accentGradient: "from-gray-800 to-gray-900",
+      accentGradient: "from-gray-800 to-gray-700",
       accent: "bg-gray-800",
       accentHover: "hover:bg-gray-900",
-      accentLight: "bg-gray-900/10",
-      accentBorder: "border-gray-900/30",
-      textAccent: "text-gray-300",
-      progressFill: "bg-gray-800",
-      chartColors: ["#1f2937", "#374151", "#4b5563", "#6b7280", "#9ca3af"]
+      accentLight: "bg-gray-800/10",
+      accentBorder: "border-gray-700/30",
+      textAccent: "text-gray-200",
+      progressFill: "bg-gray-700",
+      chartColors: ["#111827", "#1f2937", "#374151", "#4b5563", "#6b7280"]
     },
-    professional: {
-      primary: "from-slate-800 to-slate-900",
-      gradient: "from-slate-950 to-slate-900",
-      accentGradient: "from-slate-800 to-slate-900",
+    premium: {
+      primary: "from-zinc-900 to-zinc-800",
+      gradient: "from-zinc-900 to-zinc-800",
+      accentGradient: "from-zinc-800 to-zinc-700",
+      accent: "bg-zinc-800",
+      accentHover: "hover:bg-zinc-900",
+      accentLight: "bg-zinc-800/10",
+      accentBorder: "border-zinc-700/30",
+      textAccent: "text-zinc-200",
+      progressFill: "bg-zinc-700",
+      chartColors: ["#18181b", "#27272a", "#3f3f46", "#52525b", "#71717a"]
+    },
+    business: {
+      primary: "from-slate-900 to-slate-800",
+      gradient: "from-slate-900 to-slate-800",
+      accentGradient: "from-slate-800 to-slate-700",
       accent: "bg-slate-800",
       accentHover: "hover:bg-slate-900",
-      accentLight: "bg-slate-900/10",
-      accentBorder: "border-slate-900/30",
-      textAccent: "text-slate-300",
-      progressFill: "bg-slate-800",
+      accentLight: "bg-slate-800/10",
+      accentBorder: "border-slate-700/30",
+      textAccent: "text-slate-200",
+      progressFill: "bg-slate-700",
       chartColors: ["#0f172a", "#1e293b", "#334155", "#475569", "#64748b"]
     },
-    enterprise: {
-      primary: "from-indigo-800 to-indigo-900",
-      gradient: "from-indigo-950 to-indigo-900",
-      accentGradient: "from-indigo-800 to-indigo-900",
-      accent: "bg-indigo-800",
-      accentHover: "hover:bg-indigo-900",
-      accentLight: "bg-indigo-900/10",
-      accentBorder: "border-indigo-900/30",
-      textAccent: "text-indigo-300",
-      progressFill: "bg-indigo-800",
-      chartColors: ["#312e81", "#3730a3", "#4338ca", "#4f46e5", "#6366f1"]
+    corporate: {
+      primary: "from-stone-900 to-stone-800",
+      gradient: "from-stone-900 to-stone-800",
+      accentGradient: "from-stone-800 to-stone-700",
+      accent: "bg-stone-800",
+      accentHover: "hover:bg-stone-900",
+      accentLight: "bg-stone-800/10",
+      accentBorder: "border-stone-700/30",
+      textAccent: "text-stone-200",
+      progressFill: "bg-stone-700",
+      chartColors: ["#1c1917", "#292524", "#44403c", "#57534e", "#78716c"]
     }
   };
 
@@ -259,34 +259,36 @@ export default function ClientDashboardV3() {
   const bestDay = "Tuesday";
   const bestTime = "10:00 AM";
 
-  // Loading state with fancy animation
+  // Loading state with professional animation
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black flex flex-col items-center justify-center p-6">
+      <div className="min-h-screen bg-zinc-950 flex flex-col items-center justify-center p-6">
         <div className="flex flex-col items-center">
-          <div className="relative h-32 w-32 mb-8">
+          <div className="relative h-24 w-24 mb-8">
             {/* Concentric animated circles */}
-            <div className="absolute inset-0 rounded-full border border-indigo-800/30"></div>
-            <div className="absolute inset-0 rounded-full border-2 border-indigo-700/40"></div>
+            <div className="absolute inset-0 rounded-md border border-zinc-800"></div>
+            <div className="absolute inset-0 rounded-md border border-zinc-700"></div>
             
-            {/* Center dot */}
-            <div className="absolute top-1/2 left-1/2 w-12 h-12 -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-br from-indigo-800 to-blue-700"></div>
+            {/* Center element */}
+            <div className="absolute top-1/2 left-1/2 w-10 h-10 -translate-x-1/2 -translate-y-1/2 rounded-sm bg-gradient-to-br from-zinc-800 to-zinc-900 flex items-center justify-center">
+              <div className="w-5 h-5 rounded-sm border border-zinc-700 animate-pulse"></div>
+            </div>
 
-            {/* Floating particles */}
-            {[...Array(6)].map((_, i) => (
+            {/* Subtle elements */}
+            {[...Array(4)].map((_, i) => (
               <div
                 key={i}
-                className="absolute w-2 h-2 rounded-full bg-indigo-600"
+                className="absolute w-1.5 h-1.5 rounded-sm bg-zinc-700"
                 style={{ 
-                  top: `${Math.random() * 100}%`, 
-                  left: `${Math.random() * 100}%`,
-                  opacity: 0.7
+                  top: `${20 + Math.random() * 60}%`, 
+                  left: `${20 + Math.random() * 60}%`,
+                  opacity: 0.6
                 }}
               />
             ))}
           </div>
-          <p className="mt-8 text-white text-lg font-medium">
-            Loading your dashboard...
+          <p className="mt-8 text-zinc-300 text-sm font-medium tracking-wider uppercase">
+            Loading Dashboard
           </p>
         </div>
       </div>
@@ -295,14 +297,14 @@ export default function ClientDashboardV3() {
 
   if (!clientData) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black flex items-center justify-center p-6">
-        <Card className="w-full max-w-md shadow-xl border-0 overflow-hidden bg-gray-800 text-white">
-          <div className={`h-2 bg-gradient-to-r ${theme.accentGradient}`}></div>
+      <div className="min-h-screen bg-zinc-950 flex items-center justify-center p-6">
+        <Card className="w-full max-w-md shadow-xl border border-zinc-800 overflow-hidden bg-zinc-900 text-zinc-100">
+          <div className={`h-0.5 bg-gradient-to-r ${theme.accentGradient}`}></div>
           <CardHeader>
-            <CardTitle className="text-xl text-white">Error Loading Dashboard</CardTitle>
+            <CardTitle className="text-base font-medium text-zinc-200">Error Loading Dashboard</CardTitle>
           </CardHeader>
-          <CardContent className="pt-6">
-            <p className="text-gray-300">There was an error loading your dashboard data. Please try again later.</p>
+          <CardContent className="pt-4">
+            <p className="text-zinc-400 text-sm">Unable to load your dashboard data. Please try again or contact system administrator.</p>
             <Button 
               onClick={handleLogout} 
               className={`mt-6 ${theme.accent} ${theme.accentHover} text-white w-full`}
@@ -355,14 +357,14 @@ export default function ClientDashboardV3() {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white">
+    <div className="flex h-screen overflow-hidden bg-zinc-950 text-zinc-100">
       {/* Sidebar for navigation */}
       <ClientSidebar isOpen={sidebarOpen} onClose={toggleSidebar} onLogout={handleClientLogout} />
       
       {/* Mobile menu button - visible on mobile only */}
       <button
         onClick={toggleSidebar}
-        className="fixed bottom-4 left-4 z-50 lg:hidden flex items-center justify-center w-12 h-12 rounded-md bg-gradient-to-r from-indigo-800 to-indigo-900 text-white shadow-lg transition-all duration-150 hover:shadow-xl active:scale-95"
+        className="fixed bottom-4 left-4 z-50 lg:hidden flex items-center justify-center w-12 h-12 rounded-md bg-gradient-to-r from-zinc-800 to-zinc-900 text-white shadow-lg transition-all duration-150 hover:shadow-xl active:scale-95"
       >
         <Menu size={24} className="transition-all duration-200 animate-in fade-in" />
       </button>
@@ -370,36 +372,36 @@ export default function ClientDashboardV3() {
       {/* Main content area */}
       <div className="flex-1 overflow-y-auto">
         {/* Theme Selector (Floating top-right corner) */}
-        <div className="fixed top-4 right-4 bg-gray-900/90 backdrop-blur-sm border border-gray-800 rounded-md z-40 p-2 flex space-x-2 shadow-xl">
+        <div className="fixed top-4 right-4 bg-zinc-900/95 backdrop-blur-sm border border-zinc-800 rounded-sm z-40 p-2 flex space-x-2 shadow-xl">
           <button 
-            onClick={() => setCurrentTheme("enterprise")} 
-            className={`h-7 w-7 rounded-md bg-gradient-to-r from-indigo-800 to-indigo-900 flex items-center justify-center ${currentTheme === "enterprise" ? "ring-2 ring-indigo-500 ring-offset-1 ring-offset-gray-900" : "opacity-70"}`} 
+            onClick={() => setCurrentTheme("classic")} 
+            className={`h-7 w-7 rounded-sm bg-gradient-to-r from-gray-900 to-gray-800 flex items-center justify-center ${currentTheme === "classic" ? "ring-1 ring-gray-600 ring-offset-1 ring-offset-zinc-900" : "opacity-70"}`} 
           >
-            {currentTheme === "enterprise" && <CheckCircle2 className="h-4 w-4 text-white" />}
+            {currentTheme === "classic" && <CheckCircle2 className="h-4 w-4 text-white" />}
+          </button>
+          <button 
+            onClick={() => setCurrentTheme("premium")} 
+            className={`h-7 w-7 rounded-sm bg-gradient-to-r from-zinc-900 to-zinc-800 flex items-center justify-center ${currentTheme === "premium" ? "ring-1 ring-zinc-600 ring-offset-1 ring-offset-zinc-900" : "opacity-70"}`} 
+          >
+            {currentTheme === "premium" && <CheckCircle2 className="h-4 w-4 text-white" />}
+          </button>
+          <button 
+            onClick={() => setCurrentTheme("business")} 
+            className={`h-7 w-7 rounded-sm bg-gradient-to-r from-slate-900 to-slate-800 flex items-center justify-center ${currentTheme === "business" ? "ring-1 ring-slate-600 ring-offset-1 ring-offset-zinc-900" : "opacity-70"}`} 
+          >
+            {currentTheme === "business" && <CheckCircle2 className="h-4 w-4 text-white" />}
           </button>
           <button 
             onClick={() => setCurrentTheme("corporate")} 
-            className={`h-7 w-7 rounded-md bg-gradient-to-r from-blue-800 to-blue-900 flex items-center justify-center ${currentTheme === "corporate" ? "ring-2 ring-blue-500 ring-offset-1 ring-offset-gray-900" : "opacity-70"}`} 
+            className={`h-7 w-7 rounded-sm bg-gradient-to-r from-stone-900 to-stone-800 flex items-center justify-center ${currentTheme === "corporate" ? "ring-1 ring-stone-600 ring-offset-1 ring-offset-zinc-900" : "opacity-70"}`} 
           >
             {currentTheme === "corporate" && <CheckCircle2 className="h-4 w-4 text-white" />}
           </button>
-          <button 
-            onClick={() => setCurrentTheme("executive")} 
-            className={`h-7 w-7 rounded-md bg-gradient-to-r from-gray-800 to-gray-900 flex items-center justify-center ${currentTheme === "executive" ? "ring-2 ring-gray-500 ring-offset-1 ring-offset-gray-900" : "opacity-70"}`} 
-          >
-            {currentTheme === "executive" && <CheckCircle2 className="h-4 w-4 text-white" />}
-          </button>
-          <button 
-            onClick={() => setCurrentTheme("professional")} 
-            className={`h-7 w-7 rounded-md bg-gradient-to-r from-slate-800 to-slate-900 flex items-center justify-center ${currentTheme === "professional" ? "ring-2 ring-slate-500 ring-offset-1 ring-offset-gray-900" : "opacity-70"}`} 
-          >
-            {currentTheme === "professional" && <CheckCircle2 className="h-4 w-4 text-white" />}
-          </button>
         </div>
 
-        {/* Professional header with subtle accent and clean design */}
-        <header className="relative border-b border-gray-800 bg-gray-900/70 shadow-md">
-          <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-indigo-800 to-transparent opacity-30"></div>
+        {/* Professional header with minimal design */}
+        <header className="relative border-b border-zinc-800 bg-zinc-900/80 shadow-md">
+          <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-zinc-700 to-transparent opacity-20"></div>
           
           <div className="container mx-auto px-4 py-5 lg:py-6">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -407,39 +409,37 @@ export default function ClientDashboardV3() {
                 <Button 
                   variant="ghost" 
                   size="icon"
-                  className="mr-3 lg:hidden text-gray-400 hover:text-white hover:bg-gray-800/60"
+                  className="mr-3 lg:hidden text-zinc-400 hover:text-white hover:bg-zinc-800/60"
                   onClick={toggleSidebar}
                 >
                   <Menu size={20} />
                 </Button>
                 
                 <div className="relative">
-                  {/* Subtle accent element */}
-                  <div className="absolute -left-2 -top-2 w-12 h-12 rounded-full bg-indigo-900/10 blur-xl"></div>
-                  
+                  {/* Header content */}
                   <div className="relative">
                     <div className="flex items-baseline">
-                      <h1 className="text-2xl md:text-3xl font-bold text-white">
+                      <h1 className="text-xl md:text-2xl font-medium text-zinc-100">
                         Welcome, {clientData.clientName}
                       </h1>
-                      <span className="ml-3 px-3 py-1 text-xs font-medium rounded-md border border-gray-700 bg-gray-800/60 text-gray-300">
+                      <span className="ml-3 px-2 py-0.5 text-xs font-medium rounded-sm border border-zinc-700 bg-zinc-800/60 text-zinc-300">
                         {clientData.clientCompany}
                       </span>
                     </div>
-                    <p className="text-gray-400 text-sm md:text-base mt-1">
-                      Your campaign performance dashboard 
+                    <p className="text-zinc-400 text-xs md:text-sm mt-1">
+                      Campaign Performance Dashboard 
                     </p>
                   </div>
                 </div>
               </div>
               
-              <div className="flex items-center space-x-3">
-                <Button variant="ghost" className="text-gray-300 hover:text-white hover:bg-gray-800/60" size="sm">
+              <div className="flex items-center space-x-2">
+                <Button variant="ghost" className="text-zinc-300 hover:text-white hover:bg-zinc-800/60" size="sm">
                   <Bell className="h-4 w-4 mr-2" />
                   <span>Alerts</span>
                 </Button>
                 
-                <Button variant="ghost" className="text-gray-300 hover:text-white hover:bg-gray-800/60" size="sm">
+                <Button variant="ghost" className="text-zinc-300 hover:text-white hover:bg-zinc-800/60" size="sm">
                   <Settings className="h-4 w-4 mr-2" />
                   <span>Settings</span>
                 </Button>
