@@ -456,16 +456,6 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
                 User Management
               </Link>
               
-              {/* Admin Dashboard */}
-              <Link 
-                href="/admin-dashboard" 
-                className={`block py-2 px-3 rounded-md ${location === '/admin-dashboard' 
-                  ? 'text-blue-600 font-medium' 
-                  : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'}`}
-              >
-                Admin Dashboard
-              </Link>
-              
               {/* Admin Panel */}
               <Link 
                 href="/admin" 
