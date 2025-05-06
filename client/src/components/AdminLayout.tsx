@@ -1,25 +1,17 @@
 import React from 'react';
-import { Link, useLocation } from 'wouter';
-import { 
-  BarChart3, 
-  Users, 
-  Mail, 
-  Settings, 
-  LayoutDashboard,
-  FileText,
-  Box,
-  LucideIcon,
-  LogOut,
-  Shield,
-  Database,
-  Activity
-} from 'lucide-react';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { useLocation, Link } from 'wouter';
+import { useMediaQuery } from '@/hooks/use-media-query';
+import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { useMutation, useQuery } from '@tanstack/react-query';
-import { apiRequest, queryClient } from '@/lib/queryClient';
-import { useToast } from '@/hooks/use-toast';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from '@/components/ui/sheet';
+import { UserNav } from '@/components/UserNav';
+import { LucideIcon, Menu, BarChart2, Calendar, Users, Mail, Settings, FileText, LayoutDashboard, Database } from 'lucide-react';
 
 interface NavItemProps {
   href: string;
@@ -28,10 +20,15 @@ interface NavItemProps {
   isActive?: boolean;
 }
 
-const NavItem: React.FC<NavItemProps> = ({ href, label, icon: Icon, isActive }) => {
+const NavItem = ({ href, label, icon: Icon, isActive }: NavItemProps) => {
   return (
     <Link href={href}>
-      <a className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all hover:bg-accent ${isActive ? 'bg-accent text-foreground font-medium' : 'text-muted-foreground'}`}>
+      <a className={cn(
+        "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all",
+        isActive 
+          ? "bg-primary text-primary-foreground" 
+          : "text-muted-foreground hover:bg-muted hover:text-foreground"
+      )}>
         <Icon className="h-4 w-4" />
         <span>{label}</span>
       </a>
@@ -45,161 +42,81 @@ interface AdminLayoutProps {
 
 const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const [location] = useLocation();
-  const { toast } = useToast();
-  
-  const { data: user } = useQuery<any>({
-    queryKey: ['/api/user'],
-  });
-  
-  const logoutMutation = useMutation({
-    mutationFn: async () => {
-      const res = await apiRequest('POST', '/api/logout');
-      return res;
-    },
-    onSuccess: () => {
-      queryClient.setQueryData(['/api/user'], null);
-      toast({
-        title: 'Logged out',
-        description: 'You have been successfully logged out.',
-      });
-      window.location.href = '/auth';
-    },
-    onError: (error: Error) => {
-      toast({
-        title: 'Logout failed',
-        description: error.message,
-        variant: 'destructive',
-      });
-    },
-  });
-  
-  const handleLogout = () => {
-    logoutMutation.mutate();
+  const isMobile = useMediaQuery('(max-width: 768px)');
+  const [open, setOpen] = React.useState(false);
+
+  const navigationItems = [
+    { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
+    { href: '/admin/clients', label: 'Clients', icon: Users },
+    { href: '/admin/users', label: 'Users', icon: Users },
+    { href: '/admin/campaigns', label: 'Campaigns', icon: Mail },
+    { href: '/admin/templates', label: 'Templates', icon: FileText },
+    { href: '/admin/monitoring', label: 'Monitoring', icon: BarChart2 },
+    { href: '/admin/schedule', label: 'Schedule', icon: Calendar },
+    { href: '/admin/database', label: 'Database', icon: Database },
+    { href: '/admin/settings', label: 'Settings', icon: Settings },
+  ];
+
+  const renderNavItems = () => {
+    return navigationItems.map((item) => (
+      <NavItem
+        key={item.href}
+        href={item.href}
+        label={item.label}
+        icon={item.icon}
+        isActive={location === item.href}
+      />
+    ));
   };
-  
-  const getInitials = (name: string) => {
-    return name
-      .split(' ')
-      .map(n => n[0])
-      .join('')
-      .toUpperCase();
-  };
-  
+
   return (
-    <div className="flex h-screen overflow-hidden">
-      {/* Sidebar */}
-      <aside className="hidden lg:flex flex-col w-64 border-r bg-background">
-        <div className="p-6 border-b">
-          <Link href="/admin">
-            <a className="flex items-center gap-2 font-bold text-xl">
-              <Shield className="h-6 w-6" />
-              <span>Admin Portal</span>
-            </a>
-          </Link>
-        </div>
-        
-        <ScrollArea className="flex-1 py-4">
-          <nav className="grid gap-1 px-2">
-            <NavItem 
-              href="/admin" 
-              label="Dashboard" 
-              icon={LayoutDashboard} 
-              isActive={location === '/admin'} 
-            />
-            
-            <div className="px-3 py-2">
-              <h3 className="mb-2 text-xs font-medium text-muted-foreground">Monitoring</h3>
-              <div className="grid gap-1">
-                <NavItem 
-                  href="/admin-monitoring" 
-                  label="Client Activities" 
-                  icon={Activity} 
-                  isActive={location === '/admin-monitoring'} 
-                />
-                <NavItem 
-                  href="/admin-analytics" 
-                  label="Analytics" 
-                  icon={BarChart3} 
-                  isActive={location === '/admin-analytics'} 
-                />
-              </div>
-            </div>
-            
-            <div className="px-3 py-2">
-              <h3 className="mb-2 text-xs font-medium text-muted-foreground">Management</h3>
-              <div className="grid gap-1">
-                <NavItem 
-                  href="/admin-users" 
-                  label="Users" 
-                  icon={Users} 
-                  isActive={location === '/admin-users'} 
-                />
-                <NavItem 
-                  href="/admin-clients" 
-                  label="Clients" 
-                  icon={Users} 
-                  isActive={location === '/admin-clients'} 
-                />
-                <NavItem 
-                  href="/admin-campaigns" 
-                  label="Campaigns" 
-                  icon={Mail} 
-                  isActive={location === '/admin-campaigns'} 
-                />
-                <NavItem 
-                  href="/admin-templates" 
-                  label="Templates" 
-                  icon={FileText} 
-                  isActive={location === '/admin-templates'} 
-                />
-                <NavItem 
-                  href="/admin-database" 
-                  label="Database" 
-                  icon={Database} 
-                  isActive={location === '/admin-database'} 
-                />
-              </div>
-            </div>
-            
-            <div className="px-3 py-2">
-              <h3 className="mb-2 text-xs font-medium text-muted-foreground">System</h3>
-              <div className="grid gap-1">
-                <NavItem 
-                  href="/admin-settings" 
-                  label="Settings" 
-                  icon={Settings} 
-                  isActive={location === '/admin-settings'} 
-                />
-              </div>
-            </div>
-          </nav>
-        </ScrollArea>
-        
-        <div className="sticky bottom-0 mt-auto border-t p-4 flex items-center justify-between bg-background">
-          <div className="flex items-center gap-3">
-            <Avatar className="h-9 w-9">
-              <AvatarImage src={user?.avatarUrl} alt={user?.username} />
-              <AvatarFallback>{user?.username ? getInitials(user.username) : 'U'}</AvatarFallback>
-            </Avatar>
-            <div className="space-y-0.5">
-              <p className="text-sm font-medium">{user?.username || 'Admin User'}</p>
-              <p className="text-xs text-muted-foreground">{user?.email || 'admin@example.com'}</p>
-            </div>
+    <div className="flex min-h-screen flex-col">
+      <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background px-4 sm:px-6">
+        <div className="flex flex-1 items-center gap-4">
+          {isMobile && (
+            <Sheet open={open} onOpenChange={setOpen}>
+              <SheetTrigger asChild>
+                <Button variant="outline" size="icon" className="md:hidden">
+                  <Menu className="h-5 w-5" />
+                  <span className="sr-only">Toggle Menu</span>
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="w-64 pr-0">
+                <SheetHeader>
+                  <SheetTitle className="text-left">Admin Panel</SheetTitle>
+                </SheetHeader>
+                <nav className="flex flex-col gap-2 pt-6">
+                  {renderNavItems()}
+                </nav>
+              </SheetContent>
+            </Sheet>
+          )}
+          <div className="flex items-center gap-2">
+            <Link href="/admin">
+              <a className="flex items-center gap-2 font-semibold">
+                <span className="hidden md:inline-flex">Admin Panel</span>
+              </a>
+            </Link>
           </div>
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            onClick={handleLogout}
-            disabled={logoutMutation.isPending}
-          >
-            <LogOut className="h-4 w-4" />
-            <span className="sr-only">Log out</span>
-          </Button>
         </div>
-      </aside>
-      
-      {/* Main content */}
-      <main className="flex-1 overflow-auto">{children}</main>
+        <div className="flex items-center gap-4">
+          <UserNav />
+        </div>
+      </header>
+      <div className="flex flex-1">
+        {!isMobile && (
+          <aside className="fixed inset-y-0 left-0 top-16 z-20 w-64 border-r bg-background">
+            <nav className="flex flex-col gap-2 p-4 pt-6">
+              {renderNavItems()}
+            </nav>
+          </aside>
+        )}
+        <main className={cn("flex-1 p-4 pt-6 sm:p-6", 
+          !isMobile && "ml-64"
+        )}>
+          {children}
+        </main>
+      </div>
     </div>
   );
 };

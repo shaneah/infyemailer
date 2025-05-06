@@ -1,158 +1,219 @@
-import * as React from "react";
-import { addDays, format } from "date-fns";
-import { Calendar as CalendarIcon } from "lucide-react";
-import { DateRange } from "react-day-picker";
-
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
+import React, { useState, useEffect } from 'react';
+import { CalendarIcon } from 'lucide-react';
+import { format, subDays, isValid, parseISO } from 'date-fns';
+import { Calendar } from '@/components/ui/calendar';
+import { Button } from '@/components/ui/button';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
+} from '@/components/ui/popover';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 interface DateRangePickerProps {
-  from?: Date;
-  to?: Date;
-  onFromChange: (date?: Date) => void;
-  onToChange: (date?: Date) => void;
-  className?: string;
+  onChange: (startDate: Date, endDate: Date) => void;
+  defaultDateRange?: {
+    startDate: Date;
+    endDate: Date;
+  };
 }
 
-export function DateRangePicker({
-  from,
-  to,
-  onFromChange,
-  onToChange,
-  className,
-}: DateRangePickerProps) {
-  const [date, setDate] = React.useState<DateRange | undefined>(
-    from || to
-      ? {
-          from: from || undefined,
-          to: to || undefined,
-        }
-      : undefined
+type DatePreset = {
+  name: string;
+  label: string;
+  getValue: () => { from: Date; to: Date };
+};
+
+const DateRangePicker: React.FC<DateRangePickerProps> = ({
+  onChange,
+  defaultDateRange,
+}) => {
+  // Initialize with default values or current date
+  const [startDate, setStartDate] = useState<Date | undefined>(
+    defaultDateRange?.startDate || subDays(new Date(), 7)
   );
+  const [endDate, setEndDate] = useState<Date | undefined>(
+    defaultDateRange?.endDate || new Date()
+  );
+  const [isSelectionMode, setIsSelectionMode] = useState<'start' | 'end'>('start');
+  const [open, setOpen] = useState(false);
 
-  // Update the parent component when the date range changes
-  React.useEffect(() => {
-    if (date?.from !== from) {
-      onFromChange(date?.from);
-    }
-    if (date?.to !== to) {
-      onToChange(date?.to);
-    }
-  }, [date, from, to, onFromChange, onToChange]);
+  // Presets for date selection
+  const datePresets: DatePreset[] = [
+    {
+      name: 'last7days',
+      label: 'Last 7 Days',
+      getValue: () => ({
+        from: subDays(new Date(), 7),
+        to: new Date(),
+      }),
+    },
+    {
+      name: 'last14days',
+      label: 'Last 14 Days',
+      getValue: () => ({
+        from: subDays(new Date(), 14),
+        to: new Date(),
+      }),
+    },
+    {
+      name: 'last30days',
+      label: 'Last 30 Days',
+      getValue: () => ({
+        from: subDays(new Date(), 30),
+        to: new Date(),
+      }),
+    },
+    {
+      name: 'last90days',
+      label: 'Last 90 Days',
+      getValue: () => ({
+        from: subDays(new Date(), 90),
+        to: new Date(),
+      }),
+    },
+  ];
 
-  // Update internal state when props change
-  React.useEffect(() => {
-    if (from !== date?.from || to !== date?.to) {
-      setDate({
-        from: from || undefined,
-        to: to || undefined,
-      });
-    }
-  }, [from, to]);
+  // When a date is selected in the calendar
+  const handleDaySelect = (day: Date | undefined) => {
+    if (!day) return;
 
-  const clearDates = () => {
-    setDate(undefined);
-    onFromChange(undefined);
-    onToChange(undefined);
+    if (isSelectionMode === 'start') {
+      // If selecting start date and it's after the current end date,
+      // reset the end date
+      setStartDate(day);
+      setIsSelectionMode('end');
+      if (endDate && day > endDate) {
+        setEndDate(undefined);
+      }
+    } else {
+      // Make sure end date is not before start date
+      if (startDate && day < startDate) {
+        setStartDate(day);
+        setEndDate(startDate);
+      } else {
+        setEndDate(day);
+        setIsSelectionMode('start');
+        setOpen(false); // Close the popover after end date is selected
+      }
+    }
   };
 
+  const handlePresetChange = (presetName: string) => {
+    const preset = datePresets.find((p) => p.name === presetName);
+    if (preset) {
+      const { from, to } = preset.getValue();
+      setStartDate(from);
+      setEndDate(to);
+      setIsSelectionMode('start');
+    }
+  };
+
+  // Trigger onChange callback when dates change
+  useEffect(() => {
+    if (startDate && endDate) {
+      onChange(startDate, endDate);
+    }
+  }, [startDate, endDate, onChange]);
+
+  const formatDate = (date: Date | undefined) => {
+    return date ? format(date, 'MMM dd, yyyy') : '';
+  };
+
+  const displayText = `${formatDate(startDate)} - ${formatDate(endDate)}`;
+
   return (
-    <div className={cn("grid gap-2", className)}>
-      <Popover>
+    <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+      <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
-            id="date"
-            variant={"outline"}
-            className={cn(
-              "w-[300px] justify-start text-left font-normal",
-              !date && "text-muted-foreground"
-            )}
+            variant="outline"
+            className="w-full justify-start text-left sm:w-auto"
           >
             <CalendarIcon className="mr-2 h-4 w-4" />
-            {date?.from ? (
-              date.to ? (
-                <>
-                  {format(date.from, "LLL dd, y")} -{" "}
-                  {format(date.to, "LLL dd, y")}
-                </>
-              ) : (
-                format(date.from, "LLL dd, y")
-              )
-            ) : (
-              "Pick a date range"
-            )}
+            {displayText}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-0" align="start">
-          <div className="p-3 border-b">
-            <div className="flex justify-between items-center">
-              <h4 className="font-medium">Select Range</h4>
-              {date && (
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={clearDates}
-                  className="h-7 text-xs"
+        <PopoverContent className="flex w-auto flex-col space-y-2 p-2" align="start">
+          <Select
+            onValueChange={handlePresetChange}
+            defaultValue="custom"
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select a preset" />
+            </SelectTrigger>
+            <SelectContent position="popper">
+              <SelectItem value="custom">Custom Range</SelectItem>
+              {datePresets.map((preset) => (
+                <SelectItem key={preset.name} value={preset.name}>
+                  {preset.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          
+          <div className="flex items-center justify-center gap-2 pt-2">
+            <div>
+              <p className="mb-1 text-xs font-medium">Start Date</p>
+              <div
+                className={`rounded-md border p-1 ${
+                  isSelectionMode === 'start' ? 'border-primary' : 'border-muted'
+                }`}
+              >
+                <Button
+                  variant="ghost"
+                  className="h-auto p-1 text-xs"
+                  onClick={() => setIsSelectionMode('start')}
                 >
-                  Clear
+                  {formatDate(startDate)}
                 </Button>
-              )}
+              </div>
             </div>
-            <div className="flex mt-2 gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                className="text-xs"
-                onClick={() => {
-                  const today = new Date();
-                  const from = addDays(today, -7);
-                  setDate({ from, to: today });
-                }}
+            <span className="text-muted-foreground">to</span>
+            <div>
+              <p className="mb-1 text-xs font-medium">End Date</p>
+              <div
+                className={`rounded-md border p-1 ${
+                  isSelectionMode === 'end' ? 'border-primary' : 'border-muted'
+                }`}
               >
-                Last 7 days
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="text-xs"
-                onClick={() => {
-                  const today = new Date();
-                  const from = addDays(today, -30);
-                  setDate({ from, to: today });
-                }}
-              >
-                Last 30 days
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="text-xs"
-                onClick={() => {
-                  const today = new Date();
-                  const from = addDays(today, -90);
-                  setDate({ from, to: today });
-                }}
-              >
-                Last 90 days
-              </Button>
+                <Button
+                  variant="ghost"
+                  className="h-auto p-1 text-xs"
+                  onClick={() => setIsSelectionMode('end')}
+                >
+                  {formatDate(endDate)}
+                </Button>
+              </div>
             </div>
           </div>
-          <Calendar
-            initialFocus
-            mode="range"
-            defaultMonth={date?.from}
-            selected={date}
-            onSelect={setDate}
-            numberOfMonths={2}
-          />
+          
+          <div className="rounded-md border">
+            <Calendar
+              mode="single"
+              selected={isSelectionMode === 'start' ? startDate : endDate}
+              onSelect={handleDaySelect}
+              disabled={(date) => {
+                // If selecting end date, disable dates before start date
+                if (isSelectionMode === 'end' && startDate) {
+                  return date < startDate;
+                }
+                // Add any other date constraints here
+                return false;
+              }}
+              initialFocus
+            />
+          </div>
         </PopoverContent>
       </Popover>
     </div>
   );
-}
+};
+
+export default DateRangePicker;
