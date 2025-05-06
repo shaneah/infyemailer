@@ -36,6 +36,8 @@ export default function ClientDashboardV3() {
   const [loading, setLoading] = useState(true);
   const [currentTab, setCurrentTab] = useState("overview");
   const [currentTheme, setCurrentTheme] = useState<string>("purple");
+  const [activeTheme, setActiveTheme] = useState(currentTheme);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   
   // Theme options
   const themes = {
@@ -91,7 +93,6 @@ export default function ClientDashboardV3() {
 
   // Active theme
   const theme = themes[currentTheme as keyof typeof themes];
-  const [activeTheme, setActiveTheme] = useState(currentTheme);
 
   // Helper function to format numbers
   const formatNumber = (num: number) => {
@@ -106,7 +107,6 @@ export default function ClientDashboardV3() {
   // Handle theme change
   const handleThemeChange = (newTheme: string) => {
     setCurrentTheme(newTheme);
-    setActiveTheme(newTheme);
     // Persist theme preference if needed
     // localStorage.setItem('dashboard-theme', newTheme);
   };
@@ -316,9 +316,6 @@ export default function ClientDashboardV3() {
     );
   }
 
-  // State for mobile sidebar
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  
   // Toggle sidebar for mobile
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
   
