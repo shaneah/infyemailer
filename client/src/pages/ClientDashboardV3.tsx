@@ -35,59 +35,58 @@ export default function ClientDashboardV3() {
   const [clientData, setClientData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [currentTab, setCurrentTab] = useState("overview");
-  const [currentTheme, setCurrentTheme] = useState<string>("purple");
-  const [activeTheme, setActiveTheme] = useState(currentTheme);
+  const [currentTheme, setCurrentTheme] = useState<string>("navy");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   
-  // Theme options
+  // Professional Theme options
   const themes = {
     blue: {
-      primary: "from-blue-600 to-blue-400",
-      gradient: "from-blue-900 via-blue-700 to-blue-800",
-      accentGradient: "from-cyan-400 to-blue-500",
-      accent: "bg-blue-600",
-      accentHover: "hover:bg-blue-700",
-      accentLight: "bg-blue-500/10",
-      accentBorder: "border-blue-500/30",
+      primary: "from-blue-700 to-blue-600",
+      gradient: "from-blue-900 to-blue-800",
+      accentGradient: "from-blue-700 to-blue-600",
+      accent: "bg-blue-700",
+      accentHover: "hover:bg-blue-800",
+      accentLight: "bg-blue-600/10",
+      accentBorder: "border-blue-600/30",
       textAccent: "text-blue-600",
       progressFill: "bg-blue-600",
-      chartColors: ["#3B82F6", "#60A5FA", "#93C5FD", "#2563EB", "#1D4ED8"]
+      chartColors: ["#2563EB", "#1D4ED8", "#3B82F6", "#60A5FA", "#93C5FD"]
     },
-    purple: {
-      primary: "from-purple-600 to-fuchsia-400",
-      gradient: "from-purple-900 via-violet-800 to-fuchsia-900",
-      accentGradient: "from-fuchsia-400 to-purple-500",
-      accent: "bg-purple-600",
-      accentHover: "hover:bg-purple-700",
-      accentLight: "bg-purple-500/10",
-      accentBorder: "border-purple-500/30",
-      textAccent: "text-purple-600",
-      progressFill: "bg-purple-600",
-      chartColors: ["#8B5CF6", "#A78BFA", "#C4B5FD", "#7C3AED", "#6D28D9"]
+    navy: {
+      primary: "from-indigo-900 to-blue-900",
+      gradient: "from-indigo-950 to-blue-950",
+      accentGradient: "from-indigo-800 to-blue-800",
+      accent: "bg-indigo-900",
+      accentHover: "hover:bg-indigo-950",
+      accentLight: "bg-indigo-900/10",
+      accentBorder: "border-indigo-900/30",
+      textAccent: "text-indigo-600",
+      progressFill: "bg-indigo-600",
+      chartColors: ["#312E81", "#3730A3", "#4338CA", "#4F46E5", "#6366F1"]
     },
-    teal: {
-      primary: "from-teal-600 to-emerald-400",
-      gradient: "from-teal-900 via-teal-700 to-emerald-900",
-      accentGradient: "from-emerald-400 to-teal-500",
-      accent: "bg-teal-600",
-      accentHover: "hover:bg-teal-700",
-      accentLight: "bg-teal-500/10",
-      accentBorder: "border-teal-500/30",
-      textAccent: "text-teal-600",
-      progressFill: "bg-teal-600",
-      chartColors: ["#14B8A6", "#2DD4BF", "#5EEAD4", "#0D9488", "#0F766E"]
+    gray: {
+      primary: "from-gray-700 to-gray-600",
+      gradient: "from-gray-900 to-gray-800",
+      accentGradient: "from-gray-600 to-gray-500",
+      accent: "bg-gray-700",
+      accentHover: "hover:bg-gray-800",
+      accentLight: "bg-gray-600/10",
+      accentBorder: "border-gray-600/30",
+      textAccent: "text-gray-200",
+      progressFill: "bg-gray-500",
+      chartColors: ["#4B5563", "#6B7280", "#9CA3AF", "#D1D5DB", "#E5E7EB"]
     },
-    amber: {
-      primary: "from-amber-500 to-orange-400",
-      gradient: "from-amber-900 via-amber-700 to-orange-900",
-      accentGradient: "from-orange-400 to-amber-500",
-      accent: "bg-amber-500",
-      accentHover: "hover:bg-amber-600",
-      accentLight: "bg-amber-500/10",
-      accentBorder: "border-amber-500/30",
-      textAccent: "text-amber-500",
-      progressFill: "bg-amber-500",
-      chartColors: ["#F59E0B", "#FBBF24", "#FCD34D", "#D97706", "#B45309"]
+    slate: {
+      primary: "from-slate-700 to-slate-600",
+      gradient: "from-slate-900 to-slate-800",
+      accentGradient: "from-slate-600 to-slate-500",
+      accent: "bg-slate-700",
+      accentHover: "hover:bg-slate-800",
+      accentLight: "bg-slate-600/10",
+      accentBorder: "border-slate-600/30",
+      textAccent: "text-slate-300",
+      progressFill: "bg-slate-500",
+      chartColors: ["#334155", "#475569", "#64748B", "#94A3B8", "#CBD5E1"]
     }
   };
 
@@ -267,17 +266,17 @@ export default function ClientDashboardV3() {
         <div className="flex flex-col items-center">
           <div className="relative h-32 w-32 mb-8">
             {/* Concentric animated circles */}
-            <div className="absolute inset-0 rounded-full border border-purple-500/20"></div>
-            <div className="absolute inset-0 rounded-full border-2 border-purple-500/30"></div>
+            <div className="absolute inset-0 rounded-full border border-indigo-800/30"></div>
+            <div className="absolute inset-0 rounded-full border-2 border-indigo-700/40"></div>
             
             {/* Center dot */}
-            <div className="absolute top-1/2 left-1/2 w-12 h-12 -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-br from-purple-600 to-fuchsia-400"></div>
+            <div className="absolute top-1/2 left-1/2 w-12 h-12 -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-br from-indigo-800 to-blue-700"></div>
 
             {/* Floating particles */}
             {[...Array(6)].map((_, i) => (
               <div
                 key={i}
-                className="absolute w-2 h-2 rounded-full bg-purple-500"
+                className="absolute w-2 h-2 rounded-full bg-indigo-600"
                 style={{ 
                   top: `${Math.random() * 100}%`, 
                   left: `${Math.random() * 100}%`,
@@ -363,7 +362,7 @@ export default function ClientDashboardV3() {
       {/* Mobile menu button - visible on mobile only */}
       <button
         onClick={toggleSidebar}
-        className="fixed bottom-4 left-4 z-50 lg:hidden flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg transition-all duration-150 hover:shadow-xl active:scale-95"
+        className="fixed bottom-4 left-4 z-50 lg:hidden flex items-center justify-center w-12 h-12 rounded-md bg-gradient-to-r from-indigo-900 to-blue-900 text-white shadow-lg transition-all duration-150 hover:shadow-xl active:scale-95"
       >
         <Menu size={24} className="transition-all duration-200 animate-in fade-in" />
       </button>
@@ -371,40 +370,38 @@ export default function ClientDashboardV3() {
       {/* Main content area */}
       <div className="flex-1 overflow-y-auto">
         {/* Theme Selector (Floating top-right corner) */}
-        <div className="fixed top-4 right-4 bg-gray-800/80 backdrop-blur-sm border border-gray-700 rounded-full z-40 p-2 flex space-x-2 shadow-xl">
+        <div className="fixed top-4 right-4 bg-gray-800/80 backdrop-blur-sm border border-gray-700 rounded-lg z-40 p-2 flex space-x-2 shadow-xl">
+          <button 
+            onClick={() => setCurrentTheme("navy")} 
+            className={`h-7 w-7 rounded-md bg-gradient-to-r from-indigo-900 to-blue-900 flex items-center justify-center ${currentTheme === "navy" ? "ring-2 ring-indigo-400 ring-offset-1 ring-offset-gray-800" : "opacity-70"}`} 
+          >
+            {currentTheme === "navy" && <CheckCircle2 className="h-4 w-4 text-white" />}
+          </button>
           <button 
             onClick={() => setCurrentTheme("blue")} 
-            className={`h-7 w-7 rounded-full bg-gradient-to-r from-blue-600 to-blue-400 flex items-center justify-center ${currentTheme === "blue" ? "ring-2 ring-blue-400 ring-offset-2 ring-offset-gray-800" : "opacity-70"}`} 
+            className={`h-7 w-7 rounded-md bg-gradient-to-r from-blue-700 to-blue-600 flex items-center justify-center ${currentTheme === "blue" ? "ring-2 ring-blue-400 ring-offset-1 ring-offset-gray-800" : "opacity-70"}`} 
           >
             {currentTheme === "blue" && <CheckCircle2 className="h-4 w-4 text-white" />}
           </button>
           <button 
-            onClick={() => setCurrentTheme("purple")} 
-            className={`h-7 w-7 rounded-full bg-gradient-to-r from-purple-600 to-fuchsia-400 flex items-center justify-center ${currentTheme === "purple" ? "ring-2 ring-purple-400 ring-offset-2 ring-offset-gray-800" : "opacity-70"}`} 
+            onClick={() => setCurrentTheme("gray")} 
+            className={`h-7 w-7 rounded-md bg-gradient-to-r from-gray-700 to-gray-600 flex items-center justify-center ${currentTheme === "gray" ? "ring-2 ring-gray-400 ring-offset-1 ring-offset-gray-800" : "opacity-70"}`} 
           >
-            {currentTheme === "purple" && <CheckCircle2 className="h-4 w-4 text-white" />}
+            {currentTheme === "gray" && <CheckCircle2 className="h-4 w-4 text-white" />}
           </button>
           <button 
-            onClick={() => setCurrentTheme("teal")} 
-            className={`h-7 w-7 rounded-full bg-gradient-to-r from-teal-600 to-emerald-400 flex items-center justify-center ${currentTheme === "teal" ? "ring-2 ring-teal-400 ring-offset-2 ring-offset-gray-800" : "opacity-70"}`} 
+            onClick={() => setCurrentTheme("slate")} 
+            className={`h-7 w-7 rounded-md bg-gradient-to-r from-slate-700 to-slate-600 flex items-center justify-center ${currentTheme === "slate" ? "ring-2 ring-slate-400 ring-offset-1 ring-offset-gray-800" : "opacity-70"}`} 
           >
-            {currentTheme === "teal" && <CheckCircle2 className="h-4 w-4 text-white" />}
-          </button>
-          <button 
-            onClick={() => setCurrentTheme("amber")} 
-            className={`h-7 w-7 rounded-full bg-gradient-to-r from-amber-500 to-orange-400 flex items-center justify-center ${currentTheme === "amber" ? "ring-2 ring-amber-400 ring-offset-2 ring-offset-gray-800" : "opacity-70"}`} 
-          >
-            {currentTheme === "amber" && <CheckCircle2 className="h-4 w-4 text-white" />}
+            {currentTheme === "slate" && <CheckCircle2 className="h-4 w-4 text-white" />}
           </button>
         </div>
 
-        {/* Header with glowing accent border and futuristic design */}
-        <header className="relative border-b border-gray-800">
-          <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-purple-500 to-transparent opacity-70"></div>
-          <div className="absolute left-0 top-0 bottom-0 w-[1px] bg-gradient-to-b from-transparent via-purple-500 to-transparent opacity-70"></div>
-          <div className="absolute right-0 top-0 bottom-0 w-[1px] bg-gradient-to-b from-transparent via-purple-500 to-transparent opacity-70"></div>
+        {/* Professional header with subtle accent and clean design */}
+        <header className="relative border-b border-gray-800 bg-gray-900/70 shadow-md">
+          <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-indigo-800 to-transparent opacity-30"></div>
           
-          <div className="container mx-auto px-4 py-4 lg:py-6">
+          <div className="container mx-auto px-4 py-5 lg:py-6">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div className="flex items-center">
                 <Button 
@@ -417,15 +414,15 @@ export default function ClientDashboardV3() {
                 </Button>
                 
                 <div className="relative">
-                  {/* Glowing accent background element */}
-                  <div className="absolute -left-2 -top-2 w-12 h-12 rounded-full bg-purple-600/20 blur-xl"></div>
+                  {/* Subtle accent element */}
+                  <div className="absolute -left-2 -top-2 w-12 h-12 rounded-full bg-indigo-900/10 blur-xl"></div>
                   
                   <div className="relative">
                     <div className="flex items-baseline">
-                      <h1 className="text-2xl md:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-300">
+                      <h1 className="text-2xl md:text-3xl font-bold text-white">
                         Welcome, {clientData.clientName}
                       </h1>
-                      <span className="ml-3 px-3 py-1 text-xs font-medium rounded-full border border-gray-700 bg-gray-800/60 text-gray-300">
+                      <span className="ml-3 px-3 py-1 text-xs font-medium rounded-md border border-gray-700 bg-gray-800/60 text-gray-300">
                         {clientData.clientCompany}
                       </span>
                     </div>
@@ -449,7 +446,7 @@ export default function ClientDashboardV3() {
                 
                 <Button 
                   variant="default" 
-                  className={`bg-gradient-to-r ${theme.accentGradient} border-none text-white hover:opacity-90`}
+                  className={`${theme.accent} ${theme.accentHover} text-white`}
                   size="sm"
                   onClick={handleClientLogout}
                 >
