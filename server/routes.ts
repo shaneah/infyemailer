@@ -43,6 +43,7 @@ import { registerClientProviderRoutes } from "./routes/clientProviders";
 import { registerTestEmailRoutes } from "./routes/testEmail";
 import { registerHealthRoutes } from "./routes/health";
 import { registerEmailSettingsRoutes } from "./routes/emailSettings";
+import { registerAdvancedAnalyticsRoutes } from "./routes/advanced-analytics-routes";
 import AdmZip from "adm-zip";
 import { 
   insertContactSchema, 
