@@ -51,6 +51,9 @@ export default function ClientDashboardV4() {
   const [selectedCampaign, setSelectedCampaign] = useState("All Campaigns");
   const [selectedAdSet, setSelectedAdSet] = useState("All Sets");
   const [selectedDataSource, setSelectedDataSource] = useState("Original");
+  const [showFilters, setShowFilters] = useState(false);
+  const [activeFilters, setActiveFilters] = useState<string[]>([]);
+  const [chartView, setChartView] = useState(false);
   
   // Sample data for dropdowns
   const campaigns = ["All Campaigns", "Spring Sale", "Product Launch", "Newsletter", "Retargeting"];
@@ -238,9 +241,31 @@ export default function ClientDashboardV4() {
   // Toggle sidebar
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
   
-  // Filter state
-  const [showFilters, setShowFilters] = useState(false);
-  const [activeFilters, setActiveFilters] = useState<string[]>([]);
+  // Toggle filter visibility
+  const toggleFilter = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setShowFilters(!showFilters);
+    // Close other dropdowns
+    setShowCampaignSelector(false);
+    setShowAdSetSelector(false);
+    setShowDatePicker(false);
+    setShowDataSourceSelector(false);
+  };
+  
+  // Toggle active filter
+  const toggleActiveFilter = (filter: string) => {
+    if (activeFilters.includes(filter)) {
+      setActiveFilters(activeFilters.filter(f => f !== filter));
+    } else {
+      setActiveFilters([...activeFilters, filter]);
+    }
+    
+    toast({
+      title: activeFilters.includes(filter) ? "Filter removed" : "Filter applied",
+      description: `${filter} filter has been ${activeFilters.includes(filter) ? 'removed' : 'applied'}.`,
+      variant: "default",
+    });
+  };
   
   // We already have these variables defined at the top
   // const [showDatePicker, setShowDatePicker] = useState(false);
@@ -268,6 +293,7 @@ export default function ClientDashboardV4() {
   const handleBarChartClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     console.log("Chart view toggle clicked");
+    setChartView(!chartView);
     toast({
       title: "View changed",
       description: "Chart view has been toggled.",
@@ -350,32 +376,7 @@ export default function ClientDashboardV4() {
     });
   };
   
-  // Handle filter functionality
-  const toggleFilter = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setShowFilters(!showFilters);
-    // Close other dropdowns when opening filter panel
-    if (!showFilters) {
-      setShowDatePicker(false);
-      setShowCampaignSelector(false);
-      setShowAdSetSelector(false);
-    }
-  };
-  
-  // Add or remove filter from active filters
-  const toggleActiveFilter = (filter: string) => {
-    if (activeFilters.includes(filter)) {
-      setActiveFilters(activeFilters.filter(f => f !== filter));
-    } else {
-      setActiveFilters([...activeFilters, filter]);
-    }
-    
-    toast({
-      title: activeFilters.includes(filter) ? "Filter removed" : "Filter applied",
-      description: `${filter} filter has been ${activeFilters.includes(filter) ? "removed" : "applied"}`,
-      variant: "default",
-    });
-  };
+  // This section was removed as it was duplicated
   
   // Close dropdowns when clicking outside
   useEffect(() => {
