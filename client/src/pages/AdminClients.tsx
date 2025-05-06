@@ -209,11 +209,19 @@ const AdminClients = () => {
   // Handle client selection for editing
   const handleEditClient = (client: any) => {
     setSelectedClient(client);
+    
+    // Handle case where status might be an object with a 'label' property
+    const status = typeof client.status === 'string' 
+      ? client.status 
+      : client.status?.label === 'Active' ? 'active' :
+        client.status?.label === 'Inactive' ? 'inactive' :
+        client.status?.label === 'Pending' ? 'pending' : 'active';
+    
     editClientForm.reset({
       name: client.name,
       email: client.email,
       company: client.company,
-      status: client.status,
+      status: status,
       industry: client.industry || "",
       phone: client.phone || "",
       website: client.website || "",
@@ -262,9 +270,14 @@ const AdminClients = () => {
     
     // Apply status filter
     if (statusFilter !== "all") {
-      filteredClients = filteredClients.filter(client => 
-        client.status.toLowerCase() === statusFilter.toLowerCase()
-      );
+      filteredClients = filteredClients.filter(client => {
+        // Handle both string and object status
+        if (typeof client.status === 'string') {
+          return client.status.toLowerCase() === statusFilter.toLowerCase();
+        } else {
+          return client.status?.label?.toLowerCase() === statusFilter.toLowerCase();
+        }
+      });
     }
     
     // Apply industry filter
