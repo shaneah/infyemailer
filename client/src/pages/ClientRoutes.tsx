@@ -2594,77 +2594,94 @@ const ClientEmailValidation = () => {
 
   return (
     <div className="p-8">
-      <div className="flex items-center gap-3 mb-6">
-        <div className="bg-primary/10 p-2 rounded-full">
-          <Activity className="h-6 w-6 text-primary" />
+      <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+        <div className="flex items-center gap-3">
+          <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-3 rounded-xl shadow-lg shadow-blue-200">
+            <Activity className="h-6 w-6 text-white" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-700 to-blue-900 bg-clip-text text-transparent">
+              Email Validation
+            </h1>
+            <p className="text-gray-500 text-sm">Verify and improve your email list quality</p>
+          </div>
         </div>
-        <h1 className="text-2xl font-bold">Email Validation</h1>
       </div>
       
-      {/* Info Card */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+      {/* Enhanced Info Card */}
+      <div className="bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200 rounded-lg p-5 mb-8 shadow-sm">
         <div className="flex items-start">
-          <div className="flex-shrink-0 mt-0.5">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-600" viewBox="0 0 20 20" fill="currentColor">
+          <div className="flex-shrink-0 mt-0.5 bg-blue-500 rounded-full p-1.5">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" viewBox="0 0 20 20" fill="currentColor">
               <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
             </svg>
           </div>
-          <div className="ml-3">
-            <h3 className="text-sm font-medium text-blue-800">About Email Validation</h3>
-            <div className="mt-1 text-sm text-blue-700">
-              <p>Validate your email lists to improve deliverability and engagement. Identify invalid emails, disposable domains, and potential typos.</p>
+          <div className="ml-4">
+            <h3 className="text-base font-semibold text-blue-800">About Email Validation</h3>
+            <div className="mt-1 text-sm text-gray-700">
+              <p>Validate your email lists to improve deliverability and engagement. Our enterprise-grade validation engine identifies invalid emails, disposable domains, and potential typos to help maintain a clean contact database.</p>
             </div>
           </div>
         </div>
       </div>
       
-      {/* Tabs */}
-      <div className="bg-white rounded-lg shadow border border-gray-200 mb-6">
-        <div className="border-b border-gray-200">
+      {/* Tabs with enhanced styling */}
+      <div className="bg-white rounded-lg shadow-md border border-gray-200 mb-8 overflow-hidden">
+        <div className="bg-gray-50 border-b border-gray-200">
           <nav className="flex" aria-label="Tabs">
             <button
               onClick={() => setActiveTab('single')}
               className={`${
                 activeTab === 'single'
-                  ? 'border-primary text-primary'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              } py-4 px-6 text-sm font-medium border-b-2`}
+                  ? 'border-blue-600 text-blue-700 bg-white'
+                  : 'border-transparent text-gray-600 hover:text-gray-800 hover:border-gray-300 hover:bg-gray-100'
+              } py-4 px-6 text-sm font-medium border-b-2 transition-all duration-200`}
             >
-              Single Email Validation
+              <div className="flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+                Single Email Validation
+              </div>
             </button>
             <button
               onClick={() => setActiveTab('bulk')}
               className={`${
                 activeTab === 'bulk'
-                  ? 'border-primary text-primary'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              } py-4 px-6 text-sm font-medium border-b-2`}
+                  ? 'border-blue-600 text-blue-700 bg-white'
+                  : 'border-transparent text-gray-600 hover:text-gray-800 hover:border-gray-300 hover:bg-gray-100'
+              } py-4 px-6 text-sm font-medium border-b-2 transition-all duration-200`}
             >
-              Bulk Validation
+              <div className="flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                </svg>
+                Bulk Validation
+              </div>
             </button>
           </nav>
         </div>
         
         <div className="p-6">
           {activeTab === 'single' ? (
-            <div className="space-y-4">
+            <div className="space-y-5">
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
                   Email Address
                 </label>
-                <div className="flex">
+                <div className="flex shadow-sm">
                   <input
                     type="email"
                     id="email"
                     placeholder="Enter an email address to validate"
-                    className="flex-1 border border-gray-300 rounded-l-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary"
+                    className="flex-1 border border-gray-300 rounded-l-md px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500 text-gray-800"
                     value={singleEmail}
                     onChange={(e) => setSingleEmail(e.target.value)}
                   />
                   <button
                     onClick={handleSingleValidation}
                     disabled={isLoading}
-                    className="bg-primary text-white px-4 py-2 rounded-r-md hover:bg-primary/90 transition-colors disabled:bg-primary/60"
+                    className="bg-blue-600 text-white px-6 py-3 rounded-r-md hover:bg-blue-700 transition-colors disabled:bg-blue-400 shadow-sm font-medium"
                   >
                     {isLoading ? (
                       <div className="flex items-center">
@@ -2677,43 +2694,60 @@ const ClientEmailValidation = () => {
                     ) : "Validate"}
                   </button>
                 </div>
+                <p className="mt-1.5 text-xs text-gray-500">
+                  Enterprise-grade validation will check format, domain, disposable status, and typos.
+                </p>
               </div>
               
               {renderSingleResultCard()}
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-5">
               <div>
-                <label htmlFor="emails" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="emails" className="block text-sm font-medium text-gray-700 mb-2">
                   Email Addresses
                 </label>
                 <textarea
                   id="emails"
                   placeholder="Enter multiple email addresses separated by commas, semicolons, or new lines"
-                  className="w-full h-40 border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary"
+                  className="w-full h-48 border border-gray-300 rounded-md px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500 text-gray-800 shadow-sm"
                   value={bulkEmails}
                   onChange={(e) => setBulkEmails(e.target.value)}
                 ></textarea>
-                <p className="mt-1 text-xs text-gray-500">
-                  You can paste from Excel, CSV files, or type manually. Separate emails with commas, semicolons, or new lines.
-                </p>
+                <div className="mt-2 flex items-start">
+                  <div className="flex-shrink-0 mt-0.5">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <p className="ml-2 text-xs text-gray-600">
+                    You can paste from Excel, CSV files, or type manually. Separate emails with commas, semicolons, or new lines.
+                  </p>
+                </div>
               </div>
               
               <div className="flex justify-end">
                 <button
                   onClick={handleBulkValidation}
                   disabled={isLoading}
-                  className="bg-primary text-white px-4 py-2 rounded-md hover:bg-primary/90 transition-colors disabled:bg-primary/60"
+                  className="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 transition-colors disabled:bg-blue-400 shadow-md font-medium flex items-center gap-2"
                 >
                   {isLoading ? (
-                    <div className="flex items-center">
-                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <>
+                      <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                       </svg>
                       <span>Processing...</span>
-                    </div>
-                  ) : "Validate Emails"}
+                    </>
+                  ) : (
+                    <>
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      <span>Validate Emails</span>
+                    </>
+                  )}
                 </button>
               </div>
               
