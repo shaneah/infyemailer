@@ -161,13 +161,12 @@ const ClientSidebar = ({ isOpen = false, onClose, onLogout }: SidebarProps) => {
       >
         {/* App name and client name header */}
         <div className="flex flex-col items-center justify-center p-4 pt-6 pb-3 bg-white border-b border-gray-100 shadow-sm">
-          <div className="w-12 h-12 mb-2 flex items-center justify-center bg-blue-800 rounded-full shadow-inner">
-            <img src={LogoWhite} alt="Infinity Tech Logo" className="w-8 h-8 object-contain" />
+          <div className="w-32 h-12 mb-2 flex items-center justify-center bg-blue-900 rounded-lg shadow-md">
+            <img src={LogoWhite} alt="Infinity Tech Logo" className="h-8 object-contain" />
           </div>
           <div className="text-center">
-            <h2 className="font-bold text-xl text-gray-800 mb-1">Infinity Tech</h2>
-            <div className="flex items-center justify-center space-x-1.5 mb-1 bg-blue-50 px-2 py-1 rounded-full">
-              <Building2 size={14} className="text-blue-500" />
+            <div className="flex items-center justify-center space-x-1.5 mt-2 bg-blue-50 px-3 py-1.5 rounded-full">
+              <Building2 size={16} className="text-blue-500" />
               <p className="text-sm font-medium text-gray-700">{clientName}</p>
             </div>
           </div>
