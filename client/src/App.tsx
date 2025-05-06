@@ -13,6 +13,7 @@ import { ProtectedRoute } from "@/lib/protected-route";
 import NotFound from "@/pages/not-found";
 import { AIAssistantProvider } from "@/contexts/AIAssistantContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import { ClientSessionProvider } from "@/hooks/use-client-session";
 import ThemeSwitcher from "@/components/ThemeSwitcher";
 import CampaignsV2 from "@/pages/CampaignsV2";
 import TemplatesV2 from "@/pages/TemplatesV2";
@@ -91,6 +92,7 @@ function App() {
       <ThemeProvider>
         <AIAssistantProvider>
           <AuthProvider>
+            <ClientSessionProvider>
             <Switch>
           {/* Authentication Routes */}
         <Route path="login">
@@ -297,6 +299,7 @@ function App() {
             </div>
         </Route>
       </Switch>
+            </ClientSessionProvider>
       </AuthProvider>
       </AIAssistantProvider>
       </ThemeProvider>

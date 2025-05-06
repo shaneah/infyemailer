@@ -1,206 +1,166 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
-import { useQuery, useMutation } from "@tanstack/react-query";
-import { useLocation } from "wouter";
-import { useToast } from "@/hooks/use-toast";
-import { queryClient, apiRequest } from "@/lib/queryClient";
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { useLocation } from 'wouter';
+import { useToast } from '@/hooks/use-toast';
 
-// Types
 interface ClientUser {
   id: number;
-  username: string;
   clientId: number;
-  status: string;
-  clientName?: string;
-  clientCompany?: string;
-  permissions?: {
-    [key: string]: boolean;
-  };
-  lastLogin?: string;
+  username: string;
+  email: string;
+  firstName?: string;
+  lastName?: string;
+  role?: string;
+  status?: string;
 }
 
-interface ClientStats {
-  contactsCount: number;
-  contactsGrowth: number;
-  listsCount: number;
-  activeCampaigns: number;
-  totalEmails: number;
-  openRate: number;
-  clickRate: number;
-  conversionRate: number;
-}
-
-interface ClientContextType {
-  user: ClientUser | null;
+interface ClientSessionContextType {
+  clientUser: ClientUser | null;
   clientId: number | null;
   clientName: string;
-  clientData: any | null;
-  clientStats: ClientStats | null;
   isLoading: boolean;
-  hasPermission: (permission: string) => boolean;
-  logout: () => Promise<void>;
+  error: Error | null;
+  login: (credentials: { username: string; password: string }) => Promise<boolean>;
+  logout: () => void;
 }
 
-// Create the context
-const ClientContext = createContext<ClientContextType | null>(null);
+const ClientSessionContext = createContext<ClientSessionContextType | null>(null);
 
-// Provider component
-export const ClientSessionProvider = ({ children }: { children: ReactNode }) => {
-  const [, navigate] = useLocation();
+interface ClientSessionProviderProps {
+  children: ReactNode;
+}
+
+export function ClientSessionProvider({ children }: ClientSessionProviderProps) {
+  const [clientUser, setClientUser] = useState<ClientUser | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+  const [, setLocation] = useLocation();
   const { toast } = useToast();
-  const [clientId, setClientId] = useState<number | null>(null);
-  const [clientName, setClientName] = useState<string>("");
-  const [clientStats, setClientStats] = useState<ClientStats | null>(null);
-  const [clientData, setClientData] = useState<any | null>(null);
 
-  // Verify client session
-  const { data: sessionData, isLoading: isSessionLoading } = useQuery({
-    queryKey: ["/api/client/verify-session"],
-    queryFn: async () => {
+  // Check for existing client session on mount
+  useEffect(() => {
+    const checkSession = async () => {
       try {
-        const res = await apiRequest("GET", "/api/client/verify-session");
-        const data = await res.json();
-        return data;
-      } catch (error) {
-        console.error("Session verification error:", error);
-        return { verified: false, user: null };
-      }
-    },
-    retry: false,
-    refetchInterval: 5 * 60 * 1000, // Refresh session every 5 minutes
-  });
+        const res = await fetch('/api/client/session', {
+          credentials: 'include'
+        });
 
-  // Get client data
-  const { data: clientDataResponse, isLoading: isClientDataLoading } = useQuery({
-    queryKey: ["/api/client-stats"],
-    queryFn: async () => {
-      try {
-        if (!clientId) return null;
-        const res = await apiRequest("GET", "/api/client-stats");
-        return await res.json();
-      } catch (error) {
-        console.error("Client data fetch error:", error);
-        return null;
+        if (res.ok) {
+          const data = await res.json();
+          setClientUser(data.user);
+        }
+      } catch (err) {
+        console.error('Session check error:', err);
+      } finally {
+        setIsLoading(false);
       }
-    },
-    enabled: !!clientId,
-  });
+    };
 
-  // Fetch campaigns
-  const { data: campaignsData, isLoading: isCampaignsLoading } = useQuery({
-    queryKey: ["/api/client-campaigns"],
-    queryFn: async () => {
-      try {
-        if (!clientId) return [];
-        const res = await apiRequest("GET", "/api/client-campaigns");
-        return await res.json();
-      } catch (error) {
-        console.error("Error loading campaigns:", error);
-        return [];
+    checkSession();
+  }, []);
+
+  // Client login function
+  const login = async (credentials: { username: string; password: string }): Promise<boolean> => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const res = await fetch('/api/client/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(credentials),
+        credentials: 'include'
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || 'Login failed');
       }
-    },
-    enabled: !!clientId,
-  });
 
-  // Logout mutation
-  const logoutMutation = useMutation({
-    mutationFn: async () => {
-      await apiRequest("POST", "/api/client/logout");
+      const data = await res.json();
+      setClientUser(data.user);
+      
+      toast({
+        title: 'Login successful',
+        description: `Welcome back, ${data.user.firstName || data.user.username}!`,
+      });
+      
       return true;
-    },
-    onSuccess: () => {
-      // Clear all cached data
-      queryClient.clear();
-      navigate("/client/login");
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error('Login failed'));
+      
       toast({
-        title: "Logged out",
-        description: "You have been logged out successfully",
+        title: 'Login failed',
+        description: err instanceof Error ? err.message : 'Invalid credentials',
+        variant: 'destructive'
       });
-    },
-    onError: (error: any) => {
-      console.error("Logout error:", error);
+      
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Client logout function
+  const logout = async () => {
+    try {
+      await fetch('/api/client/logout', {
+        method: 'POST',
+        credentials: 'include'
+      });
+      
+      // Clear client user state
+      setClientUser(null);
+      
+      // Redirect to login page
+      setLocation('/client-login');
+      
       toast({
-        title: "Logout failed",
-        description: error.message || "Something went wrong",
-        variant: "destructive",
+        title: 'Logged out',
+        description: 'You have been successfully logged out.',
       });
-    },
-  });
-
-  // Update state based on session data
-  useEffect(() => {
-    if (sessionData?.verified && sessionData?.user) {
-      setClientId(sessionData.user.clientId);
-      setClientName(sessionData.user.clientName || "Client Portal");
-    } else if (!isSessionLoading) {
-      // If not authenticated and not loading, redirect to login
-      const isLoginPath = window.location.pathname === "/client/login";
-      if (!isLoginPath) {
-        navigate("/client/login");
-      }
-    }
-  }, [sessionData, isSessionLoading, navigate]);
-
-  // Update client data
-  useEffect(() => {
-    if (clientDataResponse) {
-      setClientStats(clientDataResponse);
-    }
-  }, [clientDataResponse]);
-
-  // Combine all client data
-  useEffect(() => {
-    if (clientId && sessionData?.user && clientDataResponse) {
-      setClientData({
-        clientId,
-        clientName: sessionData.user.clientName,
-        clientCompany: sessionData.user.clientCompany,
-        clientEmail: sessionData.user.email,
-        stats: clientDataResponse,
-        campaigns: campaignsData || [],
-      });
-      console.log("Loaded client data:", {
-        clientId,
-        clientName: sessionData.user.clientName,
-        stats: clientDataResponse,
-        campaigns: campaignsData || [],
+    } catch (err) {
+      console.error('Logout error:', err);
+      
+      toast({
+        title: 'Logout failed',
+        description: 'There was an issue logging out. Please try again.',
+        variant: 'destructive'
       });
     }
-  }, [clientId, sessionData, clientDataResponse, campaignsData]);
-
-  // Check if user has permission
-  const hasPermission = (permission: string): boolean => {
-    if (!sessionData?.user?.permissions) return false;
-    return !!sessionData.user.permissions[permission];
   };
 
-  // Logout function
-  const logout = async (): Promise<void> => {
-    await logoutMutation.mutateAsync();
-  };
-
-  const value = {
-    user: sessionData?.user || null,
-    clientId,
-    clientName,
-    clientData,
-    clientStats,
-    isLoading: isSessionLoading || isClientDataLoading,
-    hasPermission,
-    logout,
-  };
+  // For demo purposes - mock client name
+  const clientName = clientUser?.firstName && clientUser?.lastName 
+    ? `${clientUser.firstName} ${clientUser.lastName}` 
+    : clientUser?.username 
+      ? clientUser.username 
+      : 'Client Portal';
 
   return (
-    <ClientContext.Provider value={value}>{children}</ClientContext.Provider>
+    <ClientSessionContext.Provider
+      value={{
+        clientUser,
+        clientId: clientUser?.clientId || null,
+        clientName,
+        isLoading,
+        error,
+        login,
+        logout
+      }}
+    >
+      {children}
+    </ClientSessionContext.Provider>
   );
-};
+}
 
-// Hook to use the client session context
-export const useClientSession = () => {
-  const context = useContext(ClientContext);
+export function useClientSession() {
+  const context = useContext(ClientSessionContext);
+  
   if (!context) {
-    throw new Error(
-      "useClientSession must be used within a ClientSessionProvider"
-    );
+    throw new Error('useClientSession must be used within a ClientSessionProvider');
   }
+  
   return context;
-};
+}
