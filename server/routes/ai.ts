@@ -1,242 +1,191 @@
 import express from 'express';
 import { z } from 'zod';
 import OpenAI from 'openai';
-import { getStorage } from "../storageManager";
-
-const storage = getStorage();
-
-// Initialize OpenAI client
-// the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
 
 const router = express.Router();
 
-// Validate client authentication middleware
-const validateClientAuth = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
-  const clientId = parseInt(req.params.clientId);
-  if (isNaN(clientId)) {
-    return res.status(400).json({ error: 'Invalid client ID' });
-  }
+// Initialize OpenAI client
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY
+});
 
-  // Check if the client exists
-  try {
-    const client = await storage.getClient(clientId);
-    if (!client) {
-      return res.status(404).json({ error: 'Client not found' });
-    }
+// Define validation schemas
+const subjectLineRequestSchema = z.object({
+  campaignDescription: z.string().min(1, "Campaign description is required"),
+  clientId: z.number().optional()
+});
 
-    // Verify client session (should be handled by client auth middleware)
-    // This is just an additional check
-    if (!req.session?.clientUser?.clientId || req.session.clientUser.clientId !== clientId) {
-      return res.status(403).json({ error: 'Not authorized to access this client' });
-    }
-    
-    // We don't need to store client on req object
-    next();
-  } catch (error) {
-    console.error('Error validating client auth:', error);
-    return res.status(500).json({ error: 'Internal server error' });
+const contentOptimizationRequestSchema = z.object({
+  content: z.string().min(1, "Content is required"),
+  goal: z.enum(["engagement", "clickthrough", "conversion", "clarity", "brevity"]),
+  clientId: z.number().optional()
+});
+
+// Middleware to check if AI features are enabled
+const checkAIFeatureEnabled = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+  if (!process.env.OPENAI_API_KEY) {
+    return res.status(503).json({
+      success: false,
+      message: "AI features are currently unavailable. Please contact support."
+    });
   }
+  next();
 };
 
-// Schema for subject line generator request
-const SubjectLineRequestSchema = z.object({
-  emailContent: z.string().min(1),
-  industry: z.string(),
-  objective: z.string(),
-  tone: z.string(),
-  clientId: z.number(),
-});
+// Middleware to validate client session
+const validateClientSession = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+  if (req.isAuthenticated() && req.user) {
+    return next();
+  }
+  
+  // For client portal requests, check session
+  if (req.body.clientId && req.session && req.session.clientUser) {
+    // Ensure the client ID matches the session user's clientId
+    if (req.session.clientUser.clientId === req.body.clientId) {
+      return next();
+    }
+  }
+  
+  return res.status(401).json({
+    success: false,
+    message: "Unauthorized access"
+  });
+};
 
-// Schema for content optimization request
-const ContentOptimizationRequestSchema = z.object({
-  content: z.string().min(1),
-  clientId: z.number(),
-});
-
-// Generate subject lines using OpenAI
-router.post('/client/:clientId/ai/subject-lines', validateClientAuth, async (req, res) => {
+// Route to generate email subject lines
+router.post('/generate-subject-lines', checkAIFeatureEnabled, validateClientSession, async (req, res) => {
   try {
-    const validationResult = SubjectLineRequestSchema.safeParse(req.body);
+    const validatedData = subjectLineRequestSchema.parse(req.body);
+    const { campaignDescription } = validatedData;
     
-    if (!validationResult.success) {
-      return res.status(400).json({ 
-        error: 'Invalid request',
-        details: validationResult.error.format() 
-      });
+    const response = await openai.chat.completions.create({
+      // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+      model: "gpt-4o",
+      messages: [
+        {
+          role: "system",
+          content: "You are an expert email marketing copywriter specialized in creating attention-grabbing subject lines that drive high open rates. Generate 6 unique, compelling subject lines based on the campaign description provided. The subject lines should be concise (30-60 characters), engaging, and tailored to the target audience. Avoid clickbait or spammy phrases that might trigger spam filters. Format your response as a JSON array of strings."
+        },
+        {
+          role: "user",
+          content: `Create subject lines for this email campaign: ${campaignDescription}`
+        }
+      ],
+      response_format: { type: "json_object" }
+    });
+
+    const content = response.choices[0].message.content;
+    
+    // Parse the JSON response
+    let subjects: string[] = [];
+    if (content) {
+      try {
+        const parsedContent = JSON.parse(content);
+        subjects = Array.isArray(parsedContent.subjectLines) 
+          ? parsedContent.subjectLines 
+          : (parsedContent.subjects || parsedContent.subject_lines || []);
+        
+        // Ensure we have at least some subject lines
+        if (subjects.length === 0 && typeof parsedContent === 'object') {
+          // Try to extract any array from the response
+          for (const key in parsedContent) {
+            if (Array.isArray(parsedContent[key]) && parsedContent[key].length > 0) {
+              subjects = parsedContent[key];
+              break;
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Error parsing OpenAI response:", error);
+        // If JSON parsing fails, try to extract lines directly
+        subjects = content
+          .split("\n")
+          .filter(line => line.trim().length > 0 && !line.includes("```"))
+          .map(line => line.replace(/^[0-9]+[\.\)-]\s*/, '').trim())
+          .slice(0, 6);
+      }
     }
     
-    const { emailContent, industry, objective, tone, clientId } = validationResult.data;
+    return res.json({
+      success: true,
+      subjects: subjects.slice(0, 6) // Ensure we return max 6 subject lines
+    });
 
-    try {
-      // Call OpenAI API to generate subject lines
-      const prompt = `
-        Generate 5 high-performing email subject lines based on the following parameters:
-        
-        Email Content: ${emailContent}
-        Industry: ${industry}
-        Campaign Objective: ${objective}
-        Tone: ${tone}
-        
-        The subject lines should be optimized for high open rates and engagement.
-        Return ONLY the subject lines, one per line, without numbering or additional text.
-        Each subject line should be 50 characters or less.
-      `;
-
-      const response = await openai.chat.completions.create({
-        model: "gpt-4o", // Using the latest model
-        messages: [
-          { role: "system", content: "You are an expert email marketing assistant specializing in creating high-performing subject lines." },
-          { role: "user", content: prompt }
-        ],
-        temperature: 0.7,
-        max_tokens: 200,
-      });
-
-      // Process the response to extract subject lines
-      const content = response.choices[0].message.content?.trim() || '';
-      const subjectLines = content.split('\n').filter(line => line.trim() !== '');
-
-      // Log the AI interaction for analytics
-      console.log(`Generated ${subjectLines.length} subject lines for client ${clientId}`);
-
-      // Return the subject lines
-      return res.status(200).json({ subjectLines });
-    } catch (error: any) {
-      console.error('Error generating subject lines:', error);
-      
-      // Return demo subject lines if OpenAI fails
-      const demoSubjectLines = [
-        `[${industry.toUpperCase()}] ${emailContent.substring(0, 30)}...`,
-        `Don't Miss: Our Latest ${objective.replace(/_/g, ' ')} Update`,
-        `${tone === 'professional' ? 'Important:' : 'Exciting!'} New Opportunities`,
-        `${emailContent.split(' ').slice(0, 5).join(' ')}...`,
-        `${new Date().toLocaleDateString()} ${objective.replace(/_/g, ' ')} - Just for You`
-      ];
-      
-      return res.status(200).json({ 
-        subjectLines: demoSubjectLines,
-        note: "Using demo subject lines as OpenAI service is unavailable"
-      });
-    }
   } catch (error) {
-    console.error('Error in subject line generation endpoint:', error);
-    return res.status(500).json({ error: 'Internal server error' });
+    console.error("Subject line generation error:", error);
+    return res.status(400).json({
+      success: false,
+      message: error instanceof Error ? error.message : "Failed to generate subject lines"
+    });
   }
 });
 
-// Optimize content using OpenAI
-router.post('/client/:clientId/ai/optimize-content', validateClientAuth, async (req, res) => {
+// Route to optimize email content
+router.post('/optimize-content', checkAIFeatureEnabled, validateClientSession, async (req, res) => {
   try {
-    const validationResult = ContentOptimizationRequestSchema.safeParse(req.body);
+    const validatedData = contentOptimizationRequestSchema.parse(req.body);
+    const { content, goal } = validatedData;
     
-    if (!validationResult.success) {
-      return res.status(400).json({ 
-        error: 'Invalid request',
-        details: validationResult.error.format() 
-      });
+    // Define goal-specific prompts
+    const goalPrompts: { [key: string]: string } = {
+      engagement: "Optimize this email to increase reader engagement. Make it more conversational, personal, and emotionally resonant. Focus on creating a connection with the reader.",
+      clickthrough: "Optimize this email to improve click-through rates. Strengthen calls-to-action, create a sense of urgency, and emphasize the value proposition. Make the content flow toward clicking links.",
+      conversion: "Optimize this email to drive conversions. Focus on persuasive language, addressing objections, building trust, and creating a clear path to conversion.",
+      clarity: "Optimize this email for maximum clarity and readability. Simplify complex ideas, improve structure, use plain language, and ensure the message is unmistakable.",
+      brevity: "Optimize this email to be more concise while preserving the key message. Remove redundancies, tighten sentences, and prioritize the most important information."
+    };
+    
+    const prompt = goalPrompts[goal] || goalPrompts.engagement;
+    
+    const response = await openai.chat.completions.create({
+      // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+      model: "gpt-4o",
+      messages: [
+        {
+          role: "system",
+          content: `You are an expert email marketing copywriter specializing in content optimization. ${prompt} Maintain the original message's intent but make it more effective. Provide both the optimized content and 3-4 specific improvement suggestions explaining what you changed and why. Format your response as a JSON object with 'optimizedContent' (string) and 'suggestions' (array of strings).`
+        },
+        {
+          role: "user",
+          content: `Optimize this email content:\n\n${content}`
+        }
+      ],
+      response_format: { type: "json_object" }
+    });
+
+    const content_response = response.choices[0].message.content;
+    
+    // Parse the JSON response
+    let optimizedContent = '';
+    let suggestions: string[] = [];
+    
+    if (content_response) {
+      try {
+        const parsedContent = JSON.parse(content_response);
+        optimizedContent = parsedContent.optimizedContent || '';
+        suggestions = Array.isArray(parsedContent.suggestions) 
+          ? parsedContent.suggestions 
+          : [];
+      } catch (error) {
+        console.error("Error parsing OpenAI response:", error);
+        // Handle the error - extract the content directly if possible
+        optimizedContent = content_response.replace(/```json\n|\n```/g, '');
+        suggestions = ["Improved overall effectiveness", "Enhanced readability", "Strengthened call to action"];
+      }
     }
     
-    const { content, clientId } = validationResult.data;
+    return res.json({
+      success: true,
+      optimizedContent,
+      suggestions
+    });
 
-    try {
-      // Call OpenAI API to optimize content
-      const prompt = `
-        Analyze the following email content and provide optimization suggestions:
-        
-        ${content}
-        
-        For each suggestion, include:
-        1. The type of suggestion (improvement, warning, or critical)
-        2. The original text that should be changed
-        3. The suggested replacement text
-        4. The reason for the suggestion
-        5. The category (tone, clarity, engagement, personalization, or deliverability)
-        
-        Format the response as a JSON array with objects containing these fields:
-        {
-          "type": "improvement|warning|critical",
-          "originalText": "text to replace",
-          "suggestion": "suggested replacement",
-          "reason": "explanation of why this change matters",
-          "category": "tone|clarity|engagement|personalization|deliverability"
-        }
-      `;
-
-      const response = await openai.chat.completions.create({
-        model: "gpt-4o", // Using the latest model
-        messages: [
-          { role: "system", content: "You are an expert email marketing assistant specializing in content optimization." },
-          { role: "user", content: prompt }
-        ],
-        response_format: { type: "json_object" },
-        temperature: 0.7,
-        max_tokens: 1000,
-      });
-
-      // Process the response to extract suggestions
-      const content = response.choices[0].message.content?.trim() || '{}';
-      const suggestions = JSON.parse(content).suggestions || [];
-
-      // Log the AI interaction for analytics
-      console.log(`Generated ${suggestions.length} content suggestions for client ${clientId}`);
-
-      // Return the suggestions
-      return res.status(200).json({ suggestions });
-    } catch (error: any) {
-      console.error('Error optimizing content:', error);
-      
-      // Return demo suggestions if OpenAI fails
-      const demoSuggestions = [
-        {
-          type: "improvement",
-          originalText: content.split(" ").slice(0, 3).join(" "),
-          suggestion: `${content.split(" ").slice(0, 3).join(" ")} [personalized greeting]`,
-          reason: "Adding personalization can increase engagement by 26%",
-          category: "personalization"
-        },
-        {
-          type: "warning",
-          originalText: "FREE",
-          suggestion: "Complimentary",
-          reason: "Words like 'FREE' in all caps can trigger spam filters",
-          category: "deliverability"
-        },
-        {
-          type: "improvement",
-          originalText: content.split(".")[0],
-          suggestion: `${content.split(".")[0].replace(/we are/i, "you'll benefit from")}`,
-          reason: "Focusing on customer benefits rather than company actions improves engagement",
-          category: "engagement"
-        },
-        {
-          type: "critical",
-          originalText: "Click here",
-          suggestion: "Learn more about our services",
-          reason: "Generic call-to-actions like 'Click here' perform poorly and may trigger spam filters",
-          category: "engagement"
-        },
-        {
-          type: "improvement",
-          originalText: content.split(" ").slice(-4).join(" "),
-          suggestion: `${content.split(" ").slice(-4).join(" ")} with a clear next step`,
-          reason: "Emails that end with a clear call to action have 371% higher click rates",
-          category: "clarity"
-        }
-      ].filter(s => 
-        content.includes(s.originalText) || s.originalText === "FREE" || s.originalText === "Click here"
-      );
-      
-      return res.status(200).json({ 
-        suggestions: demoSuggestions,
-        note: "Using demo suggestions as OpenAI service is unavailable"
-      });
-    }
   } catch (error) {
-    console.error('Error in content optimization endpoint:', error);
-    return res.status(500).json({ error: 'Internal server error' });
+    console.error("Content optimization error:", error);
+    return res.status(400).json({
+      success: false,
+      message: error instanceof Error ? error.message : "Failed to optimize content"
+    });
   }
 });
 

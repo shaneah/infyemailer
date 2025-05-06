@@ -189,6 +189,12 @@ function App() {
             <Toaster />
           </div>
         </Route>
+        <Route path="client-ai-tools">
+          <div className="bg-background min-h-screen">
+            <ClientRoutes />
+            <Toaster />
+          </div>
+        </Route>
         
         {/* New Admin Panel Tab Routes */}
         <Route path="client-overview">

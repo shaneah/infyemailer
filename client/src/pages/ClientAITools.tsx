@@ -1,153 +1,131 @@
-import React, { useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { Helmet } from "react-helmet";
-import ClientLayout from "@/components/layouts/ClientLayout";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import React, { useState } from 'react';
+import { Helmet } from 'react-helmet';
+import ClientLayout from '@/components/layouts/ClientLayout';
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Loader2, Sparkles, Zap, Lightbulb, MessageSquare, Text, Bot } from "lucide-react";
-import SubjectLineGenerator from "@/components/ai-tools/SubjectLineGenerator";
-import ContentOptimization from "@/components/ai-tools/ContentOptimization";
-import { Badge } from "@/components/ui/badge";
-import ClientHeader from "@/components/headers/ClientHeader";
-import { Button } from "@/components/ui/button";
-import { useClientSession } from "@/hooks/use-client-session";
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from '@/components/ui/tabs';
+import {
+  Sparkles,
+  Lightbulb,
+  FileText,
+  BarChart2,
+  MessageSquare,
+  Share2,
+  User,
+} from 'lucide-react';
+import ClientHeader from '@/components/headers/ClientHeader';
+import SubjectLineGenerator from '@/components/ai-tools/SubjectLineGenerator';
+import ContentOptimization from '@/components/ai-tools/ContentOptimization';
+import { useClientSession } from '@/hooks/use-client-session';
 
 export default function ClientAITools() {
-  const { clientId, clientData } = useClientSession();
-  const [activeTab, setActiveTab] = useState<string>("subject-lines");
-  const [sampleContent, setSampleContent] = useState<string>(
-    "Welcome to our monthly newsletter! We are excited to share our latest updates with you. Our team has been working hard to bring you new features and improvements. Stay tuned for more updates. Click here to learn more about our services."
-  );
-  
-  if (!clientId) {
-    // Redirect or handle unauthorized access
-    return (
-      <div className="flex h-screen w-full items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
-  }
-  
-  // Update sample content with client name if available
-  useEffect(() => {
-    if (clientData?.clientName) {
-      setSampleContent(prev => prev.replace("Welcome to our monthly newsletter!", `Welcome to the ${clientData.clientName} monthly newsletter!`));
-    }
-  }, [clientData]);
+  const { clientId } = useClientSession();
+  const [activeTab, setActiveTab] = useState('subject-lines');
 
   return (
     <ClientLayout>
       <Helmet>
-        <title>AI Marketing Tools | InfyMail</title>
+        <title>AI Tools | Client Portal</title>
       </Helmet>
-
-      <div className="space-y-8">
-        <ClientHeader
-          title="AI Marketing Tools"
-          description="Leverage AI to optimize your email marketing campaigns"
-          icon={<Sparkles className="h-5 w-5" />}
-        />
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card className="md:col-span-3 bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-100 hover:shadow-md transition-all">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-blue-800">
-                <Zap className="h-5 w-5 text-blue-600" />
-                AI-Powered Email Marketing
-              </CardTitle>
-              <CardDescription className="text-blue-700">
-                Use artificial intelligence to improve your email campaigns with intelligent
-                subject lines, content optimization, and performance insights.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-white rounded-lg p-4 shadow-sm border border-blue-100 flex flex-col items-center text-center">
-                  <div className="bg-blue-100 p-3 rounded-full mb-3">
-                    <Text className="h-5 w-5 text-blue-600" />
-                  </div>
-                  <h3 className="font-medium mb-1">Smart Subject Lines</h3>
-                  <p className="text-sm text-gray-600 mb-2">
-                    Generate high-performing subject lines tailored to your audience and campaign
-                    goals.
+      
+      <ClientHeader
+        title="AI Marketing Tools"
+        description="Leverage AI to enhance your email marketing campaigns"
+        icon={<Sparkles className="h-6 w-6" />}
+      />
+      
+      <div className="grid grid-cols-1 gap-6">
+        <Tabs defaultValue="subject-lines" onValueChange={setActiveTab} className="w-full">
+          <TabsList className="mb-6 bg-white p-1 border">
+            <TabsTrigger value="subject-lines" className="flex items-center gap-1.5 data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-900">
+              <FileText className="h-4 w-4" />
+              <span>Subject Lines</span>
+            </TabsTrigger>
+            <TabsTrigger value="content" className="flex items-center gap-1.5 data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-900">
+              <Lightbulb className="h-4 w-4" />
+              <span>Content Optimization</span>
+            </TabsTrigger>
+            <TabsTrigger value="analytics" className="flex items-center gap-1.5 data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-900" disabled>
+              <BarChart2 className="h-4 w-4" />
+              <span>Analytics Insight</span>
+            </TabsTrigger>
+            <TabsTrigger value="personalization" className="flex items-center gap-1.5 data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-900" disabled>
+              <User className="h-4 w-4" />
+              <span>Personalization</span>
+            </TabsTrigger>
+            <TabsTrigger value="assistant" className="flex items-center gap-1.5 data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-900" disabled>
+              <MessageSquare className="h-4 w-4" />
+              <span>AI Assistant</span>
+            </TabsTrigger>
+          </TabsList>
+          
+          <div className="bg-white rounded-lg border p-6">
+            <TabsContent value="subject-lines" className="mt-0">
+              <div className="space-y-6">
+                <div>
+                  <h3 className="text-lg font-medium mb-2">Email Subject Line Generator</h3>
+                  <p className="text-muted-foreground text-sm">
+                    Generate attention-grabbing subject lines that boost open rates. Our AI analyzes successful campaigns and adapts to your brand voice.
                   </p>
-                  <Badge className="mt-auto" variant="outline">
-                    Boosts open rates by 35%
-                  </Badge>
                 </div>
-
-                <div className="bg-white rounded-lg p-4 shadow-sm border border-blue-100 flex flex-col items-center text-center">
-                  <div className="bg-blue-100 p-3 rounded-full mb-3">
-                    <Lightbulb className="h-5 w-5 text-blue-600" />
-                  </div>
-                  <h3 className="font-medium mb-1">Content Optimization</h3>
-                  <p className="text-sm text-gray-600 mb-2">
-                    Get AI recommendations to enhance your content and fix potential issues.
+                
+                <SubjectLineGenerator clientId={clientId || undefined} />
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="content" className="mt-0">
+              <div className="space-y-6">
+                <div>
+                  <h3 className="text-lg font-medium mb-2">Content Optimization</h3>
+                  <p className="text-muted-foreground text-sm">
+                    Enhance your email content for better engagement and conversions. Our AI helps refine your message to maximize impact.
                   </p>
-                  <Badge className="mt-auto" variant="outline">
-                    Increases engagement
-                  </Badge>
                 </div>
-
-                <div className="bg-white rounded-lg p-4 shadow-sm border border-blue-100 flex flex-col items-center text-center">
-                  <div className="bg-blue-100 p-3 rounded-full mb-3">
-                    <Bot className="h-5 w-5 text-blue-600" />
-                  </div>
-                  <h3 className="font-medium mb-1">AI Assistant</h3>
-                  <p className="text-sm text-gray-600 mb-2">
-                    Coming soon: Chat with our AI assistant to get marketing advice and insights.
+                
+                <ContentOptimization clientId={clientId || undefined} />
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="analytics" className="mt-0">
+              <div className="flex items-center justify-center p-12 text-center text-muted-foreground">
+                <div className="max-w-md">
+                  <BarChart2 className="h-12 w-12 mx-auto mb-4 text-indigo-200" />
+                  <h3 className="text-lg font-medium mb-2">Analytics Insight (Coming Soon)</h3>
+                  <p>
+                    Get AI-powered insights from your campaign analytics to understand what works and why. Identify trends and opportunities for improvement.
                   </p>
-                  <Badge variant="secondary" className="mt-auto">
-                    Coming soon
-                  </Badge>
                 </div>
               </div>
-            </CardContent>
-          </Card>
-
-          <div className="md:col-span-3">
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-              <TabsList className="grid w-full grid-cols-2 bg-muted/50">
-                <TabsTrigger
-                  value="subject-lines"
-                  className="flex items-center gap-2 data-[state=active]:bg-white"
-                >
-                  <Text className="h-4 w-4" />
-                  Subject Line Generator
-                </TabsTrigger>
-                <TabsTrigger
-                  value="content-optimization"
-                  className="flex items-center gap-2 data-[state=active]:bg-white"
-                >
-                  <Lightbulb className="h-4 w-4" />
-                  Content Optimization
-                </TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="subject-lines" className="space-y-6 pt-2">
-                <SubjectLineGenerator
-                  clientId={clientId}
-                  initialContent={sampleContent}
-                  onSelect={(subject) => console.log("Selected subject:", subject)}
-                />
-              </TabsContent>
-
-              <TabsContent value="content-optimization" className="space-y-6 pt-2">
-                <ContentOptimization
-                  clientId={clientId}
-                  content={sampleContent}
-                  onUpdate={(content) => setSampleContent(content)}
-                />
-              </TabsContent>
-            </Tabs>
+            </TabsContent>
+            
+            <TabsContent value="personalization" className="mt-0">
+              <div className="flex items-center justify-center p-12 text-center text-muted-foreground">
+                <div className="max-w-md">
+                  <User className="h-12 w-12 mx-auto mb-4 text-indigo-200" />
+                  <h3 className="text-lg font-medium mb-2">Personalization Tools (Coming Soon)</h3>
+                  <p>
+                    Create personalized content at scale with AI. Generate custom content variations tailored to different audience segments.
+                  </p>
+                </div>
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="assistant" className="mt-0">
+              <div className="flex items-center justify-center p-12 text-center text-muted-foreground">
+                <div className="max-w-md">
+                  <MessageSquare className="h-12 w-12 mx-auto mb-4 text-indigo-200" />
+                  <h3 className="text-lg font-medium mb-2">AI Marketing Assistant (Coming Soon)</h3>
+                  <p>
+                    Chat with our AI marketing assistant to get real-time help with campaign strategy, content ideas, and best practices.
+                  </p>
+                </div>
+              </div>
+            </TabsContent>
           </div>
-        </div>
+        </Tabs>
       </div>
     </ClientLayout>
   );

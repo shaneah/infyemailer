@@ -1,385 +1,210 @@
-import React, { useState, useEffect } from "react";
-import { useMutation } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import React, { useState } from 'react';
+import { Button } from '@/components/ui/button';
 import {
-  Loader2,
-  Sparkles,
-  Check,
-  AlertTriangle,
-  XCircle,
-  ArrowRight,
-  Lightbulb,
-} from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { Textarea } from '@/components/ui/textarea';
+import { useToast } from '@/hooks/use-toast';
+import { Loader2, Sparkles, Copy, Check, Lightbulb } from 'lucide-react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
 
 interface ContentOptimizationProps {
-  clientId: number;
-  content: string;
-  onUpdate?: (content: string) => void;
+  clientId?: number;
 }
 
-interface SuggestionType {
-  type: "improvement" | "warning" | "critical";
-  originalText: string;
-  suggestion: string;
-  reason: string;
-  category: "tone" | "clarity" | "engagement" | "personalization" | "deliverability";
-}
-
-export default function ContentOptimization({
-  clientId,
-  content,
-  onUpdate,
-}: ContentOptimizationProps) {
-  const [emailContent, setEmailContent] = useState(content);
-  const [activeTab, setActiveTab] = useState("improvements");
-  const [suggestions, setSuggestions] = useState<SuggestionType[]>([]);
-  const [appliedSuggestions, setAppliedSuggestions] = useState<string[]>([]);
+export default function ContentOptimization({ clientId }: ContentOptimizationProps) {
+  const [emailContent, setEmailContent] = useState('');
+  const [optimizationGoal, setOptimizationGoal] = useState('engagement');
+  const [optimizedContent, setOptimizedContent] = useState('');
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [isOptimizing, setIsOptimizing] = useState(false);
+  const [copied, setCopied] = useState(false);
   const { toast } = useToast();
 
-  useEffect(() => {
-    setEmailContent(content);
-  }, [content]);
-
-  const optimizeMutation = useMutation({
-    mutationFn: async (data: { content: string; clientId: number }) => {
-      const response = await apiRequest(
-        "POST",
-        `/api/client/${clientId}/ai/optimize-content`,
-        data
-      );
-      return await response.json();
-    },
-    onSuccess: (data) => {
-      if (data.suggestions && Array.isArray(data.suggestions)) {
-        setSuggestions(data.suggestions);
-        setAppliedSuggestions([]);
-      } else {
-        toast({
-          title: "Error optimizing content",
-          description: "Received invalid data from the server",
-          variant: "destructive",
-        });
-      }
-    },
-    onError: (error: any) => {
+  const optimizeContent = async () => {
+    if (!emailContent.trim()) {
       toast({
-        title: "Failed to optimize content",
-        description: error.message || "An unexpected error occurred",
+        title: "Content required",
+        description: "Please enter your email content to optimize.",
         variant: "destructive",
       });
-    },
-  });
+      return;
+    }
 
-  const handleApplySuggestion = (suggestion: SuggestionType) => {
-    // Replace the original text with the suggested text
-    const newContent = emailContent.replace(suggestion.originalText, suggestion.suggestion);
-    setEmailContent(newContent);
-    setAppliedSuggestions([...appliedSuggestions, suggestion.originalText]);
-    
-    if (onUpdate) {
-      onUpdate(newContent);
+    setIsOptimizing(true);
+
+    try {
+      const response = await fetch('/api/ai/optimize-content', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          content: emailContent,
+          goal: optimizationGoal,
+          clientId
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to optimize content');
+      }
+
+      const data = await response.json();
+      setOptimizedContent(data.optimizedContent || '');
+      setSuggestions(data.suggestions || []);
+    } catch (error) {
+      console.error('Error optimizing content:', error);
+      toast({
+        title: "Optimization failed",
+        description: "There was an error optimizing your content. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsOptimizing(false);
     }
   };
-  
-  const handleOptimize = () => {
-    // Demo function that generates mock suggestions
-    generateDemoSuggestions();
-  };
 
-  const generateDemoSuggestions = () => {
-    // Generate sample suggestions for demonstration
-    const demoSuggestions: SuggestionType[] = [
-      {
-        type: "improvement",
-        originalText: emailContent.split(" ").slice(0, 3).join(" "),
-        suggestion: `${emailContent.split(" ").slice(0, 3).join(" ")} [personalized greeting]`,
-        reason: "Adding personalization can increase engagement by 26%",
-        category: "personalization"
-      },
-      {
-        type: "warning",
-        originalText: "FREE",
-        suggestion: "Complimentary",
-        reason: "Words like 'FREE' in all caps can trigger spam filters",
-        category: "deliverability"
-      },
-      {
-        type: "improvement",
-        originalText: emailContent.split(".")[0],
-        suggestion: `${emailContent.split(".")[0].replace(/we are/i, "you'll benefit from")}`,
-        reason: "Focusing on customer benefits rather than company actions improves engagement",
-        category: "engagement"
-      },
-      {
-        type: "critical",
-        originalText: "Click here",
-        suggestion: "Learn more about our services",
-        reason: "Generic call-to-actions like 'Click here' perform poorly and may trigger spam filters",
-        category: "engagement"
-      },
-      {
-        type: "improvement",
-        originalText: emailContent.split(" ").slice(-4).join(" "),
-        suggestion: `${emailContent.split(" ").slice(-4).join(" ")} with a clear next step`,
-        reason: "Emails that end with a clear call to action have 371% higher click rates",
-        category: "clarity"
-      }
-    ];
+  const handleCopy = () => {
+    navigator.clipboard.writeText(optimizedContent);
+    setCopied(true);
     
-    // Filter to only include suggestions that match text in the content
-    const filteredSuggestions = demoSuggestions.filter(s => 
-      emailContent.includes(s.originalText) || s.originalText === "FREE" || s.originalText === "Click here"
-    );
+    toast({
+      title: "Copied to clipboard",
+      description: "Optimized content has been copied to clipboard",
+    });
     
-    setSuggestions(filteredSuggestions);
-    setAppliedSuggestions([]);
+    setTimeout(() => {
+      setCopied(false);
+    }, 2000);
   };
-
-  const improvementSuggestions = suggestions.filter(s => s.type === "improvement");
-  const warningSuggestions = suggestions.filter(s => s.type === "warning" || s.type === "critical");
 
   return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-primary" />
-            AI Content Optimization
-          </CardTitle>
-          <CardDescription>
-            Improve your email content with AI-powered suggestions for better engagement and
-            deliverability.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="emailContent">Email Content</Label>
-              <Textarea
-                id="emailContent"
-                value={emailContent}
-                onChange={(e) => setEmailContent(e.target.value)}
-                placeholder="Enter your email content to get optimization suggestions..."
-                className="min-h-[200px]"
-              />
-            </div>
+    <Card className="w-full">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Lightbulb className="h-5 w-5 text-indigo-500" />
+          Content Optimization
+        </CardTitle>
+        <CardDescription>
+          Enhance your email content for better engagement and conversions
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor="optimization-goal">Optimization Goal</Label>
+          <Select
+            value={optimizationGoal}
+            onValueChange={setOptimizationGoal}
+          >
+            <SelectTrigger id="optimization-goal" className="w-full">
+              <SelectValue placeholder="Select an optimization goal" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="engagement">Boost Engagement</SelectItem>
+              <SelectItem value="clickthrough">Increase Click-Through Rate</SelectItem>
+              <SelectItem value="conversion">Improve Conversions</SelectItem>
+              <SelectItem value="clarity">Enhance Clarity</SelectItem>
+              <SelectItem value="brevity">Make More Concise</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        
+        <div className="space-y-2">
+          <Label htmlFor="email-content">Your Email Content</Label>
+          <Textarea
+            id="email-content"
+            placeholder="Paste your email content here..."
+            value={emailContent}
+            onChange={(e) => setEmailContent(e.target.value)}
+            className="min-h-40"
+          />
+        </div>
 
-            <Button
-              onClick={handleOptimize}
-              className="w-full"
-              disabled={!emailContent.trim() || optimizeMutation.isPending}
-            >
-              {optimizeMutation.isPending ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Analyzing...
-                </>
-              ) : (
-                <>
-                  <Sparkles className="mr-2 h-4 w-4" />
-                  Optimize Content
-                </>
-              )}
-            </Button>
+        {optimizedContent && (
+          <div className="space-y-3 mt-6 pt-6 border-t border-gray-100">
+            <div className="flex justify-between items-center">
+              <Label className="text-md font-medium">Optimized Content</Label>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleCopy}
+                className="h-8 flex items-center gap-1"
+              >
+                {copied ? (
+                  <>
+                    <Check className="h-4 w-4 text-green-500" />
+                    Copied
+                  </>
+                ) : (
+                  <>
+                    <Copy className="h-4 w-4" />
+                    Copy
+                  </>
+                )}
+              </Button>
+            </div>
+            <div className="bg-gray-50 rounded-md p-4 border border-gray-200">
+              <p className="whitespace-pre-wrap text-sm">{optimizedContent}</p>
+            </div>
           </div>
-        </CardContent>
-      </Card>
+        )}
 
-      {suggestions.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Content Suggestions</CardTitle>
-            <CardDescription>
-              Review and apply suggestions to optimize your email for better performance.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Tabs defaultValue="improvements" value={activeTab} onValueChange={setActiveTab}>
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="improvements" className="flex items-center gap-2">
-                  <Lightbulb className="h-4 w-4" />
-                  Improvements ({improvementSuggestions.length})
-                </TabsTrigger>
-                <TabsTrigger value="warnings" className="flex items-center gap-2">
-                  <AlertTriangle className="h-4 w-4" />
-                  Warnings ({warningSuggestions.length})
-                </TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="improvements">
-                <div className="space-y-4 mt-4">
-                  {improvementSuggestions.length === 0 ? (
-                    <div className="text-center p-4 text-muted-foreground">
-                      No improvement suggestions found.
-                    </div>
-                  ) : (
-                    improvementSuggestions.map((suggestion, index) => (
-                      <div
-                        key={index}
-                        className={`p-4 rounded-md border ${
-                          appliedSuggestions.includes(suggestion.originalText)
-                            ? "border-green-200 bg-green-50"
-                            : "border-border"
-                        }`}
-                      >
-                        <div className="flex justify-between items-start mb-2">
-                          <div className="flex items-center gap-2">
-                            <Badge
-                              variant="outline"
-                              className="bg-blue-50 text-blue-700 border-blue-200"
-                            >
-                              {suggestion.category.charAt(0).toUpperCase() +
-                                suggestion.category.slice(1)}
-                            </Badge>
-                            {appliedSuggestions.includes(suggestion.originalText) && (
-                              <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                                Applied
-                              </Badge>
-                            )}
-                          </div>
-                        </div>
-
-                        <div className="mb-2">
-                          <div className="text-sm font-medium mb-1">Original text:</div>
-                          <div className="p-2 bg-muted rounded text-sm">{suggestion.originalText}</div>
-                        </div>
-
-                        <div className="mb-2">
-                          <div className="text-sm font-medium mb-1 flex items-center gap-2">
-                            Suggested improvement:
-                            <ArrowRight className="h-3 w-3 text-muted-foreground" />
-                          </div>
-                          <div className="p-2 bg-primary/5 border border-primary/20 rounded text-sm">
-                            {suggestion.suggestion}
-                          </div>
-                        </div>
-
-                        <div className="text-sm text-muted-foreground mb-3">{suggestion.reason}</div>
-
-                        {!appliedSuggestions.includes(suggestion.originalText) && (
-                          <Button
-                            onClick={() => handleApplySuggestion(suggestion)}
-                            size="sm"
-                            className="mt-2"
-                          >
-                            <Check className="h-4 w-4 mr-2" />
-                            Apply Suggestion
-                          </Button>
-                        )}
-                      </div>
-                    ))
-                  )}
+        {suggestions.length > 0 && (
+          <div className="space-y-3 mt-4">
+            <Label className="text-md font-medium">Improvement Suggestions</Label>
+            <div className="space-y-2">
+              {suggestions.map((suggestion, index) => (
+                <div key={index} className="bg-blue-50 rounded-md p-3 border border-blue-100 text-sm">
+                  <div className="flex gap-2 items-start">
+                    <Lightbulb className="h-4 w-4 text-blue-500 mt-0.5 flex-shrink-0" />
+                    <p>{suggestion}</p>
+                  </div>
                 </div>
-              </TabsContent>
-
-              <TabsContent value="warnings">
-                <div className="space-y-4 mt-4">
-                  {warningSuggestions.length === 0 ? (
-                    <div className="text-center p-4 text-muted-foreground">
-                      No warnings or issues found. Your content looks good!
-                    </div>
-                  ) : (
-                    warningSuggestions.map((suggestion, index) => (
-                      <div
-                        key={index}
-                        className={`p-4 rounded-md border ${
-                          suggestion.type === "critical"
-                            ? "border-red-200 bg-red-50"
-                            : "border-amber-200 bg-amber-50"
-                        } ${
-                          appliedSuggestions.includes(suggestion.originalText)
-                            ? "border-green-200 bg-green-50"
-                            : ""
-                        }`}
-                      >
-                        <div className="flex justify-between items-start mb-2">
-                          <div className="flex items-center gap-2">
-                            <Badge
-                              variant={suggestion.type === "critical" ? "destructive" : "outline"}
-                              className={
-                                suggestion.type === "critical"
-                                  ? ""
-                                  : "bg-amber-50 text-amber-700 border-amber-200"
-                              }
-                            >
-                              {suggestion.type === "critical" ? "Critical Issue" : "Warning"}
-                            </Badge>
-                            <Badge
-                              variant="outline"
-                              className="bg-blue-50 text-blue-700 border-blue-200"
-                            >
-                              {suggestion.category.charAt(0).toUpperCase() +
-                                suggestion.category.slice(1)}
-                            </Badge>
-                            {appliedSuggestions.includes(suggestion.originalText) && (
-                              <Badge
-                                variant="outline"
-                                className="bg-green-50 text-green-700 border-green-200"
-                              >
-                                Fixed
-                              </Badge>
-                            )}
-                          </div>
-                        </div>
-
-                        <div className="mb-2">
-                          <div className="text-sm font-medium mb-1">Problem:</div>
-                          <div className="p-2 bg-muted rounded text-sm">{suggestion.originalText}</div>
-                        </div>
-
-                        <div className="mb-2">
-                          <div className="text-sm font-medium mb-1 flex items-center gap-2">
-                            Suggested fix:
-                            <ArrowRight className="h-3 w-3 text-muted-foreground" />
-                          </div>
-                          <div className="p-2 bg-primary/5 border border-primary/20 rounded text-sm">
-                            {suggestion.suggestion}
-                          </div>
-                        </div>
-
-                        <div className="text-sm text-muted-foreground mb-3">{suggestion.reason}</div>
-
-                        {!appliedSuggestions.includes(suggestion.originalText) && (
-                          <Button
-                            onClick={() => handleApplySuggestion(suggestion)}
-                            size="sm"
-                            variant={suggestion.type === "critical" ? "destructive" : "default"}
-                            className="mt-2"
-                          >
-                            <Check className="h-4 w-4 mr-2" />
-                            {suggestion.type === "critical" ? "Fix Issue" : "Apply Fix"}
-                          </Button>
-                        )}
-                      </div>
-                    ))
-                  )}
-                </div>
-              </TabsContent>
-            </Tabs>
-          </CardContent>
-          <CardFooter className="border-t pt-4">
-            <div className="w-full flex justify-between">
-              <div className="text-sm text-muted-foreground">
-                {appliedSuggestions.length > 0
-                  ? `${appliedSuggestions.length} of ${suggestions.length} suggestions applied`
-                  : "No suggestions applied yet"}
-              </div>
-              {appliedSuggestions.length > 0 && (
-                <Button onClick={() => onUpdate && onUpdate(emailContent)}>
-                  Save Optimized Content
-                </Button>
-              )}
+              ))}
             </div>
-          </CardFooter>
-        </Card>
-      )}
-    </div>
+          </div>
+        )}
+      </CardContent>
+      <CardFooter className="flex justify-between items-center">
+        <div className="text-xs text-muted-foreground">
+          <Badge variant="outline" className="mr-2">
+            <Sparkles className="h-3 w-3 mr-1" />
+            AI-Powered
+          </Badge>
+          Optimized for your specific goal
+        </div>
+        <Button
+          onClick={optimizeContent}
+          disabled={isOptimizing || !emailContent.trim()}
+          className="gap-1.5"
+        >
+          {isOptimizing ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Optimizing...
+            </>
+          ) : (
+            <>
+              <Sparkles className="h-4 w-4" />
+              Optimize
+            </>
+          )}
+        </Button>
+      </CardFooter>
+    </Card>
   );
 }

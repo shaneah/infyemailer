@@ -1,301 +1,171 @@
-import React, { useState } from "react";
-import { useMutation } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Loader2, Sparkles, Copy, ThumbsUp, ThumbsDown, RefreshCw } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import React, { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { Textarea } from '@/components/ui/textarea';
+import { useToast } from '@/hooks/use-toast';
+import { Loader2, Sparkles, Copy, Check, Wand2 } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 
 interface SubjectLineGeneratorProps {
-  clientId: number;
-  onSelect?: (subjectLine: string) => void;
-  initialContent?: string;
+  clientId?: number;
 }
 
-const INDUSTRY_OPTIONS = [
-  { label: "Technology", value: "technology" },
-  { label: "Retail", value: "retail" },
-  { label: "Healthcare", value: "healthcare" },
-  { label: "Finance", value: "finance" },
-  { label: "Education", value: "education" },
-  { label: "Real Estate", value: "real_estate" },
-  { label: "Marketing", value: "marketing" },
-  { label: "Travel", value: "travel" },
-  { label: "Food & Beverage", value: "food_beverage" },
-  { label: "Entertainment", value: "entertainment" },
-];
-
-const OBJECTIVE_OPTIONS = [
-  { label: "Increase Open Rates", value: "open_rate" },
-  { label: "Promote New Product", value: "new_product" },
-  { label: "Special Offer", value: "special_offer" },
-  { label: "Newsletter", value: "newsletter" },
-  { label: "Event Invitation", value: "event" },
-  { label: "Re-engagement", value: "re_engagement" },
-  { label: "Announcement", value: "announcement" },
-  { label: "Follow-up", value: "follow_up" },
-  { label: "Seasonal Promotion", value: "seasonal" },
-  { label: "Educational Content", value: "educational" },
-];
-
-export default function SubjectLineGenerator({ clientId, onSelect, initialContent }: SubjectLineGeneratorProps) {
-  const [emailContent, setEmailContent] = useState(initialContent || "");
-  const [industry, setIndustry] = useState<string>("technology");
-  const [objective, setObjective] = useState<string>("open_rate");
-  const [tone, setTone] = useState<string>("professional");
-  const [subjectLines, setSubjectLines] = useState<string[]>([]);
-  const [selectedSubjectLine, setSelectedSubjectLine] = useState<string>("");
+export default function SubjectLineGenerator({ clientId }: SubjectLineGeneratorProps) {
+  const [campaignDescription, setCampaignDescription] = useState('');
+  const [generatedSubjects, setGeneratedSubjects] = useState<string[]>([]);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
   const { toast } = useToast();
 
-  const generateMutation = useMutation({
-    mutationFn: async (data: {
-      emailContent: string;
-      industry: string;
-      objective: string;
-      tone: string;
-      clientId: number;
-    }) => {
-      const response = await apiRequest(
-        "POST",
-        `/api/client/${clientId}/ai/subject-lines`,
-        data
-      );
-      return await response.json();
-    },
-    onSuccess: (data) => {
-      if (data.subjectLines && Array.isArray(data.subjectLines)) {
-        setSubjectLines(data.subjectLines);
-        if (data.subjectLines.length > 0) {
-          setSelectedSubjectLine(data.subjectLines[0]);
-        }
-      } else {
-        toast({
-          title: "Error generating subject lines",
-          description: "Received invalid data from the server",
-          variant: "destructive",
-        });
-      }
-    },
-    onError: (error: any) => {
+  const generateSubjectLines = async () => {
+    if (!campaignDescription.trim()) {
       toast({
-        title: "Failed to generate subject lines",
-        description: error.message || "An unexpected error occurred",
+        title: "Input required",
+        description: "Please describe your campaign to generate subject lines.",
         variant: "destructive",
       });
-    },
-  });
+      return;
+    }
 
-  const handleCopySubjectLine = (subjectLine: string) => {
-    navigator.clipboard.writeText(subjectLine);
-    toast({
-      title: "Copied to clipboard",
-      description: "Subject line copied to clipboard",
-    });
-  };
+    setIsGenerating(true);
 
-  const handleSelectSubjectLine = (subjectLine: string) => {
-    setSelectedSubjectLine(subjectLine);
-    if (onSelect) {
-      onSelect(subjectLine);
+    try {
+      const response = await fetch('/api/ai/generate-subject-lines', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          campaignDescription,
+          clientId
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate subject lines');
+      }
+
+      const data = await response.json();
+      setGeneratedSubjects(data.subjects || []);
+      setSelectedSubject(null);
+    } catch (error) {
+      console.error('Error generating subject lines:', error);
+      toast({
+        title: "Generation failed",
+        description: "There was an error generating subject lines. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGenerating(false);
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    generateMutation.mutate({
-      emailContent,
-      industry,
-      objective,
-      tone,
-      clientId,
-    });
-  };
-
-  // Use OpenAI-powered mock subject lines for demonstration
-  const handleDemoGenerate = () => {
-    const demoSubjectLines = [
-      `[${INDUSTRY_OPTIONS.find(i => i.value === industry)?.label}] ${emailContent.substring(0, 30)}...`,
-      `Don't Miss: Our Latest ${OBJECTIVE_OPTIONS.find(o => o.value === objective)?.label} Update`,
-      `${tone === 'professional' ? 'Important:' : 'Exciting!'} New Opportunities for ${INDUSTRY_OPTIONS.find(i => i.value === industry)?.label} Professionals`,
-      `${emailContent.split(' ').slice(0, 5).join(' ')}...`,
-      `${new Date().toLocaleDateString()} ${OBJECTIVE_OPTIONS.find(o => o.value === objective)?.label} - Just for You`
-    ];
+  const handleCopy = (subject: string) => {
+    navigator.clipboard.writeText(subject);
+    setCopied(true);
+    setSelectedSubject(subject);
     
-    setSubjectLines(demoSubjectLines);
-    setSelectedSubjectLine(demoSubjectLines[0]);
+    toast({
+      title: "Copied to clipboard",
+      description: "Subject line has been copied to clipboard",
+    });
+    
+    setTimeout(() => {
+      setCopied(false);
+    }, 2000);
   };
 
   return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-primary" />
-            AI Subject Line Generator
-          </CardTitle>
-          <CardDescription>
-            Generate high-performing subject lines based on your content, industry, and campaign
-            objective.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="emailContent">Email Content</Label>
-              <Textarea
-                id="emailContent"
-                placeholder="Enter your email content to generate relevant subject lines..."
-                value={emailContent}
-                onChange={(e) => setEmailContent(e.target.value)}
-                className="min-h-[100px]"
-              />
-              <p className="text-xs text-muted-foreground">
-                Providing your email content helps our AI generate more relevant subject lines.
-              </p>
-            </div>
+    <Card className="w-full">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Sparkles className="h-5 w-5 text-indigo-500" />
+          Email Subject Line Generator
+        </CardTitle>
+        <CardDescription>
+          Generate attention-grabbing subject lines for your email campaigns using AI
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="space-y-2">
+          <label htmlFor="campaign-description" className="text-sm font-medium">
+            Describe your campaign
+          </label>
+          <Textarea
+            id="campaign-description"
+            placeholder="Briefly describe your campaign, target audience, and goals..."
+            value={campaignDescription}
+            onChange={(e) => setCampaignDescription(e.target.value)}
+            className="min-h-32"
+          />
+        </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="industry">Industry</Label>
-                <Select value={industry} onValueChange={setIndustry}>
-                  <SelectTrigger id="industry">
-                    <SelectValue placeholder="Select industry" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {INDUSTRY_OPTIONS.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="objective">Campaign Objective</Label>
-                <Select value={objective} onValueChange={setObjective}>
-                  <SelectTrigger id="objective">
-                    <SelectValue placeholder="Select objective" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {OBJECTIVE_OPTIONS.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="tone">Tone</Label>
-                <Select value={tone} onValueChange={setTone}>
-                  <SelectTrigger id="tone">
-                    <SelectValue placeholder="Select tone" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="professional">Professional</SelectItem>
-                    <SelectItem value="friendly">Friendly</SelectItem>
-                    <SelectItem value="urgent">Urgent</SelectItem>
-                    <SelectItem value="casual">Casual</SelectItem>
-                    <SelectItem value="promotional">Promotional</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <Button 
-              type="button" 
-              onClick={handleDemoGenerate}
-              className="w-full"
-              disabled={!emailContent.trim() || generateMutation.isPending}
-            >
-              {generateMutation.isPending ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Generating...
-                </>
-              ) : (
-                <>
-                  <Sparkles className="mr-2 h-4 w-4" />
-                  Generate Subject Lines
-                </>
-              )}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
-
-      {subjectLines.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Generated Subject Lines</CardTitle>
-            <CardDescription>
-              Select the subject line that best fits your campaign. You can copy any subject line
-              to use in your email.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {subjectLines.map((subjectLine, index) => (
+        {generatedSubjects.length > 0 && (
+          <div className="space-y-3 mt-6">
+            <label className="text-sm font-medium">Generated Subject Lines</label>
+            <div className="space-y-2 max-h-80 overflow-y-auto pr-1">
+              {generatedSubjects.map((subject, index) => (
                 <div
                   key={index}
-                  className={`p-3 rounded-md border flex items-start justify-between ${
-                    selectedSubjectLine === subjectLine
-                      ? "border-primary bg-primary/5"
-                      : "border-border hover:border-primary/50"
-                  }`}
-                  onClick={() => handleSelectSubjectLine(subjectLine)}
+                  className={`flex justify-between items-center p-3 rounded-md border ${
+                    subject === selectedSubject
+                      ? 'border-indigo-500 bg-indigo-50'
+                      : 'border-gray-200 hover:border-indigo-300 bg-white'
+                  } transition-all`}
                 >
-                  <div className="flex flex-col gap-2">
-                    <div className="font-medium">{subjectLine}</div>
-                    <div className="flex gap-2">
-                      <Badge variant="outline" className="text-xs">
-                        {objective === "open_rate"
-                          ? "Likely to increase opens"
-                          : OBJECTIVE_OPTIONS.find((o) => o.value === objective)?.label}
-                      </Badge>
-                      <Badge variant="outline" className="text-xs">
-                        {tone.charAt(0).toUpperCase() + tone.slice(1)} tone
-                      </Badge>
-                    </div>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleCopySubjectLine(subjectLine);
-                      }}
-                    >
+                  <span className="text-sm">{subject}</span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleCopy(subject)}
+                    className="h-8 w-8 p-0"
+                  >
+                    {copied && subject === selectedSubject ? (
+                      <Check className="h-4 w-4 text-green-500" />
+                    ) : (
                       <Copy className="h-4 w-4" />
-                    </Button>
-                  </div>
+                    )}
+                  </Button>
                 </div>
               ))}
             </div>
-          </CardContent>
-          <CardFooter className="flex justify-between border-t pt-4">
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm" onClick={() => handleDemoGenerate()}>
-                <RefreshCw className="h-4 w-4 mr-2" />
-                Regenerate
-              </Button>
-            </div>
-            {selectedSubjectLine && (
-              <Button onClick={() => onSelect && onSelect(selectedSubjectLine)}>
-                Use This Subject Line
-              </Button>
-            )}
-          </CardFooter>
-        </Card>
-      )}
-    </div>
+          </div>
+        )}
+      </CardContent>
+      <CardFooter className="flex justify-between items-center">
+        <div className="text-xs text-muted-foreground">
+          <Badge variant="outline" className="mr-2">
+            <Wand2 className="h-3 w-3 mr-1" />
+            AI-Powered
+          </Badge>
+          Unique subject lines with each generation
+        </div>
+        <Button
+          onClick={generateSubjectLines}
+          disabled={isGenerating || !campaignDescription.trim()}
+          className="gap-1.5"
+        >
+          {isGenerating ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Generating...
+            </>
+          ) : (
+            <>
+              <Sparkles className="h-4 w-4" />
+              Generate
+            </>
+          )}
+        </Button>
+      </CardFooter>
+    </Card>
   );
 }
