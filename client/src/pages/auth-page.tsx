@@ -12,7 +12,7 @@ import { useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import Logo from "@/assets/Logo-white.png";
 import Infy from "@/assets/infinity-tech-logo-full.png";
-import { Mail, Lock, Info, CheckCircle, ChevronRight } from "lucide-react";
+import { Mail, Lock, Info, CheckCircle, ChevronRight, Shield, FileText, ClipboardCheck, RefreshCw } from "lucide-react";
 
 // Admin login schema
 const adminLoginSchema = z.object({
@@ -66,10 +66,10 @@ export default function AuthPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-blue-50 to-white p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-slate-50 to-white p-4">
       <div className="w-full max-w-6xl flex flex-col md:flex-row rounded-xl shadow-xl overflow-hidden">
         {/* Left side - Brand/Logo & Information */}
-        <div className="md:w-2/5 bg-gradient-to-br from-blue-600 to-blue-800 p-8 flex-col justify-between relative hidden md:flex">
+        <div className="md:w-2/5 bg-gradient-to-br from-indigo-700 to-indigo-900 p-8 flex-col justify-between relative hidden md:flex">
           {/* Decorative background elements - medical/pharma themed */}
           <div className="absolute inset-0 overflow-hidden opacity-10">
             <div className="absolute top-0 left-0 w-full h-full">
@@ -91,15 +91,15 @@ export default function AuthPage() {
                   />
                 </div>
                 <h1 className="text-3xl font-bold text-white tracking-tight">
-                  Infinity<span className="text-blue-200">Mailer</span>
+                  Infinity<span className="text-indigo-200">Mailer</span>
                 </h1>
               </div>
               <div className="h-0.5 w-16 bg-white rounded my-6"></div>
               <p className="text-white text-lg font-light">
-                Secure Healthcare Communication
+                Enterprise Pharmaceutical Communication
               </p>
-              <p className="text-blue-100 text-sm mt-2 max-w-sm">
-                Industry-leading email marketing platform designed specifically for pharmaceutical and healthcare organizations
+              <p className="text-indigo-100 text-sm mt-2 max-w-sm">
+                21 CFR Part 11 compliant communication platform for pharmaceutical and healthcare enterprises
               </p>
             </div>
           </div>
@@ -108,46 +108,46 @@ export default function AuthPage() {
           <div className="relative z-10 space-y-4 mt-12">
             <div className="flex items-start space-x-3 p-4 rounded-md bg-white/10 border border-white/20 backdrop-blur-sm transition-all hover:bg-white/20">
               <div className="bg-white rounded-full p-1.5 mt-0.5">
-                <CheckCircle className="h-4 w-4 text-blue-600" />
+                <Shield className="h-4 w-4 text-indigo-600" />
               </div>
               <div>
                 <h3 className="font-medium text-white flex items-center">
-                  HIPAA Compliant
+                  21 CFR Part 11 Compliant
                 </h3>
-                <p className="text-blue-100 text-sm">Secure messaging that meets healthcare regulations</p>
+                <p className="text-indigo-100 text-sm">Electronic records & signatures for FDA requirements</p>
               </div>
             </div>
             
             <div className="flex items-start space-x-3 p-4 rounded-md bg-white/10 border border-white/20 backdrop-blur-sm transition-all hover:bg-white/20">
               <div className="bg-white rounded-full p-1.5 mt-0.5">
-                <CheckCircle className="h-4 w-4 text-blue-600" />
+                <FileText className="h-4 w-4 text-indigo-600" />
               </div>
               <div>
                 <h3 className="font-medium text-white flex items-center">
-                  Regulatory Approved
+                  Regulatory Documentation
                 </h3>
-                <p className="text-blue-100 text-sm">FDA and EMA compliant communication platform</p>
+                <p className="text-indigo-100 text-sm">Audit trails for EMA, FDA and global compliance</p>
               </div>
             </div>
             
             <div className="flex items-start space-x-3 p-4 rounded-md bg-white/10 border border-white/20 backdrop-blur-sm transition-all hover:bg-white/20">
               <div className="bg-white rounded-full p-1.5 mt-0.5">
-                <CheckCircle className="h-4 w-4 text-blue-600" />
+                <ClipboardCheck className="h-4 w-4 text-indigo-600" />
               </div>
               <div>
                 <h3 className="font-medium text-white flex items-center">
-                  Advanced Security
+                  Validation & Verification
                 </h3>
-                <p className="text-blue-100 text-sm">End-to-end encryption for sensitive healthcare data</p>
+                <p className="text-indigo-100 text-sm">GxP compliant with full system validation</p>
               </div>
             </div>
           </div>
           
           {/* Copyright */}
-          <div className="relative z-10 text-blue-100 text-sm mt-6 flex flex-col">
-            <div className="flex items-center text-blue-200 text-xs mb-2">
+          <div className="relative z-10 text-indigo-100 text-sm mt-6 flex flex-col">
+            <div className="flex items-center text-indigo-200 text-xs mb-2">
               <Lock className="h-3 w-3 mr-1" />
-              <span>Secure Connection • 256-bit Encryption</span>
+              <span>Secure Connection • HIPAA Compliant • GxP Validated</span>
             </div>
             &copy; {new Date().getFullYear()} Infinity Tech. All rights reserved.
           </div>
@@ -165,26 +165,41 @@ export default function AuthPage() {
               />
             </div>
             <h1 className="text-2xl font-bold text-gray-800 tracking-tight mb-2">
-              Infinity<span className="text-blue-600">Mailer</span>
+              Infinity<span className="text-indigo-600">Mailer</span>
             </h1>
             <p className="text-gray-600 text-center max-w-xs">
-              Secure Healthcare Communication
+              Enterprise Pharmaceutical Communication
             </p>
           </div>
           
           <Card className="border-0 shadow-none bg-transparent">
             <CardHeader className="text-center md:text-left pb-2 space-y-1 px-0">
               <div className="flex items-center space-x-2 mb-1">
-                <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse"></div>
-                <div className="text-xs font-medium text-green-600">Secure System</div>
+                <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                <div className="text-xs font-medium text-emerald-600">Validated System • GxP Compliant</div>
               </div>
-              <CardTitle className="text-2xl md:text-3xl font-bold text-gray-800">Welcome Back</CardTitle>
-              <CardDescription className="text-gray-600">Please sign in to access your secure dashboard</CardDescription>
+              <CardTitle className="text-2xl md:text-3xl font-bold text-gray-800">Enterprise Access</CardTitle>
+              <CardDescription className="text-gray-600">Sign in with your validated credentials</CardDescription>
             </CardHeader>
             
             <CardContent className="px-0 pt-6">
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                  <div className="bg-indigo-50 border border-indigo-100 rounded-lg p-4 mb-6">
+                    <div className="flex items-start">
+                      <div className="mr-3 mt-0.5">
+                        <RefreshCw className="h-5 w-5 text-indigo-500" />
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-medium text-indigo-700">Compliance Notice</h4>
+                        <p className="text-xs text-indigo-600 mt-1">
+                          This system maintains audit records of all user activities in accordance with 21 CFR Part 11 and HIPAA requirements. 
+                          All actions are logged and traceable.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                
                   <FormField
                     control={form.control}
                     name="usernameOrEmail"
@@ -197,7 +212,7 @@ export default function AuthPage() {
                           <Input 
                             placeholder="Enter your username or email" 
                             {...field} 
-                            className="h-12 bg-gray-50 border-gray-200 text-gray-900 rounded-md focus-visible:ring-blue-600 focus-visible:ring-1 focus-visible:border-blue-600 outline-none transition-all placeholder:text-gray-400"
+                            className="h-12 bg-gray-50 border-gray-200 text-gray-900 rounded-md focus-visible:ring-indigo-600 focus-visible:ring-1 focus-visible:border-indigo-600 outline-none transition-all placeholder:text-gray-400"
                           />
                         </FormControl>
                         <FormMessage className="text-sm font-medium text-red-500 mt-1" />
@@ -214,7 +229,7 @@ export default function AuthPage() {
                           <FormLabel className="font-medium text-gray-700">
                             Password
                           </FormLabel>
-                          <a href="#" className="text-sm text-blue-600 hover:text-blue-800 transition-colors">
+                          <a href="#" className="text-sm text-indigo-600 hover:text-indigo-800 transition-colors">
                             Forgot Password?
                           </a>
                         </div>
@@ -223,7 +238,7 @@ export default function AuthPage() {
                             type="password" 
                             placeholder="Enter your password" 
                             {...field} 
-                            className="h-12 bg-gray-50 border-gray-200 text-gray-900 rounded-md focus-visible:ring-blue-600 focus-visible:ring-1 focus-visible:border-blue-600 outline-none transition-all placeholder:text-gray-400"
+                            className="h-12 bg-gray-50 border-gray-200 text-gray-900 rounded-md focus-visible:ring-indigo-600 focus-visible:ring-1 focus-visible:border-indigo-600 outline-none transition-all placeholder:text-gray-400"
                           />
                         </FormControl>
                         <FormMessage className="text-sm font-medium text-red-500 mt-1" />
@@ -241,7 +256,7 @@ export default function AuthPage() {
                             <Checkbox
                               checked={field.value}
                               onCheckedChange={field.onChange}
-                              className="w-4 h-4 border-gray-300 rounded text-blue-600 focus:ring-blue-500"
+                              className="w-4 h-4 border-gray-300 rounded text-indigo-600 focus:ring-indigo-500"
                             />
                           </FormControl>
                           <div className="leading-none">
@@ -251,16 +266,16 @@ export default function AuthPage() {
                       )}
                     />
                     
-                    <a href="#" className="text-sm text-blue-600 hover:text-blue-800 transition-colors flex items-center">
+                    <a href="#" className="text-sm text-indigo-600 hover:text-indigo-800 transition-colors flex items-center">
                       <Info className="h-4 w-4 mr-1" />
-                      Need Help?
+                      System Support
                     </a>
                   </div>
                   
                   <div className="pt-2">
                     <Button 
                       type="submit" 
-                      className="w-full h-12 text-base font-medium tracking-wide rounded-md bg-blue-600 hover:bg-blue-700 transition-colors relative overflow-hidden group"
+                      className="w-full h-12 text-base font-medium tracking-wide rounded-md bg-indigo-600 hover:bg-indigo-700 transition-colors relative overflow-hidden group"
                       disabled={isLoading}
                     >
                       {isLoading ? (
@@ -269,11 +284,11 @@ export default function AuthPage() {
                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                           </svg>
-                          Signing In...
+                          Authenticating...
                         </div>
                       ) : (
                         <div className="flex items-center justify-center">
-                          Sign In
+                          Secure Sign In
                           <ChevronRight className="ml-1 h-4 w-4 group-hover:translate-x-1 transition-transform" />
                         </div>
                       )}
@@ -281,14 +296,14 @@ export default function AuthPage() {
                     
                     {/* Security information */}
                     <div className="flex items-center mt-4 text-xs text-gray-500 justify-center">
-                      <Lock className="h-3 w-3 mr-1 text-gray-400" />
-                      <span>Secured by InfinityMailer Enterprise Security</span>
+                      <Shield className="h-3 w-3 mr-1 text-gray-400" />
+                      <span>Enterprise Security • SOC 2 Type II Certified • HIPAA Compliant</span>
                     </div>
                   </div>
                   
                   <div className="border-t border-gray-200 mt-6 pt-6 text-center">
                     <p className="text-gray-600 text-sm">
-                      <span>Client Portal:</span> <a href="/client-login" className="text-blue-600 hover:text-blue-800 hover:underline font-medium ml-1">Access Here</a>
+                      <span>Client Portal:</span> <a href="/client-login" className="text-indigo-600 hover:text-indigo-800 hover:underline font-medium ml-1">Access Here</a>
                     </p>
                   </div>
                 </form>
