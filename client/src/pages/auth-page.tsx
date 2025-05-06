@@ -66,25 +66,16 @@ export default function AuthPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-gray-900 to-gray-800 p-4">
-      <div className="w-full max-w-6xl flex flex-col md:flex-row rounded-xl shadow-2xl overflow-hidden">
-        {/* Left side - Brand/Logo */}
-        <div className="md:w-2/5 bg-gradient-to-br from-black to-gray-800 p-8 flex-col justify-between relative hidden md:flex">
-          {/* Decorative elements - animated data visualization */}
-          <div className="absolute inset-0 overflow-hidden opacity-20">
-            {/* Simulated data visualization grid */}
-            <div className="absolute top-0 left-0 w-full h-full grid grid-cols-8 grid-rows-12 gap-1">
-              {Array.from({ length: 96 }).map((_, i) => (
-                <div 
-                  key={i} 
-                  className="bg-primary/80 rounded-sm" 
-                  style={{ 
-                    opacity: Math.random() * 0.8 + 0.2,
-                    height: `${Math.random() * 100}%`,
-                    animation: `pulse ${Math.random() * 4 + 2}s infinite alternate`
-                  }} 
-                />
-              ))}
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-blue-50 to-white p-4">
+      <div className="w-full max-w-6xl flex flex-col md:flex-row rounded-xl shadow-xl overflow-hidden">
+        {/* Left side - Brand/Logo & Information */}
+        <div className="md:w-2/5 bg-gradient-to-br from-blue-600 to-blue-800 p-8 flex-col justify-between relative hidden md:flex">
+          {/* Decorative background elements - medical/pharma themed */}
+          <div className="absolute inset-0 overflow-hidden opacity-10">
+            <div className="absolute top-0 left-0 w-full h-full">
+              <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
+                <path fill="white" d="M39.5,-65.1C52.9,-59.5,66.8,-51.8,75.2,-39.7C83.5,-27.7,86.4,-11.2,84.6,4.5C82.9,20.2,76.6,35.2,66.7,47.2C56.8,59.2,43.3,68.2,29.4,70.8C15.4,73.3,1,69.4,-14.2,67.3C-29.5,65.2,-45.6,64.8,-56.5,57.2C-67.4,49.5,-73,34.5,-77.4,19C-81.8,3.5,-84.9,-12.5,-80,-25.1C-75.2,-37.7,-62.4,-46.9,-49,-53.8C-35.6,-60.7,-21.6,-65.4,-7.5,-63.8C6.7,-62.3,26.1,-70.7,39.5,-65.1Z" transform="translate(100 100)" />
+              </svg>
             </div>
           </div>
           
@@ -92,97 +83,103 @@ export default function AuthPage() {
           <div className="relative z-10 mt-4">
             <div className="flex flex-col items-start">
               <div className="mb-6 flex flex-col items-start">
-                <div className="relative animate-glow">
+                <div className="relative">
                   <img 
                     src={Infy} 
                     alt="Infinity Tech Logo" 
-                    className="h-20 w-auto mb-4 animate-scale-in" 
+                    className="h-20 w-auto mb-4" 
                   />
                 </div>
-                <h1 className="text-3xl font-bold text-white tracking-tight animate-slide-up animation-delay-300">
-                  Infinity<span className="text-primary">Mailer</span>
+                <h1 className="text-3xl font-bold text-white tracking-tight">
+                  Infinity<span className="text-blue-200">Mailer</span>
                 </h1>
               </div>
-              <div className="h-0.5 w-16 bg-primary rounded my-6 animate-slide-in-left animation-delay-400"></div>
-              <p className="text-white text-lg font-light animate-fade-in animation-delay-500">
-                Advanced AI-Powered Email Marketing
+              <div className="h-0.5 w-16 bg-white rounded my-6"></div>
+              <p className="text-white text-lg font-light">
+                Secure Healthcare Communication
               </p>
-              <p className="text-gray-400 text-sm mt-2 max-w-sm animate-fade-in animation-delay-600">
-                Our AI reporting system provides deep insights and optimizes your email campaigns for maximum performance
+              <p className="text-blue-100 text-sm mt-2 max-w-sm">
+                Industry-leading email marketing platform designed specifically for pharmaceutical and healthcare organizations
               </p>
             </div>
           </div>
           
-          {/* Feature highlights with code/AI styling */}
+          {/* Feature highlights with healthcare/pharma styling */}
           <div className="relative z-10 space-y-4 mt-12">
-            <div className="flex items-start space-x-3 p-4 rounded-md bg-black/40 border border-gray-700/50 backdrop-blur-sm transition-all hover:border-primary/50 animate-slide-in-left animation-delay-700">
-              <div className="text-primary font-mono mt-0.5">{">"}</div>
+            <div className="flex items-start space-x-3 p-4 rounded-md bg-white/10 border border-white/20 backdrop-blur-sm transition-all hover:bg-white/20">
+              <div className="bg-white rounded-full p-1.5 mt-0.5">
+                <CheckCircle className="h-4 w-4 text-blue-600" />
+              </div>
               <div>
                 <h3 className="font-medium text-white flex items-center">
-                  <span className="text-primary mr-2">AI</span> 
-                  Smart Template Generation
+                  HIPAA Compliant
                 </h3>
-                <p className="text-gray-400 text-sm">Data-driven email templates optimized for conversions</p>
+                <p className="text-blue-100 text-sm">Secure messaging that meets healthcare regulations</p>
               </div>
             </div>
             
-            <div className="flex items-start space-x-3 p-4 rounded-md bg-black/40 border border-gray-700/50 backdrop-blur-sm transition-all hover:border-primary/50 animate-slide-in-left animation-delay-800">
-              <div className="text-primary font-mono mt-0.5">{">"}</div>
+            <div className="flex items-start space-x-3 p-4 rounded-md bg-white/10 border border-white/20 backdrop-blur-sm transition-all hover:bg-white/20">
+              <div className="bg-white rounded-full p-1.5 mt-0.5">
+                <CheckCircle className="h-4 w-4 text-blue-600" />
+              </div>
               <div>
                 <h3 className="font-medium text-white flex items-center">
-                  <span className="text-primary mr-2">ML</span> 
-                  Advanced Analytics Engine
+                  Regulatory Approved
                 </h3>
-                <p className="text-gray-400 text-sm">Real-time data processing for actionable insights</p>
+                <p className="text-blue-100 text-sm">FDA and EMA compliant communication platform</p>
               </div>
             </div>
             
-            <div className="flex items-start space-x-3 p-4 rounded-md bg-black/40 border border-gray-700/50 backdrop-blur-sm transition-all hover:border-primary/50 animate-slide-in-left animation-delay-900">
-              <div className="text-primary font-mono mt-0.5">{">"}</div>
+            <div className="flex items-start space-x-3 p-4 rounded-md bg-white/10 border border-white/20 backdrop-blur-sm transition-all hover:bg-white/20">
+              <div className="bg-white rounded-full p-1.5 mt-0.5">
+                <CheckCircle className="h-4 w-4 text-blue-600" />
+              </div>
               <div>
                 <h3 className="font-medium text-white flex items-center">
-                  <span className="text-primary mr-2">API</span> 
-                  Multi-domain Integration
+                  Advanced Security
                 </h3>
-                <p className="text-gray-400 text-sm">Seamless connection with all major email providers</p>
+                <p className="text-blue-100 text-sm">End-to-end encryption for sensitive healthcare data</p>
               </div>
             </div>
           </div>
           
           {/* Copyright */}
-          <div className="relative z-10 text-gray-500 text-sm mt-6 flex flex-col">
-            <div className="text-xs text-gray-600 font-mono mb-2">v3.4.2 • AI Engine: GPT-4o</div>
+          <div className="relative z-10 text-blue-100 text-sm mt-6 flex flex-col">
+            <div className="flex items-center text-blue-200 text-xs mb-2">
+              <Lock className="h-3 w-3 mr-1" />
+              <span>Secure Connection • 256-bit Encryption</span>
+            </div>
             &copy; {new Date().getFullYear()} Infinity Tech. All rights reserved.
           </div>
         </div>
         
         {/* Right side - Login form */}
-        <div className="w-full md:w-3/5 p-6 md:p-12 bg-gray-900 text-white">
+        <div className="w-full md:w-3/5 p-6 md:p-12 bg-white text-gray-800">
           {/* Mobile logo */}
           <div className="flex flex-col items-center mb-8 md:hidden">
-            <div className="relative mb-4 animate-glow">
+            <div className="relative mb-4">
               <img 
                 src={Infy} 
                 alt="Infinity Tech Logo" 
-                className="h-24 w-auto animate-scale-in" 
+                className="h-24 w-auto" 
               />
             </div>
-            <h1 className="text-2xl font-bold text-white tracking-tight mb-2 animate-slide-up animation-delay-300">
-              Infinity<span className="text-primary">Mailer</span>
+            <h1 className="text-2xl font-bold text-gray-800 tracking-tight mb-2">
+              Infinity<span className="text-blue-600">Mailer</span>
             </h1>
-            <p className="text-gray-400 text-center max-w-xs animate-fade-in animation-delay-500">
-              Advanced AI-Powered Email Marketing
+            <p className="text-gray-600 text-center max-w-xs">
+              Secure Healthcare Communication
             </p>
           </div>
           
-          <Card className="border-0 shadow-none bg-transparent animate-fade-in animation-delay-700">
+          <Card className="border-0 shadow-none bg-transparent">
             <CardHeader className="text-center md:text-left pb-2 space-y-1 px-0">
               <div className="flex items-center space-x-2 mb-1">
-                <div className="h-2 w-2 rounded-full bg-primary animate-pulse"></div>
-                <div className="text-xs font-mono text-primary">SYSTEM READY</div>
+                <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse"></div>
+                <div className="text-xs font-medium text-green-600">Secure System</div>
               </div>
-              <CardTitle className="text-2xl md:text-3xl font-bold text-white animate-slide-in-right animation-delay-900">Authentication Portal</CardTitle>
-              <CardDescription className="text-gray-400 animate-fade-in animation-delay-1000">Enter credentials to access your dashboard</CardDescription>
+              <CardTitle className="text-2xl md:text-3xl font-bold text-gray-800">Welcome Back</CardTitle>
+              <CardDescription className="text-gray-600">Please sign in to access your secure dashboard</CardDescription>
             </CardHeader>
             
             <CardContent className="px-0 pt-6">
@@ -192,18 +189,18 @@ export default function AuthPage() {
                     control={form.control}
                     name="usernameOrEmail"
                     render={({ field }) => (
-                      <FormItem className="animate-slide-in-right animation-delay-1000">
-                        <FormLabel className="flex items-center text-gray-300 font-mono text-sm block mb-1.5">
-                          <span className="text-primary mr-2">[user]</span>USERNAME
+                      <FormItem>
+                        <FormLabel className="font-medium text-gray-700">
+                          Username or Email
                         </FormLabel>
                         <FormControl>
                           <Input 
-                            placeholder="Enter your username" 
+                            placeholder="Enter your username or email" 
                             {...field} 
-                            className="h-12 bg-gray-800/50 border-gray-700 text-white rounded-md focus-visible:ring-primary focus-visible:ring-1 focus-visible:border-primary outline-none transition-all placeholder:text-gray-500"
+                            className="h-12 bg-gray-50 border-gray-200 text-gray-900 rounded-md focus-visible:ring-blue-600 focus-visible:ring-1 focus-visible:border-blue-600 outline-none transition-all placeholder:text-gray-400"
                           />
                         </FormControl>
-                        <FormMessage className="text-sm font-medium text-red-400 mt-1" />
+                        <FormMessage className="text-sm font-medium text-red-500 mt-1" />
                       </FormItem>
                     )}
                   />
@@ -212,13 +209,13 @@ export default function AuthPage() {
                     control={form.control}
                     name="password"
                     render={({ field }) => (
-                      <FormItem className="animate-slide-in-right animation-delay-1100">
+                      <FormItem>
                         <div className="flex justify-between mb-1.5">
-                          <FormLabel className="flex items-center text-gray-300 font-mono text-sm">
-                            <span className="text-primary mr-2">[auth]</span>PASSWORD
+                          <FormLabel className="font-medium text-gray-700">
+                            Password
                           </FormLabel>
-                          <a href="#" className="text-xs text-primary/80 hover:text-primary transition-colors font-mono">
-                            RESET_CREDENTIALS
+                          <a href="#" className="text-sm text-blue-600 hover:text-blue-800 transition-colors">
+                            Forgot Password?
                           </a>
                         </div>
                         <FormControl>
@@ -226,15 +223,15 @@ export default function AuthPage() {
                             type="password" 
                             placeholder="Enter your password" 
                             {...field} 
-                            className="h-12 bg-gray-800/50 border-gray-700 text-white rounded-md focus-visible:ring-primary focus-visible:ring-1 focus-visible:border-primary outline-none transition-all placeholder:text-gray-500"
+                            className="h-12 bg-gray-50 border-gray-200 text-gray-900 rounded-md focus-visible:ring-blue-600 focus-visible:ring-1 focus-visible:border-blue-600 outline-none transition-all placeholder:text-gray-400"
                           />
                         </FormControl>
-                        <FormMessage className="text-sm font-medium text-red-400 mt-1" />
+                        <FormMessage className="text-sm font-medium text-red-500 mt-1" />
                       </FormItem>
                     )}
                   />
                   
-                  <div className="flex items-center justify-between animate-fade-in animation-delay-1200">
+                  <div className="flex items-center justify-between">
                     <FormField
                       control={form.control}
                       name="rememberMe"
@@ -244,54 +241,54 @@ export default function AuthPage() {
                             <Checkbox
                               checked={field.value}
                               onCheckedChange={field.onChange}
-                              className="w-4 h-4 border-gray-600 bg-gray-800 rounded text-primary focus:ring-primary"
+                              className="w-4 h-4 border-gray-300 rounded text-blue-600 focus:ring-blue-500"
                             />
                           </FormControl>
                           <div className="leading-none">
-                            <FormLabel className="text-gray-400 ml-1 cursor-pointer font-mono text-xs">PERSIST_SESSION</FormLabel>
+                            <FormLabel className="text-gray-600 ml-1 cursor-pointer text-sm">Remember me</FormLabel>
                           </div>
                         </FormItem>
                       )}
                     />
                     
-                    <a href="#" className="text-xs font-mono text-gray-500 hover:text-primary transition-colors">
-                      <span className="text-primary/70 mr-1">[?]</span>SUPPORT
+                    <a href="#" className="text-sm text-blue-600 hover:text-blue-800 transition-colors flex items-center">
+                      <Info className="h-4 w-4 mr-1" />
+                      Need Help?
                     </a>
                   </div>
                   
-                  <div className="pt-2 animate-slide-up animation-delay-1300">
+                  <div className="pt-2">
                     <Button 
                       type="submit" 
-                      className="w-full h-12 text-sm font-mono tracking-wide rounded-md bg-primary hover:bg-primary/90 transition-colors relative overflow-hidden group animate-glow"
+                      className="w-full h-12 text-base font-medium tracking-wide rounded-md bg-blue-600 hover:bg-blue-700 transition-colors relative overflow-hidden group"
                       disabled={isLoading}
                     >
-                      <div className="absolute inset-0 w-full bg-gradient-to-r from-white/5 to-transparent"></div>
                       {isLoading ? (
                         <div className="flex items-center justify-center">
                           <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                           </svg>
-                          AUTHENTICATING...
+                          Signing In...
                         </div>
                       ) : (
                         <div className="flex items-center justify-center">
-                          INITIALIZE SESSION
+                          Sign In
                           <ChevronRight className="ml-1 h-4 w-4 group-hover:translate-x-1 transition-transform" />
                         </div>
                       )}
                     </Button>
                     
-                    {/* Terminal-like decoration */}
-                    <div className="flex items-center mt-4 text-xs text-gray-500 font-mono">
-                      <div className="w-2 h-2 bg-primary/50 rounded-full mr-2 animate-pulse"></div>
-                      <span className="opacity-70">System ready • Awaiting authentication</span>
+                    {/* Security information */}
+                    <div className="flex items-center mt-4 text-xs text-gray-500 justify-center">
+                      <Lock className="h-3 w-3 mr-1 text-gray-400" />
+                      <span>Secured by InfinityMailer Enterprise Security</span>
                     </div>
                   </div>
                   
-                  <div className="border-t border-gray-700/30 mt-6 pt-6 text-center animate-fade-in animation-delay-1400">
-                    <p className="text-gray-500 text-xs font-mono">
-                      <span className="text-gray-500">CLIENT_ACCESS:</span> <a href="/client-login" className="text-primary/80 hover:text-primary hover:underline font-medium ml-1">PORTAL_LOGIN</a>
+                  <div className="border-t border-gray-200 mt-6 pt-6 text-center">
+                    <p className="text-gray-600 text-sm">
+                      <span>Client Portal:</span> <a href="/client-login" className="text-blue-600 hover:text-blue-800 hover:underline font-medium ml-1">Access Here</a>
                     </p>
                   </div>
                 </form>
