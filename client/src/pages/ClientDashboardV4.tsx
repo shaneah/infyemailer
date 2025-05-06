@@ -228,9 +228,67 @@ export default function ClientDashboardV4() {
   const [showFilters, setShowFilters] = useState(false);
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
   
+  // Date picker state
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [dateRanges] = useState([
+    "Last 7 days",
+    "Last 30 days",
+    "This month",
+    "Last month",
+    "This quarter",
+    "Custom range..."
+  ]);
+  
+  // Various UI interaction handlers
+  const handleDownloadClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    console.log("Download clicked");
+    // Download functionality would go here
+    toast({
+      title: "Download started",
+      description: "Your data is being prepared for download.",
+      variant: "default",
+    });
+  };
+  
+  const handleBarChartClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    console.log("Chart view toggle clicked");
+    toast({
+      title: "View changed",
+      description: "Chart view has been toggled.",
+      variant: "default",
+    });
+  };
+  
+  const handleDateRangeSelect = (range: string) => {
+    setDateRange(range);
+    setShowDatePicker(false);
+    toast({
+      title: "Date range updated",
+      description: `Date range changed to: ${range}`,
+      variant: "default",
+    });
+  };
+
+  // Toggle date picker visibility
+  const toggleDatePicker = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setShowDatePicker(!showDatePicker);
+    // Close filter panel when opening date picker
+    if (!showDatePicker) {
+      setShowFilters(false);
+    }
+  };
+  
   // Handle filter functionality
-  const toggleFilter = () => {
+  const toggleFilter = (e: React.MouseEvent) => {
+    e.stopPropagation();
     setShowFilters(!showFilters);
+    // Close date picker when opening filter panel
+    if (!showFilters) {
+      setShowDatePicker(false);
+    }
   };
   
   // Add or remove filter from active filters
@@ -240,7 +298,26 @@ export default function ClientDashboardV4() {
     } else {
       setActiveFilters([...activeFilters, filter]);
     }
+    
+    toast({
+      title: activeFilters.includes(filter) ? "Filter removed" : "Filter applied",
+      description: `${filter} filter has been ${activeFilters.includes(filter) ? "removed" : "applied"}`,
+      variant: "default",
+    });
   };
+  
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    const handleClickOutside = () => {
+      setShowFilters(false);
+      setShowDatePicker(false);
+    };
+    
+    document.addEventListener('click', handleClickOutside);
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, []);
   
   // Handle client logout
   const handleClientLogout = async () => {
@@ -409,12 +486,31 @@ export default function ClientDashboardV4() {
               </div>
               
               {/* Date range selector */}
-              <div className="relative bg-gray-100 rounded-md border border-gray-200 px-3 py-1.5 text-sm cursor-pointer hover:bg-gray-200 transition-colors">
-                <div className="flex items-center">
-                  <Calendar className="h-4 w-4 mr-2 text-blue-500" />
-                  <span className="text-gray-800 font-medium">{dateRange}</span>
-                  <ChevronDown className="h-3 w-3 ml-2 text-gray-500" />
+              <div className="relative">
+                <div 
+                  className="bg-gray-100 rounded-md border border-gray-200 px-3 py-1.5 text-sm cursor-pointer hover:bg-gray-200 transition-colors"
+                  onClick={toggleDatePicker}
+                >
+                  <div className="flex items-center">
+                    <Calendar className="h-4 w-4 mr-2 text-blue-500" />
+                    <span className="text-gray-800 font-medium">{dateRange}</span>
+                    <ChevronDown className="h-3 w-3 ml-2 text-gray-500" />
+                  </div>
                 </div>
+                
+                {showDatePicker && (
+                  <div className="absolute right-0 mt-1 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-10 py-1">
+                    {dateRanges.map((range) => (
+                      <div 
+                        key={range}
+                        className="px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
+                        onClick={() => handleDateRangeSelect(range)}
+                      >
+                        {range}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -583,7 +679,12 @@ export default function ClientDashboardV4() {
                     <CardTitle className="text-base text-slate-800 font-medium">Channel Performance</CardTitle>
                   </div>
                   <div className="flex space-x-1">
-                    <Button variant="ghost" size="icon" className="h-6 w-6 text-slate-500 hover:text-slate-700">
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="h-6 w-6 text-slate-500 hover:text-slate-700"
+                      onClick={handleDownloadClick}
+                    >
                       <Download className="h-4 w-4" />
                     </Button>
                     <Button 
@@ -594,7 +695,12 @@ export default function ClientDashboardV4() {
                     >
                       <Filter className="h-4 w-4" />
                     </Button>
-                    <Button variant="ghost" size="icon" className="h-6 w-6 text-slate-500 hover:text-slate-700">
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="h-6 w-6 text-slate-500 hover:text-slate-700"
+                      onClick={handleBarChartClick}
+                    >
                       <BarChart className="h-4 w-4" />
                     </Button>
                   </div>
@@ -657,13 +763,28 @@ export default function ClientDashboardV4() {
                     <CardTitle className="text-base text-slate-800 font-medium">Data Source Performance</CardTitle>
                   </div>
                   <div className="flex space-x-1">
-                    <Button variant="ghost" size="icon" className="h-6 w-6 text-slate-500 hover:text-slate-700">
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="h-6 w-6 text-slate-500 hover:text-slate-700"
+                      onClick={handleDownloadClick}
+                    >
                       <Download className="h-4 w-4" />
                     </Button>
-                    <Button variant="ghost" size="icon" className="h-6 w-6 text-slate-500 hover:text-slate-700">
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className={`h-6 w-6 text-slate-500 hover:text-slate-700 ${showFilters ? 'bg-slate-100' : ''}`}
+                      onClick={toggleFilter}
+                    >
                       <Filter className="h-4 w-4" />
                     </Button>
-                    <Button variant="ghost" size="icon" className="h-6 w-6 text-slate-500 hover:text-slate-700">
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="h-6 w-6 text-slate-500 hover:text-slate-700"
+                      onClick={handleBarChartClick}
+                    >
                       <BarChart className="h-4 w-4" />
                     </Button>
                   </div>
