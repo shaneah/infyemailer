@@ -487,47 +487,48 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
   });
   
   return (
-    <div className="flex flex-col min-h-screen bg-white">
+    <div className="flex flex-col min-h-screen bg-gray-50">
       
       <div className="space-y-8 p-6 max-w-[1600px] mx-auto">
-        {/* Hero section with purple/indigo gradient */}
-        <div className="relative overflow-hidden bg-gradient-to-r from-purple-50 via-indigo-50 to-violet-50 rounded-xl p-6 sm:p-8 shadow-md border border-purple-100">
-          <div className="absolute inset-0 bg-grid-primary-500/10 [mask-image:linear-gradient(0deg,#fff2,transparent)] bg-fixed"></div>
+        {/* Modern Professional Hero Section */}
+        <div className="relative overflow-hidden bg-gradient-to-r from-blue-800 to-blue-900 rounded-xl p-8 sm:p-10 shadow-lg border border-blue-700">
+          <div className="absolute inset-0 opacity-10 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iLjUiPjxwYXRoIGQ9Ik0zNiAxOGMxLjIgMCAyLjMuNCAzLjIgMS4yLjkuOCAxLjQgMS45IDEuNCAzLjEgMCAxLjItLjUgMi4zLTEuNCAzLjEtLjkuOC0yIDEuMi0zLjIgMS4ycy0yLjMtLjQtMy4yLTEuMmMtLjktLjgtMS40LTEuOS0xLjQtMy4xIDAtMS4yLjUtMi4zIDEuNC0zLjEuOS0uOCAyLTEuMiAzLjItMS4yem0wIDJjLS43IDAtMS40LjMtMS45LjctLjUuNS0uOCAxLjEtLjggMS43cy4zIDEuMi44IDEuN2MuNS41IDEuMi43IDEuOS43cy0xLjQtLjMtMS45LS43Yy0uNS0uNC0uOC0xLS44LTEuN3MuMy0xLjIuOC0xLjdjLjUtLjQgMS4yLS43IDEuOS0uN3oiLz48cGF0aCBkPSJNMjQgMThjMS4yIDAgMi4zLjQgMy4yIDEuMi45LjggMS40IDEuOSAxLjQgMy4xIDAgMS4yLS41IDIuMy0xLjQgMy4xLS45LjgtMiAxLjItMy4yIDEuMnMtMi4zLS40LTMuMi0xLjJjLS45LS44LTEuNC0xLjktMS40LTMuMSAwLTEuMi41LTIuMyAxLjQtMy4xLjktLjggMi0xLjIgMy4yLTEuMnptMCAyYy0uNyAwLTEuNC4zLTEuOS43LS41LjUtLjggMS4xLS44IDEuN3MuMyAxLjIuOCAxLjdjLjUuNSAxLjIuNyAxLjkuN3MtMS40LS4zLTEuOS0uN2MtLjUtLjQtLjgtMS0uOC0xLjdzLjMtMS4yLjgtMS43Yy41LS40IDEuMi0uNyAxLjktLjd6Ii8+PHBhdGggZD0iTTEyIDE4YzEuMiAwIDIuMy40IDMuMiAxLjIuOS44IDEuNCAxLjkgMS40IDMuMSAwIDEuMi0uNSAyLjMtMS40IDMuMS0uOS44LTIgMS4yLTMuMiAxLjJzLTIuMy0uNC0zLjItMS4yYy0uOS0uOC0xLjQtMS45LTEuNC0zLjEgMC0xLjIuNS0yLjMgMS40LTMuMS45LS44IDItMS4yIDMuMi0xLjJ6bTAgMmMtLjcgMC0xLjQuMy0xLjkuNy0uNS41LS44IDEuMS0uOCAxLjdzLjMgMS4yLjggMS43Yy41LjUgMS4yLjcgMS45LjdzLTEuNC0uMy0xLjktLjdjLS41LS40LS44LTEtLjgtMS43cy4zLTEuMi44LTEuN2MuNS0uNCAxLjItLjcgMS45LS43eiIvPjxwYXRoIGQ9Ik00OCAxOGMxLjIgMCAyLjMuNCAzLjIgMS4yLjkuOCAxLjQgMS45IDEuNCAzLjEgMCAxLjItLjUgMi4zLTEuNCAzLjEtLjkuOC0yIDEuMi0zLjIgMS4ycy0yLjMtLjQtMy4yLTEuMmMtLjktLjgtMS40LTEuOS0xLjQtMy4xIDAtMS4yLjUtMi4zIDEuNC0zLjEuOS0uOCAyLTEuMiAzLjItMS4yem0wIDJjLS43IDAtMS40LjMtMS45LjctLjUuNS0uOCAxLjEtLjggMS43cy4zIDEuMi44IDEuN2MuNS41IDEuMi43IDEuOS43cy0xLjQtLjMtMS45LS43Yy0uNS0uNC0uOC0xLS44LTEuN3MuMy0xLjIuOC0xLjdjLjUtLjQgMS4yLS43IDEuOS0uN3oiLz48cGF0aCBkPSJNMzYgNmMxLjIgMCAyLjMuNCAzLjIgMS4yLjkuOCAxLjQgMS45IDEuNCAzLjEgMCAxLjItLjUgMi4zLTEuNCAzLjEtLjkuOC0yIDEuMi0zLjIgMS4ycy0yLjMtLjQtMy4yLTEuMmMtLjktLjgtMS40LTEuOS0xLjQtMy4xIDAtMS4yLjUtMi4zIDEuNC0zLjEuOS0uOCAyLTEuMiAzLjItMS4yem0wIDJjLS43IDAtMS40LjMtMS45LjctLjUuNS0uOCAxLjEtLjggMS43cy4zIDEuMi44IDEuN2MuNS41IDEuMi43IDEuOS43cy0xLjQtLjMtMS45LS43Yy0uNS0uNC0uOC0xLS44LTEuN3MuMy0xLjIuOC0xLjdjLjUtLjQgMS4yLS43IDEuOS0uN3oiLz48cGF0aCBkPSJNMjQgNmMxLjIgMCAyLjMuNCAzLjIgMS4yLjkuOCAxLjQgMS45IDEuNCAzLjEgMCAxLjItLjUgMi4zLTEuNCAzLjEtLjkuOC0yIDEuMi0zLjIgMS4ycy0yLjMtLjQtMy4yLTEuMmMtLjktLjgtMS40LTEuOS0xLjQtMy4xIDAtMS4yLjUtMi4zIDEuNC0zLjEuOS0uOCAyLTEuMiAzLjItMS4yem0wIDJjLS43IDAtMS40LjMtMS45LjctLjUuNS0uOCAxLjEtLjggMS43cy4zIDEuMi44IDEuN2MuNS41IDEuMi43IDEuOS43cy0xLjQtLjMtMS45LS43Yy0uNS0uNC0uOC0xLS44LTEuN3MuMy0xLjIuOC0xLjdjLjUtLjQgMS4yLS43IDEuOS0uN3oiLz48cGF0aCBkPSJNMTIgNmMxLjIgMCAyLjMuNCAzLjIgMS4yLjkuOCAxLjQgMS45IDEuNCAzLjEgMCAxLjItLjUgMi4zLTEuNCAzLjEtLjkuOC0yIDEuMi0zLjIgMS4ycy0yLjMtLjQtMy4yLTEuMmMtLjktLjgtMS40LTEuOS0xLjQtMy4xIDAtMS4yLjUtMi4zIDEuNC0zLjEuOS0uOCAyLTEuMiAzLjItMS4yem0wIDJjLS43IDAtMS40LjMtMS45LjctLjUuNS0uOCAxLjEtLjggMS43cy4zIDEuMi44IDEuN2MuNS41IDEuMi43IDEuOS43cy0xLjQtLjMtMS45LS43Yy0uNS0uNC0uOC0xLS44LTEuN3MuMy0xLjIuOC0xLjdjLjUtLjQgMS4yLS43IDEuOS0uN3oiLz48cGF0aCBkPSJNNDggNmMxLjIgMCAyLjMuNCAzLjIgMS4yLjkuOCAxLjQgMS45IDEuNCAzLjEgMCAxLjItLjUgMi4zLTEuNCAzLjEtLjkuOC0yIDEuMi0zLjIgMS4ycy0yLjMtLjQtMy4yLTEuMmMtLjktLjgtMS40LTEuOS0xLjQtMy4xIDAtMS4yLjUtMi4zIDEuNC0zLjEuOS0uOCAyLTEuMiAzLjItMS4yem0wIDJjLS43IDAtMS40LjMtMS45LjctLjUuNS0uOCAxLjEtLjggMS43cy4zIDEuMi44IDEuN2MuNS41IDEuMi43IDEuOS43cy0xLjQtLjMtMS45LS43Yy0uNS0uNC0uOC0xLS44LTEuN3MuMy0xLjIuOC0xLjdjLjUtLjQgMS4yLS43IDEuOS0uN3oiLz48cGF0aCBkPSJNMzYgMzBjMS4yIDAgMi4zLjQgMy4yIDEuMi45LjggMS40IDEuOSAxLjQgMy4xIDAgMS4yLS41IDIuMy0xLjQgMy4xLS45LjgtMiAxLjItMy4yIDEuMnMtMi4zLS40LTMuMi0xLjJjLS45LS44LTEuNC0xLjktMS40LTMuMSAwLTEuMi41LTIuMyAxLjQtMy4xLjktLjggMi0xLjIgMy4yLTEuMnptMCAyYy0uNyAwLTEuNC4zLTEuOS43LS41LjUtLjggMS4xLS44IDEuN3MuMyAxLjIuOCAxLjdjLjUuNSAxLjIuNyAxLjkuN3MtMS40LS4zLTEuOS0uN2MtLjUtLjQtLjgtMS0uOC0xLjdzLjMtMS4yLjgtMS43Yy41LS40IDEuMi0uNyAxLjktLjd6Ii8+PHBhdGggZD0iTTI0IDMwYzEuMiAwIDIuMy40IDMuMiAxLjIuOS44IDEuNCAxLjkgMS40IDMuMSAwIDEuMi0uNSAyLjMtMS40IDMuMS0uOS44LTIgMS4yLTMuMiAxLjJzLTIuMy0uNC0zLjItMS4yYy0uOS0uOC0xLjQtMS45LTEuNC0zLjEgMC0xLjIuNS0yLjMgMS40LTMuMS45LS44IDItMS4yIDMuMi0xLjJ6bTAgMmMtLjcgMC0xLjQuMy0xLjkuNy0uNS41LS44IDEuMS0uOCAxLjdzLjMgMS4yLjggMS43Yy41LjUgMS4yLjcgMS45LjdzLTEuNC0uMy0xLjktLjdjLS41LS40LS44LTEtLjgtMS43cy4zLTEuMi44LTEuN2MuNS0uNCAxLjItLjcgMS45LS43eiIvPjxwYXRoIGQ9Ik0xMiAzMGMxLjIgMCAyLjMuNCAzLjIgMS4yLjkuOCAxLjQgMS45IDEuNCAzLjEgMCAxLjItLjUgMi4zLTEuNCAzLjEtLjkuOC0yIDEuMi0zLjIgMS4ycy0yLjMtLjQtMy4yLTEuMmMtLjktLjgtMS40LTEuOS0xLjQtMy4xIDAtMS4yLjUtMi4zIDEuNC0zLjEuOS0uOCAyLTEuMiAzLjItMS4yem0wIDJjLS43IDAtMS40LjMtMS45LjctLjUuNS0uOCAxLjEtLjggMS43cy4zIDEuMi44IDEuN2MuNS41IDEuMi43IDEuOS43cy0xLjQtLjMtMS45LS43Yy0uNS0uNC0uOC0xLS44LTEuN3MuMy0xLjIuOC0xLjdjLjUtLjQgMS4yLS43IDEuOS0uN3oiLz48cGF0aCBkPSJNNDggMzBjMS4yIDAgMi4zLjQgMy4yIDEuMi45LjggMS40IDEuOSAxLjQgMy4xIDAgMS4yLS41IDIuMy0xLjQgMy4xLS45LjgtMiAxLjItMy4yIDEuMnMtMi4zLS40LTMuMi0xLjJjLS45LS44LTEuNC0xLjktMS40LTMuMSAwLTEuMi41LTIuMyAxLjQtMy4xLjktLjggMi0xLjIgMy4yLTEuMnptMCAyYy0uNyAwLTEuNC4zLTEuOS43LS41LjUtLjggMS4xLS44IDEuN3MuMyAxLjIuOCAxLjdjLjUuNSAxLjIuNyAxLjkuN3MtMS40LS4zLTEuOS0uN2MtLjUtLjQtLjgtMS0uOC0xLjdzLjMtMS4yLjgtMS43Yy41LS40IDEuMi0uNyAxLjktLjd6Ii8+PHBhdGggZD0iTTM2IDQyYzEuMiAwIDIuMy40IDMuMiAxLjIuOS44IDEuNCAxLjkgMS40IDMuMSAwIDEuMi0uNSAyLjMtMS40IDMuMS0uOS44LTIgMS4yLTMuMiAxLjJzLTIuMy0uNC0zLjItMS4yYy0uOS0uOC0xLjQtMS45LTEuNC0zLjEgMC0xLjIuNS0yLjMgMS40LTMuMS45LS44IDItMS4yIDMuMi0xLjJ6bTAgMmMtLjcgMC0xLjQuMy0xLjkuNy0uNS41LS44IDEuMS0uOCAxLjdzLjMgMS4yLjggMS43Yy41LjUgMS4yLjcgMS45LjdzLTEuNC0uMy0xLjktLjdjLS41LS40LS44LTEtLjgtMS43cy4zLTEuMi44LTEuN2MuNS0uNCAxLjItLjcgMS45LS43eiIvPjxwYXRoIGQ9Ik0yNCA0MmMxLjIgMCAyLjMuNCAzLjIgMS4yLjkuOCAxLjQgMS45IDEuNCAzLjEgMCAxLjItLjUgMi4zLTEuNCAzLjEtLjkuOC0yIDEuMi0zLjIgMS4ycy0yLjMtLjQtMy4yLTEuMmMtLjktLjgtMS40LTEuOS0xLjQtMy4xIDAtMS4yLjUtMi4zIDEuNC0zLjEuOS0uOCAyLTEuMiAzLjItMS4yem0wIDJjLS43IDAtMS40LjMtMS45LjctLjUuNS0uOCAxLjEtLjggMS43cy4zIDEuMi44IDEuN2MuNS41IDEuMi43IDEuOS43cy0xLjQtLjMtMS45LS43Yy0uNS0uNC0uOC0xLS44LTEuN3MuMy0xLjIuOC0xLjdjLjUtLjQgMS4yLS43IDEuOS0uN3oiLz48cGF0aCBkPSJNMTIgNDJjMS4yIDAgMi4zLjQgMy4yIDEuMi45LjggMS40IDEuOSAxLjQgMy4xIDAgMS4yLS41IDIuMy0xLjQgMy4xLS45LjgtMiAxLjItMy4yIDEuMnMtMi4zLS40LTMuMi0xLjJjLS45LS44LTEuNC0xLjktMS40LTMuMSAwLTEuMi41LTIuMyAxLjQtMy4xLjktLjggMi0xLjIgMy4yLTEuMnptMCAyYy0uNyAwLTEuNC4zLTEuOS43LS41LjUtLjggMS4xLS44IDEuN3MuMyAxLjIuOCAxLjdjLjUuNSAxLjIuNyAxLjkuN3MtMS40LS4zLTEuOS0uN2MtLjUtLjQtLjgtMS0uOC0xLjdzLjMtMS4yLjgtMS43Yy41LS40IDEuMi0uNyAxLjktLjd6Ii8+PHBhdGggZD0iTTQ4IDQyYzEuMiAwIDIuMy40IDMuMiAxLjIuOS44IDEuNCAxLjkgMS40IDMuMSAwIDEuMi0uNSAyLjMtMS40IDMuMS0uOS44LTIgMS4yLTMuMiAxLjJzLTIuMy0uNC0zLjItMS4yYy0uOS0uOC0xLjQtMS45LTEuNC0zLjEgMC0xLjIuNS0yLjMgMS40LTMuMS45LS44IDItMS4yIDMuMi0xLjJ6bTAgMmMtLjcgMC0xLjQuMy0xLjkuNy0uNS41LS44IDEuMS0uOCAxLjdzLjMgMS4yLjggMS43Yy41LjUgMS4yLjcgMS45LjdzLTEuNC0uMy0xLjktLjdjLS41LS40LS44LTEtLjgtMS43cy4zLTEuMi44LTEuN2MuNS0uNCAxLjItLjcgMS45LS43eiIvPjwvZz48L2c+PC9zdmc+')]"></div>
           <div className="relative">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
               <div>
-                <p className="text-slate-700 mt-2 max-w-2xl text-sm sm:text-base">
-                  Create professional email templates that engage your audience and drive exceptional results
+                <h1 className="text-2xl font-bold text-white mb-2">Email Templates</h1>
+                <p className="text-blue-100 max-w-2xl text-sm sm:text-base">
+                  Create professional email templates that deliver consistent messaging and drive enterprise results
                 </p>
-                <div className="flex mt-4 gap-3 text-sm text-slate-600 items-center">
+                <div className="flex mt-4 gap-3 text-sm text-blue-100 items-center">
                   <div className="flex items-center gap-1.5">
-                    <span className="inline-flex h-2 w-2 rounded-full bg-gradient-to-r from-blue-400 to-amber-400"></span>
-                    Premium quality
+                    <Check className="h-4 w-4 text-blue-200" />
+                    Enterprise-grade
                   </div>
-                  <div className="w-px h-4 bg-blue-200"></div>
+                  <div className="w-px h-4 bg-blue-700"></div>
                   <div className="flex items-center gap-1.5">
-                    <Sparkles className="h-3 w-3 text-amber-500" />
-                    AI-enhanced
+                    <Sparkles className="h-4 w-4 text-blue-200" />
+                    AI-powered
                   </div>
-                  <div className="w-px h-4 bg-blue-200"></div>
+                  <div className="w-px h-4 bg-blue-700"></div>
                   <div className="flex items-center gap-1.5">
-                    <ExternalLink className="h-3 w-3 text-blue-600" />
+                    <ExternalLink className="h-4 w-4 text-blue-200" />
                     Fully customizable
                   </div>
                 </div>
               </div>
               <div className="flex gap-2">
                 <Button 
-                  variant="outline"
-                  className="shadow-sm gap-2 px-4 border-blue-200 text-blue-700 hover:bg-blue-50"
+                  variant="secondary"
+                  className="shadow-lg gap-2 px-4 bg-white/10 border-blue-200/20 text-white hover:bg-white/20"
                   onClick={() => setShowImportModal(true)}
                 >
                   <Import className="h-4 w-4" /> 
                   Import
                 </Button>
                 <Button 
-                  variant="outline"
-                  className="shadow-sm gap-2 px-4 border-blue-200 text-blue-700 hover:bg-blue-50"
+                  variant="default"
+                  className="shadow-lg gap-2 px-4 bg-white text-blue-900 hover:bg-blue-50 border border-blue-100"
                   onClick={() => setShowAIGenerator(!showAIGenerator)}
                 >
                   {showAIGenerator ? (
@@ -556,26 +557,26 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
         
         {/* Search and action tools */}
         <div className="flex flex-col gap-4">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-gradient-to-r from-purple-50/70 to-indigo-50/70 rounded-xl p-4 border border-purple-100 shadow-sm">
-            <div className="relative w-full sm:w-64">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white rounded-xl p-5 border border-gray-200 shadow-md">
+            <div className="relative w-full sm:w-72">
               <Input
                 type="search"
                 placeholder="Search templates..."
-                className="w-full border-purple-200 focus-visible:ring-purple-300 pl-9 bg-white shadow-sm"
+                className="w-full border-gray-200 focus-visible:ring-blue-400 pl-10 py-5 bg-gray-50/50 shadow-sm"
                 value={searchQuery}
                 onChange={handleSearchChange}
               />
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-purple-500 absolute left-3 top-[50%] transform -translate-y-1/2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-blue-600 absolute left-3 top-[50%] transform -translate-y-1/2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="11" cy="11" r="8"></circle>
                 <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
               </svg>
             </div>
             
-            <div className="flex flex-wrap gap-3 w-full sm:w-auto">
+            <div className="flex flex-wrap gap-2 w-full sm:w-auto">
               <Button 
                 variant="outline" 
                 size="sm" 
-                className={`text-xs px-3 py-1 h-9 shadow-sm ${activeTab === 'all' ? 'bg-gradient-to-r from-purple-100 to-indigo-100 border-purple-200 text-purple-800' : 'bg-white text-slate-600 hover:text-purple-700 hover:border-purple-200'}`}
+                className={`text-xs px-4 py-1 h-9 shadow-sm ${activeTab === 'all' ? 'bg-gradient-to-r from-blue-50 to-blue-100 border-blue-200 text-blue-800 font-medium' : 'bg-white text-gray-700 hover:text-blue-700 hover:border-blue-200'}`}
                 onClick={() => setActiveTab('all')}
               >
                 All Templates
@@ -583,30 +584,30 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
               <Button 
                 variant="outline" 
                 size="sm" 
-                className={`text-xs px-3 py-1 h-9 shadow-sm ${activeTab === 'ai' ? 'bg-gradient-to-r from-purple-100 to-indigo-100 border-purple-200 text-purple-800' : 'bg-white text-slate-600 hover:text-purple-700 hover:border-purple-200'}`}
+                className={`text-xs px-4 py-1 h-9 shadow-sm ${activeTab === 'ai' ? 'bg-gradient-to-r from-blue-50 to-blue-100 border-blue-200 text-blue-800 font-medium' : 'bg-white text-gray-700 hover:text-blue-700 hover:border-blue-200'}`}
                 onClick={() => setActiveTab('ai')}
               >
-                <Sparkles className="h-3 w-3 mr-1 text-amber-500" /> 
+                <Sparkles className="h-3.5 w-3.5 mr-1 text-amber-500" /> 
                 AI Generated
               </Button>
-              <div className="ml-1">
+              <div className="ml-2 p-0.5 bg-gray-100 rounded-md flex shadow-sm">
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  className={`px-2 h-9 ${viewMode === 'grid' ? 'text-purple-700' : 'text-slate-400 hover:text-purple-600'}`}
+                  className={`px-2 h-8 rounded-sm ${viewMode === 'grid' ? 'bg-white shadow-sm text-blue-700' : 'text-gray-500 hover:text-blue-600'}`}
                   onClick={() => setViewMode('grid')}
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
                   </svg>
                 </Button>
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  className={`px-2 h-9 ${viewMode === 'list' ? 'text-purple-700' : 'text-slate-400 hover:text-purple-600'}`}
+                  className={`px-2 h-8 rounded-sm ${viewMode === 'list' ? 'bg-white shadow-sm text-blue-700' : 'text-gray-500 hover:text-blue-600'}`}
                   onClick={() => setViewMode('list')}
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
                   </svg>
                 </Button>
