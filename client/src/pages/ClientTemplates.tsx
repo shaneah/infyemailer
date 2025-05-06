@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label";
 import { Link, useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { 
+  AlertCircle,
   Code,
   Loader2, 
   MoveRight, 
