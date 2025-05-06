@@ -180,29 +180,50 @@ const ClientEmailPerformanceV3 = () => {
       try {
         // Fetch metrics data
         const metricsResponse = await fetch('/api/email-performance/metrics');
-        const metricsResult = await metricsResponse.json();
+        
+        // Add error handling for metrics response
+        if (!metricsResponse.ok) {
+          throw new Error(`Metrics API returned ${metricsResponse.status}`);
+        }
+        
+        // Parse metrics data with safe fallback
+        let metricsResult = {...defaultMetricsData};
+        try {
+          const metricsJson = await metricsResponse.json();
+          // Validate metrics data before assigning
+          if (metricsJson && typeof metricsJson === 'object') {
+            // Ensure all required fields exist with proper format
+            Object.keys(defaultMetricsData).forEach(key => {
+              if (metricsJson[key] && typeof metricsJson[key] === 'object' && 
+                  'value' in metricsJson[key] && 'change' in metricsJson[key]) {
+                metricsResult[key] = metricsJson[key];
+              }
+            });
+          }
+        } catch (metricsError) {
+          console.error('Error parsing metrics data:', metricsError);
+          // Keep using the defaultMetricsData initialized earlier
+        }
         
         // Fetch campaigns data
         const campaignsResponse = await fetch('/api/email-performance/campaigns');
         let campaignsData: CampaignData[] = [];
         
-        try {
-          const campaignsResult = await campaignsResponse.json();
-          // Check if we have campaigns array in the response
-          if (campaignsResult && Array.isArray(campaignsResult.campaigns)) {
-            campaignsData = campaignsResult.campaigns;
-          } else if (Array.isArray(campaignsResult)) {
-            campaignsData = campaignsResult;
+        if (campaignsResponse.ok) {
+          try {
+            const campaignsResult = await campaignsResponse.json();
+            // Check if we have campaigns array in the response
+            if (campaignsResult && Array.isArray(campaignsResult.campaigns)) {
+              campaignsData = campaignsResult.campaigns;
+            } else if (Array.isArray(campaignsResult)) {
+              campaignsData = campaignsResult;
+            }
+          } catch (campaignError) {
+            console.error('Error parsing campaign data:', campaignError);
+            // If the API response isn't valid JSON, keep empty array
           }
-        } catch (campaignError) {
-          console.error('Error parsing campaign data:', campaignError);
-          // If the API response isn't valid JSON, provide fallback data
-          campaignsData = [
-            { name: 'Monthly Newsletter', opens: 28.5, clicks: 4.8, conversions: 1.2, total: 12500 },
-            { name: 'Product Launch', opens: 32.7, clicks: 7.2, conversions: 2.1, total: 8750 },
-            { name: 'Holiday Special', opens: 25.3, clicks: 5.1, conversions: 1.4, total: 10200 },
-            { name: 'Customer Feedback', opens: 22.8, clicks: 3.6, conversions: 0.8, total: 5800 }
-          ];
+        } else {
+          console.error('Campaigns API returned', campaignsResponse.status);
         }
         
         // Fetch charts data
@@ -210,38 +231,28 @@ const ClientEmailPerformanceV3 = () => {
         let deviceBreakdownData: DeviceData[] = [];
         let timelineData: TimelineData[] = [];
         
-        try {
-          const chartsResult = await chartsResponse.json();
-          
-          // Check if we have deviceBreakdown in the response
-          if (chartsResult && Array.isArray(chartsResult.deviceBreakdown)) {
-            deviceBreakdownData = chartsResult.deviceBreakdown;
+        if (chartsResponse.ok) {
+          try {
+            const chartsResult = await chartsResponse.json();
+            
+            // Check if we have deviceBreakdown in the response
+            if (chartsResult && Array.isArray(chartsResult.deviceBreakdown)) {
+              deviceBreakdownData = chartsResult.deviceBreakdown;
+            }
+            
+            // Check if we have weeklyPerformance in the response
+            if (chartsResult && Array.isArray(chartsResult.weeklyPerformance)) {
+              timelineData = chartsResult.weeklyPerformance;
+            }
+          } catch (chartsError) {
+            console.error('Error parsing charts data:', chartsError);
+            // Keep empty arrays if parsing fails
           }
-          
-          // Check if we have weeklyPerformance in the response
-          if (chartsResult && Array.isArray(chartsResult.weeklyPerformance)) {
-            timelineData = chartsResult.weeklyPerformance;
-          }
-        } catch (chartsError) {
-          console.error('Error parsing charts data:', chartsError);
-          // If the API response isn't valid JSON, provide fallback data
-          deviceBreakdownData = [
-            { name: 'Desktop', value: 45 },
-            { name: 'Mobile', value: 40 },
-            { name: 'Tablet', value: 15 }
-          ];
-          
-          timelineData = [
-            { date: 'Apr 1', emails: 3500, opens: 875, clicks: 168, conversions: 42 },
-            { date: 'Apr 8', emails: 4200, opens: 1092, clicks: 210, conversions: 55 },
-            { date: 'Apr 15', emails: 3800, opens: 988, clicks: 190, conversions: 49 },
-            { date: 'Apr 22', emails: 4500, opens: 1215, clicks: 234, conversions: 63 },
-            { date: 'Apr 29', emails: 5100, opens: 1428, clicks: 275, conversions: 77 },
-            { date: 'May 6', emails: 4800, opens: 1344, clicks: 259, conversions: 72 }
-          ];
+        } else {
+          console.error('Charts API returned', chartsResponse.status);
         }
         
-        // Set the data in state
+        // Set the data in state - even if some parts failed
         setMetricsData(metricsResult);
         setCampaignData(campaignsData);
         setDeviceData(deviceBreakdownData);
@@ -249,17 +260,8 @@ const ClientEmailPerformanceV3 = () => {
         
       } catch (error) {
         console.error('Error fetching data:', error);
-        // Use fallback data if API fails
-        setMetricsData({
-          openRate: { value: 24.8, change: 3.2, sparklineData: [18, 22, 19, 23, 25, 21, 24.8] },
-          clickRate: { value: 3.6, change: 0.9, sparklineData: [2.5, 3.1, 2.8, 3.2, 3.5, 3.3, 3.6] },
-          conversionRate: { value: 1.2, change: 0.3, sparklineData: [0.8, 1.0, 0.9, 1.1, 1.3, 1.1, 1.2] },
-          bounceRate: { value: 0.8, change: -0.4, sparklineData: [1.2, 1.1, 1.0, 0.9, 0.8, 0.8, 0.8] },
-          totalSent: { value: 42857, change: 2500, sparklineData: [39000, 40000, 41500, 42000, 43000, 42500, 42857] },
-          totalOpens: { value: 10628, change: 1200, sparklineData: [8500, 9000, 9500, 10000, 10400, 10500, 10628] },
-          totalClicks: { value: 1543, change: 320, sparklineData: [1100, 1200, 1300, 1400, 1450, 1500, 1543] },
-          revenue: { value: 32580, change: 4250, sparklineData: [25000, 27000, 28500, 30000, 31500, 32000, 32580] }
-        });
+        // Keep the default data initialized earlier - don't change anything
+        // since we're already using defaultMetricsData as our initial state
         
         setCampaignData([
           { name: 'Monthly Newsletter', opens: 28.5, clicks: 4.8, conversions: 1.2, total: 12500 },
