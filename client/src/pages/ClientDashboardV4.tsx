@@ -116,63 +116,63 @@ export default function ClientDashboardV4() {
     fetchClientData();
   }, [toast, setLocation]);
 
-  // Mock data for dashboard metrics (based on the Improvado dashboard in the image)
+  // Email marketing metrics data
   const mockMetricsData = {
     spend: {
-      value: 36.00,
-      unit: "M",
-      change: 9.17,
+      value: 3.60,
+      unit: "K",
+      change: 0.92,
       trend: "up",
-      sparklineData: [25, 29, 30, 34, 29, 33, 36, 31, 35, 32, 34, 36]
+      sparklineData: [2.5, 2.9, 3.0, 3.4, 2.9, 3.3, 3.6, 3.1, 3.5, 3.2, 3.4, 3.6]
     },
     cpm: {
-      value: 405,
-      unit: "K",
+      value: 40.5,
+      unit: "",
       change: 1.28,
       trend: "up",
-      sparklineData: [340, 350, 370, 360, 380, 390, 385, 395, 400, 405, 402, 405]
+      sparklineData: [34, 35, 37, 36, 38, 39, 38, 39, 40, 40.5, 40.2, 40.5]
     },
     ctr: {
-      value: 10.5,
+      value: 4.2,
       unit: "%",
       change: 0.08,
       trend: "up",
-      sparklineData: [9.8, 9.9, 10.0, 10.2, 10.3, 10.4, 10.3, 10.4, 10.2, 10.3, 10.4, 10.5]
+      sparklineData: [3.8, 3.9, 4.0, 4.0, 4.1, 4.0, 4.0, 4.1, 4.0, 4.1, 4.2, 4.2]
     },
     cpc: {
-      value: 4,
-      unit: "K",
-      change: -18.34,
+      value: 0.4,
+      unit: "",
+      change: -0.04,
       trend: "down",
-      sparklineData: [5.2, 5.0, 4.8, 4.6, 4.5, 4.3, 4.2, 4.1, 4.0, 4.2, 4.1, 4.0]
+      sparklineData: [0.52, 0.50, 0.48, 0.46, 0.45, 0.43, 0.42, 0.41, 0.40, 0.42, 0.41, 0.40]
     },
     videoViews: {
-      value: 93,
+      value: 9.3,
       unit: "K",
-      change: 93.0,
+      change: 0.8,
       trend: "up",
-      sparklineData: [70, 75, 80, 78, 85, 90, 89, 91, 93, 92, 94, 93]
+      sparklineData: [7.0, 7.5, 8.0, 7.8, 8.5, 9.0, 8.9, 9.1, 9.3, 9.2, 9.4, 9.3]
     },
     impressions: {
-      value: 89.0,
+      value: 25.4,
       unit: "K",
-      change: 937.0,
+      change: 2.7,
       trend: "up",
-      sparklineData: [65, 70, 75, 73, 78, 80, 82, 85, 87, 86, 88, 89]
+      sparklineData: [19.5, 20.7, 21.5, 22.3, 22.8, 23.0, 23.5, 24.1, 24.8, 25.0, 25.2, 25.4]
     },
     conversions: {
-      value: 791,
+      value: 512,
       unit: "",
       change: 36.0,
       trend: "up",
-      sparklineData: [600, 630, 650, 670, 690, 710, 730, 750, 770, 780, 785, 791]
+      sparklineData: [420, 435, 450, 458, 465, 472, 480, 490, 498, 502, 508, 512]
     },
     conversionRate: {
-      value: 9.8,
+      value: 2.12,
       unit: "%",
       change: 0.2,
       trend: "up",
-      sparklineData: [9.0, 9.1, 9.2, 9.3, 9.4, 9.5, 9.6, 9.7, 9.7, 9.8, 9.8, 9.8]
+      sparklineData: [1.80, 1.85, 1.90, 1.95, 2.00, 2.05, 2.06, 2.08, 2.10, 2.11, 2.12, 2.12]
     }
   };
 
@@ -364,8 +364,8 @@ export default function ClientDashboardV4() {
                   <Menu size={20} />
                 </Button>
                 
-                {/* Filter dropdowns */}
-                <div className="flex md:flex items-center space-x-2">
+                {/* Filter dropdowns - hidden on small screens*/}
+                <div className="hidden md:flex items-center space-x-2">
                   <div className="relative bg-gray-100 rounded-md border border-gray-200 px-3 py-1.5 text-sm">
                     <div className="flex items-center">
                       <span className="text-gray-500 mr-2">Data Source</span>
@@ -410,7 +410,7 @@ export default function ClientDashboardV4() {
                   <div>
                     <p className="text-slate-500 text-sm mb-1">Spend</p>
                     <div className="flex items-baseline">
-                      <h3 className="text-slate-900 text-2xl font-bold">${mockMetricsData.spend.value}M</h3>
+                      <h3 className="text-slate-900 text-2xl font-bold">${mockMetricsData.spend.value}K</h3>
                       <span className="ml-2 flex items-center text-xs text-green-600">
                         <ArrowUp className="h-3 w-3 mr-0.5" /> ${mockMetricsData.spend.change}K
                       </span>
@@ -428,7 +428,7 @@ export default function ClientDashboardV4() {
                   <div>
                     <p className="text-slate-500 text-sm mb-1">CPM</p>
                     <div className="flex items-baseline">
-                      <h3 className="text-slate-900 text-2xl font-bold">${mockMetricsData.cpm.value}K</h3>
+                      <h3 className="text-slate-900 text-2xl font-bold">${mockMetricsData.cpm.value}</h3>
                       <span className="ml-2 flex items-center text-xs text-green-600">
                         <ArrowUp className="h-3 w-3 mr-0.5" /> ${mockMetricsData.cpm.change}K
                       </span>
@@ -464,9 +464,9 @@ export default function ClientDashboardV4() {
                   <div>
                     <p className="text-slate-500 text-sm mb-1">CPC</p>
                     <div className="flex items-baseline">
-                      <h3 className="text-slate-900 text-2xl font-bold">${mockMetricsData.cpc.value}K</h3>
+                      <h3 className="text-slate-900 text-2xl font-bold">${mockMetricsData.cpc.value}</h3>
                       <span className="ml-2 flex items-center text-xs text-red-600">
-                        <ArrowDown className="h-3 w-3 mr-0.5" /> ${Math.abs(mockMetricsData.cpc.change)}.34
+                        <ArrowDown className="h-3 w-3 mr-0.5" /> ${Math.abs(mockMetricsData.cpc.change)}
                       </span>
                     </div>
                   </div>
