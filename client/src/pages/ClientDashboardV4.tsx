@@ -47,8 +47,10 @@ export default function ClientDashboardV4() {
   const [showCampaignSelector, setShowCampaignSelector] = useState(false);
   const [showAdSetSelector, setShowAdSetSelector] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showDataSourceSelector, setShowDataSourceSelector] = useState(false);
   const [selectedCampaign, setSelectedCampaign] = useState("All Campaigns");
   const [selectedAdSet, setSelectedAdSet] = useState("All Sets");
+  const [selectedDataSource, setSelectedDataSource] = useState("Original");
   
   // Sample data for dropdowns
   const campaigns = ["All Campaigns", "Spring Sale", "Product Launch", "Newsletter", "Retargeting"];
@@ -310,6 +312,18 @@ export default function ClientDashboardV4() {
     // Close other dropdowns
     setShowCampaignSelector(false);
     setShowDatePicker(false);
+    setShowDataSourceSelector(false);
+    setShowFilters(false);
+  };
+  
+  // Toggle data source selector
+  const toggleDataSourceSelector = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setShowDataSourceSelector(!showDataSourceSelector);
+    // Close other dropdowns
+    setShowCampaignSelector(false);
+    setShowAdSetSelector(false);
+    setShowDatePicker(false);
     setShowFilters(false);
   };
   
@@ -323,6 +337,17 @@ export default function ClientDashboardV4() {
   const handleAdSetSelect = (adSet: string) => {
     setSelectedAdSet(adSet);
     setShowAdSetSelector(false);
+  };
+  
+  // Handle data source selection
+  const handleDataSourceSelect = (dataSource: string) => {
+    setSelectedDataSource(dataSource);
+    setShowDataSourceSelector(false);
+    toast({
+      title: "Data source updated",
+      description: `Data source changed to: ${dataSource}`,
+      variant: "default",
+    });
   };
   
   // Handle filter functionality
@@ -365,6 +390,7 @@ export default function ClientDashboardV4() {
       setShowDatePicker(false);
       setShowCampaignSelector(false);
       setShowAdSetSelector(false);
+      setShowDataSourceSelector(false);
     };
     
     document.addEventListener('click', handleClickOutside);
@@ -516,11 +542,34 @@ export default function ClientDashboardV4() {
                 
                 {/* Filter dropdowns - hidden on small screens*/}
                 <div className="hidden md:flex items-center space-x-2">
-                  <div className="relative bg-gray-100 rounded-md border border-gray-200 px-3 py-1.5 text-sm">
-                    <div className="flex items-center">
-                      <span className="text-gray-500 mr-2">Data Source</span>
-                      <span className="text-gray-800 font-medium">Original</span>
+                  <div className="relative">
+                    <div 
+                      className="relative bg-gray-100 rounded-md border border-gray-200 px-3 py-1.5 text-sm cursor-pointer hover:bg-gray-200 transition-colors dropdown-toggle"
+                      onClick={toggleDataSourceSelector}
+                    >
+                      <div className="flex items-center">
+                        <span className="text-gray-500 mr-2">Data Source</span>
+                        <span className="text-gray-800 font-medium">{selectedDataSource}</span>
+                        <ChevronDown className="h-3 w-3 ml-2 text-gray-500" />
+                      </div>
                     </div>
+                    
+                    {showDataSourceSelector && (
+                      <div className="absolute left-0 mt-1 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-10 py-1 dropdown-menu">
+                        {["Original", "API", "Imported", "Third-party"].map((source) => (
+                          <div 
+                            key={source}
+                            className="px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDataSourceSelect(source);
+                            }}
+                          >
+                            {source}
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                   
                   <div className="relative">
