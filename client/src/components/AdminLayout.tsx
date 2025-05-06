@@ -93,9 +93,9 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
           )}
           <div className="flex items-center gap-2">
             <Link href="/admin">
-              <a className="flex items-center gap-2 font-semibold">
+              <div className="flex items-center gap-2 font-semibold">
                 <span className="hidden md:inline-flex">Admin Panel</span>
-              </a>
+              </div>
             </Link>
           </div>
         </div>
