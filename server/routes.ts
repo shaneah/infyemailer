@@ -16,7 +16,6 @@ import fileUpload, { UploadedFile } from "express-fileupload";
 import heatMapsRoutes from "./routes/heat-maps";
 import userManagementRoutes from "./routes/user-management";
 import reportingRoutes from "./routes/reporting-routes";
-import adminMonitoringRoutes from "./routes/admin-monitoring";
 import { emailService } from "./services/EmailService";
 import { defaultEmailSettings } from "./routes/emailSettings";
 import { registerAIAssistantRoutes } from "./routes/ai-assistant-routes";
@@ -173,9 +172,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Register reporting routes
   app.use('/', reportingRoutes);
-  
-  // Register admin monitoring routes
-  app.use('/api/admin/monitoring', adminMonitoringRoutes);
   
   // AI Assistant endpoint
   app.post('/api/assistant/chat', async (req: Request, res: Response) => {

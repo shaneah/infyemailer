@@ -44,8 +44,6 @@ import Reporting from "@/pages/Reporting";
 import EmailProvidersV2 from "@/pages/EmailProvidersV2";
 import UserManagementV2 from "@/pages/UserManagementV2";
 import ClientManagementV2 from "@/pages/ClientManagementV2";
-import AdminMonitoring from "@/pages/AdminMonitoring";
-import AdminClients from "@/pages/AdminClients";
 // AudiencePersonas component removed
 import EmailPreview from "@/pages/EmailPreview";
 import ClientCollaboration from "@/pages/ClientCollaboration";
@@ -268,7 +266,6 @@ function App() {
                       <ProtectedRoute path="profile" component={Settings} />
                       <ProtectedRoute path="admin" component={AdminPanel} />
                       <ProtectedRoute path="admin-dashboard" component={AdminDashboardNew} />
-                      <ProtectedRoute path="admin-clients" component={AdminClients} />
                       <ProtectedRoute path="email-validation" component={EmailValidation} />
                       <ProtectedRoute path="email-checklist" component={EmailChecklist} />
                       {/* Emails route removed */}
@@ -281,7 +278,6 @@ function App() {
                       <ProtectedRoute path="email-preview" component={EmailPreview} />
                       <ProtectedRoute path="email-preview/:id" component={EmailPreview} />
                       <ProtectedRoute path="email-performance-dashboard" component={EmailPerformanceDashboard} />
-                      <ProtectedRoute path="admin-monitoring" component={AdminMonitoring} />
                       <ProtectedRoute path="client-collaboration" component={ClientCollaboration} />
                       <ProtectedRoute path="collaborative-template-editor" component={CollaborativeTemplateEditor} />
                       <ProtectedRoute path="collaborative-template-editor/:id" component={CollaborativeTemplateEditor} />

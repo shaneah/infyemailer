@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, timestamp, json, foreignKey, doublePrecision, date, real, varchar, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, json, foreignKey, doublePrecision, date, real } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { relations as defineRelations } from "drizzle-orm";
@@ -141,81 +141,6 @@ export type RolePermission = typeof rolePermissions.$inferSelect;
 
 export type InsertUserRole = z.infer<typeof insertUserRoleSchema>;
 export type UserRole = typeof userRoles.$inferSelect;
-
-// Client Activity Logging System
-export const clientActivities = pgTable("client_activities", {
-  id: serial("id").primaryKey(),
-  clientId: integer("client_id").notNull().references(() => clients.id),
-  clientUserId: integer("client_user_id").references(() => clientUsers.id),
-  action: varchar("action", { length: 100 }).notNull(), // login, logout, view, create, update, delete, upload, download, etc.
-  actionType: varchar("action_type", { length: 100 }).notNull(), // campaign, template, contact, list, etc.
-  entityId: integer("entity_id"), // ID of the entity being acted upon (optional)
-  description: text("description"), // Description of the activity
-  ipAddress: varchar("ip_address", { length: 45 }), // IP address of the client
-  userAgent: text("user_agent"), // Browser/device info
-  createdAt: timestamp("created_at").defaultNow(),
-  metadata: jsonb("metadata") // Additional data like browser info, session ID, etc.
-});
-
-export const insertClientActivitySchema = createInsertSchema(clientActivities).pick({
-  clientId: true,
-  clientUserId: true,
-  action: true,
-  actionType: true,
-  entityId: true,
-  description: true,
-  ipAddress: true,
-  userAgent: true,
-  metadata: true
-});
-
-export type InsertClientActivity = z.infer<typeof insertClientActivitySchema>;
-export type ClientActivity = typeof clientActivities.$inferSelect;
-
-// Data Upload Tracking
-export const dataUploads = pgTable("data_uploads", {
-  id: serial("id").primaryKey(),
-  clientId: integer("client_id").notNull().references(() => clients.id),
-  clientUserId: integer("client_user_id").references(() => clientUsers.id),
-  type: varchar("type", { length: 50 }).notNull(), // contacts, template, image, attachment, etc.
-  filename: varchar("filename", { length: 255 }).notNull(),
-  originalFilename: varchar("original_filename", { length: 255 }),
-  fileSize: integer("file_size").notNull(), // in bytes
-  mimeType: varchar("mime_type", { length: 100 }),
-  filePath: text("file_path"), // Where the file is stored
-  status: varchar("status", { length: 50 }).default("pending"), // pending, processing, completed, failed
-  processedRecords: integer("processed_records").default(0), // For imports, count of records processed
-  totalRecords: integer("total_records").default(0), // For imports, total count of records
-  errorCount: integer("error_count").default(0), // Count of errors during processing
-  errors: jsonb("errors"), // List of errors
-  ipAddress: varchar("ip_address", { length: 45 }),
-  userAgent: text("user_agent"),
-  uploadedAt: timestamp("uploaded_at").defaultNow(),
-  processedAt: timestamp("processed_at"),
-  metadata: jsonb("metadata") // Additional data
-});
-
-export const insertDataUploadSchema = createInsertSchema(dataUploads).pick({
-  clientId: true,
-  clientUserId: true,
-  type: true,
-  filename: true,
-  originalFilename: true,
-  fileSize: true,
-  mimeType: true,
-  filePath: true,
-  status: true,
-  processedRecords: true,
-  totalRecords: true,
-  errorCount: true,
-  errors: true,
-  ipAddress: true,
-  userAgent: true,
-  metadata: true
-});
-
-export type InsertDataUpload = z.infer<typeof insertDataUploadSchema>;
-export type DataUpload = typeof dataUploads.$inferSelect;
 
 export const userLoginSchema = z.object({
   usernameOrEmail: z.string().min(1, "Username or email is required"),
