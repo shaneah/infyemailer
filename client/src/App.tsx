@@ -106,7 +106,7 @@ function App() {
         
         <Route path="client-dashboard">
           <div className="min-h-screen">
-            <ClientDashboardV3 />
+            <ClientDashboardV4 />
             <Toaster />
           </div>
         </Route>
