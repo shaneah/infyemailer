@@ -66,7 +66,9 @@ import {
   XCircle,
   Clock,
   AlertCircle,
-  Download
+  Download,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import DateRangePicker from '@/components/DateRangePicker';
 import AdminLayout from '@/components/AdminLayout';
@@ -720,32 +722,38 @@ const AdminMonitoring = () => {
             <div className="text-sm text-muted-foreground">
               Showing {(currentPage - 1) * pageSize + 1} to {Math.min(currentPage * pageSize, activitiesData.pagination.total)} of {activitiesData.pagination.total} entries
             </div>
-            <Pagination>
-              <PaginationContent>
-                <PaginationItem>
-                  <PaginationPrevious 
-                    onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
-                    disabled={currentPage === 1}
-                  />
-                </PaginationItem>
-                {Array.from({ length: Math.min(5, Math.ceil(activitiesData.pagination.total / pageSize)) }).map((_, i) => (
-                  <PaginationItem key={i}>
-                    <PaginationLink
-                      onClick={() => handlePageChange(i + 1)}
-                      isActive={currentPage === i + 1}
-                    >
-                      {i + 1}
-                    </PaginationLink>
-                  </PaginationItem>
-                ))}
-                <PaginationItem>
-                  <PaginationNext 
-                    onClick={() => handlePageChange(currentPage + 1)}
-                    disabled={currentPage >= Math.ceil(activitiesData.pagination.total / pageSize)}
-                  />
-                </PaginationItem>
-              </PaginationContent>
-            </Pagination>
+            <div className="flex items-center space-x-2">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
+                disabled={currentPage === 1}
+              >
+                <ChevronLeft className="h-4 w-4 mr-1" />
+                Previous
+              </Button>
+              
+              {Array.from({ length: Math.min(5, Math.ceil(activitiesData.pagination.total / pageSize)) }).map((_, i) => (
+                <Button 
+                  key={i}
+                  variant={currentPage === i + 1 ? "default" : "outline"} 
+                  size="sm"
+                  onClick={() => handlePageChange(i + 1)}
+                >
+                  {i + 1}
+                </Button>
+              ))}
+              
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage >= Math.ceil(activitiesData.pagination.total / pageSize)}
+              >
+                Next
+                <ChevronRight className="h-4 w-4 ml-1" />
+              </Button>
+            </div>
           </div>
         )}
       </div>
@@ -871,32 +879,38 @@ const AdminMonitoring = () => {
             <div className="text-sm text-muted-foreground">
               Showing {(currentPage - 1) * pageSize + 1} to {Math.min(currentPage * pageSize, uploadsData.pagination.total)} of {uploadsData.pagination.total} entries
             </div>
-            <Pagination>
-              <PaginationContent>
-                <PaginationItem>
-                  <PaginationPrevious 
-                    onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
-                    disabled={currentPage === 1}
-                  />
-                </PaginationItem>
-                {Array.from({ length: Math.min(5, Math.ceil(uploadsData.pagination.total / pageSize)) }).map((_, i) => (
-                  <PaginationItem key={i}>
-                    <PaginationLink
-                      onClick={() => handlePageChange(i + 1)}
-                      isActive={currentPage === i + 1}
-                    >
-                      {i + 1}
-                    </PaginationLink>
-                  </PaginationItem>
-                ))}
-                <PaginationItem>
-                  <PaginationNext 
-                    onClick={() => handlePageChange(currentPage + 1)}
-                    disabled={currentPage >= Math.ceil(uploadsData.pagination.total / pageSize)}
-                  />
-                </PaginationItem>
-              </PaginationContent>
-            </Pagination>
+            <div className="flex items-center space-x-2">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
+                disabled={currentPage === 1}
+              >
+                <ChevronLeft className="h-4 w-4 mr-1" />
+                Previous
+              </Button>
+              
+              {Array.from({ length: Math.min(5, Math.ceil(uploadsData.pagination.total / pageSize)) }).map((_, i) => (
+                <Button 
+                  key={i}
+                  variant={currentPage === i + 1 ? "default" : "outline"} 
+                  size="sm"
+                  onClick={() => handlePageChange(i + 1)}
+                >
+                  {i + 1}
+                </Button>
+              ))}
+              
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage >= Math.ceil(uploadsData.pagination.total / pageSize)}
+              >
+                Next
+                <ChevronRight className="h-4 w-4 ml-1" />
+              </Button>
+            </div>
           </div>
         )}
       </div>
