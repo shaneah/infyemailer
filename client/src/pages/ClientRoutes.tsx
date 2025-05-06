@@ -2320,42 +2320,80 @@ const ClientEmailValidation = () => {
     if (score >= 60) return 'text-yellow-600';
     return 'text-red-600';
   };
+  
+  // Get background color for progress bars
+  const getScoreBgColor = (score: number) => {
+    if (score >= 80) return 'bg-green-500';
+    if (score >= 60) return 'bg-yellow-500';
+    return 'bg-red-500';
+  };
 
   // Render badge based on validation result
   const renderBadge = (valid: boolean, disposable: boolean) => {
     if (!valid) {
-      return <span className="px-2 py-1 bg-red-100 text-red-800 rounded-full text-xs font-semibold">Invalid</span>;
+      return (
+        <span className="px-3 py-1 bg-red-100 text-red-800 rounded-full text-xs font-semibold flex items-center gap-1.5 shadow-sm">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+          Invalid
+        </span>
+      );
     }
     
     if (disposable) {
-      return <span className="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-semibold">Disposable</span>;
+      return (
+        <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-semibold flex items-center gap-1.5 shadow-sm">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          Disposable
+        </span>
+      );
     }
     
-    return <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-semibold">Valid</span>;
+    return (
+      <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-semibold flex items-center gap-1.5 shadow-sm">
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+        </svg>
+        Valid
+      </span>
+    );
   };
 
   const renderSingleResultCard = () => {
     if (!singleResult) return null;
     
     return (
-      <div className="bg-white rounded-lg shadow border border-gray-200 p-6 mt-6">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold">Validation Result</h3>
+      <div className="bg-white rounded-lg shadow-md border border-gray-200 p-6 mt-5">
+        <div className="flex items-center justify-between mb-5">
+          <div className="flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
+            <h3 className="text-lg font-semibold text-gray-800">Validation Result</h3>
+          </div>
           <div>
             {renderBadge(singleResult.valid, singleResult.disposable)}
           </div>
         </div>
         
         {showTypoSuggestion && (
-          <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
-            <div className="flex justify-between items-center">
+          <div className="mb-5 p-4 bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200 rounded-lg shadow-sm">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
               <div>
-                <p className="text-sm font-medium text-blue-800">Possible typo detected!</p>
-                <p className="text-sm text-blue-600">Did you mean: <span className="font-semibold">{singleResult.suggestion}</span>?</p>
+                <p className="text-sm font-medium text-blue-800 flex items-center gap-1.5">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Possible typo detected!
+                </p>
+                <p className="text-sm text-blue-700 mt-1">Did you mean: <span className="font-semibold">{singleResult.suggestion}</span>?</p>
               </div>
               <button 
                 onClick={applySuggestion}
-                className="px-3 py-1 bg-blue-100 hover:bg-blue-200 text-blue-800 text-sm rounded-md transition-colors"
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-md transition-colors shadow-sm font-medium"
               >
                 Apply Suggestion
               </button>
@@ -2363,80 +2401,95 @@ const ClientEmailValidation = () => {
           </div>
         )}
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <h4 className="text-sm font-medium text-gray-500 mb-1">Email Quality Score</h4>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-5">
+          <div className="bg-gray-50 rounded-lg p-4 border border-gray-100 shadow-sm">
+            <h4 className="text-sm font-medium text-gray-600 mb-2">Email Quality Score</h4>
             <div className="flex items-end gap-2">
-              <span className={`text-2xl font-bold ${getScoreColor(singleResult.score)}`}>{singleResult.score}</span>
+              <span className={`text-3xl font-bold ${getScoreColor(singleResult.score)}`}>{singleResult.score}</span>
               <span className="text-sm text-gray-500">/100</span>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
+              <div 
+                className={`${getScoreBgColor(singleResult.score)} h-2 rounded-full`}
+                style={{ width: `${singleResult.score}%` }}
+              ></div>
             </div>
           </div>
           
-          <div>
-            <h4 className="text-sm font-medium text-gray-500 mb-1">Format</h4>
-            <p className="font-medium">
-              {singleResult.valid ? 
-                <span className="text-green-600 flex items-center gap-1">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                  Valid Format
-                </span> : 
-                <span className="text-red-600 flex items-center gap-1">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                  Invalid Format
-                </span>
-              }
-            </p>
-          </div>
-          
-          <div>
-            <h4 className="text-sm font-medium text-gray-500 mb-1">Disposable Email</h4>
-            <p className="font-medium">
-              {singleResult.disposable ? 
-                <span className="text-yellow-600 flex items-center gap-1">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                  </svg>
-                  Disposable Domain
-                </span> : 
-                <span className="text-green-600 flex items-center gap-1">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                  Regular Domain
-                </span>
-              }
-            </p>
-          </div>
-          
-          <div>
-            <h4 className="text-sm font-medium text-gray-500 mb-1">Typo Detection</h4>
-            <p className="font-medium">
-              {singleResult.typo ? 
-                <span className="text-yellow-600 flex items-center gap-1">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                  </svg>
-                  Possible Typo Detected
-                </span> : 
-                <span className="text-green-600 flex items-center gap-1">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                  No Typos Detected
-                </span>
-              }
-            </p>
+          <div className="grid grid-cols-1 gap-4">
+            <div className="bg-gray-50 rounded-lg p-3 border border-gray-100 shadow-sm flex items-center justify-between">
+              <h4 className="text-sm font-medium text-gray-600">Format</h4>
+              <p className="font-medium">
+                {singleResult.valid ? 
+                  <span className="text-green-600 flex items-center gap-1.5 px-3 py-1 bg-green-100 rounded-full text-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    Valid Format
+                  </span> : 
+                  <span className="text-red-600 flex items-center gap-1.5 px-3 py-1 bg-red-100 rounded-full text-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                    Invalid Format
+                  </span>
+                }
+              </p>
+            </div>
+            
+            <div className="bg-gray-50 rounded-lg p-3 border border-gray-100 shadow-sm flex items-center justify-between">
+              <h4 className="text-sm font-medium text-gray-600">Domain Type</h4>
+              <p className="font-medium">
+                {singleResult.disposable ? 
+                  <span className="text-yellow-600 flex items-center gap-1.5 px-3 py-1 bg-yellow-100 rounded-full text-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                    Disposable Domain
+                  </span> : 
+                  <span className="text-green-600 flex items-center gap-1.5 px-3 py-1 bg-green-100 rounded-full text-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    Regular Domain
+                  </span>
+                }
+              </p>
+            </div>
+            
+            <div className="bg-gray-50 rounded-lg p-3 border border-gray-100 shadow-sm flex items-center justify-between">
+              <h4 className="text-sm font-medium text-gray-600">Typo Detection</h4>
+              <p className="font-medium">
+                {singleResult.typo ? 
+                  <span className="text-yellow-600 flex items-center gap-1.5 px-3 py-1 bg-yellow-100 rounded-full text-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                    Possible Typo
+                  </span> : 
+                  <span className="text-green-600 flex items-center gap-1.5 px-3 py-1 bg-green-100 rounded-full text-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    No Typos
+                  </span>
+                }
+              </p>
+            </div>
           </div>
         </div>
         
         {singleResult.reason && (
-          <div className="mt-4 p-3 bg-gray-50 border border-gray-200 rounded-md">
-            <h4 className="text-sm font-medium text-gray-700 mb-1">Issues:</h4>
-            <p className="text-sm text-gray-600">{singleResult.reason}</p>
+          <div className="mt-5 p-4 bg-gray-50 border border-gray-200 rounded-lg shadow-sm">
+            <div className="flex items-start gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-500 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <div>
+                <h4 className="text-sm font-medium text-gray-700 mb-1">Issues Detected:</h4>
+                <p className="text-sm text-gray-600">{singleResult.reason}</p>
+              </div>
+            </div>
           </div>
         )}
       </div>
@@ -2447,139 +2500,239 @@ const ClientEmailValidation = () => {
     if (!batchResults || !analysisResults) return null;
     
     return (
-      <div className="space-y-6 mt-6">
+      <div className="space-y-8 mt-6">
         {/* Overview Card */}
-        <div className="bg-white rounded-lg shadow border border-gray-200 p-6">
-          <h3 className="text-lg font-semibold mb-4">Validation Overview</h3>
+        <div className="bg-white rounded-lg shadow-md border border-gray-200 p-6">
+          <div className="flex items-center gap-2 mb-6">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
+            <h3 className="text-lg font-semibold text-gray-800">Validation Overview</h3>
+          </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-            <div className="p-4 bg-gray-50 rounded-lg border border-gray-100">
-              <h4 className="text-sm font-medium text-gray-500 mb-1">Quality Score</h4>
-              <p className={`text-2xl font-bold ${getScoreColor(analysisResults.qualityScore)}`}>
-                {analysisResults.qualityScore}%
-              </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+            <div className="p-5 bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg border border-gray-200 shadow-sm">
+              <h4 className="text-sm font-medium text-gray-600 mb-2">Quality Score</h4>
+              <div className="flex items-end gap-2">
+                <p className={`text-3xl font-bold ${getScoreColor(analysisResults.qualityScore)}`}>
+                  {analysisResults.qualityScore}%
+                </p>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
+                <div 
+                  className={`${getScoreBgColor(analysisResults.qualityScore)} h-2 rounded-full`}
+                  style={{ width: `${analysisResults.qualityScore}%` }}
+                ></div>
+              </div>
             </div>
             
-            <div className="p-4 bg-gray-50 rounded-lg border border-gray-100">
-              <h4 className="text-sm font-medium text-gray-500 mb-1">Valid Emails</h4>
-              <p className="text-2xl font-bold text-green-600">
+            <div className="p-5 bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg border border-gray-200 shadow-sm">
+              <h4 className="text-sm font-medium text-gray-600 mb-2">Valid Emails</h4>
+              <p className="text-3xl font-bold text-green-600">
                 {analysisResults.validRate}%
               </p>
-              <p className="text-xs text-gray-500">
-                {analysisResults.validEmails} of {analysisResults.totalEmails} emails
-              </p>
+              <div className="flex items-center gap-2 mt-1">
+                <div className="flex-1 bg-gray-200 rounded-full h-2">
+                  <div 
+                    className="bg-green-500 rounded-full h-2" 
+                    style={{ width: `${analysisResults.validRate}%` }}
+                  ></div>
+                </div>
+                <span className="text-xs text-gray-500 whitespace-nowrap">
+                  {analysisResults.validEmails} of {analysisResults.totalEmails}
+                </span>
+              </div>
             </div>
             
-            <div className="p-4 bg-gray-50 rounded-lg border border-gray-100">
-              <h4 className="text-sm font-medium text-gray-500 mb-1">Disposable Emails</h4>
-              <p className="text-2xl font-bold text-yellow-600">
+            <div className="p-5 bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg border border-gray-200 shadow-sm">
+              <h4 className="text-sm font-medium text-gray-600 mb-2">Disposable Emails</h4>
+              <p className="text-3xl font-bold text-yellow-600">
                 {analysisResults.disposableRate}%
               </p>
-              <p className="text-xs text-gray-500">
-                {analysisResults.disposableEmails} of {analysisResults.totalEmails} emails
-              </p>
+              <div className="flex items-center gap-2 mt-1">
+                <div className="flex-1 bg-gray-200 rounded-full h-2">
+                  <div 
+                    className="bg-yellow-500 rounded-full h-2" 
+                    style={{ width: `${analysisResults.disposableRate}%` }}
+                  ></div>
+                </div>
+                <span className="text-xs text-gray-500 whitespace-nowrap">
+                  {analysisResults.disposableEmails} of {analysisResults.totalEmails}
+                </span>
+              </div>
             </div>
             
-            <div className="p-4 bg-gray-50 rounded-lg border border-gray-100">
-              <h4 className="text-sm font-medium text-gray-500 mb-1">Possible Typos</h4>
-              <p className="text-2xl font-bold text-blue-600">
+            <div className="p-5 bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg border border-gray-200 shadow-sm">
+              <h4 className="text-sm font-medium text-gray-600 mb-2">Possible Typos</h4>
+              <p className="text-3xl font-bold text-blue-600">
                 {analysisResults.typoRate}%
               </p>
-              <p className="text-xs text-gray-500">
-                {analysisResults.typoEmails} of {analysisResults.totalEmails} emails
-              </p>
+              <div className="flex items-center gap-2 mt-1">
+                <div className="flex-1 bg-gray-200 rounded-full h-2">
+                  <div 
+                    className="bg-blue-500 rounded-full h-2" 
+                    style={{ width: `${analysisResults.typoRate}%` }}
+                  ></div>
+                </div>
+                <span className="text-xs text-gray-500 whitespace-nowrap">
+                  {analysisResults.typoEmails} of {analysisResults.totalEmails}
+                </span>
+              </div>
             </div>
           </div>
           
           {/* Issue Breakdown */}
-          <h4 className="text-sm font-semibold mb-2">Issue Breakdown</h4>
-          <div className="mb-6">
-            {Object.entries(analysisResults.issueBreakdown).map(([issue, count]: [string, any]) => (
-              count > 0 ? (
-                <div key={issue} className="flex items-center mb-2 last:mb-0">
-                  <div className="w-1/3 text-sm">{issue}</div>
-                  <div className="w-2/3 flex items-center gap-2">
-                    <div className="flex-1 bg-gray-200 rounded-full h-2.5">
-                      <div 
-                        className="bg-primary rounded-full h-2.5" 
-                        style={{ width: `${Math.round((count / analysisResults.totalEmails) * 100)}%` }}
-                      ></div>
-                    </div>
-                    <div className="text-xs text-gray-500 min-w-[60px]">
-                      {count} emails ({Math.round((count / analysisResults.totalEmails) * 100)}%)
+          <div className="mb-8">
+            <div className="flex items-center gap-2 mb-3">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <h4 className="text-sm font-semibold text-gray-700">Issue Breakdown</h4>
+            </div>
+            
+            <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
+              {Object.entries(analysisResults.issueBreakdown).map(([issue, count]: [string, any]) => (
+                count > 0 ? (
+                  <div key={issue} className="flex items-center mb-3 last:mb-0">
+                    <div className="w-1/3 text-sm font-medium text-gray-700">{issue}</div>
+                    <div className="w-2/3 flex items-center gap-2">
+                      <div className="flex-1 bg-gray-200 rounded-full h-2.5">
+                        <div 
+                          className="bg-blue-600 rounded-full h-2.5" 
+                          style={{ width: `${Math.round((count / analysisResults.totalEmails) * 100)}%` }}
+                        ></div>
+                      </div>
+                      <div className="text-xs text-gray-500 min-w-[75px] text-right">
+                        {count} emails ({Math.round((count / analysisResults.totalEmails) * 100)}%)
+                      </div>
                     </div>
                   </div>
-                </div>
-              ) : null
-            ))}
+                ) : null
+              ))}
+            </div>
           </div>
           
           {/* Domain Breakdown */}
-          <h4 className="text-sm font-semibold mb-2">Top Domains</h4>
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Domain</th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Count</th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Percentage</th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {Object.entries(analysisResults.domainBreakdown)
-                  .sort(([, a]: [string, any], [, b]: [string, any]) => b - a)
-                  .slice(0, 5)
-                  .map(([domain, count]: [string, any]) => (
-                    <tr key={domain}>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{domain}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{count}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {Math.round((count / analysisResults.totalEmails) * 100)}%
-                      </td>
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+              </svg>
+              <h4 className="text-sm font-semibold text-gray-700">Top Domains</h4>
+            </div>
+            
+            <div className="bg-gray-50 rounded-lg border border-gray-100 overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-100">
+                    <tr>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Domain</th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Count</th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Percentage</th>
                     </tr>
-                  ))
-                }
-              </tbody>
-            </table>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {Object.entries(analysisResults.domainBreakdown)
+                      .sort(([, a]: [string, any], [, b]: [string, any]) => b - a)
+                      .slice(0, 5)
+                      .map(([domain, count]: [string, any]) => (
+                        <tr key={domain} className="hover:bg-gray-50 transition-colors">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{domain}</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{count}</td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="flex items-center gap-2">
+                              <div className="w-24 bg-gray-200 rounded-full h-2">
+                                <div 
+                                  className="bg-blue-500 rounded-full h-2" 
+                                  style={{ width: `${Math.round((count / analysisResults.totalEmails) * 100)}%` }}
+                                ></div>
+                              </div>
+                              <span className="text-sm text-gray-600">
+                                {Math.round((count / analysisResults.totalEmails) * 100)}%
+                              </span>
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                    }
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
         </div>
         
         {/* Detailed Results Table */}
-        <div className="bg-white rounded-lg shadow border border-gray-200 p-6">
-          <h3 className="text-lg font-semibold mb-4">Detailed Results</h3>
+        <div className="bg-white rounded-lg shadow-md border border-gray-200 p-6">
+          <div className="flex items-center gap-2 mb-6">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            </svg>
+            <h3 className="text-lg font-semibold text-gray-800">Detailed Results</h3>
+          </div>
           
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto shadow-sm border border-gray-100 rounded-lg">
             <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+              <thead className="bg-gray-100">
                 <tr>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Score</th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Issues</th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Email</th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Status</th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Score</th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Issues</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {Object.entries(batchResults.results).map(([email, result]: [string, any]) => (
-                  <tr key={email}>
+                  <tr key={email} className="hover:bg-gray-50 transition-colors">
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{email}</td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       {renderBadge(result.valid, result.disposable)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`font-semibold ${getScoreColor(result.score)}`}>
-                        {result.score}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className={`font-semibold ${getScoreColor(result.score)}`}>
+                          {result.score}
+                        </span>
+                        <div className="w-16 bg-gray-200 rounded-full h-2">
+                          <div 
+                            className={`${getScoreBgColor(result.score)} h-2 rounded-full`}
+                            style={{ width: `${result.score}%` }}
+                          ></div>
+                        </div>
+                      </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {!result.valid && 'Invalid format'}
-                      {result.valid && result.disposable && 'Disposable email'}
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                      {!result.valid && (
+                        <span className="text-red-600 flex items-center gap-1">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                          Invalid format
+                        </span>
+                      )}
+                      {result.valid && result.disposable && (
+                        <span className="text-yellow-600 flex items-center gap-1">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                          </svg>
+                          Disposable email
+                        </span>
+                      )}
                       {result.valid && result.typo && (
-                        <span>
-                          Possible typo <span className="text-blue-600">→ {result.suggestion}</span>
+                        <span className="text-blue-600 flex items-center gap-1">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          Typo → <span className="font-medium underline">{result.suggestion}</span>
                         </span>
                       )}
                       {result.valid && !result.disposable && !result.typo && (
-                        <span className="text-green-600">None</span>
+                        <span className="text-green-600 flex items-center gap-1">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                          No issues
+                        </span>
                       )}
                     </td>
                   </tr>
