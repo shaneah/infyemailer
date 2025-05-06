@@ -519,20 +519,32 @@ export default function ClientDashboardV3() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="flex items-baseline">
+                    <motion.div 
+                      className="flex items-baseline"
+                      whileHover={{ scale: 1.05 }}
+                      transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                    >
                       <span className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-300">
                         {clientData.stats.activeCampaigns}
                       </span>
                       <span className="ml-1 text-xs text-gray-500">campaigns</span>
-                    </div>
+                    </motion.div>
                     <div className="mt-4">
                       <div className="flex items-center justify-between text-xs mb-1">
                         <span className="text-gray-500">Overall completion</span>
                         <span className="text-white font-semibold">66%</span>
                       </div>
-                      <div className="h-1.5 rounded-full bg-gray-800 overflow-hidden">
-                        <div className={`h-full rounded-full bg-gradient-to-r ${theme.accentGradient}`} style={{ width: '66%' }}></div>
-                      </div>
+                      <motion.div 
+                        className="h-1.5 rounded-full bg-gray-800 overflow-hidden"
+                        whileHover={{ scale: 1.03 }}
+                      >
+                        <motion.div 
+                          className={`h-full rounded-full bg-gradient-to-r ${theme.accentGradient}`} 
+                          style={{ width: '66%' }}
+                          whileHover={{ opacity: 0.8 }}
+                          transition={{ duration: 0.3 }}
+                        ></motion.div>
+                      </motion.div>
                     </div>
                   </CardContent>
                 </Card>
@@ -552,20 +564,32 @@ export default function ClientDashboardV3() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="flex items-baseline">
+                    <motion.div 
+                      className="flex items-baseline"
+                      whileHover={{ scale: 1.05 }}
+                      transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                    >
                       <span className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-300">
                         {formatNumber(clientData.stats.totalEmails)}
                       </span>
                       <span className="ml-1 text-xs text-gray-500">sent</span>
-                    </div>
+                    </motion.div>
                     <div className="mt-4">
                       <div className="flex items-center justify-between text-xs mb-1">
                         <span className="text-gray-500">Last 7 days</span>
                         <span className="text-white font-semibold">+{formatNumber(weeklyStats.emailsSent)}</span>
                       </div>
-                      <div className="h-1.5 rounded-full bg-gray-800 overflow-hidden">
-                        <div className={`h-full rounded-full bg-gradient-to-r ${theme.accentGradient}`} style={{ width: '78%' }}></div>
-                      </div>
+                      <motion.div 
+                        className="h-1.5 rounded-full bg-gray-800 overflow-hidden"
+                        whileHover={{ scale: 1.03 }}
+                      >
+                        <motion.div 
+                          className={`h-full rounded-full bg-gradient-to-r ${theme.accentGradient}`} 
+                          style={{ width: '78%' }}
+                          whileHover={{ opacity: 0.8 }}
+                          transition={{ duration: 0.3 }}
+                        ></motion.div>
+                      </motion.div>
                     </div>
                   </CardContent>
                 </Card>
@@ -585,20 +609,32 @@ export default function ClientDashboardV3() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="flex items-baseline">
+                    <motion.div 
+                      className="flex items-baseline"
+                      whileHover={{ scale: 1.05 }}
+                      transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                    >
                       <span className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-300">
                         {clientData.stats.openRate}%
                       </span>
                       <span className="ml-1 text-xs text-gray-500">30 day avg</span>
-                    </div>
+                    </motion.div>
                     <div className="mt-4">
                       <div className="flex items-center justify-between text-xs mb-1">
                         <span className="text-gray-500">Industry avg</span>
                         <span className="text-white font-semibold">21.5%</span>
                       </div>
-                      <div className="h-1.5 rounded-full bg-gray-800 overflow-hidden">
-                        <div className={`h-full rounded-full bg-gradient-to-r ${theme.accentGradient}`} style={{ width: '85%' }}></div>
-                      </div>
+                      <motion.div 
+                        className="h-1.5 rounded-full bg-gray-800 overflow-hidden"
+                        whileHover={{ scale: 1.03 }}
+                      >
+                        <motion.div 
+                          className={`h-full rounded-full bg-gradient-to-r ${theme.accentGradient}`} 
+                          style={{ width: '85%' }}
+                          whileHover={{ opacity: 0.8 }}
+                          transition={{ duration: 0.3 }}
+                        ></motion.div>
+                      </motion.div>
                     </div>
                   </CardContent>
                 </Card>
@@ -618,20 +654,32 @@ export default function ClientDashboardV3() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="flex items-baseline">
+                    <motion.div 
+                      className="flex items-baseline"
+                      whileHover={{ scale: 1.05 }}
+                      transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                    >
                       <span className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-300">
                         {clientData.stats.clickRate}%
                       </span>
                       <span className="ml-1 text-xs text-gray-500">30 day avg</span>
-                    </div>
+                    </motion.div>
                     <div className="mt-4">
                       <div className="flex items-center justify-between text-xs mb-1">
                         <span className="text-gray-500">Industry avg</span>
                         <span className="text-white font-semibold">2.7%</span>
                       </div>
-                      <div className="h-1.5 rounded-full bg-gray-800 overflow-hidden">
-                        <div className={`h-full rounded-full bg-gradient-to-r ${theme.accentGradient}`} style={{ width: '75%' }}></div>
-                      </div>
+                      <motion.div 
+                        className="h-1.5 rounded-full bg-gray-800 overflow-hidden"
+                        whileHover={{ scale: 1.03 }}
+                      >
+                        <motion.div 
+                          className={`h-full rounded-full bg-gradient-to-r ${theme.accentGradient}`} 
+                          style={{ width: '75%' }}
+                          whileHover={{ opacity: 0.8 }}
+                          transition={{ duration: 0.3 }}
+                        ></motion.div>
+                      </motion.div>
                     </div>
                   </CardContent>
                 </Card>
