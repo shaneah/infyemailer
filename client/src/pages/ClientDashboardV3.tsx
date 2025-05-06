@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Progress } from "@/components/ui/progress";
+import ClientSidebar from "@/components/ClientSidebar";
 import {
   AreaChart,
   Area,
@@ -169,7 +170,7 @@ export default function ClientDashboardV3() {
   useEffect(() => {
     const fetchClientData = async () => {
       try {
-        const sessionResponse = await fetch('/api/session/verify');
+        const sessionResponse = await fetch('/api/client/verify-session');
         const sessionData = await sessionResponse.json();
         
         if (!sessionData.verified || !sessionData.user) {
@@ -315,697 +316,529 @@ export default function ClientDashboardV3() {
     );
   }
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white">
-      {/* Theme Selector (Floating top-right corner) */}
-      <div className="fixed top-4 right-4 bg-gray-800/80 backdrop-blur-sm border border-gray-700 rounded-full z-40 p-2 flex space-x-2 shadow-xl">
-        <button 
-          onClick={() => setCurrentTheme("blue")} 
-          className={`h-7 w-7 rounded-full bg-gradient-to-r from-blue-600 to-blue-400 flex items-center justify-center ${currentTheme === "blue" ? "ring-2 ring-blue-400 ring-offset-2 ring-offset-gray-800" : "opacity-70"}`} 
-        >
-          {currentTheme === "blue" && <CheckCircle2 className="h-4 w-4 text-white" />}
-        </button>
-        <button 
-          onClick={() => setCurrentTheme("purple")} 
-          className={`h-7 w-7 rounded-full bg-gradient-to-r from-purple-600 to-fuchsia-400 flex items-center justify-center ${currentTheme === "purple" ? "ring-2 ring-purple-400 ring-offset-2 ring-offset-gray-800" : "opacity-70"}`} 
-        >
-          {currentTheme === "purple" && <CheckCircle2 className="h-4 w-4 text-white" />}
-        </button>
-        <button 
-          onClick={() => setCurrentTheme("teal")} 
-          className={`h-7 w-7 rounded-full bg-gradient-to-r from-teal-600 to-emerald-400 flex items-center justify-center ${currentTheme === "teal" ? "ring-2 ring-teal-400 ring-offset-2 ring-offset-gray-800" : "opacity-70"}`} 
-        >
-          {currentTheme === "teal" && <CheckCircle2 className="h-4 w-4 text-white" />}
-        </button>
-        <button 
-          onClick={() => setCurrentTheme("amber")} 
-          className={`h-7 w-7 rounded-full bg-gradient-to-r from-amber-500 to-orange-400 flex items-center justify-center ${currentTheme === "amber" ? "ring-2 ring-amber-400 ring-offset-2 ring-offset-gray-800" : "opacity-70"}`} 
-        >
-          {currentTheme === "amber" && <CheckCircle2 className="h-4 w-4 text-white" />}
-        </button>
-      </div>
-
-      {/* Header with glowing accent border and futuristic design */}
-      <header className="relative border-b border-gray-800">
-        <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-purple-500 to-transparent opacity-70"></div>
-        <div className="absolute left-0 top-0 bottom-0 w-[1px] bg-gradient-to-b from-transparent via-purple-500 to-transparent opacity-70"></div>
-        <div className="absolute right-0 top-0 bottom-0 w-[1px] bg-gradient-to-b from-transparent via-purple-500 to-transparent opacity-70"></div>
+  // State for mobile sidebar
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  
+  // Toggle sidebar for mobile
+  const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
+  
+  // Handle client logout
+  const handleClientLogout = async () => {
+    try {
+      const response = await fetch('/api/client-logout', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (response.ok) {
+        // Clear all storage
+        sessionStorage.clear();
+        localStorage.clear();
         
-        <div className="container mx-auto px-4 py-4 lg:py-6">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div className="flex items-center">
-              <Button 
-                variant="ghost" 
-                size="icon"
-                className="mr-3 lg:hidden text-gray-400 hover:text-white hover:bg-gray-800/60"
-              >
-                <Menu size={20} />
-              </Button>
-              
-              <div className="relative">
-                {/* Glowing accent background element */}
-                <div className="absolute -left-2 -top-2 w-12 h-12 rounded-full bg-purple-600/20 blur-xl"></div>
+        // Redirect to client login page
+        window.location.href = '/client-login';
+      } else {
+        console.error('Logout failed:', response.status);
+        toast({
+          title: "Logout failed",
+          description: "There was an error logging out. Please try again.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Error during logout:', error);
+      toast({
+        title: "Error",
+        description: "There was an error logging out. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  return (
+    <div className="flex h-screen overflow-hidden bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white">
+      {/* Sidebar for navigation */}
+      <ClientSidebar isOpen={sidebarOpen} onClose={toggleSidebar} onLogout={handleClientLogout} />
+      
+      {/* Mobile menu button - visible on mobile only */}
+      <button
+        onClick={toggleSidebar}
+        className="fixed bottom-4 left-4 z-50 lg:hidden flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg transition-all duration-150 hover:shadow-xl active:scale-95"
+      >
+        <Menu size={24} className="transition-all duration-200 animate-in fade-in" />
+      </button>
+      
+      {/* Main content area */}
+      <div className="flex-1 overflow-y-auto">
+        {/* Theme Selector (Floating top-right corner) */}
+        <div className="fixed top-4 right-4 bg-gray-800/80 backdrop-blur-sm border border-gray-700 rounded-full z-40 p-2 flex space-x-2 shadow-xl">
+          <button 
+            onClick={() => setCurrentTheme("blue")} 
+            className={`h-7 w-7 rounded-full bg-gradient-to-r from-blue-600 to-blue-400 flex items-center justify-center ${currentTheme === "blue" ? "ring-2 ring-blue-400 ring-offset-2 ring-offset-gray-800" : "opacity-70"}`} 
+          >
+            {currentTheme === "blue" && <CheckCircle2 className="h-4 w-4 text-white" />}
+          </button>
+          <button 
+            onClick={() => setCurrentTheme("purple")} 
+            className={`h-7 w-7 rounded-full bg-gradient-to-r from-purple-600 to-fuchsia-400 flex items-center justify-center ${currentTheme === "purple" ? "ring-2 ring-purple-400 ring-offset-2 ring-offset-gray-800" : "opacity-70"}`} 
+          >
+            {currentTheme === "purple" && <CheckCircle2 className="h-4 w-4 text-white" />}
+          </button>
+          <button 
+            onClick={() => setCurrentTheme("teal")} 
+            className={`h-7 w-7 rounded-full bg-gradient-to-r from-teal-600 to-emerald-400 flex items-center justify-center ${currentTheme === "teal" ? "ring-2 ring-teal-400 ring-offset-2 ring-offset-gray-800" : "opacity-70"}`} 
+          >
+            {currentTheme === "teal" && <CheckCircle2 className="h-4 w-4 text-white" />}
+          </button>
+          <button 
+            onClick={() => setCurrentTheme("amber")} 
+            className={`h-7 w-7 rounded-full bg-gradient-to-r from-amber-500 to-orange-400 flex items-center justify-center ${currentTheme === "amber" ? "ring-2 ring-amber-400 ring-offset-2 ring-offset-gray-800" : "opacity-70"}`} 
+          >
+            {currentTheme === "amber" && <CheckCircle2 className="h-4 w-4 text-white" />}
+          </button>
+        </div>
+
+        {/* Header with glowing accent border and futuristic design */}
+        <header className="relative border-b border-gray-800">
+          <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-purple-500 to-transparent opacity-70"></div>
+          <div className="absolute left-0 top-0 bottom-0 w-[1px] bg-gradient-to-b from-transparent via-purple-500 to-transparent opacity-70"></div>
+          <div className="absolute right-0 top-0 bottom-0 w-[1px] bg-gradient-to-b from-transparent via-purple-500 to-transparent opacity-70"></div>
+          
+          <div className="container mx-auto px-4 py-4 lg:py-6">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div className="flex items-center">
+                <Button 
+                  variant="ghost" 
+                  size="icon"
+                  className="mr-3 lg:hidden text-gray-400 hover:text-white hover:bg-gray-800/60"
+                  onClick={toggleSidebar}
+                >
+                  <Menu size={20} />
+                </Button>
                 
                 <div className="relative">
-                  <div className="flex items-baseline">
-                    <h1 className="text-2xl md:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-300">
-                      Welcome, {clientData.clientName}
-                    </h1>
-                    <span className="ml-3 px-3 py-1 text-xs font-medium rounded-full border border-gray-700 bg-gray-800/60 text-gray-300">
-                      {clientData.clientCompany}
-                    </span>
+                  {/* Glowing accent background element */}
+                  <div className="absolute -left-2 -top-2 w-12 h-12 rounded-full bg-purple-600/20 blur-xl"></div>
+                  
+                  <div className="relative">
+                    <div className="flex items-baseline">
+                      <h1 className="text-2xl md:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-300">
+                        Welcome, {clientData.clientName}
+                      </h1>
+                      <span className="ml-3 px-3 py-1 text-xs font-medium rounded-full border border-gray-700 bg-gray-800/60 text-gray-300">
+                        {clientData.clientCompany}
+                      </span>
+                    </div>
+                    <p className="text-gray-400 text-sm md:text-base mt-1">
+                      Your campaign performance dashboard 
+                    </p>
                   </div>
-                  <p className="text-gray-400 text-sm md:text-base mt-1">
-                    Your campaign performance dashboard 
-                  </p>
                 </div>
               </div>
-            </div>
-            
-            <div className="flex items-center space-x-3">
-              <Button variant="ghost" className="text-gray-300 hover:text-white hover:bg-gray-800/60" size="sm">
-                <Bell className="h-4 w-4 mr-2" />
-                <span>Alerts</span>
-              </Button>
               
-              <Button variant="ghost" className="text-gray-300 hover:text-white hover:bg-gray-800/60" size="sm">
-                <Settings className="h-4 w-4 mr-2" />
-                <span>Settings</span>
-              </Button>
-              
-              <Button 
-                variant="default" 
-                className={`bg-gradient-to-r ${theme.accentGradient} border-none text-white hover:opacity-90`}
-                size="sm"
-                onClick={handleLogout}
-              >
-                <LogOut className="h-4 w-4 mr-2" />
-                <span>Logout</span>
-              </Button>
+              <div className="flex items-center space-x-3">
+                <Button variant="ghost" className="text-gray-300 hover:text-white hover:bg-gray-800/60" size="sm">
+                  <Bell className="h-4 w-4 mr-2" />
+                  <span>Alerts</span>
+                </Button>
+                
+                <Button variant="ghost" className="text-gray-300 hover:text-white hover:bg-gray-800/60" size="sm">
+                  <Settings className="h-4 w-4 mr-2" />
+                  <span>Settings</span>
+                </Button>
+                
+                <Button 
+                  variant="default" 
+                  className={`bg-gradient-to-r ${theme.accentGradient} border-none text-white hover:opacity-90`}
+                  size="sm"
+                  onClick={handleClientLogout}
+                >
+                  <LogOut className="h-4 w-4 mr-2" />
+                  <span>Logout</span>
+                </Button>
+              </div>
             </div>
           </div>
-        </div>
-      </header>
+        </header>
 
-      <div className="container mx-auto px-4 py-6">
-        {/* Dashboard Tabs */}
-        <div className="mb-8">
-          <Tabs defaultValue="overview" value={currentTab} onValueChange={setCurrentTab} className="w-full">
-            <TabsList className="grid grid-cols-2 md:grid-cols-4 gap-1 bg-gray-800/40 backdrop-blur-sm p-1 rounded-xl border border-gray-700/50 max-w-xl mx-auto">
-              <TabsTrigger 
-                value="overview" 
-                className={`data-[state=active]:bg-gradient-to-r data-[state=active]:${theme.accentGradient} data-[state=active]:text-white rounded-lg text-sm h-10 hover:text-white`}
-              >
-                <LayoutIcon className="h-4 w-4 mr-2" />
-                Overview
-              </TabsTrigger>
-              <TabsTrigger 
-                value="campaigns" 
-                className={`data-[state=active]:bg-gradient-to-r data-[state=active]:${theme.accentGradient} data-[state=active]:text-white rounded-lg text-sm h-10 hover:text-white`}
-              >
-                <Mail className="h-4 w-4 mr-2" />
-                Campaigns
-              </TabsTrigger>
-              <TabsTrigger 
-                value="performance" 
-                className={`data-[state=active]:bg-gradient-to-r data-[state=active]:${theme.accentGradient} data-[state=active]:text-white rounded-lg text-sm h-10 hover:text-white`}
-              >
-                <Activity className="h-4 w-4 mr-2" />
-                Performance
-              </TabsTrigger>
-              <TabsTrigger 
-                value="audience" 
-                className={`data-[state=active]:bg-gradient-to-r data-[state=active]:${theme.accentGradient} data-[state=active]:text-white rounded-lg text-sm h-10 hover:text-white`}
-              >
-                <Users className="h-4 w-4 mr-2" />
-                Audience
-              </TabsTrigger>
-            </TabsList>
-            
-            {/* Overview Tab */}
-            <TabsContent value="overview" className="mt-6">
-              {/* KPI Summary Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-                <Card className="border-gray-800 bg-gray-900/50 backdrop-blur-sm overflow-hidden">
-                  {/* Glowing top border */}
-                  <div className={`h-1 bg-gradient-to-r ${theme.accentGradient}`}></div>
-                  <CardHeader className="pb-3 pt-4">
-                    <CardTitle className="text-sm font-medium text-gray-400 flex items-center justify-between">
-                      <div className="flex items-center">
-                        <Mail className="h-4 w-4 mr-2 text-purple-400" />
-                        <span>Active Campaigns</span>
-                      </div>
-                      <span className="inline-flex items-center justify-center px-2 py-1 rounded-full text-xs font-semibold bg-purple-500/10 text-purple-400 border border-purple-500/20">
-                        <TrendingUp className="h-3 w-3 mr-1" />
-                        10%
-                      </span>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex items-baseline">
-                      <span className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-300">
-                        {clientData.stats.activeCampaigns}
-                      </span>
-                      <span className="ml-1 text-xs text-gray-500">campaigns</span>
-                    </div>
-                    <div className="mt-4">
-                      <div className="flex items-center justify-between text-xs mb-1">
-                        <span className="text-gray-500">Overall completion</span>
-                        <span className="text-white font-semibold">66%</span>
-                      </div>
-                      <div className="h-1.5 rounded-full bg-gray-800 overflow-hidden">
-                        <div className={`h-full rounded-full bg-gradient-to-r ${theme.accentGradient}`} style={{ width: '66%' }}></div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="border-gray-800 bg-gray-900/50 backdrop-blur-sm overflow-hidden">
-                  <div className={`h-1 bg-gradient-to-r ${theme.accentGradient}`}></div>
-                  <CardHeader className="pb-3 pt-4">
-                    <CardTitle className="text-sm font-medium text-gray-400 flex items-center justify-between">
-                      <div className="flex items-center">
-                        <Send className="h-4 w-4 mr-2 text-purple-400" />
-                        <span>Total Emails</span>
-                      </div>
-                      <span className="inline-flex items-center justify-center px-2 py-1 rounded-full text-xs font-semibold bg-green-500/10 text-green-400 border border-green-500/20">
-                        <TrendingUp className="h-3 w-3 mr-1" />
-                        12%
-                      </span>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex items-baseline">
-                      <span className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-300">
-                        {formatNumber(clientData.stats.totalEmails)}
-                      </span>
-                      <span className="ml-1 text-xs text-gray-500">sent</span>
-                    </div>
-                    <div className="mt-4">
-                      <div className="flex items-center justify-between text-xs mb-1">
-                        <span className="text-gray-500">Last 7 days</span>
-                        <span className="text-white font-semibold">+{formatNumber(weeklyStats.emailsSent)}</span>
-                      </div>
-                      <div className="h-1.5 rounded-full bg-gray-800 overflow-hidden">
-                        <div className={`h-full rounded-full bg-gradient-to-r ${theme.accentGradient}`} style={{ width: '78%' }}></div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="border-gray-800 bg-gray-900/50 backdrop-blur-sm overflow-hidden">
-                  <div className={`h-1 bg-gradient-to-r ${theme.accentGradient}`}></div>
-                  <CardHeader className="pb-3 pt-4">
-                    <CardTitle className="text-sm font-medium text-gray-400 flex items-center justify-between">
-                      <div className="flex items-center">
-                        <Eye className="h-4 w-4 mr-2 text-purple-400" />
-                        <span>Open Rate</span>
-                      </div>
-                      <span className="inline-flex items-center justify-center px-2 py-1 rounded-full text-xs font-semibold bg-green-500/10 text-green-400 border border-green-500/20">
-                        <TrendingUp className="h-3 w-3 mr-1" />
-                        {openRateChange}%
-                      </span>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex items-baseline">
-                      <span className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-300">
-                        {clientData.stats.openRate}%
-                      </span>
-                      <span className="ml-1 text-xs text-gray-500">30 day avg</span>
-                    </div>
-                    <div className="mt-4">
-                      <div className="flex items-center justify-between text-xs mb-1">
-                        <span className="text-gray-500">Industry avg</span>
-                        <span className="text-white font-semibold">21.5%</span>
-                      </div>
-                      <div className="h-1.5 rounded-full bg-gray-800 overflow-hidden">
-                        <div className={`h-full rounded-full bg-gradient-to-r ${theme.accentGradient}`} style={{ width: `${(clientData.stats.openRate / 40) * 100}%` }}></div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="border-gray-800 bg-gray-900/50 backdrop-blur-sm overflow-hidden">
-                  <div className={`h-1 bg-gradient-to-r ${theme.accentGradient}`}></div>
-                  <CardHeader className="pb-3 pt-4">
-                    <CardTitle className="text-sm font-medium text-gray-400 flex items-center justify-between">
-                      <div className="flex items-center">
-                        <MousePointer className="h-4 w-4 mr-2 text-purple-400" />
-                        <span>Click Rate</span>
-                      </div>
-                      <span className="inline-flex items-center justify-center px-2 py-1 rounded-full text-xs font-semibold bg-green-500/10 text-green-400 border border-green-500/20">
-                        <TrendingUp className="h-3 w-3 mr-1" />
-                        {clickRateChange}%
-                      </span>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex items-baseline">
-                      <span className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-300">
-                        {clientData.stats.clickRate}%
-                      </span>
-                      <span className="ml-1 text-xs text-gray-500">30 day avg</span>
-                    </div>
-                    <div className="mt-4">
-                      <div className="flex items-center justify-between text-xs mb-1">
-                        <span className="text-gray-500">Industry avg</span>
-                        <span className="text-white font-semibold">2.7%</span>
-                      </div>
-                      <div className="h-1.5 rounded-full bg-gray-800 overflow-hidden">
-                        <div className={`h-full rounded-full bg-gradient-to-r ${theme.accentGradient}`} style={{ width: `${(clientData.stats.clickRate / 5) * 100}%` }}></div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-
-              {/* Second row: AI Insights and Performance Chart */}
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-                {/* AI Insights */}
-                <div className="lg:col-span-1">
-                  <Card className="border-gray-800 bg-gray-900/50 backdrop-blur-sm overflow-hidden h-full">
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-base font-medium bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-300">
+        <div className="container mx-auto px-4 py-6">
+          {/* Dashboard Tabs */}
+          <div className="mb-8">
+            <Tabs defaultValue="overview" value={currentTab} onValueChange={setCurrentTab} className="w-full">
+              <TabsList className="grid grid-cols-2 md:grid-cols-4 gap-1 bg-gray-800/40 backdrop-blur-sm p-1 rounded-xl border border-gray-700/50 max-w-xl mx-auto">
+                <TabsTrigger 
+                  value="overview" 
+                  className={`data-[state=active]:bg-gradient-to-r data-[state=active]:${theme.accentGradient} data-[state=active]:text-white rounded-lg text-sm h-10 hover:text-white`}
+                >
+                  <LayoutIcon className="h-4 w-4 mr-2" />
+                  Overview
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="campaigns" 
+                  className={`data-[state=active]:bg-gradient-to-r data-[state=active]:${theme.accentGradient} data-[state=active]:text-white rounded-lg text-sm h-10 hover:text-white`}
+                >
+                  <Mail className="h-4 w-4 mr-2" />
+                  Campaigns
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="performance" 
+                  className={`data-[state=active]:bg-gradient-to-r data-[state=active]:${theme.accentGradient} data-[state=active]:text-white rounded-lg text-sm h-10 hover:text-white`}
+                >
+                  <Activity className="h-4 w-4 mr-2" />
+                  Performance
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="audience" 
+                  className={`data-[state=active]:bg-gradient-to-r data-[state=active]:${theme.accentGradient} data-[state=active]:text-white rounded-lg text-sm h-10 hover:text-white`}
+                >
+                  <Users className="h-4 w-4 mr-2" />
+                  Audience
+                </TabsTrigger>
+              </TabsList>
+              
+              {/* Overview Tab */}
+              <TabsContent value="overview" className="mt-6">
+                {/* KPI Summary Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                  <Card className="border-gray-800 bg-gray-900/50 backdrop-blur-sm overflow-hidden">
+                    {/* Glowing top border */}
+                    <div className={`h-1 bg-gradient-to-r ${theme.accentGradient}`}></div>
+                    <CardHeader className="pb-3 pt-4">
+                      <CardTitle className="text-sm font-medium text-gray-400 flex items-center justify-between">
                         <div className="flex items-center">
-                          <Zap className="h-5 w-5 mr-2 text-purple-400" />
-                          AI Insights
+                          <Mail className="h-4 w-4 mr-2 text-purple-400" />
+                          <span>Active Campaigns</span>
                         </div>
+                        <span className="inline-flex items-center justify-center px-2 py-1 rounded-full text-xs font-semibold bg-purple-500/10 text-purple-400 border border-purple-500/20">
+                          <TrendingUp className="h-3 w-3 mr-1" />
+                          10%
+                        </span>
                       </CardTitle>
-                      <CardDescription className="text-gray-500">Personalized recommendations</CardDescription>
                     </CardHeader>
                     <CardContent>
-                      <div className="space-y-4">
-                        {/* First Insight Card */}
-                        <div className="p-3 rounded-lg bg-gray-800/60 border border-gray-700">
-                          <div className="flex items-center mb-2">
-                            <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 flex items-center justify-center mr-3">
-                              <Clock className="h-4 w-4 text-white" />
-                            </div>
-                            <h4 className="font-semibold text-white">Optimal Send Time</h4>
+                      <div className="flex items-baseline">
+                        <span className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-300">
+                          {clientData.stats.activeCampaigns}
+                        </span>
+                        <span className="ml-1 text-xs text-gray-500">campaigns</span>
+                      </div>
+                      <div className="mt-4">
+                        <div className="flex items-center justify-between text-xs mb-1">
+                          <span className="text-gray-500">Overall completion</span>
+                          <span className="text-white font-semibold">66%</span>
+                        </div>
+                        <div className="h-1.5 rounded-full bg-gray-800 overflow-hidden">
+                          <div className={`h-full rounded-full bg-gradient-to-r ${theme.accentGradient}`} style={{ width: '66%' }}></div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="border-gray-800 bg-gray-900/50 backdrop-blur-sm overflow-hidden">
+                    <div className={`h-1 bg-gradient-to-r ${theme.accentGradient}`}></div>
+                    <CardHeader className="pb-3 pt-4">
+                      <CardTitle className="text-sm font-medium text-gray-400 flex items-center justify-between">
+                        <div className="flex items-center">
+                          <Send className="h-4 w-4 mr-2 text-purple-400" />
+                          <span>Total Emails</span>
+                        </div>
+                        <span className="inline-flex items-center justify-center px-2 py-1 rounded-full text-xs font-semibold bg-green-500/10 text-green-400 border border-green-500/20">
+                          <TrendingUp className="h-3 w-3 mr-1" />
+                          12%
+                        </span>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="flex items-baseline">
+                        <span className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-300">
+                          {formatNumber(clientData.stats.totalEmails)}
+                        </span>
+                        <span className="ml-1 text-xs text-gray-500">sent</span>
+                      </div>
+                      <div className="mt-4">
+                        <div className="flex items-center justify-between text-xs mb-1">
+                          <span className="text-gray-500">Last 7 days</span>
+                          <span className="text-white font-semibold">+{formatNumber(weeklyStats.emailsSent)}</span>
+                        </div>
+                        <div className="h-1.5 rounded-full bg-gray-800 overflow-hidden">
+                          <div className={`h-full rounded-full bg-gradient-to-r ${theme.accentGradient}`} style={{ width: '78%' }}></div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="border-gray-800 bg-gray-900/50 backdrop-blur-sm overflow-hidden">
+                    <div className={`h-1 bg-gradient-to-r ${theme.accentGradient}`}></div>
+                    <CardHeader className="pb-3 pt-4">
+                      <CardTitle className="text-sm font-medium text-gray-400 flex items-center justify-between">
+                        <div className="flex items-center">
+                          <Eye className="h-4 w-4 mr-2 text-purple-400" />
+                          <span>Open Rate</span>
+                        </div>
+                        <span className="inline-flex items-center justify-center px-2 py-1 rounded-full text-xs font-semibold bg-green-500/10 text-green-400 border border-green-500/20">
+                          <TrendingUp className="h-3 w-3 mr-1" />
+                          {openRateChange}%
+                        </span>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="flex items-baseline">
+                        <span className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-300">
+                          {clientData.stats.openRate}%
+                        </span>
+                        <span className="ml-1 text-xs text-gray-500">30 day avg</span>
+                      </div>
+                      <div className="mt-4">
+                        <div className="flex items-center justify-between text-xs mb-1">
+                          <span className="text-gray-500">Industry avg</span>
+                          <span className="text-white font-semibold">21.5%</span>
+                        </div>
+                        <div className="h-1.5 rounded-full bg-gray-800 overflow-hidden">
+                          <div className={`h-full rounded-full bg-gradient-to-r ${theme.accentGradient}`} style={{ width: `${(clientData.stats.openRate / 40) * 100}%` }}></div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="border-gray-800 bg-gray-900/50 backdrop-blur-sm overflow-hidden">
+                    <div className={`h-1 bg-gradient-to-r ${theme.accentGradient}`}></div>
+                    <CardHeader className="pb-3 pt-4">
+                      <CardTitle className="text-sm font-medium text-gray-400 flex items-center justify-between">
+                        <div className="flex items-center">
+                          <MousePointer className="h-4 w-4 mr-2 text-purple-400" />
+                          <span>Click Rate</span>
+                        </div>
+                        <span className="inline-flex items-center justify-center px-2 py-1 rounded-full text-xs font-semibold bg-green-500/10 text-green-400 border border-green-500/20">
+                          <TrendingUp className="h-3 w-3 mr-1" />
+                          {clickRateChange}%
+                        </span>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="flex items-baseline">
+                        <span className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-300">
+                          {clientData.stats.clickRate}%
+                        </span>
+                        <span className="ml-1 text-xs text-gray-500">30 day avg</span>
+                      </div>
+                      <div className="mt-4">
+                        <div className="flex items-center justify-between text-xs mb-1">
+                          <span className="text-gray-500">Industry avg</span>
+                          <span className="text-white font-semibold">2.7%</span>
+                        </div>
+                        <div className="h-1.5 rounded-full bg-gray-800 overflow-hidden">
+                          <div className={`h-full rounded-full bg-gradient-to-r ${theme.accentGradient}`} style={{ width: `${(clientData.stats.clickRate / 10) * 100}%` }}></div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* AI Insights Section */}
+                <div className="mb-8">
+                  <h2 className="text-xl font-semibold mb-4 flex items-center">
+                    <Lightbulb className="h-5 w-5 mr-2 text-purple-400" />
+                    <span>AI Insights</span>
+                  </h2>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {/* Optimization Card */}
+                    <Card className="border-gray-800 bg-gray-900/50 backdrop-blur-sm overflow-hidden col-span-1">
+                      <div className={`h-1 bg-gradient-to-r ${theme.accentGradient}`}></div>
+                      <CardHeader className="pb-2">
+                        <div className="bg-purple-900/20 w-8 h-8 rounded-full flex items-center justify-center mb-3">
+                          <Clock className="h-4 w-4 text-purple-400" />
+                        </div>
+                        <CardTitle className="text-lg text-white">Optimal Send Time</CardTitle>
+                        <CardDescription className="text-gray-400">
+                          Based on your audience engagement patterns, you'll get the best results by sending on:
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent className="space-y-3">
+                        <div className="flex items-center bg-gray-800/40 rounded-lg px-4 py-3">
+                          <div className="bg-purple-900/20 w-8 h-8 rounded-full flex items-center justify-center">
+                            <Calendar className="h-4 w-4 text-purple-400" />
                           </div>
-                          <p className="text-sm text-gray-400 mb-2">
-                            Based on your audience engagement patterns, you'll get the best results by sending on:
-                          </p>
-                          <div className="flex items-center justify-between mb-2 bg-gray-800/80 p-2 rounded border border-gray-700/60">
-                            <div>
-                              <span className="block text-sm text-gray-300 font-medium">{bestDay}</span>
-                              <span className="block text-xs text-gray-500">Best day of week</span>
-                            </div>
-                            <div className="h-8 w-8 rounded-full bg-gradient-to-r from-indigo-600/20 to-purple-600/20 flex items-center justify-center">
-                              <Calendar className="h-4 w-4 text-indigo-400" />
-                            </div>
-                          </div>
-                          <div className="flex items-center justify-between bg-gray-800/80 p-2 rounded border border-gray-700/60">
-                            <div>
-                              <span className="block text-sm text-gray-300 font-medium">{bestTime}</span>
-                              <span className="block text-xs text-gray-500">Best time of day</span>
-                            </div>
-                            <div className="h-8 w-8 rounded-full bg-gradient-to-r from-indigo-600/20 to-purple-600/20 flex items-center justify-center">
-                              <Timer className="h-4 w-4 text-indigo-400" />
-                            </div>
+                          <div className="ml-3">
+                            <p className="text-sm font-medium text-gray-200">{bestDay}</p>
+                            <p className="text-xs text-gray-400">Best day of week</p>
                           </div>
                         </div>
-
-                        {/* Second Insight Card */}
-                        <div className="p-3 rounded-lg bg-gray-800/60 border border-gray-700">
-                          <div className="flex items-center mb-2">
-                            <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 flex items-center justify-center mr-3">
-                              <Lightbulb className="h-4 w-4 text-white" />
-                            </div>
-                            <h4 className="font-semibold text-white">Subject Line Optimization</h4>
+                        
+                        <div className="flex items-center bg-gray-800/40 rounded-lg px-4 py-3">
+                          <div className="bg-purple-900/20 w-8 h-8 rounded-full flex items-center justify-center">
+                            <Clock className="h-4 w-4 text-purple-400" />
                           </div>
-                          <p className="text-sm text-gray-400 mb-2">
-                            Your personalized subject lines are outperforming generic ones by 37%. Continue this strategy.
-                          </p>
+                          <div className="ml-3">
+                            <p className="text-sm font-medium text-gray-200">{bestTime}</p>
+                            <p className="text-xs text-gray-400">Best time of day</p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                    
+                    {/* Subject Line Card */}
+                    <Card className="border-gray-800 bg-gray-900/50 backdrop-blur-sm overflow-hidden col-span-1 md:col-span-2">
+                      <div className={`h-1 bg-gradient-to-r ${theme.accentGradient}`}></div>
+                      <CardHeader className="pb-2">
+                        <div className="bg-purple-900/20 w-8 h-8 rounded-full flex items-center justify-center mb-3">
+                          <FileText className="h-4 w-4 text-purple-400" />
+                        </div>
+                        <CardTitle className="text-lg text-white">Subject Line Optimization</CardTitle>
+                        <CardDescription className="text-gray-400">
+                          Your personalized subject lines are outperforming generic ones by 37%. Continue this strategy.
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <Button 
+                          variant="outline" 
+                          className="w-full bg-gray-800/60 border-gray-700 text-gray-200 hover:bg-gray-700 hover:text-white mt-4"
+                        >
+                          View Full Analysis
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </div>
+                
+                {/* Recent Campaigns */}
+                <div className="mb-8">
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-xl font-semibold flex items-center">
+                      <Mail className="h-5 w-5 mr-2 text-purple-400" />
+                      <span>Recent Campaigns</span>
+                    </h2>
+                    
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      className="bg-gray-800/60 border-gray-700 text-gray-200 hover:bg-gray-700 hover:text-white"
+                    >
+                      <Mail className="h-4 w-4 mr-2" />
+                      New Campaign
+                    </Button>
+                  </div>
+                  
+                  <div className="overflow-hidden rounded-xl border border-gray-800">
+                    <div className="bg-gray-900/60 backdrop-blur-sm py-3 px-4">
+                      <div className="grid grid-cols-12 text-xs text-gray-400 uppercase tracking-wider">
+                        <div className="col-span-5 md:col-span-3 font-medium">Campaign</div>
+                        <div className="col-span-3 md:col-span-2 font-medium text-center">Status</div>
+                        <div className="col-span-4 md:col-span-2 font-medium text-center">Sent Date</div>
+                        <div className="hidden md:block md:col-span-1 font-medium text-right">Sent</div>
+                        <div className="hidden md:block md:col-span-1 font-medium text-right">Open Rate</div>
+                        <div className="hidden md:block md:col-span-1 font-medium text-right">Click Rate</div>
+                        <div className="hidden md:block md:col-span-2 font-medium text-right">Actions</div>
+                      </div>
+                    </div>
+                    <div className="divide-y divide-gray-800">
+                      {clientData.campaigns && clientData.campaigns.length > 0 ? (
+                        clientData.campaigns.map((campaign: any) => (
+                          <div key={campaign.id} className="bg-gray-900/30 hover:bg-gray-900/50 transition-colors">
+                            <div className="py-3 px-4 grid grid-cols-12 items-center">
+                              <div className="col-span-5 md:col-span-3 font-medium text-gray-200">
+                                {campaign.name}
+                              </div>
+                              <div className="col-span-3 md:col-span-2 text-center">
+                                {getStatusBadge(campaign.status)}
+                              </div>
+                              <div className="col-span-4 md:col-span-2 text-center text-gray-400 text-sm">
+                                {campaign.sentDate || '-'}
+                              </div>
+                              <div className="hidden md:block md:col-span-1 text-right text-gray-300">
+                                {formatNumber(campaign.emailsSent)}
+                              </div>
+                              <div className="hidden md:block md:col-span-1 text-right text-gray-300">
+                                {(campaign.openRate * 100).toFixed(1)}%
+                              </div>
+                              <div className="hidden md:block md:col-span-1 text-right text-gray-300">
+                                {(campaign.clickRate * 100).toFixed(1)}%
+                              </div>
+                              <div className="hidden md:flex md:col-span-2 justify-end space-x-2">
+                                <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400 hover:text-white">
+                                  <Eye className="h-4 w-4" />
+                                </Button>
+                                <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400 hover:text-white">
+                                  <BarChart2 className="h-4 w-4" />
+                                </Button>
+                                <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400 hover:text-white">
+                                  <Share2 className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="py-12 text-center text-gray-400">
+                          <Mail className="h-12 w-12 mx-auto mb-3 text-gray-600" />
+                          <p>No campaigns yet</p>
                           <Button 
-                            className={`w-full bg-gradient-to-r ${theme.accentGradient} text-white hover:opacity-90`}
+                            variant="outline" 
                             size="sm"
+                            className="mt-4 bg-gray-800/60 border-gray-700 text-gray-200 hover:bg-gray-700 hover:text-white"
                           >
-                            View Full Analysis
+                            Create Your First Campaign
                           </Button>
                         </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+                      )}
+                    </div>
+                  </div>
                 </div>
-
-                {/* Campaigns List */}
-                <div className="lg:col-span-2">
-                  <Card className="border-gray-800 bg-gray-900/50 backdrop-blur-sm overflow-hidden">
-                    <CardHeader className="pb-2">
-                      <div className="flex items-center justify-between">
-                        <CardTitle className="text-base font-medium bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-300">
-                          <div className="flex items-center">
-                            <Mail className="h-5 w-5 mr-2 text-purple-400" />
-                            Recent Campaigns
-                          </div>
-                        </CardTitle>
-                        <Button 
-                          className={`bg-gradient-to-r ${theme.accentGradient} text-xs text-white hover:opacity-90`}
-                          size="sm"
-                        >
-                          New Campaign
-                        </Button>
-                      </div>
+              </TabsContent>
+              
+              {/* Campaigns Tab */}
+              <TabsContent value="campaigns">
+                <div className="text-center py-8">
+                  <h3 className="text-lg font-medium mb-2">Campaigns Content</h3>
+                  <p className="text-gray-400">
+                    View your full campaign history, create new campaigns, and analyze performance.
+                  </p>
+                  <Button className={`mt-4 ${theme.accent} ${theme.accentHover}`}>
+                    View All Campaigns
+                  </Button>
+                </div>
+              </TabsContent>
+              
+              {/* Performance Tab */}
+              <TabsContent value="performance">
+                <div className="text-center py-8">
+                  <h3 className="text-lg font-medium mb-2">Email Performance Analytics</h3>
+                  <p className="text-gray-400">
+                    Detailed analytics about your email campaigns, including open rates, click rates, and more.
+                  </p>
+                  <Button className={`mt-4 ${theme.accent} ${theme.accentHover}`}>
+                    View Full Analytics
+                  </Button>
+                </div>
+              </TabsContent>
+              
+              {/* Audience Tab */}
+              <TabsContent value="audience">
+                <div className="text-center py-8">
+                  <Card className="bg-gray-900/50 border-gray-800">
+                    <CardHeader>
+                      <CardTitle>Your Audience Overview</CardTitle>
+                      <CardDescription>Total contacts: {formatNumber(clientData.stats.contactsCount)}</CardDescription>
                     </CardHeader>
                     <CardContent>
-                      <div className="overflow-x-auto -mx-4">
-                        <div className="inline-block min-w-full align-middle px-4">
-                          <div className="overflow-hidden border border-gray-800 rounded-lg">
-                            <table className="min-w-full divide-y divide-gray-800">
-                              <thead className="bg-gray-800/60">
-                                <tr>
-                                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                                    Campaign
-                                  </th>
-                                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                                    Status
-                                  </th>
-                                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                                    Sent Date
-                                  </th>
-                                  <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-400 uppercase tracking-wider">
-                                    Sent
-                                  </th>
-                                  <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-400 uppercase tracking-wider">
-                                    Open Rate
-                                  </th>
-                                  <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-400 uppercase tracking-wider">
-                                    Click Rate
-                                  </th>
-                                  <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-400 uppercase tracking-wider">
-                                    Actions
-                                  </th>
-                                </tr>
-                              </thead>
-                              <tbody className="bg-gray-900/30 divide-y divide-gray-800">
-                                {clientData.campaigns.map((campaign: any, idx: number) => (
-                                  <tr key={campaign.id} className="hover:bg-gray-800/40 transition-colors">
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
-                                      {campaign.name}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm">
-                                      {getStatusBadge(campaign.status)}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
-                                      {campaign.sentDate}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300 text-right">
-                                      {campaign.emailsSent > 0 ? formatNumber(campaign.emailsSent) : '-'}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-right">
-                                      {campaign.openRate > 0 ? (
-                                        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-blue-500/10 text-blue-400 border border-blue-500/20">
-                                          {campaign.openRate}%
-                                        </span>
-                                      ) : '-'}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-right">
-                                      {campaign.clickRate > 0 ? (
-                                        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-purple-500/10 text-purple-400 border border-purple-500/20">
-                                          {campaign.clickRate}%
-                                        </span>
-                                      ) : '-'}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-right">
-                                      <div className="flex justify-end space-x-2">
-                                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-gray-400 hover:text-white">
-                                          <BarChart2 className="h-4 w-4" />
-                                        </Button>
-                                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-gray-400 hover:text-white">
-                                          <Share2 className="h-4 w-4" />
-                                        </Button>
-                                      </div>
-                                    </td>
-                                  </tr>
-                                ))}
-                              </tbody>
-                            </table>
-                          </div>
-                        </div>
+                      <div className="text-center text-gray-400 py-8">
+                        Total contacts: {formatNumber(clientData.stats.contactsCount)}
                       </div>
                     </CardContent>
                   </Card>
                 </div>
-              </div>
-            </TabsContent>
+              </TabsContent>
+            </Tabs>
+          </div>
 
-            {/* Campaigns Tab */}
-            <TabsContent value="campaigns" className="mt-6">
-              <div className="flex flex-col gap-6">
-                <Card className="border-gray-800 bg-gray-900/50 backdrop-blur-sm overflow-hidden">
-                  <CardHeader>
-                    <CardTitle className="text-base font-medium bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-300">
-                      <div className="flex items-center">
-                        <Mail className="h-5 w-5 mr-2 text-purple-400" />
-                        Campaign Overview
-                      </div>
-                    </CardTitle>
-                    <CardDescription className="text-gray-500">View and manage all your email campaigns</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-center text-gray-400 py-8">
-                      Navigate to the Overview tab to view your campaigns and performance metrics
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </TabsContent>
-
-            {/* Performance Tab */}
-            <TabsContent value="performance" className="mt-6">
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-                <Card className="border-gray-800 bg-gray-900/50 backdrop-blur-sm overflow-hidden">
-                  <div className={`h-1 bg-gradient-to-r ${theme.accentGradient}`}></div>
-                  <CardHeader className="pb-3 pt-4">
-                    <CardTitle className="text-sm font-medium text-gray-400 flex items-center justify-between">
-                      <div className="flex items-center">
-                        <Eye className="h-4 w-4 mr-2 text-purple-400" />
-                        <span>Avg. Open Rate</span>
-                      </div>
-                      <div className="flex items-center">
-                        {getTrendIndicator(openRateChange)}
-                        <span className="ml-1 text-xs font-medium text-green-500">{openRateChange}%</span>
-                      </div>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex items-baseline">
-                      <span className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-300">
-                        {avgOpenRateLast30Days}%
-                      </span>
-                      <span className="ml-1 text-xs text-gray-500">last 30 days</span>
-                    </div>
-                    <div className="mt-4">
-                      <div className="flex items-center justify-between text-xs mb-1">
-                        <span className="text-gray-500">Industry benchmark</span>
-                        <span className="text-white font-semibold">21.5%</span>
-                      </div>
-                      <div className="h-1.5 rounded-full bg-gray-800 overflow-hidden">
-                        <div className={`h-full rounded-full bg-gradient-to-r ${theme.accentGradient}`} style={{ width: `${(avgOpenRateLast30Days / 40) * 100}%` }}></div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="border-gray-800 bg-gray-900/50 backdrop-blur-sm overflow-hidden">
-                  <div className={`h-1 bg-gradient-to-r ${theme.accentGradient}`}></div>
-                  <CardHeader className="pb-3 pt-4">
-                    <CardTitle className="text-sm font-medium text-gray-400 flex items-center justify-between">
-                      <div className="flex items-center">
-                        <MousePointer className="h-4 w-4 mr-2 text-purple-400" />
-                        <span>Avg. Click Rate</span>
-                      </div>
-                      <div className="flex items-center">
-                        {getTrendIndicator(clickRateChange)}
-                        <span className="ml-1 text-xs font-medium text-green-500">{clickRateChange}%</span>
-                      </div>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex items-baseline">
-                      <span className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-300">
-                        {avgClickRateLast30Days}%
-                      </span>
-                      <span className="ml-1 text-xs text-gray-500">last 30 days</span>
-                    </div>
-                    <div className="mt-4">
-                      <div className="flex items-center justify-between text-xs mb-1">
-                        <span className="text-gray-500">Industry benchmark</span>
-                        <span className="text-white font-semibold">2.7%</span>
-                      </div>
-                      <div className="h-1.5 rounded-full bg-gray-800 overflow-hidden">
-                        <div className={`h-full rounded-full bg-gradient-to-r ${theme.accentGradient}`} style={{ width: `${(avgClickRateLast30Days / 8) * 100}%` }}></div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="border-gray-800 bg-gray-900/50 backdrop-blur-sm overflow-hidden">
-                  <div className={`h-1 bg-gradient-to-r ${theme.accentGradient}`}></div>
-                  <CardHeader className="pb-3 pt-4">
-                    <CardTitle className="text-sm font-medium text-gray-400 flex items-center justify-between">
-                      <div className="flex items-center">
-                        <TrendingUp className="h-4 w-4 mr-2 text-purple-400" />
-                        <span>Avg. Conversion Rate</span>
-                      </div>
-                      <div className="flex items-center">
-                        {getTrendIndicator(conversionRateChange)}
-                        <span className="ml-1 text-xs font-medium text-green-500">{conversionRateChange}%</span>
-                      </div>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex items-baseline">
-                      <span className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-300">
-                        {avgConversionRateLast30Days}%
-                      </span>
-                      <span className="ml-1 text-xs text-gray-500">last 30 days</span>
-                    </div>
-                    <div className="mt-4">
-                      <div className="flex items-center justify-between text-xs mb-1">
-                        <span className="text-gray-500">Industry benchmark</span>
-                        <span className="text-white font-semibold">0.5%</span>
-                      </div>
-                      <div className="h-1.5 rounded-full bg-gray-800 overflow-hidden">
-                        <div className={`h-full rounded-full bg-gradient-to-r ${theme.accentGradient}`} style={{ width: `${(avgConversionRateLast30Days / 2) * 100}%` }}></div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <Card className="border-gray-800 bg-gray-900/50 backdrop-blur-sm overflow-hidden h-full">
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-base font-medium bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-300">
-                      <div className="flex items-center">
-                        <TrendingUp className="h-4 w-4 mr-2 text-purple-400" />
-                        Engagement Over Time
-                      </div>
-                    </CardTitle>
-                    <CardDescription className="text-gray-500">Monthly performance trends</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="h-72">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <LineChart
-                          data={engagementOverTimeData}
-                          margin={{ top: 5, right: 5, left: 5, bottom: 5 }}
-                        >
-                          <defs>
-                            {theme.chartColors.map((color, index) => (
-                              <linearGradient key={`gradient-${index}`} id={`gradient-${index}`} x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="5%" stopColor={color} stopOpacity={0.8}/>
-                                <stop offset="95%" stopColor={color} stopOpacity={0.1}/>
-                              </linearGradient>
-                            ))}
-                          </defs>
-                          <CartesianGrid strokeDasharray="3 3" stroke="#374151" vertical={false} />
-                          <XAxis dataKey="month" stroke="#6B7280" />
-                          <YAxis stroke="#6B7280" />
-                          <RechartsTooltip content={<CustomTooltip />} />
-                          <Line 
-                            type="monotone" 
-                            dataKey="open" 
-                            name="Open Rate (%)" 
-                            stroke={theme.chartColors[0]} 
-                            strokeWidth={2}
-                            dot={{ r: 3, fill: theme.chartColors[0], strokeWidth: 0 }}
-                            activeDot={{ r: 6, fill: theme.chartColors[0], strokeWidth: 0 }}
-                          />
-                          <Line 
-                            type="monotone" 
-                            dataKey="click" 
-                            name="Click Rate (%)" 
-                            stroke={theme.chartColors[1]} 
-                            strokeWidth={2}
-                            dot={{ r: 3, fill: theme.chartColors[1], strokeWidth: 0 }}
-                            activeDot={{ r: 6, fill: theme.chartColors[1], strokeWidth: 0 }}
-                          />
-                          <Line 
-                            type="monotone" 
-                            dataKey="conversion" 
-                            name="Conversion Rate (%)" 
-                            stroke={theme.chartColors[2]} 
-                            strokeWidth={2}
-                            dot={{ r: 3, fill: theme.chartColors[2], strokeWidth: 0 }}
-                            activeDot={{ r: 6, fill: theme.chartColors[2], strokeWidth: 0 }}
-                          />
-                        </LineChart>
-                      </ResponsiveContainer>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="border-gray-800 bg-gray-900/50 backdrop-blur-sm overflow-hidden h-full">
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-base font-medium bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-300">
-                      <div className="flex items-center">
-                        <Smartphone className="h-4 w-4 mr-2 text-purple-400" />
-                        Device Breakdown
-                      </div>
-                    </CardTitle>
-                    <CardDescription className="text-gray-500">How your audience views your emails</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="h-72 flex items-center justify-center">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <RechartsPieChart>
-                          <Pie
-                            data={deviceBreakdownData}
-                            cx="50%"
-                            cy="50%"
-                            labelLine={false}
-                            outerRadius={120}
-                            dataKey="value"
-                            label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                          >
-                            {deviceBreakdownData.map((entry, index) => (
-                              <Cell 
-                                key={`cell-${index}`} 
-                                fill={theme.chartColors[index % theme.chartColors.length]} 
-                              />
-                            ))}
-                          </Pie>
-                          <RechartsTooltip formatter={(value) => `${value}%`} />
-                        </RechartsPieChart>
-                      </ResponsiveContainer>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </TabsContent>
-
-            {/* Audience Tab */}
-            <TabsContent value="audience" className="mt-6">
-              <div className="flex flex-col gap-6">
-                <Card className="border-gray-800 bg-gray-900/50 backdrop-blur-sm overflow-hidden">
-                  <CardHeader>
-                    <CardTitle className="text-base font-medium bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-300">
-                      <div className="flex items-center">
-                        <Users className="h-5 w-5 mr-2 text-purple-400" />
-                        Audience Overview
-                      </div>
-                    </CardTitle>
-                    <CardDescription className="text-gray-500">Your contact growth and engagement</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-center text-gray-400 py-8">
-                      Total contacts: {formatNumber(clientData.stats.contactsCount)}
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </TabsContent>
-          </Tabs>
+          {/* Footer */}
+          <footer className="mt-12 py-4 border-t border-gray-800 text-center text-xs text-gray-500">
+            <p>Email Marketing Dashboard &copy; 2025 Infinity Tech. All rights reserved.</p>
+          </footer>
         </div>
-
-        {/* Footer */}
-        <footer className="mt-12 py-4 border-t border-gray-800 text-center text-xs text-gray-500">
-          <p>Email Marketing Dashboard &copy; 2025 Infinity Tech. All rights reserved.</p>
-        </footer>
       </div>
     </div>
   );
