@@ -83,13 +83,13 @@ const SubMenu: React.FC<SubMenuProps> = ({
       <div 
         className={`flex items-center justify-between px-3 py-2 rounded-md cursor-pointer 
           ${isActive 
-            ? 'text-white bg-gradient-to-r from-[#1e293b] to-transparent border-l-4 border-[#d4af37]' 
-            : 'text-gray-300 hover:bg-[#1e293b]/50 hover:text-white'}`}
+            ? 'text-blue-600 bg-gradient-to-r from-blue-50 to-transparent border-l-4 border-blue-600' 
+            : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'}`}
         onClick={() => !collapsed && setIsOpen(!isOpen)}
       >
         <div className="flex items-center">
           {React.cloneElement(icon as React.ReactElement, { 
-            className: `h-5 w-5 mr-3 ${isActive ? 'text-[#d4af37]' : ''}` 
+            className: `h-5 w-5 mr-3 ${isActive ? 'text-blue-600' : 'text-gray-500'}` 
           })}
           {!collapsed && <span>{title}</span>}
           
@@ -117,7 +117,7 @@ const SubMenu: React.FC<SubMenuProps> = ({
           
           {/* Chevron for expand/collapse */}
           {!collapsed && (
-            <div className="text-gray-400 ml-2">
+            <div className="text-gray-500 ml-2">
               {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
             </div>
           )}
@@ -189,19 +189,19 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
     <div 
       className={`${open ? 'translate-x-0' : '-translate-x-full'} fixed inset-y-0 left-0 z-50 transform transition-transform duration-300 ease-in-out md:translate-x-0 md:relative md:z-0`}
     >
-      <div className="flex flex-col h-full w-64 bg-[#1e293b] text-gray-100 border-r border-gray-700 shadow-lg">
+      <div className="flex flex-col h-full w-64 bg-white text-gray-800 border-r border-gray-200 shadow-lg">
         <div className="flex flex-col flex-1 h-full overflow-y-auto">
           {/* Logo */}
-          <div className="flex items-center justify-between px-4 py-3 border-b border-gray-700">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200">
             <div className="flex items-center">
               {!collapsed && (
                 <div className="font-bold">
-                  <span className="text-xl text-gray-100">Infy</span>
-                  <span className="text-xl text-blue-400">Mailer</span>
+                  <span className="text-xl text-gray-900">Infy</span>
+                  <span className="text-xl text-blue-600">Mailer</span>
                 </div>
               )}
               {collapsed && (
-                <div className="text-xl font-bold text-blue-400">
+                <div className="text-xl font-bold text-blue-600">
                   IM
                 </div>
               )}
@@ -211,21 +211,21 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
           {/* User Profile */}
           {!collapsed && (
             <div className="px-4 mb-6 mt-4">
-              <div className="flex items-center text-gray-100 p-2 rounded-md bg-gray-800 border border-gray-700">
-                <div className="relative rounded-full bg-blue-900 w-10 h-10 flex items-center justify-center mr-3 text-sm font-medium">
-                  <span className="text-blue-200">AM</span>
+              <div className="flex items-center text-gray-900 p-2 rounded-md bg-gray-100 border border-gray-200">
+                <div className="relative rounded-full bg-blue-100 w-10 h-10 flex items-center justify-center mr-3 text-sm font-medium">
+                  <span className="text-blue-600">AM</span>
                 </div>
                 <div>
-                  <div className="font-medium text-gray-100">Admin</div>
-                  <div className="text-xs text-blue-300">System Administrator</div>
+                  <div className="font-medium text-gray-900">Admin</div>
+                  <div className="text-xs text-blue-600">System Administrator</div>
                 </div>
               </div>
             </div>
           )}
           {collapsed && (
             <div className="px-4 mb-6 mt-4 flex justify-center">
-              <div className="relative rounded-full bg-blue-900 w-10 h-10 flex items-center justify-center text-sm font-medium">
-                <span className="text-blue-200">AM</span>
+              <div className="relative rounded-full bg-blue-100 w-10 h-10 flex items-center justify-center text-sm font-medium">
+                <span className="text-blue-600">AM</span>
               </div>
             </div>
           )}
@@ -237,11 +237,11 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
               <Link 
                 href="/" 
                 className={`flex items-center px-3 py-2 rounded-md ${location === '/' || location === '/dashboard' 
-                  ? 'text-white bg-gradient-to-r from-[#1e293b] to-transparent border-l-4 border-[#d4af37]' 
-                  : 'text-gray-300 hover:bg-[#1e293b]/50 hover:text-white'}`}
+                  ? 'text-blue-600 bg-gradient-to-r from-blue-50 to-transparent border-l-4 border-blue-600' 
+                  : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'}`}
                 title="Dashboard"
               >
-                <LayoutDashboard className={`h-5 w-5 mr-3 ${location === '/' || location === '/dashboard' ? 'text-[#d4af37]' : ''}`} />
+                <LayoutDashboard className={`h-5 w-5 mr-3 ${location === '/' || location === '/dashboard' ? 'text-blue-600' : 'text-gray-500'}`} />
                 {!collapsed && <span>Dashboard</span>}
               </Link>
             </li>
@@ -251,11 +251,11 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
               <Link 
                 href="/campaigns" 
                 className={`flex items-center px-3 py-2 rounded-md ${location === '/campaigns' 
-                  ? 'text-white bg-gradient-to-r from-[#1e293b] to-transparent border-l-4 border-[#d4af37]' 
-                  : 'text-gray-300 hover:bg-[#1e293b]/50 hover:text-white'}`}
+                  ? 'text-blue-600 bg-gradient-to-r from-blue-50 to-transparent border-l-4 border-blue-600' 
+                  : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'}`}
                 title="Campaigns"
               >
-                <Megaphone className={`h-5 w-5 mr-3 ${location === '/campaigns' ? 'text-[#d4af37]' : ''}`} />
+                <Megaphone className={`h-5 w-5 mr-3 ${location === '/campaigns' ? 'text-blue-600' : 'text-gray-500'}`} />
                 {!collapsed && <span>Campaigns</span>}
               </Link>
             </li>
@@ -265,11 +265,11 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
               <Link 
                 href="/templates" 
                 className={`flex items-center px-3 py-2 rounded-md ${location === '/templates' || location.includes('/template-builder')
-                  ? 'text-white bg-gradient-to-r from-[#1e293b] to-transparent border-l-4 border-[#d4af37]' 
-                  : 'text-gray-300 hover:bg-[#1e293b]/50 hover:text-white'}`}
+                  ? 'text-blue-600 bg-gradient-to-r from-blue-50 to-transparent border-l-4 border-blue-600' 
+                  : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'}`}
                 title="Templates"
               >
-                <FileText className={`h-5 w-5 mr-3 ${location === '/templates' || location.includes('/template-builder') ? 'text-[#d4af37]' : ''}`} />
+                <FileText className={`h-5 w-5 mr-3 ${location === '/templates' || location.includes('/template-builder') ? 'text-blue-600' : 'text-gray-500'}`} />
                 {!collapsed && <span>Templates</span>}
               </Link>
             </li>
@@ -286,8 +286,8 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
               <Link 
                 href="/contacts" 
                 className={`block py-2 px-3 rounded-md ${location === '/contacts' 
-                  ? 'text-[#d4af37] font-medium' 
-                  : 'text-gray-300 hover:text-white'}`}
+                  ? 'text-blue-600 font-medium' 
+                  : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'}`}
               >
                 All Contacts
               </Link>
@@ -296,8 +296,8 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
               <Link 
                 href="/contact-lists" 
                 className={`block py-2 px-3 rounded-md ${location === '/contact-lists' 
-                  ? 'text-[#d4af37] font-medium' 
-                  : 'text-gray-300 hover:text-white'}`}
+                  ? 'text-blue-600 font-medium' 
+                  : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'}`}
               >
                 Contact Lists
               </Link>
@@ -308,11 +308,11 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
               <Link 
                 href="/client-management" 
                 className={`flex items-center px-3 py-2 rounded-md ${location === '/client-management' 
-                  ? 'text-white bg-gradient-to-r from-[#1e293b] to-transparent border-l-4 border-[#d4af37]' 
-                  : 'text-gray-300 hover:bg-[#1e293b]/50 hover:text-white'}`}
+                  ? 'text-blue-600 bg-gradient-to-r from-blue-50 to-transparent border-l-4 border-blue-600' 
+                  : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'}`}
                 title="Client Management"
               >
-                <Building2 className={`h-5 w-5 mr-3 ${location === '/client-management' ? 'text-[#d4af37]' : ''}`} />
+                <Building2 className={`h-5 w-5 mr-3 ${location === '/client-management' ? 'text-blue-600' : 'text-gray-500'}`} />
                 {!collapsed && <span>Client Management</span>}
               </Link>
             </li>
@@ -329,8 +329,8 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
               <Link 
                 href="/email-performance" 
                 className={`block py-2 px-3 rounded-md ${location === '/email-performance' 
-                  ? 'text-[#d4af37] font-medium' 
-                  : 'text-gray-300 hover:text-white'}`}
+                  ? 'text-blue-600 font-medium' 
+                  : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'}`}
               >
                 Email Performance
               </Link>
@@ -339,8 +339,8 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
               <Link 
                 href="/ab-testing" 
                 className={`block py-2 px-3 rounded-md ${location.startsWith('/ab-testing') 
-                  ? 'text-[#d4af37] font-medium' 
-                  : 'text-gray-300 hover:text-white'}`}
+                  ? 'text-blue-600 font-medium' 
+                  : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'}`}
               >
                 A/B Testing
               </Link>
@@ -357,8 +357,8 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
               <Link 
                 href="/domains" 
                 className={`block py-2 px-3 rounded-md ${location === '/domains' 
-                  ? 'text-[#d4af37] font-medium' 
-                  : 'text-gray-300 hover:text-white'}`}
+                  ? 'text-blue-600 font-medium' 
+                  : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'}`}
               >
                 Domains
               </Link>
