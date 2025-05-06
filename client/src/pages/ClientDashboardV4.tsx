@@ -821,20 +821,20 @@ export default function ClientDashboardV4() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
             {/* Channel Performance Table */}
-            <Card className="overflow-hidden bg-white border-0 shadow-sm">
-              <CardHeader className="pb-0 pt-4 px-4">
+            <Card className="overflow-hidden bg-white border border-gray-100 shadow-md rounded-lg">
+              <CardHeader className="pb-0 pt-5 px-5">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className="h-6 w-6 bg-purple-600 rounded-full flex items-center justify-center text-white">
-                      <BarChart3 className="h-3 w-3" />
+                  <div className="flex items-center gap-3">
+                    <div className="h-8 w-8 bg-gradient-to-br from-purple-600 to-purple-500 rounded-md flex items-center justify-center text-white shadow-sm">
+                      <BarChart3 className="h-4 w-4" />
                     </div>
-                    <CardTitle className="text-base text-slate-800 font-medium">Channel Performance</CardTitle>
+                    <CardTitle className="text-base text-gray-800 font-semibold">Channel Performance</CardTitle>
                   </div>
-                  <div className="flex space-x-1">
+                  <div className="flex space-x-1.5">
                     <Button 
                       variant="ghost" 
                       size="icon" 
-                      className="h-6 w-6 text-slate-500 hover:text-slate-700"
+                      className="h-7 w-7 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100"
                       onClick={handleDownloadClick}
                     >
                       <Download className="h-4 w-4" />
@@ -842,7 +842,7 @@ export default function ClientDashboardV4() {
                     <Button 
                       variant="ghost" 
                       size="icon" 
-                      className={`h-6 w-6 text-slate-500 hover:text-slate-700 ${showFilters ? 'bg-slate-100' : ''}`}
+                      className={`h-7 w-7 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100 ${showFilters ? 'bg-gray-100' : ''}`}
                       onClick={toggleFilter}
                     >
                       <Filter className="h-4 w-4" />
@@ -850,7 +850,7 @@ export default function ClientDashboardV4() {
                     <Button 
                       variant="ghost" 
                       size="icon" 
-                      className="h-6 w-6 text-slate-500 hover:text-slate-700"
+                      className="h-7 w-7 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100"
                       onClick={handleBarChartClick}
                     >
                       <BarChart className="h-4 w-4" />
@@ -880,22 +880,22 @@ export default function ClientDashboardV4() {
                 <div className="overflow-x-auto">
                   <table className="w-full">
                     <thead>
-                      <tr className="text-left text-xs text-slate-500">
-                        <th className="pb-2 font-medium">Channel</th>
-                        <th className="pb-2 font-medium text-right">Impressions</th>
-                        <th className="pb-2 font-medium text-right">% Δ</th>
-                        <th className="pb-2 font-medium text-right">CTR</th>
-                        <th className="pb-2 font-medium text-right">% Δ</th>
+                      <tr className="text-left text-xs text-gray-500">
+                        <th className="pb-3 font-medium">Channel</th>
+                        <th className="pb-3 font-medium text-right">Impressions</th>
+                        <th className="pb-3 font-medium text-right">% Δ</th>
+                        <th className="pb-3 font-medium text-right">CTR</th>
+                        <th className="pb-3 font-medium text-right">% Δ</th>
                       </tr>
                     </thead>
                     <tbody>
                       {channelPerformanceData.map((item, index) => (
-                        <tr key={index} className="border-t border-slate-100 text-sm">
-                          <td className="py-2 text-slate-800 font-medium">{item.channel}</td>
-                          <td className="py-2 text-right text-slate-700">{item.impressions}</td>
-                          <td className="py-2 text-right text-slate-700">{item.change}</td>
-                          <td className="py-2 text-right text-slate-700">{item.ctr}</td>
-                          <td className="py-2 text-right text-slate-700">{item.changePercent}</td>
+                        <tr key={index} className="border-t border-gray-100 text-sm hover:bg-gray-50">
+                          <td className="py-2.5 text-gray-800 font-medium">{item.channel}</td>
+                          <td className="py-2.5 text-right text-gray-700">{item.impressions}</td>
+                          <td className="py-2.5 text-right text-gray-700">{item.change}</td>
+                          <td className="py-2.5 text-right text-gray-700">{item.ctr}</td>
+                          <td className="py-2.5 text-right text-gray-700">{item.changePercent}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -905,20 +905,20 @@ export default function ClientDashboardV4() {
             </Card>
 
             {/* Data Source Performance Table */}
-            <Card className="overflow-hidden bg-white border-0 shadow-sm">
-              <CardHeader className="pb-0 pt-4 px-4">
+            <Card className="overflow-hidden bg-white border border-gray-100 shadow-md rounded-lg">
+              <CardHeader className="pb-0 pt-5 px-5">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className="h-6 w-6 bg-cyan-600 rounded-full flex items-center justify-center text-white">
-                      <Database className="h-3 w-3" />
+                  <div className="flex items-center gap-3">
+                    <div className="h-8 w-8 bg-gradient-to-br from-cyan-600 to-cyan-500 rounded-md flex items-center justify-center text-white shadow-sm">
+                      <Database className="h-4 w-4" />
                     </div>
-                    <CardTitle className="text-base text-slate-800 font-medium">Data Source Performance</CardTitle>
+                    <CardTitle className="text-base text-gray-800 font-semibold">Data Source Performance</CardTitle>
                   </div>
-                  <div className="flex space-x-1">
+                  <div className="flex space-x-1.5">
                     <Button 
                       variant="ghost" 
                       size="icon" 
-                      className="h-6 w-6 text-slate-500 hover:text-slate-700"
+                      className="h-7 w-7 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100"
                       onClick={handleDownloadClick}
                     >
                       <Download className="h-4 w-4" />
@@ -926,7 +926,7 @@ export default function ClientDashboardV4() {
                     <Button 
                       variant="ghost" 
                       size="icon" 
-                      className={`h-6 w-6 text-slate-500 hover:text-slate-700 ${showFilters ? 'bg-slate-100' : ''}`}
+                      className={`h-7 w-7 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100 ${showFilters ? 'bg-gray-100' : ''}`}
                       onClick={toggleFilter}
                     >
                       <Filter className="h-4 w-4" />
@@ -934,7 +934,7 @@ export default function ClientDashboardV4() {
                     <Button 
                       variant="ghost" 
                       size="icon" 
-                      className="h-6 w-6 text-slate-500 hover:text-slate-700"
+                      className="h-7 w-7 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100"
                       onClick={handleBarChartClick}
                     >
                       <BarChart className="h-4 w-4" />
@@ -946,22 +946,22 @@ export default function ClientDashboardV4() {
                 <div className="overflow-x-auto">
                   <table className="w-full">
                     <thead>
-                      <tr className="text-left text-xs text-slate-500">
-                        <th className="pb-2 font-medium">Source</th>
-                        <th className="pb-2 font-medium text-right">Impressions</th>
-                        <th className="pb-2 font-medium text-right">% Δ</th>
-                        <th className="pb-2 font-medium text-right">CTR</th>
-                        <th className="pb-2 font-medium text-right">% Δ</th>
+                      <tr className="text-left text-xs text-gray-500">
+                        <th className="pb-3 font-medium">Source</th>
+                        <th className="pb-3 font-medium text-right">Impressions</th>
+                        <th className="pb-3 font-medium text-right">% Δ</th>
+                        <th className="pb-3 font-medium text-right">CTR</th>
+                        <th className="pb-3 font-medium text-right">% Δ</th>
                       </tr>
                     </thead>
                     <tbody>
                       {dataSourcePerformanceData.map((item, index) => (
-                        <tr key={index} className="border-t border-slate-100 text-sm">
-                          <td className="py-2 text-slate-800 font-medium">{item.source}</td>
-                          <td className="py-2 text-right text-slate-700">{item.impressions}</td>
-                          <td className="py-2 text-right text-slate-700">{item.change}</td>
-                          <td className="py-2 text-right text-slate-700">{item.ctr}</td>
-                          <td className="py-2 text-right text-slate-700">{item.changePercent}</td>
+                        <tr key={index} className="border-t border-gray-100 text-sm hover:bg-gray-50">
+                          <td className="py-2.5 text-gray-800 font-medium">{item.source}</td>
+                          <td className="py-2.5 text-right text-gray-700">{item.impressions}</td>
+                          <td className="py-2.5 text-right text-gray-700">{item.change}</td>
+                          <td className="py-2.5 text-right text-gray-700">{item.ctr}</td>
+                          <td className="py-2.5 text-right text-gray-700">{item.changePercent}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -972,18 +972,23 @@ export default function ClientDashboardV4() {
           </div>
 
           {/* Channel Trend Chart */}
-          <Card className="overflow-hidden bg-white border-0 shadow-sm mb-5">
-            <CardHeader className="pb-0 pt-4 px-4">
+          <Card className="overflow-hidden bg-white border border-gray-100 shadow-md rounded-lg mb-5">
+            <CardHeader className="pb-0 pt-5 px-5">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-base text-slate-800 font-medium">Channel Performance Trend</CardTitle>
-                <div className="flex space-x-1">
-                  <Button variant="ghost" size="icon" className="h-6 w-6 text-slate-500 hover:text-slate-700">
+                <div className="flex items-center gap-3">
+                  <div className="h-8 w-8 bg-gradient-to-br from-blue-600 to-blue-500 rounded-md flex items-center justify-center text-white shadow-sm">
+                    <LineChart className="h-4 w-4" />
+                  </div>
+                  <CardTitle className="text-base text-gray-800 font-semibold">Channel Performance Trend</CardTitle>
+                </div>
+                <div className="flex space-x-1.5">
+                  <Button variant="ghost" size="icon" className="h-7 w-7 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100">
                     <Download className="h-4 w-4" />
                   </Button>
-                  <Button variant="ghost" size="icon" className="h-6 w-6 text-slate-500 hover:text-slate-700">
+                  <Button variant="ghost" size="icon" className="h-7 w-7 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100">
                     <Filter className="h-4 w-4" />
                   </Button>
-                  <Button variant="ghost" size="icon" className="h-6 w-6 text-slate-500 hover:text-slate-700">
+                  <Button variant="ghost" size="icon" className="h-7 w-7 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100">
                     <BarChart className="h-4 w-4" />
                   </Button>
                 </div>
@@ -1063,23 +1068,23 @@ export default function ClientDashboardV4() {
           </Card>
 
           {/* Campaign Performance Table */}
-          <Card className="overflow-hidden bg-white border-0 shadow-sm mb-5">
-            <CardHeader className="pb-0 pt-4 px-4">
+          <Card className="overflow-hidden bg-white border border-gray-100 shadow-md rounded-lg mb-5">
+            <CardHeader className="pb-0 pt-5 px-5">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="h-6 w-6 bg-indigo-600 rounded-full flex items-center justify-center text-white">
-                    <Mail className="h-3 w-3" />
+                <div className="flex items-center gap-3">
+                  <div className="h-8 w-8 bg-gradient-to-br from-indigo-600 to-indigo-500 rounded-md flex items-center justify-center text-white shadow-sm">
+                    <Mail className="h-4 w-4" />
                   </div>
-                  <CardTitle className="text-base text-slate-800 font-medium">Campaign Performance</CardTitle>
+                  <CardTitle className="text-base text-gray-800 font-semibold">Campaign Performance</CardTitle>
                 </div>
-                <div className="flex space-x-1">
-                  <Button variant="ghost" size="icon" className="h-6 w-6 text-slate-500 hover:text-slate-700">
+                <div className="flex space-x-1.5">
+                  <Button variant="ghost" size="icon" className="h-7 w-7 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100">
                     <Download className="h-4 w-4" />
                   </Button>
-                  <Button variant="ghost" size="icon" className="h-6 w-6 text-slate-500 hover:text-slate-700">
+                  <Button variant="ghost" size="icon" className="h-7 w-7 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100">
                     <Filter className="h-4 w-4" />
                   </Button>
-                  <Button variant="ghost" size="icon" className="h-6 w-6 text-slate-500 hover:text-slate-700">
+                  <Button variant="ghost" size="icon" className="h-7 w-7 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100">
                     <BarChart className="h-4 w-4" />
                   </Button>
                 </div>
@@ -1089,22 +1094,22 @@ export default function ClientDashboardV4() {
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr className="text-left text-xs text-slate-500">
-                      <th className="pb-2 font-medium">Campaign</th>
-                      <th className="pb-2 font-medium text-right">Impressions</th>
-                      <th className="pb-2 font-medium text-right">% Δ</th>
-                      <th className="pb-2 font-medium text-right">CTR</th>
-                      <th className="pb-2 font-medium text-right">% Δ</th>
+                    <tr className="text-left text-xs text-gray-500">
+                      <th className="pb-3 font-medium">Campaign</th>
+                      <th className="pb-3 font-medium text-right">Impressions</th>
+                      <th className="pb-3 font-medium text-right">% Δ</th>
+                      <th className="pb-3 font-medium text-right">CTR</th>
+                      <th className="pb-3 font-medium text-right">% Δ</th>
                     </tr>
                   </thead>
                   <tbody>
                     {campaignPerformanceData.map((item, index) => (
-                      <tr key={index} className="border-t border-slate-100 text-sm">
-                        <td className="py-2 text-slate-800 font-medium">{item.campaign}</td>
-                        <td className="py-2 text-right text-slate-700">{item.impressions}</td>
-                        <td className="py-2 text-right text-slate-700">{item.change}</td>
-                        <td className="py-2 text-right text-slate-700">{item.ctr}</td>
-                        <td className="py-2 text-right text-slate-700">{item.changePercent}</td>
+                      <tr key={index} className="border-t border-gray-100 text-sm hover:bg-gray-50">
+                        <td className="py-2.5 text-gray-800 font-medium">{item.campaign}</td>
+                        <td className="py-2.5 text-right text-gray-700">{item.impressions}</td>
+                        <td className="py-2.5 text-right text-gray-700">{item.change}</td>
+                        <td className="py-2.5 text-right text-gray-700">{item.ctr}</td>
+                        <td className="py-2.5 text-right text-gray-700">{item.changePercent}</td>
                       </tr>
                     ))}
                   </tbody>
