@@ -365,11 +365,11 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
             </SubMenu>
             
             {collapsed ? (
-              <li className="border-t border-gray-700 my-2 pt-2">
+              <li className="border-t border-gray-200 my-2 pt-2">
                 <div className="h-1"></div>
               </li>
             ) : (
-              <li className="px-3 py-2 text-xs text-gray-400 uppercase tracking-wider mt-6 mb-2">
+              <li className="px-3 py-2 text-xs text-gray-500 uppercase tracking-wider mt-6 mb-2">
                 Advanced Features
               </li>
             )}
@@ -387,8 +387,8 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
               <Link 
                 href="/email-validation" 
                 className={`block py-2 px-3 rounded-md ${location === '/email-validation' 
-                  ? 'text-[#d4af37] font-medium' 
-                  : 'text-gray-300 hover:text-white'}`}
+                  ? 'text-blue-600 font-medium' 
+                  : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'}`}
               >
                 Email Validation
               </Link>
@@ -397,8 +397,8 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
               <Link 
                 href="/email-providers" 
                 className={`block py-2 px-3 rounded-md ${location === '/email-providers' 
-                  ? 'text-[#d4af37] font-medium' 
-                  : 'text-gray-300 hover:text-white'}`}
+                  ? 'text-blue-600 font-medium' 
+                  : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'}`}
               >
                 Email Providers
               </Link>
@@ -407,8 +407,8 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
               <Link 
                 href="/email-test" 
                 className={`block py-2 px-3 rounded-md ${location === '/email-test' 
-                  ? 'text-[#d4af37] font-medium' 
-                  : 'text-gray-300 hover:text-white'}`}
+                  ? 'text-blue-600 font-medium' 
+                  : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'}`}
               >
                 Email Test
               </Link>
@@ -419,21 +419,21 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
               <Link 
                 href="/client-collaboration" 
                 className={`flex items-center px-3 py-2 rounded-md ${location === '/client-collaboration' || location.includes('/client-collaboration/')
-                  ? 'text-white bg-gradient-to-r from-[#1e293b] to-transparent border-l-4 border-[#d4af37]' 
-                  : 'text-gray-300 hover:bg-[#1e293b]/50 hover:text-white'}`}
+                  ? 'text-blue-600 bg-gradient-to-r from-blue-50 to-transparent border-l-4 border-blue-600' 
+                  : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'}`}
                 title="Client Collaboration Portal"
               >
-                <HandshakeIcon className={`h-5 w-5 mr-3 ${location === '/client-collaboration' || location.includes('/client-collaboration/') ? 'text-[#d4af37]' : ''}`} />
+                <HandshakeIcon className={`h-5 w-5 mr-3 ${location === '/client-collaboration' || location.includes('/client-collaboration/') ? 'text-blue-600' : 'text-gray-500'}`} />
                 {!collapsed && <span>Client Collaboration</span>}
               </Link>
             </li>
             
             {collapsed ? (
-              <li className="border-t border-gray-700 my-2 pt-2">
+              <li className="border-t border-gray-200 my-2 pt-2">
                 <div className="h-1"></div>
               </li>
             ) : (
-              <li className="px-3 py-2 text-xs text-gray-400 uppercase tracking-wider mt-6 mb-2">
+              <li className="px-3 py-2 text-xs text-gray-500 uppercase tracking-wider mt-6 mb-2">
                 Administration
               </li>
             )}
@@ -450,8 +450,8 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
               <Link 
                 href="/user-management" 
                 className={`block py-2 px-3 rounded-md ${location === '/user-management' 
-                  ? 'text-[#d4af37] font-medium' 
-                  : 'text-gray-300 hover:text-white'}`}
+                  ? 'text-blue-600 font-medium' 
+                  : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'}`}
               >
                 User Management
               </Link>
@@ -460,8 +460,8 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
               <Link 
                 href="/admin-dashboard" 
                 className={`block py-2 px-3 rounded-md ${location === '/admin-dashboard' 
-                  ? 'text-[#d4af37] font-medium' 
-                  : 'text-gray-300 hover:text-white'}`}
+                  ? 'text-blue-600 font-medium' 
+                  : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'}`}
               >
                 Admin Dashboard
               </Link>
@@ -470,8 +470,8 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
               <Link 
                 href="/admin" 
                 className={`block py-2 px-3 rounded-md ${location === '/admin' 
-                  ? 'text-[#d4af37] font-medium' 
-                  : 'text-gray-300 hover:text-white'}`}
+                  ? 'text-blue-600 font-medium' 
+                  : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'}`}
               >
                 Admin Panel
               </Link>
@@ -480,8 +480,8 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
               <Link 
                 href="/settings" 
                 className={`block py-2 px-3 rounded-md ${location === '/settings' 
-                  ? 'text-[#d4af37] font-medium' 
-                  : 'text-gray-300 hover:text-white'}`}
+                  ? 'text-blue-600 font-medium' 
+                  : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'}`}
               >
                 Settings
               </Link>
@@ -491,18 +491,18 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
             <li className="mt-6">
               <Link 
                 href="/client-dashboard" 
-                className={`flex items-center px-3 py-2 rounded-md border border-gray-600 ${location === '/client-dashboard' 
-                  ? 'bg-gradient-to-r from-blue-900 to-transparent text-blue-200' 
-                  : 'bg-gradient-to-r from-gray-800 to-transparent text-blue-300 hover:from-blue-800/30'}`}
+                className={`flex items-center px-3 py-2 rounded-md border border-blue-200 ${location === '/client-dashboard' 
+                  ? 'bg-gradient-to-r from-blue-50 to-white text-blue-600' 
+                  : 'bg-white text-blue-600 hover:bg-blue-50'}`}
                 title="Client Portal"
               >
-                <ExternalLink className="h-5 w-5 mr-3 text-blue-400" />
+                <ExternalLink className="h-5 w-5 mr-3 text-blue-500" />
                 {!collapsed && (
                   <div className="flex items-center">
                     <span>Client Portal</span>
                     <div className="relative ml-2">
-                      <span className="absolute -inset-1 rounded-full bg-blue-600/30 animate-pulse opacity-75"></span>
-                      <span className="relative h-1.5 w-1.5 rounded-full bg-blue-400 inline-block"></span>
+                      <span className="absolute -inset-1 rounded-full bg-blue-100 animate-pulse opacity-75"></span>
+                      <span className="relative h-1.5 w-1.5 rounded-full bg-blue-500 inline-block"></span>
                     </div>
                   </div>
                 )}
@@ -514,10 +514,10 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
           <div className="px-2 mt-4 mb-6">
             <button
               onClick={handleLogout}
-              className="flex items-center w-full px-3 py-2 rounded-md text-gray-300 hover:bg-gray-800 hover:text-gray-100"
+              className="flex items-center w-full px-3 py-2 rounded-md text-gray-700 hover:bg-gray-100 hover:text-gray-900"
               title="Logout"
             >
-              <LogOut className="h-5 w-5 mr-3 text-gray-400" />
+              <LogOut className="h-5 w-5 mr-3 text-gray-500" />
               {!collapsed && <span>Logout</span>}
             </button>
           </div>
