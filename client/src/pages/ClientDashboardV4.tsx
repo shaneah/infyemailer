@@ -9,10 +9,11 @@ import {
   TrendingUp, Clock, Activity, Layout as LayoutIcon, Lightbulb,
   ArrowRight, ArrowUp, ArrowDown, Shield, Send, Eye, 
   BarChart2, MousePointer, CheckCircle2, Share2, FileText,
-  Gauge, RefreshCw, Timer, Smartphone, Filter, Download
+  Gauge, RefreshCw, Timer, Smartphone, Filter, Download,
+  Database, UserRound, ChevronDown, ChevronUp
 } from "lucide-react";
-import Database from "@/components/Database";
 import { useToast } from "@/hooks/use-toast";
+
 import { Progress } from "@/components/ui/progress";
 import ClientSidebar from "@/components/ClientSidebar";
 import {
@@ -390,10 +391,11 @@ export default function ClientDashboardV4() {
               </div>
               
               {/* Date range selector */}
-              <div className="relative bg-gray-100 rounded-md border border-gray-200 px-3 py-1.5 text-sm">
+              <div className="relative bg-gray-100 rounded-md border border-gray-200 px-3 py-1.5 text-sm cursor-pointer hover:bg-gray-200 transition-colors">
                 <div className="flex items-center">
                   <Calendar className="h-4 w-4 mr-2 text-blue-500" />
                   <span className="text-gray-800 font-medium">{dateRange}</span>
+                  <ChevronDown className="h-3 w-3 ml-2 text-gray-500" />
                 </div>
               </div>
             </div>
