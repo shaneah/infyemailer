@@ -1,7 +1,18 @@
-import { Router, Express } from 'express';
+import { Router, Express, Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
-import { validateSchema } from '../helpers/validation';
 import { OpenAIService } from '../services/ai/openai-service';
+
+// Define validation middleware inline
+const validateSchema = <T>(schema: z.ZodType<T>, data: any): T | { error: string } => {
+  try {
+    return schema.parse(data) as T;
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return { error: error.errors.map(e => `${e.path}: ${e.message}`).join(', ') };
+    }
+    return { error: 'Invalid data' };
+  }
+};
 
 const router = Router();
 const openAIService = new OpenAIService();

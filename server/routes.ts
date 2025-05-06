@@ -166,7 +166,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   registerAIAssistantRoutes(app);
   
   // Register AI Content Optimization routes
-  app.use(aiRoutes);
+  app.use('/api', aiRoutes);
   
   // Register heat maps routes
   app.use('/api/heat-maps', heatMapsRoutes);
