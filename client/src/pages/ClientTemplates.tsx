@@ -660,14 +660,14 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
               {viewMode === 'grid' ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
                   {filteredTemplates.map((template: Template) => (
-                    <Card key={template.id} className="overflow-hidden group hover:shadow-xl transition-all duration-300 bg-white rounded-xl border border-purple-100">
+                    <Card key={template.id} className="overflow-hidden group hover:shadow-xl transition-all duration-300 bg-white rounded-lg border border-gray-200">
                       <CardHeader className="p-0 overflow-hidden relative">
                         {/* Template Preview Section */}
-                        <div className="h-44 bg-gradient-to-br from-purple-50 via-indigo-50 to-violet-50 overflow-hidden relative flex items-center justify-center">
+                        <div className="h-44 bg-gradient-to-br from-blue-50 via-sky-50 to-indigo-50 overflow-hidden relative flex items-center justify-center">
                           {/* Template design preview */}
                           <div className="template-preview-card bg-white rounded-lg shadow-md w-[85%] h-[85%] mx-auto overflow-hidden flex flex-col transform group-hover:scale-105 transition-transform duration-300">
                             {/* Template header */}
-                            <div className="template-preview-header h-7 bg-gradient-to-r from-purple-600 to-indigo-600 flex items-center px-3">
+                            <div className="template-preview-header h-7 bg-gradient-to-r from-blue-700 to-blue-800 flex items-center px-3">
                               <div className="flex space-x-1.5">
                                 <div className="w-2 h-2 rounded-full bg-white opacity-80"></div>
                                 <div className="w-2 h-2 rounded-full bg-white opacity-80"></div>
@@ -678,7 +678,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
                             {/* Template content mockup */}
                             <div className="flex-1 p-2 flex flex-col">
                               {/* Template title bar */}
-                              <div className="h-4 w-3/4 bg-gradient-to-r from-purple-300 to-indigo-300 rounded mb-2"></div>
+                              <div className="h-4 w-3/4 bg-gradient-to-r from-blue-400 to-blue-500 rounded mb-2"></div>
                               
                               {/* Template content lines */}
                               <div className="space-y-1.5 mb-auto">
@@ -699,14 +699,14 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
                         <div className="absolute top-0 left-0 w-full flex justify-between p-2.5">
                           <Badge 
                             variant="outline" 
-                            className="capitalize px-2 py-0.5 text-xs bg-white bg-opacity-90 text-purple-700 border-purple-200 rounded-md shadow-sm"
+                            className="capitalize px-2 py-0.5 text-xs bg-white bg-opacity-90 text-blue-700 border-blue-200 rounded-md shadow-sm"
                           >
                             {template.category || "general"}
                           </Badge>
                           
                           {template.metadata?.generatedByAI && (
                             <Badge 
-                              className="capitalize px-2 py-0.5 text-xs rounded-md bg-gradient-to-r from-purple-600 to-indigo-600 text-white border-0 shadow-sm flex items-center gap-1"
+                              className="capitalize px-2 py-0.5 text-xs rounded-md bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-0 shadow-sm flex items-center gap-1"
                             >
                               <Sparkles className="h-3 w-3" /> AI
                             </Badge>
@@ -714,12 +714,12 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
                         </div>
                         
                         {/* Hover overlay with actions */}
-                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-black/20 backdrop-blur-[1px] transition-all duration-300 flex items-center justify-center">
+                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-blue-900/20 backdrop-blur-[1px] transition-all duration-300 flex items-center justify-center">
                           <div className="flex gap-2">
                             <Button 
                               variant="default" 
                               size="sm"
-                              className="shadow-lg opacity-90 hover:opacity-100 bg-purple-600 hover:bg-purple-700 border-none font-medium"
+                              className="shadow-lg opacity-90 hover:opacity-100 bg-blue-600 hover:bg-blue-700 border-none font-medium"
                               onClick={() => handleViewTemplate(template)}
                             >
                               <Eye className="h-4 w-4 mr-1" />
@@ -728,7 +728,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
                             <Button 
                               variant="default" 
                               size="sm"
-                              className="shadow-lg opacity-90 hover:opacity-100 bg-white text-purple-700 border border-purple-200 hover:bg-purple-50"
+                              className="shadow-lg opacity-90 hover:opacity-100 bg-white text-blue-700 border border-blue-200 hover:bg-blue-50"
                               onClick={() => handleEditTemplate(template)}
                             >
                               <Edit className="h-4 w-4 mr-1" />
@@ -739,7 +739,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
                         
                         {/* NEW badge */}
                         {template.metadata?.new && (
-                          <div className="absolute top-12 -right-8 bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-xs px-10 py-1 font-medium shadow-md transform rotate-45">
+                          <div className="absolute top-12 -right-8 bg-gradient-to-r from-blue-600 to-blue-700 text-white text-xs px-10 py-1 font-medium shadow-md transform rotate-45">
                             NEW
                           </div>
                         )}
@@ -817,24 +817,24 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
                   ))}
                 </div>
               ) : (
-                <div className="bg-white rounded-xl border border-blue-100 shadow-sm overflow-hidden">
+                <div className="bg-white rounded-xl border border-gray-200 shadow-lg overflow-hidden">
                   <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gradient-to-r from-blue-50 to-indigo-50">
+                    <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
                       <tr>
-                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Template</th>
-                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
-                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Updated</th>
-                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                        <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Template</th>
+                        <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Category</th>
+                        <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Last Updated</th>
+                        <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Type</th>
+                        <th scope="col" className="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
                       {filteredTemplates.map((template: Template) => (
-                        <tr key={template.id} className="hover:bg-gray-50 transition-colors">
+                        <tr key={template.id} className="hover:bg-blue-50/30 transition-colors">
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="flex items-center">
-                              <div className="flex-shrink-0 h-10 w-10 rounded bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-50 flex items-center justify-center border border-blue-100">
-                                <Mail className="h-5 w-5 text-blue-500" />
+                              <div className="flex-shrink-0 h-10 w-10 rounded bg-gradient-to-br from-blue-50 via-sky-50 to-blue-50 flex items-center justify-center border border-blue-100 shadow-sm">
+                                <Mail className="h-5 w-5 text-blue-600" />
                               </div>
                               <div className="ml-4">
                                 <div className="text-sm font-medium text-gray-900">{template.name}</div>
@@ -923,45 +923,52 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
         
         {/* Template Modal - when a template is selected */}
         <Dialog open={selectedTemplate !== null} onOpenChange={(open) => !open && setSelectedTemplate(null)}>
-          <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2 text-xl">
-                {selectedTemplate?.name}
-                {selectedTemplate?.metadata?.generatedByAI && (
-                  <Badge className="ml-2 bg-gradient-to-r from-indigo-600 to-blue-600 text-white border-0 shadow-sm flex items-center gap-1">
-                    <Sparkles className="h-3 w-3" /> AI Generated
-                  </Badge>
-                )}
-              </DialogTitle>
-              <DialogDescription>
-                {selectedTemplate?.description}
-              </DialogDescription>
-            </DialogHeader>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col p-0">
+            <div className="px-6 pt-6 pb-3 border-b border-gray-200">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2 text-xl font-semibold text-gray-800">
+                  {selectedTemplate?.name}
+                  {selectedTemplate?.metadata?.generatedByAI && (
+                    <Badge className="ml-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-0 shadow-sm flex items-center gap-1">
+                      <Sparkles className="h-3 w-3" /> AI Generated
+                    </Badge>
+                  )}
+                </DialogTitle>
+                <DialogDescription className="text-gray-600">
+                  {selectedTemplate?.description}
+                </DialogDescription>
+              </DialogHeader>
+            </div>
             
-            <div className="flex flex-col md:flex-row gap-4 overflow-hidden flex-1">
-              <div className="flex-1 overflow-y-auto border rounded-lg p-1">
-                <iframe
-                  srcDoc={selectedTemplate ? parseTemplateContent(selectedTemplate.content) : ''}
-                  className="w-full h-full min-h-[400px] border-0"
-                  title="Template Preview"
-                />
+            <div className="flex flex-col md:flex-row gap-0 overflow-hidden flex-1">
+              <div className="flex-1 overflow-y-auto rounded-bl-lg bg-gray-50 p-4">
+                <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden h-full">
+                  <iframe
+                    srcDoc={selectedTemplate ? parseTemplateContent(selectedTemplate.content) : ''}
+                    className="w-full h-full min-h-[400px] border-0"
+                    title="Template Preview"
+                  />
+                </div>
               </div>
               
-              <div className="w-full md:w-64 flex flex-col space-y-4">
-                <div className="space-y-3">
-                  <h3 className="text-sm font-medium text-gray-900">Template Details</h3>
-                  <div className="rounded-md border border-gray-200 bg-gray-50 p-3 text-sm">
-                    <div className="flex justify-between py-1">
+              <div className="w-full md:w-72 flex flex-col border-l border-gray-200 bg-gray-50 p-6">
+                <div className="space-y-4">
+                  <h3 className="text-sm font-semibold text-gray-700 flex items-center">
+                    <Info className="h-4 w-4 mr-2 text-blue-600" />
+                    Template Details
+                  </h3>
+                  <div className="rounded-md border border-gray-200 bg-white p-4 text-sm shadow-sm">
+                    <div className="flex justify-between py-1.5">
                       <span className="text-gray-500">Category:</span>
-                      <span className="font-medium">{selectedTemplate?.category || "General"}</span>
+                      <span className="font-medium text-gray-800">{selectedTemplate?.category || "General"}</span>
                     </div>
-                    <div className="flex justify-between py-1 border-t border-gray-200">
+                    <div className="flex justify-between py-1.5 border-t border-gray-100">
                       <span className="text-gray-500">Subject:</span>
-                      <span className="font-medium truncate max-w-[120px]">{selectedTemplate?.subject || "No subject"}</span>
+                      <span className="font-medium text-gray-800 truncate max-w-[120px]">{selectedTemplate?.subject || "No subject"}</span>
                     </div>
-                    <div className="flex justify-between py-1 border-t border-gray-200">
+                    <div className="flex justify-between py-1.5 border-t border-gray-100">
                       <span className="text-gray-500">Created:</span>
-                      <span className="font-medium">{selectedTemplate?.createdAt 
+                      <span className="font-medium text-gray-800">{selectedTemplate?.createdAt 
                         ? new Date(selectedTemplate.createdAt).toLocaleDateString() 
                         : "Recently"
                       }</span>
@@ -969,12 +976,15 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
                   </div>
                 </div>
                 
-                <div className="space-y-2">
-                  <h3 className="text-sm font-medium text-gray-900">Actions</h3>
+                <div className="space-y-3 mt-6">
+                  <h3 className="text-sm font-semibold text-gray-700 flex items-center">
+                    <Code className="h-4 w-4 mr-2 text-blue-600" />
+                    Actions
+                  </h3>
                   <div className="flex flex-col gap-2">
                     <Button 
                       variant="outline" 
-                      className="justify-start text-purple-700 border-purple-200 hover:bg-purple-50"
+                      className="justify-start text-blue-700 border-blue-200 hover:bg-blue-50 shadow-sm"
                       onClick={() => handleEditTemplate(selectedTemplate!)}
                     >
                       <Edit className="h-4 w-4 mr-2" />
@@ -982,7 +992,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
                     </Button>
                     <Button 
                       variant="outline" 
-                      className="justify-start text-purple-700 border-purple-200 hover:bg-purple-50"
+                      className="justify-start text-blue-700 border-blue-200 hover:bg-blue-50 shadow-sm"
                       onClick={() => {
                         setIsTestEmailOpen(true);
                       }}
@@ -992,7 +1002,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
                     </Button>
                     <Button 
                       variant="outline" 
-                      className="justify-start text-purple-700 border-purple-200 hover:bg-purple-50"
+                      className="justify-start text-blue-700 border-blue-200 hover:bg-blue-50 shadow-sm"
                       onClick={handleCopyHtmlCode}
                     >
                       <Copy className="h-4 w-4 mr-2" />
@@ -1000,7 +1010,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
                     </Button>
                     <Button 
                       variant="outline" 
-                      className="justify-start text-purple-700 border-purple-200 hover:bg-purple-50"
+                      className="justify-start text-blue-700 border-blue-200 hover:bg-blue-50 shadow-sm"
                       onClick={() => handleShareTemplate(selectedTemplate!.id)}
                     >
                       <Share2 className="h-4 w-4 mr-2" />
@@ -1008,7 +1018,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
                     </Button>
                     <Button 
                       variant="outline" 
-                      className="justify-start text-purple-700 border-purple-200 hover:bg-purple-50"
+                      className="justify-start text-blue-700 border-blue-200 hover:bg-blue-50 shadow-sm"
                       onClick={() => {
                         setIsUpdateTemplateOpen(true);
                       }}
@@ -1018,7 +1028,7 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
                     </Button>
                     <Button 
                       variant="outline" 
-                      className="justify-start text-red-600 border-red-200 hover:bg-red-50"
+                      className="justify-start text-red-600 border-red-200 hover:bg-red-50 shadow-sm mt-2"
                       onClick={() => {
                         setSelectedTemplate(null);
                         setTemplateToDelete(selectedTemplate!.id);
@@ -1036,245 +1046,266 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
         
         {/* Send Test Email Dialog */}
         <Dialog open={isTestEmailOpen} onOpenChange={setIsTestEmailOpen}>
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle>Send Test Email</DialogTitle>
-              <DialogDescription>
-                Send a test email to verify the template appearance before using it in a campaign.
-              </DialogDescription>
-            </DialogHeader>
+          <DialogContent className="sm:max-w-md p-0">
+            <div className="px-6 pt-6 pb-2 border-b border-gray-200 bg-gray-50 rounded-t-lg">
+              <DialogHeader>
+                <DialogTitle className="text-xl font-semibold text-gray-800 flex items-center">
+                  <Send className="h-5 w-5 mr-2 text-blue-600" />
+                  Send Test Email
+                </DialogTitle>
+                <DialogDescription className="text-gray-600">
+                  Verify the template appearance before using it in a campaign
+                </DialogDescription>
+              </DialogHeader>
+            </div>
             
-            <Form {...testEmailForm}>
-              <form onSubmit={testEmailForm.handleSubmit(handleSendTestEmail)} className="space-y-4">
-                <FormField
-                  control={testEmailForm.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Recipient Email</FormLabel>
-                      <FormControl>
-                        <Input 
-                          placeholder="your@email.com" 
-                          {...field} 
-                          className="border-purple-200 focus-visible:ring-purple-300"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={testEmailForm.control}
-                  name="subject"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email Subject</FormLabel>
-                      <FormControl>
-                        <Input 
-                          placeholder="Test Email Subject" 
-                          {...field} 
-                          className="border-purple-200 focus-visible:ring-purple-300"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={testEmailForm.control}
-                  name="personalizeContent"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border border-purple-200 p-4">
-                      <FormControl>
-                        <input
-                          type="checkbox"
-                          checked={field.value}
-                          onChange={field.onChange}
-                          className="accent-purple-600 h-4 w-4 mt-1"
-                        />
-                      </FormControl>
-                      <div className="space-y-1 leading-none">
-                        <FormLabel>Personalize Content</FormLabel>
-                        <FormDescription className="text-xs">
-                          Replace placeholder tags with test data
-                        </FormDescription>
-                      </div>
-                    </FormItem>
-                  )}
-                />
-                
-                <DialogFooter className="sm:justify-end gap-2 mt-4">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => setIsTestEmailOpen(false)}
-                  >
-                    Cancel
-                  </Button>
-                  <Button 
-                    type="submit"
-                    className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
-                    disabled={sendTestEmailMutation.isPending}
-                  >
-                    {sendTestEmailMutation.isPending ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Sending...
-                      </>
-                    ) : (
-                      <>
-                        <Send className="mr-2 h-4 w-4" />
-                        Send Test Email
-                      </>
+            <div className="p-6">
+              <Form {...testEmailForm}>
+                <form onSubmit={testEmailForm.handleSubmit(handleSendTestEmail)} className="space-y-4">
+                  <FormField
+                    control={testEmailForm.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-gray-700">Recipient Email</FormLabel>
+                        <FormControl>
+                          <Input 
+                            placeholder="your@email.com" 
+                            {...field} 
+                            className="border-gray-300 focus-visible:ring-blue-400"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
                     )}
-                  </Button>
-                </DialogFooter>
-              </form>
-            </Form>
+                  />
+                  
+                  <FormField
+                    control={testEmailForm.control}
+                    name="subject"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-gray-700">Email Subject</FormLabel>
+                        <FormControl>
+                          <Input 
+                            placeholder="Test Email Subject" 
+                            {...field} 
+                            className="border-gray-300 focus-visible:ring-blue-400"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={testEmailForm.control}
+                    name="personalizeContent"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border border-gray-200 p-4 bg-blue-50/30">
+                        <FormControl>
+                          <input
+                            type="checkbox"
+                            checked={field.value}
+                            onChange={field.onChange}
+                            className="accent-blue-600 h-4 w-4 mt-1"
+                          />
+                        </FormControl>
+                        <div className="space-y-1 leading-none">
+                          <FormLabel className="text-gray-700">Personalize Content</FormLabel>
+                          <FormDescription className="text-xs text-gray-500">
+                            Replace placeholder tags with test data
+                          </FormDescription>
+                        </div>
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <DialogFooter className="sm:justify-end gap-2 mt-6 pt-2 border-t border-gray-100">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="border-gray-300 text-gray-700 hover:bg-gray-50"
+                      onClick={() => setIsTestEmailOpen(false)}
+                    >
+                      Cancel
+                    </Button>
+                    <Button 
+                      type="submit"
+                      className="bg-blue-600 hover:bg-blue-700 shadow-md"
+                      disabled={sendTestEmailMutation.isPending}
+                    >
+                      {sendTestEmailMutation.isPending ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Sending...
+                        </>
+                      ) : (
+                        <>
+                          <Send className="mr-2 h-4 w-4" />
+                          Send Test Email
+                        </>
+                      )}
+                    </Button>
+                  </DialogFooter>
+                </form>
+              </Form>
+            </div>
           </DialogContent>
         </Dialog>
         
         {/* Update Template Details Dialog */}
         <Dialog open={isUpdateTemplateOpen} onOpenChange={setIsUpdateTemplateOpen}>
-          <DialogContent className="sm:max-w-lg">
-            <DialogHeader>
-              <DialogTitle>Edit Template Details</DialogTitle>
-              <DialogDescription>
-                Update the details of your email template
-              </DialogDescription>
-            </DialogHeader>
+          <DialogContent className="sm:max-w-lg p-0">
+            <div className="px-6 pt-6 pb-2 border-b border-gray-200 bg-gray-50 rounded-t-lg">
+              <DialogHeader>
+                <DialogTitle className="text-xl font-semibold text-gray-800 flex items-center">
+                  <Pencil className="h-5 w-5 mr-2 text-blue-600" />
+                  Edit Template Details
+                </DialogTitle>
+                <DialogDescription className="text-gray-600">
+                  Update the properties of your email template
+                </DialogDescription>
+              </DialogHeader>
+            </div>
             
-            <Form {...updateTemplateForm}>
-              <form onSubmit={updateTemplateForm.handleSubmit(handleUpdateTemplate)} className="space-y-4">
-                <FormField
-                  control={updateTemplateForm.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Template Name</FormLabel>
-                      <FormControl>
-                        <Input 
-                          placeholder="My Newsletter Template" 
-                          {...field} 
-                          className="border-blue-200 focus-visible:ring-blue-300"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={updateTemplateForm.control}
-                  name="description"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Description</FormLabel>
-                      <FormControl>
-                        <Textarea 
-                          placeholder="A brief description of the template" 
-                          {...field} 
-                          className="border-blue-200 focus-visible:ring-blue-300 min-h-20"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={updateTemplateForm.control}
-                  name="subject"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Default Email Subject</FormLabel>
-                      <FormControl>
-                        <Input 
-                          placeholder="Email Subject Line" 
-                          {...field} 
-                          className="border-blue-200 focus-visible:ring-blue-300"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={updateTemplateForm.control}
-                  name="category"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Category</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+            <div className="p-6">
+              <Form {...updateTemplateForm}>
+                <form onSubmit={updateTemplateForm.handleSubmit(handleUpdateTemplate)} className="space-y-4">
+                  <FormField
+                    control={updateTemplateForm.control}
+                    name="name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-gray-700">Template Name</FormLabel>
                         <FormControl>
-                          <SelectTrigger className="border-blue-200 focus-visible:ring-blue-300">
-                            <SelectValue placeholder="Select a category" />
-                          </SelectTrigger>
+                          <Input 
+                            placeholder="My Newsletter Template" 
+                            {...field} 
+                            className="border-gray-300 focus-visible:ring-blue-400"
+                          />
                         </FormControl>
-                        <SelectContent>
-                          <SelectItem value="general">General</SelectItem>
-                          <SelectItem value="newsletter">Newsletter</SelectItem>
-                          <SelectItem value="promotional">Promotional</SelectItem>
-                          <SelectItem value="announcement">Announcement</SelectItem>
-                          <SelectItem value="event">Event Invitation</SelectItem>
-                          <SelectItem value="welcome">Welcome Email</SelectItem>
-                          <SelectItem value="follow-up">Follow-up</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <DialogFooter className="sm:justify-end gap-2 mt-4">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => setIsUpdateTemplateOpen(false)}
-                  >
-                    Cancel
-                  </Button>
-                  <Button 
-                    type="submit"
-                    className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
-                    disabled={updateTemplateMutation.isPending}
-                  >
-                    {updateTemplateMutation.isPending ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Updating...
-                      </>
-                    ) : (
-                      <>
-                        <Check className="mr-2 h-4 w-4" />
-                        Save Changes
-                      </>
+                        <FormMessage />
+                      </FormItem>
                     )}
-                  </Button>
-                </DialogFooter>
-              </form>
-            </Form>
+                  />
+                  
+                  <FormField
+                    control={updateTemplateForm.control}
+                    name="description"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-gray-700">Description</FormLabel>
+                        <FormControl>
+                          <Textarea 
+                            placeholder="A brief description of the template" 
+                            {...field} 
+                            className="border-gray-300 focus-visible:ring-blue-400 min-h-20"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={updateTemplateForm.control}
+                    name="subject"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-gray-700">Default Email Subject</FormLabel>
+                        <FormControl>
+                          <Input 
+                            placeholder="Email Subject Line" 
+                            {...field} 
+                            className="border-gray-300 focus-visible:ring-blue-400"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={updateTemplateForm.control}
+                    name="category"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-gray-700">Category</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger className="border-gray-300 focus-visible:ring-blue-400 bg-white">
+                              <SelectValue placeholder="Select a category" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="general">General</SelectItem>
+                            <SelectItem value="newsletter">Newsletter</SelectItem>
+                            <SelectItem value="promotional">Promotional</SelectItem>
+                            <SelectItem value="announcement">Announcement</SelectItem>
+                            <SelectItem value="event">Event Invitation</SelectItem>
+                            <SelectItem value="welcome">Welcome Email</SelectItem>
+                            <SelectItem value="follow-up">Follow-up</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <DialogFooter className="sm:justify-end gap-2 mt-6 pt-2 border-t border-gray-100">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="border-gray-300 text-gray-700 hover:bg-gray-50"
+                      onClick={() => setIsUpdateTemplateOpen(false)}
+                    >
+                      Cancel
+                    </Button>
+                    <Button 
+                      type="submit"
+                      className="bg-blue-600 hover:bg-blue-700 shadow-md"
+                      disabled={updateTemplateMutation.isPending}
+                    >
+                      {updateTemplateMutation.isPending ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Updating...
+                        </>
+                      ) : (
+                        <>
+                          <Check className="mr-2 h-4 w-4" />
+                          Save Changes
+                        </>
+                      )}
+                    </Button>
+                  </DialogFooter>
+                </form>
+              </Form>
+            </div>
           </DialogContent>
         </Dialog>
         
         {/* Share Template Dialog */}
         <Dialog open={isShareDialogOpen} onOpenChange={setIsShareDialogOpen}>
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle>Share Template</DialogTitle>
-              <DialogDescription>
-                Create a shareable link for this template
-              </DialogDescription>
-            </DialogHeader>
+          <DialogContent className="sm:max-w-md p-0">
+            <div className="px-6 pt-6 pb-2 border-b border-gray-200 bg-gray-50 rounded-t-lg">
+              <DialogHeader>
+                <DialogTitle className="text-xl font-semibold text-gray-800 flex items-center">
+                  <Share2 className="h-5 w-5 mr-2 text-blue-600" />
+                  Share Template
+                </DialogTitle>
+                <DialogDescription className="text-gray-600">
+                  Create a shareable link for this template
+                </DialogDescription>
+              </DialogHeader>
+            </div>
             
-            <div className="space-y-4">
+            <div className="p-6 space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="expiration">Link Expiration</Label>
+                <Label htmlFor="expiration" className="text-gray-700">Link Expiration</Label>
                 <Select value={shareExpiration} onValueChange={setShareExpiration}>
-                  <SelectTrigger className="w-full border-purple-200 focus-visible:ring-purple-300">
+                  <SelectTrigger className="w-full border-gray-300 focus-visible:ring-blue-400 bg-white">
                     <SelectValue placeholder="Select expiration" />
                   </SelectTrigger>
                   <SelectContent>
@@ -1286,39 +1317,40 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
                 </Select>
               </div>
               
-              <div className="bg-purple-50 border border-purple-200 rounded-md p-3 text-sm text-purple-800">
-                <Info className="h-4 w-4 inline-block mr-2" />
-                The recipient will be able to import this template into their own account.
+              <div className="bg-blue-50 border border-blue-200 rounded-md p-4 text-sm text-blue-700 flex items-start">
+                <Info className="h-4 w-4 mt-0.5 mr-2 flex-shrink-0" />
+                <span>The recipient will be able to import this template into their own account.</span>
               </div>
-            </div>
             
-            <DialogFooter className="sm:justify-end gap-2 mt-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setIsShareDialogOpen(false)}
-              >
-                Cancel
-              </Button>
-              <Button 
-                type="button"
-                className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
-                onClick={handleConfirmShare}
-                disabled={shareTemplateMutation.isPending}
-              >
-                {shareTemplateMutation.isPending ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Creating Link...
-                  </>
-                ) : (
-                  <>
-                    <Link2 className="mr-2 h-4 w-4" />
-                    Create Share Link
-                  </>
-                )}
-              </Button>
-            </DialogFooter>
+              <DialogFooter className="sm:justify-end gap-2 mt-6 pt-2 border-t border-gray-100">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="border-gray-300 text-gray-700 hover:bg-gray-50"
+                  onClick={() => setIsShareDialogOpen(false)}
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  type="button"
+                  className="bg-blue-600 hover:bg-blue-700 shadow-md"
+                  onClick={handleConfirmShare}
+                  disabled={shareTemplateMutation.isPending}
+                >
+                  {shareTemplateMutation.isPending ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Creating Link...
+                    </>
+                  ) : (
+                    <>
+                      <Link2 className="mr-2 h-4 w-4" />
+                      Create Share Link
+                    </>
+                  )}
+                </Button>
+              </DialogFooter>
+            </div>
           </DialogContent>
         </Dialog>
         
@@ -1333,48 +1365,60 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
         
         {/* Delete Template Confirmation */}
         <Dialog open={templateToDelete !== null} onOpenChange={(open) => !open && setTemplateToDelete(null)}>
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle className="text-red-600">Delete Template</DialogTitle>
-              <DialogDescription>
-                Are you sure you want to delete this template? This action cannot be undone.
-              </DialogDescription>
-            </DialogHeader>
-            
-            <div className="flex items-center p-4 border border-red-100 bg-red-50 rounded-md">
-              <div className="mr-4 bg-red-100 rounded-full p-2">
-                <Trash2 className="h-5 w-5 text-red-600" />
-              </div>
-              <div>
-                <h4 className="font-medium text-red-900">Warning: Permanent Action</h4>
-                <p className="text-sm text-gray-500">This will remove the template from your library</p>
-              </div>
+          <DialogContent className="sm:max-w-md p-0">
+            <div className="px-6 pt-6 pb-2 border-b border-gray-200 bg-gray-50 rounded-t-lg">
+              <DialogHeader>
+                <DialogTitle className="text-xl font-semibold text-gray-800 flex items-center">
+                  <AlertCircle className="h-5 w-5 mr-2 text-red-600" />
+                  Delete Template
+                </DialogTitle>
+                <DialogDescription className="text-gray-600">
+                  Are you sure you want to delete this template? This action cannot be undone.
+                </DialogDescription>
+              </DialogHeader>
             </div>
             
-            <DialogFooter className="sm:justify-end gap-2 mt-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setTemplateToDelete(null)}
-              >
-                Cancel
-              </Button>
-              <Button 
-                type="button" 
-                variant="destructive"
-                onClick={handleDeleteTemplate}
-                disabled={deleteTemplateMutation.isPending}
-              >
-                {deleteTemplateMutation.isPending ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Deleting...
-                  </>
-                ) : (
-                  <>Delete Template</>
-                )}
-              </Button>
-            </DialogFooter>
+            <div className="p-6 space-y-6">
+              <div className="flex items-start p-4 border border-red-200 bg-red-50 rounded-lg shadow-sm">
+                <div className="mr-4 bg-red-100 rounded-full p-2 flex-shrink-0">
+                  <Trash2 className="h-5 w-5 text-red-600" />
+                </div>
+                <div>
+                  <h4 className="font-medium text-red-900 mb-1">Warning: Permanent Action</h4>
+                  <p className="text-sm text-gray-600">This will permanently remove the template from your library and all connected accounts.</p>
+                </div>
+              </div>
+              
+              <DialogFooter className="sm:justify-end gap-2 pt-2 border-t border-gray-100">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="border-gray-300 text-gray-700 hover:bg-gray-50"
+                  onClick={() => setTemplateToDelete(null)}
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  type="button" 
+                  variant="destructive"
+                  className="shadow-md"
+                  onClick={handleDeleteTemplate}
+                  disabled={deleteTemplateMutation.isPending}
+                >
+                  {deleteTemplateMutation.isPending ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Deleting...
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      Delete Template
+                    </>
+                  )}
+                </Button>
+              </DialogFooter>
+            </div>
           </DialogContent>
         </Dialog>
       </div>
