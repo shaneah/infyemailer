@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useLocation } from "wouter";
+import { motion } from "framer-motion";
 import { 
   Menu, BarChart3, Mail, Users, Bell, Settings, LogOut, 
   Calendar, BarChart, PieChart, UserPlus, Zap, Award, Target,
@@ -60,11 +61,11 @@ export default function ClientDashboardV3() {
       accentBorder: "border-purple-500/30",
       textAccent: "text-purple-600",
       progressFill: "bg-purple-600",
-      chartColors: ["#8B5CF6", "#A78BFA", "#C4B5FD", "#7C3AED", "#6D28D9"]
+      chartColors: ["#9333EA", "#A855F7", "#C084FC", "#7E22CE", "#6B21A8"]
     },
     teal: {
       primary: "from-teal-600 to-emerald-400",
-      gradient: "from-teal-900 via-teal-700 to-emerald-900",
+      gradient: "from-teal-900 via-emerald-800 to-green-900",
       accentGradient: "from-emerald-400 to-teal-500",
       accent: "bg-teal-600",
       accentHover: "hover:bg-teal-700",
@@ -76,87 +77,150 @@ export default function ClientDashboardV3() {
     },
     amber: {
       primary: "from-amber-500 to-orange-400",
-      gradient: "from-amber-900 via-amber-700 to-orange-900",
+      gradient: "from-amber-900 via-orange-800 to-red-900",
       accentGradient: "from-orange-400 to-amber-500",
       accent: "bg-amber-500",
       accentHover: "hover:bg-amber-600",
       accentLight: "bg-amber-500/10",
       accentBorder: "border-amber-500/30",
-      textAccent: "text-amber-500",
+      textAccent: "text-amber-600",
       progressFill: "bg-amber-500",
       chartColors: ["#F59E0B", "#FBBF24", "#FCD34D", "#D97706", "#B45309"]
     }
   };
 
-  // Active theme
+  // Current theme
   const theme = themes[currentTheme as keyof typeof themes];
-  const [activeTheme, setActiveTheme] = useState(currentTheme);
 
-  // Helper function to format numbers
-  const formatNumber = (num: number) => {
-    if (num >= 1000000) {
-      return (num / 1000000).toFixed(1) + 'M';
-    } else if (num >= 1000) {
-      return (num / 1000).toFixed(1) + 'K';
-    }
-    return num.toString();
-  };
+  useEffect(() => {
+    setLoading(true);
+    // Get user data
+    const fetchData = async () => {
+      try {
+        const currentClientUser = sessionStorage.getItem('clientUser')
+          ? JSON.parse(sessionStorage.getItem('clientUser') || '{}')
+          : null;
 
-  // Handle theme change
-  const handleThemeChange = (newTheme: string) => {
-    setCurrentTheme(newTheme);
-    setActiveTheme(newTheme);
-    // Persist theme preference if needed
-    // localStorage.setItem('dashboard-theme', newTheme);
-  };
-
-  // Handle logout
-  const handleLogout = () => {
-    // Implement logout logic here
-    toast({
-      title: "Logged out",
-      description: "You have been logged out successfully.",
-    });
-    // Redirect to login page
-    setLocation("/login");
-  };
-
-  // Helper function to get trend indicator icon
-  const getTrendIndicator = (value: number) => {
-    if (value > 0) {
-      return <ArrowUp className="h-3 w-3 text-green-500" />;
-    } else if (value < 0) {
-      return <ArrowDown className="h-3 w-3 text-red-500" />;
-    }
-    return <div className="h-3 w-3" />;
-  };
-
-  // Helper function to get status badge
-  const getStatusBadge = (status: string) => {
-    const statusStyles: Record<string, string> = {
-      active: "bg-green-500/10 text-green-400 border border-green-500/20",
-      draft: "bg-gray-500/10 text-gray-400 border border-gray-500/20",
-      sent: "bg-blue-500/10 text-blue-400 border border-blue-500/20",
-      scheduled: "bg-amber-500/10 text-amber-400 border border-amber-500/20",
-      paused: "bg-orange-500/10 text-orange-400 border border-orange-500/20"
+        if (!currentClientUser) {
+          toast({
+            title: "Access denied",
+            description: "Please log in to access your dashboard",
+            variant: "destructive"
+          });
+          setLocation('/client-login');
+          return;
+        }
+        
+        // Sample data
+        setClientData({
+          clientName: currentClientUser.clientName,
+          clientCompany: currentClientUser.clientCompany,
+          stats: {
+            activeCampaigns: 3,
+            totalEmails: 12500,
+            openRate: 24.8,
+            clickRate: 3.6,
+            contactsCount: 4560
+          },
+          campaigns: [
+            { id: 1, name: 'Q1 Newsletter', status: 'Completed', sentDate: '2025-02-15', emailsSent: 3240, openRate: 26.5, clickRate: 4.2 },
+            { id: 2, name: 'Product Launch', status: 'Ongoing', sentDate: '2025-04-20', emailsSent: 5150, openRate: 31.2, clickRate: 5.8 },
+            { id: 3, name: 'Summer Promotion', status: 'Scheduled', sentDate: '2025-05-15', emailsSent: 0, openRate: 0, clickRate: 0 }
+          ]
+        });
+        
+        // Wait a bit to show the loading animation
+        setTimeout(() => {
+          setLoading(false);
+        }, 1500);
+      } catch (err) {
+        console.error("Error loading client data:", err);
+        setLoading(false);
+      }
     };
+    
+    fetchData();
+  }, [setLocation, toast]);
 
-    return (
-      <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${statusStyles[status.toLowerCase()] || "bg-gray-500/10 text-gray-400"}`}>
-        {status}
-      </span>
-    );
+  const handleLogout = () => {
+    sessionStorage.removeItem('clientUser');
+    setLocation('/client-login');
   };
 
-  // Sample chart tooltip component
+  // Format numbers with commas
+  const formatNumber = (num: number) => {
+    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  };
+
+  // Sample data for charts
+  const weeklyPerformanceData = [
+    { day: 'Mon', opens: 22.4, clicks: 3.2, conversions: 0.8 },
+    { day: 'Tue', opens: 24.7, clicks: 3.7, conversions: 1.1 },
+    { day: 'Wed', opens: 27.5, clicks: 4.2, conversions: 1.3 },
+    { day: 'Thu', opens: 26.1, clicks: 4.0, conversions: 1.2 },
+    { day: 'Fri', opens: 23.8, clicks: 3.5, conversions: 1.0 },
+    { day: 'Sat', opens: 19.2, clicks: 2.8, conversions: 0.7 },
+    { day: 'Sun', opens: 18.5, clicks: 2.6, conversions: 0.6 }
+  ];
+
+  const deviceBreakdownData = [
+    { name: 'Mobile', value: 56 },
+    { name: 'Desktop', value: 38 },
+    { name: 'Tablet', value: 6 }
+  ];
+
+  const engagementOverTimeData = [
+    { month: 'Jan', open: 21.5, click: 3.2, conversion: 0.8 },
+    { month: 'Feb', open: 22.8, click: 3.5, conversion: 0.9 },
+    { month: 'Mar', open: 23.7, click: 3.7, conversion: 1.0 },
+    { month: 'Apr', open: 24.9, click: 3.9, conversion: 1.1 },
+    { month: 'May', open: 24.2, click: 3.8, conversion: 1.1 }
+  ];
+
+  const audienceGrowthData = [
+    { month: 'Dec', contacts: 3840 },
+    { month: 'Jan', contacts: 4050 },
+    { month: 'Feb', contacts: 4220 },
+    { month: 'Mar', contacts: 4380 },
+    { month: 'Apr', contacts: 4560 }
+  ];
+
+  const realtimeActivities = [
+    { id: 1, time: '2 mins ago', action: 'Email Open', email: 'newsletter@company.com', user: 'j.smith@example.com' },
+    { id: 2, time: '5 mins ago', action: 'Link Click', email: 'promo@company.com', user: 'm.johnson@example.com' },
+    { id: 3, time: '8 mins ago', action: 'Purchase', email: 'offers@company.com', user: 'l.williams@example.com' },
+    { id: 4, time: '12 mins ago', action: 'Email Open', email: 'newsletter@company.com', user: 'a.brown@example.com' }
+  ];
+
+  // Calculate weekly stats
+  const weeklyStats = {
+    emailsSent: 2870,
+    openRate: weeklyPerformanceData.reduce((acc, item) => acc + item.opens, 0) / weeklyPerformanceData.length,
+    clickRate: weeklyPerformanceData.reduce((acc, item) => acc + item.clicks, 0) / weeklyPerformanceData.length,
+    conversionRate: weeklyPerformanceData.reduce((acc, item) => acc + item.conversions, 0) / weeklyPerformanceData.length
+  };
+
+  // Pre-calculate some metrics for display
+  const bestDay = "Wednesday";
+  const bestTime = "10:00 AM";
+  const avgOpenRateLast30Days = 25.2;
+  const avgClickRateLast30Days = 3.8;
+  const avgConversionRateLast30Days = 1.1;
+  const openRateChange = 2.8; // % change
+  const clickRateChange = 0.4; // % change
+  const conversionRateChange = 0.3; // % change
+
+  // Custom tooltip for charts
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-gray-900 p-3 border border-gray-700 rounded-lg shadow-lg">
-          <p className="text-sm font-medium text-white">{label}</p>
+        <div className={`p-3 ${theme.accentLight} border ${theme.accentBorder} rounded-md shadow-sm backdrop-blur-sm`}>
+          <p className="text-sm font-semibold">{label}</p>
           {payload.map((entry: any, index: number) => (
-            <p key={`tooltip-${index}`} className="text-xs" style={{ color: entry.color }}>
-              {entry.name}: {entry.value}%
+            <p key={`item-${index}`} className="text-xs flex items-center gap-1">
+              <span className="w-2 h-2 rounded-full" style={{ backgroundColor: entry.color }}></span>
+              <span>{entry.name}: {typeof entry.value === 'number' ? entry.value.toFixed(1) : entry.value}
+              {entry.name.includes('Rate') ? '%' : ''}</span>
             </p>
           ))}
         </div>
@@ -165,116 +229,122 @@ export default function ClientDashboardV3() {
     return null;
   };
 
-  // Load client data
-  useEffect(() => {
-    const fetchClientData = async () => {
-      try {
-        // In a real app, this would be an API call to get client data
-        // For now, use mock data
-        const mockClientData = {
-          clientId: 1,
-          clientName: "John Smith",
-          clientCompany: "Acme Corp",
-          clientEmail: "john@example.com",
-          stats: {
-            contactsCount: 1250,
-            contactsGrowth: 5.2,
-            listsCount: 8,
-            activeCampaigns: 3,
-            totalEmails: 26500,
-            openRate: 28.3,
-            clickRate: 3.7,
-            conversionRate: 0.8
-          },
-          campaigns: [
-            { id: 1, name: "Product Launch", status: "Active", sentDate: "Apr 15, 2025", emailsSent: 1200, openRate: 28.6, clickRate: 5.2 },
-            { id: 2, name: "Monthly Newsletter", status: "Sent", sentDate: "Apr 01, 2025", emailsSent: 1150, openRate: 31.2, clickRate: 4.8 },
-            { id: 3, name: "Summer Sale", status: "Draft", sentDate: "-", emailsSent: 0, openRate: 0, clickRate: 0 },
-            { id: 4, name: "Loyalty Program", status: "Scheduled", sentDate: "May 10, 2025", emailsSent: 0, openRate: 0, clickRate: 0 }
-          ]
-        };
-
-        setClientData(mockClientData);
-        setLoading(false);
-      } catch (error) {
-        console.error("Error fetching client data:", error);
-        toast({
-          title: "Error",
-          description: "Failed to load dashboard data.",
-          variant: "destructive",
-        });
-        setLoading(false);
-      }
-    };
-
-    fetchClientData();
-  }, [toast]);
-
-  // Weekly stats
-  const weeklyStats = {
-    emailsSent: 850,
-    openRate: 29.1,
-    clickRate: 4.2
+  // Get trend indicators for metrics
+  const getTrendIndicator = (value: number) => {
+    if (value > 0) return <ArrowUp className="h-3 w-3 text-green-500" />;
+    if (value < 0) return <ArrowDown className="h-3 w-3 text-red-500" />;
+    return <ArrowRight className="h-3 w-3 text-gray-500" />;
   };
 
-  // Engagement over time
-  const engagementOverTimeData = [
-    { month: 'Jan', open: 22.5, click: 3.2, conversion: 0.6 },
-    { month: 'Feb', open: 23.1, click: 3.5, conversion: 0.7 },
-    { month: 'Mar', open: 24.8, click: 3.4, conversion: 0.6 },
-    { month: 'Apr', open: 28.3, click: 3.7, conversion: 0.8 },
-    { month: 'May', open: 26.2, click: 4.1, conversion: 0.9 },
-    { month: 'Jun', open: 27.5, click: 4.3, conversion: 1.0 }
-  ];
+  // Campaign status badges
+  const getStatusBadge = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'completed':
+        return (
+          <div className="flex items-center gap-1.5">
+            <div className="h-5 w-5 rounded-full flex items-center justify-center bg-gradient-to-r from-green-400 to-teal-500">
+              <CheckCircle2 className="h-3 w-3 text-white" />
+            </div>
+            <span className="text-xs font-medium text-green-600">Completed</span>
+          </div>
+        );
+      case 'ongoing':
+        return (
+          <div className="flex items-center gap-1.5">
+            <div className="h-5 w-5 rounded-full flex items-center justify-center bg-gradient-to-r from-blue-400 to-indigo-500">
+              <Activity className="h-3 w-3 text-white" />
+            </div>
+            <span className="text-xs font-medium text-blue-600">Ongoing</span>
+          </div>
+        );
+      case 'scheduled':
+        return (
+          <div className="flex items-center gap-1.5">
+            <div className="h-5 w-5 rounded-full flex items-center justify-center bg-gradient-to-r from-amber-400 to-orange-500">
+              <Calendar className="h-3 w-3 text-white" />
+            </div>
+            <span className="text-xs font-medium text-amber-600">Scheduled</span>
+          </div>
+        );
+      default:
+        return (
+          <div className="flex items-center gap-1.5">
+            <div className="h-5 w-5 rounded-full flex items-center justify-center bg-gray-400">
+              <Bell className="h-3 w-3 text-white" />
+            </div>
+            <span className="text-xs font-medium text-gray-600">{status}</span>
+          </div>
+        );
+    }
+  };
 
-  // Device breakdown
-  const deviceBreakdownData = [
-    { name: 'Mobile', value: 62 },
-    { name: 'Desktop', value: 28 },
-    { name: 'Tablet', value: 10 }
-  ];
-
-  // Performance metrics
-  const avgOpenRateLast30Days = 28.3;
-  const avgClickRateLast30Days = 3.7;
-  const avgConversionRateLast30Days = 0.8;
-  const openRateChange = 2.6;
-  const clickRateChange = 0.4;
-  const conversionRateChange = 0.2;
-
-  // AI optimization recommendations
-  const bestDay = "Tuesday";
-  const bestTime = "10:00 AM";
-
-  // Loading state with fancy animation
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black flex flex-col items-center justify-center p-6">
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-indigo-900">
         <div className="flex flex-col items-center">
-          <div className="relative h-32 w-32 mb-8">
-            {/* Concentric animated circles */}
-            <div className="absolute inset-0 rounded-full border border-purple-500/20"></div>
-            <div className="absolute inset-0 rounded-full border-2 border-purple-500/30"></div>
-            
+          <motion.div 
+            className="relative w-24 h-24"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5 }}
+          >
+            {/* Pulsing backdrop */}
+            <motion.div 
+              className={`absolute inset-0 rounded-full ${theme.accentLight} opacity-30`}
+              animate={{ scale: [1, 1.1, 1] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            />
+
+            {/* Rotating arcs */}
+            <motion.div 
+              className={`absolute inset-0 rounded-full border-4 border-t-purple-500 border-r-transparent border-b-transparent border-l-transparent`}
+              animate={{ rotate: 360 }}
+              transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+            />
+            <motion.div 
+              className={`absolute inset-0 rounded-full border-4 border-r-indigo-500 border-l-transparent border-t-transparent border-b-transparent`}
+              animate={{ rotate: -360 }}
+              transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+            />
+
             {/* Center dot */}
-            <div className="absolute top-1/2 left-1/2 w-12 h-12 -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-br from-purple-600 to-fuchsia-400"></div>
+            <motion.div 
+              className={`absolute top-1/2 left-1/2 w-12 h-12 -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-br ${theme.primary}`}
+              animate={{ boxShadow: ["0 0 10px rgba(147, 51, 234, 0.5)", "0 0 20px rgba(147, 51, 234, 0.7)", "0 0 10px rgba(147, 51, 234, 0.5)"] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            />
 
             {/* Floating particles */}
             {[...Array(6)].map((_, i) => (
-              <div
+              <motion.div
                 key={i}
                 className="absolute w-2 h-2 rounded-full bg-purple-500"
-                style={{ 
-                  top: `${Math.random() * 100}%`, 
-                  left: `${Math.random() * 100}%`,
+                initial={{ 
+                  x: Math.random() * 100 - 50, 
+                  y: Math.random() * 100 - 50,
                   opacity: 0.7
+                }}
+                animate={{ 
+                  x: Math.random() * 100 - 50, 
+                  y: Math.random() * 100 - 50,
+                  opacity: [0.7, 0.3, 0.7]
+                }}
+                transition={{ 
+                  duration: 2 + Math.random() * 2, 
+                  repeat: Infinity,
+                  repeatType: "reverse"
                 }}
               />
             ))}
-          </div>
-          <p className="mt-8 text-white text-lg font-medium">
+          </motion.div>
+          <motion.p 
+            className="mt-8 text-white text-lg font-medium"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5 }}
+          >
             Loading your dashboard...
-          </p>
+          </motion.p>
         </div>
       </div>
     );
@@ -449,20 +519,32 @@ export default function ClientDashboardV3() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="flex items-baseline">
+                    <motion.div 
+                      className="flex items-baseline"
+                      whileHover={{ scale: 1.05 }}
+                      transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                    >
                       <span className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-300">
                         {clientData.stats.activeCampaigns}
                       </span>
                       <span className="ml-1 text-xs text-gray-500">campaigns</span>
-                    </div>
+                    </motion.div>
                     <div className="mt-4">
                       <div className="flex items-center justify-between text-xs mb-1">
                         <span className="text-gray-500">Overall completion</span>
                         <span className="text-white font-semibold">66%</span>
                       </div>
-                      <div className="h-1.5 rounded-full bg-gray-800 overflow-hidden">
-                        <div className={`h-full rounded-full bg-gradient-to-r ${theme.accentGradient}`} style={{ width: '66%' }}></div>
-                      </div>
+                      <motion.div 
+                        className="h-1.5 rounded-full bg-gray-800 overflow-hidden"
+                        whileHover={{ scale: 1.03 }}
+                      >
+                        <motion.div 
+                          className={`h-full rounded-full bg-gradient-to-r ${theme.accentGradient}`} 
+                          style={{ width: '66%' }}
+                          whileHover={{ opacity: 0.8 }}
+                          transition={{ duration: 0.3 }}
+                        ></motion.div>
+                      </motion.div>
                     </div>
                   </CardContent>
                 </Card>
@@ -482,20 +564,32 @@ export default function ClientDashboardV3() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="flex items-baseline">
+                    <motion.div 
+                      className="flex items-baseline"
+                      whileHover={{ scale: 1.05 }}
+                      transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                    >
                       <span className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-300">
                         {formatNumber(clientData.stats.totalEmails)}
                       </span>
                       <span className="ml-1 text-xs text-gray-500">sent</span>
-                    </div>
+                    </motion.div>
                     <div className="mt-4">
                       <div className="flex items-center justify-between text-xs mb-1">
                         <span className="text-gray-500">Last 7 days</span>
                         <span className="text-white font-semibold">+{formatNumber(weeklyStats.emailsSent)}</span>
                       </div>
-                      <div className="h-1.5 rounded-full bg-gray-800 overflow-hidden">
-                        <div className={`h-full rounded-full bg-gradient-to-r ${theme.accentGradient}`} style={{ width: '78%' }}></div>
-                      </div>
+                      <motion.div 
+                        className="h-1.5 rounded-full bg-gray-800 overflow-hidden"
+                        whileHover={{ scale: 1.03 }}
+                      >
+                        <motion.div 
+                          className={`h-full rounded-full bg-gradient-to-r ${theme.accentGradient}`} 
+                          style={{ width: '78%' }}
+                          whileHover={{ opacity: 0.8 }}
+                          transition={{ duration: 0.3 }}
+                        ></motion.div>
+                      </motion.div>
                     </div>
                   </CardContent>
                 </Card>
@@ -515,20 +609,32 @@ export default function ClientDashboardV3() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="flex items-baseline">
+                    <motion.div 
+                      className="flex items-baseline"
+                      whileHover={{ scale: 1.05 }}
+                      transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                    >
                       <span className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-300">
                         {clientData.stats.openRate}%
                       </span>
                       <span className="ml-1 text-xs text-gray-500">30 day avg</span>
-                    </div>
+                    </motion.div>
                     <div className="mt-4">
                       <div className="flex items-center justify-between text-xs mb-1">
                         <span className="text-gray-500">Industry avg</span>
                         <span className="text-white font-semibold">21.5%</span>
                       </div>
-                      <div className="h-1.5 rounded-full bg-gray-800 overflow-hidden">
-                        <div className={`h-full rounded-full bg-gradient-to-r ${theme.accentGradient}`} style={{ width: `${(clientData.stats.openRate / 40) * 100}%` }}></div>
-                      </div>
+                      <motion.div 
+                        className="h-1.5 rounded-full bg-gray-800 overflow-hidden"
+                        whileHover={{ scale: 1.03 }}
+                      >
+                        <motion.div 
+                          className={`h-full rounded-full bg-gradient-to-r ${theme.accentGradient}`} 
+                          style={{ width: '85%' }}
+                          whileHover={{ opacity: 0.8 }}
+                          transition={{ duration: 0.3 }}
+                        ></motion.div>
+                      </motion.div>
                     </div>
                   </CardContent>
                 </Card>
@@ -548,47 +654,143 @@ export default function ClientDashboardV3() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="flex items-baseline">
+                    <motion.div 
+                      className="flex items-baseline"
+                      whileHover={{ scale: 1.05 }}
+                      transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                    >
                       <span className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-300">
                         {clientData.stats.clickRate}%
                       </span>
                       <span className="ml-1 text-xs text-gray-500">30 day avg</span>
-                    </div>
+                    </motion.div>
                     <div className="mt-4">
                       <div className="flex items-center justify-between text-xs mb-1">
                         <span className="text-gray-500">Industry avg</span>
                         <span className="text-white font-semibold">2.7%</span>
                       </div>
-                      <div className="h-1.5 rounded-full bg-gray-800 overflow-hidden">
-                        <div className={`h-full rounded-full bg-gradient-to-r ${theme.accentGradient}`} style={{ width: `${(clientData.stats.clickRate / 5) * 100}%` }}></div>
-                      </div>
+                      <motion.div 
+                        className="h-1.5 rounded-full bg-gray-800 overflow-hidden"
+                        whileHover={{ scale: 1.03 }}
+                      >
+                        <motion.div 
+                          className={`h-full rounded-full bg-gradient-to-r ${theme.accentGradient}`} 
+                          style={{ width: '75%' }}
+                          whileHover={{ opacity: 0.8 }}
+                          transition={{ duration: 0.3 }}
+                        ></motion.div>
+                      </motion.div>
                     </div>
                   </CardContent>
                 </Card>
               </div>
 
-              {/* Second row: AI Insights and Performance Chart */}
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-                {/* AI Insights */}
-                <div className="lg:col-span-1">
+              {/* Main Dashboard Content */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* First Column (Weekly Performance) */}
+                <div className="lg:col-span-2">
                   <Card className="border-gray-800 bg-gray-900/50 backdrop-blur-sm overflow-hidden h-full">
                     <CardHeader className="pb-2">
-                      <CardTitle className="text-base font-medium bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-300">
-                        <div className="flex items-center">
-                          <Zap className="h-5 w-5 mr-2 text-purple-400" />
-                          AI Insights
+                      <div className="flex items-center justify-between">
+                        <CardTitle className="text-base font-medium bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-300">
+                          Weekly Performance
+                        </CardTitle>
+                        <div className="flex items-center space-x-2">
+                          <Button variant="ghost" size="sm" className="h-8 text-xs text-gray-400 hover:text-white">
+                            <FileText className="h-3.5 w-3.5 mr-1" />
+                            Export
+                          </Button>
+                          <Button variant="ghost" size="sm" className="h-8 text-xs text-gray-400 hover:text-white">
+                            <RefreshCw className="h-3.5 w-3.5 mr-1" />
+                            Refresh
+                          </Button>
                         </div>
+                      </div>
+                      <CardDescription className="text-gray-500">Email engagement metrics for the past 7 days</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="h-72">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <LineChart
+                            data={weeklyPerformanceData}
+                            margin={{ top: 5, right: 5, left: 5, bottom: 5 }}
+                          >
+                            <defs>
+                              {theme.chartColors.map((color, index) => (
+                                <linearGradient key={`gradient-${index}`} id={`gradient-${index}`} x1="0" y1="0" x2="0" y2="1">
+                                  <stop offset="5%" stopColor={color} stopOpacity={0.8}/>
+                                  <stop offset="95%" stopColor={color} stopOpacity={0.1}/>
+                                </linearGradient>
+                              ))}
+                            </defs>
+                            <CartesianGrid strokeDasharray="3 3" stroke="#374151" vertical={false} />
+                            <XAxis dataKey="day" stroke="#6B7280" />
+                            <YAxis stroke="#6B7280" />
+                            <RechartsTooltip content={<CustomTooltip />} />
+                            <Line 
+                              type="monotone" 
+                              dataKey="opens" 
+                              name="Open Rate (%)" 
+                              stroke={theme.chartColors[0]} 
+                              strokeWidth={2}
+                              dot={{ r: 3, fill: theme.chartColors[0], strokeWidth: 0 }}
+                              activeDot={{ r: 6, fill: theme.chartColors[0], strokeWidth: 0 }}
+                            />
+                            <Line 
+                              type="monotone" 
+                              dataKey="clicks" 
+                              name="Click Rate (%)" 
+                              stroke={theme.chartColors[1]} 
+                              strokeWidth={2}
+                              dot={{ r: 3, fill: theme.chartColors[1], strokeWidth: 0 }}
+                              activeDot={{ r: 6, fill: theme.chartColors[1], strokeWidth: 0 }}
+                            />
+                            <Line 
+                              type="monotone" 
+                              dataKey="conversions" 
+                              name="Conversion Rate (%)" 
+                              stroke={theme.chartColors[2]} 
+                              strokeWidth={2}
+                              dot={{ r: 3, fill: theme.chartColors[2], strokeWidth: 0 }}
+                              activeDot={{ r: 6, fill: theme.chartColors[2], strokeWidth: 0 }}
+                            />
+                          </LineChart>
+                        </ResponsiveContainer>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Second Column (AI Insights) */}
+                <div>
+                  <Card className="border-gray-800 bg-gray-900/50 backdrop-blur-sm overflow-hidden h-full">
+                    <div className={`h-1 bg-gradient-to-r ${theme.accentGradient}`}></div>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="flex items-center text-base font-medium bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-300">
+                        <Lightbulb className="h-5 w-5 mr-2 text-purple-400" />
+                        AI Insights
                       </CardTitle>
                       <CardDescription className="text-gray-500">Personalized recommendations</CardDescription>
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-4">
                         {/* First Insight Card */}
-                        <div className="p-3 rounded-lg bg-gray-800/60 border border-gray-700">
+                        <motion.div 
+                          className="p-3 rounded-lg bg-gray-800/60 border border-gray-700"
+                          whileHover={{ 
+                            scale: 1.02,
+                            boxShadow: "0 0 15px rgba(139, 92, 246, 0.15)"
+                          }}
+                          transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                        >
                           <div className="flex items-center mb-2">
-                            <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 flex items-center justify-center mr-3">
+                            <motion.div 
+                              className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 flex items-center justify-center mr-3"
+                              whileHover={{ rotate: 15 }}
+                              transition={{ duration: 0.2 }}
+                            >
                               <Clock className="h-4 w-4 text-white" />
-                            </div>
+                            </motion.div>
                             <h4 className="font-semibold text-white">Optimal Send Time</h4>
                           </div>
                           <p className="text-sm text-gray-400 mb-2">
@@ -612,14 +814,25 @@ export default function ClientDashboardV3() {
                               <Timer className="h-4 w-4 text-indigo-400" />
                             </div>
                           </div>
-                        </div>
+                        </motion.div>
 
                         {/* Second Insight Card */}
-                        <div className="p-3 rounded-lg bg-gray-800/60 border border-gray-700">
+                        <motion.div 
+                          className="p-3 rounded-lg bg-gray-800/60 border border-gray-700"
+                          whileHover={{ 
+                            scale: 1.02,
+                            boxShadow: "0 0 15px rgba(139, 92, 246, 0.15)"
+                          }}
+                          transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                        >
                           <div className="flex items-center mb-2">
-                            <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 flex items-center justify-center mr-3">
+                            <motion.div 
+                              className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 flex items-center justify-center mr-3"
+                              whileHover={{ rotate: 15 }}
+                              transition={{ duration: 0.2 }}
+                            >
                               <Lightbulb className="h-4 w-4 text-white" />
-                            </div>
+                            </motion.div>
                             <h4 className="font-semibold text-white">Subject Line Optimization</h4>
                           </div>
                           <p className="text-sm text-gray-400 mb-2">
@@ -631,110 +844,138 @@ export default function ClientDashboardV3() {
                           >
                             View Full Analysis
                           </Button>
-                        </div>
+                        </motion.div>
                       </div>
                     </CardContent>
                   </Card>
                 </div>
+              </div>
 
-                {/* Campaigns List */}
-                <div className="lg:col-span-2">
-                  <Card className="border-gray-800 bg-gray-900/50 backdrop-blur-sm overflow-hidden">
-                    <CardHeader className="pb-2">
-                      <div className="flex items-center justify-between">
-                        <CardTitle className="text-base font-medium bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-300">
-                          <div className="flex items-center">
-                            <Mail className="h-5 w-5 mr-2 text-purple-400" />
-                            Recent Campaigns
-                          </div>
-                        </CardTitle>
-                        <Button 
-                          className={`bg-gradient-to-r ${theme.accentGradient} text-xs text-white hover:opacity-90`}
-                          size="sm"
-                        >
-                          New Campaign
-                        </Button>
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="overflow-x-auto -mx-4">
-                        <div className="inline-block min-w-full align-middle px-4">
-                          <div className="overflow-hidden border border-gray-800 rounded-lg">
-                            <table className="min-w-full divide-y divide-gray-800">
-                              <thead className="bg-gray-800/60">
-                                <tr>
-                                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                                    Campaign
-                                  </th>
-                                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                                    Status
-                                  </th>
-                                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                                    Sent Date
-                                  </th>
-                                  <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-400 uppercase tracking-wider">
-                                    Sent
-                                  </th>
-                                  <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-400 uppercase tracking-wider">
-                                    Open Rate
-                                  </th>
-                                  <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-400 uppercase tracking-wider">
-                                    Click Rate
-                                  </th>
-                                  <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-400 uppercase tracking-wider">
-                                    Actions
-                                  </th>
-                                </tr>
-                              </thead>
-                              <tbody className="bg-gray-900/30 divide-y divide-gray-800">
-                                {clientData.campaigns.map((campaign: any, idx: number) => (
-                                  <tr key={campaign.id} className="hover:bg-gray-800/40 transition-colors">
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
+              {/* Campaigns List */}
+              <div className="mt-6">
+                <Card className="border-gray-800 bg-gray-900/50 backdrop-blur-sm overflow-hidden">
+                  <CardHeader className="pb-2">
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-base font-medium bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-300">
+                        <div className="flex items-center">
+                          <Mail className="h-5 w-5 mr-2 text-purple-400" />
+                          Recent Campaigns
+                        </div>
+                      </CardTitle>
+                      <Button 
+                        className={`bg-gradient-to-r ${theme.accentGradient} text-xs text-white hover:opacity-90`}
+                        size="sm"
+                      >
+                        New Campaign
+                      </Button>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="overflow-x-auto -mx-4">
+                      <div className="inline-block min-w-full align-middle px-4">
+                        <div className="overflow-hidden border border-gray-800 rounded-lg">
+                          <table className="min-w-full divide-y divide-gray-800">
+                            <thead className="bg-gray-800/60">
+                              <tr>
+                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                                  Campaign
+                                </th>
+                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                                  Status
+                                </th>
+                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                                  Sent Date
+                                </th>
+                                <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-400 uppercase tracking-wider">
+                                  Sent
+                                </th>
+                                <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-400 uppercase tracking-wider">
+                                  Open Rate
+                                </th>
+                                <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-400 uppercase tracking-wider">
+                                  Click Rate
+                                </th>
+                                <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-400 uppercase tracking-wider">
+                                  Actions
+                                </th>
+                              </tr>
+                            </thead>
+                            <tbody className="bg-gray-900/30 divide-y divide-gray-800">
+                              {clientData.campaigns.map((campaign: any, idx: number) => (
+                                <motion.tr 
+                                  key={campaign.id} 
+                                  className="hover:bg-gray-800/40 transition-colors"
+                                  whileHover={{ 
+                                    backgroundColor: "rgba(55, 65, 81, 0.4)",
+                                    scale: 1.005
+                                  }}
+                                  transition={{ duration: 0.2 }}
+                                >
+                                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
+                                    <motion.div whileHover={{ x: 3 }} transition={{ type: "spring", stiffness: 300 }}>
                                       {campaign.name}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm">
-                                      {getStatusBadge(campaign.status)}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
-                                      {campaign.sentDate}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300 text-right">
-                                      {campaign.emailsSent > 0 ? formatNumber(campaign.emailsSent) : '-'}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-right">
-                                      {campaign.openRate > 0 ? (
-                                        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-blue-500/10 text-blue-400 border border-blue-500/20">
-                                          {campaign.openRate}%
-                                        </span>
-                                      ) : '-'}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-right">
-                                      {campaign.clickRate > 0 ? (
-                                        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-purple-500/10 text-purple-400 border border-purple-500/20">
-                                          {campaign.clickRate}%
-                                        </span>
-                                      ) : '-'}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-right">
-                                      <div className="flex justify-end space-x-2">
+                                    </motion.div>
+                                  </td>
+                                  <td className="px-6 py-4 whitespace-nowrap text-sm">
+                                    {getStatusBadge(campaign.status)}
+                                  </td>
+                                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
+                                    {campaign.sentDate}
+                                  </td>
+                                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300 text-right">
+                                    {campaign.emailsSent > 0 ? formatNumber(campaign.emailsSent) : '-'}
+                                  </td>
+                                  <td className="px-6 py-4 whitespace-nowrap text-sm text-right">
+                                    {campaign.openRate > 0 ? (
+                                      <motion.span 
+                                        className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-blue-500/10 text-blue-400 border border-blue-500/20"
+                                        whileHover={{ 
+                                          scale: 1.05, 
+                                          backgroundColor: "rgba(59, 130, 246, 0.15)",
+                                          borderColor: "rgba(59, 130, 246, 0.3)"
+                                        }}
+                                      >
+                                        {campaign.openRate}%
+                                      </motion.span>
+                                    ) : '-'}
+                                  </td>
+                                  <td className="px-6 py-4 whitespace-nowrap text-sm text-right">
+                                    {campaign.clickRate > 0 ? (
+                                      <motion.span 
+                                        className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-purple-500/10 text-purple-400 border border-purple-500/20"
+                                        whileHover={{ 
+                                          scale: 1.05, 
+                                          backgroundColor: "rgba(139, 92, 246, 0.15)",
+                                          borderColor: "rgba(139, 92, 246, 0.3)"
+                                        }}
+                                      >
+                                        {campaign.clickRate}%
+                                      </motion.span>
+                                    ) : '-'}
+                                  </td>
+                                  <td className="px-6 py-4 whitespace-nowrap text-sm text-right">
+                                    <div className="flex justify-end space-x-2">
+                                      <motion.div whileHover={{ scale: 1.2, rotate: 5 }}>
                                         <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-gray-400 hover:text-white">
                                           <BarChart2 className="h-4 w-4" />
                                         </Button>
+                                      </motion.div>
+                                      <motion.div whileHover={{ scale: 1.2, rotate: -5 }}>
                                         <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-gray-400 hover:text-white">
                                           <Share2 className="h-4 w-4" />
                                         </Button>
-                                      </div>
-                                    </td>
-                                  </tr>
-                                ))}
-                              </tbody>
-                            </table>
-                          </div>
+                                      </motion.div>
+                                    </div>
+                                  </td>
+                                </motion.tr>
+                              ))}
+                            </tbody>
+                          </table>
                         </div>
                       </div>
-                    </CardContent>
-                  </Card>
-                </div>
+                    </div>
+                  </CardContent>
+                </Card>
               </div>
             </TabsContent>
 
@@ -778,20 +1019,32 @@ export default function ClientDashboardV3() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="flex items-baseline">
+                    <motion.div 
+                      className="flex items-baseline"
+                      whileHover={{ scale: 1.05 }}
+                      transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                    >
                       <span className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-300">
                         {avgOpenRateLast30Days}%
                       </span>
                       <span className="ml-1 text-xs text-gray-500">last 30 days</span>
-                    </div>
+                    </motion.div>
                     <div className="mt-4">
                       <div className="flex items-center justify-between text-xs mb-1">
                         <span className="text-gray-500">Industry benchmark</span>
                         <span className="text-white font-semibold">21.5%</span>
                       </div>
-                      <div className="h-1.5 rounded-full bg-gray-800 overflow-hidden">
-                        <div className={`h-full rounded-full bg-gradient-to-r ${theme.accentGradient}`} style={{ width: `${(avgOpenRateLast30Days / 40) * 100}%` }}></div>
-                      </div>
+                      <motion.div 
+                        className="h-1.5 rounded-full bg-gray-800 overflow-hidden"
+                        whileHover={{ scale: 1.03 }}
+                      >
+                        <motion.div 
+                          className={`h-full rounded-full bg-gradient-to-r ${theme.accentGradient}`} 
+                          style={{ width: `${(avgOpenRateLast30Days / 40) * 100}%` }}
+                          whileHover={{ opacity: 0.8 }}
+                          transition={{ duration: 0.3 }}
+                        ></motion.div>
+                      </motion.div>
                     </div>
                   </CardContent>
                 </Card>
@@ -811,20 +1064,32 @@ export default function ClientDashboardV3() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="flex items-baseline">
+                    <motion.div 
+                      className="flex items-baseline"
+                      whileHover={{ scale: 1.05 }}
+                      transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                    >
                       <span className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-300">
                         {avgClickRateLast30Days}%
                       </span>
                       <span className="ml-1 text-xs text-gray-500">last 30 days</span>
-                    </div>
+                    </motion.div>
                     <div className="mt-4">
                       <div className="flex items-center justify-between text-xs mb-1">
                         <span className="text-gray-500">Industry benchmark</span>
                         <span className="text-white font-semibold">2.7%</span>
                       </div>
-                      <div className="h-1.5 rounded-full bg-gray-800 overflow-hidden">
-                        <div className={`h-full rounded-full bg-gradient-to-r ${theme.accentGradient}`} style={{ width: `${(avgClickRateLast30Days / 8) * 100}%` }}></div>
-                      </div>
+                      <motion.div 
+                        className="h-1.5 rounded-full bg-gray-800 overflow-hidden"
+                        whileHover={{ scale: 1.03 }}
+                      >
+                        <motion.div 
+                          className={`h-full rounded-full bg-gradient-to-r ${theme.accentGradient}`} 
+                          style={{ width: `${(avgClickRateLast30Days / 8) * 100}%` }}
+                          whileHover={{ opacity: 0.8 }}
+                          transition={{ duration: 0.3 }}
+                        ></motion.div>
+                      </motion.div>
                     </div>
                   </CardContent>
                 </Card>
@@ -844,20 +1109,32 @@ export default function ClientDashboardV3() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="flex items-baseline">
+                    <motion.div 
+                      className="flex items-baseline"
+                      whileHover={{ scale: 1.05 }}
+                      transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                    >
                       <span className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-300">
                         {avgConversionRateLast30Days}%
                       </span>
                       <span className="ml-1 text-xs text-gray-500">last 30 days</span>
-                    </div>
+                    </motion.div>
                     <div className="mt-4">
                       <div className="flex items-center justify-between text-xs mb-1">
                         <span className="text-gray-500">Industry benchmark</span>
                         <span className="text-white font-semibold">0.5%</span>
                       </div>
-                      <div className="h-1.5 rounded-full bg-gray-800 overflow-hidden">
-                        <div className={`h-full rounded-full bg-gradient-to-r ${theme.accentGradient}`} style={{ width: `${(avgConversionRateLast30Days / 2) * 100}%` }}></div>
-                      </div>
+                      <motion.div 
+                        className="h-1.5 rounded-full bg-gray-800 overflow-hidden"
+                        whileHover={{ scale: 1.03 }}
+                      >
+                        <motion.div 
+                          className={`h-full rounded-full bg-gradient-to-r ${theme.accentGradient}`} 
+                          style={{ width: `${(avgConversionRateLast30Days / 2) * 100}%` }}
+                          whileHover={{ opacity: 0.8 }}
+                          transition={{ duration: 0.3 }}
+                        ></motion.div>
+                      </motion.div>
                     </div>
                   </CardContent>
                 </Card>
