@@ -855,7 +855,7 @@ export default function ClientDashboardV4() {
                       className="h-6 w-6 text-slate-500 hover:text-slate-700"
                       onClick={handleBarChartClick}
                     >
-                      <BarChart className="h-4 w-4" />
+                      <LucideBarChart className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>
@@ -963,7 +963,7 @@ export default function ClientDashboardV4() {
                       className="h-6 w-6 text-slate-500 hover:text-slate-700"
                       onClick={handleBarChartClick}
                     >
-                      <BarChart className="h-4 w-4" />
+                      <LucideBarChart className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>
@@ -1034,7 +1034,7 @@ export default function ClientDashboardV4() {
                     <Filter className="h-4 w-4" />
                   </Button>
                   <Button variant="ghost" size="icon" className="h-6 w-6 text-slate-500 hover:text-slate-700">
-                    <BarChart className="h-4 w-4" />
+                    <LucideBarChart className="h-4 w-4" />
                   </Button>
                 </div>
               </div>
@@ -1130,7 +1130,7 @@ export default function ClientDashboardV4() {
                     <Filter className="h-4 w-4" />
                   </Button>
                   <Button variant="ghost" size="icon" className="h-6 w-6 text-slate-500 hover:text-slate-700">
-                    <BarChart className="h-4 w-4" />
+                    <LucideBarChart className="h-4 w-4" />
                   </Button>
                 </div>
               </div>
