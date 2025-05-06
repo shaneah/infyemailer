@@ -189,19 +189,19 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
     <div 
       className={`${open ? 'translate-x-0' : '-translate-x-full'} fixed inset-y-0 left-0 z-50 transform transition-transform duration-300 ease-in-out md:translate-x-0 md:relative md:z-0`}
     >
-      <div className="flex flex-col h-full w-64 bg-white text-gray-800 border-r border-gray-200 shadow-lg">
+      <div className="flex flex-col h-full w-64 bg-[#1e293b] text-gray-100 border-r border-gray-700 shadow-lg">
         <div className="flex flex-col flex-1 h-full overflow-y-auto">
           {/* Logo */}
-          <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-gray-700">
             <div className="flex items-center">
               {!collapsed && (
                 <div className="font-bold">
-                  <span className="text-xl text-gray-900">Infy</span>
-                  <span className="text-xl text-blue-600">Mailer</span>
+                  <span className="text-xl text-gray-100">Infy</span>
+                  <span className="text-xl text-blue-400">Mailer</span>
                 </div>
               )}
               {collapsed && (
-                <div className="text-xl font-bold text-blue-600">
+                <div className="text-xl font-bold text-blue-400">
                   IM
                 </div>
               )}
@@ -211,21 +211,21 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
           {/* User Profile */}
           {!collapsed && (
             <div className="px-4 mb-6 mt-4">
-              <div className="flex items-center text-gray-900 p-2 rounded-md bg-gray-100 border border-gray-200">
-                <div className="relative rounded-full bg-blue-100 w-10 h-10 flex items-center justify-center mr-3 text-sm font-medium">
-                  <span className="text-blue-600">AM</span>
+              <div className="flex items-center text-gray-100 p-2 rounded-md bg-gray-800 border border-gray-700">
+                <div className="relative rounded-full bg-blue-900 w-10 h-10 flex items-center justify-center mr-3 text-sm font-medium">
+                  <span className="text-blue-200">AM</span>
                 </div>
                 <div>
-                  <div className="font-medium text-gray-900">Admin</div>
-                  <div className="text-xs text-blue-600">System Administrator</div>
+                  <div className="font-medium text-gray-100">Admin</div>
+                  <div className="text-xs text-blue-300">System Administrator</div>
                 </div>
               </div>
             </div>
           )}
           {collapsed && (
             <div className="px-4 mb-6 mt-4 flex justify-center">
-              <div className="relative rounded-full bg-blue-100 w-10 h-10 flex items-center justify-center text-sm font-medium">
-                <span className="text-blue-600">AM</span>
+              <div className="relative rounded-full bg-blue-900 w-10 h-10 flex items-center justify-center text-sm font-medium">
+                <span className="text-blue-200">AM</span>
               </div>
             </div>
           )}
@@ -365,11 +365,11 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
             </SubMenu>
             
             {collapsed ? (
-              <li className="border-t border-gray-200 my-2 pt-2">
+              <li className="border-t border-gray-700 my-2 pt-2">
                 <div className="h-1"></div>
               </li>
             ) : (
-              <li className="px-3 py-2 text-xs text-gray-500 uppercase tracking-wider mt-6 mb-2">
+              <li className="px-3 py-2 text-xs text-gray-400 uppercase tracking-wider mt-6 mb-2">
                 Advanced Features
               </li>
             )}
@@ -429,11 +429,11 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
             </li>
             
             {collapsed ? (
-              <li className="border-t border-gray-200 my-2 pt-2">
+              <li className="border-t border-gray-700 my-2 pt-2">
                 <div className="h-1"></div>
               </li>
             ) : (
-              <li className="px-3 py-2 text-xs text-gray-500 uppercase tracking-wider mt-6 mb-2">
+              <li className="px-3 py-2 text-xs text-gray-400 uppercase tracking-wider mt-6 mb-2">
                 Administration
               </li>
             )}
@@ -491,18 +491,18 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
             <li className="mt-6">
               <Link 
                 href="/client-dashboard" 
-                className={`flex items-center px-3 py-2 rounded-md border border-gray-200 ${location === '/client-dashboard' 
-                  ? 'bg-gradient-to-r from-blue-100 to-transparent text-gray-900' 
-                  : 'bg-gradient-to-r from-gray-100 to-transparent text-blue-600 hover:from-blue-50'}`}
+                className={`flex items-center px-3 py-2 rounded-md border border-gray-600 ${location === '/client-dashboard' 
+                  ? 'bg-gradient-to-r from-blue-900 to-transparent text-blue-200' 
+                  : 'bg-gradient-to-r from-gray-800 to-transparent text-blue-300 hover:from-blue-800/30'}`}
                 title="Client Portal"
               >
-                <ExternalLink className="h-5 w-5 mr-3 text-blue-600" />
+                <ExternalLink className="h-5 w-5 mr-3 text-blue-400" />
                 {!collapsed && (
                   <div className="flex items-center">
                     <span>Client Portal</span>
                     <div className="relative ml-2">
-                      <span className="absolute -inset-1 rounded-full bg-blue-300/30 animate-pulse opacity-75"></span>
-                      <span className="relative h-1.5 w-1.5 rounded-full bg-blue-600 inline-block"></span>
+                      <span className="absolute -inset-1 rounded-full bg-blue-600/30 animate-pulse opacity-75"></span>
+                      <span className="relative h-1.5 w-1.5 rounded-full bg-blue-400 inline-block"></span>
                     </div>
                   </div>
                 )}
@@ -514,10 +514,10 @@ const MainSidebar = ({ open, setOpen, collapsed = false, setCollapsed }: Sidebar
           <div className="px-2 mt-4 mb-6">
             <button
               onClick={handleLogout}
-              className="flex items-center w-full px-3 py-2 rounded-md text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+              className="flex items-center w-full px-3 py-2 rounded-md text-gray-300 hover:bg-gray-800 hover:text-gray-100"
               title="Logout"
             >
-              <LogOut className="h-5 w-5 mr-3 text-gray-500" />
+              <LogOut className="h-5 w-5 mr-3 text-gray-400" />
               {!collapsed && <span>Logout</span>}
             </button>
           </div>
