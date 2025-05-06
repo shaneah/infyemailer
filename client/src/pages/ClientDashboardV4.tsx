@@ -469,17 +469,25 @@ export default function ClientDashboardV4() {
                     </div>
                   </div>
                   
-                  <div className="relative bg-gray-100 rounded-md border border-gray-200 px-3 py-1.5 text-sm">
+                  <div 
+                    className="relative bg-gray-100 rounded-md border border-gray-200 px-3 py-1.5 text-sm cursor-pointer hover:bg-gray-200 transition-colors"
+                    onClick={() => alert("Campaign selector clicked")}
+                  >
                     <div className="flex items-center">
                       <span className="text-gray-500 mr-2">Campaign</span>
                       <span className="text-gray-800 font-medium">All Campaigns</span>
+                      <ChevronDown className="h-3 w-3 ml-2 text-gray-500" />
                     </div>
                   </div>
                   
-                  <div className="relative bg-gray-100 rounded-md border border-gray-200 px-3 py-1.5 text-sm">
+                  <div 
+                    className="relative bg-gray-100 rounded-md border border-gray-200 px-3 py-1.5 text-sm cursor-pointer hover:bg-gray-200 transition-colors"
+                    onClick={() => alert("Ad Set selector clicked")}
+                  >
                     <div className="flex items-center">
                       <span className="text-gray-500 mr-2">Ad Set</span>
                       <span className="text-gray-800 font-medium">All Sets</span>
+                      <ChevronDown className="h-3 w-3 ml-2 text-gray-500" />
                     </div>
                   </div>
                 </div>
