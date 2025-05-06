@@ -77,6 +77,19 @@ interface TimelineData {
   conversions: number;
 }
 
+// Helper function to format numbers
+const formatNumber = (num: number): string => {
+  // Format large numbers with K/M suffix
+  if (num >= 1000000) {
+    return (num / 1000000).toFixed(1) + 'M';
+  } else if (num >= 1000) {
+    return (num / 1000).toFixed(1) + 'K';
+  } else {
+    // For smaller numbers, add commas
+    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  }
+};
+
 // Simple sparkline component
 const Sparkline = ({ data, color = "#3b82f6", height = 30 }: { data: number[], color?: string, height?: number }) => {
   return (
@@ -122,18 +135,26 @@ const HorizontalBar = ({
   );
 };
 
-// Format number with commas
-const formatNumber = (num: number): string => {
-  return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-};
-
 // Main component
 const ClientEmailPerformanceV3 = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
   const [timeRange, setTimeRange] = useState('30d');
   const [loading, setLoading] = useState(true);
-  const [metricsData, setMetricsData] = useState<MetricsData | null>(null);
+  // Create default metrics data
+  const defaultMetric = { value: 0, change: 0, sparklineData: [0, 0, 0, 0, 0, 0, 0] };
+  const defaultMetricsData: MetricsData = {
+    openRate: defaultMetric,
+    clickRate: defaultMetric,
+    conversionRate: defaultMetric,
+    bounceRate: defaultMetric,
+    totalSent: defaultMetric,
+    totalOpens: defaultMetric,
+    totalClicks: defaultMetric,
+    revenue: defaultMetric
+  };
+  
+  const [metricsData, setMetricsData] = useState<MetricsData>(defaultMetricsData);
   const [campaignData, setCampaignData] = useState<CampaignData[]>([]);
   const [deviceData, setDeviceData] = useState<DeviceData[]>([]);
   const [timelineData, setTimelineData] = useState<TimelineData[]>([]);
@@ -267,6 +288,23 @@ const ClientEmailPerformanceV3 = () => {
 
     fetchData();
   }, [timeRange]);
+
+  // Initialize default metrics data if any property is missing
+  useEffect(() => {
+    if (metricsData) {
+      // Check if any required property is missing and provide defaults
+      const defaultMetric = { value: 0, change: 0, sparklineData: [0, 0, 0, 0, 0, 0, 0] };
+      
+      if (!metricsData.openRate) metricsData.openRate = defaultMetric;
+      if (!metricsData.clickRate) metricsData.clickRate = defaultMetric;
+      if (!metricsData.conversionRate) metricsData.conversionRate = defaultMetric;
+      if (!metricsData.bounceRate) metricsData.bounceRate = defaultMetric;
+      if (!metricsData.totalSent) metricsData.totalSent = defaultMetric;
+      if (!metricsData.totalOpens) metricsData.totalOpens = defaultMetric;
+      if (!metricsData.totalClicks) metricsData.totalClicks = defaultMetric; 
+      if (!metricsData.revenue) metricsData.revenue = defaultMetric;
+    }
+  }, [metricsData]);
 
   // Placeholder while loading
   if (loading || !metricsData) {
