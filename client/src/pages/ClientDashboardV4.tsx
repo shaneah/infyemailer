@@ -43,6 +43,18 @@ export default function ClientDashboardV4() {
   const [dateRange, setDateRange] = useState("Jan 1, 2023 - Mar 31, 2023");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   
+  // UI state for dropdowns
+  const [showCampaignSelector, setShowCampaignSelector] = useState(false);
+  const [showAdSetSelector, setShowAdSetSelector] = useState(false);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [selectedCampaign, setSelectedCampaign] = useState("All Campaigns");
+  const [selectedAdSet, setSelectedAdSet] = useState("All Sets");
+  
+  // Sample data for dropdowns
+  const campaigns = ["All Campaigns", "Spring Sale", "Product Launch", "Newsletter", "Retargeting"];
+  const adSets = ["All Sets", "High Value", "New Customers", "Abandoned Cart", "Loyal Customers"];
+  const dateRanges = ["Today", "Yesterday", "Last 7 days", "Last 30 days", "This month", "Last month", "Custom range"];
+  
   // Format numbers with appropriate suffixes
   const formatNumber = (num: number, prefix = "", suffix = "", decimals = 1) => {
     if (num >= 1000000) {
@@ -228,16 +240,16 @@ export default function ClientDashboardV4() {
   const [showFilters, setShowFilters] = useState(false);
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
   
-  // Date picker state
-  const [showDatePicker, setShowDatePicker] = useState(false);
-  const [dateRanges] = useState([
-    "Last 7 days",
-    "Last 30 days",
-    "This month",
-    "Last month",
-    "This quarter",
-    "Custom range..."
-  ]);
+  // We already have these variables defined at the top
+  // const [showDatePicker, setShowDatePicker] = useState(false);
+  // const [dateRanges] = useState([
+  //   "Last 7 days",
+  //   "Last 30 days",
+  //   "This month",
+  //   "Last month",
+  //   "This quarter",
+  //   "Custom range..."
+  // ]);
   
   // Various UI interaction handlers
   const handleDownloadClick = (e: React.MouseEvent) => {
@@ -281,13 +293,47 @@ export default function ClientDashboardV4() {
     }
   };
   
+  // Toggle campaign selector
+  const toggleCampaignSelector = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setShowCampaignSelector(!showCampaignSelector);
+    // Close other dropdowns
+    setShowAdSetSelector(false);
+    setShowDatePicker(false);
+    setShowFilters(false);
+  };
+  
+  // Toggle ad set selector
+  const toggleAdSetSelector = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setShowAdSetSelector(!showAdSetSelector);
+    // Close other dropdowns
+    setShowCampaignSelector(false);
+    setShowDatePicker(false);
+    setShowFilters(false);
+  };
+  
+  // Handle campaign selection
+  const handleCampaignSelect = (campaign: string) => {
+    setSelectedCampaign(campaign);
+    setShowCampaignSelector(false);
+  };
+  
+  // Handle ad set selection
+  const handleAdSetSelect = (adSet: string) => {
+    setSelectedAdSet(adSet);
+    setShowAdSetSelector(false);
+  };
+  
   // Handle filter functionality
   const toggleFilter = (e: React.MouseEvent) => {
     e.stopPropagation();
     setShowFilters(!showFilters);
-    // Close date picker when opening filter panel
+    // Close other dropdowns when opening filter panel
     if (!showFilters) {
       setShowDatePicker(false);
+      setShowCampaignSelector(false);
+      setShowAdSetSelector(false);
     }
   };
   
@@ -469,15 +515,31 @@ export default function ClientDashboardV4() {
                     </div>
                   </div>
                   
-                  <div 
-                    className="relative bg-gray-100 rounded-md border border-gray-200 px-3 py-1.5 text-sm cursor-pointer hover:bg-gray-200 transition-colors"
-                    onClick={() => alert("Campaign selector clicked")}
-                  >
-                    <div className="flex items-center">
-                      <span className="text-gray-500 mr-2">Campaign</span>
-                      <span className="text-gray-800 font-medium">All Campaigns</span>
-                      <ChevronDown className="h-3 w-3 ml-2 text-gray-500" />
+                  <div className="relative">
+                    <div 
+                      className="relative bg-gray-100 rounded-md border border-gray-200 px-3 py-1.5 text-sm cursor-pointer hover:bg-gray-200 transition-colors"
+                      onClick={toggleCampaignSelector}
+                    >
+                      <div className="flex items-center">
+                        <span className="text-gray-500 mr-2">Campaign</span>
+                        <span className="text-gray-800 font-medium">{selectedCampaign}</span>
+                        <ChevronDown className="h-3 w-3 ml-2 text-gray-500" />
+                      </div>
                     </div>
+                    
+                    {showCampaignSelector && (
+                      <div className="absolute left-0 mt-1 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-10 py-1">
+                        {campaigns.map((campaign) => (
+                          <div 
+                            key={campaign}
+                            className="px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
+                            onClick={() => handleCampaignSelect(campaign)}
+                          >
+                            {campaign}
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                   
                   <div 
