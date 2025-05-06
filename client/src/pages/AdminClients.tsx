@@ -632,10 +632,17 @@ const AdminClients = () => {
                           </TableCell>
                           <TableCell>
                             <Badge variant={
-                              client.status === "active" ? "success" :
-                              client.status === "inactive" ? "destructive" : "outline"
+                              typeof client.status === 'string' ? (
+                                client.status === "active" ? "success" :
+                                client.status === "inactive" ? "destructive" : "outline"
+                              ) : (
+                                client.status?.color === "success" ? "success" :
+                                client.status?.color === "destructive" ? "destructive" : "outline"
+                              )
                             }>
-                              {client.status.charAt(0).toUpperCase() + client.status.slice(1)}
+                              {typeof client.status === 'string' 
+                                ? client.status.charAt(0).toUpperCase() + client.status.slice(1)
+                                : client.status?.label || 'Unknown'}
                             </Badge>
                           </TableCell>
                           <TableCell className="hidden md:table-cell">
