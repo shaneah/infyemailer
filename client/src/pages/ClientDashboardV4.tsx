@@ -224,6 +224,24 @@ export default function ClientDashboardV4() {
   // Toggle sidebar
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
   
+  // Filter state
+  const [showFilters, setShowFilters] = useState(false);
+  const [activeFilters, setActiveFilters] = useState<string[]>([]);
+  
+  // Handle filter functionality
+  const toggleFilter = () => {
+    setShowFilters(!showFilters);
+  };
+  
+  // Add or remove filter from active filters
+  const toggleActiveFilter = (filter: string) => {
+    if (activeFilters.includes(filter)) {
+      setActiveFilters(activeFilters.filter(f => f !== filter));
+    } else {
+      setActiveFilters([...activeFilters, filter]);
+    }
+  };
+  
   // Handle client logout
   const handleClientLogout = async () => {
     try {
@@ -568,7 +586,12 @@ export default function ClientDashboardV4() {
                     <Button variant="ghost" size="icon" className="h-6 w-6 text-slate-500 hover:text-slate-700">
                       <Download className="h-4 w-4" />
                     </Button>
-                    <Button variant="ghost" size="icon" className="h-6 w-6 text-slate-500 hover:text-slate-700">
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className={`h-6 w-6 text-slate-500 hover:text-slate-700 ${showFilters ? 'bg-slate-100' : ''}`}
+                      onClick={toggleFilter}
+                    >
                       <Filter className="h-4 w-4" />
                     </Button>
                     <Button variant="ghost" size="icon" className="h-6 w-6 text-slate-500 hover:text-slate-700">
@@ -576,6 +599,24 @@ export default function ClientDashboardV4() {
                     </Button>
                   </div>
                 </div>
+                {showFilters && (
+                  <div className="mt-2 p-2 bg-gray-50 border border-gray-100 rounded-md">
+                    <p className="mb-1 text-xs font-medium text-gray-500">Filter by:</p>
+                    <div className="flex flex-wrap gap-1">
+                      {['Programmatic', 'Paid Search', 'Paid Social', 'Organic'].map((filter) => (
+                        <Button 
+                          key={filter}
+                          variant={activeFilters.includes(filter) ? "default" : "outline"} 
+                          size="sm"
+                          className="text-xs h-7"
+                          onClick={() => toggleActiveFilter(filter)}
+                        >
+                          {filter}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </CardHeader>
               <CardContent className="p-4">
                 <div className="overflow-x-auto">
