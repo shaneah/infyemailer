@@ -708,7 +708,7 @@ const ClientEmailPerformanceV3 = () => {
             </Card>
           </TabsContent>
           
-          {/* Other tabs content can be added here */}
+          {/* Other tabs content */}
           <TabsContent value="campaigns" className="mt-0">
             <div className="p-8 text-center text-gray-500">
               <PieChartIcon className="h-16 w-16 mx-auto mb-4 text-gray-300" />
@@ -730,24 +730,6 @@ const ClientEmailPerformanceV3 = () => {
               <ShoppingBag className="h-16 w-16 mx-auto mb-4 text-gray-300" />
               <h3 className="text-lg font-medium mb-2">Conversion Tracking</h3>
               <p>Detailed conversion and revenue attribution data will be shown here.</p>
-            </div>
-          </TabsContent>
-          <TabsContent value="campaigns">
-            <div className="text-center py-10">
-              <h3 className="text-xl font-medium text-gray-700">Campaigns Analytics</h3>
-              <p className="text-gray-500 mt-2">This feature will be available soon.</p>
-            </div>
-          </TabsContent>
-          <TabsContent value="audience">
-            <div className="text-center py-10">
-              <h3 className="text-xl font-medium text-gray-700">Audience Analytics</h3>
-              <p className="text-gray-500 mt-2">This feature will be available soon.</p>
-            </div>
-          </TabsContent>
-          <TabsContent value="conversions">
-            <div className="text-center py-10">
-              <h3 className="text-xl font-medium text-gray-700">Conversion Analytics</h3>
-              <p className="text-gray-500 mt-2">This feature will be available soon.</p>
             </div>
           </TabsContent>
         </Tabs>
