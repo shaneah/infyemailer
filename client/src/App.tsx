@@ -192,6 +192,12 @@ function App() {
             <Toaster />
           </div>
         </Route>
+        <Route path="client-performance-metrics">
+          <div className="bg-background min-h-screen">
+            <ClientPerformanceMetrics />
+            <Toaster />
+          </div>
+        </Route>
         <Route path="client-settings">
           <div className="bg-background min-h-screen">
             <ClientRoutes />

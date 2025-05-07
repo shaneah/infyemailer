@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import EmojiReactionGenerator from './EmojiReactionGenerator';
+import EmojiReactionGenerator, { getEmojiReaction } from './EmojiReactionGenerator';
 import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
 interface MetricData {

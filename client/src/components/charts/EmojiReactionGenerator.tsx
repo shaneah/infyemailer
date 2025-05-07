@@ -36,7 +36,7 @@ export function getEmojiReaction(type: string, value: number, benchmark?: number
   };
 
   // Helper function to determine emoji based on performance
-  const getPerformanceLevel = (current: number, benchmark: number) => {
+  const getPerformanceLevel = (current: number, benchmark: number): string => {
     const ratio = current / benchmark;
     if (ratio >= 1.5) return 'exceptional';
     if (ratio >= 1.2) return 'excellent';
@@ -87,7 +87,7 @@ export function getEmojiReaction(type: string, value: number, benchmark?: number
           result = { emoji: '👌', message: 'Good click rate, above industry average.', color: 'text-green-400' };
           break;
         case 'fair':
-          result = { emoji: '🤔', message: 'Average click rate. There's room for improvement.', color: 'text-amber-500' };
+          result = { emoji: '🤔', message: 'Average click rate. There\'s room for improvement.', color: 'text-amber-500' };
           break;
         case 'poor':
           result = { emoji: '👎', message: 'Below average click rate. Review your CTAs and content.', color: 'text-orange-500' };
@@ -175,7 +175,7 @@ export function getEmojiReaction(type: string, value: number, benchmark?: number
           result = { emoji: '💲', message: 'Good ROI, better than average returns.', color: 'text-green-400' };
           break;
         case 'fair':
-          result = { emoji: '💱', message: 'Average ROI. You're breaking even or making modest returns.', color: 'text-amber-500' };
+          result = { emoji: '💱', message: 'Average ROI. You\'re breaking even or making modest returns.', color: 'text-amber-500' };
           break;
         case 'poor':
           result = { emoji: '💸', message: 'Below average ROI. Your campaigns may need optimization.', color: 'text-orange-500' };

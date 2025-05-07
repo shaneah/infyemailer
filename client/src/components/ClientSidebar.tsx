@@ -188,6 +188,12 @@ const ClientSidebar = ({ isOpen = false, onClose, onLogout }: SidebarProps) => {
               active={location === '/client-email-performance'} 
             />
             <MenuItem 
+              href="/client-performance-metrics" 
+              icon={Activity} 
+              label="Performance Metrics" 
+              active={location === '/client-performance-metrics'} 
+            />
+            <MenuItem 
               href="/client-advanced-analytics" 
               icon={TrendingUp} 
               label="Advanced Analytics" 

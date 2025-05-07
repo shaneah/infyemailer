@@ -2,7 +2,7 @@ import React from 'react';
 import ClientLayout from '@/components/layouts/ClientLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import PerformanceMetricCard from '@/components/charts/PerformanceMetricCard';
-import EmojiReactionGenerator from '@/components/charts/EmojiReactionGenerator';
+import EmojiReactionGenerator, { getEmojiReaction } from '@/components/charts/EmojiReactionGenerator';
 
 const generateSampleData = (days: number, average: number, variance: number) => {
   const data = [];
