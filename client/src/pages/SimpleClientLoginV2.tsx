@@ -304,49 +304,49 @@ const SimpleClientLoginV2: React.FC = () => {
         {/* Feature showcase section */}
         <div className="hidden md:block w-1/2 bg-gradient-to-br from-blue-800 to-blue-900 p-12 text-white">
           <div className="h-full flex flex-col">
-            <h2 className="text-2xl font-bold mb-4 text-white">Welcome to Infinity Tech</h2>
+            <h2 className="text-2xl font-bold mb-4 text-blue-100">Welcome to Infinity Tech</h2>
             <p className="mb-8 text-blue-50">
               Your complete email marketing solution with advanced analytics and AI-powered optimization.
             </p>
 
             <div className="space-y-6 mb-auto">
               <div className="flex items-start space-x-4">
-                <div className="bg-blue-700/50 p-2 rounded-lg">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-blue-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div className="bg-blue-600/60 p-3 rounded-lg shadow-sm">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                   </svg>
                 </div>
                 <div>
-                  <h3 className="font-medium text-lg text-white">Campaign Analytics</h3>
-                  <p className="text-sm text-blue-100">
+                  <h3 className="font-medium text-lg text-blue-100">Campaign Analytics</h3>
+                  <p className="text-sm text-blue-50">
                     Real-time performance metrics and actionable insights for your campaigns.
                   </p>
                 </div>
               </div>
 
               <div className="flex items-start space-x-4">
-                <div className="bg-blue-700/50 p-2 rounded-lg">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-blue-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div className="bg-blue-600/60 p-3 rounded-lg shadow-sm">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
                   </svg>
                 </div>
                 <div>
-                  <h3 className="font-medium text-lg text-white">Campaign Builder</h3>
-                  <p className="text-sm text-blue-100">
+                  <h3 className="font-medium text-lg text-blue-100">Campaign Builder</h3>
+                  <p className="text-sm text-blue-50">
                     Intuitive drag-and-drop editor for creating stunning email campaigns quickly.
                   </p>
                 </div>
               </div>
 
               <div className="flex items-start space-x-4">
-                <div className="bg-blue-700/50 p-2 rounded-lg">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-blue-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div className="bg-blue-600/60 p-3 rounded-lg shadow-sm">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
                   </svg>
                 </div>
                 <div>
-                  <h3 className="font-medium text-lg text-white">Mobile Optimization</h3>
-                  <p className="text-sm text-blue-100">
+                  <h3 className="font-medium text-lg text-blue-100">Mobile Optimization</h3>
+                  <p className="text-sm text-blue-50">
                     All templates are fully responsive for perfect rendering on any device.
                   </p>
                 </div>
