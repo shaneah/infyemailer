@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Redirect, Route } from 'wouter';
 import { Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useClientSession } from '@/hooks/use-client-session';
 
 interface ClientProtectedRouteProps {
   path: string;

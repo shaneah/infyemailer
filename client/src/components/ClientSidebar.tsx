@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import Logo from '../assets/infy.png';
 import LogoWhite from '@assets/Logo-white.png';
+import { useClientSession } from '@/hooks/use-client-session';
 
 interface SidebarProps {
   isOpen?: boolean;
@@ -71,63 +72,28 @@ const MenuSection = ({ title, children }: { title: string; children: React.React
 
 const ClientSidebar = ({ isOpen = false, onClose, onLogout }: SidebarProps) => {
   const [location] = useLocation();
-  const [clientName, setClientName] = useState<string>("My Company");
+  const { clientUser, clientName: sessionClientName, logout: sessionLogout } = useClientSession();
+  const [displayName, setDisplayName] = useState<string>("My Company");
   
-  // Fetch the client name from session storage on component mount
+  // Use client data from useClientSession hook
   useEffect(() => {
-    try {
-      const clientUserStr = sessionStorage.getItem('clientUser') || localStorage.getItem('clientUser');
-      if (clientUserStr) {
-        const clientUser = JSON.parse(clientUserStr);
-        if (clientUser && clientUser.clientName) {
-          setClientName(clientUser.clientName);
-        }
-      }
-    } catch (error) {
-      console.error("Error retrieving client name:", error);
+    if (sessionClientName) {
+      setDisplayName(sessionClientName);
+    } else if (clientUser?.firstName && clientUser?.lastName) {
+      setDisplayName(`${clientUser.firstName} ${clientUser.lastName}`);
+    } else if (clientUser?.username) {
+      setDisplayName(clientUser.username);
     }
-  }, []);
+  }, [clientUser, sessionClientName]);
 
-  // Use the provided onLogout callback or fallback to the internal implementation
+  // Use the provided onLogout callback or fallback to the useClientSession logout
   const handleLogout = async () => {
     if (onLogout) {
       // Use the provided logout handler from props
       onLogout();
     } else {
-      try {
-        // Fallback to internal implementation if no onLogout provided
-        // Call client-specific logout API endpoint
-        const response = await fetch('/api/client-logout', {
-          method: 'POST',
-          credentials: 'include',
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        });
-        
-        if (response.ok) {
-          // Clear all storage
-          sessionStorage.clear();
-          localStorage.clear();
-          
-          // Redirect to client login page
-          window.location.href = '/client-login';
-        } else {
-          console.error('Logout failed:', response.status);
-          
-          // Fallback - still try to clear session and redirect
-          sessionStorage.clear();
-          localStorage.clear();
-          window.location.href = '/client-login';
-        }
-      } catch (error) {
-        console.error('Error during logout:', error);
-        
-        // Fallback - still try to clear session and redirect
-        sessionStorage.clear();
-        localStorage.clear();
-        window.location.href = '/client-login';
-      }
+      // Use the logout function from useClientSession hook
+      sessionLogout();
     }
   };
 
@@ -167,7 +133,7 @@ const ClientSidebar = ({ isOpen = false, onClose, onLogout }: SidebarProps) => {
           <div className="text-center">
             <div className="flex items-center justify-center space-x-1.5 mt-2 bg-blue-50 px-3 py-1.5 rounded-full">
               <Building2 size={16} className="text-blue-500" />
-              <p className="text-sm font-medium text-gray-700">{clientName}</p>
+              <p className="text-sm font-medium text-gray-700">{displayName}</p>
             </div>
           </div>
         </div>
