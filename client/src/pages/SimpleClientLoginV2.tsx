@@ -97,7 +97,7 @@ const SimpleClientLoginV2: React.FC = () => {
       console.log('Login response data:', data);
       
       if (!response.ok) {
-        throw new Error(data.error || 'Invalid credentials. For demo, use: client1 / clientdemo');
+        throw new Error(data.error || 'Invalid credentials. Please try again or contact support.');
       }
       
       // Store based on remember me
@@ -270,20 +270,7 @@ const SimpleClientLoginV2: React.FC = () => {
               )}
             </button>
 
-            {/* Demo credentials */}
-            <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-100">
-              <p className="text-sm text-blue-800 font-medium mb-2">Demo Access:</p>
-              <div className="grid grid-cols-2 gap-2 text-sm">
-                <div>
-                  <p className="text-gray-500">Username:</p>
-                  <p className="font-mono">client1</p>
-                </div>
-                <div>
-                  <p className="text-gray-500">Password:</p>
-                  <p className="font-mono">clientdemo</p>
-                </div>
-              </div>
-            </div>
+
           </form>
 
           <div className="mt-8 pt-6 border-t border-gray-200">
