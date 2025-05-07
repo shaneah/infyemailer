@@ -60,6 +60,7 @@ import ClientDashboardV2 from "@/pages/ClientDashboardV2";
 import ClientDashboardV3 from "@/pages/ClientDashboardV3";
 import ClientDashboardV4 from "@/pages/ClientDashboardV4";
 import ClientRoutes from "@/pages/ClientRoutes";
+import ClientPerformanceMetrics from "@/pages/ClientPerformanceMetrics";
 import Analytics from "@/pages/Analytics";
 import EmailTest from "@/pages/EmailTest";
 import Login from "@/pages/Login";
