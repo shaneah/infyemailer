@@ -304,7 +304,7 @@ const SimpleClientLoginV2: React.FC = () => {
         {/* Feature showcase section */}
         <div className="hidden md:block w-1/2 bg-gradient-to-br from-blue-800 to-blue-900 p-12 text-white">
           <div className="h-full flex flex-col">
-            <h2 className="text-2xl font-bold mb-4">Welcome to Infinity Tech</h2>
+            <h2 className="text-2xl font-bold mb-4 text-white">Welcome to Infinity Tech</h2>
             <p className="mb-8 text-blue-50">
               Your complete email marketing solution with advanced analytics and AI-powered optimization.
             </p>
@@ -317,7 +317,7 @@ const SimpleClientLoginV2: React.FC = () => {
                   </svg>
                 </div>
                 <div>
-                  <h3 className="font-medium text-lg">Campaign Analytics</h3>
+                  <h3 className="font-medium text-lg text-white">Campaign Analytics</h3>
                   <p className="text-sm text-blue-100">
                     Real-time performance metrics and actionable insights for your campaigns.
                   </p>
@@ -331,7 +331,7 @@ const SimpleClientLoginV2: React.FC = () => {
                   </svg>
                 </div>
                 <div>
-                  <h3 className="font-medium text-lg">Campaign Builder</h3>
+                  <h3 className="font-medium text-lg text-white">Campaign Builder</h3>
                   <p className="text-sm text-blue-100">
                     Intuitive drag-and-drop editor for creating stunning email campaigns quickly.
                   </p>
@@ -345,7 +345,7 @@ const SimpleClientLoginV2: React.FC = () => {
                   </svg>
                 </div>
                 <div>
-                  <h3 className="font-medium text-lg">Mobile Optimization</h3>
+                  <h3 className="font-medium text-lg text-white">Mobile Optimization</h3>
                   <p className="text-sm text-blue-100">
                     All templates are fully responsive for perfect rendering on any device.
                   </p>
