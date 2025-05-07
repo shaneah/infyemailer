@@ -2435,6 +2435,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     }
   });
+
+  // Client session endpoint - added to match frontend request in use-client-session.tsx
+  app.get('/api/client/session', async (req: Request, res: Response) => {
+    try {
+      // Check if client is authenticated in session
+      if (req.session && req.session.clientUser) {
+        // Return the client user info
+        return res.status(200).json({ 
+          user: req.session.clientUser 
+        });
+      }
+      
+      // If no session found
+      return res.status(401).json({ 
+        message: 'No active client session found' 
+      });
+    } catch (error) {
+      console.error('Client session check error:', error);
+      return res.status(500).json({ 
+        message: 'Error checking client session' 
+      });
+    }
+  });
   
   // Client campaigns endpoint
   app.get('/api/client-campaigns', isClientAuthenticated, async (req: Request, res: Response) => {
