@@ -64,7 +64,7 @@ export function ClientSessionProvider({ children }: ClientSessionProviderProps) 
     setError(null);
 
     try {
-      const res = await fetch('/api/client/login', {
+      const res = await fetch('/api/client-login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -78,12 +78,13 @@ export function ClientSessionProvider({ children }: ClientSessionProviderProps) 
         throw new Error(errorData.message || 'Login failed');
       }
 
-      const data = await res.json();
-      setClientUser(data.user);
+      const userData = await res.json();
+      // The login response directly contains the user data, not nested in a 'user' property
+      setClientUser(userData);
       
       toast({
         title: 'Login successful',
-        description: `Welcome back, ${data.user.firstName || data.user.username}!`,
+        description: `Welcome back, ${userData.firstName || userData.username}!`,
       });
       
       return true;
@@ -105,7 +106,7 @@ export function ClientSessionProvider({ children }: ClientSessionProviderProps) 
   // Client logout function
   const logout = async () => {
     try {
-      await fetch('/api/client/logout', {
+      await fetch('/api/client-logout', {
         method: 'POST',
         credentials: 'include'
       });

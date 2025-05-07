@@ -3,6 +3,7 @@ import { useLocation } from 'wouter';
 import { Shield, EyeOff, Eye, Lock, User, ChevronRight, Coffee, Sun, Moon, Sunset } from 'lucide-react';
 // Import logo from the assets directory
 import LogoColor from '@assets/Infinity Tech Logo-01.png';
+import { useClientSession } from '@/hooks/use-client-session';
 
 const SimpleClientLoginV2: React.FC = () => {
   // Form state
@@ -16,8 +17,11 @@ const SimpleClientLoginV2: React.FC = () => {
   const [welcomeIcon, setWelcomeIcon] = useState<React.ReactNode>(null);
   const [lastUsername, setLastUsername] = useState<string | null>(null);
   
-  // Auth state
-  const [isLoading, setIsLoading] = useState(false);
+  // Use the client session hook for authentication
+  const { login, isLoading: sessionLoading, error: sessionError, clientUser } = useClientSession();
+  
+  // Local loading and error state to supplement the hook
+  const [isLocalLoading, setIsLocalLoading] = useState(false);
   const [error, setError] = useState('');
   const [, setLocation] = useLocation();
   
@@ -65,7 +69,14 @@ const SimpleClientLoginV2: React.FC = () => {
     }
   }, []);
 
-  // Handle login
+  // Redirect to dashboard if already logged in
+  useEffect(() => {
+    if (clientUser) {
+      setLocation('/client-dashboard');
+    }
+  }, [clientUser, setLocation]);
+
+  // Handle login using the useClientSession hook
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -75,62 +86,30 @@ const SimpleClientLoginV2: React.FC = () => {
       return;
     }
     
-    setIsLoading(true);
+    setIsLocalLoading(true);
     setError('');
     
     try {
-      console.log('Attempting client login with username:', username);
+      // Use the login function from useClientSession hook
+      const success = await login({ username, password });
       
-      // Call the actual API endpoint
-      const response = await fetch('/api/client-login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username, password }),
-        credentials: 'include' // Important for cookies/session
-      });
-      
-      console.log('Login response status:', response.status);
-      
-      const data = await response.json();
-      console.log('Login response data:', data);
-      
-      if (!response.ok) {
-        throw new Error(data.error || 'Invalid credentials. Please try again or contact support.');
-      }
-      
-      // Store based on remember me
-      if (rememberMe) {
-        localStorage.setItem('clientUser', JSON.stringify(data));
-      } else {
-        sessionStorage.setItem('clientUser', JSON.stringify(data));
-      }
-      
-      // Immediately verify the session was created
-      try {
-        const verifyResponse = await fetch('/api/client/verify-session', {
-          credentials: 'include' // Important for cookies/session
-        });
+      // If login was successful, the hook will handle state updates
+      if (success) {
+        // Store username preference based on remember me setting (just for UI enhancement)
+        if (rememberMe) {
+          localStorage.setItem('lastUsername', username);
+        } else {
+          localStorage.removeItem('lastUsername');
+        }
         
-        console.log('Session verification response:', verifyResponse.status);
-        const verifyData = await verifyResponse.json();
-        console.log('Session verification data:', verifyData);
-      } catch (verifyErr) {
-        console.error('Session verification failed:', verifyErr);
+        // The hook redirects automatically when the clientUser state is updated
+        console.log('Login successful, redirecting to dashboard');
       }
-      
-      // Redirect to dashboard
-      console.log('Login successful, redirecting to dashboard');
-      
-      // Force a small delay to ensure session is properly saved on server
-      setTimeout(() => {
-        window.location.href = '/client-dashboard';
-      }, 300);
     } catch (err) {
       console.error('Login error:', err);
       setError(err instanceof Error ? err.message : 'Login failed. Please try again.');
-      setIsLoading(false);
+    } finally {
+      setIsLocalLoading(false);
     }
   };
 
@@ -254,10 +233,10 @@ const SimpleClientLoginV2: React.FC = () => {
             {/* Submit button */}
             <button
               type="submit"
-              disabled={isLoading}
+              disabled={isLocalLoading || sessionLoading}
               className="w-full flex justify-center items-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-75"
             >
-              {isLoading ? (
+              {(isLocalLoading || sessionLoading) ? (
                 <>
                   <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
