@@ -2,7 +2,6 @@ import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { WebSocketServer, WebSocket } from 'ws';
 import { getStorage } from "./storageManager"; // Use dynamic storage selection
-const storage = getStorage();
 import { isDatabaseAvailable, db } from "./db"; // Import db and check if database is available
 import { eq, desc, sql } from "drizzle-orm"; // Import Drizzle operators
 import { generateSubjectLines, generateEmailTemplate, generateColorPalette } from "./services/openai";
@@ -121,6 +120,12 @@ function setupFallbackRoute(app: Express) {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Initialize storage first
+  const storage = getStorage();
+  if (!storage) {
+    throw new Error('Storage initialization failed');
+  }
+  
   const httpServer = createServer(app);
   
   // Initialize real-time metrics service with WebSocket support
@@ -209,6 +214,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // A/B Testing endpoints
   app.get('/api/ab-testing/campaigns', async (req: Request, res: Response) => {
     try {
+      const storage = getStorage();
       // Get A/B testing campaigns
       const campaigns = await storage.getAbTestCampaigns();
       console.log(`Retrieved ${campaigns.length} A/B test campaigns`);
@@ -221,6 +227,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/ab-testing/campaigns/:id', async (req: Request, res: Response) => {
     try {
+      const storage = getStorage();
       const campaignId = parseInt(req.params.id);
       const campaign = await storage.getCampaign(campaignId);
       
@@ -242,6 +249,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   app.get('/api/ab-testing/campaigns/:id/analytics', async (req: Request, res: Response) => {
     try {
+      const storage = getStorage();
       const campaignId = parseInt(req.params.id);
       const campaign = await storage.getCampaign(campaignId);
       

@@ -18,6 +18,21 @@
     "email": "adimughal_1746465332039@hotmail.ca",
     "status": "active",
     "id": 3,
-    "createdAt": "2025-05-05T17:15:33.679Z"
+    "createdAt": "2025-05-05T17:15:33.679Z",
+    "lastActivityAt": null
+  },
+  {
+    "name": "Test Campign 1",
+    "email": "shaan_1747375163780@ingenious.ae",
+    "status": "active",
+    "id": 4,
+    "createdAt": "2025-05-16T05:59:24.613Z"
+  },
+  {
+    "name": "John Doe",
+    "email": "demo_1747375250270@test.com",
+    "status": "active",
+    "id": 5,
+    "createdAt": "2025-05-16T06:00:51.174Z"
   }
 ]

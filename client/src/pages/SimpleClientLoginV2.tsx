@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { Shield, EyeOff, Eye, Lock, User, ChevronRight, Coffee, Sun, Moon, Sunset } from 'lucide-react';
 // Import logo from the assets directory
-import LogoColor from '@assets/Infinity Tech Logo-01.png';
+import LogoColor from '../assets/Infinity Tech Logo-01.png';
 // Import client session hook
 import { useClientSession } from '@/hooks/use-client-session';
 

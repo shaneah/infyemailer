@@ -26,46 +26,49 @@ export async function setupVite(app: Express, server: Server) {
   const serverOptions = {
     middlewareMode: true,
     hmr: { server },
-    allowedHosts: true,
+    allowedHosts: ['all'],
+    fs: {
+      allow: [
+        path.resolve(__dirname, "..", "client"),
+        path.resolve(__dirname, "..", "shared"),
+        path.resolve(__dirname, "..", "attached_assets")
+      ]
+    }
   };
 
   const vite = await createViteServer({
     ...viteConfig,
     configFile: false,
-    customLogger: {
-      ...viteLogger,
-      error: (msg, options) => {
-        viteLogger.error(msg, options);
-        process.exit(1);
-      },
-    },
     server: serverOptions,
     appType: "custom",
+    optimizeDeps: {
+      disabled: true,
+    },
   });
 
   app.use(vite.middlewares);
-  app.use("*", async (req, res, next) => {
-    const url = req.originalUrl;
-
+  app.use("*", async (req, res) => {
     try {
-      const clientTemplate = path.resolve(
-        __dirname,
-        "..",
-        "client",
-        "index.html",
+      // Get URL and template path
+      const url = req.originalUrl;
+      const clientTemplate = path.resolve(__dirname, "..", "client", "index.html");
+
+      // Read and transform the template
+      const template = await fs.promises.readFile(clientTemplate, "utf-8");
+      const transformedPage = await vite.transformIndexHtml(url, template);
+
+      // Add cache busting query parameter
+      const finalPage = transformedPage.replace(
+        /src="\/src\/main\.tsx"/,
+        `src="/src/main.tsx?v=${nanoid()}"`
       );
 
-      // always reload the index.html file from disk incase it changes
-      let template = await fs.promises.readFile(clientTemplate, "utf-8");
-      template = template.replace(
-        `src="/src/main.tsx"`,
-        `src="/src/main.tsx?v=${nanoid()}"`,
-      );
-      const page = await vite.transformIndexHtml(url, template);
-      res.status(200).set({ "Content-Type": "text/html" }).end(page);
+      // Send the transformed page
+      res.status(200).set({ "Content-Type": "text/html" }).end(finalPage);
     } catch (e) {
+      viteLogger.error('Error in transformIndexHtml:', e);
       vite.ssrFixStacktrace(e as Error);
-      next(e);
+      res.status(500).send('Internal Server Error');
     }
   });
 }

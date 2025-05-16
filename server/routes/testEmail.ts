@@ -3,8 +3,6 @@ import { z } from 'zod';
 import { emailService } from '../services/EmailService';
 import { getStorage } from '../storageManager';
 
-const storage = getStorage();
-
 // Import the default email settings from the emailSettings route
 import { defaultEmailSettings } from './emailSettings';
 
@@ -12,6 +10,7 @@ export async function registerTestEmailRoutes(app: any) {
   // Send a test email from a template
   app.post('/api/templates/:id/test-email', async (req: Request, res: Response) => {
     try {
+      const storage = getStorage();
       const templateId = parseInt(req.params.id, 10);
       
       // Log the request for debugging
@@ -108,6 +107,7 @@ export async function registerTestEmailRoutes(app: any) {
   // Send a test email using the default provider
   app.post('/api/test-email', async (req: Request, res: Response) => {
     try {
+      const storage = getStorage();
       // Log the request for debugging
       console.log('[Test Email] Received request:', {
         to: req.body.to,
@@ -228,6 +228,7 @@ export async function registerTestEmailRoutes(app: any) {
   // Send a test email directly using SendGrid
   app.post('/api/test-email/sendgrid', async (req: Request, res: Response) => {
     try {
+      const storage = getStorage();
       // Log the request for debugging
       console.log('[Test Email] Received request:', {
         to: req.body.to,

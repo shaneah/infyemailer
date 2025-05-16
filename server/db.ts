@@ -6,6 +6,9 @@ import { log } from './vite';
 import path from 'path';
 import fs from 'fs';
 
+// DEBUG: Log the DATABASE_URL at startup
+console.log('[DEBUG] DATABASE_URL:', process.env.DATABASE_URL);
+
 // Set up WebSockets for Neon serverless
 neonConfig.webSocketConstructor = ws;
 
@@ -14,23 +17,20 @@ export let isDatabaseAvailable = false;
 export let db: any;
 export let pool: any;
 
+// Direct connection string
+const DATABASE_URL = 'postgresql://neondb_owner:npg_NBeRw7ISqDu6@ep-young-meadow-a43t54yt-pooler.us-east-1.aws.neon.tech/infyemailer?sslmode=require';
+
 /**
  * Sets up the database connection with Neon serverless driver
  */
-function setupDatabaseConnection() {
+async function setupDatabaseConnection(): Promise<boolean> {
   try {
-    // Get database URL from environment
-    const databaseUrl = process.env.DATABASE_URL;
-    if (!databaseUrl) {
-      log('DATABASE_URL not provided in environment', 'db');
-      return false;
-    }
-
-    log('Connecting to PostgreSQL database using Neon serverless driver', 'db');
+    log('[DEBUG] Attempting to connect to PostgreSQL database using Neon serverless driver', 'db');
+    log('[DEBUG] Using connection string:', DATABASE_URL, 'db');
     
     // Create Neon PostgreSQL connection with better error handling
     pool = new Pool({ 
-      connectionString: databaseUrl,
+      connectionString: DATABASE_URL,
       ssl: {
         rejectUnauthorized: false // For compatibility with many PostgreSQL providers
       },
@@ -56,27 +56,57 @@ function setupDatabaseConnection() {
     db = drizzle(pool, { schema: tableSchemas });
     log('PostgreSQL storage initialized with Neon driver', 'db');
     
-    // Test connection (async but we'll wait for it)
-    return new Promise<boolean>((resolve) => {
-      // Add a timeout to the connection test
-      const timeout = setTimeout(() => {
-        log('Database connection test timed out after 5 seconds', 'db');
-        resolve(false);
-      }, 5000);
-      
-      // Test connection with a simple query
+    // Test connection with a timeout
+    log('[DEBUG] Testing database connection with SELECT 1', 'db');
+    const connectionPromise = new Promise<boolean>((resolve) => {
       pool.query('SELECT 1').then(() => {
-        clearTimeout(timeout);
-        log('Database connection successful', 'db');
+        log('[DEBUG] Database connection successful', 'db');
         resolve(true);
       }).catch((err: Error) => {
-        clearTimeout(timeout);
-        log(`Database connection failed: ${err.message}`, 'db');
+        log(`[DEBUG] Database connection failed: ${err.message}`, 'db');
+        console.error('[DEBUG] Full error:', err);
         resolve(false);
       });
     });
+
+    // Add a timeout to the connection test
+    const timeoutPromise = new Promise<boolean>((resolve) => {
+      setTimeout(() => {
+        log('[DEBUG] Database connection test timed out after 5 seconds', 'db');
+        resolve(false);
+      }, 5000);
+    });
+
+    // Wait for either the connection or timeout
+    const result = await Promise.race([connectionPromise, timeoutPromise]);
+    
+    if (result) {
+      // Verify the connection is working by checking tables
+      try {
+        log('[DEBUG] Verifying tables in public schema', 'db');
+        const tablesQuery = await pool.query(`
+          SELECT table_name FROM information_schema.tables 
+          WHERE table_schema = 'public'
+        `);
+        
+        if (tablesQuery.rows.length > 0) {
+          log(`[DEBUG] Database verification: Found ${tablesQuery.rows.length} tables in schema`, 'db');
+          return true;
+        } else {
+          log('[DEBUG] No tables found in database schema', 'db');
+          return false;
+        }
+      } catch (err: any) {
+        log(`[DEBUG] Database verification failed: ${err.message}`, 'db');
+        console.error('[DEBUG] Full error:', err);
+        return false;
+      }
+    }
+    
+    return false;
   } catch (error: any) {
-    log(`Failed to connect to PostgreSQL database: ${error.message}`, 'db');
+    log(`[DEBUG] Failed to connect to PostgreSQL database: ${error.message}`, 'db');
+    console.error('[DEBUG] Full error:', error);
     return false;
   }
 }
@@ -117,35 +147,11 @@ export async function initDatabase(): Promise<boolean> {
     }
     
     if (!isDatabaseAvailable) {
-      log('All database connection attempts failed, using memory storage fallback', 'db');
-      // Create a dummy db client for fallback
-      db = {
-        select: () => ({ from: () => ({ where: () => [] }) }),
-        insert: () => ({ values: () => ({ returning: () => [] }) }),
-        update: () => ({ set: () => ({ where: () => ({ returning: () => [] }) }) }),
-        delete: () => ({ where: () => ({ returning: () => [] }) }),
-        execute: (sql: any) => Promise.resolve([]),
-        rawQuery: (sql: string, params?: any[]) => Promise.resolve({ rows: [] }),
-        query: { 
-          // Stub for all table queries
-          // For each table in schema, create a query method
-          ...Object.keys(schema).reduce((acc, key) => {
-            // Only add methods for tables
-            if (typeof schema[key as keyof typeof schema] === 'object' && 
-                schema[key as keyof typeof schema] !== null &&
-                'name' in schema[key as keyof typeof schema]) {
-              acc[key] = {
-                findMany: async () => [],
-                findFirst: async () => undefined
-              };
+      log('All database connection attempts failed', 'db');
+      return false;
             }
-            return acc;
-          }, {} as Record<string, any>)
-        }
-      };
-    } else {
+    
       // Database is connected, set up prepared statements for common operations
-      // This can help with performance and reliability
       log('Setting up prepared database queries for common operations', 'db');
       
       // Run a simple database operation to ensure the connection is properly established
@@ -153,14 +159,13 @@ export async function initDatabase(): Promise<boolean> {
         const testResult = await pool.query('SELECT 1 as connection_test');
         if (testResult && testResult.rows && testResult.rows[0]?.connection_test === 1) {
           log('Database connection fully verified and ready', 'db');
-        }
-      } catch (err) {
-        log(`Warning: Database connection test failed: ${err.message}`, 'db');
-        // Continue anyway as the initial connection was successful
+        return true;
       }
+      return false;
+    } catch (err: any) {
+      log(`Warning: Database connection test failed: ${err.message}`, 'db');
+      return false;
     }
-    
-    return isDatabaseAvailable;
   } catch (error: any) {
     log(`Database initialization error: ${error.message}`, 'db');
     isDatabaseAvailable = false;

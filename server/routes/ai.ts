@@ -34,9 +34,12 @@ const validateRequestBody = <T extends z.ZodType>(schema: T) => {
 const router = express.Router();
 
 // Configure OpenAI client
-const openai = new OpenAI({
+let openai: OpenAI | null = null;
+if (process.env.OPENAI_API_KEY) {
+  openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
+}
 
 // The newest OpenAI model is "gpt-4o" which was released May 13, 2024. Do not change this unless explicitly requested by the user
 const MODEL = "gpt-4o";
@@ -205,7 +208,7 @@ router.post('/generate-subject-lines', validateRequestBody(SubjectLineRequestSch
         Format your response as a JSON object with an array of "subjectLines" containing objects with "text", "score", and "reasoning" properties.
       `;
 
-      const response = await openai.chat.completions.create({
+      const response = await openai!.chat.completions.create({
         model: MODEL,
         messages: [
           { role: "system", content: "You are an expert email marketer specializing in crafting high-converting subject lines." },
@@ -285,7 +288,7 @@ router.post('/optimize-content', validateRequestBody(ContentOptimizationRequestS
       Format your response as a JSON object with "score", "strengths", "summary", and "suggestions" properties.
     `;
 
-    const response = await openai.chat.completions.create({
+    const response = await openai!.chat.completions.create({
       model: MODEL,
       messages: [
         { role: "system", content: "You are an expert email marketer specializing in optimizing content for maximum engagement and conversions." },
@@ -343,7 +346,7 @@ router.post('/apply-content-improvements', validateRequestBody(ContentImprovemen
       Return only the enhanced content in markdown format. Do not include explanations or notes.
     `;
 
-    const response = await openai.chat.completions.create({
+    const response = await openai!.chat.completions.create({
       model: MODEL,
       messages: [
         { role: "system", content: "You are an expert email marketer specializing in optimizing content for maximum engagement and conversions." },

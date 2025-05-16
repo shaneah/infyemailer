@@ -1,0 +1,22 @@
+2025-04-07 22:55:00.911 [info] Can't use the Electron fetcher in this environment.
+2025-04-07 22:55:00.911 [info] Using the Node fetch fetcher.
+2025-04-07 22:55:00.911 [info] Initializing Git extension service.
+2025-04-07 22:55:00.911 [info] Successfully activated the vscode.git extension.
+2025-04-07 22:55:00.911 [info] Enablement state of the vscode.git extension: true.
+2025-04-07 22:55:00.911 [info] Successfully registered Git commit message provider.
+2025-04-07 22:55:02.486 [info] Logged in as adimughal
+2025-04-07 22:55:02.913 [info] Got Copilot token for adimughal
+2025-04-07 22:55:03.868 [info] Fetched model metadata in 948ms 78bcd7e7-350b-4dca-bc57-4bc049a4c191
+2025-04-07 22:55:03.871 [info] activationBlocker from 'languageModelAccess' took for 3004ms
+2025-04-07 22:55:04.670 [info] copilot token chat_enabled: true, sku: trial_30_monthly_subscriber
+2025-04-07 22:55:04.685 [info] Registering default platform agent...
+2025-04-07 22:55:04.818 [info] Successfully activated the GitHub.vscode-pull-request-github extension.
+2025-04-07 22:55:04.818 [info] [githubTitleAndDescriptionProvider] Initializing GitHub PR title and description provider provider.
+2025-04-07 22:55:04.818 [info] Successfully registered GitHub PR title and description provider.
+2025-04-07 22:55:04.818 [info] Successfully registered GitHub PR reviewer comments provider.
+2025-04-07 23:25:08.340 [info] Logged in as adimughal
+2025-04-07 23:25:08.775 [info] Got Copilot token for adimughal
+2025-04-07 23:25:10.484 [info] copilot token chat_enabled: true, sku: trial_30_monthly_subscriber
+2025-04-07 23:55:13.900 [info] Logged in as adimughal
+2025-04-07 23:55:14.527 [info] Got Copilot token for adimughal
+2025-04-07 23:55:16.198 [info] copilot token chat_enabled: true, sku: trial_30_monthly_subscriber

@@ -2,12 +2,11 @@ import { Request, Response } from "express";
 import { getStorage } from "../storageManager";
 import { z } from "zod";
 
-const storage = getStorage();
-
 export function registerClientProviderRoutes(app: any) {
   // Get all providers assigned to a client
   app.get('/api/clients/:clientId/providers', async (req: Request, res: Response) => {
     try {
+      const storage = getStorage();
       const clientId = parseInt(req.params.clientId, 10);
       
       // Validate client exists
@@ -43,6 +42,7 @@ export function registerClientProviderRoutes(app: any) {
   // Assign provider to client
   app.post('/api/clients/:clientId/providers', async (req: Request, res: Response) => {
     try {
+      const storage = getStorage();
       const clientId = parseInt(req.params.clientId, 10);
       
       // Validate the request body
@@ -79,6 +79,7 @@ export function registerClientProviderRoutes(app: any) {
   // Remove provider from client
   app.delete('/api/clients/:clientId/providers/:providerId', async (req: Request, res: Response) => {
     try {
+      const storage = getStorage();
       const clientId = parseInt(req.params.clientId, 10);
       const providerId = req.params.providerId;
       

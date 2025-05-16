@@ -9,9 +9,12 @@ import {
 const apiKey = process.env.OPENAI_API_KEY;
 
 // Initialize the OpenAI client
-const openai = new OpenAI({
+let openai: OpenAI | null = null;
+if (apiKey) {
+  openai = new OpenAI({
   apiKey: apiKey,
 });
+}
 
 // Log OpenAI setup status
 console.log(`OpenAI API key ${apiKey ? 'is set' : 'is NOT set'}`);

@@ -321,24 +321,6 @@ const MemoryStore = createMemoryStore(session);
 
 // In-memory implementation of storage
 export class MemStorage implements IStorage {
-  // Method to initialize memory storage with sample data if needed
-  async initializeWithSampleData(): Promise<boolean> {
-    try {
-      console.log('Initializing memory storage with sample data');
-      
-      // Load clients from file storage if available
-      await this.loadClientsFromFile();
-      
-      // Add more loading methods for other data as needed
-      // await this.loadContactsFromFile();
-      // await this.loadTemplatesFromFile();
-
-      return true;
-    } catch (error) {
-      console.error('Failed to initialize memory storage with sample data:', error);
-      return false;
-    }
-  }
   private contacts: Map<number, Contact>;
   private lists: Map<number, List>;
   private contactLists: Map<number, ContactList>;
@@ -370,7 +352,7 @@ export class MemStorage implements IStorage {
   private systemCreditsHistory: Map<number, SystemCreditsHistory>;
   private clientEmailCreditsHistory: Map<number, ClientEmailCreditsHistory>;
   private clientProviders: Map<number, ClientProvider>;
-  public sessionStore: any; // Express session store
+  public sessionStore: any;
 
   private contactId: number;
   private listId: number;
@@ -402,13 +384,6 @@ export class MemStorage implements IStorage {
   private systemCreditsHistoryId: number;
   private clientEmailCreditsHistoryId: number;
   private clientProviderId: number;
-
-  // Schema validation objects
-  public audiencePersonaSchema = insertAudiencePersonaSchema;
-  public personaDemographicSchema = insertPersonaDemographicSchema;
-  public personaBehaviorSchema = insertPersonaBehaviorSchema;
-  public personaInsightSchema = insertPersonaInsightSchema;
-  public audienceSegmentSchema = insertAudienceSegmentSchema;
 
   constructor() {
     this.contacts = new Map();
@@ -475,20 +450,9 @@ export class MemStorage implements IStorage {
     this.systemCreditsHistoryId = 1;
     this.clientEmailCreditsHistoryId = 1;
     this.clientProviderId = 1;
-    this.clientProviderId = 1;
 
     // Initialize with some default data
     this.initializeData();
-    
-    // Load saved data from files
-    this.loadListsFromFile();         // Load lists first
-    this.loadContactsFromFile();      // Load contacts before relationships
-    this.loadContactListRelations();  // Load contact-list relationships
-    this.loadTemplatesFromFile();
-    this.loadCampaignsFromFile();
-    this.loadDomainsFromFile();
-    this.loadClientsFromFile();
-    this.loadEmailsFromFile();
   }
   
   /**

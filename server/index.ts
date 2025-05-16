@@ -6,6 +6,16 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import fileUpload from "express-fileupload";
 import { isDatabaseAvailable, initDatabase } from "./db";
+import { updateStorageReferences, getStorage } from './storageManager';
+import { initializeRolesAndPermissions } from './init-roles-permissions';
+import { createServer } from 'http';
+import { WebSocket, WebSocketServer } from 'ws';
+
+// Add type declaration for WebSocket
+interface WebSocketConnection extends WebSocket {
+  userId: string;
+  templateId: string;
+}
 
 const app = express();
 // Increase the JSON payload size limit to 50MB
@@ -50,68 +60,80 @@ app.use((req, res, next) => {
   next();
 });
 
-// Import the updateStorageReferences function
-import { updateStorageReferences } from './storageManager';
-import { initializeRolesAndPermissions } from './init-roles-permissions';
-
 // Initialize the application
 (async () => {
   try {
     // Initialize database connection first
-    await initDatabase();
+    log('Initializing database connection...', 'server');
+    const dbInitialized = await initDatabase();
     
-    // Update storage references to use the appropriate storage implementation
-    // Make this await to ensure it completes before continuing
+    if (!dbInitialized || !isDatabaseAvailable) {
+      throw new Error('Database connection is required but not available. Please check your database configuration.');
+    }
+    
+    // Wait a moment to ensure connection is stable
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    // Update storage references to use database storage
+    log('Updating storage references...', 'server');
     await updateStorageReferences();
     
-    // Log storage mode after database initialization
-    log(`Using ${isDatabaseAvailable ? 'PostgreSQL database' : 'memory storage'} for data operations`, 'server');
+    // Log storage mode
+    log('Using PostgreSQL database for data operations', 'server');
     
     // Extra verification for database connection
-    if (isDatabaseAvailable) {
-      log('Database connection confirmed - performing final checks', 'server');
-      try {
-        // Extra verification query to ensure database is fully ready
-        const { pool } = await import('./db');
+    log('Performing final database connection checks...', 'server');
+    try {
+      // Extra verification query to ensure database is fully ready
+      const { pool } = await import('./db');
+      
+      // First verify tables exist with a more robust check
+      const tablesQuery = await pool.query(`
+        SELECT table_name FROM information_schema.tables 
+        WHERE table_schema = 'public'
+      `);
+      
+      if (tablesQuery.rows.length > 0) {
+        log(`Database verification: Found ${tablesQuery.rows.length} tables in schema`, 'server');
         
-        // First verify tables exist with a more robust check
-        const tablesQuery = await pool.query(`
-          SELECT table_name FROM information_schema.tables 
-          WHERE table_schema = 'public'
+        // Now check the clients table specifically
+        const verifyResult = await pool.query('SELECT COUNT(*) FROM clients');
+        log(`Database verification successful - found ${verifyResult.rows[0].count} clients`, 'server');
+        
+        // Add one more check to make sure contacts are accessible
+        const contactsCheck = await pool.query('SELECT COUNT(*) FROM contacts');
+        log(`Database verification for contacts - found ${contactsCheck.rows[0].count} contacts`, 'server');
+        
+        // Verify contact_lists table structure
+        const listRelationsCheck = await pool.query(`
+          SELECT column_name, data_type 
+          FROM information_schema.columns 
+          WHERE table_name = 'contact_lists'
         `);
-        
-        if (tablesQuery.rows.length > 0) {
-          log(`Database verification: Found ${tablesQuery.rows.length} tables in schema`, 'server');
-          
-          // Now check the clients table specifically
-          const verifyResult = await pool.query('SELECT COUNT(*) FROM clients');
-          log(`Database verification successful - found ${verifyResult.rows[0].count} clients`, 'server');
-          
-          // Add one more check to make sure contacts are accessible
-          const contactsCheck = await pool.query('SELECT COUNT(*) FROM contacts');
-          log(`Database verification for contacts - found ${contactsCheck.rows[0].count} contacts`, 'server');
-          
-          // Verify contact_lists table structure
-          const listRelationsCheck = await pool.query(`
-            SELECT column_name, data_type 
-            FROM information_schema.columns 
-            WHERE table_name = 'contact_lists'
-          `);
-          log(`Contact-list relations columns: ${listRelationsCheck.rows.map(r => r.column_name).join(', ')}`, 'server');
-        } else {
-          log('Warning: No tables found in database schema!', 'server');
-        }
-      } catch (verifyError) {
-        log(`Database verification warning: ${verifyError.message}`, 'server');
-        // Continue anyway as we've already determined database is available
+        log(`Contact-list relations columns: ${listRelationsCheck.rows.map((r: { column_name: string }) => r.column_name).join(', ')}`, 'server');
+      } else {
+        throw new Error('No tables found in database schema!');
       }
+    } catch (verifyError: any) {
+      log(`Database verification failed: ${verifyError.message}`, 'server');
+      throw new Error(`Database verification failed: ${verifyError.message}`);
     }
     
     // Initialize roles and permissions
+    log('Initializing roles and permissions...', 'server');
     await initializeRolesAndPermissions();
     
-    // Register API routes
-    const server = await registerRoutes(app);
+    // Create HTTP server first
+    const server = createServer(app);
+    
+    // Initialize storage before registering routes
+    log('Initializing storage...', 'server');
+    const storage = getStorage();
+    log('Storage initialized successfully', 'server');
+    
+    // Register API routes after server is created
+    log('Registering API routes...', 'server');
+    await registerRoutes(app);
 
     app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
       const status = err.status || err.statusCode || 500;
@@ -131,13 +153,104 @@ import { initializeRolesAndPermissions } from './init-roles-permissions';
     // ALWAYS serve the app on port 5000
     // this serves both the API and the client.
     // It is the only port that is not firewalled.
-    const port = 5000;
+    // Initialize WebSocket server with proper configuration
+    const wss = new WebSocketServer({
+      server,
+      path: '/collaboration',
+      clientTracking: true
+    });
+
+    // Add error handling for the WebSocket server
+    wss.on('error', (err) => {
+      console.error('[WebSocketServer] Error:', err);
+    });
+
+    // Add error handling for each WebSocket connection
+    wss.on('connection', (ws, req) => {
+      try {
+        // Log detailed connection info
+        console.log('[WebSocket] New connection:', {
+          remoteAddress: req?.socket?.remoteAddress,
+          headers: req?.headers,
+          userAgent: req?.headers['user-agent']
+        });
+
+        // Get userId and templateId from query parameters
+        const url = new URL(req.url || '', `http://${req.headers.host}`);
+        const userId = url.searchParams.get('userId');
+        const templateId = url.searchParams.get('templateId');
+        const token = url.searchParams.get('token');
+
+        if (!userId || !templateId) {
+          console.error('[WebSocket] Connection rejected: Missing required parameters');
+          ws.close(4000, 'Missing required parameters');
+          return;
+        }
+
+        // Token is optional for now
+        if (token) {
+          // Add token validation here if needed
+          console.log('[WebSocket] Token received:', token);
+        }
+
+        // Store user info in a map
+        const userMap = new Map<WebSocket, { userId: string; templateId: string }>();
+        userMap.set(ws as WebSocket, { userId, templateId });
+
+        ws.on('error', (err) => {
+          // Log all WebSocket errors
+          console.error('[WebSocket] Connection error:', err, 'Remote address:', req?.socket?.remoteAddress);
+        });
+
+        ws.on('message', (data) => {
+          try {
+            const message = JSON.parse(data.toString());
+            console.log('[WebSocket] Received message:', message);
+            
+            // Handle incoming messages here
+            switch (message.type) {
+              case 'room_state':
+              case 'user_list':
+              case 'cursor_update':
+              case 'template_change':
+                // Forward message to other clients
+                wss.clients.forEach(client => {
+                  if (client !== ws && client.readyState === WebSocket.OPEN) {
+                    client.send(JSON.stringify(message));
+                  }
+                });
+                break;
+              default:
+                console.log('[WebSocket] Unhandled message type:', message.type);
+            }
+          } catch (err) {
+            console.error('[WebSocket] Error parsing message:', err);
+          }
+        });
+
+        // Send initial connection confirmation
+        ws.send(JSON.stringify({ type: 'connected', status: 'success' }));
+
+        // Handle connection close
+        ws.on('close', () => {
+          console.log('[WebSocket] Connection closed:', {
+            userId,
+            templateId,
+            remoteAddress: req?.socket?.remoteAddress
+          });
+          userMap.delete(ws);
+        });
+
+      } catch (err) {
+        console.error('[WebSocket] Initialization error:', err);
+        ws.close(5000, 'Server initialization error');
+      }
+    });
+
     server.listen({
-      port,
-      host: "0.0.0.0",
-      reusePort: true,
+      port: 5000,
     }, () => {
-      log(`Server running on port ${port} (using ${isDatabaseAvailable ? 'database' : 'memory'} storage)`);
+      log(`Server running on port ${5000} (using PostgreSQL database)`);
     });
   } catch (error) {
     console.error('Failed to start server:', error);

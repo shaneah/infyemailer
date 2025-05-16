@@ -1,0 +1,81 @@
+*
+* Visual Studio Code Server
+*
+* By using the software, you agree to
+* the Visual Studio Code Server License Terms (https://aka.ms/vscode-server-license) and
+* the Microsoft Privacy Statement (https://privacy.microsoft.com/en-US/privacystatement).
+*
+Server bound to /tmp/code-7b945ef1-6524-422e-bf8f-17a7e19a0e31
+Extension host agent listening on /tmp/code-7b945ef1-6524-422e-bf8f-17a7e19a0e31
+
+[22:54:38] 
+
+
+
+
+[22:54:38] Extension host agent started.
+[22:54:38] Started initializing default profile extensions in extensions installation folder. file:///home/runner/.vscode-server/extensions
+[22:54:38] Completed initializing default profile extensions in extensions installation folder. file:///home/runner/.vscode-server/extensions
+[22:54:39] [<unknown>][7658262c][ManagementConnection] New connection established.
+[22:54:39] [<unknown>][56f92e87][ExtensionHostConnection] New connection established.
+[22:54:39] [<unknown>][56f92e87][ExtensionHostConnection] <425> Launched Extension Host Process.
+[22:54:43] Getting Manifest... github.copilot
+[22:54:43] Installing extension: github.copilot {
+  installPreReleaseVersion: false,
+  donotIncludePackAndDependencies: true,
+  donotVerifySignature: false,
+  context: { clientTargetPlatform: 'darwin-arm64' },
+  isApplicationScoped: false,
+  profileLocation: gr {
+    scheme: 'file',
+    authority: '',
+    path: '/home/runner/.vscode-server/extensions/extensions.json',
+    query: '',
+    fragment: '',
+    _formatted: 'file:///home/runner/.vscode-server/extensions/extensions.json',
+    _fsPath: '/home/runner/.vscode-server/extensions/extensions.json'
+  },
+  productVersion: { version: '1.99.0', date: '2025-04-02T21:35:19.530Z' }
+}
+[22:54:43] Installing the extension without checking dependencies and pack github.copilot
+[22:54:44] Extension signature verification result for github.copilot: Success. Internal Code: 0. Executed: true. Duration: 1063ms.
+[22:54:45] Extracted extension to file:///home/runner/.vscode-server/extensions/github.copilot-1.297.0: github.copilot
+[22:54:45] Renamed to /home/runner/.vscode-server/extensions/github.copilot-1.297.0
+[22:54:45] Extension installed successfully: github.copilot file:///home/runner/.vscode-server/extensions/extensions.json
+[22:54:46] Downloaded extension to file:///home/runner/.vscode-server/data/CachedExtensionVSIXs/cf245615-3ac8-4696-9daa-944af68ab8fc
+[22:54:46] Installing extension: github.vscode-pull-request-github {
+  isApplicationScoped: false,
+  profileLocation: gr {
+    scheme: 'file',
+    authority: '',
+    path: '/home/runner/.vscode-server/extensions/extensions.json',
+    query: '',
+    fragment: '',
+    _formatted: 'file:///home/runner/.vscode-server/extensions/extensions.json',
+    _fsPath: '/home/runner/.vscode-server/extensions/extensions.json'
+  },
+  productVersion: { version: '1.99.0', date: '2025-04-02T21:35:19.530Z' }
+}
+[22:54:46] Extracted extension to file:///home/runner/.vscode-server/extensions/github.vscode-pull-request-github-0.109.2025040708: github.vscode-pull-request-github
+[22:54:46] Renamed to /home/runner/.vscode-server/extensions/github.vscode-pull-request-github-0.109.2025040708
+[22:54:46] Extension installed successfully: github.vscode-pull-request-github file:///home/runner/.vscode-server/extensions/extensions.json
+[22:54:58] Downloaded extension to file:///home/runner/.vscode-server/data/CachedExtensionVSIXs/5fcd12b9-a939-4114-b818-dc3d1ef3bffe
+[22:54:58] Installing extension: github.copilot-chat {
+  isApplicationScoped: false,
+  profileLocation: gr {
+    scheme: 'file',
+    authority: '',
+    path: '/home/runner/.vscode-server/extensions/extensions.json',
+    query: '',
+    fragment: '',
+    _formatted: 'file:///home/runner/.vscode-server/extensions/extensions.json',
+    _fsPath: '/home/runner/.vscode-server/extensions/extensions.json'
+  },
+  productVersion: { version: '1.99.0', date: '2025-04-02T21:35:19.530Z' }
+}
+[22:54:58] Getting Manifest... github.copilot
+[22:54:58] Extracted extension to file:///home/runner/.vscode-server/extensions/github.copilot-chat-0.26.1: github.copilot-chat
+[22:54:58] Renamed to /home/runner/.vscode-server/extensions/github.copilot-chat-0.26.1
+[22:54:58] Extension installed successfully: github.copilot-chat file:///home/runner/.vscode-server/extensions/extensions.json
+New EH opened, aborting shutdown
+[22:59:38] New EH opened, aborting shutdown

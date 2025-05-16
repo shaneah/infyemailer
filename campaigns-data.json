@@ -7,7 +7,7 @@
     "replyToEmail": "info@example.com",
     "content": "<h1>Monthly Newsletter</h1><p>Here are our latest updates...</p>",
     "status": "sent",
-    "scheduledAt": "2023-05-15T09:00:00.000Z",
+    "scheduledAt": "2023-05-15T05:00:00.000Z",
     "metadata": {
       "icon": {
         "name": "envelope-fill",
@@ -21,8 +21,8 @@
     },
     "id": 1,
     "sentAt": null,
-    "createdAt": "2025-05-07T09:27:07.884Z",
-    "updatedAt": "2025-05-07T09:27:07.884Z"
+    "createdAt": "2025-05-16T08:22:31.053Z",
+    "updatedAt": "2025-05-16T08:22:31.053Z"
   },
   {
     "name": "Subject Line Testing",
@@ -32,7 +32,7 @@
     "replyToEmail": "marketing@example.com",
     "content": "<h1>A/B Test Campaign</h1><p>This campaign tests different subject lines.</p>",
     "status": "active",
-    "scheduledAt": "2025-04-25T09:00:00.000Z",
+    "scheduledAt": "2025-04-25T05:00:00.000Z",
     "isAbTest": true,
     "metadata": {
       "icon": {
@@ -47,8 +47,8 @@
     },
     "id": 2,
     "sentAt": null,
-    "createdAt": "2025-05-07T09:27:07.884Z",
-    "updatedAt": "2025-05-07T09:27:07.884Z"
+    "createdAt": "2025-05-16T08:22:31.053Z",
+    "updatedAt": "2025-05-16T08:22:31.053Z"
   },
   {
     "name": "Email Design Testing",
@@ -58,7 +58,7 @@
     "replyToEmail": "products@example.com",
     "content": "<h1>A/B Test Campaign</h1><p>This campaign tests different email designs.</p>",
     "status": "active",
-    "scheduledAt": "2025-04-30T09:00:00.000Z",
+    "scheduledAt": "2025-04-30T05:00:00.000Z",
     "isAbTest": true,
     "metadata": {
       "icon": {
@@ -73,8 +73,8 @@
     },
     "id": 3,
     "sentAt": null,
-    "createdAt": "2025-05-07T09:27:07.884Z",
-    "updatedAt": "2025-05-07T09:27:07.884Z"
+    "createdAt": "2025-05-16T08:22:31.054Z",
+    "updatedAt": "2025-05-16T08:22:31.054Z"
   },
   {
     "name": "Product Launch",
@@ -84,7 +84,7 @@
     "replyToEmail": "info@example.com",
     "content": "<h1>Product Launch</h1><p>Meet our newest product...</p>",
     "status": "sent",
-    "scheduledAt": "2023-05-08T09:00:00.000Z",
+    "scheduledAt": "2023-05-08T05:00:00.000Z",
     "metadata": {
       "icon": {
         "name": "megaphone-fill",
@@ -98,8 +98,8 @@
     },
     "id": 4,
     "sentAt": null,
-    "createdAt": "2025-05-07T09:27:07.884Z",
-    "updatedAt": "2025-05-07T09:27:07.884Z"
+    "createdAt": "2025-05-16T08:22:31.054Z",
+    "updatedAt": "2025-05-16T08:22:31.054Z"
   },
   {
     "name": "Spring Sale",
@@ -109,7 +109,7 @@
     "replyToEmail": "info@example.com",
     "content": "<h1>Spring Sale</h1><p>Don't miss our biggest sale...</p>",
     "status": "scheduled",
-    "scheduledAt": "2023-05-20T09:00:00.000Z",
+    "scheduledAt": "2023-05-20T05:00:00.000Z",
     "metadata": {
       "icon": {
         "name": "tag-fill",
@@ -123,8 +123,8 @@
     },
     "id": 5,
     "sentAt": null,
-    "createdAt": "2025-05-07T09:27:07.885Z",
-    "updatedAt": "2025-05-07T09:27:07.885Z"
+    "createdAt": "2025-05-16T08:22:31.055Z",
+    "updatedAt": "2025-05-16T08:22:31.055Z"
   },
   {
     "name": "Welcome Series",
@@ -148,7 +148,7 @@
     },
     "id": 6,
     "sentAt": null,
-    "createdAt": "2025-05-07T09:27:07.888Z",
-    "updatedAt": "2025-05-07T09:27:07.888Z"
+    "createdAt": "2025-05-16T08:22:31.055Z",
+    "updatedAt": "2025-05-16T08:22:31.055Z"
   }
 ]

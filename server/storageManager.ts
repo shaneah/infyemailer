@@ -18,8 +18,7 @@ export function getStorage(): IStorage {
     log('Using PostgreSQL database storage', 'storage');
     return dbStorage;
   } else {
-    log('Using in-memory storage (database unavailable)', 'storage');
-    return memStorage;
+    throw new Error('Database storage is required but not available. Please check your database configuration.');
   }
 }
 

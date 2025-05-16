@@ -6,7 +6,7 @@ import {
   ShieldAlert, Activity, Building2, TrendingUp
 } from 'lucide-react';
 import Logo from '../assets/infy.png';
-import LogoWhite from '@assets/Logo-white.png';
+import LogoWhite from '../assets/Logo-white.png';
 import { useClientSession } from '@/hooks/use-client-session';
 
 interface SidebarProps {
