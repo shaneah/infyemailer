@@ -581,14 +581,40 @@ export class DbStorage implements IStorage {
     }
   }
 
-  async createList(list: any) {
+  async createList(listData: any) {
     try {
-      console.log('Creating new list:', list);
-      const [newList] = await db.insert(schema.lists).values(list).returning();
-      console.log('New list created:', newList);
+      console.log('Creating new list with data:', JSON.stringify(listData, null, 2));
+      
+      // Ensure required fields are present
+      if (!listData.name) {
+        throw new Error('List name is required');
+      }
+
+      // Prepare list data with defaults
+      const listToCreate = {
+        name: listData.name,
+        description: listData.description || null,
+        requireDoubleOptIn: Boolean(listData.requireDoubleOptIn) || false,
+        sendWelcomeEmail: Boolean(listData.sendWelcomeEmail) || false,
+        tags: listData.tags || [],
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
+
+      console.log('Inserting list into database:', JSON.stringify(listToCreate, null, 2));
+      
+      const [newList] = await db.insert(schema.lists)
+        .values(listToCreate)
+        .returning();
+      
+      console.log('Successfully created list:', JSON.stringify(newList, null, 2));
       return newList;
     } catch (error) {
-      console.error('Error creating list:', error);
+      console.error('Error in createList:', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined,
+        listData: JSON.stringify(listData, null, 2)
+      });
       throw error;
     }
   }

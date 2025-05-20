@@ -177,6 +177,9 @@ export const lists = pgTable("lists", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
   description: text("description"),
+  requireDoubleOptIn: boolean("require_double_opt_in").default(false).notNull(),
+  sendWelcomeEmail: boolean("send_welcome_email").default(false).notNull(),
+  tags: text("tags").array(),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow()
 });
@@ -184,6 +187,9 @@ export const lists = pgTable("lists", {
 export const insertListSchema = createInsertSchema(lists).pick({
   name: true,
   description: true,
+  requireDoubleOptIn: true,
+  sendWelcomeEmail: true,
+  tags: true
 });
 
 export type InsertList = z.infer<typeof insertListSchema>;

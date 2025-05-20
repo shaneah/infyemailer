@@ -1,7 +1,21 @@
 import React, { useState } from "react";
-import { useQuery, useMutation } from "@tanstack/react-query";
-import { queryClient, apiRequest } from "@/lib/queryClient";
-import { useToast } from "@/hooks/use-toast";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/components/ui/use-toast";
+
+// Define the List interface
+interface List {
+  id: number;
+  name: string;
+  description?: string;
+  tags?: string[];
+  contactCount?: number;
+  engagementScore?: number;
+  updatedAt?: string;
+  requireDoubleOptIn: boolean;
+  sendWelcomeEmail: boolean;
+}
+
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -244,7 +258,7 @@ const ListCard: React.FC<{
           <div>
             <div className="text-xs text-gray-500 mb-1">Contacts</div>
             <div className="flex items-center gap-1">
-              <div className="text-lg font-semibold">{list.contactCount.toLocaleString()}</div>
+              <div className="text-lg font-semibold">{(list.contactCount || 0).toLocaleString()}</div>
               {list.growthRate > 0 && (
                 <Badge variant="outline" className="bg-green-100 text-green-800 border-green-300 text-xs">
                   +{list.growthRate}%
@@ -255,7 +269,7 @@ const ListCard: React.FC<{
           <div>
             <div className="text-xs text-gray-500 mb-1">Engagement</div>
             <div className="flex items-center gap-1">
-              <div className="text-lg font-semibold">{list.engagementScore}%</div>
+              <div className="text-lg font-semibold">{list.engagementScore || 0}%</div>
               {list.growthRate > 0 && (
                 <Badge variant="outline" className="bg-green-100 text-green-800 border-green-300 text-xs">
                   +{list.growthRate}%
@@ -268,11 +282,11 @@ const ListCard: React.FC<{
         <div className="text-xs text-gray-500 mb-2">
           <div className="flex items-center gap-1 mb-1">
             <Clock className="h-3 w-3" />
-            Last updated: {list.lastUpdated}
+            Last updated: {list.lastUpdated || 'Never'}
           </div>
           <div className="flex items-center gap-1">
             <Tag className="h-3 w-3" />
-            Last campaign: {list.lastCampaign}
+            Last campaign: {list.lastCampaign || 'None'}
           </div>
         </div>
       </CardContent>
@@ -299,7 +313,19 @@ const ListCard: React.FC<{
 };
 
 // Main component
-const ContactListsV2: React.FC = () => {
+interface List {
+  id: number;
+  name: string;
+  description?: string;
+  tags?: string[];
+  contactCount?: number;
+  engagementScore?: number;
+  updatedAt?: string;
+  requireDoubleOptIn: boolean;
+  sendWelcomeEmail: boolean;
+}
+
+export default function ContactListsV2() {
   // State management
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [searchQuery, setSearchQuery] = useState("");
@@ -307,11 +333,11 @@ const ContactListsV2: React.FC = () => {
   const [sortBy, setSortBy] = useState<string>("name");
   const [showCreateListDialog, setShowCreateListDialog] = useState(false);
   const [showFilterDialog, setShowFilterDialog] = useState(false);
-  const [currentList, setCurrentList] = useState<any>(null);
-  
+  const [currentList, setCurrentList] = useState<List | null>(null);
+
   // Toast notifications
   const { toast } = useToast();
-  
+
   // Form management
   const form = useForm<z.infer<typeof listFormSchema>>({
     resolver: zodResolver(listFormSchema),
@@ -322,84 +348,58 @@ const ContactListsV2: React.FC = () => {
     },
   });
   
-  // Mock list data - would be fetched from API in real implementation
-  const lists = [
-    {
-      id: 1,
-      name: "Newsletter Subscribers",
-      contactCount: 1240,
-      description: "All active newsletter subscribers",
-      lastUpdated: "3/15/2025",
-      tags: ["Active", "Newsletter"],
-      growthRate: 12.4,
-      openRate: 24.8,
-      clickRate: 3.2,
-      engagementScore: 83,
-      lastCampaign: "Monthly Update - March 2025"
-    },
-    {
-      id: 2,
-      name: "Product Launch Interests",
-      contactCount: 890,
-      description: "Contacts interested in our new product launch",
-      lastUpdated: "2/6/2025",
-      tags: ["Product Launch", "Marketing"],
-      growthRate: 6.7,
-      openRate: 32.5,
-      clickRate: 7.8,
-      engagementScore: 81,
-      lastCampaign: "Product Teaser - February 2025"
-    },
-    {
-      id: 3,
-      name: "VIP Customers",
-      contactCount: 156,
-      description: "High-value customers with premium status",
-      lastUpdated: "2/20/2025",
-      tags: ["VIP", "Customer"],
-      growthRate: 3.6,
-      openRate: 56.2,
-      clickRate: 12.5,
-      engagementScore: 94,
-      lastCampaign: "Exclusive Offer - February 2025"
-    },
-    {
-      id: 4,
-      name: "Webinar Attendees - March 2025",
-      contactCount: 435,
-      description: "People who registered for our March webinar",
-      lastUpdated: "3/5/2025",
-      tags: ["Event", "Webinar"],
-      growthRate: 0,
-      openRate: 38.4,
-      clickRate: 5.2,
-      engagementScore: 76,
-      lastCampaign: "Webinar Follow-up - March 2025"
+  // Fetch lists from API
+  const { data: lists = [], isLoading, error, refetch } = useQuery<List[], Error>({
+    queryKey: ['lists'],
+    queryFn: async () => {
+      const response = await apiRequest('GET', '/api/lists');
+      if (!response.ok) {
+        throw new Error('Failed to fetch lists');
+      }
+      return response.json();
     }
-  ];
+  });
+
+  // Handle query errors
+  React.useEffect(() => {
+    if (error) {
+      toast({
+        title: 'Error loading lists',
+        description: error.message,
+        variant: 'destructive',
+      });
+    }
+  }, [error, toast]);
   
+  // Initialize query client
+  const queryClient = useQueryClient();
+
   // Create list mutation
   const createListMutation = useMutation({
     mutationFn: async (listData: any) => {
-      // This would be a real API call in production
-      console.log("Creating list:", listData);
-      // Simulate API request
-      return { ...listData, id: Math.floor(Math.random() * 1000) };
+      const response = await apiRequest('POST', '/api/lists', listData);
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to create list');
+      }
+      return response.json();
     },
     onSuccess: () => {
-      // This would invalidate the query cache in production
+      // Invalidate and refetch lists query
+      queryClient.invalidateQueries({ queryKey: ['lists'] });
       toast({
-        title: "List created",
-        description: "New list has been successfully created.",
+        title: 'List created',
+        description: 'New list has been successfully created.',
+        variant: 'default',
       });
       setShowCreateListDialog(false);
       form.reset();
     },
     onError: (error: any) => {
       toast({
-        title: "Error",
-        description: error.message || "Failed to create list.",
-        variant: "destructive",
+        title: 'Error',
+        description: error.message || 'Failed to create list.',
+        variant: 'destructive',
       });
     },
   });
@@ -407,15 +407,19 @@ const ContactListsV2: React.FC = () => {
   // Update list mutation
   const updateListMutation = useMutation({
     mutationFn: async ({ id, data }: { id: number; data: any }) => {
-      // This would be a real API call in production
-      console.log("Updating list:", id, data);
-      // Simulate API request
-      return { ...data, id };
+      const response = await apiRequest('PUT', `/api/lists/${id}`, data);
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to update list');
+      }
+      return response.json();
     },
     onSuccess: () => {
+      // Invalidate and refetch lists query
+      queryClient.invalidateQueries({ queryKey: ['lists'] });
       toast({
-        title: "List updated",
-        description: "List has been successfully updated.",
+        title: 'List updated',
+        description: 'List has been successfully updated.',
       });
       setShowCreateListDialog(false);
       setCurrentList(null);
@@ -423,15 +427,15 @@ const ContactListsV2: React.FC = () => {
     },
     onError: (error: any) => {
       toast({
-        title: "Error",
-        description: error.message || "Failed to update list.",
-        variant: "destructive",
+        title: 'Error',
+        description: error.message || 'Failed to update list.',
+        variant: 'destructive',
       });
     },
   });
   
   // Filter lists based on search query and tag
-  const filteredLists = lists.filter((list) => {
+  const filteredLists = lists.filter((list: any) => {
     const matchesSearch = 
       searchQuery === "" ||
       list.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -445,17 +449,16 @@ const ContactListsV2: React.FC = () => {
   });
   
   // Sort lists based on sort by selection
-  const sortedLists = [...filteredLists].sort((a, b) => {
+  const sortedLists = [...filteredLists].sort((a: any, b: any) => {
     if (sortBy === "name") {
       return a.name.localeCompare(b.name);
     } else if (sortBy === "contacts") {
-      return b.contactCount - a.contactCount;
+      return (b.contactCount || 0) - (a.contactCount || 0);
     } else if (sortBy === "engagement") {
-      return b.engagementScore - a.engagementScore;
+      return (b.engagementScore || 0) - (a.engagementScore || 0);
     } else if (sortBy === "date") {
-      // Assuming lastUpdated is a date string in MM/DD/YYYY format
-      const dateA = new Date(a.lastUpdated);
-      const dateB = new Date(b.lastUpdated);
+      const dateA = a.updatedAt ? new Date(a.updatedAt) : new Date(0);
+      const dateB = b.updatedAt ? new Date(b.updatedAt) : new Date(0);
       return dateB.getTime() - dateA.getTime();
     }
     return 0;
@@ -895,7 +898,8 @@ const ContactListsV2: React.FC = () => {
                   // Reset filter logic would go here
                   toast({
                     title: "Filters cleared",
-                    description: "All filters have been reset to default values."
+                    description: "All filters have been reset to default values.",
+                    variant: "default"
                   });
                 }}
               >
@@ -906,7 +910,8 @@ const ContactListsV2: React.FC = () => {
                   // Apply filter logic would go here
                   toast({
                     title: "Filters applied",
-                    description: "The list has been filtered according to your criteria."
+                    description: "The list has been filtered according to your criteria.",
+                    variant: "default"
                   });
                   setShowFilterDialog(false);
                 }}
@@ -919,6 +924,4 @@ const ContactListsV2: React.FC = () => {
       </Dialog>
     </div>
   );
-};
-
-export default ContactListsV2;
+}

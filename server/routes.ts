@@ -1410,16 +1410,64 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Create a new list
   app.post('/api/lists', async (req: Request, res: Response) => {
+    console.log('Received list creation request:', JSON.stringify(req.body, null, 2));
+    
+    // Initial validation
     const validatedData = validate(insertListSchema, req.body);
     if ('error' in validatedData) {
-      return res.status(400).json({ error: validatedData.error });
+      console.error('Validation error:', validatedData.error);
+      return res.status(400).json({ 
+        error: 'Validation failed',
+        details: validatedData.error 
+      });
     }
 
     try {
-      const list = await storage.createList(validatedData);
-      res.status(201).json(list);
-    } catch (error) {
-      res.status(500).json({ error: 'Failed to create list' });
+      // Prepare list data with defaults
+      const listData = {
+        name: validatedData.name,
+        description: validatedData.description || null,
+        requireDoubleOptIn: Boolean(validatedData.requireDoubleOptIn) || false,
+        sendWelcomeEmail: Boolean(validatedData.sendWelcomeEmail) || false,
+        tags: Array.isArray(validatedData.tags) ? validatedData.tags : [],
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
+
+      console.log('Creating list with data:', JSON.stringify(listData, null, 2));
+      
+      const list = await storage.createList(listData);
+      
+      console.log('Successfully created list:', JSON.stringify(list, null, 2));
+      
+      // Get the full list with all fields to return to the client
+      const createdList = await storage.getList(list.id);
+      if (!createdList) {
+        throw new Error('Failed to retrieve created list');
+      }
+      
+      res.status(201).json(createdList);
+    } catch (error: any) {
+      console.error('Error in list creation:', {
+        error: error?.message || 'Unknown error',
+        stack: error?.stack,
+        requestBody: req.body
+      });
+      
+      const statusCode = error.message?.includes('duplicate') ? 409 : 500;
+      const errorMessage = statusCode === 409 
+        ? 'A list with this name already exists'
+        : 'Failed to create list';
+        
+      res.status(statusCode).json({ 
+        error: errorMessage,
+        details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      });
+      console.error('Error creating list:', error);
+      res.status(500).json({ 
+        error: 'Failed to create list',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
     }
   });
 

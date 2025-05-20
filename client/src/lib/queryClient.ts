@@ -22,24 +22,39 @@ async function throwIfResNotOk(res: Response) {
   }
 }
 
+// Base URL for API requests
+const API_BASE_URL = 'http://localhost:5000';
+
 export async function apiRequest(
   method: string,
   url: string,
   body?: any,
   options?: RequestInit,
 ): Promise<Response> {
-  const res = await fetch(url, {
-    method,
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: body ? JSON.stringify(body) : undefined,
-    ...options,
-    credentials: "include",
-  });
+  // Ensure URL starts with a slash
+  const apiUrl = url.startsWith('/') ? `${API_BASE_URL}${url}` : `${API_BASE_URL}/${url}`;
+  
+  console.log(`API Request [${method}]:`, apiUrl, body);
+  
+  try {
+    const res = await fetch(apiUrl, {
+      method,
+      headers: {
+        'Content-Type': 'application/json',
+        ...(options?.headers || {}),
+      },
+      body: body ? JSON.stringify(body) : undefined,
+      ...options,
+      credentials: 'include',
+    });
 
-  await throwIfResNotOk(res);
-  return res;
+    console.log(`API Response [${res.status}]:`, res);
+    await throwIfResNotOk(res);
+    return res;
+  } catch (error) {
+    console.error('API Request Error:', error);
+    throw error;
+  }
 }
 
 type UnauthorizedBehavior = "returnNull" | "throw";
