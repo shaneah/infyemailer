@@ -1006,7 +1006,7 @@ export class DbStorage implements IStorage {
   async createCampaignVariant(variant: schema.InsertCampaignVariant): Promise<schema.CampaignVariant> {
     try {
       const [newVariant] = await safeDbOperation(
-        db.insert(schema.campaignVariants).values(variant).returning(),
+        () => db.insert(schema.campaignVariants).values(variant).returning(),
         []
       );
       
@@ -1112,7 +1112,7 @@ export class DbStorage implements IStorage {
   async getAbTestCampaigns(): Promise<schema.Campaign[]> {
     try {
       const campaigns = await safeDbOperation(
-        db.select()
+        () => db.select()
           .from(schema.campaigns)
           .where(eq(schema.campaigns.isAbTest, true)),
         []
