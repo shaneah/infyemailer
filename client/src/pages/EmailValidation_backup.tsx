@@ -1144,8 +1144,9 @@ const EmailValidation = () => {
           </Card>
         </TabsContent>
       </Tabs>
-    </div>
-  );
+    </motion.div>
+  </div>
+);
 };
 
 export default EmailValidation;

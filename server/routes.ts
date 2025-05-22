@@ -2956,11 +2956,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Get the associated client for this user
-      const client = await storage.getClient(clientUser.clientId);
+      const client = await storage.getClient(clientUser.client_id);
       console.log(`getClient returned:`, client);
       
       if (!client) {
-        console.log(`Client account not found for user: ${username}, client ID: ${clientUser.clientId}`);
+        console.log(`Client account not found for user: ${username}, client ID: ${clientUser.client_id}`);
         return res.status(500).json({ error: 'Client account not found' });
       }
       

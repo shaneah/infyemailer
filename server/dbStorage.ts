@@ -12,6 +12,98 @@ export class DbStorage implements IStorage {
   constructor() {
     log('Database storage initialized', 'db-storage');
   }
+
+  // Permission Management Methods
+  async getRoles(): Promise<any[]> {
+    try {
+      const roles = await db.select().from(schema.roles);
+      return roles;
+    } catch (error) {
+      console.error('Error getting roles:', error);
+      return [];
+    }
+  }
+
+  async getRolePermissions(): Promise<any[]> {
+    try {
+      const rolePermissions = await db.select().from(schema.rolePermissions);
+      return rolePermissions;
+    } catch (error) {
+      console.error('Error getting role permissions:', error);
+      return [];
+    }
+  }
+
+  // Role Management Method
+  async assignPermissionToRole(roleId: number, permissionId: number): Promise<schema.RolePermission> {
+    try {
+      // Check if assignment already exists
+      const [existingAssignment] = await db.select().from(schema.rolePermissions)
+        .where(and(eq(schema.rolePermissions.roleId, roleId), eq(schema.rolePermissions.permissionId, permissionId)));
+      if (existingAssignment) {
+        return existingAssignment;
+      }
+      // Insert new role-permission assignment
+      const [newAssignment] = await db
+        .insert(schema.rolePermissions)
+        .values({
+          roleId,
+          permissionId,
+          createdAt: new Date()
+        })
+        .returning();
+      return newAssignment;
+    } catch (error) {
+      console.error('Error assigning permission to role:', error);
+      throw error;
+    }
+  }
+
+  async getRole(id: number): Promise<schema.Role | undefined> {
+    try {
+      const [role] = await db.select().from(schema.roles).where(eq(schema.roles.id, id));
+      return role;
+    } catch (error) {
+      console.error('Error getting role:', error);
+      return undefined;
+    }
+  }
+
+  async createRole(role: Omit<schema.InsertRole, 'id'>): Promise<schema.Role> {
+    try {
+      const [newRole] = await db
+        .insert(schema.roles)
+        .values({
+          ...role,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        })
+        .returning();
+      return newRole;
+    } catch (error) {
+      console.error('Error creating role:', error);
+      throw error;
+    }
+  }
+
+  async getPermissions(): Promise<schema.Permission[]> {
+    try {
+      return await db.select().from(schema.permissions).orderBy(desc(schema.permissions.createdAt));
+    } catch (error) {
+      console.error('Error getting permissions:', error);
+      return [];
+    }
+  }
+
+  async getPermission(id: number): Promise<schema.Permission | undefined> {
+    try {
+      const [permission] = await db.select().from(schema.permissions).where(eq(schema.permissions.id, id));
+      return permission;
+    } catch (error) {
+      console.error('Error getting permission:', error);
+      return undefined;
+    }
+  }
   
   // Data migration - initializes database with data from file storage
   async initializeWithSampleData(): Promise<boolean> {
@@ -170,24 +262,27 @@ export class DbStorage implements IStorage {
 
   async getClientUserByUsername(username: string) {
     try {
-      console.log(`DB lookup for client user with username: ${username}`);
-      
-      // Direct SQL query for troubleshooting
+      const trimmedUsername = username.trim();
+      console.log(`[getClientUserByUsername] Looking up username: '${trimmedUsername}' (original: '${username}')`);
+
+      // Case-insensitive, trimmed username lookup
       const directResult = await db.execute(
-        sql`SELECT * FROM client_users WHERE username = ${username}`
+        sql`SELECT * FROM client_users WHERE LOWER(username) = LOWER(${trimmedUsername})`
       );
-      console.log('Direct SQL query result:', directResult);
-      
-      if (directResult && directResult.length > 0) {
-        const user = directResult[0];
-        console.log(`Found user via direct SQL:`, user);
+      console.log('[getClientUserByUsername] Direct SQL query result:', directResult);
+
+      // Some drivers return .rows, others return array directly
+      const rows = Array.isArray(directResult) ? directResult : (directResult.rows || []);
+      if (rows.length > 0) {
+        const user = rows[0];
+        console.log('[getClientUserByUsername] Found user via direct SQL:', user);
         return user;
       }
-      
-      console.log('User not found via direct SQL query');
+
+      console.log('[getClientUserByUsername] User not found via direct SQL query');
       return undefined;
     } catch (error) {
-      console.error('Error getting client user by username:', error);
+      console.error('[getClientUserByUsername] Error getting client user by username:', error);
       return undefined;
     }
   }
@@ -349,9 +444,21 @@ export class DbStorage implements IStorage {
   }
 
   // Admin user methods
+  async getUserRoles(): Promise<any[]> {
+    try {
+      const userRoles = await db.select().from(schema.userRoles);
+      return userRoles;
+    } catch (error) {
+      console.error('Error getting user roles:', error);
+      return [];
+    }
+  }
+
   async getUser(id: number) {
     try {
+      console.log('[DbStorage.getUser] Looking up user by id:', id);
       const [user] = await db.select().from(schema.users).where(eq(schema.users.id, id));
+      console.log('[DbStorage.getUser] Result:', user);
       return user;
     } catch (error) {
       console.error('Error getting user:', error);
@@ -365,6 +472,16 @@ export class DbStorage implements IStorage {
       return user;
     } catch (error) {
       console.error('Error getting user by username:', error);
+      return undefined;
+    }
+  }
+
+  async getUserByEmail(email: string) {
+    try {
+      const [user] = await db.select().from(schema.users).where(eq(schema.users.email, email));
+      return user;
+    } catch (error) {
+      console.error('Error getting user by email:', error);
       return undefined;
     }
   }

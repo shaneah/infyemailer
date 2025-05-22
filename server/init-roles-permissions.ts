@@ -1,11 +1,11 @@
-import { storage } from "./storage";
+import { getStorage } from "./storageManager";
 
 export async function initializeRolesAndPermissions() {
   try {
     console.log("Starting initialization of default roles and permissions...");
     
     // Check if permissions already exist
-    const existingPermissions = await storage.getPermissions();
+    const existingPermissions = await getStorage().getPermissions();
     if (existingPermissions.length > 0) {
       console.log("Permissions already exist, skipping initialization.");
       return;
@@ -79,7 +79,7 @@ export async function initializeRolesAndPermissions() {
     // Create all permissions
     console.log("Creating default permissions...");
     for (const permData of defaultPermissions) {
-      await storage.createPermission({
+      await getStorage().createPermission({
         name: permData.name,
         category: permData.category,
         action: permData.action,
@@ -116,7 +116,7 @@ export async function initializeRolesAndPermissions() {
     console.log("Creating default roles...");
     const createdRoles = [];
     for (const roleData of defaultRoles) {
-      const role = await storage.createRole({
+      const role = await getStorage().createRole({
         name: roleData.name,
         description: roleData.description,
         isSystem: true
@@ -129,13 +129,13 @@ export async function initializeRolesAndPermissions() {
     console.log("Assigning permissions to roles...");
     
     // Get all created permissions
-    const allPermissions = await storage.getPermissions();
+    const allPermissions = await getStorage().getPermissions();
     
     // Administrator - gets all permissions
     const adminRole = createdRoles.find(r => r.name === "Administrator");
     if (adminRole) {
       for (const permission of allPermissions) {
-        await storage.assignPermissionToRole(adminRole.id, permission.id);
+        await getStorage().assignPermissionToRole(adminRole.id, permission.id);
       }
       console.log(`Assigned all permissions to Administrator role.`);
     }
@@ -151,7 +151,7 @@ export async function initializeRolesAndPermissions() {
       );
       
       for (const permission of emailManagerPermissions) {
-        await storage.assignPermissionToRole(emailManagerRole.id, permission.id);
+        await getStorage().assignPermissionToRole(emailManagerRole.id, permission.id);
       }
       console.log(`Assigned ${emailManagerPermissions.length} permissions to Email Manager role.`);
     }
@@ -166,7 +166,7 @@ export async function initializeRolesAndPermissions() {
       );
       
       for (const permission of contactManagerPermissions) {
-        await storage.assignPermissionToRole(contactManagerRole.id, permission.id);
+        await getStorage().assignPermissionToRole(contactManagerRole.id, permission.id);
       }
       console.log(`Assigned ${contactManagerPermissions.length} permissions to Contact Manager role.`);
     }
@@ -179,7 +179,7 @@ export async function initializeRolesAndPermissions() {
       );
       
       for (const permission of clientManagerPermissions) {
-        await storage.assignPermissionToRole(clientManagerRole.id, permission.id);
+        await getStorage().assignPermissionToRole(clientManagerRole.id, permission.id);
       }
       console.log(`Assigned ${clientManagerPermissions.length} permissions to Client Manager role.`);
     }
@@ -192,16 +192,16 @@ export async function initializeRolesAndPermissions() {
       );
       
       for (const permission of viewerPermissions) {
-        await storage.assignPermissionToRole(viewerRole.id, permission.id);
+        await getStorage().assignPermissionToRole(viewerRole.id, permission.id);
       }
       console.log(`Assigned ${viewerPermissions.length} permissions to Viewer role.`);
     }
     
     // Assign admin role to existing users
-    const users = await storage.getUsers();
+    const users = await getStorage().getUsers();
     for (const user of users) {
       if (adminRole) {
-        await storage.assignRoleToUser(user.id, adminRole.id);
+        await getStorage().assignRoleToUser(user.id, adminRole.id);
         console.log(`Assigned Administrator role to user ${user.username}`);
       }
     }

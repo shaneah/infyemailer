@@ -31,6 +31,10 @@ export async function updateStorageReferences(): Promise<void> {
     // Use the imported storage object directly and modify its properties
     const storageModule = await import('./storage.js');
     
+    if (typeof storageModule.storage === 'undefined') {
+      log('No storage export found in storage.ts. Skipping updateStorageReferences.', 'storage');
+      return Promise.resolve();
+    }
     if (isDatabaseAvailable) {
       // We can't reassign the exported const, but we can copy all properties
       // from dbStorage to the existing storage object

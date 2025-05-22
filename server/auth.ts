@@ -4,7 +4,7 @@ import { Express, Request, Response, NextFunction } from "express";
 import session from "express-session";
 import { scrypt, randomBytes, timingSafeEqual } from "crypto";
 import { promisify } from "util";
-import { storage } from "./storage";
+import { getStorage } from "./storageManager";
 import memorystore from "memorystore";
 import { pool, isDatabaseAvailable } from "./db";
 import connectPgSimple from "connect-pg-simple";
@@ -109,9 +109,9 @@ export function setupAuth(app: Express) {
           console.log(`Login attempt for: ${usernameOrEmail}`);
           
           // Try getting user by username first, then by email if not found
-          let user = await storage.getUserByUsername(usernameOrEmail);
+          let user = await getStorage().getUserByUsername(usernameOrEmail);
           if (!user) {
-            user = await storage.getUserByEmail(usernameOrEmail);
+            user = await getStorage().getUserByEmail(usernameOrEmail);
           }
           
           if (!user) {
@@ -142,25 +142,31 @@ export function setupAuth(app: Express) {
     ),
   );
 
-  passport.serializeUser((user, done) => done(null, user.id));
-  passport.deserializeUser(async (id: number, done) => {
+  passport.serializeUser((user, done) => {
+    console.log('Serializing user:', user?.id, user?.username);
+    done(null, user.id);
+  });
+  passport.deserializeUser(async (id: number | string, done) => {
+    console.log('Deserializing user with id:', id);
     try {
-      const user = await storage.getUser(id);
+      const user = await getStorage().getUser(Number(id));
+      console.log('Deserialized user found:', user);
       done(null, user);
     } catch (error) {
+      console.error('Error in deserializeUser:', error);
       done(error);
     }
   });
 
   app.post("/api/register", async (req, res, next) => {
     try {
-      const existingUser = await storage.getUserByUsername(req.body.username);
+      const existingUser = await getStorage().getUserByUsername(req.body.username);
       
       if (existingUser) {
         return res.status(400).json({ message: "Username already exists" });
       }
 
-      const user = await storage.createUser({
+      const user = await getStorage().createUser({
         ...req.body,
         password: await hashPassword(req.body.password),
         role: req.body.role || 'user', // Default to user role if not specified

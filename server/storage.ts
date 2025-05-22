@@ -2926,10 +2926,7 @@ export class MemStorage implements IStorage {
   }
 }
 
-// Create an instance of MemStorage for in-memory storage
-const memStorage = new MemStorage();
-
 // Use dynamic storage selection based on database availability
-// Initialize with memory storage, but allow dynamic switching through storageManager
-// This avoids circular dependency issues
-export const storage = memStorage;
+// NOTE: Do not export a storage instance here. Always use getStorage() from storageManager after DB init.
+import { getStorage } from './storageManager';
+// No direct export of storage instance. Use getStorage() after DB is ready.
