@@ -44,6 +44,7 @@ import { registerHealthRoutes } from "./routes/health";
 import { registerEmailSettingsRoutes } from "./routes/emailSettings";
 import { registerAdvancedAnalyticsRoutes } from "./routes/advanced-analytics-routes";
 import AdmZip from "adm-zip";
+import campaignsRouter from "./routes/campaigns";
 import { 
   insertContactSchema, 
   insertListSchema, 
@@ -485,7 +486,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!campaign) {
         return res.status(404).json({ error: 'Campaign not found' });
       }
-      res.json(campaign);
+      const metadata = campaign.metadata as any || {};
+      let metrics = [];
+      try {
+        metrics = await db.select()
+          .from(engagementMetrics)
+          .where(eq(engagementMetrics.campaignId, campaign.id))
+          .orderBy(desc(engagementMetrics.date))
+          .limit(1);
+      } catch (metricsError) {
+        console.log(`Metrics query failed: ${metricsError.message}`);
+      }
+      let openRate = 0;
+      let clickRate = 0;
+      if (metrics && metrics.length > 0) {
+        const uniqueOpens = metrics[0].uniqueOpens || 0;
+        const uniqueClicks = metrics[0].uniqueClicks || 0;
+        const recipients = metadata.recipients || 0;
+        openRate = recipients > 0 ? (uniqueOpens / recipients) * 100 : 0;
+        clickRate = uniqueOpens > 0 ? (uniqueClicks / uniqueOpens) * 100 : 0;
+      } else {
+        openRate = metadata.openRate || 0;
+        clickRate = metadata.clickRate || 0;
+      }
+      const formattedCampaign = {
+        id: campaign.id,
+        name: campaign.name,
+        subtitle: metadata.subtitle || '',
+        icon: metadata.icon || { name: 'envelope', color: 'primary' },
+        status: {
+          label: campaign.status.charAt(0).toUpperCase() + campaign.status.slice(1),
+          color: campaign.status === 'sent' ? 'success' : 
+                 campaign.status === 'scheduled' ? 'warning' : 
+                 campaign.status === 'active' ? 'primary' : 'secondary'
+        },
+        recipients: metadata.recipients || 0,
+        openRate: openRate,
+        clickRate: clickRate,
+        date: metadata.date || (campaign.scheduledAt ? new Date(campaign.scheduledAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A')
+      };
+      res.json(formattedCampaign);
     } catch (error) {
       res.status(500).json({ error: 'Failed to fetch campaign' });
     }
@@ -5348,171 +5388,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
               }
             });
           });
-        } else {
-          // Default fallback - just use the template content directly
-          templateHtml = template.content;
-        }
-      } catch (e) {
-        // If parsing as JSON fails, assume it's already HTML
-        console.log('Template content is not JSON, using directly:', e);
+      } else {
+        // Default fallback - just use the template content directly
         templateHtml = template.content;
       }
-      
-      // Return the template HTML as a standalone page
-      const html = `
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <meta charset="utf-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1">
-          <title>${template.name} - Preview</title>
-          <style>
-            body {
-              margin: 0;
-              padding: 0;
-              font-family: Arial, sans-serif;
-            }
-            
-            .preview-header {
-              background-color: #f5f5f5;
-              padding: 10px 20px;
-              border-bottom: 1px solid #ddd;
-              display: flex;
-              justify-content: space-between;
-              align-items: center;
-            }
-            
-            .preview-header h2 {
-              margin: 0;
-              font-size: 18px;
-              color: #333;
-            }
-            
-            .preview-header .actions {
-              display: flex;
-              gap: 10px;
-            }
-            
-            .preview-header button {
-              padding: 8px 16px;
-              font-weight: 500;
-              cursor: pointer;
-              font-size: 14px;
-              border-radius: 4px;
-              transition: all 0.2s ease;
-            }
-            
-            .preview-header button:first-child {
-              background-color: #3b82f6;
-              color: white;
-              border: 1px solid #2563eb;
-            }
-            
-            .preview-header button:first-child:hover {
-              background-color: #2563eb;
-            }
-            
-            .preview-header button:last-child {
-              background-color: #f0f0f0;
-              border: 1px solid #ddd;
-            }
-            
-            .preview-header button:last-child:hover {
-              background-color: #e0e0e0;
-            }
-            
-            .template-container {
-              padding: 20px;
-              max-width: 100%;
-              overflow: auto;
-            }
-            
-            /* Print styles */
-            @media print {
-              .preview-header {
-                display: none;
-              }
-              
-              .template-container {
-                padding: 0;
-                max-width: none;
-              }
-              
-              body {
-                margin: 0;
-                padding: 0;
-              }
-              
-              @page {
-                margin: 0.5cm;
-              }
-            }
-          </style>
-        </head>
-        <body>
-          <div class="preview-header">
-            <h2>${template.name}</h2>
-            <div class="actions">
-              <button onclick="window.print()">Save as PDF</button>
-              <button onclick="window.close()">Close Preview</button>
-            </div>
-          </div>
-          <div class="template-container">
-            ${templateHtml}
-          </div>
-        </body>
-        </html>
-      `;
-      
-      res.send(html);
     } catch (error) {
-      console.error('Error previewing template:', error);
-      res.status(500).send('Error displaying template preview');
+      console.error('Error parsing template content:', error);
+      templateHtml = template.content;
     }
-  });
-  
-  // Image upload endpoint for the template builder
-  app.post('/api/upload/image', (req, res) => {
-    try {
-      // Check if a file was uploaded
-      if (!req.files || !req.files.image) {
-        return res.status(400).json({ error: 'No image was uploaded' });
-      }
-      
-      // Get the uploaded file
-      const uploadedFile = req.files.image as UploadedFile;
-      
-      // Validate the file is an image
-      const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
-      if (!allowedMimeTypes.includes(uploadedFile.mimetype)) {
-        return res.status(400).json({ 
-          error: 'Invalid file type. Please upload an image (JPEG, PNG, GIF, WEBP, or SVG).' 
-        });
-      }
-      
-      // Convert image to base64 format
-      const base64Image = `data:${uploadedFile.mimetype};base64,${uploadedFile.data.toString('base64')}`;
-      
-      // Return the base64 encoded image
-      res.status(200).json({
-        success: true,
-        imageUrl: base64Image,
-        originalName: uploadedFile.name,
-        size: uploadedFile.size,
-        mimetype: uploadedFile.mimetype
-      });
-    } catch (error) {
-      console.error('Error uploading image:', error);
-      res.status(500).json({ error: 'An error occurred while uploading the image.' });
-    }
-  });
+  } catch (error) {
+    console.error('Error previewing template:', error);
+    res.status(500).send('Error previewing template');
+  }
+});
 
   // Client-specific template routes section
   // Note: These routes are already defined earlier in the file at around line 1360
 
   // Create a new client template route
-  // This route is also defined earlier in the file
-  // Removing duplicate implementation
-
-  return httpServer;
 }
+      
+// Return the template HTML as a standalone page
+// End of registerRoutes

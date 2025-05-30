@@ -16,6 +16,8 @@ import { ThemeProvider } from "@/contexts/ThemeContext";
 import { ClientSessionProvider } from "@/hooks/use-client-session";
 import ThemeSwitcher from "@/components/ThemeSwitcher";
 import CampaignsV2 from "@/pages/CampaignsV2";
+import CampaignDetails from "@/pages/CampaignDetails";
+import EditCampaign from "@/pages/EditCampaign";
 import TemplatesV2 from "@/pages/TemplatesV2";
 import Contacts from "@/pages/Contacts";
 import ContactsV2 from "@/pages/ContactsV2";
@@ -198,7 +200,14 @@ function App() {
             <Toaster />
           </div>
         </Route>
-        <Route path="client-settings">
+        <Route path="/campaigns/:id">
+  <CampaignDetails />
+</Route>
+<Route path="/campaigns/:id/edit">
+  <EditCampaign />
+</Route>
+
+<Route path="client-settings">
           <div className="bg-background min-h-screen">
             <ClientRoutes />
             <Toaster />
