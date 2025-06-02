@@ -692,15 +692,20 @@ export default function Templates() {
                         <Share2 className="h-4 w-4 mr-1.5 text-blue-600" />
                         Share
                       </Button>
-                      <Link 
-                        href={`/template-builder?id=${template.id}`}
-                        onClick={(e) => e.stopPropagation()}
+                      <Button 
+                        variant="secondary" 
+                        size="sm" 
+                        className="shadow-md bg-white/90 backdrop-blur-sm hover:bg-white"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          console.log('Edit button clicked for template:', template.id);
+                          // Use query parameter approach for more reliable template ID passing
+                          window.location.href = `/template-builder?id=${template.id}`;
+                        }}
                       >
-                        <Button variant="secondary" size="sm" className="shadow-md bg-white/90 backdrop-blur-sm hover:bg-white">
-                          <Pencil className="h-4 w-4 mr-1.5 text-blue-600" />
-                          Edit
-                        </Button>
-                      </Link>
+                        <Pencil className="h-4 w-4 mr-1.5 text-blue-600" />
+                        Edit
+                      </Button>
                     </div>
                   </div>
 
@@ -859,7 +864,9 @@ export default function Templates() {
                           className="w-full md:w-auto h-9 text-sm px-3 border-blue-200 text-blue-700 hover:bg-blue-50"
                           onClick={(e) => {
                             e.stopPropagation();
-                            navigate(`/template-builder/${template.id}`);
+                            console.log('List view edit button clicked for template:', template.id);
+                            // Use query parameter approach for more reliable template ID passing
+                            window.location.href = `/template-builder?id=${template.id}`;
                           }}
                         >
                           <Pencil className="h-4 w-4 mr-1.5" />
@@ -1011,7 +1018,7 @@ export default function Templates() {
                       Preview Template
                     </Button>
                     
-                    <Link href={`/template-builder?id=${selectedTemplate.id}`} className="w-full">
+                    <Link href={`/template-builder/${selectedTemplate.id}`} className="w-full">
                       <Button className="w-full justify-start gap-2">
                         <Pencil className="h-4 w-4" />
                         Edit Template

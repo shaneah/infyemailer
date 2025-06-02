@@ -41,7 +41,26 @@ export default function TemplateBuilder() {
   const { toast } = useToast();
   const params = useParams();
   const [location, navigate] = useLocation();
-  const entityId = params.id;
+  
+  // Extract the template ID from query parameters (new approach)
+  const searchParams = new URLSearchParams(window.location.search);
+  const queryTemplateId = searchParams.get('id');
+  
+  // Also get ID from URL parameters as fallback (old approach)
+  const pathTemplateId = params.id;
+  
+  // Use query parameter ID first, then fall back to path ID
+  const entityId = queryTemplateId || pathTemplateId;
+  
+  // Log debugging information
+  console.log('TemplateBuilder - Template ID Check:', {
+    url: window.location.href,
+    queryParams: window.location.search,
+    queryTemplateId,
+    pathTemplateId,
+    finalTemplateId: entityId,
+    isEditMode: !!entityId
+  });
   
   // State for template information
   const [templateName, setTemplateName] = useState("New Email Template");
@@ -55,6 +74,7 @@ export default function TemplateBuilder() {
   const [isHtmlCodeVisible, setIsHtmlCodeVisible] = useState(false);
   
   // State for blocks management
+  const [emailSections, setEmailSections] = useState<any[]>([]);
   const [selectedBlockIndex, setSelectedBlockIndex] = useState<number | null>(null);
   const [activeSidebar, setActiveSidebar] = useState<'blocks' | 'appearance' | 'content'>('blocks');
   const [activeNavTab, setActiveNavTab] = useState<'visual' | 'code'>('visual');
@@ -63,13 +83,34 @@ export default function TemplateBuilder() {
   const { data: template, isLoading: isTemplateLoading } = useQuery({
     queryKey: [`/api/templates/${entityId}`],
     queryFn: async () => {
-      if (!entityId) return null;
+      console.log('Attempting to fetch template with ID:', entityId);
+      if (!entityId) {
+        console.log('No entityId provided, skipping fetch');
+        return null;
+      }
       try {
-        const response = await fetch(`/api/templates/${entityId}`);
+        // Ensure the URL is correctly formed
+        const url = `/api/templates/${entityId}`;
+        console.log('Fetching from URL:', url);
+        
+        const response = await fetch(url, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Cache-Control': 'no-cache'
+          }
+        });
+        
+        console.log('Fetch response status:', response.status);
+        
         if (!response.ok) {
-          throw new Error('Failed to fetch template');
+          console.error('API response not OK:', response.status, response.statusText);
+          throw new Error(`Failed to fetch template: ${response.status} ${response.statusText}`);
         }
-        return response.json();
+        
+        const data = await response.json();
+        console.log('Template data fetched successfully:', data);
+        return data;
       } catch (error) {
         console.error("Error fetching template:", error);
         toast({
@@ -83,10 +124,37 @@ export default function TemplateBuilder() {
     enabled: !!entityId,
   });
 
-  // Set edit mode when template is loaded
+  // Set edit mode and initialize form fields when template is loaded
   useEffect(() => {
     if (template) {
       setIsEditMode(true);
+      
+      // Initialize form fields with template data
+      setTemplateName(template.name || "Untitled Template");
+      setTemplateSubject(template.subject || "Your Email Subject");
+      
+      // If template has HTML content, set it
+      if (template.content) {
+        try {
+          // Try to parse as JSON first (for structured templates)
+          const parsed = JSON.parse(template.content);
+          // Defensive: Only set if sections exist and are array
+          if (parsed.sections && Array.isArray(parsed.sections)) {
+            setEmailSections(parsed.sections);
+          } else {
+            setEmailSections([]);
+          }
+        } catch (err) {
+          // If it's not valid JSON, it might be raw HTML content
+          setHtmlCode(template.content);
+          setActiveNavTab('code'); // Switch to code view for HTML templates
+          setEmailSections([]);
+        }
+      } else {
+        setEmailSections([]);
+      }
+      
+      console.log("Template loaded for editing:", template);
     }
   }, [template]);
 
@@ -193,7 +261,12 @@ export default function TemplateBuilder() {
   // Handle template save
   const handleSaveTemplate = (templateData: any, htmlContent: string) => {
     setHtmlCode(htmlContent);
-    saveTemplateMutation.mutate({ templateData, htmlContent });
+    // Always update templateData.sections with the latest emailSections
+    const updatedTemplateData = {
+      ...templateData,
+      sections: emailSections
+    };
+    saveTemplateMutation.mutate({ templateData: updatedTemplateData, htmlContent });
   };
 
   // Handle back button click

@@ -19,92 +19,43 @@ export default function BasicTemplateBuilder({ isClientPortal = false }: BasicTe
   const { toast } = useToast();
   const params = useParams();
   const [location, navigate] = useLocation();
+  const templateId = params.id; // Get template ID from URL params
   
-  // Extract the template ID from query parameters (new approach)
+  // Get the mode from URL if it exists
   const searchParams = new URLSearchParams(window.location.search);
-  const queryTemplateId = searchParams.get('id');
-  
-  // Also get ID from URL parameters as fallback (old approach)
-  const pathTemplateId = params.id;
-  
-  // Use query parameter ID first, then fall back to path ID
-  const templateId = queryTemplateId || pathTemplateId;
-  
-  // Determine if we're in edit mode based on whether we have a template ID
-  const isEditModeFromUrl = !!templateId;
-  
-  // Log debugging information
-  console.log('BasicTemplateBuilder - Template ID Check:', {
-    url: window.location.href,
-    queryParams: window.location.search,
-    queryTemplateId,
-    pathTemplateId,
-    finalTemplateId: templateId,
-    isEditMode: isEditModeFromUrl
-  });
-  
-  if (templateId) {
-    console.log(`BasicTemplateBuilder - Edit mode detected with template ID: ${templateId}`);
-  } else {
-    console.log('BasicTemplateBuilder - Create mode detected (no template ID)');
-  }
-  
-  // Get additional mode from URL query parameters
   const mode = searchParams.get('mode');
   
   // Fetch template data if editing an existing template
   const { data: templateData, isLoading: isLoadingTemplate } = useQuery({
     queryKey: [`/api/templates/${templateId}`],
     queryFn: async () => {
-      if (!templateId) {
-        console.log('No template ID provided, skipping fetch');
-        return null;
-      }
-      
+      if (!templateId) return null;
       console.log('Fetching template with ID:', templateId);
       try {
-        // Ensure the URL is correctly formed
-        const url = `/api/templates/${templateId}`;
-        console.log('Fetch URL:', url);
-        
-        const response = await fetch(url, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'Cache-Control': 'no-cache'
-          }
-        });
-        
-        console.log('Fetch response status:', response.status);
-        
+        const response = await fetch(`/api/templates/${templateId}`);
         if (!response.ok) {
           throw new Error(`Failed to fetch template: ${response.status}`);
         }
-        
         const data = await response.json();
         console.log('Template data loaded:', data);
         return data;
       } catch (error) {
         console.error('Error fetching template:', error);
         toast({
-          title: "Error",
-          description: "Failed to load template",
-          variant: "destructive"
+          title: 'Error',
+          description: 'Failed to load template data',
+          variant: 'destructive'
         });
         return null;
       }
     },
-    enabled: !!templateId,
+    enabled: !!templateId
   });
 
   // Template data
-  const [isEditMode, setIsEditMode] = useState(isEditModeFromUrl);
-  const [templateName, setTemplateName] = useState("New Email Template");
+  const [templateName, setTemplateName] = useState("New Template");
   const [templateSubject, setTemplateSubject] = useState("Your Email Subject");
-  const [templateDescription, setTemplateDescription] = useState("");
-  const [templateCategory, setTemplateCategory] = useState("general");
-  const [templateContent, setTemplateContent] = useState("");
-  const [templateHtml, setTemplateHtml] = useState("");
+  const [templateDescription, setTemplateDescription] = useState("A beautiful email template for your marketing campaigns");
   const [sections, setSections] = useState<Array<{
     id: string;
     type: string;
@@ -117,6 +68,7 @@ export default function BasicTemplateBuilder({ isClientPortal = false }: BasicTe
   const [showAIUI, setShowAIUI] = useState(mode === "ai");
   const [aiPrompt, setAiPrompt] = useState("");
   const [isGeneratingAi, setIsGeneratingAi] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
   
   // Initialize form with template data when editing
   useEffect(() => {
