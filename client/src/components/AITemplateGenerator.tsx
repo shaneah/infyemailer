@@ -29,6 +29,13 @@ interface TemplateData {
   name: string;
 }
 
+interface ColorTheme {
+  id: string;
+  name: string;
+  primary: string;
+  secondary: string;
+}
+
 export default function AITemplateGenerator({ onTemplateGenerated }: AITemplateGeneratorProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -75,7 +82,7 @@ export default function AITemplateGenerator({ onTemplateGenerated }: AITemplateG
   ];
 
   // Color themes for templates
-  const colorThemes = [
+  const colorThemes: ColorTheme[] = [
     { id: 'green', name: 'Green', primary: '#10b981', secondary: '#d1fae5' },
     { id: 'blue', name: 'Blue', primary: '#3b82f6', secondary: '#dbeafe' },
     { id: 'purple', name: 'Purple', primary: '#8b5cf6', secondary: '#ede9fe' },
@@ -84,7 +91,7 @@ export default function AITemplateGenerator({ onTemplateGenerated }: AITemplateG
     { id: 'teal', name: 'Teal', primary: '#14b8a6', secondary: '#ccfbf1' },
   ];
   
-  const [selectedColorTheme, setSelectedColorTheme] = useState(colorThemes[0]);
+  const [selectedColorTheme, setSelectedColorTheme] = useState<ColorTheme>(colorThemes[0]);
 
   // Create animated progress indicator for template generation
   useEffect(() => {

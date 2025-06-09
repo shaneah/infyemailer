@@ -760,7 +760,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
                       contact.status === 'bounced' ? 'warning' : 'secondary'
               },
               lists: lists && Array.isArray(lists) ? lists.map(list => ({ id: list.id, name: list.name })) : [],
-              addedOn: contact.createdAt ? new Date(contact.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A'
+              addedOn: contact.createdAt ? new Date(contact.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A',
+              metadata: contact.metadata // Include metadata
             };
           } catch (err) {
             console.error(`Error processing contact ${contact.id}:`, err);
@@ -770,7 +771,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
               email: contact.email,
               status: { label: 'Unknown', color: 'secondary' },
               lists: [],
-              addedOn: 'N/A'
+              addedOn: 'N/A',
+              metadata: contact.metadata // Include metadata in fallback
             };
           }
         }));
@@ -785,7 +787,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           email: contact.email,
           status: { label: 'Unknown', color: 'secondary' },
           lists: [],
-          addedOn: 'N/A'
+          addedOn: 'N/A',
+          metadata: contact.metadata // Include metadata in fallback
         }));
         res.json(basicContacts);
       }
@@ -1098,15 +1101,58 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Update a contact
   app.patch('/api/contacts/:id', async (req: Request, res: Response) => {
     const id = parseInt(req.params.id, 10);
-    
+    const { lists: incomingLists, dateAdded, ...updateData } = req.body; // Extract lists and exclude dateAdded
+
     try {
       const contact = await storage.getContact(id);
       if (!contact) {
         return res.status(404).json({ error: 'Contact not found' });
       }
-      
-      const updated = await storage.updateContact(id, req.body);
-      res.json(updated);
+
+      // Update basic contact fields
+      const updatedContact = await storage.updateContact(id, updateData);
+
+      // Handle list updates
+      if (Array.isArray(incomingLists)) {
+        const currentLists = await storage.getListsByContact(id);
+        const currentListIds = currentLists.map(list => list.id);
+
+        const incomingListIds = incomingLists.map(id => parseInt(id, 10)).filter(id => !isNaN(id));
+
+        // Lists to add: in incoming but not in current
+        const listsToAdd = incomingListIds.filter(listId => !currentListIds.includes(listId));
+
+        // Lists to remove: in current but not in incoming
+        const listsToRemove = currentListIds.filter(listId => !incomingListIds.includes(listId));
+
+        // Add lists
+        for (const listId of listsToAdd) {
+          try {
+            await storage.addContactToList({ contactId: id, listId });
+          } catch (error) {
+            console.error(`Error adding contact ${id} to list ${listId}:`, error);
+          }
+        }
+
+        // Remove lists
+        for (const listId of listsToRemove) {
+          try {
+            await storage.removeContactFromList(id, listId);
+          } catch (error) {
+            console.error(`Error removing contact ${id} from list ${listId}:`, error);
+          }
+        }
+      }
+
+      // Fetch the contact again to include updated list information
+      const finalContact = await storage.getContact(id);
+      // Fetch the updated lists and attach them to the contact object for the response
+      const finalContactLists = await storage.getListsByContact(id);
+      // Assuming contact object structure allows adding lists array directly
+      // You might need to adjust based on your actual Contact type returned by storage.getContact
+      const contactWithLists = finalContact ? { ...finalContact, lists: finalContactLists } : undefined;
+
+      res.json(contactWithLists);
     } catch (error) {
       console.error('Update contact error:', error);
       res.status(500).json({ error: 'Failed to update contact' });
@@ -1418,33 +1464,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/lists', async (req: Request, res: Response) => {
     try {
       const lists = await storage.getLists();
-      
-      // Get all contactLists data for counting
-      const allContactLists = await storage.getContactLists();
-      
-      // Count contacts per list using the relationship table
-      const contactCountMap = new Map<number, number>();
-      
-      allContactLists.forEach(contactList => {
-        const listId = contactList.listId;
-        contactCountMap.set(listId, (contactCountMap.get(listId) || 0) + 1);
-      });
-      
-      // Map lists to include count from our map
-      const listsWithCount = lists.map(list => {
+      // Get contact counts for each list
+      const listsWithCounts = await Promise.all(lists.map(async (list) => {
+        const contacts = await storage.getContactsByList(list.id);
         return {
-          id: list.id.toString(),
-          name: list.name,
-          count: contactCountMap.get(list.id) || 0,
-          lastUpdated: list.updatedAt ? new Date(list.updatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A'
+          ...list,
+          contactCount: contacts.length
         };
-      });
-
-      console.log('Lists with counts:', listsWithCount);
-      res.json(listsWithCount);
+      }));
+      res.json(listsWithCounts);
     } catch (error) {
-      console.error('Error fetching lists:', error);
-      res.status(500).json({ error: 'Failed to fetch lists' });
+      console.error('Error getting lists:', error);
+      res.status(500).json({ error: 'Failed to get lists' });
+    }
+  });
+
+  // Get list by ID
+  app.get('/api/lists/:id', async (req: Request, res: Response) => {
+    try {
+      const list = await storage.getList(req.params.id);
+      if (!list) {
+        return res.status(404).json({ error: 'List not found' });
+      }
+      const contacts = await storage.getContactsByList(list.id);
+      res.json({
+        ...list,
+        contactCount: contacts.length
+      });
+    } catch (error) {
+      console.error('Error getting list:', error);
+      res.status(500).json({ error: 'Failed to get list' });
     }
   });
 
@@ -2828,212 +2877,59 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { username, password } = validatedData;
       console.log(`Client login attempt for: ${username}`);
       
-      // SPECIAL HARDCODED CASE FOR CLIENT1
-      // This will bypass regular authentication for the demo account
-      if (username === 'client1' && password === 'clientdemo') {
-        console.log('Using special hardcoded login for client1/clientdemo');
-        
-        // Try using proper db.execute method instead of query
-        try {
-          const result = await db.execute(`
-            SELECT * FROM client_users WHERE username = 'client1'
-          `);
-          
-          console.log('Direct SQL query result:', result);
-          
-          if (result && result.rows && result.rows.length > 0) {
-            const user = result.rows[0];
-            console.log('Found client1 user with direct SQL query:', user);
-            
-            // Get client info
-            const clientResult = await db.execute(`
-              SELECT * FROM clients WHERE id = $1
-            `, [user.client_id]);
-            
-            let client = null;
-            if (clientResult && clientResult.rows && clientResult.rows.length > 0) {
-              client = clientResult.rows[0];
-              console.log('Found client for client1:', client);
-            }
-            
-            // Extract permissions from metadata if they exist
-            let permissions = {};
-            if (user.metadata && typeof user.metadata === 'object' && user.metadata.permissions) {
-              permissions = user.metadata.permissions;
-            }
-            
-            // Don't send password back to the client
-            const { password: _, ...userWithoutPassword } = user;
-            
-            // Update last login time
-            await db.execute(`
-              UPDATE client_users SET last_login_at = NOW() WHERE id = $1
-            `, [user.id]);
-            
-            const responseData = { 
-              ...userWithoutPassword,
-              permissions,
-              clientName: client ? client.name : 'Demo Client',
-              clientCompany: client ? client.company : 'Demo Company',
-              lastLogin: new Date().toISOString() 
-            };
-            
-            // Store client user data in session
-            if (req.session) {
-              req.session.clientUser = responseData;
-              console.log('Client1 user stored in session');
-              
-              // Save the session explicitly to ensure it's persisted immediately
-              req.session.save((err) => {
-                if (err) {
-                  console.error('Error saving session:', err);
-                } else {
-                  console.log('Session saved successfully for client user');
-                }
-              });
-            }
-            
-            console.log(`Sending client1 login response:`, responseData);
-            return res.json(responseData);
-          } else {
-            // Create a mock response for client1 if not found in database
-            console.log('Creating special hardcoded response for client1');
-            
-            const mockClientUser = {
-              id: 999,
-              username: 'client1',
-              clientId: 1,
-              status: 'active',
-              permissions: {
-                campaigns: true,
-                contacts: true,
-                templates: true,
-                reporting: true,
-                domains: true,
-                abTesting: true,
-                emailValidation: true
-              },
-              clientName: 'Demo Client',
-              clientCompany: 'Demo Company',
-              lastLogin: new Date().toISOString()
-            };
-            
-            // Store in session
-            if (req.session) {
-              req.session.clientUser = mockClientUser;
-              console.log('Mock client1 user stored in session');
-              
-              // Save the session explicitly to ensure it's persisted immediately
-              req.session.save((err) => {
-                if (err) {
-                  console.error('Error saving session for mock user:', err);
-                } else {
-                  console.log('Session saved successfully for mock client user');
-                }
-              });
-            }
-            
-            console.log(`Sending mock client1 login response:`, mockClientUser);
-            return res.json(mockClientUser);
-          }
-        } catch (error) {
-          console.error('Error in direct SQL query for client1:', error);
-          // Fall back to mock user on error
-          console.log('Falling back to mock user due to SQL error');
-          
-          const mockClientUser = {
-            id: 999,
-            username: 'client1',
-            clientId: 1,
-            status: 'active',
-            permissions: {
-              campaigns: true,
-              contacts: true,
-              templates: true,
-              reporting: true,
-              domains: true,
-              abTesting: true,
-              emailValidation: true
-            },
-            clientName: 'Demo Client',
-            clientCompany: 'Demo Company',
-            lastLogin: new Date().toISOString()
-          };
-          
-          // Store in session
-          if (req.session) {
-            req.session.clientUser = mockClientUser;
-            console.log('Fallback mock client1 user stored in session');
-            
-            // Save the session explicitly to ensure it's persisted immediately
-            req.session.save((err) => {
-              if (err) {
-                console.error('Error saving session for fallback mock user:', err);
-              } else {
-                console.log('Session saved successfully for fallback mock client user');
-              }
-            });
-          }
-          
-          console.log(`Sending mock client1 login response:`, mockClientUser);
-          return res.json(mockClientUser);
-        }
-      }
-      
-      // Regular verification path using storage methods
-      const clientUser = await storage.verifyClientLogin(username, password);
-      console.log(`verifyClientLogin returned:`, clientUser);
-      
-      if (!clientUser) {
-        console.log(`Client login failed for user: ${username}`);
+      // Get the user by username
+      const user = await storage.getClientUserByUsername(username);
+      if (!user) {
+        console.log(`Client user not found: ${username}`);
         return res.status(401).json({ error: 'Invalid credentials' });
       }
-      
-      // Extract permissions from metadata if they exist
-      let permissions = {};
-      if (clientUser.metadata && typeof clientUser.metadata === 'object' && clientUser.metadata.permissions) {
-        permissions = clientUser.metadata.permissions;
+
+      // Verify password
+      const isValid = await storage.verifyClientLogin(username, password);
+      if (!isValid) {
+        console.log(`Invalid password for user: ${username}`);
+        return res.status(401).json({ error: 'Invalid credentials' });
       }
-      
-      // Get the associated client for this user
-      const client = await storage.getClient(clientUser.client_id);
-      console.log(`getClient returned:`, client);
-      
+
+      // Get the associated client
+      const client = await storage.getClient(user.clientId);
       if (!client) {
-        console.log(`Client account not found for user: ${username}, client ID: ${clientUser.client_id}`);
+        console.log(`Client not found for user: ${username}`);
         return res.status(500).json({ error: 'Client account not found' });
       }
-      
-      console.log(`Client login successful for: ${username}, client: ${client.name}`);
-      
-      // Don't send password back to the client
-      const { password: _, ...clientUserWithoutPassword } = clientUser;
-      
-      const responseData = { 
-        ...clientUserWithoutPassword,
-        permissions,
+
+      // Prepare user data for session
+      const userData = {
+        id: user.id,
+        username: user.username,
+        clientId: user.clientId,
         clientName: client.name,
         clientCompany: client.company,
-        lastLogin: new Date().toISOString() 
+        permissions: user.metadata?.permissions || {
+          emailValidation: true,
+          campaigns: true,
+          contacts: true,
+          templates: true,
+          reporting: true,
+          domains: true,
+          abTesting: true
+        },
+        lastLogin: new Date().toISOString()
       };
-      
-      // Store client user data in session
+
+      // Store in session
       if (req.session) {
-        req.session.clientUser = responseData;
-        console.log('Client user stored in session:', req.session.clientUser.id);
-        
-        // Save the session explicitly to ensure it's persisted immediately
-        req.session.save((err) => {
-          if (err) {
-            console.error('Error saving session for regular client user:', err);
-          } else {
-            console.log('Session saved successfully for regular client user');
-          }
+        req.session.clientUser = userData;
+        await new Promise<void>((resolve, reject) => {
+          req.session?.save((err) => {
+            if (err) reject(err);
+            else resolve();
+          });
         });
       }
-      
-      console.log(`Sending client login response:`, responseData);
-      res.json(responseData);
+
+      // Send response
+      res.json(userData);
     } catch (error) {
       console.error('Client login error:', error);
       res.status(500).json({ error: 'Login failed. Please try again.' });
@@ -4850,562 +4746,52 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Audience Personas API Endpoints - REMOVED AS REQUESTED
-  /*
-  app.get('/api/audience-personas', async (req: Request, res: Response) => {
+  // Duplicate a list
+  app.post('/api/lists/:id/duplicate', async (req: Request, res: Response) => {
     try {
-      const personas = await storage.getAudiencePersonas();
-      res.status(200).json(personas);
-    } catch (error) {
-      console.error('Error getting audience personas:', error);
-      res.status(500).json({ error: 'Failed to get audience personas' });
-    }
-  });
-
-  app.get('/api/audience-personas/:id', async (req: Request, res: Response) => {
-    const id = parseInt(req.params.id, 10);
-    try {
-      const persona = await storage.getAudiencePersona(id);
-      if (!persona) {
-        return res.status(404).json({ error: 'Audience persona not found' });
-      }
-      res.status(200).json(persona);
-    } catch (error) {
-      console.error(`Error getting audience persona with id ${id}:`, error);
-      res.status(500).json({ error: 'Failed to get audience persona' });
-    }
-  });
-
-  app.post('/api/audience-personas', async (req: Request, res: Response) => {
-    try {
-      const validatedData = validate(insertAudiencePersonaSchema, req.body);
-      if ('error' in validatedData) {
-        return res.status(400).json(validatedData);
+      const listId = parseInt(req.params.id);
+      
+      if (isNaN(listId)) {
+        return res.status(400).json({ error: 'Invalid list ID' });
       }
       
-      const persona = await storage.createAudiencePersona(validatedData);
-      res.status(201).json(persona);
-    } catch (error) {
-      console.error('Error creating audience persona:', error);
-      res.status(500).json({ error: 'Failed to create audience persona' });
-    }
-  });
-
-  app.patch('/api/audience-personas/:id', async (req: Request, res: Response) => {
-    const id = parseInt(req.params.id, 10);
-    try {
-      const persona = await storage.updateAudiencePersona(id, req.body);
-      if (!persona) {
-        return res.status(404).json({ error: 'Audience persona not found' });
-      }
-      res.status(200).json(persona);
-    } catch (error) {
-      console.error(`Error updating audience persona with id ${id}:`, error);
-      res.status(500).json({ error: 'Failed to update audience persona' });
-    }
-  });
-
-  app.delete('/api/audience-personas/:id', async (req: Request, res: Response) => {
-    const id = parseInt(req.params.id, 10);
-    try {
-      const success = await storage.deleteAudiencePersona(id);
-      if (!success) {
-        return res.status(404).json({ error: 'Audience persona not found' });
-      }
-      res.status(200).json({ success: true });
-    } catch (error) {
-      console.error(`Error deleting audience persona with id ${id}:`, error);
-      res.status(500).json({ error: 'Failed to delete audience persona' });
-    }
-  });
-  */
-
-  // Audience Persona Demographics - REMOVED AS REQUESTED
-  /*
-  app.get('/api/audience-personas/:id/demographics', async (req: Request, res: Response) => {
-    const personaId = parseInt(req.params.id, 10);
-    try {
-      const demographics = await storage.getPersonaDemographics(personaId);
-      if (!demographics) {
-        return res.status(404).json({ error: 'Demographics not found for this persona' });
-      }
-      res.status(200).json(demographics);
-    } catch (error) {
-      console.error(`Error getting demographics for persona id ${personaId}:`, error);
-      res.status(500).json({ error: 'Failed to get demographics' });
-    }
-  });
-
-  app.post('/api/audience-personas/:id/demographics', async (req: Request, res: Response) => {
-    const personaId = parseInt(req.params.id, 10);
-    try {
-      const validatedData = validate(insertPersonaDemographicSchema, { ...req.body, personaId });
-      if ('error' in validatedData) {
-        return res.status(400).json(validatedData);
+      const list = await storage.getList(listId);
+      if (!list) {
+        return res.status(404).json({ error: 'List not found' });
       }
       
-      let demographics = await storage.getPersonaDemographics(personaId);
-      
-      if (demographics) {
-        // Update existing demographics
-        demographics = await storage.updatePersonaDemographics(personaId, validatedData);
-      } else {
-        // Create new demographics
-        demographics = await storage.createPersonaDemographics(validatedData);
-      }
-      
-      res.status(201).json(demographics);
-    } catch (error) {
-      console.error(`Error creating/updating demographics for persona id ${personaId}:`, error);
-      res.status(500).json({ error: 'Failed to create/update demographics' });
-    }
-  });
-
-  // Audience Persona Behaviors
-  app.get('/api/audience-personas/:id/behaviors', async (req: Request, res: Response) => {
-    const personaId = parseInt(req.params.id, 10);
-    try {
-      const behaviors = await storage.getPersonaBehaviors(personaId);
-      if (!behaviors) {
-        return res.status(404).json({ error: 'Behaviors not found for this persona' });
-      }
-      res.status(200).json(behaviors);
-    } catch (error) {
-      console.error(`Error getting behaviors for persona id ${personaId}:`, error);
-      res.status(500).json({ error: 'Failed to get behaviors' });
-    }
-  });
-
-  app.post('/api/audience-personas/:id/behaviors', async (req: Request, res: Response) => {
-    const personaId = parseInt(req.params.id, 10);
-    try {
-      const validatedData = validate(insertPersonaBehaviorSchema, { ...req.body, personaId });
-      if ('error' in validatedData) {
-        return res.status(400).json(validatedData);
-      }
-      
-      let behaviors = await storage.getPersonaBehaviors(personaId);
-      
-      if (behaviors) {
-        // Update existing behaviors
-        behaviors = await storage.updatePersonaBehaviors(personaId, validatedData);
-      } else {
-        // Create new behaviors
-        behaviors = await storage.createPersonaBehaviors(validatedData);
-      }
-      
-      res.status(201).json(behaviors);
-    } catch (error) {
-      console.error(`Error creating/updating behaviors for persona id ${personaId}:`, error);
-      res.status(500).json({ error: 'Failed to create/update behaviors' });
-    }
-  });
-
-  // Audience Persona Insights
-  app.get('/api/audience-personas/:id/insights', async (req: Request, res: Response) => {
-    const personaId = parseInt(req.params.id, 10);
-    try {
-      const insights = await storage.getPersonaInsights(personaId);
-      res.status(200).json(insights || []);
-    } catch (error) {
-      console.error(`Error getting insights for persona id ${personaId}:`, error);
-      res.status(500).json({ error: 'Failed to get insights' });
-    }
-  });
-
-  app.post('/api/audience-personas/:id/insights', async (req: Request, res: Response) => {
-    const personaId = parseInt(req.params.id, 10);
-    try {
-      const validatedData = validate(insertPersonaInsightSchema, { ...req.body, personaId });
-      if ('error' in validatedData) {
-        return res.status(400).json(validatedData);
-      }
-      
-      const insight = await storage.createPersonaInsight(validatedData);
-      res.status(201).json(insight);
-    } catch (error) {
-      console.error(`Error creating insight for persona id ${personaId}:`, error);
-      res.status(500).json({ error: 'Failed to create insight' });
-    }
-  });
-
-  app.delete('/api/audience-personas/insights/:id', async (req: Request, res: Response) => {
-    const id = parseInt(req.params.id, 10);
-    try {
-      const success = await storage.deletePersonaInsight(id);
-      if (!success) {
-        return res.status(404).json({ error: 'Insight not found' });
-      }
-      res.status(200).json({ success: true });
-    } catch (error) {
-      console.error(`Error deleting insight with id ${id}:`, error);
-      res.status(500).json({ error: 'Failed to delete insight' });
-    }
-  });
-
-  // Audience Segments
-  app.get('/api/audience-personas/:id/segments', async (req: Request, res: Response) => {
-    const personaId = parseInt(req.params.id, 10);
-    try {
-      const segments = await storage.getAudienceSegmentsByPersona(personaId);
-      res.status(200).json(segments || []);
-    } catch (error) {
-      console.error(`Error getting segments for persona id ${personaId}:`, error);
-      res.status(500).json({ error: 'Failed to get segments' });
-    }
-  });
-
-  app.post('/api/audience-personas/:id/segments', async (req: Request, res: Response) => {
-    const personaId = parseInt(req.params.id, 10);
-    try {
-      const validatedData = validate(insertAudienceSegmentSchema, { ...req.body, personaId });
-      if ('error' in validatedData) {
-        return res.status(400).json(validatedData);
-      }
-      
-      const segment = await storage.createAudienceSegment(validatedData);
-      res.status(201).json(segment);
-    } catch (error) {
-      console.error(`Error creating segment for persona id ${personaId}:`, error);
-      res.status(500).json({ error: 'Failed to create segment' });
-    }
-  });
-
-  app.delete('/api/audience-personas/segments/:id', async (req: Request, res: Response) => {
-    const id = parseInt(req.params.id, 10);
-    try {
-      const success = await storage.deleteAudienceSegment(id);
-      if (!success) {
-        return res.status(404).json({ error: 'Segment not found' });
-      }
-      res.status(200).json({ success: true });
-    } catch (error) {
-      console.error(`Error deleting segment with id ${id}:`, error);
-      res.status(500).json({ error: 'Failed to delete segment' });
-    }
-  });
-  */
-
-  // Generate shareable link for a template
-  app.post('/api/templates/:id/share', async (req: Request, res: Response) => {
-    try {
-      const templateId = req.params.id;
-      
-      if (!templateId) {
-        return res.status(400).json({ error: 'Template ID is required' });
-      }
-      
-      // Get the template from storage
-      const template = await storage.getTemplate(Number(templateId));
-      
-      if (!template) {
-        return res.status(404).json({ error: 'Template not found' });
-      }
-      
-      // Generate a unique share code (you could use a more sophisticated approach)
-      const shareCode = `${templateId}-${Date.now()}-${Math.random().toString(36).substring(2, 8)}`;
-      
-      // Update template with share information
-      // In a real implementation, you might want to store this in a separate table
-      const updatedTemplate = await storage.updateTemplate(Number(templateId), {
-        metadata: {
-          ...template.metadata,
-          shareCode,
-          shareCreatedAt: new Date().toISOString(),
-          shareExpiry: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days expiry
-        }
+      // Create a new list with the same properties
+      const newList = await storage.createList({
+        name: `${list.name} (Copy)`,
+        description: list.description,
+        requireDoubleOptIn: list.requireDoubleOptIn,
+        sendWelcomeEmail: list.sendWelcomeEmail,
+        tags: list.tags
       });
       
-      // Construct shareable URL
-      const shareUrl = `${req.protocol}://${req.get('host')}/shared-template/${shareCode}`;
+      // Get all contacts in the original list
+      const contacts = await storage.getContactsByList(listId);
       
-      res.json({ 
-        shareCode,
-        shareUrl,
-        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
+      // Add all contacts to the new list
+      for (const contact of contacts) {
+        await storage.addContactToList({
+          contactId: contact.id,
+          listId: newList.id
+        });
+      }
+      
+      res.status(200).json({
+        message: 'List duplicated successfully',
+        list: newList,
+        contactCount: contacts.length
       });
     } catch (error) {
-      console.error('Error generating share link:', error);
-      res.status(500).json({ error: 'Failed to generate share link' });
+      console.error('Error duplicating list:', error);
+      res.status(500).json({ error: 'Failed to duplicate list' });
     }
   });
 
-  // Endpoint to view a shared template
-  app.get('/shared-template/:shareCode', async (req: Request, res: Response) => {
-    try {
-      const shareCode = req.params.shareCode;
-      
-      if (!shareCode) {
-        return res.status(400).send('Share code is required');
-      }
-      
-      // Extract the template ID from the share code (first part before the first dash)
-      const templateId = shareCode.split('-')[0];
-      
-      // Get the template from storage
-      const template = await storage.getTemplate(Number(templateId));
-      
-      if (!template) {
-        return res.status(404).send('Template not found');
-      }
-      
-      // Verify that the share code matches
-      if (!template.metadata || template.metadata.shareCode !== shareCode) {
-        return res.status(403).send('Invalid share code');
-      }
-      
-      // Check if the share link has expired
-      if (template.metadata.shareExpiry && new Date(template.metadata.shareExpiry) < new Date()) {
-        return res.status(403).send('This share link has expired');
-      }
-      
-      // Parse the template content (similar to preview-template)
-      let templateHtml = '';
-      
-      try {
-        // Try to parse the content as JSON first (for newer templates)
-        const templateData = JSON.parse(template.content);
-        
-        // Check if there's an originalHtml field in metadata from the content or the template
-        if (templateData.metadata?.originalHtml) {
-          templateHtml = templateData.metadata.originalHtml;
-        } else if (template.metadata && typeof template.metadata === 'object' && 'originalHtml' in template.metadata) {
-          templateHtml = template.metadata.originalHtml;
-        } else if (templateData.sections) {
-          // Handle case where we have sections with HTML elements
-          // Extract HTML from the sections if they exist
-          templateData.sections.forEach(section => {
-            section.elements.forEach(element => {
-              if (element.type === 'html' && element.content?.html) {
-                templateHtml += element.content.html;
-              } else if (element.type === 'text' && element.content?.text) {
-                templateHtml += `<div style="font-size: ${element.styles?.fontSize || '16px'}; color: ${element.styles?.color || '#000000'}; text-align: ${element.styles?.textAlign || 'left'};">${element.content.text}</div>`;
-              }
-            });
-          });
-        } else {
-          // Default fallback - just use the template content directly
-          templateHtml = template.content;
-        }
-      } catch (e) {
-        // If parsing as JSON fails, assume it's already HTML
-        console.log('Template content is not JSON, using directly:', e);
-        templateHtml = template.content;
-      }
-      
-      // Return the template HTML with a shared template UI
-      const html = `
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <meta charset="utf-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1">
-          <title>${template.name} - Shared Template</title>
-          <style>
-            body {
-              margin: 0;
-              padding: 0;
-              font-family: Arial, sans-serif;
-              background-color: #f5f5f5;
-            }
-            
-            .shared-header {
-              background-color: #1a3a5f;
-              color: white;
-              padding: 15px 20px;
-              display: flex;
-              justify-content: space-between;
-              align-items: center;
-              box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            }
-            
-            .shared-header h2 {
-              margin: 0;
-              font-size: 20px;
-              display: flex;
-              align-items: center;
-            }
-            
-            .shared-header h2 svg {
-              margin-right: 10px;
-            }
-            
-            .shared-header .company {
-              display: flex;
-              align-items: center;
-              font-size: 14px;
-            }
-            
-            .shared-header .company img {
-              height: 30px;
-              margin-right: 10px;
-            }
-            
-            .template-container {
-              background-color: white;
-              margin: 20px auto;
-              max-width: 800px;
-              border-radius: 8px;
-              box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-              overflow: hidden;
-            }
-            
-            .template-header {
-              padding: 20px;
-              border-bottom: 1px solid #e5e7eb;
-            }
-            
-            .template-header h3 {
-              margin: 0 0 5px 0;
-              color: #1a3a5f;
-              font-size: 18px;
-            }
-            
-            .template-header p {
-              margin: 0;
-              color: #6b7280;
-              font-size: 14px;
-            }
-            
-            .template-content {
-              padding: 20px;
-            }
-            
-            .template-footer {
-              padding: 15px 20px;
-              background-color: #f9fafb;
-              border-top: 1px solid #e5e7eb;
-              text-align: center;
-              font-size: 14px;
-              color: #6b7280;
-            }
-            
-            @media print {
-              .shared-header, .template-header, .template-footer {
-                display: none;
-              }
-              
-              .template-container {
-                box-shadow: none;
-                margin: 0;
-                max-width: none;
-                border-radius: 0;
-              }
-              
-              .template-content {
-                padding: 0;
-              }
-              
-              body {
-                background-color: white;
-              }
-              
-              @page {
-                margin: 0.5cm;
-              }
-            }
-          </style>
-        </head>
-        <body>
-          <div class="shared-header">
-            <h2>
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
-                <polyline points="16 6 12 2 8 6"></polyline>
-                <line x1="12" y1="2" x2="12" y2="15"></line>
-              </svg>
-              Shared Template
-            </h2>
-            <div class="company">
-              <img src="/assets/Logo-white.png" alt="InfyMailer Logo">
-              InfyMailer
-            </div>
-          </div>
-          
-          <div class="template-container">
-            <div class="template-header">
-              <h3>${template.name}</h3>
-              <p>${template.description || 'Shared with you via InfyMailer'}</p>
-            </div>
-            
-            <div class="template-content">
-              ${templateHtml}
-            </div>
-            
-            <div class="template-footer">
-              This template was shared via InfyMailer - Create and share your own templates at <a href="/">InfyMailer.com</a>
-            </div>
-          </div>
-        </body>
-        </html>
-      `;
-      
-      res.send(html);
-    } catch (error) {
-      console.error('Error displaying shared template:', error);
-      res.status(500).send('Error displaying shared template');
-    }
-  });
-
-  // Template Preview Endpoint
-  app.get('/preview-template', async (req: Request, res: Response) => {
-    try {
-      const templateId = req.query.id;
-      
-      if (!templateId) {
-        return res.status(400).send('Template ID is required');
-      }
-      
-      // Get the template from storage
-      const template = await storage.getTemplate(Number(templateId));
-      
-      if (!template) {
-        return res.status(404).send('Template not found');
-      }
-      
-      // Parse the template content
-      let templateContent = template.content;
-      let templateHtml = '';
-      
-      try {
-        // Try to parse the content as JSON first (for newer templates)
-        const templateData = JSON.parse(template.content);
-        
-        // Check if there's an originalHtml field in metadata from the content or the template
-        if (templateData.metadata?.originalHtml) {
-          templateHtml = templateData.metadata.originalHtml;
-        } else if (template.metadata && typeof template.metadata === 'object' && 'originalHtml' in template.metadata) {
-          templateHtml = template.metadata.originalHtml;
-        } else if (templateData.sections) {
-          // Handle case where we have sections with HTML elements
-          // Extract HTML from the sections if they exist
-          templateData.sections.forEach(section => {
-            section.elements.forEach(element => {
-              if (element.type === 'html' && element.content?.html) {
-                templateHtml += element.content.html;
-              } else if (element.type === 'text' && element.content?.text) {
-                templateHtml += `<div style="font-size: ${element.styles?.fontSize || '16px'}; color: ${element.styles?.color || '#000000'}; text-align: ${element.styles?.textAlign || 'left'};">${element.content.text}</div>`;
-              }
-            });
-          });
-      } else {
-        // Default fallback - just use the template content directly
-        templateHtml = template.content;
-      }
-    } catch (error) {
-      console.error('Error parsing template content:', error);
-      templateHtml = template.content;
-    }
-  } catch (error) {
-    console.error('Error previewing template:', error);
-    res.status(500).send('Error previewing template');
-  }
-});
-
-  // Client-specific template routes section
-  // Note: These routes are already defined earlier in the file at around line 1360
-
-  // Create a new client template route
+  // ... existing code ...
 }
       
 // Return the template HTML as a standalone page

@@ -114,8 +114,31 @@ export class DbStorage implements IStorage {
   // Client methods
   async getClient(id: number) {
     try {
-      const [client] = await db.select().from(schema.clients).where(eq(schema.clients.id, id));
-      return client;
+      const result = await db
+        .select({
+          id: schema.clients.id,
+          name: schema.clients.name,
+          email: schema.clients.email,
+          company: schema.clients.company,
+          status: schema.clients.status,
+          industry: schema.clients.industry,
+          createdAt: schema.clients.createdAt,
+          totalSpend: schema.clients.totalSpend,
+          emailCredits: schema.clients.emailCredits,
+          emailCreditsPurchased: schema.clients.emailCreditsPurchased,
+          emailCreditsUsed: schema.clients.emailCreditsUsed,
+          lastCampaignAt: schema.clients.lastCampaignAt,
+          avatar: schema.clients.avatar,
+          metadata: schema.clients.metadata
+        })
+        .from(schema.clients)
+        .where(eq(schema.clients.id, id));
+
+      if (result.length === 0) {
+        return undefined;
+      }
+
+      return result[0];
     } catch (error) {
       console.error('Error getting client:', error);
       return undefined;
@@ -428,9 +451,13 @@ export class DbStorage implements IStorage {
         return user;
       }
       
-      // Regular password verification - would compare hashed passwords
-      // This is a placeholder - in a real app, you'd verify the password hash
-      if (user.password.includes(password)) {
+      // Import the comparePasswords function from auth.ts
+      const { comparePasswords } = await import('./auth');
+      
+      // Verify password using proper comparison
+      const passwordMatches = await comparePasswords(password, user.password);
+      
+      if (passwordMatches) {
         console.log(`Client password verification passed for: ${username}`);
         return user;
       }
@@ -852,7 +879,7 @@ export class DbStorage implements IStorage {
     }
   }
   
-  async getContactsInList(listId: number) {
+  async getContactsByList(listId: number) {
     try {
       const relations = await db
         .select()
@@ -893,6 +920,29 @@ export class DbStorage implements IStorage {
     } catch (error) {
       console.error('Error getting list count:', error);
       return 0;
+    }
+  }
+
+  async getListsByContact(contactId: number) {
+    try {
+      // First get all list IDs for this contact
+      const relations = await db
+        .select()
+        .from(schema.contactLists)
+        .where(eq(schema.contactLists.contactId, contactId));
+      
+      const listIds = relations.map(rel => rel.listId);
+      
+      if (listIds.length === 0) return [];
+      
+      // Then get all lists with these IDs
+      return await db
+        .select()
+        .from(schema.lists)
+        .where(inArray(schema.lists.id, listIds));
+    } catch (error) {
+      console.error('Error getting lists by contact:', error);
+      return [];
     }
   }
 

@@ -1,19 +1,51 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
-import { useToast } from "@/components/ui/use-toast";
+import { toast as hotToast } from "react-hot-toast";
+import { Dialog as HeadlessDialog } from "@headlessui/react";
+import {
+  UserPlus,
+  Copy,
+  X,
+  MoreHorizontal,
+  Clock,
+  Tag,
+  ArrowUpRight,
+  LayoutList,
+  BarChart,
+  Filter,
+  Plus,
+  Grid2X2,
+  ListFilter,
+  Users,
+  Search
+} from "lucide-react";
 
-// Define the List interface
+interface Contact {
+  id: number;
+  name: string;
+  email: string;
+  metadata?: {
+    phone?: string;
+    company?: string;
+    notes?: string;
+  };
+  createdAt?: string;
+  addedOn?: string;
+}
+
 interface List {
   id: number;
   name: string;
-  description?: string;
-  tags?: string[];
-  contactCount?: number;
-  engagementScore?: number;
-  updatedAt?: string;
+  description: string;
+  contactCount: number;
   requireDoubleOptIn: boolean;
   sendWelcomeEmail: boolean;
+  tags?: string[];
+  lastUpdated?: string;
+  lastCampaign?: string;
+  growthRate?: number;
+  engagementScore?: number;
 }
 
 import { z } from "zod";
@@ -26,21 +58,21 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
   SelectValue
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Slider } from "@/components/ui/slider";
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogDescription, 
-  DialogFooter, 
-  DialogHeader, 
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
   DialogTitle
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -49,22 +81,7 @@ import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
 import { Textarea } from "@/components/ui/textarea";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-
-// Icons
-import { 
-  Search, 
-  Filter, 
-  Plus, 
-  MoreHorizontal, 
-  Users, 
-  Grid2X2, 
-  ListFilter, 
-  Clock, 
-  Tag, 
-  ArrowUpRight, 
-  LayoutList, 
-  BarChart
-} from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
 
 // Schema for new list form
 const listFormSchema = z.object({
@@ -233,82 +250,265 @@ const ListCard: React.FC<{
   onDuplicate: (listId: number) => void;
   onMenu: (listId: number) => void;
 }> = ({ list, onManageContacts, onDuplicate, onMenu }) => {
+  const [isManageContactsOpen, setIsManageContactsOpen] = useState(false);
+  const [selectedContacts, setSelectedContacts] = useState<Contact[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortField, setSortField] = useState<keyof Contact>('name');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+  const queryClient = useQueryClient();
+
+  // Add contacts query
+  const { data: contacts = [] } = useQuery({
+    queryKey: ['contacts'],
+    queryFn: async () => {
+      const response = await fetch('/api/contacts');
+      if (!response.ok) {
+        throw new Error('Failed to fetch contacts');
+      }
+      return response.json();
+    },
+  });
+
+  // Filter and sort contacts
+  const filteredContacts = useMemo(() => {
+    return contacts
+      .filter((contact: Contact) => {
+        const searchLower = searchQuery.toLowerCase();
+        return (
+          contact.name.toLowerCase().includes(searchLower) ||
+          contact.email.toLowerCase().includes(searchLower) ||
+          (contact.metadata?.phone || '').toLowerCase().includes(searchLower) ||
+          (contact.metadata?.company || '').toLowerCase().includes(searchLower)
+        );
+      })
+      .sort((a: Contact, b: Contact) => {
+        const aValue = a[sortField] || '';
+        const bValue = b[sortField] || '';
+        if (sortDirection === 'asc') {
+          return String(aValue).localeCompare(String(bValue));
+        }
+        return String(bValue).localeCompare(String(aValue));
+      });
+  }, [contacts, searchQuery, sortField, sortDirection]);
+
+  // Add handleSort function
+  const handleSort = (field: keyof Contact) => {
+    if (field === sortField) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDirection('asc');
+    }
+  };
+
   return (
-    <Card className="overflow-hidden hover:shadow-md transition-shadow">
-      <CardHeader className="pb-2">
-        <div className="flex justify-between">
-          <CardTitle className="text-lg font-semibold">{list.name}</CardTitle>
-          <Button variant="ghost" size="icon" onClick={() => onMenu(list.id)}>
-            <MoreHorizontal className="h-5 w-5" />
-          </Button>
+    <div className="bg-white rounded-lg shadow-md p-6">
+      <div className="flex justify-between items-start mb-4">
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900">{list.name}</h3>
+          <p className="text-sm text-gray-500 mt-1">{list.description}</p>
         </div>
-        <CardDescription>{list.description}</CardDescription>
-      </CardHeader>
-      
-      <CardContent className="pb-3">
-        <div className="flex flex-wrap gap-1 mb-3">
-          {list.tags && list.tags.map((tag: string, index: number) => (
-            <Badge key={index} variant="outline" className={getTagBadgeColors(tag)}>
-              {tag}
-            </Badge>
-          ))}
+        <div className="flex space-x-2">
+          <button
+            onClick={() => onManageContacts(list.id)}
+            className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          >
+            <UserPlus className="h-4 w-4 mr-2" />
+            Manage Contacts
+          </button>
+          <button
+            onClick={() => onDuplicate(list.id)}
+            className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          >
+            <Copy className="h-4 w-4 mr-2" />
+            Duplicate
+          </button>
+          <button
+            onClick={() => onMenu(list.id)}
+            className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          >
+            <MoreHorizontal className="h-4 w-4" />
+          </button>
         </div>
-        
-        <div className="grid grid-cols-2 gap-4 mb-3">
-          <div>
-            <div className="text-xs text-gray-500 mb-1">Contacts</div>
-            <div className="flex items-center gap-1">
-              <div className="text-lg font-semibold">{(list.contactCount || 0).toLocaleString()}</div>
-              {list.growthRate > 0 && (
-                <Badge variant="outline" className="bg-green-100 text-green-800 border-green-300 text-xs">
-                  +{list.growthRate}%
-                </Badge>
-              )}
+      </div>
+
+      <div className="mt-4">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center space-x-4">
+            <span className="text-sm text-gray-500">
+              {list.contactCount} contacts
+            </span>
+            <span className="text-sm text-gray-500">
+              {list.requireDoubleOptIn ? 'Double opt-in required' : 'Single opt-in'}
+            </span>
+          </div>
+          <div className="flex items-center space-x-2">
+            {list.tags?.map((tag: string) => (
+              <span
+                key={tag}
+                className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Manage Contacts Dialog */}
+      <HeadlessDialog
+        open={isManageContactsOpen}
+        onClose={() => setIsManageContactsOpen(false)}
+        className="fixed inset-0 z-10 overflow-y-auto"
+      >
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="fixed inset-0 bg-black opacity-30" />
+
+          <div className="relative bg-white rounded-lg max-w-4xl w-full mx-4 p-6">
+            <div className="flex justify-between items-center mb-4">
+              <HeadlessDialog.Title className="text-lg font-medium text-gray-900">
+                Manage Contacts - {list.name}
+              </HeadlessDialog.Title>
+              <button
+                onClick={() => setIsManageContactsOpen(false)}
+                className="text-gray-400 hover:text-gray-500"
+              >
+                <X className="h-6 w-6" />
+              </button>
+            </div>
+
+            <div className="mb-4">
+              <input
+                type="text"
+                placeholder="Search contacts..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th
+                      scope="col"
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                      onClick={() => handleSort('name')}
+                    >
+                      Name {sortField === 'name' && (sortDirection === 'asc' ? '↑' : '↓')}
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                      onClick={() => handleSort('email')}
+                    >
+                      Email {sortField === 'email' && (sortDirection === 'asc' ? '↑' : '↓')}
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    >
+                      Phone
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    >
+                      Company
+                    </th>
+                    <th scope="col" className="relative px-6 py-3">
+                      <span className="sr-only">Actions</span>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {filteredContacts.map((contact: Contact) => (
+                    <tr key={contact.id}>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm font-medium text-gray-900">
+                          {contact.name}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-500">{contact.email}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-500">
+                          {contact.metadata?.phone || '-'}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-500">
+                          {contact.metadata?.company || '-'}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <button
+                          onClick={() => {
+                            if (selectedContacts.find((c) => c.id === contact.id)) {
+                              setSelectedContacts(selectedContacts.filter((c) => c.id !== contact.id));
+                            } else {
+                              setSelectedContacts([...selectedContacts, contact]);
+                            }
+                          }}
+                          className={`text-blue-600 hover:text-blue-900 ${
+                            selectedContacts.find((c) => c.id === contact.id)
+                              ? 'font-bold'
+                              : ''
+                          }`}
+                        >
+                          {selectedContacts.find((c) => c.id === contact.id)
+                            ? 'Remove'
+                            : 'Add'}
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="mt-4 flex justify-end space-x-3">
+              <button
+                onClick={() => setIsManageContactsOpen(false)}
+                className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={async () => {
+                  try {
+                    // Add selected contacts to list
+                    for (const contact of selectedContacts) {
+                      await fetch(`/api/lists/${list.id}/contacts`, {
+                        method: 'POST',
+                        headers: {
+                          'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ contactId: contact.id }),
+                      });
+                    }
+                    hotToast.success('Contacts added to list successfully');
+                    setIsManageContactsOpen(false);
+                    queryClient.invalidateQueries({ queryKey: ['lists'] });
+                  } catch (error) {
+                    hotToast.error('Failed to add contacts to list');
+                    console.error('Error adding contacts to list:', error);
+                  } finally {
+                    // Clear selected contacts after attempting to add
+                    setSelectedContacts([]);
+                  }
+                }}
+                className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              >
+                Add Selected Contacts
+              </button>
             </div>
           </div>
-          <div>
-            <div className="text-xs text-gray-500 mb-1">Engagement</div>
-            <div className="flex items-center gap-1">
-              <div className="text-lg font-semibold">{list.engagementScore || 0}%</div>
-              {list.growthRate > 0 && (
-                <Badge variant="outline" className="bg-green-100 text-green-800 border-green-300 text-xs">
-                  +{list.growthRate}%
-                </Badge>
-              )}
-            </div>
-          </div>
         </div>
-        
-        <div className="text-xs text-gray-500 mb-2">
-          <div className="flex items-center gap-1 mb-1">
-            <Clock className="h-3 w-3" />
-            Last updated: {list.lastUpdated || 'Never'}
-          </div>
-          <div className="flex items-center gap-1">
-            <Tag className="h-3 w-3" />
-            Last campaign: {list.lastCampaign || 'None'}
-          </div>
-        </div>
-      </CardContent>
-      
-      <CardFooter className="pt-0 flex gap-2">
-        <Button 
-          variant="default" 
-          size="sm" 
-          className="flex-1"
-          onClick={() => onManageContacts(list.id)}
-        >
-          Manage Contacts
-        </Button>
-        <Button 
-          variant="outline" 
-          size="sm"
-          onClick={() => onDuplicate(list.id)}
-        >
-          Duplicate
-        </Button>
-      </CardFooter>
-    </Card>
+      </HeadlessDialog>
+    </div>
   );
 };
 
@@ -327,7 +527,6 @@ interface List {
 
 export default function ContactListsV2() {
   // State management
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTag, setSelectedTag] = useState<string>("all");
   const [sortBy, setSortBy] = useState<string>("name");
@@ -356,7 +555,12 @@ export default function ContactListsV2() {
       if (!response.ok) {
         throw new Error('Failed to fetch lists');
       }
-      return response.json();
+      const data = await response.json();
+      // Ensure each list has a contactCount
+      return data.map((list: any) => ({
+        ...list,
+        contactCount: list.contactCount || 0
+      }));
     }
   });
 
@@ -492,195 +696,138 @@ export default function ContactListsV2() {
     setShowCreateListDialog(true);
   };
   
-  // Handle manage contacts
-  const handleManageContacts = (listId: number) => {
-    toast({
-      title: "Manage Contacts",
-      description: `Opening contacts management for list ${listId}`,
-    });
-    // In a real app, this would navigate to a contacts management page for this list
-  };
-  
+  // Add duplicateListMutation
+  const duplicateListMutation = useMutation({
+    mutationFn: async (listId: number) => {
+      const response = await fetch(`/api/lists/${listId}/duplicate`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      if (!response.ok) {
+        throw new Error('Failed to duplicate list');
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['lists'] });
+      toast({ title: 'List duplicated successfully' });
+    },
+    onError: (error: any) => {
+      toast({ title: 'Failed to duplicate list', description: error.message, variant: 'destructive' });
+      console.error('Error duplicating list:', error);
+    },
+  });
+
   // Handle duplicate list
-  const handleDuplicateList = (listId: number) => {
-    toast({
-      title: "Duplicate List",
-      description: `Duplicating list ${listId}`,
-    });
-    // In a real app, this would create a duplicate of the list
-  };
-  
-  // Handle list menu
-  const handleListMenu = (listId: number) => {
-    const list = lists.find(l => l.id === listId);
-    if (list) {
-      handleEditList(list);
+  const handleDuplicateList = async (listId: number) => {
+    try {
+      await duplicateListMutation.mutateAsync(listId);
+    } catch (error) {
+      console.error('Error duplicating list:', error);
     }
   };
-  
+
+  // Handle manage contacts
+  const handleManageContacts = (listId: number) => {
+    // Find the list
+    const list = lists.find(l => l.id === listId);
+    if (!list) {
+      toast({
+        title: 'Error',
+        description: 'List not found',
+        variant: 'destructive',
+      });
+      return;
+    }
+    // Set the current list and open the manage contacts dialog
+    setCurrentList(list);
+    setShowCreateListDialog(true);
+  };
+
+  // Handle list menu
+  const handleListMenu = (listId: number) => {
+    // Find the list
+    const list = lists.find(l => l.id === listId);
+    if (!list) {
+      toast({
+        title: 'Error',
+        description: 'List not found',
+        variant: 'destructive',
+      });
+      return;
+    }
+    // Set the current list and open the menu dialog
+    setCurrentList(list);
+    setShowFilterDialog(true);
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div className="flex justify-between items-center">
         <div>
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-indigo-100 text-indigo-700 rounded-lg">
-              <Users className="h-6 w-6" />
-            </div>
-            <h1 className="text-2xl font-bold text-gray-900">Contact Lists</h1>
-          </div>
-          <p className="text-gray-500 mt-1">Organize and manage your audience segments</p>
+          <h1 className="text-2xl font-bold text-gray-900">Contact Lists</h1>
+          <p className="text-gray-500 mt-1">Manage your contact lists and segments</p>
         </div>
-        
-        <div className="flex items-center gap-2">
-          <div className="flex items-center border rounded-md overflow-hidden">
-            <Button
-              variant={viewMode === "grid" ? "default" : "ghost"}
-              size="sm"
-              className="rounded-none"
-              onClick={() => setViewMode("grid")}
-            >
-              <Grid2X2 className="h-4 w-4 mr-1" />
-              Grid
-            </Button>
-            <Button
-              variant={viewMode === "list" ? "default" : "ghost"}
-              size="sm"
-              className="rounded-none"
-              onClick={() => setViewMode("list")}
-            >
-              <LayoutList className="h-4 w-4 mr-1" />
-              List
-            </Button>
-          </div>
-          
-          <Button 
-            variant="default" 
-            className="bg-gradient-to-r from-indigo-600 to-violet-600 text-white"
-            onClick={() => {
-              setCurrentList(null);
-              form.reset({
-                name: "",
-                description: "",
-                tags: "",
-              });
-              setShowCreateListDialog(true);
-            }}
-          >
-            <Plus className="h-4 w-4 mr-1" />
-            Create List
-          </Button>
-        </div>
+        <Button onClick={() => {
+          setCurrentList(null);
+          form.reset();
+          setShowCreateListDialog(true);
+        }}>
+          <Plus className="h-4 w-4 mr-2" />
+          Create List
+        </Button>
       </div>
-      
-      {/* Analytics section */}
-      <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
-        <div className="xl:col-span-3">
-          <ListAnalytics lists={lists} />
-        </div>
-        <div className="xl:col-span-1">
-          <div className="space-y-4">
-            <TagsOverview />
-            <TopPerformingLists />
-          </div>
-        </div>
-      </div>
-      
-      {/* Search and Filter */}
-      <div className="flex flex-col md:flex-row md:items-center gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+
+      {/* Filters */}
+      <div className="flex flex-col sm:flex-row gap-4">
+        <div className="flex-1">
           <Input
-            placeholder="Search lists by name or description..."
-            className="pl-10"
+            placeholder="Search lists..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
+            className="max-w-sm"
           />
         </div>
-        
-        <div className="flex items-center gap-3">
-          <Select
-            value={selectedTag}
-            onValueChange={setSelectedTag}
-          >
-            <SelectTrigger className="w-[150px]">
-              <SelectValue placeholder="All Tags" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Tags</SelectItem>
-              <SelectItem value="active">Active</SelectItem>
-              <SelectItem value="newsletter">Newsletter</SelectItem>
-              <SelectItem value="vip">VIP</SelectItem>
-              <SelectItem value="customer">Customer</SelectItem>
-              <SelectItem value="event">Event</SelectItem>
-              <SelectItem value="webinar">Webinar</SelectItem>
-            </SelectContent>
-          </Select>
-          
-          <Select
-            value={sortBy}
-            onValueChange={setSortBy}
-          >
-            <SelectTrigger className="w-[150px]">
-              <SelectValue placeholder="Sort by Name" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="name">Sort by Name</SelectItem>
-              <SelectItem value="contacts">Sort by Contacts</SelectItem>
-              <SelectItem value="engagement">Sort by Engagement</SelectItem>
-              <SelectItem value="date">Sort by Date</SelectItem>
-            </SelectContent>
-          </Select>
-          
-          <Button 
-            variant="outline" 
-            size="icon"
-            onClick={() => setShowFilterDialog(true)}
-          >
-            <Filter className="h-4 w-4" />
-          </Button>
-        </div>
+        <Select value={selectedTag} onValueChange={setSelectedTag}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Filter by tag" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Tags</SelectItem>
+            {Array.from(new Set(lists.flatMap(list => list.tags || []))).map(tag => (
+              <SelectItem key={tag} value={tag}>{tag}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Select value={sortBy} onValueChange={setSortBy}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Sort by" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="name">Name</SelectItem>
+            <SelectItem value="contacts">Contact Count</SelectItem>
+            <SelectItem value="engagement">Engagement</SelectItem>
+            <SelectItem value="date">Last Updated</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
-      
-      {/* Lists grid/list */}
-      {sortedLists.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-12 text-center">
-          <div className="bg-gray-100 p-3 rounded-full mb-4">
-            <Users className="h-8 w-8 text-gray-500" />
-          </div>
-          <h3 className="text-lg font-medium">No lists found</h3>
-          <p className="text-gray-500 mt-1">
-            {searchQuery || selectedTag !== "all" 
-              ? "Try adjusting your filters"
-              : "Create your first list to get started"}
-          </p>
-          <Button 
-            variant="default"
-            className="mt-4"
-            onClick={() => {
-              setCurrentList(null);
-              form.reset();
-              setShowCreateListDialog(true);
-            }}
-          >
-            <Plus className="h-4 w-4 mr-1" />
-            Create List
-          </Button>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {sortedLists.map((list) => (
-            <ListCard 
-              key={list.id} 
-              list={list} 
-              onManageContacts={handleManageContacts}
-              onDuplicate={handleDuplicateList}
-              onMenu={handleListMenu}
-            />
-          ))}
-        </div>
-      )}
-      
+
+      {/* Lists Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {sortedLists.map((list) => (
+          <ListCard 
+            key={list.id} 
+            list={list} 
+            onManageContacts={handleManageContacts}
+            onDuplicate={handleDuplicateList}
+            onMenu={handleListMenu}
+          />
+        ))}
+      </div>
+
       {/* Create/Edit List Dialog */}
       <Dialog open={showCreateListDialog} onOpenChange={setShowCreateListDialog}>
         <DialogContent className="sm:max-w-[550px]">

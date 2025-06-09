@@ -21,36 +21,119 @@ interface InteractiveTemplatePreviewProps {
   onContentChange?: (content: string) => void;
 }
 
+// Add these interfaces at the top of the file, after the imports
+interface TemplateElement {
+  type: 'html' | 'text' | 'image' | 'button';
+  content?: {
+    html?: string;
+    text?: string;
+    src?: string;
+    alt?: string;
+    href?: string;
+  };
+  styles?: {
+    fontSize?: string;
+    color?: string;
+    textAlign?: string;
+  };
+}
+
+interface TemplateSection {
+  elements?: TemplateElement[];
+  content?: string;
+}
+
 // Function to parse template content that could be HTML or JSON
 const parseTemplateContent = (content: string): string => {
+  if (!content) {
+    return '';
+  }
+
+  // First check if it's HTML content
+  const trimmedContent = content.trim();
+  if (trimmedContent.startsWith('<!DOCTYPE') || 
+      trimmedContent.startsWith('<html') || 
+      trimmedContent.startsWith('<div') || 
+      trimmedContent.startsWith('<p') || 
+      trimmedContent.startsWith('<span')) {
+    return content;
+  }
+
   try {
-    // Try to parse as JSON first
+    // Try to parse as JSON
     const templateData = JSON.parse(content);
-    
-    // Handle various template formats
+
+    // Case 1: Direct HTML in metadata
     if (templateData.metadata?.originalHtml) {
       return templateData.metadata.originalHtml;
-    } else if (templateData.sections) {
-      // Process sections with HTML elements
-      let html = '';
-      templateData.sections.forEach((section: any) => {
-        if (section.elements) {
-          section.elements.forEach((element: any) => {
-            if (element.type === 'html' && element.content?.html) {
-              html += element.content.html;
-            } else if (element.type === 'text' && element.content?.text) {
-              html += `<div style="font-size: ${element.styles?.fontSize || '16px'}; color: ${element.styles?.color || '#000000'}; text-align: ${element.styles?.textAlign || 'left'};">${element.content.text}</div>`;
+    }
+
+    // Case 2: Sections with elements
+    if (templateData.sections && Array.isArray(templateData.sections)) {
+      let html = '<div class="template-container">';
+      
+      templateData.sections.forEach((section: TemplateSection) => {
+        if (!section) return;
+
+        html += '<div class="template-section">';
+        
+        // Handle elements array
+        if (section.elements && Array.isArray(section.elements)) {
+          section.elements.forEach((element: TemplateElement) => {
+            if (!element) return;
+
+            switch (element.type) {
+              case 'html':
+                if (element.content?.html) {
+                  html += element.content.html;
+                }
+                break;
+              case 'text':
+                if (element.content?.text) {
+                  html += `<div style="font-size: ${element.styles?.fontSize || '16px'}; color: ${element.styles?.color || '#000000'}; text-align: ${element.styles?.textAlign || 'left'};">${element.content.text}</div>`;
+                }
+                break;
+              case 'image':
+                if (element.content?.src) {
+                  html += `<div style="text-align: center;"><img src="${element.content.src}" alt="${element.content?.alt || ''}" style="max-width: 100%; height: auto;" /></div>`;
+                }
+                break;
+              case 'button':
+                if (element.content?.text) {
+                  html += `<div style="text-align: center; margin: 10px 0;"><a href="${element.content?.href || '#'}" style="display: inline-block; padding: 10px 20px; background-color: #2e7d32; color: white; text-decoration: none; border-radius: 4px;">${element.content.text}</a></div>`;
+                }
+                break;
             }
           });
         }
+        // Handle direct content
+        else if (section.content) {
+          html += section.content;
+        }
+        
+        html += '</div>';
       });
-      return html || content; // Return the constructed HTML or the original content if empty
+
+      html += '</div>';
+      return html;
     }
-    
-    // If we couldn't extract HTML from JSON, return a formatted display of the JSON
-    return `<pre style="white-space: pre-wrap; font-family: monospace; font-size: 14px;">${JSON.stringify(templateData, null, 2)}</pre>`;
+
+    // Case 3: Direct HTML or content string
+    if (typeof templateData.html === 'string') {
+      return templateData.html;
+    }
+    if (typeof templateData.content === 'string') {
+      return templateData.content;
+    }
+
+    // Case 4: Fallback - display JSON structure
+    return `<div class="template-json-preview">
+      <div style="padding: 20px; background-color: #f7f7f7; border-radius: 6px;">
+        <pre style="white-space: pre-wrap; font-family: monospace; font-size: 14px;">${JSON.stringify(templateData, null, 2)}</pre>
+      </div>
+    </div>`;
   } catch (e) {
-    // If parsing as JSON fails, assume it's already HTML
+    // If JSON parsing fails, return the content as is (assuming it's HTML)
     return content;
   }
 };
@@ -151,20 +234,50 @@ const InteractiveTemplatePreview: React.FC<InteractiveTemplatePreviewProps> = ({
   };
   
   // Auto-resize the iframe to content height
-  const handleIframeLoad = (e: React.SyntheticEvent<HTMLIFrameElement>) => {
-    const iframe = e.currentTarget;
-    if (iframe.contentWindow) {
-      // Add resize event listener
-      const resizeObserver = new ResizeObserver(() => {
-        if (iframe.contentDocument?.body) {
-          const height = iframe.contentDocument.body.scrollHeight;
-          iframe.style.height = `${Math.min(height, 800)}px`;
-        }
-      });
+  const handleIframeLoad = (event: React.SyntheticEvent<HTMLIFrameElement>) => {
+    try {
+      const iframe = event.target as HTMLIFrameElement;
+      const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
       
-      if (iframe.contentDocument?.body) {
-        resizeObserver.observe(iframe.contentDocument.body);
+      if (iframeDoc) {
+        const style = iframeDoc.createElement('style');
+        style.textContent = `
+          body { 
+            margin: 0; 
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            line-height: 1.5;
+            color: #333;
+            background-color: #f4f4f4;
+          }
+          .template-container { 
+            max-width: 600px; 
+            margin: 0 auto; 
+            background-color: #ffffff;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+          }
+          .template-section { 
+            margin-bottom: 20px; 
+          }
+          img { 
+            max-width: 100%; 
+            height: auto; 
+          }
+          a { 
+            color: #2563eb; 
+            text-decoration: none; 
+          }
+          .template-json-preview {
+            padding: 20px;
+            background-color: #f7f7f7;
+            border-radius: 6px;
+          }
+        `;
+        iframeDoc.head.appendChild(style);
       }
+    } catch (error) {
+      console.error('Error setting up iframe:', error);
     }
   };
   

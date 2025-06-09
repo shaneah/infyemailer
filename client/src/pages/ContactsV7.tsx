@@ -42,44 +42,100 @@ import {
   User,
   Upload,
   Search,
-  SlidersHorizontal,
   Eye,
   Pencil,
   Trash2,
-  Copy,
   Table as TableIcon,
   Grid,
-  ListFilter,
   CheckCircle,
   XCircle,
   AlertCircle,
   BadgeInfo,
   Tags,
   Calendar,
+  Phone,
+  Building,
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { apiRequest } from "@/lib/queryClient";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 
 // Define types
 interface Contact {
   id: number;
   name: string;
   email: string;
-  status: string;
+  status: string | { label: string; color: string };
   source?: string;
   engagement?: number;
   tags?: string[];
-  dateAdded?: string;
+  createdAt?: string;
+  addedOn?: string;
   metadata?: any;
+  lists?: Array<{
+    id: number;
+    name: string;
+  }>;
 }
 
-interface Tag {
-  id: string;
-  name: string;
-  count: number;
-}
+// Form schema
+const contactFormSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  email: z.string().email("Invalid email address"),
+  status: z.string().default("active"),
+  lists: z.array(z.string()).default([]),
+  phone: z.string().optional(),
+  company: z.string().optional(),
+  notes: z.string().optional(),
+  createdAt: z.string().optional(),
+});
+
+// Add this helper function after the interface
+const getStatusDisplay = (status: string | { label: string; color: string }) => {
+  if (typeof status === 'object' && status !== null) {
+    return {
+      text: status.label,
+      className: `bg-${status.color}-100 text-${status.color}-800`
+    };
+  }
+  
+  // Handle string status values
+  const statusMap: Record<string, { text: string; className: string }> = {
+    active: { text: 'Active', className: 'bg-green-100 text-green-800' },
+    inactive: { text: 'Inactive', className: 'bg-gray-100 text-gray-800' },
+    bounced: { text: 'Bounced', className: 'bg-red-100 text-red-800' },
+    unsubscribed: { text: 'Unsubscribed', className: 'bg-red-100 text-red-800' },
+    unknown: { text: 'Unknown', className: 'bg-yellow-100 text-yellow-800' }
+  };
+
+  const normalizedStatus = String(status).toLowerCase().trim();
+  return statusMap[normalizedStatus] || statusMap.unknown;
+};
+
+// Add a helper function for date formatting
+const formatDate = (date: string | Date | undefined) => {
+  if (!date) return 'N/A';
+  try {
+    return new Date(date).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  } catch (error) {
+    return 'Invalid Date';
+  }
+};
+
+// Add a helper function to get the display date
+const getDisplayDate = (contact: Contact) => {
+  return contact.addedOn || (contact.createdAt ? formatDate(contact.createdAt) : 'N/A');
+};
 
 const ContactsV7 = () => {
+  console.log('Rendering ContactsV7 component');
   const { toast } = useToast();
   const queryClient = useQueryClient();
   
@@ -89,13 +145,31 @@ const ContactsV7 = () => {
   const [selectedContacts, setSelectedContacts] = useState<number[]>([]);
   const [selectAll, setSelectAll] = useState(false);
   const [showAddContactDialog, setShowAddContactDialog] = useState(false);
-  const [newContact, setNewContact] = useState({ name: "", email: "", status: "active" });
   const [importDialogOpen, setImportDialogOpen] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
   const [isUploading, setIsUploading] = useState<boolean>(false);
-  const [selectedListId, setSelectedListId] = useState<number | null>(null);
+  const [selectedStatus, setSelectedStatus] = useState<string>("all");
+  const [sortField, setSortField] = useState<string>("name");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [viewEditDialogOpen, setViewEditDialogOpen] = useState(false);
+  const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
+  const [isEditMode, setIsEditMode] = useState(false);
+  
+  // Form setup
+  const form = useForm<z.infer<typeof contactFormSchema>>({
+    resolver: zodResolver(contactFormSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      status: "active",
+      lists: [],
+      phone: "",
+      company: "",
+      notes: "",
+    },
+  });
   
   // Fetch contacts
   const {
@@ -106,7 +180,7 @@ const ContactsV7 = () => {
     queryKey: ["/api/contacts"],
   });
   
-  // Fetch contact lists for import dropdown
+  // Fetch contact lists
   const {
     data: contactLists = [],
     isLoading: isLoadingLists,
@@ -114,389 +188,286 @@ const ContactsV7 = () => {
     queryKey: ["/api/lists"],
   });
 
-  // Mutations
-  const addContactMutation = useMutation({
-    mutationFn: async (newContact: { name: string; email: string; status: string }) => {
-      try {
-        // Generate a unique email to prevent duplicate errors
-        // This is a temporary workaround to make contact creation work
-        const uniqueEmail = `${newContact.email.split("@")[0]}_${Date.now()}@${newContact.email.split("@")[1]}`;
-        
-        const response = await apiRequest("POST", "/api/contacts", {
-          ...newContact,
-          email: uniqueEmail
-        });
-        
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || "Failed to add contact");
-        }
-        
-        return await response.json();
-      } catch (error) {
-        console.error("Contact creation error:", error);
-        throw error;
+  // Create contact mutation
+  const createContactMutation = useMutation({
+    mutationFn: async (data: any) => {
+      const response = await apiRequest("POST", "/api/contacts", data);
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to create contact');
       }
+      return response.json();
     },
     onSuccess: () => {
-      setShowAddContactDialog(false);
-      setNewContact({ name: "", email: "", status: "active" });
-      queryClient.invalidateQueries({ queryKey: ["/api/contacts"] });
+      queryClient.invalidateQueries({ queryKey: ['/api/contacts'] });
+      setViewEditDialogOpen(false);
+      form.reset();
       toast({
-        title: "Contact added",
-        description: "The contact has been successfully added.",
+        title: "Contact created",
+        description: "The contact has been created successfully.",
       });
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       toast({
-        title: "Error adding contact",
-        description: error.message || "There was an error adding the contact.",
+        title: "Error creating contact",
+        description: error.message,
         variant: "destructive",
       });
     },
   });
 
-  // Computed values
-  const activeContacts = contacts.filter(contact => contact.status === "active").length;
-  const inactiveContacts = contacts.filter(contact => contact.status === "inactive").length;
-  const bouncedContacts = contacts.filter(contact => contact.status === "bounced").length;
-
-  // Filter contacts based on search
-  const filteredContacts = contacts.filter(contact => {
-    if (!searchQuery) return true;
-    const query = searchQuery.toLowerCase();
-    return (
-      contact.name?.toLowerCase().includes(query) ||
-      contact.email?.toLowerCase().includes(query)
-    );
+  // Update contact mutation
+  const updateContactMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: number, data: any }) => {
+      const response = await apiRequest("PATCH", `/api/contacts/${id}`, data);
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to update contact');
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/contacts'] });
+      setViewEditDialogOpen(false);
+      setIsEditMode(false);
+      setSelectedContact(null);
+      form.reset();
+      toast({
+        title: "Contact updated",
+        description: "The contact has been updated successfully.",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error updating contact",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
   });
 
-  // Handle adding a new contact
-  const handleAddContact = (e: React.FormEvent) => {
-    e.preventDefault();
-    addContactMutation.mutate(newContact);
-  };
+  // Delete contact mutation
+  const deleteContactMutation = useMutation({
+    mutationFn: async (contactId: number) => {
+      await apiRequest('DELETE', `/api/contacts/${contactId}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/contacts"] });
+      toast({
+        title: "Success",
+        description: "Contact deleted successfully",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to delete contact",
+        variant: "destructive",
+      });
+    },
+  });
 
-  // Handle file selection
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      setSelectedFile(e.target.files[0]);
-    }
-  };
-  
-  // Handle file drop
-  const handleFileDrop = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-      setSelectedFile(e.dataTransfer.files[0]);
-    }
-  };
-  
-  // Prevent default behavior for drag events
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-  };
-  
-  // Import contacts from file
+  // Import contacts mutation
   const importContactsMutation = useMutation({
-    mutationFn: async () => {
-      if (!selectedFile) {
-        throw new Error("No file selected");
-      }
-      
+    mutationFn: async (file: File) => {
+      const formData = new FormData();
+      formData.append('file', file);
+      const response = await apiRequest('POST', '/api/contacts/import', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        }
+      });
+      return response.json();
+    },
+    onMutate: () => {
       setIsUploading(true);
       setUploadProgress(0);
-      
-      const formData = new FormData();
-      formData.append("file", selectedFile);
-      
-      // If list is selected, append list ID
-      if (selectedListId) {
-        formData.append("listId", selectedListId.toString());
-      }
-      
-      console.log("Uploading file:", selectedFile.name, "type:", selectedFile.type, "size:", selectedFile.size);
-      
-      // Use XMLHttpRequest to track upload progress
-      try {
-        return await new Promise((resolve, reject) => {
-          const xhr = new XMLHttpRequest();
-          
-          // Set up progress tracking
-          xhr.upload.onprogress = (event) => {
-            if (event.lengthComputable) {
-              const progress = Math.round((event.loaded / event.total) * 100);
-              console.log(`Upload progress: ${progress}%`);
-              setUploadProgress(progress);
-            }
-          };
-          
-          xhr.onload = async () => {
-            if (xhr.status >= 200 && xhr.status < 300) {
-              try {
-                const data = JSON.parse(xhr.responseText);
-                console.log("Upload response:", data);
-                resolve(data);
-              } catch (e) {
-                console.error("Failed to parse response:", xhr.responseText);
-                reject(new Error("Invalid response format"));
-              }
-            } else {
-              console.error("Upload failed:", xhr.status, xhr.statusText, xhr.responseText);
-              reject(new Error(`Upload failed: ${xhr.statusText || "Server error"}`));
-            }
-          };
-          
-          xhr.onerror = () => {
-            console.error("Network error during upload");
-            reject(new Error("Network error occurred"));
-          };
-          
-          xhr.open("POST", "/api/contacts/import", true);
-          
-          // Important: Do NOT set Content-Type header, let browser set it
-          xhr.withCredentials = true; // Add credentials
-          
-          xhr.send(formData);
-        });
-      } catch (error) {
-        console.error("File upload error:", error);
-        throw error;
-      } finally {
-        setIsUploading(false);
-      }
     },
-    onSuccess: (data: any) => {
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/contacts"] });
       setImportDialogOpen(false);
       setSelectedFile(null);
       setUploadProgress(0);
-      setSelectedListId(null);
-      queryClient.invalidateQueries({ queryKey: ["/api/contacts"] });
-      
-      // Also invalidate lists if a list was selected
-      if (selectedListId) {
-        queryClient.invalidateQueries({ queryKey: ["/api/lists"] });
-        queryClient.invalidateQueries({ queryKey: [`/api/lists/${selectedListId}/contacts`] });
-      }
-      
+      setIsUploading(false);
       toast({
-        title: "Contacts imported",
-        description: `Successfully imported ${data.valid || 0} contacts${data.duplicates ? `, ${data.duplicates} duplicates skipped` : ''}.`,
+        title: "Success",
+        description: "Contacts imported successfully",
       });
     },
     onError: (error: any) => {
-      setUploadProgress(0);
       toast({
-        title: "Import failed",
-        description: error.message || "There was an error importing contacts.",
+        title: "Error",
+        description: error.message || "Failed to import contacts",
         variant: "destructive",
       });
-    },
+      setIsUploading(false);
+    }
   });
 
-  // Select/deselect all contacts
-  useEffect(() => {
-    if (selectAll) {
-      setSelectedContacts(filteredContacts.map(contact => contact.id));
-    } else {
-      setSelectedContacts([]);
+  // Handle file selection
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
     }
-  }, [selectAll, filteredContacts]);
-
-  // Tags data
-  const tagGroups: Tag[] = [
-    { id: 'customer', name: 'Customer', count: 4 },
-    { id: 'newsletter', name: 'Newsletter', count: 2 },
-    { id: 'lead', name: 'Lead', count: 3 },
-    { id: 'event', name: 'Event', count: 1 },
-    { id: 'product', name: 'Product Launch', count: 1 },
-    { id: 'vip', name: 'VIP', count: 1 },
-    { id: 'former', name: 'Former Customer', count: 1 },
-    { id: 'webinar', name: 'Webinar', count: 1 }
-  ];
-
-  // Top engaged contacts
-  const topEngagedContacts = [...contacts]
-    .sort((a, b) => (b.engagement || 0) - (a.engagement || 0))
-    .slice(0, 3);
-
-  // Calculate engagement distribution
-  const highEngagement = Math.round((contacts.filter(c => (c.engagement || 0) > 70).length / contacts.length) * 100) || 45;
-  const mediumEngagement = Math.round((contacts.filter(c => (c.engagement || 0) >= 30 && (c.engagement || 0) <= 70).length / contacts.length) * 100) || 35;
-  const lowEngagement = Math.round((contacts.filter(c => (c.engagement || 0) < 30).length / contacts.length) * 100) || 20;
-
-  // We'll use avatar initials for contacts without images
-  const getInitials = (name: string) => {
-    if (!name) return "?";
-    const names = name.split(' ');
-    if (names.length === 1) return names[0].charAt(0).toUpperCase();
-    return (names[0].charAt(0) + names[names.length - 1].charAt(0)).toUpperCase();
   };
 
-  // Function to get avatar background color based on name
-  const getAvatarColor = (name: string) => {
-    if (!name) return "bg-gray-300";
-    
-    const colors = [
-      "bg-purple-500",
-      "bg-blue-500",
-      "bg-emerald-500",
-      "bg-amber-500",
-      "bg-red-500",
-      "bg-pink-500",
-      "bg-indigo-500",
-      "bg-cyan-500",
-    ];
-    
-    // Simple hash to pick a consistent color for a name
-    let hash = 0;
-    for (let i = 0; i < name.length; i++) {
-      hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  // Handle file import
+  const handleImport = async () => {
+    if (selectedFile) {
+      await importContactsMutation.mutateAsync(selectedFile);
     }
-    
-    return colors[Math.abs(hash) % colors.length];
   };
 
-  // Function to render engagement bar
-  const renderEngagementBar = (engagement?: number) => {
-    if (engagement === undefined) return null;
+  // Handle contact creation
+  const handleCreateContact = async (data: z.infer<typeof contactFormSchema>) => {
+    const { phone, company, notes, createdAt, ...contactData } = data;
     
-    let color = "bg-gray-300";
-    if (engagement > 70) color = "bg-emerald-500";
-    else if (engagement > 40) color = "bg-amber-500";
-    else if (engagement > 0) color = "bg-red-500";
+    const formattedData = {
+      ...contactData,
+      status: data.status.toLowerCase(),
+      metadata: {
+        phone: phone || '',
+        company: company || '',
+        notes: notes || '',
+      },
+      lists: data.lists.map(id => parseInt(id)),
+      createdAt: new Date().toISOString(),
+    };
+
+    createContactMutation.mutate(formattedData);
+  };
+
+  // Handle contact update
+  const handleUpdateContact = async (data: z.infer<typeof contactFormSchema>) => {
+    if (!selectedContact) return;
+
+    const { phone, company, notes, createdAt, ...contactData } = data;
     
-    return (
-      <div className="w-full bg-gray-100 rounded-full h-1.5 mr-2">
-        <div className={`${color} h-1.5 rounded-full`} style={{ width: `${engagement}%` }}></div>
-      </div>
-    );
+    const formattedData = {
+      ...contactData,
+      status: data.status.toLowerCase(),
+      metadata: {
+        phone: phone || '',
+        company: company || '',
+        notes: notes || '',
+      },
+      lists: data.lists.map(id => parseInt(id)),
+      createdAt: selectedContact.createdAt, // Preserve the original createdAt
+    };
+
+    updateContactMutation.mutate({
+      id: selectedContact.id,
+      data: formattedData,
+    });
+  };
+
+  // Handle contact deletion
+  const handleDeleteContact = async (contactId: number) => {
+    if (window.confirm("Are you sure you want to delete this contact?")) {
+      await deleteContactMutation.mutateAsync(contactId);
+    }
+  };
+
+  // Filter and sort contacts
+  const filteredAndSortedContacts = React.useMemo(() => {
+    let filtered = contacts.filter(contact => {
+      const matchesSearch = 
+        contact.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        contact.email?.toLowerCase().includes(searchQuery.toLowerCase());
+      
+      const matchesStatus = 
+        selectedStatus === "all" || 
+        (typeof contact.status === 'object' ? contact.status.label.toLowerCase() : contact.status.toLowerCase()) === selectedStatus;
+      
+      return matchesSearch && matchesStatus;
+    });
+
+    return filtered.sort((a, b) => {
+      const aValue = a[sortField as keyof Contact];
+      const bValue = b[sortField as keyof Contact];
+      
+      if (typeof aValue === 'string' && typeof bValue === 'string') {
+        return sortDirection === "asc" 
+          ? aValue.localeCompare(bValue)
+          : bValue.localeCompare(aValue);
+      }
+      
+      return sortDirection === "asc"
+        ? (aValue as number) - (bValue as number)
+        : (bValue as number) - (aValue as number);
+    });
+  }, [contacts, searchQuery, selectedStatus, sortField, sortDirection]);
+
+  // Handle view/edit contact
+  const handleViewEditContact = (contact: Contact) => {
+    console.log('Contact metadata (handleViewEditContact):', contact.metadata);
+    setSelectedContact(contact);
+    setViewEditDialogOpen(true);
+    setIsEditMode(false);
+    
+    // Reset form with contact data
+    form.reset({
+      name: contact.name,
+      email: contact.email,
+      status: typeof contact.status === 'object' ? contact.status.label.toLowerCase() : contact.status.toLowerCase(),
+      lists: contact.lists?.map(list => list.id.toString()) || [],
+      phone: contact.metadata?.phone || '',
+      company: contact.metadata?.company || '',
+      notes: contact.metadata?.notes || '',
+      createdAt: contact.createdAt,
+    });
+  };
+
+  // Handle edit button click
+  const handleEditClick = () => {
+    if (!selectedContact) return;
+    
+    setIsEditMode(true);
+    form.reset({
+      name: selectedContact.name,
+      email: selectedContact.email,
+      status: typeof selectedContact.status === 'object' ? selectedContact.status.label.toLowerCase() : selectedContact.status.toLowerCase(),
+      lists: selectedContact.lists?.map(list => list.id.toString()) || [],
+      phone: selectedContact.metadata?.phone || '',
+      company: selectedContact.metadata?.company || '',
+      notes: selectedContact.metadata?.notes || '',
+      createdAt: selectedContact.createdAt,
+    });
   };
 
   return (
-    <div className="space-y-8">
-      {/* Page Header */}
-      <div className="flex items-start gap-3">
-        <div className="bg-purple-100 p-3 rounded-xl">
-          <User className="h-6 w-6 text-purple-700" />
-        </div>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold">Contacts</h1>
-          <p className="text-muted-foreground text-sm">Manage your audience and track engagement</p>
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-purple-100 text-purple-700 rounded-lg">
+              <User className="h-6 w-6" />
+            </div>
+            <h1 className="text-2xl font-bold text-gray-900">Contacts</h1>
+          </div>
+          <p className="text-gray-500 mt-1">Manage your audience and track engagement</p>
+        </div>
+        
+        <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={() => setImportDialogOpen(true)} className="whitespace-nowrap">
+            <Upload className="h-4 w-4 mr-2" />
+            Import
+          </Button>
+          
+          <Button onClick={() => setShowAddContactDialog(true)} className="bg-purple-600 hover:bg-purple-700 whitespace-nowrap">
+            <span className="mr-1">+</span> Add Contact
+          </Button>
         </div>
       </div>
 
-      {/* Contact Analytics */}
-      <div className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Left column - Analytics */}
-          <Card className="border shadow-sm">
-            <CardContent className="p-6 space-y-6">
-              <h2 className="text-lg font-semibold">Contact Analytics</h2>
-              
-              {/* Contact Stats */}
-              <div className="grid grid-cols-4 gap-4">
-                <div className="bg-gray-50 border rounded-lg p-3">
-                  <h3 className="text-xs font-medium uppercase text-gray-500 mb-1">TOTAL CONTACTS</h3>
-                  <p className="text-2xl font-bold">{contacts.length}</p>
-                  <p className="text-xs text-gray-500">contacts</p>
-                </div>
-                
-                <div className="bg-emerald-50 border border-emerald-100 rounded-lg p-3">
-                  <h3 className="text-xs font-medium uppercase text-emerald-600 mb-1">ACTIVE</h3>
-                  <p className="text-2xl font-bold text-emerald-700">{activeContacts}</p>
-                  <div className="mt-1">
-                    <span className="text-xs text-emerald-700">{Math.round((activeContacts / contacts.length) * 100) || 0}%</span>
-                  </div>
-                </div>
-                
-                <div className="bg-amber-50 border border-amber-100 rounded-lg p-3">
-                  <h3 className="text-xs font-medium uppercase text-amber-600 mb-1">INACTIVE</h3>
-                  <p className="text-2xl font-bold text-amber-700">{inactiveContacts}</p>
-                  <div className="mt-1">
-                    <span className="text-xs text-amber-700">{Math.round((inactiveContacts / contacts.length) * 100) || 0}%</span>
-                  </div>
-                </div>
-                
-                <div className="bg-red-50 border border-red-100 rounded-lg p-3">
-                  <h3 className="text-xs font-medium uppercase text-red-600 mb-1">BOUNCED</h3>
-                  <p className="text-2xl font-bold text-red-700">{bouncedContacts}</p>
-                  <div className="mt-1">
-                    <span className="text-xs text-red-700">{Math.round((bouncedContacts / contacts.length) * 100) || 0}%</span>
-                  </div>
-                </div>
-              </div>
-              
-              {/* Engagement Distribution */}
-              <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <h3 className="text-sm font-medium">Engagement Distribution</h3>
-                  <p className="text-xs text-gray-500">Based on open rates, clicks and activity</p>
-                </div>
-                
-                <div className="flex h-2">
-                  <div className="bg-emerald-500 h-2 rounded-l-full" style={{ width: `${highEngagement}%` }}></div>
-                  <div className="bg-amber-500 h-2" style={{ width: `${mediumEngagement}%` }}></div>
-                  <div className="bg-red-500 h-2 rounded-r-full" style={{ width: `${lowEngagement}%` }}></div>
-                </div>
-                
-                <div className="flex justify-between text-xs text-gray-500 pt-1">
-                  <div>High ({highEngagement}%)</div>
-                  <div>Medium ({mediumEngagement}%)</div>
-                  <div>Low ({lowEngagement}%)</div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          {/* Right column - Tag Overview & Top Engaged */}
-          <Card className="border shadow-sm">
-            <CardContent className="p-6 space-y-6">
-              <h2 className="text-lg font-semibold">Tag Overview</h2>
-              
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                {tagGroups.map(tag => (
-                  <div key={tag.id} className="bg-gray-50 px-3 py-2 rounded-lg border flex items-center justify-between">
-                    <div className="text-sm font-medium">{tag.name}</div>
-                    <div className="bg-gray-200 text-gray-700 px-2 rounded-full text-xs">{tag.count}</div>
-                  </div>
-                ))}
-              </div>
-              
-              <div className="space-y-3">
-                <h3 className="text-sm font-medium">Top Engaged Contacts</h3>
-                
-                <div className="space-y-3">
-                  {topEngagedContacts.map(contact => (
-                    <div key={contact.id} className="flex items-center justify-between bg-gray-50 p-2 rounded-lg border">
-                      <div className="flex items-center gap-3">
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white ${getAvatarColor(contact.name)}`}>
-                          {getInitials(contact.name)}
-                        </div>
-                        <div>
-                          <div className="text-sm font-medium">{contact.name}</div>
-                          <div className="text-xs text-gray-500">{contact.email}</div>
-                        </div>
-                      </div>
-                      
-                      <div className="w-24">
-                        {renderEngagementBar(contact.engagement)}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-      
-      {/* Toolbar */}
+      {/* Filters */}
       <div className="flex flex-col sm:flex-row justify-between gap-4">
         <div className="relative w-full sm:w-96">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
           <Input
-            placeholder="Search contacts by name, email or notes..."
+            placeholder="Search contacts by name or email..."
             className="pl-10"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -504,7 +475,7 @@ const ContactsV7 = () => {
         </div>
         
         <div className="flex items-center gap-2 flex-wrap">
-          <Select defaultValue="all">
+          <Select value={selectedStatus} onValueChange={setSelectedStatus}>
             <SelectTrigger className="w-[140px]">
               <SelectValue placeholder="All Statuses" />
             </SelectTrigger>
@@ -516,24 +487,25 @@ const ContactsV7 = () => {
             </SelectContent>
           </Select>
           
-          <Select defaultValue="name">
+          <Select 
+            value={sortField} 
+            onValueChange={(value) => {
+              setSortField(value);
+              setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+            }}
+          >
             <SelectTrigger className="w-[140px]">
-              <SelectValue placeholder="Sort by Name" />
+              <SelectValue placeholder="Sort by" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="name">Sort by Name</SelectItem>
               <SelectItem value="email">Sort by Email</SelectItem>
-              <SelectItem value="date">Sort by Date Added</SelectItem>
+              <SelectItem value="dateAdded">Sort by Date Added</SelectItem>
               <SelectItem value="engagement">Sort by Engagement</SelectItem>
             </SelectContent>
           </Select>
           
-          <Button variant="outline" className="gap-1">
-            <SlidersHorizontal className="h-4 w-4" />
-            <span>Advanced Filters</span>
-          </Button>
-          
-          <div className="flex items-center border rounded-md overflow-hidden h-10">
+          <div className="flex border rounded-md">
             <Button
               variant={viewMode === "table" ? "default" : "ghost"}
               size="sm"
@@ -553,125 +525,82 @@ const ContactsV7 = () => {
               <span className="ml-2">Cards</span>
             </Button>
           </div>
-          
-          <Button variant="outline" onClick={() => setImportDialogOpen(true)} className="whitespace-nowrap">
-            <Upload className="h-4 w-4 mr-2" />
-            Import
-          </Button>
-          
-          <Button onClick={() => setShowAddContactDialog(true)} className="bg-purple-600 hover:bg-purple-700 whitespace-nowrap">
-            <span className="mr-1">+</span> Add Contact
-          </Button>
         </div>
       </div>
       
       {/* Contacts count */}
       <div className="text-sm text-gray-500">
-        Showing {filteredContacts.length} of {contacts.length} contacts
+        Showing {filteredAndSortedContacts.length} of {contacts.length} contacts
       </div>
       
       {/* Contacts Table */}
       {viewMode === "table" && (
-        <div className="border rounded-lg overflow-hidden bg-white">
+        <div className="rounded-md border">
           <Table>
             <TableHeader>
-              <TableRow className="bg-gray-50">
-                <TableHead className="w-[40px]">
-                  <input
-                    type="checkbox"
+              <TableRow>
+                <TableHead className="w-12">
+                  <Checkbox
                     checked={selectAll}
-                    onChange={() => setSelectAll(!selectAll)}
-                    className="rounded border-gray-300"
+                    onCheckedChange={(checked) => {
+                      setSelectAll(checked as boolean);
+                      if (checked) {
+                        setSelectedContacts(filteredAndSortedContacts.map(c => c.id));
+                      } else {
+                        setSelectedContacts([]);
+                      }
+                    }}
                   />
                 </TableHead>
                 <TableHead>Contact</TableHead>
                 <TableHead>Email</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead>Engagement</TableHead>
-                <TableHead>Tags</TableHead>
+                <TableHead>Lists</TableHead>
                 <TableHead>Date Added</TableHead>
-                <TableHead>Actions</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredContacts.map((contact) => (
+              {filteredAndSortedContacts.map((contact) => (
                 <TableRow key={contact.id}>
                   <TableCell>
-                    <input
-                      type="checkbox"
+                    <Checkbox
                       checked={selectedContacts.includes(contact.id)}
-                      onChange={() => {
-                        if (selectedContacts.includes(contact.id)) {
-                          setSelectedContacts(selectedContacts.filter(id => id !== contact.id));
-                        } else {
+                      onCheckedChange={(checked) => {
+                        if (checked) {
                           setSelectedContacts([...selectedContacts, contact.id]);
+                        } else {
+                          setSelectedContacts(selectedContacts.filter(id => id !== contact.id));
                         }
                       }}
-                      className="rounded border-gray-300"
                     />
                   </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-3">
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white ${getAvatarColor(contact.name)}`}>
-                        {getInitials(contact.name)}
-                      </div>
-                      <div>
-                        <div className="font-medium">{contact.name}</div>
-                        <div className="text-xs text-gray-500">Source: {contact.source || "Website"}</div>
-                      </div>
-                    </div>
-                  </TableCell>
+                  <TableCell>{contact.name}</TableCell>
                   <TableCell>{contact.email}</TableCell>
                   <TableCell>
-                    {contact.status === "active" && (
-                      <div className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
-                        Active
-                      </div>
-                    )}
-                    {contact.status === "inactive" && (
-                      <div className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                        Inactive
-                      </div>
-                    )}
-                    {contact.status === "unsubscribed" && (
-                      <div className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
-                        Unsubscribed
-                      </div>
-                    )}
-                    {contact.status === "bounced" && (
-                      <div className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                        Bounced
-                      </div>
-                    )}
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusDisplay(contact.status).className}`}>
+                      {getStatusDisplay(contact.status).text}
+                    </span>
                   </TableCell>
                   <TableCell>
-                    <div className="flex items-center gap-2">
-                      <div className="w-12">
-                        <Progress value={contact.engagement || 0} className="h-1" />
-                      </div>
-                      <span className="text-sm">{contact.engagement || 0}%</span>
-                    </div>
+                    {contact.lists?.map(list => list.name).join(", ") || "-"}
                   </TableCell>
-                  <TableCell>
-                    <div className="flex flex-wrap gap-1">
-                      {contact.tags && contact.tags.map((tag, i) => (
-                        <div key={i} className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
-                          {tag}
-                        </div>
-                      ))}
-                    </div>
-                  </TableCell>
-                  <TableCell>{contact.dateAdded || "N/A"}</TableCell>
-                  <TableCell>
-                    <div className="flex gap-1">
-                      <Button variant="ghost" size="icon" className="h-7 w-7">
-                        <Eye className="h-4 w-4 text-gray-500" />
+                  <TableCell>{getDisplayDate(contact)}</TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex justify-end gap-2">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleViewEditContact(contact)}
+                      >
+                        <Eye className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="icon" className="h-7 w-7">
-                        <Pencil className="h-4 w-4 text-gray-500" />
-                      </Button>
-                      <Button variant="ghost" size="icon" className="h-7 w-7">
-                        <Trash2 className="h-4 w-4 text-gray-500" />
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleDeleteContact(contact.id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
                   </TableCell>
@@ -681,281 +610,389 @@ const ContactsV7 = () => {
           </Table>
         </div>
       )}
-      
-      {/* Cards view */}
+
+      {/* Contacts Cards View */}
       {viewMode === "cards" && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredContacts.map((contact) => (
-            <Card key={contact.id} className="overflow-hidden border">
-              <div className="p-4 flex justify-between border-b">
-                <div className="flex items-center gap-3">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white ${getAvatarColor(contact.name)}`}>
-                    {getInitials(contact.name)}
-                  </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {filteredAndSortedContacts.map((contact) => (
+            <Card key={contact.id}>
+              <CardContent className="p-6">
+                <div className="flex justify-between items-start mb-4">
                   <div>
-                    <div className="font-medium">{contact.name}</div>
-                    <div className="text-sm text-gray-500">{contact.email}</div>
+                    <h3 className="font-semibold text-lg">{contact.name}</h3>
+                    <p className="text-sm text-gray-500">{contact.email}</p>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleViewEditContact(contact)}
+                    >
+                      <Eye className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleDeleteContact(contact.id)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
                   </div>
                 </div>
-                <input
-                  type="checkbox"
-                  checked={selectedContacts.includes(contact.id)}
-                  onChange={() => {
-                    if (selectedContacts.includes(contact.id)) {
-                      setSelectedContacts(selectedContacts.filter(id => id !== contact.id));
-                    } else {
-                      setSelectedContacts([...selectedContacts, contact.id]);
-                    }
-                  }}
-                  className="rounded border-gray-300"
-                />
-              </div>
-              <CardContent className="p-4 space-y-3">
-                <div className="flex justify-between">
-                  <div className="text-sm">Status</div>
-                  <div>
-                    {contact.status === "active" && (
-                      <div className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
-                        Active
-                      </div>
-                    )}
-                    {contact.status === "inactive" && (
-                      <div className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                        Inactive
-                      </div>
-                    )}
-                    {contact.status === "unsubscribed" && (
-                      <div className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
-                        Unsubscribed
-                      </div>
-                    )}
-                    {contact.status === "bounced" && (
-                      <div className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                        Bounced
-                      </div>
-                    )}
-                  </div>
-                </div>
-                <div className="flex justify-between">
-                  <div className="text-sm">Engagement</div>
+                
+                <div className="space-y-3">
                   <div className="flex items-center gap-2">
-                    <div className="w-24">
-                      <Progress value={contact.engagement || 0} className="h-1" />
+                    <BadgeInfo className="h-4 w-4 text-gray-400" />
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusDisplay(contact.status).className}`}>
+                      {getStatusDisplay(contact.status).text}
+                    </span>
+                  </div>
+                  
+                  {contact.lists && contact.lists.length > 0 && (
+                    <div className="flex items-center gap-2">
+                      <Tags className="h-4 w-4 text-gray-400" />
+                      <span className="text-sm text-gray-600">
+                        {contact.lists.map(list => list.name).join(", ")}
+                      </span>
                     </div>
-                    <span className="text-sm">{contact.engagement || 0}%</span>
+                  )}
+                  
+                  <div className="text-sm text-gray-500">
+                    Added: {getDisplayDate(contact)}
                   </div>
-                </div>
-                <div className="flex justify-between">
-                  <div className="text-sm">Added</div>
-                  <div className="text-sm">{contact.dateAdded || "N/A"}</div>
-                </div>
-                <div className="pt-2">
-                  <div className="flex flex-wrap gap-1">
-                    {contact.tags && contact.tags.map((tag, i) => (
-                      <div key={i} className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
-                        {tag}
-                      </div>
-                    ))}
-                  </div>
+                  
+                  {contact.metadata?.phone && (
+                    <div className="flex items-center gap-2">
+                      <Phone className="h-4 w-4 text-gray-400" />
+                      <span className="text-sm text-gray-600">{contact.metadata.phone}</span>
+                    </div>
+                  )}
+                  
+                  {contact.metadata?.company && (
+                    <div className="flex items-center gap-2">
+                      <Building className="h-4 w-4 text-gray-400" />
+                      <span className="text-sm text-gray-600">{contact.metadata.company}</span>
+                    </div>
+                  )}
                 </div>
               </CardContent>
-              <div className="border-t p-3 flex justify-end gap-1">
-                <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
-                  <Eye className="h-4 w-4 text-gray-500" />
-                </Button>
-                <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
-                  <Pencil className="h-4 w-4 text-gray-500" />
-                </Button>
-                <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
-                  <Trash2 className="h-4 w-4 text-gray-500" />
-                </Button>
-              </div>
             </Card>
           ))}
         </div>
       )}
-      
+
       {/* Add Contact Dialog */}
       <Dialog open={showAddContactDialog} onOpenChange={setShowAddContactDialog}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Add New Contact</DialogTitle>
             <DialogDescription>
-              Add a new contact to your database. All fields with * are required.
+              Add a new contact to your list. Fill in the details below.
             </DialogDescription>
           </DialogHeader>
-          
-          <form onSubmit={handleAddContact}>
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="name" className="text-right">
-                  Name *
-                </Label>
-                <Input
-                  id="name"
-                  value={newContact.name}
-                  onChange={(e) => setNewContact({ ...newContact, name: e.target.value })}
-                  className="col-span-3"
-                  required
-                />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="email" className="text-right">
-                  Email *
-                </Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={newContact.email}
-                  onChange={(e) => setNewContact({ ...newContact, email: e.target.value })}
-                  className="col-span-3"
-                  required
-                />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="status" className="text-right">
-                  Status
-                </Label>
-                <Select
-                  value={newContact.status}
-                  onValueChange={(value) => setNewContact({ ...newContact, status: value })}
-                >
-                  <SelectTrigger className="col-span-3">
-                    <SelectValue placeholder="Select status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="active">Active</SelectItem>
-                    <SelectItem value="inactive">Inactive</SelectItem>
-                    <SelectItem value="unsubscribed">Unsubscribed</SelectItem>
-                  </SelectContent>
-                </Select>
+          <form onSubmit={form.handleSubmit(handleCreateContact)} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">Name</Label>
+              <Input
+                id="name"
+                {...form.register("name")}
+                placeholder="Enter contact name"
+              />
+              {form.formState.errors.name && (
+                <p className="text-sm text-red-500">{form.formState.errors.name.message}</p>
+              )}
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                {...form.register("email")}
+                placeholder="Enter email address"
+              />
+              {form.formState.errors.email && (
+                <p className="text-sm text-red-500">{form.formState.errors.email.message}</p>
+              )}
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="status">Status</Label>
+              <Select
+                value={form.watch("status")}
+                onValueChange={(value) => form.setValue("status", value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="inactive">Inactive</SelectItem>
+                  <SelectItem value="bounced">Bounced</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="space-y-2">
+              <Label>Lists</Label>
+              <div className="space-y-2 max-h-[200px] overflow-y-auto">
+                {contactLists.map((list) => (
+                  <div key={list.id} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={`list-${list.id}`}
+                      checked={form.watch("lists").includes(list.id.toString())}
+                      onCheckedChange={(checked) => {
+                        const currentLists = form.watch("lists");
+                        if (checked) {
+                          form.setValue("lists", [...currentLists, list.id.toString()]);
+                        } else {
+                          form.setValue(
+                            "lists",
+                            currentLists.filter((id) => id !== list.id.toString())
+                          );
+                        }
+                      }}
+                    />
+                    <Label htmlFor={`list-${list.id}`}>{list.name}</Label>
+                  </div>
+                ))}
               </div>
             </div>
+            
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setShowAddContactDialog(false)}>
-                Cancel
-              </Button>
-              <Button type="submit" disabled={addContactMutation.isPending}>
-                {addContactMutation.isPending ? "Adding..." : "Add Contact"}
-              </Button>
+              <Button type="submit">Add Contact</Button>
             </DialogFooter>
           </form>
         </DialogContent>
       </Dialog>
-      
+
       {/* Import Dialog */}
       <Dialog open={importDialogOpen} onOpenChange={setImportDialogOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Import Contacts</DialogTitle>
             <DialogDescription>
-              Import contacts from a CSV, Excel, or JSON file. Make sure your file contains at minimum the name and email columns.
+              Import contacts from a CSV or Excel file.
             </DialogDescription>
           </DialogHeader>
           
-          <div className="grid gap-4 py-4">
-            <input 
-              type="file" 
-              ref={fileInputRef} 
-              className="hidden" 
-              accept=".csv,.xlsx,.json,.txt"
-              onChange={handleFileSelect}
-            />
-            
-            <div 
-              className={`border-2 border-dashed rounded-lg p-10 text-center ${selectedFile ? 'border-green-500 bg-green-50' : 'border-gray-300'}`}
-              onDragOver={handleDragOver}
-              onDrop={handleFileDrop}
-              onClick={() => fileInputRef.current?.click()}
-              style={{ cursor: 'pointer' }}
-            >
-              <div className="flex flex-col items-center">
-                {selectedFile ? (
-                  <>
-                    <CheckCircle className="h-8 w-8 text-green-500 mb-2" />
-                    <h3 className="text-lg font-medium">File selected</h3>
-                    <p className="text-sm text-gray-500 mb-2">{selectedFile.name}</p>
-                    <p className="text-xs text-gray-500">
-                      {(selectedFile.size / 1024).toFixed(1)} KB • Click to change
-                    </p>
-                  </>
-                ) : (
-                  <>
-                    <Upload className="h-8 w-8 text-gray-400 mb-2" />
-                    <h3 className="text-lg font-medium">Drag and drop your file here</h3>
-                    <p className="text-sm text-gray-500 mb-4">or click to browse files</p>
-                    <Button 
-                      variant="outline" 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        fileInputRef.current?.click();
-                      }}
-                    >
-                      Select File
-                    </Button>
-                  </>
-                )}
-              </div>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>Select File</Label>
+              <Input
+                type="file"
+                accept=".csv,.xlsx,.xls"
+                onChange={handleFileSelect}
+                ref={fileInputRef}
+              />
             </div>
             
             {isUploading && (
               <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span>Uploading...</span>
-                  <span>{uploadProgress}%</span>
-                </div>
+                <Label>Uploading...</Label>
                 <Progress value={uploadProgress} />
               </div>
             )}
             
-            {/* Contact List Selection */}
-            <div className="space-y-2">
-              <Label htmlFor="contact-list">Add to Contact List (Optional)</Label>
-              <Select 
-                value={selectedListId?.toString() || "none"} 
-                onValueChange={(value) => setSelectedListId(value !== "none" ? parseInt(value, 10) : null)}
+            <DialogFooter>
+              <Button
+                onClick={handleImport}
+                disabled={!selectedFile || isUploading}
               >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a list (optional)" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">None</SelectItem>
-                  {contactLists.map((list) => (
-                    <SelectItem key={list.id} value={list.id.toString()}>
-                      {list.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div className="bg-muted rounded-md p-3">
-              <h4 className="text-sm font-medium mb-2">Supported formats</h4>
-              <div className="flex flex-wrap gap-2">
-                <div className="bg-background rounded px-2 py-1 text-xs">.csv</div>
-                <div className="bg-background rounded px-2 py-1 text-xs">.xlsx</div>
-                <div className="bg-background rounded px-2 py-1 text-xs">.json</div>
-                <div className="bg-background rounded px-2 py-1 text-xs">.txt</div>
-              </div>
-            </div>
+                {isUploading ? "Importing..." : "Import"}
+              </Button>
+            </DialogFooter>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* View/Edit Dialog */}
+      <Dialog open={viewEditDialogOpen} onOpenChange={setViewEditDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>{isEditMode ? 'Edit Contact' : 'View Contact'}</DialogTitle>
+            <DialogDescription>
+              {isEditMode ? 'Edit contact information' : 'View contact details'}
+            </DialogDescription>
+          </DialogHeader>
           
-          <DialogFooter>
-            <Button variant="outline" onClick={() => {
-              setImportDialogOpen(false);
-              setSelectedFile(null);
-              setSelectedListId(null);
-              setUploadProgress(0);
-            }}>
-              Cancel
-            </Button>
-            <Button 
-              onClick={() => importContactsMutation.mutate()}
-              disabled={!selectedFile || isUploading}
-            >
-              {isUploading ? `Uploading ${uploadProgress}%` : 'Import Contacts'}
-            </Button>
-          </DialogFooter>
+          {selectedContact && (
+            <div className="space-y-6">
+              {isEditMode ? (
+                <form onSubmit={form.handleSubmit(handleUpdateContact)} className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="name">Name</Label>
+                      <Input
+                        id="name"
+                        {...form.register("name")}
+                        placeholder="Enter contact name"
+                      />
+                      {form.formState.errors.name && (
+                        <p className="text-sm text-red-500">{form.formState.errors.name.message}</p>
+                      )}
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="email">Email</Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        {...form.register("email")}
+                        placeholder="Enter email address"
+                      />
+                      {form.formState.errors.email && (
+                        <p className="text-sm text-red-500">{form.formState.errors.email.message}</p>
+                      )}
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="status">Status</Label>
+                      <Select
+                        value={form.watch("status")}
+                        onValueChange={(value) => form.setValue("status", value)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="active">Active</SelectItem>
+                          <SelectItem value="inactive">Inactive</SelectItem>
+                          <SelectItem value="bounced">Bounced</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="phone">Phone</Label>
+                      <Input
+                        id="phone"
+                        {...form.register("phone")}
+                        placeholder="Enter phone number"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="company">Company</Label>
+                      <Input
+                        id="company"
+                        {...form.register("company")}
+                        placeholder="Enter company name"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Lists</Label>
+                      <div className="space-y-2 max-h-32 overflow-y-auto">
+                        {contactLists.map((list) => (
+                          <div key={list.id} className="flex items-center space-x-2">
+                            <Checkbox
+                              id={`list-${list.id}`}
+                              checked={form.watch("lists").includes(list.id.toString())}
+                              onCheckedChange={(checked) => {
+                                const currentLists = form.watch("lists");
+                                if (checked) {
+                                  form.setValue("lists", [...currentLists, list.id.toString()]);
+                                } else {
+                                  form.setValue(
+                                    "lists",
+                                    currentLists.filter((id) => id !== list.id.toString())
+                                  );
+                                }
+                              }}
+                            />
+                            <Label htmlFor={`list-${list.id}`}>{list.name}</Label>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="notes">Notes</Label>
+                    <textarea
+                      id="notes"
+                      {...form.register("notes")}
+                      className="w-full min-h-[100px] p-2 border rounded-md"
+                      placeholder="Enter notes about the contact"
+                    />
+                  </div>
+
+                  <DialogFooter>
+                    <Button type="button" variant="outline" onClick={() => {
+                      setIsEditMode(false);
+                      form.reset();
+                    }}>
+                      Cancel
+                    </Button>
+                    <Button type="submit">Save Changes</Button>
+                  </DialogFooter>
+                </form>
+              ) : (
+                <>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label>Name</Label>
+                      <p className="text-sm text-gray-600">{selectedContact.name}</p>
+                    </div>
+                    <div>
+                      <Label>Email</Label>
+                      <p className="text-sm text-gray-600">{selectedContact.email}</p>
+                    </div>
+                    <div>
+                      <Label>Status</Label>
+                      <p className="text-sm">
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusDisplay(selectedContact.status).className}`}>
+                          {getStatusDisplay(selectedContact.status).text}
+                        </span>
+                      </p>
+                    </div>
+                    <div>
+                      <Label>Lists</Label>
+                      <p className="text-sm text-gray-600">
+                        {selectedContact.lists?.map(list => list.name).join(", ") || "-"}
+                      </p>
+                    </div>
+                    {selectedContact.metadata?.phone && (
+                      <div>
+                        <Label>Phone</Label>
+                        <p className="text-sm text-gray-600">{selectedContact.metadata.phone}</p>
+                      </div>
+                    )}
+                    {selectedContact.metadata?.company && (
+                      <div>
+                        <Label>Company</Label>
+                        <p className="text-sm text-gray-600">{selectedContact.metadata.company}</p>
+                      </div>
+                    )}
+                  </div>
+
+                  {selectedContact.metadata?.notes && (
+                    <div>
+                      <Label>Notes</Label>
+                      <p className="text-sm text-gray-600 whitespace-pre-wrap">{selectedContact.metadata.notes}</p>
+                    </div>
+                  )}
+
+                  <div className="text-sm text-gray-500">
+                    Added: {getDisplayDate(selectedContact)}
+                  </div>
+
+                  <DialogFooter>
+                    <Button variant="outline" onClick={() => {
+                      setViewEditDialogOpen(false);
+                      setSelectedContact(null);
+                    }}>
+                      Close
+                    </Button>
+                    <Button onClick={handleEditClick}>
+                      Edit Contact
+                    </Button>
+                  </DialogFooter>
+                </>
+              )}
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </div>

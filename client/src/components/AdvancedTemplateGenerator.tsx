@@ -113,7 +113,7 @@ export default function AdvancedTemplateGenerator({ onTemplateGenerated }: Advan
     { value: 'muted', label: 'Muted/Subtle' },
     { value: 'light', label: 'Light Mode' },
     { value: 'dark', label: 'Dark Mode' }
-  ];
+  ] as const;
 
   // Create animated progress indicator for template generation
   useEffect(() => {
