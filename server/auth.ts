@@ -70,27 +70,34 @@ export function setupAuth(app: Express) {
     sessionStore = new PgSessionStore({
       pool,
       tableName: 'session', // Default table name
-      createTableIfMissing: true
+      createTableIfMissing: true,
+      pruneSessionInterval: 60, // Prune expired sessions every 60 seconds
+      errorCallback: (err) => {
+        console.error('Session store error:', err);
+      }
     });
   } else {
     console.log('Using memory store for session storage');
     const MemoryStore = memorystore(session);
     sessionStore = new MemoryStore({
-      checkPeriod: 86400000 // prune expired entries every 24h
+      checkPeriod: 86400000, // prune expired entries every 24h
+      max: 1000 // Maximum number of sessions to store
     });
   }
 
   const sessionSettings: session.SessionOptions = {
     secret: process.env.SESSION_SECRET || 'infy-mailer-secret',
-    resave: false,
-    saveUninitialized: false,
+    resave: true, // Changed to true to ensure session is saved
+    saveUninitialized: true, // Changed to true to ensure session is created
     store: sessionStore,
     cookie: {
       maxAge: 1000 * 60 * 60 * 24, // 1 day
-      secure: false,
-      sameSite: 'lax',  // Allow cookies to be sent with same-site requests
-      path: '/',        // Ensure cookie is available across the entire site
-    }
+      secure: process.env.NODE_ENV === 'production', // Only use secure cookies in production
+      sameSite: 'lax',
+      path: '/',
+      httpOnly: true // Ensure cookies are not accessible via JavaScript
+    },
+    name: 'client.sid' // Explicitly set session cookie name
   };
 
   app.set("trust proxy", 1);

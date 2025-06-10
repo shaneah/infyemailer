@@ -147,6 +147,7 @@ export class DbStorage implements IStorage {
   // Client methods
   async getClient(id: number) {
     try {
+      console.log('getClient called with id:', id);
       const result = await db
         .select({
           id: schema.clients.id,
@@ -166,11 +167,10 @@ export class DbStorage implements IStorage {
         })
         .from(schema.clients)
         .where(eq(schema.clients.id, id));
-
+      console.log('getClient query result:', result);
       if (result.length === 0) {
         return undefined;
       }
-
       const clientData = result[0];
       console.log('Fetched client data in getClient:', clientData.id, {
         emailCredits: clientData.emailCredits,
@@ -327,22 +327,14 @@ export class DbStorage implements IStorage {
       const trimmedUsername = username.trim();
       console.log(`[getClientUserByUsername] Looking up username: '${trimmedUsername}' (original: '${username}')`);
 
-      // Case-insensitive, trimmed username lookup
-      const directResult = await db.execute(
-        sql`SELECT * FROM client_users WHERE LOWER(username) = LOWER(${trimmedUsername})`
-      );
-      console.log('[getClientUserByUsername] Direct SQL query result:', directResult);
+      // Use schema-based query instead of raw SQL
+      const [user] = await db
+        .select()
+        .from(schema.clientUsers)
+        .where(eq(schema.clientUsers.username, trimmedUsername));
 
-      // Some drivers return .rows, others return array directly
-      const rows = Array.isArray(directResult) ? directResult : (directResult.rows || []);
-      if (rows.length > 0) {
-        const user = rows[0];
-        console.log('[getClientUserByUsername] Found user via direct SQL:', user);
-        return user;
-      }
-
-      console.log('[getClientUserByUsername] User not found via direct SQL query');
-      return undefined;
+      console.log('[getClientUserByUsername] Found user:', user);
+      return user;
     } catch (error) {
       console.error('[getClientUserByUsername] Error getting client user by username:', error);
       return undefined;
@@ -1536,6 +1528,78 @@ export class DbStorage implements IStorage {
     } catch (err) {
       console.error("Error in deductClientEmailCredits:", err);
       throw err; // Re-throw to handle insufficient credits error
+    }
+  }
+
+  async initializeTestData() {
+    try {
+      console.log('Initializing test data...');
+      
+      // First check if test client already exists
+      const existingClient = await db
+        .select()
+        .from(schema.clients)
+        .where(eq(schema.clients.email, 'test@example.com'));
+
+      let clientId;
+      if (existingClient.length > 0) {
+        console.log('Test client already exists');
+        clientId = existingClient[0].id;
+      } else {
+        // Create test client
+        const [newClient] = await db
+          .insert(schema.clients)
+          .values({
+            name: 'Test Client',
+            email: 'test@example.com',
+            company: 'Test Company',
+            status: 'active',
+            metadata: { type: 'test' }
+          })
+          .returning();
+        
+        clientId = newClient.id;
+        console.log('Created test client with ID:', clientId);
+      }
+
+      // Check if test user already exists
+      const existingUser = await db
+        .select()
+        .from(schema.clientUsers)
+        .where(eq(schema.clientUsers.username, 'ryan1234'));
+
+      if (existingUser.length > 0) {
+        console.log('Test client user already exists');
+      } else {
+        // Create test client user
+        const [newUser] = await db
+          .insert(schema.clientUsers)
+          .values({
+            clientId,
+            username: 'ryan1234',
+            password: 'ryan1234',
+            status: 'active',
+            metadata: {
+              permissions: {
+                campaigns: true,
+                contacts: true,
+                templates: true,
+                reporting: true,
+                domains: true,
+                abTesting: true,
+                emailValidation: true
+              }
+            }
+          })
+          .returning();
+        
+        console.log('Created test client user with ID:', newUser.id);
+      }
+
+      console.log('Test data initialization complete');
+    } catch (error) {
+      console.error('Error initializing test data:', error);
+      throw error;
     }
   }
 }

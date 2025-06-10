@@ -9,8 +9,11 @@ import fs from 'fs';
 // DEBUG: Log the DATABASE_URL at startup
 console.log('[DEBUG] DATABASE_URL:', process.env.DATABASE_URL);
 
-// Set up WebSockets for Neon serverless
+// Set up WebSockets for Neon serverless with better error handling
 neonConfig.webSocketConstructor = ws;
+neonConfig.useSecureWebSocket = true;
+neonConfig.pipelineTLS = true;
+neonConfig.pipelineConnect = true;
 
 // Connection variables - for ease of testing/fallback
 export let isDatabaseAvailable = false;
@@ -37,7 +40,10 @@ async function setupDatabaseConnection(): Promise<boolean> {
       // Add connection timeout for better error handling
       connectionTimeoutMillis: 10000,
       // Increase max clients for better concurrency
-      max: 20
+      max: 20,
+      // Add WebSocket specific options
+      keepAlive: true,
+      keepAliveInitialDelayMillis: 10000
     });
     
     // Extract only table schemas from the schema object, excluding relation definitions

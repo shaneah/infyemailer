@@ -3058,6 +3058,8 @@ export default function ClientRoutes() {
   };
   
   useEffect(() => {
+    let isMounted = true;
+    
     // First check client user in session storage for quick load
     const sessionUser = sessionStorage.getItem('clientUser');
     let userData = null;
@@ -3065,7 +3067,9 @@ export default function ClientRoutes() {
     if (sessionUser) {
       try {
         userData = JSON.parse(sessionUser);
-        setClientUser(userData);
+        if (isMounted) {
+          setClientUser(userData);
+        }
       } catch (error) {
         console.error('Error parsing client user from session storage:', error);
         sessionStorage.removeItem('clientUser');
@@ -3074,50 +3078,62 @@ export default function ClientRoutes() {
     
     // Always verify session with server regardless of local session storage
     async function verifySession() {
+      if (!isMounted) return;
+      
       try {
         setIsLoading(true);
         const response = await fetch('/api/client/verify-session', {
-          credentials: 'include' // Important for cookies/session
+          method: 'GET',
+          credentials: 'include', // Important for cookies/session
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          }
         });
         
-        if (response.ok) {
-          const data = await response.json();
-          console.log('Session verification response:', data);
-          
-          // Check for both old and new response formats for compatibility
-          if ((data.verified || data.authenticated) && data.user) {
-            // Update client user data from server
+        const data = await response.json();
+        console.log('Session verification response:', {
+          status: response.status,
+          data,
+          headers: Object.fromEntries(response.headers.entries())
+        });
+        
+        if (response.ok && data.verified && data.user) {
+          // Update client user data from server
+          if (isMounted) {
             setClientUser(data.user);
-            
             // Update session storage with latest data
             sessionStorage.setItem('clientUser', JSON.stringify(data.user));
-            
-            console.log('Client session verified successfully');
-          } else {
-            throw new Error('Session verification failed');
           }
+          console.log('Client session verified successfully');
         } else {
-          throw new Error('Session verification failed');
+          throw new Error(data.message || 'Session verification failed');
         }
       } catch (error) {
         console.error('Session verification error:', error);
         // Clear invalid session data
         sessionStorage.removeItem('clientUser');
-        setClientUser(null);
-        
-        toast({
-          title: "Authentication required",
-          description: "Please login to access the client portal",
-          variant: "destructive"
-        });
-        
-        setLocation('/client-login');
+        if (isMounted) {
+          setClientUser(null);
+          toast({
+            title: "Authentication required",
+            description: "Please login to access the client portal",
+            variant: "destructive"
+          });
+          setLocation('/client-login');
+        }
       } finally {
-        setIsLoading(false);
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
     }
     
     verifySession();
+    
+    return () => {
+      isMounted = false;
+    };
   }, [setLocation, toast]);
   
   if (isLoading) {

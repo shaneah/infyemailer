@@ -273,33 +273,15 @@ const NewCampaignModal = ({ onClose, initialTemplateId = null }: NewCampaignModa
     category?: string;
   }
 
-  // Mock templates for testing
-  const mockTemplates = [
-    { id: 1, name: "Newsletter Template", description: "Professional newsletter layout", category: "newsletter" },
-    { id: 2, name: "Promotional Email", description: "Great for sales and special offers", category: "promotional" },
-    { id: 3, name: "Welcome Email", description: "Introduce new subscribers to your brand", category: "onboarding" }
-  ];
-  
-  // Mock contact lists for testing
-  const mockLists = [
-    { id: 1, name: "All Subscribers", count: 2450 },
-    { id: 2, name: "Newsletter Subscribers", count: 1820 },
-    { id: 3, name: "New Customers", count: 356 }
-  ];
-  
   // Fetch templates from the server
-  const { data: serverTemplates = [], isLoading: isLoadingTemplates } = useQuery<Template[]>({ 
+  const { data: templates = [], isLoading: isLoadingTemplates } = useQuery<Template[]>({ 
     queryKey: ['/api/templates'],
   });
   
   // Fetch contact lists from the server
-  const { data: serverLists = [], isLoading: isLoadingLists } = useQuery<any[]>({ 
+  const { data: lists = [], isLoading: isLoadingLists } = useQuery<any[]>({ 
     queryKey: ['/api/lists'],
   });
-  
-  // Use server data if available, otherwise use mock data
-  const templates = serverTemplates.length > 0 ? serverTemplates : mockTemplates;
-  const lists = serverLists.length > 0 ? serverLists : mockLists;
   
   // Used to ensure Dialog doesn't unmount during animations
   const [isOpen, setIsOpen] = useState(true);
@@ -312,8 +294,7 @@ const NewCampaignModal = ({ onClose, initialTemplateId = null }: NewCampaignModa
     }, 300); // Match animation duration
   };
   
-  console.log("Templates:", templates.length > 0 ? "Using data" : "Using mocks", "Lists:", lists.length > 0 ? "Using data" : "Using mocks");
-  console.log("Template count:", templates.length, "List count:", lists.length);
+  console.log("Templates:", templates.length, "Lists:", lists.length);
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>

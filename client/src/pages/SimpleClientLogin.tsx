@@ -129,6 +129,7 @@ const SimpleClientLogin = () => {
                       onChange={(e) => setPassword(e.target.value)}
                       className="block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                       placeholder="Enter your password"
+                      autoComplete="current-password"
                     />
                     <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
                       <button

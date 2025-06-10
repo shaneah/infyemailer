@@ -451,7 +451,7 @@ export class MemStorage implements IStorage {
     this.clientEmailCreditsHistoryId = 1;
     this.clientProviderId = 1;
 
-    // Initialize with some default data
+    // Initialize with empty data
     this.initializeData();
   }
   
@@ -616,384 +616,37 @@ export class MemStorage implements IStorage {
   }
 
   private initializeData() {
-    // Initialize system credits with starting balance of 100,000
-    this.systemCredits = {
-      id: 1,
-      balance: 100000,
-      updatedAt: new Date(),
-      metadata: {
-        lastUpdateReason: "Initial balance",
-        lastUpdateBy: 1 // Admin user ID
-      }
-    };
-    
-    // Create default admin user
-    if (this.users.size === 0) {
-      this.users.set(1, {
-        id: 1,
-        username: "aadimughal",
-        email: "aadimughal@infymailer.com",
-        password: "Aadi@786", // In a real app, this would be hashed
-        firstName: "Aadi",
-        lastName: "Mughal",
-        role: "admin",
-        status: "active",
-        lastLoginAt: null,
-        createdAt: new Date("2024-01-01"),
-        avatarUrl: null,
-        metadata: {
-          permissions: ["all"],
-          theme: "light"
-        }
-      });
-      
-      // Add a new admin user for testing
-      this.users.set(2, {
-        id: 2,
-        username: "admin",
-        email: "admin@infymailer.com",
-        password: "admin123", // In a real app, this would be hashed
-        firstName: "Admin",
-        lastName: "User",
-        role: "admin",
-        status: "active",
-        lastLoginAt: null,
-        createdAt: new Date("2024-01-01"),
-        avatarUrl: null,
-        metadata: {
-          permissions: ["all"],
-          theme: "light"
-        }
-      });
-      this.userId = 2;
-    }
-    
-    // Add default templates
-    this.createTemplate({
-      name: "Newsletter",
-      description: "Standard newsletter layout",
-      content: "<h1>Newsletter Template</h1><p>This is a sample newsletter template.</p>",
-      category: "newsletter",
-      metadata: { icon: "file-earmark-text", iconColor: "primary" }
-    });
-    
-    // Add sample domains
-    if (this.domains.size === 0) {
-      this.domains.set(1, {
-        id: 1,
-        name: "marketing.infymailer.com",
-        status: "active",
-        verified: true,
-        defaultDomain: true,
-        createdAt: new Date("2024-02-15"),
-        lastUsedAt: new Date("2024-03-28"),
-        metadata: {
-          type: "system",
-          dkimVerified: true,
-          spfVerified: true
-        }
-      });
-      
-      this.domains.set(2, {
-        id: 2,
-        name: "newsletter.infymailer.com",
-        status: "active",
-        verified: true,
-        defaultDomain: false,
-        createdAt: new Date("2024-01-20"),
-        lastUsedAt: new Date("2024-03-25"),
-        metadata: {
-          type: "system",
-          dkimVerified: true,
-          spfVerified: true
-        }
-      });
-      
-      this.domains.set(3, {
-        id: 3,
-        name: "promo.infymailer.com",
-        status: "pending",
-        verified: false,
-        defaultDomain: false,
-        createdAt: new Date("2024-03-15"),
-        lastUsedAt: null,
-        metadata: {
-          type: "system",
-          dkimVerified: false,
-          spfVerified: false
-        }
-      });
-      
-      // Update domain counter
-      this.domainId = 4;
-    }
-
-    this.createTemplate({
-      name: "Promotional",
-      description: "For sales and offers",
-      content: "<h1>Promotional Template</h1><p>This is a sample promotional template.</p>",
-      category: "promotional",
-      metadata: { icon: "megaphone", iconColor: "danger", selected: true }
-    });
-
-    this.createTemplate({
-      name: "Welcome",
-      description: "For new subscribers",
-      content: "<h1>Welcome Template</h1><p>This is a sample welcome template.</p>",
-      category: "transactional",
-      metadata: { icon: "envelope-check", iconColor: "success" }
-    });
-
-    // Add default lists
-    this.createList({
-      name: "Newsletter Subscribers",
-      description: "People who subscribed to the newsletter"
-    });
-
-    this.createList({
-      name: "Product Updates",
-      description: "People interested in product updates"
-    });
-
-    this.createList({
-      name: "New Customers",
-      description: "Recently acquired customers"
-    });
-
-    this.createList({
-      name: "VIP Members",
-      description: "Premium customers"
-    });
-
-    // Add default campaigns
-    this.createCampaign({
-      name: "Monthly Newsletter",
-      subject: "May Newsletter",
-      previewText: "Check out our latest updates",
-      senderName: "Your Company",
-      replyToEmail: "info@example.com",
-      content: "<h1>Monthly Newsletter</h1><p>Here are our latest updates...</p>",
-      status: "sent",
-      scheduledAt: new Date("2023-05-15T09:00:00"),
-      metadata: {
-        icon: { name: "envelope-fill", color: "primary" },
-        subtitle: "May 2023",
-        recipients: 12483,
-        openRate: 46.2,
-        clickRate: 21.8,
-        date: "May 15, 2023"
-      }
-    });
-    
-    // Add A/B test campaigns
-    const abTestCampaign1 = this.createCampaign({
-      name: "Subject Line Testing",
-      subject: "A/B Test: Subject Line Variations",
-      previewText: "Testing different subject lines",
-      senderName: "Marketing Team",
-      replyToEmail: "marketing@example.com",
-      content: "<h1>A/B Test Campaign</h1><p>This campaign tests different subject lines.</p>",
-      status: "active",
-      scheduledAt: new Date("2025-04-25T09:00:00"),
-      isAbTest: true,
-      metadata: {
-        icon: { name: "bar-chart-fill", color: "success" },
-        subtitle: "Subject Line Testing",
-        recipients: 5000,
-        openRate: 38.5,
-        clickRate: 12.3,
-        date: "April 25, 2025"
-      }
-    });
-    
-    // Add variants for the A/B test campaign
-    if (abTestCampaign1) {
-      this.createCampaignVariant({
-        campaignId: abTestCampaign1.id,
-        name: "Variant A",
-        subject: "Limited Time Offer - 30% Off All Products!",
-        previewText: "Get your discount before it's gone",
-        content: "<h1>Limited Time Offer!</h1><p>Enjoy 30% off all products for the next 48 hours.</p>",
-        recipientPercentage: 50,
-        metadata: {
-          opens: 652,
-          clicks: 218,
-          openRate: 41.8,
-          clickRate: 14.0
-        }
-      });
-      
-      this.createCampaignVariant({
-        campaignId: abTestCampaign1.id,
-        name: "Variant B",
-        subject: "Exclusive Deal: Save 30% On Your Next Purchase",
-        previewText: "Members-only savings inside",
-        content: "<h1>Exclusive Deal!</h1><p>As a valued customer, you can save 30% on your next purchase.</p>",
-        recipientPercentage: 50,
-        metadata: {
-          opens: 548,
-          clicks: 165,
-          openRate: 35.2,
-          clickRate: 10.6
-        }
-      });
-    }
-    
-    // Add another A/B test campaign for email design testing
-    const abTestCampaign2 = this.createCampaign({
-      name: "Email Design Testing",
-      subject: "April Product Newsletter",
-      previewText: "See what's new this month",
-      senderName: "Product Team",
-      replyToEmail: "products@example.com",
-      content: "<h1>A/B Test Campaign</h1><p>This campaign tests different email designs.</p>",
-      status: "active",
-      scheduledAt: new Date("2025-04-30T09:00:00"),
-      isAbTest: true,
-      metadata: {
-        icon: { name: "layout-fill", color: "primary" },
-        subtitle: "Design Testing",
-        recipients: 3500,
-        openRate: 42.1,
-        clickRate: 15.7,
-        date: "April 30, 2025"
-      }
-    });
-    
-    // Add variants for the second A/B test campaign
-    if (abTestCampaign2) {
-      this.createCampaignVariant({
-        campaignId: abTestCampaign2.id,
-        name: "Minimal Design",
-        subject: "April Product Newsletter",
-        previewText: "See what's new this month",
-        content: "<h1>April Updates</h1><p>A clean, minimal design highlighting our newest products.</p>",
-        recipientPercentage: 50,
-        metadata: {
-          opens: 748,
-          clicks: 283,
-          openRate: 44.3,
-          clickRate: 16.8
-        }
-      });
-      
-      this.createCampaignVariant({
-        campaignId: abTestCampaign2.id,
-        name: "Image-heavy Design",
-        subject: "April Product Newsletter",
-        previewText: "See what's new this month",
-        content: "<h1>April Updates</h1><p>An image-focused design showcasing product photography.</p>",
-        recipientPercentage: 50,
-        metadata: {
-          opens: 672,
-          clicks: 246,
-          openRate: 39.8,
-          clickRate: 14.6
-        }
-      });
-    }
-
-    this.createCampaign({
-      name: "Product Launch",
-      subject: "Introducing ProMax X1",
-      previewText: "Our newest product has arrived",
-      senderName: "Your Company",
-      replyToEmail: "info@example.com",
-      content: "<h1>Product Launch</h1><p>Meet our newest product...</p>",
-      status: "sent",
-      scheduledAt: new Date("2023-05-08T09:00:00"),
-      metadata: {
-        icon: { name: "megaphone-fill", color: "danger" },
-        subtitle: "ProMax X1",
-        recipients: 24192,
-        openRate: 58.7,
-        clickRate: 32.4,
-        date: "May 8, 2023"
-      }
-    });
-
-    this.createCampaign({
-      name: "Spring Sale",
-      subject: "25% Off Everything",
-      previewText: "Limited time spring sale",
-      senderName: "Your Company",
-      replyToEmail: "info@example.com",
-      content: "<h1>Spring Sale</h1><p>Don't miss our biggest sale...</p>",
-      status: "scheduled",
-      scheduledAt: new Date("2023-05-20T09:00:00"),
-      metadata: {
-        icon: { name: "tag-fill", color: "warning" },
-        subtitle: "25% Discount",
-        recipients: 18743,
-        openRate: 0,
-        clickRate: 0,
-        date: "May 20, 2023"
-      }
-    });
-
-    this.createCampaign({
-      name: "Welcome Series",
-      subject: "Welcome to Our Family",
-      previewText: "Get started with our products",
-      senderName: "Your Company",
-      replyToEmail: "info@example.com",
-      content: "<h1>Welcome Series</h1><p>Thanks for joining us...</p>",
-      status: "active",
-      scheduledAt: null,
-      metadata: {
-        icon: { name: "envelope-fill", color: "info" },
-        subtitle: "Automation",
-        recipients: 3891,
-        openRate: 52.1,
-        clickRate: 27.5,
-        date: "Ongoing"
-      }
-    });
-    // Add sample clients
-    this.createClient({
-      name: "John Doe",
-      email: "john@techcompany.com",
-      company: "Tech Company Inc.",
-      status: "active",
-      industry: "Technology",
-      totalSpend: 15000,
-      avatar: "https://ui-avatars.com/api/?name=John+Doe&background=0D8ABC&color=fff",
-      metadata: { 
-        notes: "Enterprise client",
-        tags: ["tech", "enterprise"],
-        contactPreference: "email"
-      }
-    });
-    
-    this.createClient({
-      name: "Jane Smith",
-      email: "jane@fashionbrand.com",
-      company: "Fashion Brand LLC",
-      status: "active",
-      industry: "Fashion",
-      totalSpend: 8500,
-      avatar: "https://ui-avatars.com/api/?name=Jane+Smith&background=8A2BE2&color=fff",
-      metadata: { 
-        notes: "Seasonal campaigns",
-        tags: ["fashion", "retail"],
-        contactPreference: "phone"
-      }
-    });
-    
-    this.createClient({
-      name: "Robert Johnson",
-      email: "robert@foodservice.com",
-      company: "Food Service Co.",
-      status: "inactive",
-      industry: "Food & Beverage",
-      totalSpend: 5200,
-      avatar: "https://ui-avatars.com/api/?name=Robert+Johnson&background=FF7F50&color=fff",
-      metadata: { 
-        notes: "On hold until Q3",
-        tags: ["food", "service"],
-        contactPreference: "email"
-      }
-    });
+    // Initialize with empty data
+    this.contacts = new Map();
+    this.lists = new Map();
+    this.contactLists = new Map();
+    this.campaigns = new Map();
+    this.emails = new Map();
+    this.templates = new Map();
+    this.analytics = new Map();
+    this.clients = new Map();
+    this.domains = new Map();
+    this.campaignDomains = new Map();
+    this.campaignVariants = new Map();
+    this.variantAnalytics = new Map();
+    this.clientUsers = new Map();
+    this.users = new Map();
+    this.clickEvents = new Map();
+    this.openEvents = new Map();
+    this.engagementMetrics = new Map();
+    this.linkTrackings = new Map();
+    this.audiencePersonas = new Map();
+    this.personaDemographics = new Map();
+    this.personaBehaviors = new Map();
+    this.personaInsights = new Map();
+    this.audienceSegments = new Map();
+    this.roles = new Map();
+    this.permissions = new Map();
+    this.userRoles = new Map();
+    this.rolePermissions = new Map();
+    this.systemCreditsHistory = new Map();
+    this.clientEmailCreditsHistory = new Map();
+    this.clientProviders = new Map();
   }
 
   // Client methods

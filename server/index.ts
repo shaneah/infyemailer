@@ -10,6 +10,7 @@ import { updateStorageReferences, getStorage } from './storageManager';
 import { initializeRolesAndPermissions } from './init-roles-permissions';
 import { createServer } from 'http';
 import { WebSocket, WebSocketServer } from 'ws';
+import { DbStorage } from './dbStorage';
 
 // Add type declaration for WebSocket
 interface WebSocketConnection extends WebSocket {
@@ -130,6 +131,11 @@ app.use((req, res, next) => {
     log('Initializing storage...', 'server');
     const storage = getStorage();
     log('Storage initialized successfully', 'server');
+    
+    // Initialize test data
+    if (storage instanceof DbStorage) {
+      await storage.initializeTestData();
+    }
     
     // Register API routes after server is created
     log('Registering API routes...', 'server');

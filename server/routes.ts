@@ -2558,48 +2558,66 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Client session verification endpoint
   app.get('/api/client/verify-session', async (req: Request, res: Response) => {
     try {
+      console.log('Verifying client session:', {
+        sessionID: req.sessionID,
+        hasSession: !!req.session,
+        hasClientUser: !!(req.session && req.session.clientUser)
+      });
+
       // Check if client is authenticated in session
       if (req.session && req.session.clientUser) {
         // Return the client user info without sensitive data
         return res.status(200).json({ 
           verified: true, 
-          user: req.session.clientUser 
+          user: req.session.clientUser,
+          message: 'Session is valid'
         });
       }
       
       // If no session found
       return res.status(401).json({ 
         verified: false, 
-        message: 'No active client session found' 
+        message: 'No active client session found',
+        error: 'SESSION_NOT_FOUND'
       });
     } catch (error) {
       console.error('Client session verification error:', error);
       return res.status(500).json({ 
         verified: false, 
-        message: 'Error verifying client session' 
+        message: 'Error verifying client session',
+        error: 'SERVER_ERROR'
       });
     }
   });
 
-  // Client session endpoint - added to match frontend request in use-client-session.tsx
+  // Client session endpoint
   app.get('/api/client/session', async (req: Request, res: Response) => {
     try {
+      console.log('Checking client session:', {
+        sessionID: req.sessionID,
+        hasSession: !!req.session,
+        hasClientUser: !!(req.session && req.session.clientUser)
+      });
+
       // Check if client is authenticated in session
       if (req.session && req.session.clientUser) {
         // Return the client user info
         return res.status(200).json({ 
-          user: req.session.clientUser 
+          user: req.session.clientUser,
+          message: 'Session is valid'
         });
       }
       
       // If no session found
       return res.status(401).json({ 
-        message: 'No active client session found' 
+        message: 'No active client session found',
+        error: 'SESSION_NOT_FOUND'
       });
     } catch (error) {
       console.error('Client session check error:', error);
       return res.status(500).json({ 
-        message: 'Error checking client session' 
+        message: 'Error checking client session',
+        error: 'SERVER_ERROR'
       });
     }
   });
@@ -2920,16 +2938,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Store in session
       if (req.session) {
         req.session.clientUser = userData;
+        // Save session before sending response
         await new Promise<void>((resolve, reject) => {
           req.session?.save((err) => {
-            if (err) reject(err);
-            else resolve();
+            if (err) {
+              console.error('Session save error:', err);
+              reject(err);
+            } else {
+              resolve();
+            }
           });
         });
       }
 
-      // Send response
-      res.json(userData);
+      // Send response with session cookie
+      res.status(200).json({
+        user: userData,
+        message: 'Login successful'
+      });
     } catch (error) {
       console.error('Client login error:', error);
       res.status(500).json({ error: 'Login failed. Please try again.' });

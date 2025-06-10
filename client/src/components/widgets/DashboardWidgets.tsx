@@ -21,6 +21,7 @@ import SmartNotificationsWidget from './SmartNotificationsWidget';
 import AIRecommendationWidget from './AIRecommendationWidget';
 import CampaignPerformanceAnalyzerWidget from './CampaignPerformanceAnalyzerWidget';
 import UserJourneyWidget from './UserJourneyWidget';
+import { useQuery } from '@tanstack/react-query';
 
 interface DashboardWidgetsProps {
   clientData: any; // The dashboard data
@@ -38,6 +39,16 @@ const DashboardWidgets: React.FC<DashboardWidgetsProps> = ({ clientData }) => {
       }
       return a.row - b.row;
     });
+
+  // Fetch upcoming campaigns from the server
+  const { data: upcomingCampaignsData = { campaigns: [], tasks: [] } } = useQuery<any>({ 
+    queryKey: ['/api/campaigns/upcoming'],
+  });
+  
+  // Fetch audience growth data from the server
+  const { data: audienceGrowthData = { subscriberGrowth: [], totalContacts: 0, growthRate: 0 } } = useQuery<any>({ 
+    queryKey: ['/api/analytics/audience-growth'],
+  });
 
   // Type definitions for mock data
   type Campaign = {

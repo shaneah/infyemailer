@@ -24,6 +24,7 @@ const ClientLogin = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const { toast } = useToast();
+  const [error, setError] = useState('');
 
   // Check if user is already logged in
   React.useEffect(() => {
@@ -43,85 +44,54 @@ const ClientLogin = () => {
   });
 
   // Handle login submission
-  const onSubmit = async (data: FormValues) => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
     setIsLoading(true);
-    toast({
-      title: 'Authenticating',
-      description: `Verifying credentials...`
-    });
-    
+
     try {
-      console.log("Login data:", data);
       const response = await fetch('/api/client-login', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
         },
-        body: JSON.stringify(data)
+        credentials: 'include', // Important for cookies/session
+        body: JSON.stringify({ 
+          username: form.getValues('username'), 
+          password: form.getValues('password') 
+        }),
       });
 
-      // Log the raw response
-      console.log("Response status:", response.status);
-      console.log("Response headers:", response.headers);
-      
-      // Clone the response to read it twice (for error and success cases)
-      const responseClone = response.clone();
-      const responseText = await responseClone.text();
-      console.log("Raw response body:", responseText);
+      const data = await response.json();
+      console.log('Login response:', data);
 
       if (!response.ok) {
-        let errorMessage = 'Login failed';
-        try {
-          const errorData = JSON.parse(responseText);
-          errorMessage = errorData.error || errorMessage;
-        } catch (e) {
-          console.error("Error parsing error response:", e);
-        }
-        throw new Error(errorMessage);
+        throw new Error(data.error || 'Login failed');
       }
 
-      let userData;
-      try {
-        userData = JSON.parse(responseText);
-
-        // Store user data in sessionStorage
-        const userToStore = {
-          id: userData.id,
-          username: userData.username,
-          clientId: userData.clientId,
-          clientName: userData.clientName || 'Client User',
-          clientCompany: userData.clientCompany || 'Company',
-          permissions: userData.permissions || {
-            emailValidation: false,
-            campaigns: false,
-            contacts: false,
-            templates: false,
-            reporting: false,
-            domains: false,
-            abTesting: false
-          }
-        };
-        
-        sessionStorage.setItem('clientUser', JSON.stringify(userToStore));
+      // Store user data in session storage
+      if (data.user) {
+        sessionStorage.setItem('clientUser', JSON.stringify(data.user));
         
         // Show success message
         toast({
           title: 'Welcome back!',
-          description: `Signed in as ${userData.clientName || data.username}`,
+          description: `Signed in as ${data.user.clientName || data.user.username}`,
           variant: 'default'
         });
-        
-        // Redirect to campaigns - without leading slash to match the route in App.tsx
-        setLocation('client-campaigns');
-      } catch (err) {
-        console.error("Error parsing success response:", err);
-        throw new Error('Failed to parse server response');
+
+        // Redirect to client dashboard
+        setLocation('/client-dashboard');
+      } else {
+        throw new Error('Invalid response format');
       }
     } catch (error) {
-      console.error("Login error:", error);
+      console.error('Login error:', error);
+      setError(error instanceof Error ? error.message : 'Login failed');
       toast({
-        title: 'Authentication failed',
-        description: error instanceof Error ? error.message : 'Invalid username or password',
+        title: 'Login failed',
+        description: error instanceof Error ? error.message : 'Please try again',
         variant: 'destructive'
       });
     } finally {
@@ -173,7 +143,7 @@ const ClientLogin = () => {
           
           <div className="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] p-6 sm:p-8">
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+              <form onSubmit={handleSubmit} className="space-y-5">
                 <FormField
                   control={form.control}
                   name="username"
