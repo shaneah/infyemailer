@@ -4,6 +4,39 @@ import { eq, desc, and, gt, lt, isNull, count, sql, inArray } from 'drizzle-orm'
 import * as schema from '../shared/schema';
 import { log } from './vite';
 import { safeDbOperation } from './dbHelper';
+import { 
+  Contact, InsertContact, 
+  List, InsertList, 
+  ContactList, InsertContactList,
+  Campaign, InsertCampaign,
+  Email, InsertEmail,
+  Template, InsertTemplate,
+  Analytics, InsertAnalytics,
+  CampaignVariant, InsertCampaignVariant,
+  VariantAnalytics, InsertVariantAnalytics,
+  Domain, InsertDomain,
+  CampaignDomain, InsertCampaignDomain,
+  Client, InsertClient,
+  ClientUser, InsertClientUser,
+  User, InsertUser,
+  ClickEvent, InsertClickEvent,
+  OpenEvent, InsertOpenEvent,
+  EngagementMetrics, InsertEngagementMetrics,
+  LinkTracking, InsertLinkTracking,
+  ClientEmailCreditsHistory, InsertClientEmailCreditsHistory,
+  SystemCredits, InsertSystemCredits,
+  SystemCreditsHistory, InsertSystemCreditsHistory,
+  AudiencePersona, InsertAudiencePersona,
+  PersonaDemographic, InsertPersonaDemographic,
+  PersonaBehavior, InsertPersonaBehavior,
+  PersonaInsight, InsertPersonaInsight,
+  AudienceSegment, InsertAudienceSegment,
+  Role, InsertRole,
+  Permission, InsertPermission,
+  UserRole, InsertUserRole,
+  RolePermission, InsertRolePermission,
+  ClientProvider, InsertClientProvider
+} from "@shared/schema";
 
 /**
  * Implementation of the storage interface using PostgreSQL database
@@ -138,7 +171,13 @@ export class DbStorage implements IStorage {
         return undefined;
       }
 
-      return result[0];
+      const clientData = result[0];
+      console.log('Fetched client data in getClient:', clientData.id, {
+        emailCredits: clientData.emailCredits,
+        emailCreditsPurchased: clientData.emailCreditsPurchased,
+        emailCreditsUsed: clientData.emailCreditsUsed,
+      });
+      return clientData;
     } catch (error) {
       console.error('Error getting client:', error);
       return undefined;
@@ -163,9 +202,9 @@ export class DbStorage implements IStorage {
           id, name, email, company, status, industry, 
           created_at AS "createdAt", 
           total_spend AS "totalSpend", 
-          email_credits AS "emailCredits", 
-          email_credits_purchased AS "emailCreditsPurchased", 
-          email_credits_used AS "emailCreditsUsed",
+          COALESCE(email_credits, 0) AS "emailCredits", 
+          COALESCE(email_credits_purchased, 0) AS "emailCreditsPurchased", 
+          COALESCE(email_credits_used, 0) AS "emailCreditsUsed",
           last_campaign_at AS "lastCampaignAt",
           avatar, metadata
         FROM clients
@@ -621,9 +660,122 @@ export class DbStorage implements IStorage {
   // Stub implementations for the rest of the interface methods
   // These will be implemented as needed
   async getClientEmailCredits(clientId: number) { return null; }
-  async updateClientEmailCredits(clientId: number, credits: number, action: string, reason: string) { return { client: {}, history: {}, previousCredits: 0, newCredits: 0 }; }
-  async getClientEmailCreditsHistory(clientId: number, options: any) { return []; }
-  async addClientEmailCreditHistory(clientId: number, data: any) { return {}; }
+  async updateClientEmailCredits(id: number, emailCredits: number): Promise<Client | undefined> {
+    try {
+      const client = await this.getClient(id);
+      if (!client) return undefined;
+      
+      const previousBalance = client.emailCredits || 0;
+      const difference = emailCredits - previousBalance;
+      
+      // Update the client's email credits in the database
+      await db.update(schema.clients)
+        .set({ 
+          emailCredits,
+          emailCreditsPurchased: (client.emailCreditsPurchased || 0) + (difference > 0 ? difference : 0),
+          lastCreditUpdateAt: new Date()
+        })
+        .where(eq(schema.clients.id, id));
+      
+      // Fetch updated client
+      const updatedClient = await this.getClient(id);
+      
+      // Add to history
+      const history: ClientEmailCreditsHistory = {
+        id: Date.now(),
+        clientId: id,
+        amount: difference,
+        type: difference > 0 ? "add" : "deduct",
+        previousBalance,
+        newBalance: emailCredits,
+        reason: "Manual adjustment",
+        performedBy: 0, // Set to 0 or actual user id if available
+        systemCreditsDeducted: 0,
+        createdAt: new Date(),
+        metadata: {},
+      };
+      
+      // Insert into history table
+      await db.insert(schema.clientEmailCreditsHistory).values(history);
+      
+      return updatedClient;
+    } catch (err) {
+      console.error("Error in updateClientEmailCredits:", err);
+      return undefined;
+    }
+  }
+  async getClientEmailCreditsHistory(
+    clientId: number,
+    filters?: {
+      start_date?: string;
+      end_date?: string;
+      type?: 'add' | 'deduct' | 'set' | '';
+      limit?: number;
+    }
+  ): Promise<ClientEmailCreditsHistory[]> {
+    // Example: fetch from DB if you have a table for this
+    let query = db.select().from(schema.clientEmailCreditsHistory).where(eq(schema.clientEmailCreditsHistory.clientId, clientId));
+    if (filters?.type) {
+      query = query.where(eq(schema.clientEmailCreditsHistory.type, filters.type));
+    }
+    if (filters?.start_date) {
+      query = query.where(gt(schema.clientEmailCreditsHistory.createdAt, new Date(filters.start_date)));
+    }
+    if (filters?.end_date) {
+      query = query.where(lt(schema.clientEmailCreditsHistory.createdAt, new Date(filters.end_date)));
+    }
+    // Note: .limit() may not be available depending on your ORM, adjust as needed
+    // const results = await query.limit(filters?.limit || 100);
+    const results = await query;
+    if (filters?.limit) {
+      return results.slice(-filters.limit);
+    }
+    return results;
+  }
+  async addClientEmailCredits(id: number, emailCredits: number): Promise<Client | undefined> {
+    try {
+      // Fetch the client
+      const client = await this.getClient(id);
+      if (!client) return undefined;
+      
+      const previousBalance = client.emailCredits || 0;
+      const newBalance = previousBalance + emailCredits;
+      
+      // Update the client's email credits in the database
+      await db.update(schema.clients)
+        .set({ 
+          emailCredits: newBalance,
+          emailCreditsPurchased: (client.emailCreditsPurchased || 0) + emailCredits,
+          lastCreditUpdateAt: new Date()
+        })
+        .where(eq(schema.clients.id, id));
+      
+      // Fetch updated client
+      const updatedClient = await this.getClient(id);
+      
+      // Add to history
+      const history: Omit<ClientEmailCreditsHistory, 'id'> = {
+        clientId: id,
+        amount: emailCredits,
+        type: "add",
+        previousBalance,
+        newBalance,
+        reason: "Manual add",
+        performedBy: null, // Set to null since we don't have a user ID
+        systemCreditsDeducted: 0,
+        createdAt: new Date(),
+        metadata: {},
+      };
+      
+      // Insert into history table
+      await db.insert(schema.clientEmailCreditsHistory).values(history);
+      
+      return updatedClient;
+    } catch (err) {
+      console.error("Error in addClientEmailCredits:", err);
+      return undefined;
+    }
+  }
   async getSystemCredits() { return null; }
   async updateSystemCredits(params: any) { return {}; }
   async addSystemCredits(amount: number, reason: string) { return { systemCredits: {}, history: {}, previousTotal: 0, newTotal: 0 }; }
@@ -1336,6 +1488,56 @@ export class DbStorage implements IStorage {
   createSegment() { return Promise.resolve(undefined); }
   updateSegment() { return Promise.resolve(undefined); }
   deleteSegment() { return Promise.resolve(undefined); }
+
+  async deductClientEmailCredits(id: number, emailCredits: number): Promise<Client | undefined> {
+    try {
+      // Fetch the client
+      const client = await this.getClient(id);
+      if (!client) return undefined;
+      
+      const previousBalance = client.emailCredits || 0;
+      const newBalance = previousBalance - emailCredits;
+      
+      // Check if client has enough credits
+      if (newBalance < 0) {
+        throw new Error('Insufficient email credits');
+      }
+      
+      // Update the client's email credits in the database
+      await db.update(schema.clients)
+        .set({ 
+          emailCredits: newBalance,
+          emailCreditsUsed: (client.emailCreditsUsed || 0) + emailCredits,
+          lastCreditUpdateAt: new Date()
+        })
+        .where(eq(schema.clients.id, id));
+      
+      // Fetch updated client
+      const updatedClient = await this.getClient(id);
+      
+      // Add to history
+      const history: Omit<ClientEmailCreditsHistory, 'id'> = {
+        clientId: id,
+        amount: -emailCredits,
+        type: "deduct",
+        previousBalance,
+        newBalance,
+        reason: "Manual deduction",
+        performedBy: null, // Set to null since we don't have a user ID
+        systemCreditsDeducted: 0,
+        createdAt: new Date(),
+        metadata: {},
+      };
+      
+      // Insert into history table
+      await db.insert(schema.clientEmailCreditsHistory).values(history);
+      
+      return updatedClient;
+    } catch (err) {
+      console.error("Error in deductClientEmailCredits:", err);
+      throw err; // Re-throw to handle insufficient credits error
+    }
+  }
 }
 
 // Create a singleton instance of the database storage

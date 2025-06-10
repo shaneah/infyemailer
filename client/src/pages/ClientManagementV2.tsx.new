@@ -1,0 +1,39 @@
+import React, { useEffect, useState } from 'react';
+import { useQuery } from 'react-query';
+import { apiRequest } from '../services/apiRequest';
+
+const ClientManagementV2 = () => {
+  // Query to fetch all client users
+  const {
+    data: clientUsers = [],
+    isLoading: isClientUsersLoading
+  } = useQuery({
+    queryKey: ['/api/client-users'],
+    queryFn: async () => {
+      const response = await apiRequest('GET', '/api/client-users');
+      return await response.json();
+    },
+    initialData: []
+  });
+
+  // Query to fetch all email providers
+  const {
+    data: emailProviders = [],
+    isLoading: isProvidersLoading
+  } = useQuery({
+    queryKey: ['/api/email-providers'],
+    queryFn: async () => {
+      const response = await apiRequest('GET', '/api/email-providers');
+      return await response.json();
+    },
+    initialData: []
+  });
+
+  return (
+    <div>
+      {/* Render your component content here */}
+    </div>
+  );
+};
+
+export default ClientManagementV2; 

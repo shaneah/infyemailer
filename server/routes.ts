@@ -3078,11 +3078,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           name: client.name,
           email: client.email,
           company: client.company,
-          status: {
-            label: client.status.charAt(0).toUpperCase() + client.status.slice(1),
-            color: client.status === 'active' ? 'success' : 
-                  client.status === 'inactive' ? 'warning' : 'secondary'
-          },
+          status: client.status, // send raw status string
+          statusLabel: client.status.charAt(0).toUpperCase() + client.status.slice(1), // for display
           industry: client.industry || 'N/A',
           totalSpend: client.totalSpend || 0,
           avatar: client.avatar || null,
@@ -3290,6 +3287,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Get remaining email credits for a client
   app.get('/api/clients/:id/email-credits/remaining', async (req: Request, res: Response) => {
+    console.log(`[API] Fetching remaining email credits for client ID: ${req.params.id}`);
     try {
       const clientId = parseInt(req.params.id);
       
@@ -3300,7 +3298,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Calculate remaining credits
-      const totalCredits = client.emailCredits || 0;
+      const totalCredits = client.emailCreditsPurchased || 0;
       const usedCredits = client.emailCreditsUsed || 0;
       const remainingCredits = totalCredits - usedCredits;
       

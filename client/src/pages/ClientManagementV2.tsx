@@ -406,10 +406,25 @@ const ClientManagementV2 = () => {
   };
 
   // Fetch client users
-  const fetchClientUsers = async (clientId: number) => {
-    const response = await apiRequest('GET', `/api/clients/${clientId}/users`);
-    return await response.json();
-  };
+  const {
+    data: clientUsers = [],
+    isLoading: isClientUsersLoading,
+    refetch: refetchClientUsers
+  } = useQuery({
+    queryKey: ['/api/clients', selectedClientForUsers?.id, 'users'],
+    queryFn: async () => {
+      console.log('Fetching users for client:', selectedClientForUsers);
+      if (!selectedClientForUsers) return [];
+      const response = await apiRequest('GET', `/api/clients/${selectedClientForUsers.id}/users`);
+      const data = await response.json();
+      console.log('Fetched users:', data);
+      return data;
+    },
+    enabled: !!selectedClientForUsers,
+    initialData: [],
+    staleTime: 30000, // 30 seconds
+    gcTime: 5 * 60 * 1000 // 5 minutes (replaces cacheTime)
+  });
 
   // Create client mutation
   const createClientMutation = useMutation({
@@ -717,17 +732,7 @@ const ClientManagementV2 = () => {
   });
 
   // Query for client users when a client is selected
-  const { 
-    data: clientUsers = [], 
-    isLoading: isClientUsersLoading,
-    refetch: refetchClientUsers
-  } = useQuery({
-    queryKey: ['/api/clients', selectedClientForUsers?.id, 'users'],
-    queryFn: () => selectedClientForUsers ? fetchClientUsers(selectedClientForUsers.id) : [],
-    enabled: !!selectedClientForUsers,
-    initialData: []
-  });
-  
+
   // Query to fetch all email providers
   const {
     data: emailProviders = [],
@@ -884,7 +889,11 @@ const ClientManagementV2 = () => {
 
   // Handle manage users for a client
   const handleManageUsers = (client: any) => {
-    setSelectedClientForUsers(client);
+    console.log('handleManageUsers called with client:', client);
+    // Ensure we have the complete client data
+    const fullClient = clients.find((c: any) => c.id === client.id) || client;
+    console.log('Setting selectedClientForUsers to:', fullClient);
+    setSelectedClientForUsers(fullClient);
     setActiveTab('users');
   };
 

@@ -209,6 +209,7 @@ const ClientsPage: React.FC = () => {
   // Email Credits Display Component
   const EmailCreditsDisplay = ({ clientId }: { clientId: number }) => {
     const { data, isLoading, isError } = useClientEmailCredits(clientId);
+    console.log('[EmailCreditsDisplay] Data:', data, 'Loading:', isLoading, 'Error:', isError);
     
     if (isLoading) {
       return <Skeleton className="h-4 w-24" />;
@@ -219,14 +220,15 @@ const ClientsPage: React.FC = () => {
     }
     
     // Calculate the percentage used for the progress bar
-    const credits = data?.emailCredits || 0;
-    const total = data?.emailCreditsPurchased || 0;
-    const percentage = total > 0 ? (credits / total) * 100 : 0;
+    const total = data?.totalCredits || 0;
+    const used = data?.usedCredits || 0;
+    const remaining = data?.remainingCredits || 0;
+    const percentage = total > 0 ? (used / total) * 100 : 0;
     
     return (
       <div className="flex flex-col gap-1 w-full max-w-[150px]">
         <div className="flex justify-between text-xs text-muted-foreground">
-          <span>{credits.toLocaleString()}</span>
+          <span>{remaining.toLocaleString()}</span>
           <span>of {total.toLocaleString()}</span>
         </div>
         <Progress value={percentage} className="h-2" />
@@ -547,7 +549,7 @@ const ClientsPage: React.FC = () => {
                     </TableCell>
                     <TableCell>
                       <Badge variant={client.status === 'active' ? 'default' : 'secondary'}>
-                        {client.status === 'active' || client.status?.label === 'Active' ? 'Active' : 'Inactive'}
+                        {client.statusLabel}
                       </Badge>
                     </TableCell>
                     <TableCell>
