@@ -11,6 +11,12 @@ import { initializeRolesAndPermissions } from './init-roles-permissions';
 import { createServer } from 'http';
 import { WebSocket, WebSocketServer } from 'ws';
 import { DbStorage } from './dbStorage';
+import session from 'express-session';
+import { setupAuth } from './auth';
+import memorystore from 'memorystore';
+import connectPgSimple from 'connect-pg-simple';
+import { pool } from './db';
+import passport from 'passport';
 
 // Add type declaration for WebSocket
 interface WebSocketConnection extends WebSocket {
@@ -19,15 +25,73 @@ interface WebSocketConnection extends WebSocket {
 }
 
 const app = express();
+const server = createServer(app);
+
 // Increase the JSON payload size limit to 50MB
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: false, limit: '50mb' }));
+
+// Setup session middleware first
+let sessionStore;
+if (isDatabaseAvailable) {
+  console.log('Using PostgreSQL for session storage');
+  const PgSessionStore = connectPgSimple(session);
+  sessionStore = new PgSessionStore({
+    pool,
+    tableName: 'session',
+    createTableIfMissing: true,
+    pruneSessionInterval: 60
+  });
+} else {
+  console.log('Using memory store for session storage');
+  const MemoryStore = memorystore(session);
+  sessionStore = new MemoryStore({
+    checkPeriod: 86400000,
+    max: 1000
+  });
+}
+
+// Configure session settings
+app.set("trust proxy", 1);
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'infy-mailer-secret',
+  resave: true,
+  saveUninitialized: true,
+  store: sessionStore,
+  cookie: {
+    maxAge: 1000 * 60 * 60 * 24,
+    secure: false,
+    sameSite: 'lax',
+    path: '/',
+    httpOnly: true
+  },
+  name: 'infy.sid'
+}));
+
+// Initialize passport
+app.use(passport.initialize());
+app.use(passport.session());
+
+// Add session debugging middleware
+app.use((req: Request, res: Response, next: NextFunction) => {
+  console.log('Session debug:', {
+    sessionID: req.sessionID,
+    hasSession: !!req.session,
+    hasUser: !!(req.session && req.session.user),
+    cookies: req.cookies
+  });
+  next();
+});
+
+// Setup auth routes
+setupAuth(app);
+
 // Configure file upload middleware
 app.use(fileUpload({
-  limits: { fileSize: 50 * 1024 * 1024 }, // 50MB max file size
+  limits: { fileSize: 50 * 1024 * 1024 },
   useTempFiles: true,
   tempFileDir: '/tmp/',
-  debug: true, // Enable debug for troubleshooting
+  debug: true,
   abortOnLimit: true
 }));
 

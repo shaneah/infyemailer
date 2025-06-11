@@ -26,7 +26,7 @@ import {
 
 // Custom campaign card component
 const CampaignCard = ({ campaign }: { campaign: any }) => {
-  const [, setLocation] = useLocation();
+  const [location, setLocation] = useLocation();
   
   const statusColors = {
     "Sent": "bg-emerald-100 text-emerald-800 border-emerald-200",
@@ -210,24 +210,61 @@ const StatCard = ({ stat, index }: { stat: any, index: number }) => {
 };
 
 export default function CampaignsV2() {
-  const [showNewCampaignModal, setShowNewCampaignModal] = useState(false);
-  const [initialTemplateId, setInitialTemplateId] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<string>("all");
-  const [searchQuery, setSearchQuery] = useState<string>("");
   const [location, setLocation] = useLocation();
+  const [showNewCampaignModal, setShowNewCampaignModal] = useState(false);
+  const [activeTab, setActiveTab] = useState('all');
+  const [initialTemplateId, setInitialTemplateId] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState<string>("");
   
-  const { data: campaignStats, isLoading: statsLoading } = useQuery<any[]>({
-    queryKey: ['/api/campaigns/stats'],
+  // Get user type first
+  const { data: userData } = useQuery({
+    queryKey: ['/api/user'],
+    queryFn: async () => {
+      const response = await fetch('/api/user', {
+        credentials: 'include'
+      });
+      if (!response.ok) {
+        throw new Error('Failed to fetch user data');
+      }
+      return response.json();
+    }
+  });
+
+  // Get campaigns based on user type
+  const { data: campaigns = [], isLoading: campaignsLoading } = useQuery<any[]>({
+    queryKey: ['/api/campaigns', userData?.role],
+    queryFn: async () => {
+      // If user is admin, use admin endpoint
+      if (userData?.role === 'admin') {
+        const response = await fetch('/api/admin/campaigns', {
+          credentials: 'include'
+        });
+        if (!response.ok) {
+          throw new Error('Failed to fetch admin campaigns');
+        }
+        return response.json();
+      }
+      
+      // Otherwise use client endpoint
+      const response = await fetch('/api/campaigns', {
+        credentials: 'include'
+      });
+      if (!response.ok) {
+        throw new Error('Failed to fetch client campaigns');
+      }
+      return response.json();
+    },
+    enabled: !!userData, // Only run query when we have user data
     initialData: [],
-    staleTime: 30000, // Refresh every 30 seconds
+    staleTime: 30000,
     refetchOnWindowFocus: true,
     retry: 5,
     refetchOnMount: true,
-    refetchInterval: 60000, // Poll every minute for updates
+    refetchInterval: 60000,
   });
   
-  const { data: campaigns = [], isLoading: campaignsLoading } = useQuery<any[]>({
-    queryKey: ['/api/campaigns'],
+  const { data: campaignStats, isLoading: statsLoading } = useQuery<any[]>({
+    queryKey: ['/api/campaigns/stats'],
     initialData: [],
     staleTime: 30000, // Refresh every 30 seconds
     refetchOnWindowFocus: true,

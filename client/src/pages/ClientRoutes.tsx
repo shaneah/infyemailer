@@ -4,7 +4,7 @@ import ClientDashboard from '@/pages/ClientDashboard';
 import { useToast } from '@/hooks/use-toast';
 import { Switch, Route, useLocation, Redirect } from 'wouter';
 import NotFound from '@/pages/not-found';
-import { Mail, BarChart3, Activity, Globe } from 'lucide-react';
+import { Mail, BarChart3, Activity, Globe, Grid, List } from 'lucide-react';
 import CreateCampaignModal from '@/modals/CreateCampaignModal';
 import AddContactModal from '@/modals/AddContactModal';
 import CreateListModal from '@/modals/CreateListModal';
@@ -22,217 +22,85 @@ import { ReportingComingSoon } from '@/pages/ComingSoonPage';
 import ClientSecurity from '@/pages/ClientSecurity';
 import ClientBilling from '@/pages/ClientBilling';
 import ClientSettings from '@/pages/ClientSettings';
+import NewCampaignModal from '@/modals/NewCampaignModal';
 
 // Advanced Campaigns component with modern UI
 const ClientCampaigns = ({ onCreateCampaign }: { onCreateCampaign: () => void }) => {
   // State to manage campaign data and UI
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [activeView, setActiveView] = useState<'grid' | 'list'>('grid');
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [dateFilter, setDateFilter] = useState('');
   const [selectedCampaign, setSelectedCampaign] = useState<number | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [showAnalytics, setShowAnalytics] = useState(false);
   const { toast } = useToast();
   
-  // Enhanced campaign data with additional fields
-  const [campaigns, setCampaigns] = useState([
-    {
-      id: 1,
-      name: "Monthly Newsletter",
-      description: "Regular monthly update with company news and updates",
-      status: "Active",
-      sentDate: "2025-03-15",
-      recipients: 2430,
-      openRate: 24.8,
-      clickRate: 3.6,
-      bounceRate: 1.2,
-      unsubscribeRate: 0.3,
-      engagementScore: 82,
-      lastModified: "2025-03-10",
-      scheduledFor: null,
-      type: "newsletter",
-      subject: "March Newsletter: Latest Updates and News",
-      category: "engagement",
-      labelColor: "#6366f1" // purple-500
-    },
-    {
-      id: 2,
-      name: "Product Launch",
-      description: "Announcement for the new premium product line release",
-      status: "Draft",
-      sentDate: null,
-      recipients: 0,
-      openRate: 0,
-      clickRate: 0,
-      bounceRate: 0,
-      unsubscribeRate: 0,
-      engagementScore: 0,
-      lastModified: "2025-03-25",
-      scheduledFor: null,
-      type: "promotional",
-      subject: "Introducing Our New Premium Product Line",
-      category: "product",
-      labelColor: "#f43f5e" // rose-500
-    },
-    {
-      id: 3,
-      name: "Spring Promotion",
-      description: "Special discounts for the spring season",
-      status: "Scheduled",
-      sentDate: null,
-      recipients: 3500,
-      openRate: 0,
-      clickRate: 0,
-      bounceRate: 0,
-      unsubscribeRate: 0,
-      engagementScore: 0,
-      lastModified: "2025-03-28",
-      scheduledFor: "2025-04-15T09:00:00",
-      type: "promotional",
-      subject: "Spring Is Here: Enjoy 25% Off Selected Items",
-      category: "sales",
-      labelColor: "#10b981" // emerald-500
-    },
-    {
-      id: 4,
-      name: "Customer Feedback Survey",
-      description: "Annual survey to gather customer feedback and improve services",
-      status: "Completed",
-      sentDate: "2025-02-10",
-      recipients: 1850,
-      openRate: 22.5,
-      clickRate: 4.2,
-      bounceRate: 1.8,
-      unsubscribeRate: 0.4,
-      engagementScore: 68,
-      lastModified: "2025-02-05",
-      scheduledFor: null,
-      type: "survey",
-      subject: "We Value Your Feedback: Annual Customer Survey",
-      category: "feedback",
-      labelColor: "#8b5cf6" // violet-500
-    }
-  ]);
-  
-  // Enhanced status indicators with modern design
-  const statusConfig = {
-    Active: {
-      bgColor: "bg-green-100 text-green-800 border border-green-200",
-      icon: <Activity className="h-3 w-3 mr-1" />,
-      pulseClass: "before:absolute before:inset-0 before:rounded-full before:bg-green-400 before:animate-ping before:opacity-30"
-    },
-    Draft: {
-      bgColor: "bg-gray-100 text-gray-800 border border-gray-200",
-      icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3Z"/></svg>,
-      pulseClass: ""
-    },
-    Scheduled: {
-      bgColor: "bg-blue-100 text-blue-800 border border-blue-200",
-      icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>,
-      pulseClass: "before:absolute before:inset-0 before:rounded-full before:bg-blue-400 before:animate-pulse before:opacity-30"
-    },
-    Completed: {
-      bgColor: "bg-purple-100 text-purple-800 border border-purple-200",
-      icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>,
-      pulseClass: ""
-    },
-    Failed: {
-      bgColor: "bg-red-100 text-red-800 border border-red-200",
-      icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>,
-      pulseClass: ""
+  // Campaign data state
+  const [campaigns, setCampaigns] = useState<any[]>([]);
+
+  // Fetch campaigns on component mount
+  const fetchCampaigns = async () => {
+    try {
+      setIsLoading(true);
+      // Use the client-specific endpoint
+      const response = await fetch('/api/client-campaigns', {
+        credentials: 'include' // Important for session cookies
+      });
+      if (!response.ok) {
+        throw new Error('Failed to fetch campaigns');
+      }
+      const data = await response.json();
+      console.log('Fetched client campaigns:', data);
+      setCampaigns(data);
+    } catch (error) {
+      console.error('Error fetching campaigns:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load campaigns. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
-  
-  // Calculate performance metrics
-  const totalSent = campaigns.reduce((sum, campaign) => sum + campaign.recipients, 0);
-  const activeCampaignsCount = campaigns.filter(c => c.status === 'Active').length;
-  const avgOpenRate = campaigns.filter(c => c.openRate > 0).reduce((sum, c) => sum + c.openRate, 0) / 
-                     (campaigns.filter(c => c.openRate > 0).length || 1);
-  const avgClickRate = campaigns.filter(c => c.clickRate > 0).reduce((sum, c) => sum + c.clickRate, 0) / 
-                      (campaigns.filter(c => c.clickRate > 0).length || 1);
-  
-  // Filter campaigns based on search and filters
+
+  useEffect(() => {
+    fetchCampaigns();
+  }, []);
+
+  // Filter campaigns based on search term and filters
   const filteredCampaigns = campaigns.filter(campaign => {
-    let matchesSearch = true;
-    let matchesStatus = true;
+    const matchesSearch = campaign.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         campaign.subtitle.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesStatus = !statusFilter || campaign.status.label.toLowerCase() === statusFilter.toLowerCase();
+    
     let matchesDate = true;
-    
-    if (searchTerm) {
-      matchesSearch = campaign.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                    (campaign.subject?.toLowerCase().includes(searchTerm.toLowerCase()) || false);
-    }
-    
-    if (statusFilter) {
-      matchesStatus = campaign.status === statusFilter;
-    }
-    
     if (dateFilter) {
-      const campaignDate = campaign.sentDate ? new Date(campaign.sentDate) : null;
-      const now = new Date();
-      const sevenDaysAgo = new Date(now.setDate(now.getDate() - 7));
-      const thirtyDaysAgo = new Date(new Date().setDate(new Date().getDate() - 30));
-      const ninetyDaysAgo = new Date(new Date().setDate(new Date().getDate() - 90));
+      const campaignDate = new Date(campaign.date);
+      const today = new Date();
+      const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+      const monthAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
       
-      if (dateFilter === 'last7' && campaignDate) {
-        matchesDate = campaignDate >= sevenDaysAgo;
-      } else if (dateFilter === 'last30' && campaignDate) {
-        matchesDate = campaignDate >= thirtyDaysAgo;
-      } else if (dateFilter === 'last90' && campaignDate) {
-        matchesDate = campaignDate >= ninetyDaysAgo;
+      switch (dateFilter) {
+        case 'today':
+          matchesDate = campaignDate.toDateString() === today.toDateString();
+          break;
+        case 'week':
+          matchesDate = campaignDate >= weekAgo;
+          break;
+        case 'month':
+          matchesDate = campaignDate >= monthAgo;
+          break;
       }
     }
     
     return matchesSearch && matchesStatus && matchesDate;
   });
-  
-  // Function to handle campaign duplication
-  const handleDuplicateCampaign = (id: number) => {
-    const campaignToDuplicate = campaigns.find(c => c.id === id);
-    if (!campaignToDuplicate) return;
-    
-    const newCampaign = {
-      ...campaignToDuplicate,
-      id: Math.max(...campaigns.map(c => c.id)) + 1,
-      name: `${campaignToDuplicate.name} (Copy)`,
-      status: 'Draft',
-      sentDate: null,
-      recipients: 0,
-      openRate: 0,
-      clickRate: 0,
-      bounceRate: 0,
-      unsubscribeRate: 0,
-      engagementScore: 0,
-      lastModified: new Date().toISOString().split('T')[0],
-      scheduledFor: null
-    };
-    
-    setCampaigns([...campaigns, newCampaign]);
-    toast({
-      title: "Campaign duplicated",
-      description: `"${campaignToDuplicate.name}" has been duplicated.`,
-      variant: "default",
-    });
-  };
-  
-  // Function to get engagement score color
-  const getEngagementColor = (score: number) => {
-    if (score >= 80) return "text-green-600";
-    if (score >= 60) return "text-yellow-600";
-    if (score >= 40) return "text-orange-600";
-    return "text-red-600";
-  };
-  
-  // Function to format dates nicely
-  const formatDate = (dateString: string | null) => {
-    if (!dateString) return '—';
-    const date = new Date(dateString);
-    return date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
-  };
-  
+
   return (
-    <div className="p-8">
+    <div className="p-6">
       {/* Header with enhanced styling */}
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
         <div className="flex items-center gap-3">
@@ -248,672 +116,157 @@ const ClientCampaigns = ({ onCreateCampaign }: { onCreateCampaign: () => void })
         </div>
         
         <div className="flex items-center gap-3">
-          <div className="bg-gray-100 p-1 rounded-lg flex">
-            <button
-              onClick={() => setActiveView('grid')}
-              className={`px-3 py-1.5 rounded-md flex items-center gap-1.5 text-sm font-medium transition-all ${
-                activeView === 'grid' 
-                  ? 'bg-white text-indigo-600 shadow-sm' 
-                  : 'text-gray-500 hover:text-gray-800'
-              }`}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="3" y="3" width="7" height="7"></rect>
-                <rect x="14" y="3" width="7" height="7"></rect>
-                <rect x="14" y="14" width="7" height="7"></rect>
-                <rect x="3" y="14" width="7" height="7"></rect>
-              </svg>
-              <span className="hidden sm:inline">Grid</span>
-            </button>
-            <button
-              onClick={() => setActiveView('list')}
-              className={`px-3 py-1.5 rounded-md flex items-center gap-1.5 text-sm font-medium transition-all ${
-                activeView === 'list' 
-                  ? 'bg-white text-indigo-600 shadow-sm' 
-                  : 'text-gray-500 hover:text-gray-800'
-              }`}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="8" y1="6" x2="21" y2="6"></line>
-                <line x1="8" y1="12" x2="21" y2="12"></line>
-                <line x1="8" y1="18" x2="21" y2="18"></line>
-                <line x1="3" y1="6" x2="3.01" y2="6"></line>
-                <line x1="3" y1="12" x2="3.01" y2="12"></line>
-                <line x1="3" y1="18" x2="3.01" y2="18"></line>
-              </svg>
-              <span className="hidden sm:inline">List</span>
-            </button>
-          </div>
-          
-          <button 
-            onClick={onCreateCampaign}
-            className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:from-purple-700 hover:to-indigo-700 transition-all shadow-md hover:shadow-lg"
+          <button
+            onClick={() => setShowCreateModal(true)}
+            className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
           >
-            <span>Create Campaign</span>
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
+            <Mail className="h-4 w-4" />
+            Create Campaign
           </button>
         </div>
       </div>
-      
-      {/* Campaign Stats with enhanced modern design */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <div className="bg-white rounded-xl shadow-md p-4 border border-gray-100 group hover:shadow-lg transition-all duration-300 hover:border-indigo-100">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-medium text-gray-500">Total Campaigns</h3>
-            <div className="bg-indigo-100 rounded-full p-2 group-hover:bg-indigo-200 transition-colors">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-indigo-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
-                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
-              </svg>
-            </div>
-          </div>
-          <div className="flex items-end gap-2">
-            <p className="text-3xl font-bold text-gray-800">{campaigns.length}</p>
-            <p className="text-xs text-gray-500 mb-1.5">campaigns</p>
-          </div>
-          <div className="mt-2 flex items-center text-xs">
-            <span className="text-green-500 font-medium flex items-center">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline><polyline points="16 7 22 7 22 13"></polyline></svg>
-              8% growth
-            </span>
-            <span className="ml-2 text-gray-400">vs. last month</span>
-          </div>
+
+      {/* Loading state */}
+      {isLoading ? (
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
         </div>
-        
-        <div className="bg-white rounded-xl shadow-md p-4 border border-gray-100 group hover:shadow-lg transition-all duration-300 hover:border-purple-100">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-medium text-gray-500">Active Campaigns</h3>
-            <div className="bg-purple-100 rounded-full p-2 group-hover:bg-purple-200 transition-colors">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-purple-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
-              </svg>
-            </div>
-          </div>
-          <div className="flex items-end gap-2">
-            <p className="text-3xl font-bold text-gray-800">{activeCampaignsCount}</p>
-            <p className="text-xs text-gray-500 mb-1.5">running now</p>
-          </div>
-          <div className="mt-2 flex items-center text-xs">
-            <div className="flex items-center gap-1">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-purple-500"></span>
-              </span>
-              <span className="text-purple-600 font-medium">Active monitoring</span>
-            </div>
-          </div>
-        </div>
-        
-        <div className="bg-white rounded-xl shadow-md p-4 border border-gray-100 group hover:shadow-lg transition-all duration-300 hover:border-green-100">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-medium text-gray-500">Avg. Open Rate</h3>
-            <div className="bg-green-100 rounded-full p-2 group-hover:bg-green-200 transition-colors">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-green-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                <circle cx="12" cy="12" r="3"></circle>
-              </svg>
-            </div>
-          </div>
-          <div className="flex items-end gap-2">
-            <p className="text-3xl font-bold text-gray-800">{avgOpenRate.toFixed(1)}%</p>
-            <div className="flex flex-col mb-1">
-              <div className="relative h-5 w-16 bg-gray-100 rounded-full overflow-hidden">
-                <div 
-                  className="absolute inset-y-0 left-0 bg-gradient-to-r from-green-400 to-green-600" 
-                  style={{ width: `${Math.min(avgOpenRate, 100)}%` }}
-                ></div>
-              </div>
-              <p className="text-xs text-gray-500 mt-0.5">{Math.round(totalSent * avgOpenRate / 100).toLocaleString()} opens</p>
-            </div>
-          </div>
-          <div className="mt-2 flex items-center text-xs">
-            {avgOpenRate > 22 ? (
-              <span className="text-green-500 font-medium flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline><polyline points="16 7 22 7 22 13"></polyline></svg>
-                Above industry avg.
-              </span>
-            ) : (
-              <span className="text-orange-500 font-medium flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 17 13.5 8.5 8.5 13.5 2 7"></polyline><polyline points="16 17 22 17 22 11"></polyline></svg>
-                Below industry avg.
-              </span>
-            )}
-          </div>
-        </div>
-        
-        <div className="bg-white rounded-xl shadow-md p-4 border border-gray-100 group hover:shadow-lg transition-all duration-300 hover:border-blue-100">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-medium text-gray-500">Avg. Click Rate</h3>
-            <div className="bg-blue-100 rounded-full p-2 group-hover:bg-blue-200 transition-colors">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="m8 6 4-4 4 4"></path>
-                <path d="M12 2v10.3"></path>
-                <path d="M18 8.4C19.1 9.3 20 10.6 20 12c0 3.3-3.1 6-7 6s-7-2.7-7-6c0-1.4.9-2.7 2-3.6"></path>
-              </svg>
-            </div>
-          </div>
-          <div className="flex items-end gap-2">
-            <p className="text-3xl font-bold text-gray-800">{avgClickRate.toFixed(1)}%</p>
-            <div className="flex flex-col mb-1">
-              <div className="relative h-5 w-16 bg-gray-100 rounded-full overflow-hidden">
-                <div 
-                  className="absolute inset-y-0 left-0 bg-gradient-to-r from-blue-400 to-blue-600" 
-                  style={{ width: `${Math.min(avgClickRate * 3, 100)}%` }}
-                ></div>
-              </div>
-              <p className="text-xs text-gray-500 mt-0.5">{Math.round(totalSent * avgClickRate / 100).toLocaleString()} clicks</p>
-            </div>
-          </div>
-          <div className="mt-2 flex items-center text-xs">
-            {avgClickRate > 3.5 ? (
-              <span className="text-green-500 font-medium flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline><polyline points="16 7 22 7 22 13"></polyline></svg>
-                Above industry avg.
-              </span>
-            ) : (
-              <span className="text-orange-500 font-medium flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 17 13.5 8.5 8.5 13.5 2 7"></polyline><polyline points="16 17 22 17 22 11"></polyline></svg>
-                Below industry avg.
-              </span>
-            )}
-          </div>
-        </div>
-      </div>
-      
-      {/* Enhanced Filters and Search */}
-      <div className="bg-white rounded-xl shadow-md p-5 border border-gray-100 mb-6 hover:shadow-lg transition-all duration-300">
-        <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
-          <div className="relative flex-1">
-            <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
-            <input 
-              type="text" 
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search campaigns by name or subject..." 
-              className="pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-            />
-          </div>
-          <div className="flex gap-2 w-full md:w-auto">
-            <select 
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="border border-gray-200 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-700 w-full md:w-auto"
+      ) : campaigns.length === 0 ? (
+        // Empty state
+        <div className="text-center py-12">
+          <div className="bg-gray-50 rounded-lg p-8 max-w-md mx-auto">
+            <Mail className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No campaigns yet</h3>
+            <p className="text-gray-500 mb-4">Create your first email campaign to get started</p>
+            <button
+              onClick={() => setShowCreateModal(true)}
+              className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition-colors"
             >
-              <option value="">All Statuses</option>
-              <option value="Active">Active</option>
-              <option value="Draft">Draft</option>
-              <option value="Scheduled">Scheduled</option>
-              <option value="Completed">Completed</option>
-            </select>
-            <select 
-              value={dateFilter}
-              onChange={(e) => setDateFilter(e.target.value)}
-              className="border border-gray-200 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-700 w-full md:w-auto"
-            >
-              <option value="">All Dates</option>
-              <option value="last7">Last 7 Days</option>
-              <option value="last30">Last 30 Days</option>
-              <option value="last90">Last 90 Days</option>
-            </select>
+              Create Campaign
+            </button>
           </div>
-        </div>
-      </div>
-      
-      {/* Campaigns Display - Grid or List View */}
-      {activeView === 'grid' ? (
-        /* Grid View */
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {isLoading ? (
-            Array(3).fill(0).map((_, index) => (
-              <div key={index} className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden animate-pulse">
-                <div className="h-3 w-1/3 bg-gray-200 rounded m-5"></div>
-                <div className="h-6 w-3/4 bg-gray-200 rounded mx-5 mb-3"></div>
-                <div className="h-4 w-1/2 bg-gray-200 rounded mx-5 mb-5"></div>
-                <div className="h-20 bg-gray-100 p-5">
-                  <div className="h-4 w-1/4 bg-gray-200 rounded"></div>
-                  <div className="h-4 w-3/4 bg-gray-200 rounded mt-3"></div>
-                </div>
-              </div>
-            ))
-          ) : filteredCampaigns.length === 0 ? (
-            <div className="col-span-full bg-white rounded-xl shadow-md p-8 text-center border border-gray-100">
-              <div className="bg-gray-100 rounded-full p-3 w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="8" y1="6" x2="21" y2="6"></line>
-                  <line x1="8" y1="12" x2="21" y2="12"></line>
-                  <line x1="8" y1="18" x2="21" y2="18"></line>
-                  <line x1="3" y1="6" x2="3.01" y2="6"></line>
-                  <line x1="3" y1="12" x2="3.01" y2="12"></line>
-                  <line x1="3" y1="18" x2="3.01" y2="18"></line>
-                </svg>
-              </div>
-              <h3 className="text-lg font-medium text-gray-700 mb-2">No campaigns found</h3>
-              <p className="text-gray-500 mb-6">Try adjusting your search or filter to find what you're looking for.</p>
-              <button 
-                onClick={() => {
-                  setSearchTerm('');
-                  setStatusFilter('');
-                  setDateFilter('');
-                }}
-                className="text-indigo-600 font-medium hover:text-indigo-800 transition-colors"
-              >
-                Clear all filters
-              </button>
-            </div>
-          ) : (
-            filteredCampaigns.map(campaign => (
-              <div 
-                key={campaign.id} 
-                className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden hover:shadow-lg transition-all duration-300 hover:border-indigo-100 group"
-              >
-                {/* Card Header with Campaign Type Tag */}
-                <div className="p-5">
-                  <div className="flex justify-between items-start mb-3">
-                    <div className="flex items-center">
-                      <div 
-                        className="h-3 w-3 rounded-full mr-2" 
-                        style={{ backgroundColor: campaign.labelColor }}
-                      ></div>
-                      <span className="text-xs text-gray-500 uppercase tracking-wider">{campaign.type}</span>
-                    </div>
-                    
-                    {/* Status Badge */}
-                    <div className={`relative inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${statusConfig[campaign.status as keyof typeof statusConfig].bgColor}`}>
-                      <span className={`relative z-10 flex items-center ${statusConfig[campaign.status as keyof typeof statusConfig].pulseClass}`}>
-                        {statusConfig[campaign.status as keyof typeof statusConfig].icon}
-                        {campaign.status}
-                      </span>
-                    </div>
-                  </div>
-                  
-                  {/* Campaign Title */}
-                  <h3 className="text-lg font-semibold text-gray-800 mb-1 group-hover:text-indigo-700 transition-colors">
-                    {campaign.name}
-                  </h3>
-                  
-                  {/* Campaign Description */}
-                  <p className="text-sm text-gray-500 mb-2 line-clamp-2">
-                    {campaign.description}
-                  </p>
-                  
-                  {/* Campaign Subject */}
-                  <div className="bg-gray-50 rounded-md p-2 mb-3 text-xs text-gray-600 line-clamp-1">
-                    <span className="font-medium">Subject:</span> {campaign.subject}
-                  </div>
-                  
-                  {/* Campaign Metrics */}
-                  <div className="grid grid-cols-3 gap-2 mb-4">
-                    {campaign.openRate > 0 ? (
-                      <div className="text-center">
-                        <div className="text-lg font-bold text-gray-800">{campaign.openRate}%</div>
-                        <div className="text-xs text-gray-500">Opens</div>
-                      </div>
-                    ) : campaign.status === 'Scheduled' ? (
-                      <div className="text-center">
-                        <div className="text-xs font-medium text-blue-600">
-                          {formatDate(campaign.scheduledFor || null)}
-                        </div>
-                        <div className="text-xs text-gray-500">Scheduled</div>
-                      </div>
-                    ) : campaign.status === 'Draft' ? (
-                      <div className="text-center">
-                        <div className="text-xs font-medium text-gray-600">
-                          {formatDate(campaign.lastModified || null)}
-                        </div>
-                        <div className="text-xs text-gray-500">Modified</div>
-                      </div>
-                    ) : (
-                      <div className="text-center">
-                        <div className="text-lg font-bold text-gray-300">—</div>
-                        <div className="text-xs text-gray-500">Opens</div>
-                      </div>
-                    )}
-                    
-                    {campaign.clickRate > 0 ? (
-                      <div className="text-center">
-                        <div className="text-lg font-bold text-gray-800">{campaign.clickRate}%</div>
-                        <div className="text-xs text-gray-500">Clicks</div>
-                      </div>
-                    ) : (
-                      <div className="text-center">
-                        <div className="text-lg font-bold text-gray-300">—</div>
-                        <div className="text-xs text-gray-500">Clicks</div>
-                      </div>
-                    )}
-                    
-                    {campaign.engagementScore > 0 ? (
-                      <div className="text-center">
-                        <div className={`text-lg font-bold ${getEngagementColor(campaign.engagementScore)}`}>
-                          {campaign.engagementScore}
-                        </div>
-                        <div className="text-xs text-gray-500">Score</div>
-                      </div>
-                    ) : (
-                      <div className="text-center">
-                        <div className="text-lg font-bold text-gray-300">—</div>
-                        <div className="text-xs text-gray-500">Score</div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-                
-                {/* Card Footer with Actions */}
-                <div className="bg-gray-50 p-3 border-t border-gray-100 flex justify-between items-center">
-                  <span className="text-xs text-gray-500">
-                    {campaign.recipients > 0 
-                      ? `${campaign.recipients.toLocaleString()} recipients` 
-                      : 'No recipients'
-                    }
-                  </span>
-                  
-                  <div className="flex items-center gap-2">
-                    <button 
-                      className="text-indigo-600 hover:text-indigo-800 transition-colors"
-                      title="View Details"
-                      onClick={() => setSelectedCampaign(campaign.id)}
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                        <circle cx="12" cy="12" r="3"></circle>
-                      </svg>
-                    </button>
-                    
-                    <button 
-                      className="text-indigo-600 hover:text-indigo-800 transition-colors"
-                      title="Edit Campaign"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                      </svg>
-                    </button>
-                    
-                    <button 
-                      className="text-indigo-600 hover:text-indigo-800 transition-colors"
-                      title="Duplicate Campaign"
-                      onClick={() => handleDuplicateCampaign(campaign.id)}
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                      </svg>
-                    </button>
-                    
-                    {campaign.status !== 'Active' && campaign.status !== 'Completed' && (
-                      <button 
-                        className="text-red-500 hover:text-red-700 transition-colors"
-                        title="Delete Campaign"
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M3 6h18"></path>
-                          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                        </svg>
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))
-          )}
         </div>
       ) : (
-        /* List View with enhanced styling */
-        <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="bg-gray-50">
-                  <th className="text-left py-3 px-4 font-medium text-gray-700 border-b border-gray-200">Campaign</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-700 border-b border-gray-200">Status</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-700 border-b border-gray-200">Date</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-700 border-b border-gray-200">Recipients</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-700 border-b border-gray-200">Performance</th>
-                  <th className="text-center py-3 px-4 font-medium text-gray-700 border-b border-gray-200">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {isLoading ? (
-                  <tr>
-                    <td colSpan={6} className="text-center py-10">
-                      <div className="flex justify-center">
-                        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-600"></div>
-                      </div>
-                      <p className="text-gray-500 mt-3">Loading campaigns...</p>
-                    </td>
-                  </tr>
-                ) : filteredCampaigns.length === 0 ? (
-                  <tr>
-                    <td colSpan={6} className="text-center py-10">
-                      <div className="bg-gray-100 rounded-full p-3 w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <line x1="8" y1="6" x2="21" y2="6"></line>
-                          <line x1="8" y1="12" x2="21" y2="12"></line>
-                          <line x1="8" y1="18" x2="21" y2="18"></line>
-                          <line x1="3" y1="6" x2="3.01" y2="6"></line>
-                          <line x1="3" y1="12" x2="3.01" y2="12"></line>
-                          <line x1="3" y1="18" x2="3.01" y2="18"></line>
-                        </svg>
-                      </div>
-                      <h3 className="text-lg font-medium text-gray-700 mb-2">No campaigns found</h3>
-                      <p className="text-gray-500 mb-6">Try adjusting your search or filter to find what you're looking for.</p>
-                      <button 
-                        onClick={() => {
-                          setSearchTerm('');
-                          setStatusFilter('');
-                          setDateFilter('');
-                        }}
-                        className="text-indigo-600 font-medium hover:text-indigo-800 transition-colors"
-                      >
-                        Clear all filters
-                      </button>
-                    </td>
-                  </tr>
-                ) : (
-                  filteredCampaigns.map(campaign => (
-                    <tr key={campaign.id} className="border-b border-gray-100 hover:bg-indigo-50/30 transition-colors">
-                      <td className="py-4 px-4">
-                        <div className="flex items-center">
-                          <div 
-                            className="h-10 w-10 rounded-lg bg-gradient-to-br from-indigo-100 to-indigo-50 border border-indigo-200 flex items-center justify-center mr-3 flex-shrink-0"
-                            style={{ color: campaign.labelColor }}
-                          >
-                            {campaign.type === 'newsletter' ? (
-                              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"></path><path d="M18 14h-8"></path><path d="M15 18h-5"></path><path d="M10 6h8v4h-8V6Z"></path></svg>
-                            ) : campaign.type === 'promotional' ? (
-                              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><path d="M12 9v4"></path><path d="M12 17h.01"></path></svg>
-                            ) : campaign.type === 'survey' ? (
-                              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"></rect><path d="M7 7h10"></path><path d="M7 12h10"></path><path d="M7 17h4"></path></svg>
-                            ) : (
-                              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="14" x="2" y="7" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
-                            )}
-                          </div>
-                          <div>
-                            <div className="font-medium text-gray-900 mb-0.5">{campaign.name}</div>
-                            <div className="text-xs text-gray-500 line-clamp-1">{campaign.description}</div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="py-4 px-4">
-                        <div className={`relative inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${statusConfig[campaign.status as keyof typeof statusConfig].bgColor}`}>
-                          <span className={`relative z-10 flex items-center ${statusConfig[campaign.status as keyof typeof statusConfig].pulseClass}`}>
-                            {statusConfig[campaign.status as keyof typeof statusConfig].icon}
-                            {campaign.status}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="py-4 px-4 text-gray-700">
-                        {campaign.status === 'Scheduled' ? (
-                          <div>
-                            <div className="font-medium text-blue-600">{formatDate(campaign.scheduledFor || null)}</div>
-                            <div className="text-xs text-gray-500">Scheduled</div>
-                          </div>
-                        ) : campaign.sentDate ? (
-                          <div>
-                            <div>{formatDate(campaign.sentDate)}</div>
-                            <div className="text-xs text-gray-500">Sent</div>
-                          </div>
-                        ) : (
-                          <div>
-                            <div>{formatDate(campaign.lastModified)}</div>
-                            <div className="text-xs text-gray-500">Modified</div>
-                          </div>
-                        )}
-                      </td>
-                      <td className="py-4 px-4 text-gray-700">
-                        {campaign.recipients > 0 ? (
-                          <div className="font-medium">{campaign.recipients.toLocaleString()}</div>
-                        ) : (
-                          <div className="text-gray-400">—</div>
-                        )}
-                      </td>
-                      <td className="py-4 px-4">
-                        {campaign.status === 'Active' || campaign.status === 'Completed' ? (
-                          <div className="flex items-center gap-4">
-                            <div>
-                              <div className="flex items-center gap-1.5 mb-1">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-green-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                  <path d="M2 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                                  <circle cx="12" cy="12" r="3"></circle>
-                                </svg>
-                                <div className="font-medium">{campaign.openRate}%</div>
-                              </div>
-                              <div className="h-1.5 w-24 bg-gray-100 rounded-full overflow-hidden">
-                                <div className="h-full bg-green-500" style={{width: `${campaign.openRate}%`}}></div>
-                              </div>
-                            </div>
-                            <div>
-                              <div className="flex items-center gap-1.5 mb-1">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                  <path d="m8 6 4-4 4 4"></path>
-                                  <path d="M12 2v10.3"></path>
-                                  <path d="M18 8.4C19.1 9.3 20 10.6 20 12c0 3.3-3.1 6-7 6s-7-2.7-7-6c0-1.4.9-2.7 2-3.6"></path>
-                                </svg>
-                                <div className="font-medium">{campaign.clickRate}%</div>
-                              </div>
-                              <div className="h-1.5 w-24 bg-gray-100 rounded-full overflow-hidden">
-                                <div className="h-full bg-blue-500" style={{width: `${campaign.clickRate * 3}%`}}></div>
-                              </div>
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="text-gray-400">Not sent yet</div>
-                        )}
-                      </td>
-                      <td className="py-4 px-4">
-                        <div className="flex items-center justify-center gap-2">
-                          <button 
-                            className="text-gray-500 hover:text-indigo-600 p-1.5 rounded-full hover:bg-indigo-50 transition-colors"
-                            title="View Details"
-                            onClick={() => setSelectedCampaign(campaign.id)}
-                          >
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                              <circle cx="12" cy="12" r="3"></circle>
-                            </svg>
-                          </button>
-                          
-                          <button 
-                            className="text-gray-500 hover:text-indigo-600 p-1.5 rounded-full hover:bg-indigo-50 transition-colors"
-                            title="Edit Campaign"
-                          >
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                            </svg>
-                          </button>
-                          
-                          <button 
-                            className="text-gray-500 hover:text-indigo-600 p-1.5 rounded-full hover:bg-indigo-50 transition-colors"
-                            title="Duplicate Campaign"
-                            onClick={() => handleDuplicateCampaign(campaign.id)}
-                          >
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                            </svg>
-                          </button>
-                          
-                          {campaign.status !== 'Active' && campaign.status !== 'Completed' && (
-                            <button 
-                              className="text-gray-500 hover:text-red-600 p-1.5 rounded-full hover:bg-red-50 transition-colors"
-                              title="Delete Campaign"
-                            >
-                              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M3 6h18"></path>
-                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                              </svg>
-                            </button>
-                          )}
-                          
-                          {campaign.status === 'Active' || campaign.status === 'Completed' ? (
-                            <button 
-                              className="text-gray-500 hover:text-indigo-600 p-1.5 rounded-full hover:bg-indigo-50 transition-colors"
-                              title="View Analytics"
-                              onClick={() => setShowAnalytics(true)}
-                            >
-                              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M3 3v18h18"></path>
-                                <path d="m19 9-5 5-4-4-3 3"></path>
-                              </svg>
-                            </button>
-                          ) : campaign.status === 'Scheduled' ? (
-                            <button 
-                              className="text-gray-500 hover:text-indigo-600 p-1.5 rounded-full hover:bg-indigo-50 transition-colors"
-                              title="Reschedule"
-                            >
-                              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M21 7.5V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3.5"></path>
-                                <path d="M16 2v4"></path>
-                                <path d="M8 2v4"></path>
-                                <path d="M3 10h18"></path>
-                                <path d="M18 21a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"></path>
-                                <path d="M18 18v-6"></path>
-                                <path d="M18 18h-6"></path>
-                              </svg>
-                            </button>
-                          ) : null}
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+        // Campaign list/grid view
+        <div className="space-y-6">
+          {/* Filters */}
+          <div className="flex flex-wrap gap-4 items-center">
+            <div className="flex-1 min-w-[200px]">
+              <input
+                type="text"
+                placeholder="Search campaigns..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              />
+            </div>
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            >
+              <option value="">All Status</option>
+              <option value="draft">Draft</option>
+              <option value="scheduled">Scheduled</option>
+              <option value="sent">Sent</option>
+            </select>
+            <select
+              value={dateFilter}
+              onChange={(e) => setDateFilter(e.target.value)}
+              className="px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            >
+              <option value="">All Time</option>
+              <option value="today">Today</option>
+              <option value="week">This Week</option>
+              <option value="month">This Month</option>
+            </select>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setActiveView('grid')}
+                className={`p-2 rounded-lg ${activeView === 'grid' ? 'bg-indigo-100 text-indigo-600' : 'text-gray-500'}`}
+              >
+                <Grid className="h-5 w-5" />
+              </button>
+              <button
+                onClick={() => setActiveView('list')}
+                className={`p-2 rounded-lg ${activeView === 'list' ? 'bg-indigo-100 text-indigo-600' : 'text-gray-500'}`}
+              >
+                <List className="h-5 w-5" />
+              </button>
+            </div>
           </div>
-          
-          {!isLoading && filteredCampaigns.length > 0 && (
-            <div className="flex items-center justify-between border-t border-gray-100 px-4 py-3">
-              <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
-                <div>
-                  <p className="text-sm text-gray-700">
-                    Showing <span className="font-medium">1</span> to <span className="font-medium">{filteredCampaigns.length}</span> of{" "}
-                    <span className="font-medium">{filteredCampaigns.length}</span> results
-                  </p>
-                </div>
-                <div>
-                  <nav className="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
-                    <button className="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
-                      <span className="sr-only">Previous</span>
-                      <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                        <path fillRule="evenodd" d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z" clipRule="evenodd" />
-                      </svg>
-                    </button>
-                    <button className="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-white bg-indigo-600 ring-1 ring-inset ring-gray-300">
-                      1
-                    </button>
-                    <button className="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
-                      <span className="sr-only">Next</span>
-                      <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                        <path fillRule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clipRule="evenodd" />
-                      </svg>
-                    </button>
-                  </nav>
+
+          {/* Campaign Grid/List */}
+          <div className={activeView === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6' : 'space-y-4'}>
+            {filteredCampaigns.map((campaign) => (
+              <div
+                key={campaign.id}
+                className={`bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow ${
+                  activeView === 'list' ? 'flex items-center p-4' : 'p-6'
+                }`}
+              >
+                <div className={activeView === 'list' ? 'flex-1' : ''}>
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                      <div className={`p-2 rounded-lg ${
+                        campaign.icon?.color === 'primary' ? 'bg-indigo-100 text-indigo-600' :
+                        campaign.icon?.color === 'success' ? 'bg-green-100 text-green-600' :
+                        campaign.icon?.color === 'warning' ? 'bg-yellow-100 text-yellow-600' :
+                        'bg-gray-100 text-gray-600'
+                      }`}>
+                        <Mail className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <h3 className="font-medium text-gray-900">{campaign.name}</h3>
+                        <p className="text-sm text-gray-500">{campaign.subtitle}</p>
+                      </div>
+                    </div>
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      campaign.status.label === 'Sent' ? 'bg-green-100 text-green-700' :
+                      campaign.status.label === 'Scheduled' ? 'bg-yellow-100 text-yellow-700' :
+                      campaign.status.label === 'Draft' ? 'bg-gray-100 text-gray-700' :
+                      'bg-blue-100 text-blue-700'
+                    }`}>
+                      {campaign.status.label}
+                    </span>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-gray-500">Recipients</span>
+                      <span className="font-medium">{campaign.recipients}</span>
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-gray-500">Open Rate</span>
+                      <span className="font-medium">{campaign.openRate.toFixed(1)}%</span>
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-gray-500">Click Rate</span>
+                      <span className="font-medium">{campaign.clickRate.toFixed(1)}%</span>
+                    </div>
+                  </div>
+                  
+                  <div className="mt-4 pt-4 border-t border-gray-100">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-500">{campaign.date}</span>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            ))}
+          </div>
         </div>
       )}
+
+      {/* Create Campaign Modal */}
+      <CreateCampaignModal
+        open={showCreateModal}
+        onOpenChange={setShowCreateModal}
+        onSuccess={() => {
+          fetchCampaigns();
+          if (onCreateCampaign) onCreateCampaign();
+        }}
+      />
     </div>
   );
 };
@@ -1606,8 +959,6 @@ const ClientLists = ({ onCreateList }: { onCreateList: () => void }) => {
   );
 };
 
-// ClientTemplates component is now imported from its own file
-
 const ClientReports = () => {
   // State for reports
   const [isLoading, setIsLoading] = useState(false);
@@ -2189,11 +1540,9 @@ const ClientDomains = () => {
     </div>
   );
 };
-const ClientEmailValidation = () => {
-  // States for validation forms
+const ClientEmailValidation: React.FC = () => {
   const [singleEmail, setSingleEmail] = useState('');
   const [bulkEmails, setBulkEmails] = useState('');
-  const [activeTab, setActiveTab] = useState('single');
   const [isLoading, setIsLoading] = useState(false);
   const [singleResult, setSingleResult] = useState<any>(null);
   const [batchResults, setBatchResults] = useState<any>(null);
@@ -2201,720 +1550,15 @@ const ClientEmailValidation = () => {
   const [showTypoSuggestion, setShowTypoSuggestion] = useState(false);
   const { toast } = useToast();
 
-  // Handle single email validation
-  const handleSingleValidation = async () => {
-    if (!singleEmail.trim()) {
-      toast({
-        title: "Email required",
-        description: "Please enter an email address to validate",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    setIsLoading(true);
-    setSingleResult(null);
-    setShowTypoSuggestion(false);
-    
-    try {
-      const response = await fetch('/api/email-validation/single', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ email: singleEmail.trim() })
-      });
-      
-      const data = await response.json();
-      setSingleResult(data);
-      
-      if (data.typo && data.suggestion) {
-        setShowTypoSuggestion(true);
-      }
-    } catch (error) {
-      console.error('Validation error:', error);
-      toast({
-        title: "Validation failed",
-        description: "Could not validate the email address. Please try again.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Apply suggestion
-  const applySuggestion = () => {
-    if (singleResult?.suggestion) {
-      setSingleEmail(singleResult.suggestion);
-      setShowTypoSuggestion(false);
-    }
-  };
-
-  // Handle bulk email validation
-  const handleBulkValidation = async () => {
-    if (!bulkEmails.trim()) {
-      toast({
-        title: "Emails required",
-        description: "Please enter email addresses to validate",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    // Parse emails from textarea
-    const emailList = bulkEmails
-      .split(/[\n,;]/)
-      .map(e => e.trim())
-      .filter(e => e);
-    
-    if (emailList.length === 0) {
-      toast({
-        title: "No valid emails",
-        description: "Please enter valid email addresses separated by commas, semicolons, or new lines",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    setIsLoading(true);
-    setBatchResults(null);
-    setAnalysisResults(null);
-    
-    try {
-      // Validate and analyze emails
-      const [validationResponse, analysisResponse] = await Promise.all([
-        fetch('/api/email-validation/batch', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ emails: emailList })
-        }),
-        fetch('/api/email-validation/analyze-bulk', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ emails: emailList })
-        })
-      ]);
-      
-      const validationData = await validationResponse.json();
-      const analysisData = await analysisResponse.json();
-      
-      setBatchResults(validationData);
-      setAnalysisResults(analysisData);
-    } catch (error) {
-      console.error('Bulk validation error:', error);
-      toast({
-        title: "Validation failed",
-        description: "Could not validate the email addresses. Please try again.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Colorize score based on value
-  const getScoreColor = (score: number) => {
-    if (score >= 80) return 'text-green-600';
-    if (score >= 60) return 'text-yellow-600';
-    return 'text-red-600';
-  };
-  
-  // Get background color for progress bars
-  const getScoreBgColor = (score: number) => {
-    if (score >= 80) return 'bg-green-500';
-    if (score >= 60) return 'bg-yellow-500';
-    return 'bg-red-500';
-  };
-
-  // Render badge based on validation result
-  const renderBadge = (valid: boolean, disposable: boolean) => {
-    if (!valid) {
-      return (
-        <span className="px-3 py-1 bg-red-100 text-red-800 rounded-full text-xs font-semibold flex items-center gap-1.5 shadow-sm">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-          </svg>
-          Invalid
-        </span>
-      );
-    }
-    
-    if (disposable) {
-      return (
-        <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-semibold flex items-center gap-1.5 shadow-sm">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-          </svg>
-          Disposable
-        </span>
-      );
-    }
-    
-    return (
-      <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-semibold flex items-center gap-1.5 shadow-sm">
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-        </svg>
-        Valid
-      </span>
-    );
-  };
-
-  const renderSingleResultCard = () => {
-    if (!singleResult) return null;
-    
-    return (
-      <div className="bg-white rounded-lg shadow-md border border-gray-200 p-6 mt-5">
-        <div className="flex items-center justify-between mb-5">
-          <div className="flex items-center gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-            </svg>
-            <h3 className="text-lg font-semibold text-gray-800">Validation Result</h3>
-          </div>
-          <div>
-            {renderBadge(singleResult.valid, singleResult.disposable)}
-          </div>
-        </div>
-        
-        {showTypoSuggestion && (
-          <div className="mb-5 p-4 bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200 rounded-lg shadow-sm">
-            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
-              <div>
-                <p className="text-sm font-medium text-blue-800 flex items-center gap-1.5">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  Possible typo detected!
-                </p>
-                <p className="text-sm text-blue-700 mt-1">Did you mean: <span className="font-semibold">{singleResult.suggestion}</span>?</p>
-              </div>
-              <button 
-                onClick={applySuggestion}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-md transition-colors shadow-sm font-medium"
-              >
-                Apply Suggestion
-              </button>
-            </div>
-          </div>
-        )}
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-5">
-          <div className="bg-gray-50 rounded-lg p-4 border border-gray-100 shadow-sm">
-            <h4 className="text-sm font-medium text-gray-600 mb-2">Email Quality Score</h4>
-            <div className="flex items-end gap-2">
-              <span className={`text-3xl font-bold ${getScoreColor(singleResult.score)}`}>{singleResult.score}</span>
-              <span className="text-sm text-gray-500">/100</span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
-              <div 
-                className={`${getScoreBgColor(singleResult.score)} h-2 rounded-full`}
-                style={{ width: `${singleResult.score}%` }}
-              ></div>
-            </div>
-          </div>
-          
-          <div className="grid grid-cols-1 gap-4">
-            <div className="bg-gray-50 rounded-lg p-3 border border-gray-100 shadow-sm flex items-center justify-between">
-              <h4 className="text-sm font-medium text-gray-600">Format</h4>
-              <p className="font-medium">
-                {singleResult.valid ? 
-                  <span className="text-green-600 flex items-center gap-1.5 px-3 py-1 bg-green-100 rounded-full text-sm">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    Valid Format
-                  </span> : 
-                  <span className="text-red-600 flex items-center gap-1.5 px-3 py-1 bg-red-100 rounded-full text-sm">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                    Invalid Format
-                  </span>
-                }
-              </p>
-            </div>
-            
-            <div className="bg-gray-50 rounded-lg p-3 border border-gray-100 shadow-sm flex items-center justify-between">
-              <h4 className="text-sm font-medium text-gray-600">Domain Type</h4>
-              <p className="font-medium">
-                {singleResult.disposable ? 
-                  <span className="text-yellow-600 flex items-center gap-1.5 px-3 py-1 bg-yellow-100 rounded-full text-sm">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                    </svg>
-                    Disposable Domain
-                  </span> : 
-                  <span className="text-green-600 flex items-center gap-1.5 px-3 py-1 bg-green-100 rounded-full text-sm">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    Regular Domain
-                  </span>
-                }
-              </p>
-            </div>
-            
-            <div className="bg-gray-50 rounded-lg p-3 border border-gray-100 shadow-sm flex items-center justify-between">
-              <h4 className="text-sm font-medium text-gray-600">Typo Detection</h4>
-              <p className="font-medium">
-                {singleResult.typo ? 
-                  <span className="text-yellow-600 flex items-center gap-1.5 px-3 py-1 bg-yellow-100 rounded-full text-sm">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                    </svg>
-                    Possible Typo
-                  </span> : 
-                  <span className="text-green-600 flex items-center gap-1.5 px-3 py-1 bg-green-100 rounded-full text-sm">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    No Typos
-                  </span>
-                }
-              </p>
-            </div>
-          </div>
-        </div>
-        
-        {singleResult.reason && (
-          <div className="mt-5 p-4 bg-gray-50 border border-gray-200 rounded-lg shadow-sm">
-            <div className="flex items-start gap-2">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-500 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <div>
-                <h4 className="text-sm font-medium text-gray-700 mb-1">Issues Detected:</h4>
-                <p className="text-sm text-gray-600">{singleResult.reason}</p>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-    );
-  };
-
-  const renderBulkResultsCard = () => {
-    if (!batchResults || !analysisResults) return null;
-    
-    return (
-      <div className="space-y-8 mt-6">
-        {/* Overview Card */}
-        <div className="bg-white rounded-lg shadow-md border border-gray-200 p-6">
-          <div className="flex items-center gap-2 mb-6">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-            </svg>
-            <h3 className="text-lg font-semibold text-gray-800">Validation Overview</h3>
-          </div>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
-            <div className="p-5 bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg border border-gray-200 shadow-sm">
-              <h4 className="text-sm font-medium text-gray-600 mb-2">Quality Score</h4>
-              <div className="flex items-end gap-2">
-                <p className={`text-3xl font-bold ${getScoreColor(analysisResults.qualityScore)}`}>
-                  {analysisResults.qualityScore}%
-                </p>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
-                <div 
-                  className={`${getScoreBgColor(analysisResults.qualityScore)} h-2 rounded-full`}
-                  style={{ width: `${analysisResults.qualityScore}%` }}
-                ></div>
-              </div>
-            </div>
-            
-            <div className="p-5 bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg border border-gray-200 shadow-sm">
-              <h4 className="text-sm font-medium text-gray-600 mb-2">Valid Emails</h4>
-              <p className="text-3xl font-bold text-green-600">
-                {analysisResults.validRate}%
-              </p>
-              <div className="flex items-center gap-2 mt-1">
-                <div className="flex-1 bg-gray-200 rounded-full h-2">
-                  <div 
-                    className="bg-green-500 rounded-full h-2" 
-                    style={{ width: `${analysisResults.validRate}%` }}
-                  ></div>
-                </div>
-                <span className="text-xs text-gray-500 whitespace-nowrap">
-                  {analysisResults.validEmails} of {analysisResults.totalEmails}
-                </span>
-              </div>
-            </div>
-            
-            <div className="p-5 bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg border border-gray-200 shadow-sm">
-              <h4 className="text-sm font-medium text-gray-600 mb-2">Disposable Emails</h4>
-              <p className="text-3xl font-bold text-yellow-600">
-                {analysisResults.disposableRate}%
-              </p>
-              <div className="flex items-center gap-2 mt-1">
-                <div className="flex-1 bg-gray-200 rounded-full h-2">
-                  <div 
-                    className="bg-yellow-500 rounded-full h-2" 
-                    style={{ width: `${analysisResults.disposableRate}%` }}
-                  ></div>
-                </div>
-                <span className="text-xs text-gray-500 whitespace-nowrap">
-                  {analysisResults.disposableEmails} of {analysisResults.totalEmails}
-                </span>
-              </div>
-            </div>
-            
-            <div className="p-5 bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg border border-gray-200 shadow-sm">
-              <h4 className="text-sm font-medium text-gray-600 mb-2">Possible Typos</h4>
-              <p className="text-3xl font-bold text-blue-600">
-                {analysisResults.typoRate}%
-              </p>
-              <div className="flex items-center gap-2 mt-1">
-                <div className="flex-1 bg-gray-200 rounded-full h-2">
-                  <div 
-                    className="bg-blue-500 rounded-full h-2" 
-                    style={{ width: `${analysisResults.typoRate}%` }}
-                  ></div>
-                </div>
-                <span className="text-xs text-gray-500 whitespace-nowrap">
-                  {analysisResults.typoEmails} of {analysisResults.totalEmails}
-                </span>
-              </div>
-            </div>
-          </div>
-          
-          {/* Issue Breakdown */}
-          <div className="mb-8">
-            <div className="flex items-center gap-2 mb-3">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <h4 className="text-sm font-semibold text-gray-700">Issue Breakdown</h4>
-            </div>
-            
-            <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
-              {Object.entries(analysisResults.issueBreakdown).map(([issue, count]: [string, any]) => (
-                count > 0 ? (
-                  <div key={issue} className="flex items-center mb-3 last:mb-0">
-                    <div className="w-1/3 text-sm font-medium text-gray-700">{issue}</div>
-                    <div className="w-2/3 flex items-center gap-2">
-                      <div className="flex-1 bg-gray-200 rounded-full h-2.5">
-                        <div 
-                          className="bg-blue-600 rounded-full h-2.5" 
-                          style={{ width: `${Math.round((count / analysisResults.totalEmails) * 100)}%` }}
-                        ></div>
-                      </div>
-                      <div className="text-xs text-gray-500 min-w-[75px] text-right">
-                        {count} emails ({Math.round((count / analysisResults.totalEmails) * 100)}%)
-                      </div>
-                    </div>
-                  </div>
-                ) : null
-              ))}
-            </div>
-          </div>
-          
-          {/* Domain Breakdown */}
-          <div>
-            <div className="flex items-center gap-2 mb-3">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
-              </svg>
-              <h4 className="text-sm font-semibold text-gray-700">Top Domains</h4>
-            </div>
-            
-            <div className="bg-gray-50 rounded-lg border border-gray-100 overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-100">
-                    <tr>
-                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Domain</th>
-                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Count</th>
-                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Percentage</th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {Object.entries(analysisResults.domainBreakdown)
-                      .sort(([, a]: [string, any], [, b]: [string, any]) => b - a)
-                      .slice(0, 5)
-                      .map(([domain, count]: [string, any]) => (
-                        <tr key={domain} className="hover:bg-gray-50 transition-colors">
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{domain}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{count}</td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="flex items-center gap-2">
-                              <div className="w-24 bg-gray-200 rounded-full h-2">
-                                <div 
-                                  className="bg-blue-500 rounded-full h-2" 
-                                  style={{ width: `${Math.round((count / analysisResults.totalEmails) * 100)}%` }}
-                                ></div>
-                              </div>
-                              <span className="text-sm text-gray-600">
-                                {Math.round((count / analysisResults.totalEmails) * 100)}%
-                              </span>
-                            </div>
-                          </td>
-                        </tr>
-                      ))
-                    }
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        {/* Detailed Results Table */}
-        <div className="bg-white rounded-lg shadow-md border border-gray-200 p-6">
-          <div className="flex items-center gap-2 mb-6">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-            </svg>
-            <h3 className="text-lg font-semibold text-gray-800">Detailed Results</h3>
-          </div>
-          
-          <div className="overflow-x-auto shadow-sm border border-gray-100 rounded-lg">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-100">
-                <tr>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Email</th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Status</th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Score</th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Issues</th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {Object.entries(batchResults.results).map(([email, result]: [string, any]) => (
-                  <tr key={email} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{email}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      {renderBadge(result.valid, result.disposable)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center gap-2">
-                        <span className={`font-semibold ${getScoreColor(result.score)}`}>
-                          {result.score}
-                        </span>
-                        <div className="w-16 bg-gray-200 rounded-full h-2">
-                          <div 
-                            className={`${getScoreBgColor(result.score)} h-2 rounded-full`}
-                            style={{ width: `${result.score}%` }}
-                          ></div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                      {!result.valid && (
-                        <span className="text-red-600 flex items-center gap-1">
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                          </svg>
-                          Invalid format
-                        </span>
-                      )}
-                      {result.valid && result.disposable && (
-                        <span className="text-yellow-600 flex items-center gap-1">
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                          </svg>
-                          Disposable email
-                        </span>
-                      )}
-                      {result.valid && result.typo && (
-                        <span className="text-blue-600 flex items-center gap-1">
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                          </svg>
-                          Typo → <span className="font-medium underline">{result.suggestion}</span>
-                        </span>
-                      )}
-                      {result.valid && !result.disposable && !result.typo && (
-                        <span className="text-green-600 flex items-center gap-1">
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                          </svg>
-                          No issues
-                        </span>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    );
-  };
+  // ... rest of the component code ...
 
   return (
-    <div className="p-8">
-      <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
-        <div className="flex items-center gap-3">
-          <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-3 rounded-xl shadow-lg shadow-blue-200">
-            <Activity className="h-6 w-6 text-white" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-700 to-blue-900 bg-clip-text text-transparent">
-              Email Validation
-            </h1>
-            <p className="text-gray-500 text-sm">Verify and improve your email list quality</p>
-          </div>
-        </div>
-      </div>
-      
-      {/* Enhanced Info Card */}
-      <div className="bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200 rounded-lg p-5 mb-8 shadow-sm">
-        <div className="flex items-start">
-          <div className="flex-shrink-0 mt-0.5 bg-blue-500 rounded-full p-1.5">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-            </svg>
-          </div>
-          <div className="ml-4">
-            <h3 className="text-base font-semibold text-blue-800">About Email Validation</h3>
-            <div className="mt-1 text-sm text-gray-700">
-              <p>Validate your email lists to improve deliverability and engagement. Our enterprise-grade validation engine identifies invalid emails, disposable domains, and potential typos to help maintain a clean contact database.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      {/* Tabs with enhanced styling */}
-      <div className="bg-white rounded-lg shadow-md border border-gray-200 mb-8 overflow-hidden">
-        <div className="bg-gray-50 border-b border-gray-200">
-          <nav className="flex" aria-label="Tabs">
-            <button
-              onClick={() => setActiveTab('single')}
-              className={`${
-                activeTab === 'single'
-                  ? 'border-blue-600 text-blue-700 bg-white'
-                  : 'border-transparent text-gray-600 hover:text-gray-800 hover:border-gray-300 hover:bg-gray-100'
-              } py-4 px-6 text-sm font-medium border-b-2 transition-all duration-200`}
-            >
-              <div className="flex items-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
-                Single Email Validation
-              </div>
-            </button>
-            <button
-              onClick={() => setActiveTab('bulk')}
-              className={`${
-                activeTab === 'bulk'
-                  ? 'border-blue-600 text-blue-700 bg-white'
-                  : 'border-transparent text-gray-600 hover:text-gray-800 hover:border-gray-300 hover:bg-gray-100'
-              } py-4 px-6 text-sm font-medium border-b-2 transition-all duration-200`}
-            >
-              <div className="flex items-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                </svg>
-                Bulk Validation
-              </div>
-            </button>
-          </nav>
-        </div>
-        
-        <div className="p-6">
-          {activeTab === 'single' ? (
-            <div className="space-y-5">
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                  Email Address
-                </label>
-                <div className="flex shadow-sm">
-                  <input
-                    type="email"
-                    id="email"
-                    placeholder="Enter an email address to validate"
-                    className="flex-1 border border-gray-300 rounded-l-md px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500 text-gray-800"
-                    value={singleEmail}
-                    onChange={(e) => setSingleEmail(e.target.value)}
-                  />
-                  <button
-                    onClick={handleSingleValidation}
-                    disabled={isLoading}
-                    className="bg-blue-600 text-white px-6 py-3 rounded-r-md hover:bg-blue-700 transition-colors disabled:bg-blue-400 shadow-sm font-medium"
-                  >
-                    {isLoading ? (
-                      <div className="flex items-center">
-                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        <span>Validating...</span>
-                      </div>
-                    ) : "Validate"}
-                  </button>
-                </div>
-                <p className="mt-1.5 text-xs text-gray-500">
-                  Enterprise-grade validation will check format, domain, disposable status, and typos.
-                </p>
-              </div>
-              
-              {renderSingleResultCard()}
-            </div>
-          ) : (
-            <div className="space-y-5">
-              <div>
-                <label htmlFor="emails" className="block text-sm font-medium text-gray-700 mb-2">
-                  Email Addresses
-                </label>
-                <textarea
-                  id="emails"
-                  placeholder="Enter multiple email addresses separated by commas, semicolons, or new lines"
-                  className="w-full h-48 border border-gray-300 rounded-md px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500 text-gray-800 shadow-sm"
-                  value={bulkEmails}
-                  onChange={(e) => setBulkEmails(e.target.value)}
-                ></textarea>
-                <div className="mt-2 flex items-start">
-                  <div className="flex-shrink-0 mt-0.5">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  </div>
-                  <p className="ml-2 text-xs text-gray-600">
-                    You can paste from Excel, CSV files, or type manually. Separate emails with commas, semicolons, or new lines.
-                  </p>
-                </div>
-              </div>
-              
-              <div className="flex justify-end">
-                <button
-                  onClick={handleBulkValidation}
-                  disabled={isLoading}
-                  className="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 transition-colors disabled:bg-blue-400 shadow-md font-medium flex items-center gap-2"
-                >
-                  {isLoading ? (
-                    <>
-                      <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      <span>Processing...</span>
-                    </>
-                  ) : (
-                    <>
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                      <span>Validate Emails</span>
-                    </>
-                  )}
-                </button>
-              </div>
-              
-              {renderBulkResultsCard()}
-            </div>
-          )}
-        </div>
-      </div>
+    <div className="p-6">
+      {/* ... component JSX ... */}
     </div>
   );
 };
+
 const ClientABTesting = () => (
   <div className="p-8">
     <div className="flex items-center gap-3 mb-6">
@@ -2950,7 +1594,7 @@ const ClientABTesting = () => (
       <div className="bg-white rounded-lg shadow p-5 border border-gray-100">
         <div className="flex items-center justify-center h-12 w-12 rounded-full bg-teal-100 text-teal-600 mb-4">
           <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"></path>
+            <path d="M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3Z"></path>
           </svg>
         </div>
         <h3 className="text-lg font-medium mb-2">Subject Line Testing</h3>
@@ -3235,9 +1879,18 @@ export default function ClientRoutes() {
         </Switch>
         
         {/* Modals */}
-        {showCreateCampaignModal && 
-          <CreateCampaignModal isOpen={showCreateCampaignModal} onClose={() => setShowCreateCampaignModal(false)} />
-        }
+        <CreateCampaignModal 
+          open={showCreateCampaignModal} 
+          onOpenChange={setShowCreateCampaignModal}
+          onSuccess={() => {
+            // Refresh campaigns list
+            const campaignsComponent = document.querySelector('[data-component="client-campaigns"]');
+            if (campaignsComponent) {
+              const event = new CustomEvent('refresh-campaigns');
+              campaignsComponent.dispatchEvent(event);
+            }
+          }}
+        />
         {showAddContactModal && 
           <AddContactModal isOpen={showAddContactModal} onClose={() => setShowAddContactModal(false)} />
         }

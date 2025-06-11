@@ -383,96 +383,121 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get all campaigns
   app.get('/api/campaigns', async (req: Request, res: Response) => {
     try {
-      // Get campaigns safely with fallback to empty array if database error occurs
-      let campaigns;
-      try {
-        campaigns = await storage.getCampaigns();
-        console.log(`Successfully retrieved ${campaigns.length} campaigns from database`);
-      } catch (dbError) {
-        console.error('Database error when fetching campaigns:', dbError);
-        campaigns = [];
+      // Check if user is authenticated
+      if (!req.session?.user && !req.session?.clientUser) {
+        console.log('No user session found');
+        return res.status(401).json({ error: 'Not authenticated' });
       }
-      
-      console.log(`Retrieved ${campaigns.length} campaigns from storage`);
-      
-      // Create an array to store the formatted campaigns
-      const formattedCampaigns = [];
-      
-      // Process each campaign with its engagement metrics
-      for (const campaign of campaigns) {
+
+      let campaigns;
+      if (req.session.user?.role === 'admin') {
+        // Admin can see all campaigns
+        campaigns = await storage.getCampaigns();
+        console.log('Admin viewing all campaigns:', {
+          totalCampaigns: campaigns.length
+        });
+      } else if (req.session.clientUser) {
+        // Client can only see their campaigns
+        const clientId = req.session.clientUser.clientId;
+        console.log('Client session found:', {
+          clientId,
+          username: req.session.clientUser.username
+        });
+        
+        // Get all campaigns and filter by client ID
+        const allCampaigns = await storage.getCampaigns();
+        campaigns = allCampaigns.filter(campaign => {
+          const matches = campaign.clientId === clientId;
+          console.log('Campaign check:', {
+            campaignId: campaign.id,
+            campaignClientId: campaign.clientId,
+            sessionClientId: clientId,
+            matches
+          });
+          return matches;
+        });
+        
+        console.log('Client campaigns filtered:', {
+          clientId,
+          totalCampaigns: allCampaigns.length,
+          clientCampaigns: campaigns.length,
+          campaignIds: campaigns.map(c => c.id)
+        });
+      } else {
+        console.log('User is not authorized:', {
+          hasUser: !!req.session.user,
+          hasClientUser: !!req.session.clientUser,
+          userRole: req.session.user?.role
+        });
+        return res.status(403).json({ error: 'Not authorized' });
+      }
+
+      // Transform campaigns to include status and metrics
+      const transformedCampaigns = await Promise.all(campaigns.map(async (campaign) => {
         try {
-          const metadata = campaign.metadata as any || {};
+          const metadata = campaign.metadata || {};
+          const status = campaign.status || 'draft';
+          const sentAt = campaign.sentAt || null;
+          const scheduledAt = campaign.scheduledAt || null;
           
-          // Handle potential missing engagement_metrics table
-          let metrics = [];
-          try {
-            // Get the engagement metrics for this campaign from the database
-            metrics = await db.select()
-              .from(engagementMetrics)
-              .where(eq(engagementMetrics.campaignId, campaign.id))
-              .orderBy(desc(engagementMetrics.date))
-              .limit(1);
-          } catch (metricsError) {
-            console.log(`Metrics query failed: ${metricsError.message}`);
-            // Table might not exist yet - this is OK, we'll use fallback values
+          // Calculate open and click rates
+          const openRate = metadata.opens && metadata.recipients ? 
+            (metadata.opens / metadata.recipients) * 100 : 0;
+          const clickRate = metadata.clicks && metadata.opens ? 
+            (metadata.clicks / metadata.opens) * 100 : 0;
+
+          // For admin view, include client information
+          let clientInfo = {};
+          if (req.session?.user && !req.session?.clientUser) {
+            clientInfo = {
+              clientId: campaign.clientId,
+              isGlobal: !campaign.clientId,
+              clientName: campaign.clientName || 'Global Campaign',
+              clientEmail: campaign.clientEmail
+            };
           }
-          
-          // Calculate the open rate and click rate from metrics
-          // If we have metrics data, use it; otherwise, fall back to metadata
-          let openRate = 0;
-          let clickRate = 0;
-          
-          if (metrics && metrics.length > 0) {
-            // Metrics stores clickThroughRate as percentage * 100, convert back to decimal
-            const uniqueOpens = metrics[0].uniqueOpens || 0;
-            const totalOpens = metrics[0].totalOpens || 0;
-            const uniqueClicks = metrics[0].uniqueClicks || 0;
-            const totalClicks = metrics[0].totalClicks || 0;
-            const recipients = metadata.recipients || 0;
-            
-            // Calculate rates - avoid division by zero
-            openRate = recipients > 0 ? (uniqueOpens / recipients) * 100 : 0;
-            clickRate = uniqueOpens > 0 ? (uniqueClicks / uniqueOpens) * 100 : 0;
-          } else {
-            // Fall back to metadata if no metrics found
-            openRate = metadata.openRate || 0;
-            clickRate = metadata.clickRate || 0;
-          }
-          
-          formattedCampaigns.push({
+
+          return {
             id: campaign.id,
             name: campaign.name,
             subtitle: metadata.subtitle || '',
             icon: metadata.icon || { name: 'envelope', color: 'primary' },
             status: {
-              label: campaign.status.charAt(0).toUpperCase() + campaign.status.slice(1),
-              color: campaign.status === 'sent' ? 'success' : 
-                    campaign.status === 'scheduled' ? 'warning' : 
-                    campaign.status === 'active' ? 'primary' : 'secondary'
+              label: status.charAt(0).toUpperCase() + status.slice(1),
+              value: status
             },
             recipients: metadata.recipients || 0,
             openRate: openRate,
             clickRate: clickRate,
             date: metadata.date || (campaign.scheduledAt ? new Date(campaign.scheduledAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A'),
-          });
+            ...clientInfo
+          };
         } catch (err) {
-          console.error(`Error formatting campaign ID ${campaign.id}:`, err);
-          // Return a minimal valid object if there's an error with this campaign
-          formattedCampaigns.push({
+          console.error('Error transforming campaign:', err);
+          return {
             id: campaign.id,
-            name: campaign.name || 'Unnamed Campaign',
+            name: campaign.name,
             subtitle: '',
             icon: { name: 'envelope', color: 'primary' },
-            status: { label: 'Unknown', color: 'secondary' },
+            status: {
+              label: 'Error',
+              value: 'error'
+            },
             recipients: 0,
             openRate: 0,
             clickRate: 0,
-            date: 'N/A'
-          });
+            date: 'N/A',
+            ...(req.session?.user && !req.session?.clientUser ? {
+              clientId: campaign.clientId,
+              isGlobal: !campaign.clientId,
+              clientName: campaign.clientName || 'Unknown Client',
+              clientEmail: campaign.clientEmail
+            } : {})
+          };
         }
-      }
-      
-      res.json(formattedCampaigns);
+      }));
+
+      res.json(transformedCampaigns);
     } catch (error) {
       console.error('Failed to fetch campaigns:', error);
       res.status(500).json({ error: 'Failed to fetch campaigns' });
@@ -2625,38 +2650,58 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Client campaigns endpoint
   app.get('/api/client-campaigns', isClientAuthenticated, async (req: Request, res: Response) => {
     try {
-      const clientId = req.query.clientId ? parseInt(req.query.clientId as string) : 
-                      (req.session?.clientUser?.clientId || null);
-                      
+      // Get client ID from session
+      const clientId = req.session?.clientUser?.clientId;
+      
       if (!clientId) {
+        console.log('No client ID found in session');
         return res.status(400).json({ error: 'Client ID is required' });
       }
       
-      // Check if client ID in session matches requested client ID (security check)
-      if (req.session?.clientUser?.clientId && req.session.clientUser.clientId !== clientId) {
-        return res.status(403).json({ error: 'Unauthorized access to client campaigns' });
-      }
+      console.log('Fetching campaigns for client:', {
+        clientId,
+        username: req.session.clientUser.username
+      });
       
-      // Get all campaigns for this client
-      let campaigns = await storage.getCampaigns();
+      // Get all campaigns
+      const allCampaigns = await storage.getCampaigns();
+      console.log('Total campaigns found:', allCampaigns.length);
       
       // Filter for this client
-      campaigns = campaigns.filter(campaign => {
-        const metadata = campaign.metadata as any || {};
-        return metadata.clientId === clientId;
+      const clientCampaigns = allCampaigns.filter(campaign => {
+        const matches = campaign.clientId === clientId;
+        console.log('Campaign check:', {
+          campaignId: campaign.id,
+          campaignClientId: campaign.clientId,
+          sessionClientId: clientId,
+          matches
+        });
+        return matches;
+      });
+      
+      console.log('Filtered client campaigns:', {
+        clientId,
+        totalCampaigns: allCampaigns.length,
+        clientCampaigns: clientCampaigns.length,
+        campaignIds: clientCampaigns.map(c => c.id)
       });
       
       // Format campaigns for client display
-      const formattedCampaigns = campaigns.map(campaign => {
-        const metadata = campaign.metadata as any || {};
+      const formattedCampaigns = clientCampaigns.map(campaign => {
+        const metadata = campaign.metadata || {};
         return {
           id: campaign.id,
           name: campaign.name,
-          status: campaign.status,
-          sentDate: campaign.sentAt ? new Date(campaign.sentAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '-',
-          emailsSent: metadata.recipients || 0,
+          subtitle: metadata.subtitle || '',
+          icon: metadata.icon || { name: 'envelope', color: 'primary' },
+          status: {
+            label: campaign.status.charAt(0).toUpperCase() + campaign.status.slice(1),
+            value: campaign.status
+          },
+          recipients: metadata.recipients || 0,
           openRate: metadata.openRate || 0,
-          clickRate: metadata.clickRate || 0
+          clickRate: metadata.clickRate || 0,
+          date: campaign.sentAt ? new Date(campaign.sentAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A'
         };
       });
       
@@ -2920,7 +2965,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userData = {
         id: user.id,
         username: user.username,
-        clientId: user.clientId,
+        clientId: client.id, // Use client.id instead of user.clientId
         clientName: client.name,
         clientCompany: client.company,
         permissions: user.metadata?.permissions || {
@@ -2934,6 +2979,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         },
         lastLogin: new Date().toISOString()
       };
+
+      console.log('Setting client session with data:', {
+        userId: userData.id,
+        clientId: userData.clientId,
+        username: userData.username
+      });
 
       // Store in session
       if (req.session) {
@@ -4816,6 +4867,282 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // ... existing code ...
+
+  // Get admin campaigns (all campaigns)
+  app.get('/api/admin/campaigns', async (req: Request, res: Response) => {
+    try {
+      // Check if user is admin
+      if (!req.session?.user) {
+        console.log('No user session found');
+        return res.status(401).json({ error: 'Not authenticated' });
+      }
+
+      if (req.session.user.role !== 'admin') {
+        console.log('User is not an admin:', {
+          userRole: req.session.user.role,
+          userId: req.session.user.id,
+          username: req.session.user.username
+        });
+        return res.status(403).json({ error: 'Not authorized as admin' });
+      }
+
+      // Get all campaigns from database
+      const campaigns = await storage.getCampaigns();
+      console.log('Admin campaigns:', campaigns);
+
+      // Transform campaigns to include status and metrics
+      const transformedCampaigns = await Promise.all(campaigns.map(async (campaign) => {
+        try {
+          const metadata = campaign.metadata || {};
+          const status = campaign.status || 'draft';
+          const sentAt = campaign.sentAt || null;
+          const scheduledAt = campaign.scheduledAt || null;
+          
+          // Calculate open and click rates
+          const openRate = metadata.opens && metadata.recipients ? 
+            (metadata.opens / metadata.recipients) * 100 : 0;
+          const clickRate = metadata.clicks && metadata.opens ? 
+            (metadata.clicks / metadata.opens) * 100 : 0;
+
+          return {
+            id: campaign.id,
+            name: campaign.name,
+            subtitle: metadata.subtitle || '',
+            icon: metadata.icon || { name: 'envelope', color: 'primary' },
+            status: {
+              label: status.charAt(0).toUpperCase() + status.slice(1),
+              value: status
+            },
+            recipients: metadata.recipients || 0,
+            openRate: openRate,
+            clickRate: clickRate,
+            date: metadata.date || (campaign.scheduledAt ? new Date(campaign.scheduledAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A'),
+            clientId: campaign.clientId,
+            isGlobal: !campaign.clientId,
+            clientName: campaign.clientName || 'Global Campaign',
+            clientEmail: campaign.clientEmail
+          };
+        } catch (err) {
+          console.error('Error transforming campaign:', err);
+          return {
+            id: campaign.id,
+            name: campaign.name,
+            subtitle: '',
+            icon: { name: 'envelope', color: 'primary' },
+            status: {
+              label: 'Error',
+              value: 'error'
+            },
+            recipients: 0,
+            openRate: 0,
+            clickRate: 0,
+            date: 'N/A',
+            clientId: campaign.clientId,
+            isGlobal: !campaign.clientId,
+            clientName: campaign.clientName || 'Unknown Client',
+            clientEmail: campaign.clientEmail
+          };
+        }
+      }));
+
+      res.json(transformedCampaigns);
+    } catch (error) {
+      console.error('Failed to fetch admin campaigns:', error);
+      res.status(500).json({ error: 'Failed to fetch admin campaigns' });
+    }
+  });
+
+  // Get current user
+  app.get('/api/user', async (req: Request, res: Response) => {
+    try {
+      if (!req.session?.user && !req.session?.clientUser) {
+        return res.status(401).json({ error: 'Not authenticated' });
+      }
+
+      if (req.session.user) {
+        // Admin user
+        return res.json({
+          role: 'admin',
+          id: req.session.user.id,
+          username: req.session.user.username,
+          email: req.session.user.email
+        });
+      } else if (req.session.clientUser) {
+        // Client user
+        return res.json({
+          role: 'client',
+          id: req.session.clientUser.clientId,
+          username: req.session.clientUser.username,
+          email: req.session.clientUser.email
+        });
+      }
+    } catch (error) {
+      console.error('Failed to get user:', error);
+      res.status(500).json({ error: 'Failed to get user' });
+    }
+  });
+
+  // Create a new campaign from client portal
+  app.post('/api/client-campaigns', isClientAuthenticated, async (req: Request, res: Response) => {
+    console.log("Creating client campaign with data:", req.body);
+    
+    // Get client ID from session
+    const clientId = req.session?.clientUser?.clientId;
+    if (!clientId) {
+      console.log("No client ID found in session");
+      return res.status(401).json({ error: 'Client ID not found' });
+    }
+
+    console.log("Creating campaign for client:", clientId);
+    
+    const validatedData = validate(insertCampaignSchema, req.body);
+    if ('error' in validatedData) {
+      console.error("Campaign validation error:", validatedData.error);
+      return res.status(400).json({ error: validatedData.error });
+    }
+
+    try {
+      // Import email service if it doesn't exist in the current scope
+      if (typeof emailService === 'undefined') {
+        const { emailService } = await import('./services/EmailService');
+      }
+      
+      // Import default email settings if needed
+      if (typeof defaultEmailSettings === 'undefined') {
+        const { defaultEmailSettings } = await import('./routes/emailSettings');
+      }
+      
+      // Determine campaign status based on sendOption
+      let status = 'draft';
+      let sentAt = null;
+      
+      if (req.body.sendOption === 'now') {
+        // Send immediately
+        status = 'sent'; 
+        sentAt = new Date();
+        console.log("Campaign to be sent immediately with status:", status);
+      } else if (req.body.sendOption === 'schedule' && req.body.scheduledDate) {
+        // Schedule for future
+        status = 'scheduled';
+        console.log("Campaign scheduled for future with status:", status);
+      }
+      
+      // Add default values and prepare the campaign data
+      const campaignData = {
+        ...validatedData,
+        clientId: clientId, // Include the client ID
+        status: status,
+        sentAt: sentAt,
+        metadata: {
+          ...validatedData.metadata,
+          subtitle: req.body.subtitle || '',
+          icon: req.body.icon || { name: 'envelope', color: 'primary' },
+          recipients: req.body.recipients || 0,
+          openRate: 0,
+          clickRate: 0,
+          date: req.body.scheduledDate ? new Date(req.body.scheduledDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+        }
+      };
+      
+      const campaign = await storage.createCampaign(campaignData as any);
+      console.log("Campaign created successfully:", campaign);
+      
+      // Actually send the campaign if sendOption is "now"
+      if (req.body.sendOption === 'now') {
+        setTimeout(async () => {
+          try {
+            console.log("Attempting to send campaign immediately...");
+            
+            // Get template content
+            const templateId = parseInt(req.body.templateId);
+            const template = await storage.getTemplate(templateId);
+            
+            if (!template) {
+              console.error("Template not found for campaign:", templateId);
+              return;
+            }
+            
+            // Get contacts for the lists
+            const contactLists = Array.isArray(req.body.contactLists) ? req.body.contactLists : [];
+            let contactsToEmail = [];
+            
+            for (const listId of contactLists) {
+              const contacts = await storage.getContactsByList(parseInt(listId));
+              contactsToEmail = [...contactsToEmail, ...contacts];
+            }
+            
+            console.log(`Found ${contactsToEmail.length} contacts to receive campaign`);
+            
+            if (contactsToEmail.length === 0) {
+              console.log("No contacts found for the selected lists");
+              return;
+            }
+            
+            const providerName = emailService.getDefaultProviderName();
+            if (!providerName) {
+              console.error("No default email provider set");
+              return;
+            }
+            
+            console.log("Using email provider:", providerName);
+            
+            // Send to each contact
+            let sentCount = 0;
+            for (const contact of contactsToEmail) {
+              try {
+                if (!contact.email) {
+                  console.error("Contact missing email:", contact);
+                  continue;
+                }
+                
+                const emailParams = {
+                  from: defaultEmailSettings.fromEmail || req.body.senderName,
+                  fromName: req.body.senderName || defaultEmailSettings.fromName,
+                  to: contact.email,
+                  subject: req.body.subject,
+                  html: template.content
+                };
+                
+                console.log(`Sending campaign email to ${contact.email}`);
+                await emailService.sendEmail(emailParams);
+                sentCount++;
+                
+                // Update campaign metadata to track recipients
+                const campaignToUpdate = await storage.getCampaign(campaign.id);
+                if (campaignToUpdate) {
+                  let metadata = campaignToUpdate.metadata || {};
+                  if (typeof metadata === 'string') {
+                    try {
+                      metadata = JSON.parse(metadata);
+                    } catch (e) {
+                      metadata = {};
+                    }
+                  }
+                  
+                  metadata.recipients = (metadata.recipients || 0) + 1;
+                  await storage.updateCampaign(campaign.id, {
+                    metadata: metadata
+                  });
+                }
+              } catch (emailError) {
+                console.error(`Failed to send campaign email to ${contact.email}:`, emailError);
+              }
+            }
+            
+            console.log(`Campaign ${campaign.id} sent to ${sentCount} recipients`);
+            
+          } catch (sendError) {
+            console.error("Error sending campaign:", sendError);
+          }
+        }, 100); // Slight delay to avoid blocking the response
+      }
+      
+      res.status(201).json(campaign);
+    } catch (error) {
+      console.error("Campaign creation error:", error);
+      res.status(500).json({ error: 'Failed to create campaign', details: error.message });
+    }
+  });
 }
       
 // Return the template HTML as a standalone page

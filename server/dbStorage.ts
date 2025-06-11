@@ -604,7 +604,25 @@ export class DbStorage implements IStorage {
 
   async getCampaigns() {
     try {
-      const campaigns = await db.select().from(schema.campaigns).orderBy(desc(schema.campaigns.createdAt));
+      // Get all campaigns with client information
+      const campaigns = await db
+        .select({
+          id: schema.campaigns.id,
+          name: schema.campaigns.name,
+          status: schema.campaigns.status,
+          clientId: schema.campaigns.clientId,
+          metadata: schema.campaigns.metadata,
+          sentAt: schema.campaigns.sentAt,
+          scheduledAt: schema.campaigns.scheduledAt,
+          createdAt: schema.campaigns.createdAt,
+          updatedAt: schema.campaigns.updatedAt,
+          clientName: schema.clients.name,
+          clientEmail: schema.clients.email
+        })
+        .from(schema.campaigns)
+        .leftJoin(schema.clients, eq(schema.campaigns.clientId, schema.clients.id))
+        .orderBy(desc(schema.campaigns.createdAt));
+
       return campaigns;
     } catch (error) {
       console.error('Error getting campaigns:', error);

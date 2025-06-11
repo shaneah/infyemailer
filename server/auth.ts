@@ -61,49 +61,17 @@ export async function comparePasswords(supplied: string, stored: string) {
 }
 
 export function setupAuth(app: Express) {
-  // Determine which session store to use based on database availability
-  let sessionStore;
-  
-  if (isDatabaseAvailable) {
-    console.log('Using PostgreSQL for session storage');
-    const PgSessionStore = connectPgSimple(session);
-    sessionStore = new PgSessionStore({
-      pool,
-      tableName: 'session', // Default table name
-      createTableIfMissing: true,
-      pruneSessionInterval: 60, // Prune expired sessions every 60 seconds
-      errorCallback: (err) => {
-        console.error('Session store error:', err);
-      }
+  // Add middleware to log session info for debugging
+  app.use((req: Request, res: Response, next: NextFunction) => {
+    console.log('Session info:', {
+      sessionID: req.sessionID,
+      hasSession: !!req.session,
+      hasUser: !!(req.session && req.session.user),
+      hasClientUser: !!(req.session && req.session.clientUser),
+      cookies: req.cookies
     });
-  } else {
-    console.log('Using memory store for session storage');
-    const MemoryStore = memorystore(session);
-    sessionStore = new MemoryStore({
-      checkPeriod: 86400000, // prune expired entries every 24h
-      max: 1000 // Maximum number of sessions to store
-    });
-  }
-
-  const sessionSettings: session.SessionOptions = {
-    secret: process.env.SESSION_SECRET || 'infy-mailer-secret',
-    resave: true, // Changed to true to ensure session is saved
-    saveUninitialized: true, // Changed to true to ensure session is created
-    store: sessionStore,
-    cookie: {
-      maxAge: 1000 * 60 * 60 * 24, // 1 day
-      secure: process.env.NODE_ENV === 'production', // Only use secure cookies in production
-      sameSite: 'lax',
-      path: '/',
-      httpOnly: true // Ensure cookies are not accessible via JavaScript
-    },
-    name: 'client.sid' // Explicitly set session cookie name
-  };
-
-  app.set("trust proxy", 1);
-  app.use(session(sessionSettings));
-  app.use(passport.initialize());
-  app.use(passport.session());
+    next();
+  });
 
   passport.use(
     new LocalStrategy(
@@ -129,7 +97,10 @@ export function setupAuth(app: Express) {
           // Handle special test case for admin123
           if (usernameOrEmail === 'admin' && password === 'admin123') {
             console.log('Using admin override for testing');
-            return done(null, user);
+            return done(null, {
+              ...user,
+              role: user.role || undefined
+            });
           }
           
           // Check if password is already hashed (contains a period)
@@ -139,7 +110,10 @@ export function setupAuth(app: Express) {
           if (!passwordCompareResult) {
             return done(null, false, { message: "Invalid username/email or password" });
           } else {
-            return done(null, user);
+            return done(null, {
+              ...user,
+              role: user.role || undefined
+            });
           }
         } catch (error) {
           console.error('Authentication error:', error);
@@ -153,12 +127,20 @@ export function setupAuth(app: Express) {
     console.log('Serializing user:', user?.id, user?.username);
     done(null, user.id);
   });
+
   passport.deserializeUser(async (id: number | string, done) => {
     console.log('Deserializing user with id:', id);
     try {
       const user = await getStorage().getUser(Number(id));
       console.log('Deserialized user found:', user);
-      done(null, user);
+      if (user) {
+        done(null, {
+          ...user,
+          role: user.role || undefined
+        });
+      } else {
+        done(null, false);
+      }
     } catch (error) {
       console.error('Error in deserializeUser:', error);
       done(error);
@@ -191,17 +173,54 @@ export function setupAuth(app: Express) {
   });
 
   app.post("/api/login", (req, res, next) => {
-    passport.authenticate("local", (err: any, user: Express.User | false | null, info: { message: string } | undefined) => {
-      if (err) return next(err);
+    console.log('Login request received:', {
+      sessionID: req.sessionID,
+      hasSession: !!req.session,
+      body: req.body
+    });
+
+    passport.authenticate("local", (err: any, user: any, info: any) => {
+      if (err) {
+        console.error('Login error:', err);
+        return next(err);
+      }
+      
       if (!user) {
+        console.log('Login failed:', info?.message);
         return res.status(401).json({ message: info?.message || "Authentication failed" });
       }
       
-      req.login(user, (err: Error | null) => {
-        if (err) return next(err);
-        // Remove password from response
-        const { password, ...userWithoutPassword } = user as any;
-        res.status(200).json(userWithoutPassword);
+      req.login(user, (err) => {
+        if (err) {
+          console.error('Session error:', err);
+          return next(err);
+        }
+        
+        // Set user in session
+        req.session.user = {
+          ...user,
+          role: user.role || undefined
+        };
+        
+        req.session.save((err) => {
+          if (err) {
+            console.error('Session save error:', err);
+            return next(err);
+          }
+          
+          console.log('Login successful, session saved:', {
+            sessionID: req.sessionID,
+            user: {
+              id: user.id,
+              username: user.username,
+              role: user.role
+            }
+          });
+          
+          // Remove password from response
+          const { password, ...userWithoutPassword } = user;
+          res.json(userWithoutPassword);
+        });
       });
     })(req, res, next);
   });

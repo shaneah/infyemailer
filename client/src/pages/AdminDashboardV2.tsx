@@ -4,6 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Download, Filter, ChevronDown, Calendar } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
+import { useQuery } from '@tanstack/react-query';
 import {
   ResponsiveContainer,
   LineChart,
@@ -204,6 +205,53 @@ export default function AdminDashboardV2() {
       </Card>
     );
   };
+
+  // Get user type first
+  const { data: userData } = useQuery({
+    queryKey: ['/api/user'],
+    queryFn: async () => {
+      const response = await fetch('/api/user', {
+        credentials: 'include'
+      });
+      if (!response.ok) {
+        throw new Error('Failed to fetch user data');
+      }
+      return response.json();
+    }
+  });
+
+  // Get campaigns based on user type
+  const { data: campaigns = [], isLoading: campaignsLoading } = useQuery<any[]>({
+    queryKey: ['/api/campaigns', userData?.role],
+    queryFn: async () => {
+      // If user is admin, use admin endpoint
+      if (userData?.role === 'admin') {
+        const response = await fetch('/api/admin/campaigns', {
+          credentials: 'include'
+        });
+        if (!response.ok) {
+          throw new Error('Failed to fetch admin campaigns');
+        }
+        return response.json();
+      }
+      
+      // Otherwise use client endpoint
+      const response = await fetch('/api/campaigns', {
+        credentials: 'include'
+      });
+      if (!response.ok) {
+        throw new Error('Failed to fetch client campaigns');
+      }
+      return response.json();
+    },
+    enabled: !!userData, // Only run query when we have user data
+    initialData: [],
+    staleTime: 30000,
+    refetchOnWindowFocus: true,
+    retry: 5,
+    refetchOnMount: true,
+    refetchInterval: 60000,
+  });
 
   return (
     <div className="min-h-screen bg-white">

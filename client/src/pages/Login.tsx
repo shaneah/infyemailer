@@ -13,6 +13,7 @@ import { useLocation, Link } from "wouter";
 import { apiRequest } from "@/lib/queryClient";
 import { useState, useEffect } from "react";
 import infyLogo from "@/assets/Logo-white.png";
+import { Label } from "@/components/ui/label";
 
 // Admin login schema
 const adminLoginSchema = z.object({
@@ -37,6 +38,10 @@ export default function Login() {
   const [isAdminLoading, setIsAdminLoading] = useState(false);
   const [isClientLoading, setIsClientLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<string>("admin");
+  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   
   // Check if user is already logged in by checking both storage and cookies
   useEffect(() => {
@@ -234,6 +239,65 @@ export default function Login() {
     setIsClientLoading(true);
     clientLoginMutation.mutate(data);
   }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setIsLoading(true);
+
+    try {
+      // Clear any existing session data
+      localStorage.removeItem('user');
+      
+      // Clear any existing cookies
+      document.cookie.split(";").forEach(function(c) { 
+        document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
+      });
+
+      const response = await fetch('/api/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          usernameOrEmail: username,
+          password: password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Login failed');
+      }
+
+      // Store user data in localStorage
+      localStorage.setItem('user', JSON.stringify(data));
+
+      // Show success toast
+      toast({
+        title: "Login successful",
+        description: `Welcome back, ${data.username}!`,
+      });
+
+      // Redirect based on role
+      if (data.role === 'admin') {
+        setLocation('/admin/dashboard');
+      } else {
+        setLocation('/campaigns');
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred');
+      toast({
+        title: "Login failed",
+        description: err instanceof Error ? err.message : 'An error occurred',
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-[#09152E] relative overflow-hidden">

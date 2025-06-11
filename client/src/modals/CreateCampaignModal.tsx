@@ -1,462 +1,340 @@
-import React, { useState } from 'react';
-import { X, Mail, Send, Clock, Calendar, Users, FileText, Zap } from 'lucide-react';
+import { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useToast } from "@/components/ui/use-toast";
+import { Dialog } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { ChevronLeft, ChevronRight, FileEdit, Mail, Send, Users, X } from "lucide-react";
+import { apiRequest } from "@/lib/api";
+
+// Campaign schema
+const campaignSchema = z.object({
+  name: z.string().min(1, "Campaign name is required"),
+  subject: z.string().min(1, "Email subject is required"),
+  previewText: z.string().min(1, "Preview text is required"),
+  senderName: z.string().min(1, "Sender name is required"),
+  replyToEmail: z.string().email("Must be a valid email address"),
+  scheduledDate: z.string().optional(),
+  scheduledTime: z.string().optional(),
+  status: z.string().optional(),
+  templateId: z.string().optional(),
+  contactLists: z.array(z.string()).optional(),
+  isAbTest: z.boolean().optional().default(false),
+  variants: z.array(z.object({
+    name: z.string().min(1, "Variant name is required"),
+    subject: z.string().min(1, "Variant subject is required"),
+    previewText: z.string().min(1, "Variant preview text is required"),
+    content: z.string().optional(),
+    weight: z.number().min(1, "Weight must be at least 1").default(50),
+  })).optional(),
+});
 
 interface CreateCampaignModalProps {
-  isOpen: boolean;
-  onClose: () => void;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSuccess?: () => void;
+  initialTemplateId?: string | null;
 }
 
-const CreateCampaignModal: React.FC<CreateCampaignModalProps> = ({ isOpen, onClose }) => {
-  const [step, setStep] = useState(1);
-  const [campaignType, setCampaignType] = useState<string | null>(null);
-  
-  if (!isOpen) return null;
+const CreateCampaignModal = ({ open, onOpenChange, onSuccess, initialTemplateId = null }: CreateCampaignModalProps) => {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const [activeTab, setActiveTab] = useState("details");
+  const [sendOption, setSendOption] = useState("schedule");
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(initialTemplateId);
+  const [selectedLists, setSelectedLists] = useState<string[]>([]);
+  const [isAbTesting, setIsAbTesting] = useState(false);
+  const [variants, setVariants] = useState<Array<{
+    id: string;
+    name: string;
+    subject: string;
+    previewText: string;
+    content?: string;
+    weight: number;
+  }>>([]);
 
-  const campaignTypes = [
-    { id: 'newsletter', name: 'Newsletter', icon: <Mail />, description: 'Regular updates to your subscribers', color: 'bg-purple-600' },
-    { id: 'promotional', name: 'Promotional', icon: <Zap />, description: 'Special offers and marketing campaigns', color: 'bg-indigo-600' },
-    { id: 'announcement', name: 'Announcement', icon: <Send />, description: 'Important announcements to your audience', color: 'bg-blue-600' },
-    { id: 'automated', name: 'Automated Series', icon: <Clock />, description: 'Sequence of automated emails', color: 'bg-violet-600' }
-  ];
+  // If an initial template ID is provided, switch to the content tab
+  useEffect(() => {
+    if (initialTemplateId) {
+      setActiveTab("content");
+    }
+  }, [initialTemplateId]);
+
+  const form = useForm<z.infer<typeof campaignSchema>>({
+    resolver: zodResolver(campaignSchema),
+    defaultValues: {
+      name: "",
+      subject: "",
+      previewText: "",
+      senderName: "Your Company",
+      replyToEmail: "",
+      scheduledDate: new Date().toISOString().split('T')[0],
+      scheduledTime: "09:00"
+    },
+  });
+
+  // Campaign response type
+  interface CampaignResponse {
+    id: number | string;
+    name: string;
+    status?: string;
+    [key: string]: any;
+  }
+
+  const createCampaignMutation = useMutation<CampaignResponse, Error, z.infer<typeof campaignSchema>>({
+    mutationFn: async (values: z.infer<typeof campaignSchema>) => {
+      console.log("Creating campaign with values:", values);
+      
+      try {
+        const response = await apiRequest("POST", "/api/client-campaigns", {
+          ...values,
+          templateId: selectedTemplateId,
+          contactLists: selectedLists,
+          sendOption
+        });
+        
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.error || `Failed with status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log("Campaign created successfully:", data);
+        return data;
+      } catch (error) {
+        console.error("Error during campaign creation:", error);
+        throw error;
+      }
+    },
+    onSuccess: (data) => {
+      console.log("Invalidating /api/client-campaigns query cache");
+      
+      // Invalidate multiple queries to ensure everything is refreshed
+      queryClient.invalidateQueries({ queryKey: ['/api/client-campaigns'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/campaigns/stats'] });
+      
+      // Force an immediate refetch to ensure data is up-to-date
+      queryClient.refetchQueries({ queryKey: ['/api/client-campaigns'] });
+      queryClient.refetchQueries({ queryKey: ['/api/campaigns/stats'] });
+      
+      // Schedule another refetch after a delay to catch any delayed database updates
+      setTimeout(() => {
+        queryClient.refetchQueries({ queryKey: ['/api/client-campaigns'] });
+        queryClient.refetchQueries({ queryKey: ['/api/campaigns/stats'] });
+      }, 500);
+      
+      toast({
+        title: "Success",
+        description: "Your campaign has been created successfully!",
+      });
+      
+      onOpenChange(false);
+      if (onSuccess) onSuccess();
+    },
+    onError: (error) => {
+      console.error("Campaign creation error:", error);
+      toast({
+        title: "Error",
+        description: `Failed to create campaign: ${error.message}`,
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Fetch templates from the server
+  const { data: templates = [], isLoading: isLoadingTemplates } = useQuery<any[]>({ 
+    queryKey: ['/api/templates'],
+  });
+  
+  // Fetch contact lists from the server
+  const { data: lists = [], isLoading: isLoadingLists } = useQuery<any[]>({ 
+    queryKey: ['/api/lists'],
+  });
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black bg-opacity-60 backdrop-blur-sm" onClick={onClose}></div>
-      <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-auto animate-fadeIn">
-        {/* Header with gradient background */}
-        <div className="sticky top-0 bg-gradient-to-r from-purple-600 to-indigo-600 p-5 flex justify-between items-center text-white rounded-t-xl z-10">
-          <div className="flex items-center gap-3">
-            <div className="bg-white/20 p-2.5 rounded-lg backdrop-blur-sm">
-              <Mail className="h-5 w-5" />
-            </div>
-            <div>
-              <h2 className="text-xl font-bold">Create New Campaign</h2>
-              <p className="text-xs text-white/80">Design a perfect email campaign</p>
-            </div>
-          </div>
-          <button 
-            onClick={onClose} 
-            className="text-white/80 hover:text-white bg-white/10 hover:bg-white/20 p-2 rounded-full transition-all duration-200"
-          >
-            <X className="h-5 w-5" />
-          </button>
-        </div>
-        
-        {/* Progress indicator */}
-        <div className="px-6 pt-6">
-          <div className="w-full bg-gray-100 h-1.5 rounded-full mb-6">
-            <div 
-              className="bg-gradient-to-r from-purple-500 to-indigo-500 h-1.5 rounded-full transition-all duration-500"
-              style={{ width: step === 1 ? '33%' : step === 2 ? '66%' : '100%' }}
-            ></div>
-          </div>
-          <div className="flex justify-between text-xs text-gray-500 mb-6">
-            <div className={`flex flex-col items-center ${step >= 1 ? 'text-indigo-600 font-medium' : ''}`}>
-              <div className={`w-6 h-6 rounded-full flex items-center justify-center mb-1 ${step >= 1 ? 'bg-indigo-600 text-white' : 'bg-gray-200'}`}>1</div>
-              <span>Type</span>
-            </div>
-            <div className={`flex flex-col items-center ${step >= 2 ? 'text-indigo-600 font-medium' : ''}`}>
-              <div className={`w-6 h-6 rounded-full flex items-center justify-center mb-1 ${step >= 2 ? 'bg-indigo-600 text-white' : 'bg-gray-200'}`}>2</div>
-              <span>Details</span>
-            </div>
-            <div className={`flex flex-col items-center ${step >= 3 ? 'text-indigo-600 font-medium' : ''}`}>
-              <div className={`w-6 h-6 rounded-full flex items-center justify-center mb-1 ${step >= 3 ? 'bg-indigo-600 text-white' : 'bg-gray-200'}`}>3</div>
-              <span>Review</span>
-            </div>
-          </div>
-        </div>
-        
-        <div className="p-6 pt-0">
-          {step === 1 && (
-            <div className="animate-fadeIn">
-              <h3 className="text-lg font-bold text-gray-800 mb-2">Select Campaign Type</h3>
-              <p className="text-gray-500 mb-6">Choose the type of campaign you want to create</p>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-                {campaignTypes.map(type => (
-                  <div 
-                    key={type.id}
-                    onClick={() => setCampaignType(type.id)}
-                    className={`border rounded-xl p-4 cursor-pointer transition-all duration-200 hover:shadow-md ${
-                      campaignType === type.id 
-                        ? 'border-indigo-300 bg-indigo-50 shadow-md' 
-                        : 'border-gray-200 hover:border-indigo-200'
-                    }`}
-                  >
-                    <div className="flex items-start gap-3">
-                      <div className={`p-3 rounded-lg ${type.color} text-white`}>
-                        {type.icon}
-                      </div>
-                      <div>
-                        <h4 className="font-medium text-gray-800">{type.name}</h4>
-                        <p className="text-sm text-gray-500">{type.description}</p>
-                      </div>
-                      {campaignType === type.id && (
-                        <div className="ml-auto">
-                          <div className="w-5 h-5 bg-indigo-600 rounded-full flex items-center justify-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 text-white" viewBox="0 0 20 20" fill="currentColor">
-                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                            </svg>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ))}
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <div className="fixed inset-0 z-50 flex items-center justify-center">
+        <div className="absolute inset-0 bg-black bg-opacity-60 backdrop-blur-sm"></div>
+        <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-auto">
+          {/* Header with gradient background */}
+          <div className="sticky top-0 bg-gradient-to-r from-purple-600 to-indigo-600 p-5 flex justify-between items-center text-white rounded-t-xl z-10">
+            <div className="flex items-center gap-3">
+              <div className="bg-white/20 p-2.5 rounded-lg backdrop-blur-sm">
+                <Mail className="h-5 w-5" />
+              </div>
+              <div>
+                <h2 className="text-xl font-bold">Create New Campaign</h2>
+                <p className="text-xs text-white/80">Design a perfect email campaign</p>
               </div>
             </div>
-          )}
+            <button 
+              onClick={() => onOpenChange(false)} 
+              className="text-white/80 hover:text-white bg-white/10 hover:bg-white/20 p-2 rounded-full transition-all duration-200"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
 
-          {step === 2 && (
-            <div className="animate-fadeIn">
-              <h3 className="text-lg font-bold text-gray-800 mb-2">Campaign Details</h3>
-              <p className="text-gray-500 mb-6">Enter the details for your campaign</p>
-              
-              <form className="space-y-5">
-                <div>
-                  <label htmlFor="campaign-name" className="block text-sm font-medium text-gray-700 mb-1">
-                    Campaign Name <span className="text-indigo-500">*</span>
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-                      <FileText className="h-4 w-4" />
-                    </div>
-                    <input
-                      type="text"
-                      id="campaign-name"
-                      className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                      placeholder="e.g., Monthly Newsletter - April 2025"
-                      required
-                    />
-                  </div>
-                </div>
-                
-                <div>
-                  <label htmlFor="subject-line" className="block text-sm font-medium text-gray-700 mb-1">
-                    Subject Line <span className="text-indigo-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    id="subject-line"
-                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                    placeholder="Enter email subject line"
-                    required
-                  />
-                  <div className="mt-1 flex items-center gap-2">
-                    <div className="h-1.5 w-1/3 bg-red-400 rounded-full"></div>
-                    <span className="text-xs text-gray-500">Subject line strength: Weak</span>
-                  </div>
-                </div>
-                
-                <div className="grid grid-cols-1 gap-5">
-                  {/* Sender Configuration */}
-                  <div className="bg-indigo-50/50 p-4 rounded-lg border border-indigo-100">
-                    <h4 className="text-sm font-medium text-indigo-700 mb-3 flex items-center">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1.5" viewBox="0 0 20 20" fill="currentColor">
-                        <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
-                        <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
-                      </svg>
-                      Sender Configuration
-                    </h4>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label htmlFor="sender-name" className="block text-sm font-medium text-gray-700 mb-1">
-                          From Name <span className="text-indigo-500">*</span>
-                        </label>
-                        <input
-                          type="text"
-                          id="sender-name"
-                          className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                          placeholder="e.g., Company Name or Your Name"
-                          required
+          <div className="p-6">
+            <Form {...form}>
+              <form onSubmit={(e) => { e.preventDefault(); }}>
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem className="mb-3">
+                      <FormLabel htmlFor="campaignName">Campaign Name</FormLabel>
+                      <FormControl>
+                        <Input 
+                          {...field} 
+                          id="campaignName" 
+                          placeholder="e.g. Summer Sale Announcement"
                         />
-                      </div>
-                      
-                      <div>
-                        <label htmlFor="sender-email" className="block text-sm font-medium text-gray-700 mb-1">
-                          From Email Address <span className="text-indigo-500">*</span>
-                        </label>
-                        <select
-                          id="sender-email"
-                          className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 appearance-none bg-white"
-                          required
-                        >
-                          <option value="">Select a sender email</option>
-                          <option value="info@yourdomain.com">info@yourdomain.com</option>
-                          <option value="marketing@yourdomain.com">marketing@yourdomain.com</option>
-                          <option value="newsletter@yourdomain.com">newsletter@yourdomain.com</option>
-                          <option value="support@yourdomain.com">support@yourdomain.com</option>
-                        </select>
-                      </div>
-                      
-                      <div>
-                        <label htmlFor="reply-to" className="block text-sm font-medium text-gray-700 mb-1">
-                          Reply-to Email <span className="text-indigo-500">*</span>
-                        </label>
-                        <input
+                      </FormControl>
+                      <div className="form-text">Internal name to identify your campaign</div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="subject"
+                  render={({ field }) => (
+                    <FormItem className="mb-3">
+                      <FormLabel htmlFor="emailSubject">Email Subject</FormLabel>
+                      <FormControl>
+                        <Input 
+                          {...field} 
+                          id="emailSubject" 
+                          placeholder="e.g. Don't Miss Our Summer Sale!"
+                        />
+                      </FormControl>
+                      <div className="form-text">This will appear as the subject of your email</div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="previewText"
+                  render={({ field }) => (
+                    <FormItem className="mb-3">
+                      <FormLabel htmlFor="previewText">Preview Text</FormLabel>
+                      <FormControl>
+                        <Input 
+                          {...field} 
+                          id="previewText" 
+                          placeholder="e.g. Check out our amazing deals..."
+                        />
+                      </FormControl>
+                      <div className="form-text">This appears in the email preview</div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="senderName"
+                  render={({ field }) => (
+                    <FormItem className="mb-3">
+                      <FormLabel htmlFor="senderName">Sender Name</FormLabel>
+                      <FormControl>
+                        <Input 
+                          {...field} 
+                          id="senderName" 
+                          placeholder="e.g. Your Company Name"
+                        />
+                      </FormControl>
+                      <div className="form-text">The name that will appear as the sender</div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="replyToEmail"
+                  render={({ field }) => (
+                    <FormItem className="mb-3">
+                      <FormLabel htmlFor="replyToEmail">Reply-to Email</FormLabel>
+                      <FormControl>
+                        <Input 
+                          {...field} 
+                          id="replyToEmail" 
                           type="email"
-                          id="reply-to"
-                          className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                          placeholder="email@example.com"
-                          required
+                          placeholder="e.g. support@yourcompany.com"
                         />
-                      </div>
+                      </FormControl>
+                      <div className="form-text">Where replies to this email will be sent</div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <div className="mt-6 flex justify-end">
+                  <Button 
+                    type="button" 
+                    className="bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700 shadow-md"
+                    onClick={() => {
+                      // Validate required fields
+                      const name = form.getValues("name");
+                      const subject = form.getValues("subject");
+                      const previewText = form.getValues("previewText");
+                      const senderName = form.getValues("senderName");
+                      const replyToEmail = form.getValues("replyToEmail");
                       
-                      <div>
-                        <label htmlFor="domain" className="block text-sm font-medium text-gray-700 mb-1">
-                          Sending Domain <span className="text-indigo-500">*</span>
-                        </label>
-                        <div className="relative">
-                          <select
-                            id="domain"
-                            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 appearance-none bg-white"
-                            required
-                          >
-                            <option value="">Select a domain</option>
-                            <option value="1">yourdomain.com (Primary)</option>
-                            <option value="2">marketing.yourdomain.com</option>
-                            <option value="3">mail.yourbrand.com</option>
-                          </select>
-                          <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                            <svg className="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
-                            </svg>
-                          </div>
-                        </div>
-                        <p className="text-xs text-gray-500 mt-1">Select a verified domain to send from</p>
-                      </div>
-                    </div>
-                    
-                    <div className="bg-white rounded mt-3 px-3 py-2 border border-indigo-100 flex items-center text-xs text-gray-600">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-indigo-500 mr-1.5 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                      </svg>
-                      Using a verified domain improves deliverability and sender reputation.
-                      <a href="#" className="text-indigo-600 font-medium ml-1">Manage domains</a>
-                    </div>
-                  </div>
-                </div>
-                
-                <div>
-                  <label htmlFor="recipient-list" className="block text-sm font-medium text-gray-700 mb-1">
-                    Select Recipients <span className="text-indigo-500">*</span>
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-                      <Users className="h-4 w-4" />
-                    </div>
-                    <select
-                      id="recipient-list"
-                      className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 appearance-none bg-white"
-                      required
-                    >
-                      <option value="">Select a list</option>
-                      <option value="1">Newsletter Subscribers (1240 contacts)</option>
-                      <option value="2">VIP Customers (156 contacts)</option>
-                      <option value="3">Webinar Attendees (435 contacts)</option>
-                      <option value="4">Product Launch Interests (890 contacts)</option>
-                    </select>
-                    <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                      <svg className="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
-                      </svg>
-                    </div>
-                  </div>
-                </div>
-                
-                <div>
-                  <label htmlFor="template" className="block text-sm font-medium text-gray-700 mb-1">
-                    Email Template
-                  </label>
-                  <select
-                    id="template"
-                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 appearance-none bg-white"
+                      // Check if any fields are empty
+                      if (!name || !subject || !previewText || !senderName || !replyToEmail) {
+                        // Show error for each empty field
+                        if (!name) form.setError("name", { message: "Campaign name is required" });
+                        if (!subject) form.setError("subject", { message: "Subject is required" });
+                        if (!previewText) form.setError("previewText", { message: "Preview text is required" });
+                        if (!senderName) form.setError("senderName", { message: "Sender name is required" });
+                        if (!replyToEmail) form.setError("replyToEmail", { message: "Reply-to email is required" });
+                        
+                        return;
+                      }
+                      
+                      // Check if email is valid
+                      if (replyToEmail && !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(replyToEmail)) {
+                        form.setError("replyToEmail", { message: "Please enter a valid email address" });
+                        return;
+                      }
+
+                      // Create campaign with draft status
+                      createCampaignMutation.mutate(
+                        {
+                          ...form.getValues(),
+                          status: 'draft',
+                          templateId: selectedTemplateId,
+                          contactLists: selectedLists
+                        },
+                        {
+                          onSuccess: (response: CampaignResponse) => {
+                            // Navigate to template builder with campaign ID
+                            window.location.href = `/client-template-builder/${response.id}`;
+                          }
+                        }
+                      );
+                    }}
                   >
-                    <option value="">Use blank template</option>
-                    <option value="1">Monthly Newsletter</option>
-                    <option value="2">Product Announcement</option>
-                    <option value="3">Seasonal Promotion</option>
-                  </select>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-3">
-                    Scheduling Options
-                  </label>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <div className="border border-gray-200 rounded-lg p-3 flex items-center hover:border-indigo-300 cursor-pointer">
-                      <input
-                        id="send-now"
-                        name="schedule"
-                        type="radio"
-                        value="now"
-                        className="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500"
-                        defaultChecked
-                      />
-                      <label htmlFor="send-now" className="ml-3 block cursor-pointer">
-                        <div className="text-sm font-medium text-gray-700 flex items-center">
-                          <Send className="h-4 w-4 mr-2 text-indigo-500" />
-                          Send immediately
-                        </div>
-                        <p className="text-xs text-gray-500 mt-0.5">Send as soon as campaign is ready</p>
-                      </label>
-                    </div>
-                    <div className="border border-gray-200 rounded-lg p-3 flex items-center hover:border-indigo-300 cursor-pointer">
-                      <input
-                        id="schedule-later"
-                        name="schedule"
-                        type="radio"
-                        value="later"
-                        className="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500"
-                      />
-                      <label htmlFor="schedule-later" className="ml-3 block cursor-pointer">
-                        <div className="text-sm font-medium text-gray-700 flex items-center">
-                          <Calendar className="h-4 w-4 mr-2 text-indigo-500" />
-                          Schedule for later
-                        </div>
-                        <p className="text-xs text-gray-500 mt-0.5">Pick a date and time to send</p>
-                      </label>
-                    </div>
-                  </div>
+                    <FileEdit className="mr-2 h-4 w-4" />
+                    Create & Proceed to Editor
+                  </Button>
                 </div>
               </form>
-            </div>
-          )}
-          
-          {step === 3 && (
-            <div className="animate-fadeIn">
-              <h3 className="text-lg font-bold text-gray-800 mb-2">Review Your Campaign</h3>
-              <p className="text-gray-500 mb-6">Review your campaign details before proceeding</p>
-              
-              <div className="bg-gray-50 rounded-lg p-4 mb-6">
-                <div className="space-y-5">
-                  {/* Basic details */}
-                  <div>
-                    <h5 className="text-xs uppercase tracking-wider text-gray-500 font-medium mb-2">Campaign Details</h5>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <p className="text-xs text-gray-500">Campaign Type</p>
-                        <p className="text-sm font-medium text-gray-800">
-                          {campaignType === 'newsletter' && 'Newsletter'}
-                          {campaignType === 'promotional' && 'Promotional'}
-                          {campaignType === 'announcement' && 'Announcement'}
-                          {campaignType === 'automated' && 'Automated Series'}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-gray-500">Campaign Name</p>
-                        <p className="text-sm font-medium text-gray-800">Monthly Newsletter - April 2025</p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-gray-500">Subject Line</p>
-                        <p className="text-sm font-medium text-gray-800">Latest Updates and Exclusive Offers</p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-gray-500">Template</p>
-                        <p className="text-sm font-medium text-gray-800">Monthly Newsletter</p>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* Sender Configuration */}
-                  <div>
-                    <h5 className="text-xs uppercase tracking-wider text-gray-500 font-medium mb-2">Sender Configuration</h5>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <p className="text-xs text-gray-500">From Name</p>
-                        <p className="text-sm font-medium text-gray-800">Infinity Tech</p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-gray-500">From Email</p>
-                        <p className="text-sm font-medium text-gray-800">newsletter@yourdomain.com</p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-gray-500">Reply-to Email</p>
-                        <p className="text-sm font-medium text-gray-800">support@yourdomain.com</p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-gray-500">Sending Domain</p>
-                        <p className="text-sm font-medium text-gray-800">yourdomain.com (Primary)</p>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* Delivery Details */}
-                  <div>
-                    <h5 className="text-xs uppercase tracking-wider text-gray-500 font-medium mb-2">Delivery Details</h5>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <p className="text-xs text-gray-500">Recipients</p>
-                        <p className="text-sm font-medium text-gray-800">Newsletter Subscribers (1240 contacts)</p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-gray-500">Send Time</p>
-                        <p className="text-sm font-medium text-gray-800">Immediately after creation</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="bg-indigo-50 border border-indigo-100 rounded-lg p-4 mb-6">
-                <div className="flex items-start">
-                  <div className="bg-indigo-100 rounded-full p-2 text-indigo-600">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                    </svg>
-                  </div>
-                  <div className="ml-3">
-                    <h4 className="text-sm font-medium text-indigo-800">Next Steps</h4>
-                    <p className="text-xs text-indigo-600 mt-0.5">After creating this campaign, you'll proceed to the email editor where you can design your email content.</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-          
-          <div className={`mt-8 flex ${step === 1 ? 'justify-end' : 'justify-between'}`}>
-            {step > 1 && (
-              <button
-                type="button"
-                onClick={() => setStep(step - 1)}
-                className="px-4 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition-colors"
-              >
-                Back
-              </button>
-            )}
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={onClose}
-                className="px-4 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition-colors"
-              >
-                Cancel
-              </button>
-              {step < 3 ? (
-                <button
-                  type="button"
-                  onClick={() => setStep(step + 1)}
-                  disabled={step === 1 && !campaignType}
-                  className={`px-6 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg font-medium hover:from-purple-700 hover:to-indigo-700 transition-colors shadow-md hover:shadow-lg ${
-                    step === 1 && !campaignType ? 'opacity-50 cursor-not-allowed' : ''
-                  }`}
-                >
-                  Continue
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  className="px-6 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg font-medium hover:from-purple-700 hover:to-indigo-700 transition-colors shadow-md hover:shadow-lg"
-                >
-                  Create & Proceed to Editor
-                </button>
-              )}
-            </div>
+            </Form>
           </div>
         </div>
       </div>
-    </div>
+    </Dialog>
   );
 };
 
