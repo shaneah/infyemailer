@@ -1565,11 +1565,19 @@ export class MemStorage implements IStorage {
     // Add clientId to the template data
     const templateWithClient = {
       ...template,
-      clientId
+      clientId,
+      isGlobal: false // Ensure client templates are not global
     };
     
     // Use the existing createTemplate method
-    return this.createTemplate(templateWithClient);
+    const newTemplate = await this.createTemplate(templateWithClient);
+    
+    // Verify the template was created with the client ID
+    if (!newTemplate.clientId) {
+      throw new Error('Failed to create template with client ID');
+    }
+    
+    return newTemplate;
   }
 
   // Analytics methods

@@ -276,41 +276,50 @@ export type Email = typeof emails.$inferSelect;
 export const templates = pgTable("templates", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
-  description: text("description"),
   content: text("content").notNull(),
-  category: text("category").notNull(),
-  subject: text("subject"), // Adding subject field that was missing
+  subject: text("subject").notNull(),
+  category: text("category").notNull().default("general"),
+  description: text("description"),
   clientId: integer("client_id").references(() => clients.id),
-  isGlobal: boolean("is_global").default(false),
-  isPromoted: boolean("is_promoted").default(false), // Featured or promoted templates
-  previewImageUrl: text("preview_image_url"),
-  thumbnail: text("thumbnail"), // Thumbnail image for the template
-  popularity: integer("popularity").default(0), // How often the template is used
-  rating: real("rating"), // Average rating given by users (1-5)
-  ratingCount: integer("rating_count").default(0), // Number of ratings
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
+  isGlobal: boolean("is_global").default(false),
+  isPromoted: boolean("is_promoted").default(false),
+  popularity: integer("popularity").default(0),
+  rating: real("rating").default(0),
   metadata: json("metadata")
 });
 
 export const insertTemplateSchema = createInsertSchema(templates).pick({
   name: true,
-  description: true,
   content: true,
+  subject: true,
   category: true,
-  subject: true, // Added subject field to the insert schema
+  description: true,
   clientId: true,
   isGlobal: true,
   isPromoted: true,
-  previewImageUrl: true,
-  thumbnail: true,
   popularity: true,
   rating: true,
-  ratingCount: true,
   metadata: true,
 });
 
-export type InsertTemplate = z.infer<typeof insertTemplateSchema>;
+export type InsertTemplate = {
+  name: string;
+  content: string;
+  subject: string;
+  category: string;
+  description?: string;
+  clientId?: number;
+  createdAt?: Date;
+  updatedAt?: Date;
+  isGlobal?: boolean;
+  isPromoted?: boolean;
+  popularity?: number;
+  rating?: number;
+  metadata?: any;
+};
+
 export type Template = typeof templates.$inferSelect;
 
 // Analytics for campaign performance

@@ -147,12 +147,36 @@ const CreateCampaignModal = ({ open, onOpenChange, onSuccess, initialTemplateId 
 
   // Fetch templates from the server
   const { data: templates = [], isLoading: isLoadingTemplates } = useQuery<any[]>({ 
-    queryKey: ['/api/templates'],
+    queryKey: ['/api/client/templates'],
+    queryFn: async () => {
+      const response = await fetch('/api/client/session');
+      const session = await response.json();
+      if (!session.user?.clientId) {
+        throw new Error('Client not authenticated');
+      }
+      const templatesResponse = await fetch(`/api/client/${session.user.clientId}/templates`);
+      if (!templatesResponse.ok) {
+        throw new Error('Failed to fetch templates');
+      }
+      return templatesResponse.json();
+    }
   });
   
   // Fetch contact lists from the server
   const { data: lists = [], isLoading: isLoadingLists } = useQuery<any[]>({ 
-    queryKey: ['/api/lists'],
+    queryKey: ['/api/client/lists'],
+    queryFn: async () => {
+      const response = await fetch('/api/client/session');
+      const session = await response.json();
+      if (!session.user?.clientId) {
+        throw new Error('Client not authenticated');
+      }
+      const listsResponse = await fetch(`/api/client/${session.user.clientId}/lists`);
+      if (!listsResponse.ok) {
+        throw new Error('Failed to fetch lists');
+      }
+      return listsResponse.json();
+    }
   });
 
   return (

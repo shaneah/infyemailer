@@ -1121,20 +1121,61 @@ export class DbStorage implements IStorage {
 
   async getTemplates() {
     try {
-      const templates = await db.select().from(schema.templates).orderBy(desc(schema.templates.createdAt));
-      return templates;
+      return await db.select().from(schema.templates).orderBy(desc(schema.templates.createdAt));
     } catch (error) {
       console.error('Error getting templates:', error);
       return [];
     }
   }
 
+  async getClientTemplates(clientId: number) {
+    try {
+      return await db.select()
+        .from(schema.templates)
+        .where(eq(schema.templates.clientId, clientId))
+        .orderBy(desc(schema.templates.createdAt));
+    } catch (error) {
+      console.error('Error getting client templates:', error);
+      return [];
+    }
+  }
+
   async createTemplate(template: Omit<schema.InsertTemplate, 'id'>) {
     try {
-      const [newTemplate] = await db.insert(schema.templates).values(template).returning();
+      const [newTemplate] = await db
+        .insert(schema.templates)
+        .values({
+          ...template,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        })
+        .returning();
       return newTemplate;
     } catch (error) {
       console.error('Error creating template:', error);
+      throw error;
+    }
+  }
+
+  async createClientTemplate(clientId: number, template: Omit<schema.InsertTemplate, 'id'>) {
+    try {
+      // Create a new template with the client ID
+      const [newTemplate] = await db
+        .insert(schema.templates)
+        .values({
+          ...template,
+          clientId,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          isGlobal: false, // Client templates are not global
+          isPromoted: false, // Client templates are not promoted by default
+          popularity: 0, // Start with 0 popularity
+          rating: 0, // Start with 0 rating
+        })
+        .returning();
+      return newTemplate;
+    } catch (error) {
+      console.error('Error creating client template:', error);
       throw error;
     }
   }

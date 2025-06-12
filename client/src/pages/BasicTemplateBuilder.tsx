@@ -337,60 +337,83 @@ export default function BasicTemplateBuilder({ isClientPortal = false }: BasicTe
     return html;
   };
 
+  // Get client user info and extract the client ID
+  const getClientUser = () => {
+    const sessionUser = sessionStorage.getItem('clientUser');
+    console.log('Session user:', sessionUser);
+    if (sessionUser) {
+      try {
+        const parsed = JSON.parse(sessionUser);
+        console.log('Parsed client user:', parsed);
+        return parsed;
+      } catch (error) {
+        console.error('Error parsing client user', error);
+        return null;
+      }
+    }
+    return null;
+  };
+
+  const clientUser = getClientUser();
+  const clientId = clientUser?.clientId;
+  console.log('Client ID:', clientId);
+
   // Save template mutation
   const saveTemplateMutation = useMutation({
     mutationFn: async () => {
-      try {
-        const htmlContent = generateHtml();
-        
-        const templatePayload = {
-          name: templateName,
-          subject: templateSubject,
-          description: templateDescription,
-          content: htmlContent,
-          category: "custom",
-          metadata: {
-            sections: sections
-          }
-        };
-        
-        let response;
-        
-        if (templateId) {
-          // Update existing template
-          response = await apiRequest('PUT', `/api/templates/${templateId}`, templatePayload);
-        } else {
-          // Create new template
-          response = await apiRequest('POST', '/api/templates', templatePayload);
-        }
-        
-        if (!response.ok) {
-          throw new Error("Failed to save template");
-        }
-        
-        return await response.json();
-      } catch (error: any) {
-        console.error("Error saving template:", error);
-        throw error;
+      if (!clientId && isClientPortal) {
+        throw new Error('Client ID not found. Please try logging in again.');
       }
+
+      const templateData = {
+        name: templateName,
+        subject: templateSubject,
+        description: templateDescription,
+        content: generateHtml(),
+        category: templateCategory,
+        clientId: clientId // Include client ID in the request
+      };
+
+      const url = isClientPortal ? `/api/client/${clientId}/templates` : '/api/templates';
+      console.log('Saving template to:', url, 'with data:', templateData);
+
+      const response = await fetch(url, {
+        method: isEditMode ? 'PATCH' : 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(templateData)
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save template');
+      }
+
+      const savedTemplate = await response.json();
+      console.log('Template saved successfully:', savedTemplate);
+
+      // Verify the template was saved with the client ID
+      if (isClientPortal && (!savedTemplate.clientId || savedTemplate.clientId !== clientId)) {
+        throw new Error('Template was not saved with the correct client ID');
+      }
+
+      return savedTemplate;
     },
     onSuccess: () => {
       toast({
         title: "Success",
         description: "Template saved successfully",
       });
-      
-      // Invalidate templates cache
-      queryClient.invalidateQueries({ queryKey: ['/api/templates'] });
-      
-      // Navigate after successful save
-      setTimeout(() => {
-        if (isClientPortal) {
-          navigate('/client/templates');
-        } else {
-          navigate('/templates');
-        }
-      }, 1000);
+      // Navigate back to templates list
+      navigate(isClientPortal ? '/client/templates' : '/templates');
+    },
+    onError: (error) => {
+      console.error('Error saving template:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save template: " + (error instanceof Error ? error.message : "Unknown error"),
+        variant: "destructive"
+      });
     }
   });
 

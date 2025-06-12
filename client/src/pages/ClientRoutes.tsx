@@ -25,7 +25,15 @@ import ClientSettings from '@/pages/ClientSettings';
 import NewCampaignModal from '@/modals/NewCampaignModal';
 
 // Advanced Campaigns component with modern UI
-const ClientCampaigns = ({ onCreateCampaign }: { onCreateCampaign: () => void }) => {
+const ClientCampaigns = ({ 
+  onCreateCampaign,
+  showCreateCampaignModal,
+  setShowCreateCampaignModal
+}: { 
+  onCreateCampaign: () => void;
+  showCreateCampaignModal: boolean;
+  setShowCreateCampaignModal: (show: boolean) => void;
+}) => {
   // State to manage campaign data and UI
   const [isLoading, setIsLoading] = useState(true);
   const [activeView, setActiveView] = useState<'grid' | 'list'>('grid');
@@ -33,11 +41,17 @@ const ClientCampaigns = ({ onCreateCampaign }: { onCreateCampaign: () => void })
   const [statusFilter, setStatusFilter] = useState('');
   const [dateFilter, setDateFilter] = useState('');
   const [selectedCampaign, setSelectedCampaign] = useState<number | null>(null);
-  const [showCreateModal, setShowCreateModal] = useState(false);
   const { toast } = useToast();
   
   // Campaign data state
   const [campaigns, setCampaigns] = useState<any[]>([]);
+
+  // Reset modal state when component unmounts
+  useEffect(() => {
+    return () => {
+      setShowCreateCampaignModal(false);
+    };
+  }, [setShowCreateCampaignModal]);
 
   // Fetch campaigns on component mount
   const fetchCampaigns = async () => {
@@ -117,7 +131,7 @@ const ClientCampaigns = ({ onCreateCampaign }: { onCreateCampaign: () => void })
         
         <div className="flex items-center gap-3">
           <button
-            onClick={() => setShowCreateModal(true)}
+            onClick={onCreateCampaign}
             className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
           >
             <Mail className="h-4 w-4" />
@@ -139,7 +153,7 @@ const ClientCampaigns = ({ onCreateCampaign }: { onCreateCampaign: () => void })
             <h3 className="text-lg font-medium text-gray-900 mb-2">No campaigns yet</h3>
             <p className="text-gray-500 mb-4">Create your first email campaign to get started</p>
             <button
-              onClick={() => setShowCreateModal(true)}
+              onClick={onCreateCampaign}
               className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition-colors"
             >
               Create Campaign
@@ -260,8 +274,8 @@ const ClientCampaigns = ({ onCreateCampaign }: { onCreateCampaign: () => void })
 
       {/* Create Campaign Modal */}
       <CreateCampaignModal
-        open={showCreateModal}
-        onOpenChange={setShowCreateModal}
+        open={showCreateCampaignModal}
+        onOpenChange={setShowCreateCampaignModal}
         onSuccess={() => {
           fetchCampaigns();
           if (onCreateCampaign) onCreateCampaign();
@@ -1671,6 +1685,14 @@ export default function ClientRoutes() {
   const [showCreateListModal, setShowCreateListModal] = useState(false);
   const [showCreateTemplateModal, setShowCreateTemplateModal] = useState(false);
   
+  // Reset modal states when route changes
+  useEffect(() => {
+    setShowCreateCampaignModal(false);
+    setShowAddContactModal(false);
+    setShowCreateListModal(false);
+    setShowCreateTemplateModal(false);
+  }, [location]);
+  
   // Handle client logout
   const handleLogout = async () => {
     try {
@@ -1820,10 +1842,14 @@ export default function ClientRoutes() {
       <main className="flex-1 overflow-auto">
         <Switch>
           <Route path="/client-dashboard">
-            <ClientDashboard onOpenSidebar={() => setSidebarOpen(true)} />
+            <ClientDashboard />
           </Route>
           <Route path="/client-campaigns">
-            <ClientCampaigns onCreateCampaign={() => setShowCreateCampaignModal(true)} />
+            <ClientCampaigns 
+              onCreateCampaign={() => setShowCreateCampaignModal(true)}
+              showCreateCampaignModal={showCreateCampaignModal}
+              setShowCreateCampaignModal={setShowCreateCampaignModal}
+            />
           </Route>
           <Route path="/client-contacts">
             <ClientContacts onAddContact={() => setShowAddContactModal(true)} />
@@ -1879,18 +1905,6 @@ export default function ClientRoutes() {
         </Switch>
         
         {/* Modals */}
-        <CreateCampaignModal 
-          open={showCreateCampaignModal} 
-          onOpenChange={setShowCreateCampaignModal}
-          onSuccess={() => {
-            // Refresh campaigns list
-            const campaignsComponent = document.querySelector('[data-component="client-campaigns"]');
-            if (campaignsComponent) {
-              const event = new CustomEvent('refresh-campaigns');
-              campaignsComponent.dispatchEvent(event);
-            }
-          }}
-        />
         {showAddContactModal && 
           <AddContactModal isOpen={showAddContactModal} onClose={() => setShowAddContactModal(false)} />
         }

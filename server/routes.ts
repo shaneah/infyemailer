@@ -1926,42 +1926,53 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // Get templates for a specific client
-  app.get('/api/client/:clientId/templates', async (req: Request, res: Response) => {
+  app.get('/api/client/:clientId/templates', isClientAuthenticated, async (req: Request, res: Response) => {
     try {
       const clientId = parseInt(req.params.clientId);
-      if (isNaN(clientId)) {
+      console.log('Fetching templates for client:', clientId);
+      
+      if (!clientId || isNaN(clientId)) {
+        console.error('Invalid client ID:', req.params.clientId);
         return res.status(400).json({ error: 'Invalid client ID' });
       }
-      
+
+      // Verify that the authenticated user has access to this client's templates
+      if (req.clientUser?.clientId !== clientId) {
+        console.error('Access denied: User client ID', req.clientUser?.clientId, 'does not match requested client ID', clientId);
+        return res.status(403).json({ error: 'Access denied' });
+      }
+
       const category = req.query.category as string;
       let templates;
       
       if (category && category !== 'all') {
+        console.log(`Fetching templates by category: ${category}`);
         templates = await storage.getClientTemplatesByCategory(clientId, category);
       } else {
+        console.log('Fetching all templates');
         templates = await storage.getClientTemplates(clientId);
       }
+
+      console.log(`Found ${templates.length} templates for client ${clientId}`);
       
       // Format templates for frontend
-      const formattedTemplates = templates.map(template => {
-        const metadata = template.metadata as any || {};
-        return {
-          id: template.id,
-          name: template.name,
-          description: template.description || '',
-          icon: metadata.icon || 'file-earmark-text',
-          iconColor: metadata.iconColor || 'primary',
-          lastUsed: 'May 15, 2023', // Placeholder
-          selected: metadata.selected || false,
-          new: metadata.new || false,
-          clientId: template.clientId
-        };
-      });
-      
+      const formattedTemplates = templates.map(template => ({
+        id: template.id,
+        name: template.name,
+        description: template.description || '',
+        content: template.content || '',
+        subject: template.subject || '',
+        category: template.category || 'general',
+        createdAt: template.createdAt,
+        updatedAt: template.updatedAt,
+        clientId: template.clientId,
+        metadata: template.metadata || {}
+      }));
+
       res.json(formattedTemplates);
     } catch (error) {
       console.error('Error fetching client templates:', error);
-      res.status(500).json({ error: 'Failed to fetch client templates' });
+      res.status(500).json({ error: 'Failed to fetch templates', details: error.message });
     }
   });
   

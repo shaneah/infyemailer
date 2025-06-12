@@ -108,6 +108,7 @@ interface Template {
     new?: boolean;
     [key: string]: any;
   };
+  clientId?: number;
 }
 
 // Email test form schema
@@ -144,41 +145,71 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
   // Get client user info and extract the client ID
   const getClientUser = () => {
     const sessionUser = sessionStorage.getItem('clientUser');
-    
+    console.log('Session user:', sessionUser);
     if (sessionUser) {
       try {
-        return JSON.parse(sessionUser);
+        const parsed = JSON.parse(sessionUser);
+        console.log('Parsed client user:', parsed);
+        return parsed;
       } catch (error) {
         console.error('Error parsing client user', error);
         return null;
       }
     }
-    
     return null;
   };
 
   const clientUser = getClientUser();
   const clientId = clientUser?.clientId;
+  console.log('Client ID:', clientId);
 
   const { data: savedTemplates = [], isLoading: isLoadingTemplates } = useQuery({
     queryKey: ['/api/client', clientId, 'templates', activeTab],
     queryFn: async () => {
       if (!clientId) {
-        throw new Error('Client ID not found');
+        console.error('Client ID not found in session');
+        throw new Error('Client ID not found. Please try logging in again.');
       }
       
+      console.log('Fetching templates for client:', clientId);
       let url = `/api/client/${clientId}/templates`;
       if (activeTab !== 'all') {
         url += `?category=${activeTab}`;
       }
       
-      const response = await fetch(url);
+      console.log('Fetching from URL:', url);
+      const response = await fetch(url, {
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        }
+      });
+      
       if (!response.ok) {
-        throw new Error('Failed to fetch templates');
+        const errorData = await response.json().catch(() => ({}));
+        console.error('Failed to fetch templates:', errorData);
+        throw new Error(errorData.error || 'Failed to fetch templates');
       }
-      return response.json();
+      
+      const templates = await response.json();
+      console.log('Fetched templates:', templates);
+      
+      // Verify that all templates have the correct client ID
+      const validTemplates = templates.filter((template: Template) => {
+        if (!template.clientId || template.clientId !== clientId) {
+          console.warn('Found template with incorrect client ID:', template);
+          return false;
+        }
+        return true;
+      });
+      
+      console.log('Valid templates:', validTemplates);
+      return validTemplates;
     },
-    enabled: !!clientId // Only run the query if clientId exists
+    enabled: !!clientId, // Only run the query if clientId exists
+    retry: 3, // Retry failed requests 3 times
+    refetchOnWindowFocus: true, // Refetch when window regains focus
+    staleTime: 0, // Always revalidate to ensure fresh data
   });
   
   const handleViewTemplate = (template: Template) => {
@@ -486,6 +517,97 @@ const ClientTemplates = ({ onCreateTemplate }: { onCreateTemplate: () => void })
     
     return matchesSearch && matchesCategory;
   });
+  
+  // Template creation mutation
+  const createTemplateMutation = useMutation({
+    mutationFn: async (data: any) => {
+      if (!clientId) throw new Error('Client ID not found');
+      const response = await fetch(`/api/client/${clientId}/templates`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({}));
+        throw new Error(error.error || 'Failed to create template');
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: 'Template Created',
+        description: 'Your template has been created successfully',
+        variant: 'default',
+      });
+      setShowCreateTemplateDialog(false);
+      if (clientId) {
+        queryClient.invalidateQueries({ queryKey: ['/api/client', clientId, 'templates'] });
+      }
+    },
+    onError: (error: any) => {
+      toast({
+        title: 'Error',
+        description: error.message,
+        variant: 'destructive',
+      });
+    },
+  });
+
+  // Show/hide dialog state
+  const [showCreateTemplateDialog, setShowCreateTemplateDialog] = useState(false);
+
+  // Handler for dialog
+  const handleCreateTemplate = async (data: any) => {
+    if (!clientId) {
+      toast({
+        title: "Error",
+        description: "Client ID not found. Please try logging in again.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/client/${clientId}/templates`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...data,
+          clientId: clientId // Explicitly include client ID
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create template');
+      }
+
+      const newTemplate = await response.json();
+      
+      // Verify the template was created with the client ID
+      if (!newTemplate.clientId || newTemplate.clientId !== clientId) {
+        throw new Error('Template was not created with the correct client ID');
+      }
+      
+      toast({
+        title: "Success",
+        description: "Template created successfully",
+      });
+      
+      // Refresh the templates list
+      queryClient.invalidateQueries({ queryKey: ['/api/client', clientId, 'templates'] });
+      
+      return newTemplate;
+    } catch (error) {
+      console.error('Error creating template:', error);
+      toast({
+        title: "Error",
+        description: "Failed to create template. Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
   
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">

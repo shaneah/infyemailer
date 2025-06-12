@@ -1,5 +1,23 @@
 import { Request, Response, NextFunction } from 'express';
 
+// Define the client user type for the request
+interface ClientUser {
+  id: number;
+  clientId: number;
+  username: string;
+  role: 'client';
+  [key: string]: any; // Allow any additional properties
+}
+
+// Extend Express Request type to include client user
+declare global {
+  namespace Express {
+    interface Request {
+      clientUser?: ClientUser;
+    }
+  }
+}
+
 /**
  * Authentication middleware for admin users
  * Verifies that the user is authenticated and has admin access
@@ -19,6 +37,14 @@ export function isAuthenticated(req: Request, res: Response, next: NextFunction)
 export function isClientAuthenticated(req: Request, res: Response, next: NextFunction) {
   // Check if client is authenticated via session
   if (req.session && req.session.clientUser) {
+    // Set the client user object in the request for downstream middleware
+    const clientUser: ClientUser = {
+      id: req.session.clientUser.id,
+      clientId: req.session.clientUser.clientId,
+      username: req.session.clientUser.username,
+      role: 'client'
+    };
+    req.clientUser = clientUser;
     return next();
   }
   

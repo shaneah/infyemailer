@@ -47,11 +47,19 @@ export default function CreateTemplateModal({ open, onOpenChange }: CreateTempla
   // Create template mutation
   const createTemplateMutation = useMutation({
     mutationFn: async (data: z.infer<typeof templateSchema>) => {
-      const response = await apiRequest('POST', '/api/templates', data);
+      // Get client ID from session
+      const sessionResponse = await fetch('/api/client/session');
+      const session = await sessionResponse.json();
+      if (!session.user?.clientId) {
+        throw new Error('Client not authenticated');
+      }
+      
+      // Create template with client ID
+      const response = await apiRequest('POST', `/api/client/${session.user.clientId}/templates`, data);
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/templates'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/client/templates'] });
       toast({
         title: 'Success',
         description: 'Template created successfully',
