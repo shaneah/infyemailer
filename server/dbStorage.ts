@@ -807,8 +807,7 @@ export class DbStorage implements IStorage {
 
   async getContacts() {
     try {
-      const contacts = await db.select().from(schema.contacts).orderBy(desc(schema.contacts.createdAt));
-      return contacts;
+      return await db.select().from(schema.contacts);
     } catch (error) {
       console.error('Error getting contacts:', error);
       return [];

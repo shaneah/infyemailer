@@ -738,36 +738,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/contacts', async (req: Request, res: Response) => {
     try {
       const contacts = await storage.getContacts();
-      // For demo purposes, create some contacts if none exist
-      if (!contacts || contacts.length === 0) {
-        const sampleContacts = [
-          {
-            id: 1,
-            name: 'John Doe',
-            email: 'john@example.com',
-            status: { label: 'Active', color: 'success' },
-            lists: [{ id: 1, name: 'Newsletter Subscribers' }, { id: 2, name: 'Product Updates' }],
-            addedOn: 'May 10, 2023'
-          },
-          {
-            id: 2,
-            name: 'Jane Smith',
-            email: 'jane@example.com',
-            status: { label: 'Active', color: 'success' },
-            lists: [{ id: 1, name: 'Newsletter Subscribers' }],
-            addedOn: 'May 8, 2023'
-          },
-          {
-            id: 3,
-            name: 'Robert Johnson',
-            email: 'robert@example.com',
-            status: { label: 'Unsubscribed', color: 'danger' },
-            lists: [{ id: 3, name: 'New Customers' }],
-            addedOn: 'April 29, 2023'
-          }
-        ];
-        return res.json(sampleContacts);
-      }
 
       try {
         // Map contacts to include list info
@@ -819,6 +789,51 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
     } catch (error) {
       console.error('Failed to fetch contacts:', error);
+      res.status(500).json({ error: 'Failed to fetch contacts' });
+    }
+  });
+
+  // New endpoint for client contacts
+  app.get('/api/client/contacts', async (req: Request, res: Response) => {
+    try {
+      const clientId = req.query.clientId;
+      console.log('Client contacts request:', {
+        clientId,
+        query: req.query,
+        session: req.session ? {
+          hasClientUser: !!req.session.clientUser,
+          clientUser: req.session.clientUser
+        } : null
+      });
+
+      if (!clientId) {
+        console.error('No clientId provided');
+        return res.status(400).json({ error: 'Client ID is required' });
+      }
+
+      const contacts = await storage.getContacts();
+      console.log('All contacts from database:', contacts.map(c => ({
+        id: c.id,
+        name: c.name,
+        email: c.email,
+        clientId: c.clientId
+      })));
+
+      const clientContacts = contacts.filter(contact => {
+        const matches = contact.clientId === Number(clientId);
+        console.log('Contact check:', {
+          contactId: contact.id,
+          contactClientId: contact.clientId,
+          requestedClientId: clientId,
+          matches
+        });
+        return matches;
+      });
+
+      console.log('Filtered contacts for client:', clientContacts);
+      res.json(clientContacts);
+    } catch (error) {
+      console.error('Error fetching client contacts:', error);
       res.status(500).json({ error: 'Failed to fetch contacts' });
     }
   });
@@ -2597,20 +2612,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log('Verifying client session:', {
         sessionID: req.sessionID,
         hasSession: !!req.session,
-        hasClientUser: !!(req.session && req.session.clientUser)
+        hasClientUser: !!(req.session && req.session.clientUser),
+        sessionData: req.session ? {
+          clientUser: req.session.clientUser,
+          cookie: req.session.cookie
+        } : null
       });
 
       // Check if client is authenticated in session
       if (req.session && req.session.clientUser) {
         // Return the client user info without sensitive data
-        return res.status(200).json({ 
+        const response = { 
           verified: true, 
           user: req.session.clientUser,
           message: 'Session is valid'
-        });
+        };
+        console.log('Sending successful session verification response:', response);
+        return res.status(200).json(response);
       }
       
       // If no session found
+      console.log('No valid client session found');
       return res.status(401).json({ 
         verified: false, 
         message: 'No active client session found',
@@ -2939,7 +2961,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Client User routes
   app.post('/api/client-login', async (req: Request, res: Response) => {
-    console.log('Client login request received:', req.body);
+    console.log('Client login request received:', {
+      body: req.body,
+      sessionID: req.sessionID,
+      hasSession: !!req.session
+    });
     
     const validatedData = validate(clientUserLoginSchema, req.body);
     if ('error' in validatedData) {
@@ -2976,7 +3002,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userData = {
         id: user.id,
         username: user.username,
-        clientId: client.id, // Use client.id instead of user.clientId
+        clientId: client.id,
         clientName: client.name,
         clientCompany: client.company,
         permissions: user.metadata?.permissions || {
@@ -2994,30 +3020,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log('Setting client session with data:', {
         userId: userData.id,
         clientId: userData.clientId,
-        username: userData.username
+        username: userData.username,
+        sessionID: req.sessionID
       });
 
       // Store in session
-      if (req.session) {
-        req.session.clientUser = userData;
-        // Save session before sending response
-        await new Promise<void>((resolve, reject) => {
-          req.session?.save((err) => {
-            if (err) {
-              console.error('Session save error:', err);
-              reject(err);
-            } else {
-              resolve();
-            }
-          });
-        });
+      if (!req.session) {
+        console.error('No session object available');
+        return res.status(500).json({ error: 'Session not available' });
       }
 
+      req.session.clientUser = userData;
+      
+      // Save session before sending response
+      await new Promise<void>((resolve, reject) => {
+        req.session?.save((err) => {
+          if (err) {
+            console.error('Session save error:', err);
+            reject(err);
+          } else {
+            console.log('Session saved successfully');
+            resolve();
+          }
+        });
+      });
+
       // Send response with session cookie
-      res.status(200).json({
+      const response = {
         user: userData,
         message: 'Login successful'
-      });
+      };
+      console.log('Sending successful login response:', response);
+      res.status(200).json(response);
     } catch (error) {
       console.error('Client login error:', error);
       res.status(500).json({ error: 'Login failed. Please try again.' });

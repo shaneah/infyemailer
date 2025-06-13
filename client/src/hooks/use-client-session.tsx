@@ -40,16 +40,37 @@ export function ClientSessionProvider({ children }: ClientSessionProviderProps) 
   useEffect(() => {
     const checkSession = async () => {
       try {
+        console.log('Checking client session...');
         const res = await fetch('/api/client/session', {
           credentials: 'include'
         });
 
+        console.log('Session check response:', {
+          status: res.status,
+          ok: res.ok
+        });
+
         if (res.ok) {
           const data = await res.json();
-          setClientUser(data.user);
+          console.log('Session data received:', data);
+          
+          // Extract user data from the nested structure
+          const userData = data.user;
+          if (!userData) {
+            console.log('No user data in session response');
+            setClientUser(null);
+            return;
+          }
+          
+          console.log('Setting client user from session:', userData);
+          setClientUser(userData);
+        } else {
+          console.log('No valid session found');
+          setClientUser(null);
         }
       } catch (err) {
         console.error('Session check error:', err);
+        setClientUser(null);
       } finally {
         setIsLoading(false);
       }
@@ -64,6 +85,7 @@ export function ClientSessionProvider({ children }: ClientSessionProviderProps) 
     setError(null);
 
     try {
+      console.log('Attempting client login...');
       const res = await fetch('/api/client-login', {
         method: 'POST',
         headers: {
@@ -73,13 +95,26 @@ export function ClientSessionProvider({ children }: ClientSessionProviderProps) 
         credentials: 'include'
       });
 
+      console.log('Login response:', {
+        status: res.status,
+        ok: res.ok
+      });
+
       if (!res.ok) {
         const errorData = await res.json();
         throw new Error(errorData.message || 'Login failed');
       }
 
-      const userData = await res.json();
-      // The login response directly contains the user data, not nested in a 'user' property
+      const response = await res.json();
+      console.log('Login successful, response:', response);
+      
+      // Extract user data from the nested structure
+      const userData = response.user;
+      if (!userData) {
+        throw new Error('Invalid response format: missing user data');
+      }
+      
+      console.log('Setting client user data:', userData);
       setClientUser(userData);
       
       toast({
@@ -89,6 +124,7 @@ export function ClientSessionProvider({ children }: ClientSessionProviderProps) 
       
       return true;
     } catch (err) {
+      console.error('Login error:', err);
       setError(err instanceof Error ? err : new Error('Login failed'));
       
       toast({

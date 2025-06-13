@@ -1,20 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { useClientSession } from '@/hooks/use-client-session';
 
 // Define Contact type
 type Contact = {
   id: number;
-  firstName: string;
-  lastName: string;
+  name: string;
   email: string;
   status: string;
-  tags: string[];
-  dateAdded: string;
-  engagement?: number;
-  lastActive?: string;
+  clientId: number;
+  createdAt: string;
+  metadata?: any;
+  tags?: string[];
   source?: string;
-  avatar?: string;
   notes?: string;
+  engagement?: number;
+  avatar?: string;
+  lastActive?: string;
 };
 
 // Define Props type
@@ -23,7 +25,9 @@ interface ClientContactsProps {
 }
 
 const ClientContacts: React.FC<ClientContactsProps> = ({ onAddContact }) => {
-  // Enhanced state management
+  const { clientUser } = useClientSession();
+  const clientId = clientUser?.clientId;
+  const [contacts, setContacts] = useState<Contact[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedContacts, setSelectedContacts] = useState<number[]>([]);
   const [importStatus, setImportStatus] = useState<string | null>(null);
@@ -37,123 +41,37 @@ const ClientContacts: React.FC<ClientContactsProps> = ({ onAddContact }) => {
   const [showContactDetails, setShowContactDetails] = useState<number | null>(null);
   const { toast } = useToast();
 
-  // Enhanced contacts data with more metrics
-  const [contacts, setContacts] = useState<Contact[]>([
-    {
-      id: 1,
-      firstName: "John",
-      lastName: "Smith",
-      email: "john.smith@example.com",
-      status: "Active",
-      tags: ["Customer", "Newsletter"],
-      dateAdded: "2025-01-15",
-      engagement: 86,
-      lastActive: "2025-04-02",
-      source: "Website",
-      avatar: "https://ui-avatars.com/api/?name=John+Smith&background=6366f1&color=fff",
-      notes: "Premium customer, interested in new product updates"
-    },
-    {
-      id: 2,
-      firstName: "Emily",
-      lastName: "Johnson",
-      email: "emily.johnson@example.com",
-      status: "Active",
-      tags: ["Lead", "Event"],
-      dateAdded: "2025-02-03",
-      engagement: 72,
-      lastActive: "2025-03-28",
-      source: "Webinar",
-      avatar: "https://ui-avatars.com/api/?name=Emily+Johnson&background=8b5cf6&color=fff",
-      notes: "Attended March webinar, follows on social media"
-    },
-    {
-      id: 3,
-      firstName: "Michael",
-      lastName: "Williams",
-      email: "michael.williams@example.com",
-      status: "Inactive",
-      tags: ["Customer", "Product Launch"],
-      dateAdded: "2024-11-20",
-      engagement: 23,
-      lastActive: "2025-01-15",
-      source: "Referral",
-      avatar: "https://ui-avatars.com/api/?name=Michael+Williams&background=ec4899&color=fff",
-      notes: "Hasn't opened emails in 3 months"
-    },
-    {
-      id: 4,
-      firstName: "Sarah",
-      lastName: "Davis",
-      email: "sarah.davis@example.com",
-      status: "Bounced",
-      tags: ["Lead"],
-      dateAdded: "2025-01-25",
-      engagement: 0,
-      lastActive: "2025-01-25",
-      source: "Form Submission",
-      avatar: "https://ui-avatars.com/api/?name=Sarah+Davis&background=14b8a6&color=fff",
-      notes: "Email has been bouncing since February"
-    },
-    {
-      id: 5,
-      firstName: "Robert",
-      lastName: "Jones",
-      email: "robert.jones@example.com",
-      status: "Active",
-      tags: ["Customer", "VIP"],
-      dateAdded: "2024-12-05",
-      engagement: 95,
-      lastActive: "2025-04-16",
-      source: "Direct",
-      avatar: "https://ui-avatars.com/api/?name=Robert+Jones&background=f59e0b&color=fff",
-      notes: "High-value customer, personalized follow-up recommended"
-    },
-    {
-      id: 6,
-      firstName: "Jessica",
-      lastName: "Brown",
-      email: "jessica.brown@example.com",
-      status: "Active",
-      tags: ["Customer", "Newsletter"],
-      dateAdded: "2025-02-15",
-      engagement: 67,
-      lastActive: "2025-04-05",
-      source: "Website",
-      avatar: "https://ui-avatars.com/api/?name=Jessica+Brown&background=10b981&color=fff"
-    },
-    {
-      id: 7,
-      firstName: "David",
-      lastName: "Miller",
-      email: "david.miller@example.com",
-      status: "Unsubscribed",
-      tags: ["Former Customer"],
-      dateAdded: "2024-10-12",
-      engagement: 5,
-      lastActive: "2025-01-03",
-      source: "Import",
-      avatar: "https://ui-avatars.com/api/?name=David+Miller&background=ef4444&color=fff",
-      notes: "Unsubscribed after product launch campaign"
-    },
-    {
-      id: 8,
-      firstName: "Amanda",
-      lastName: "Wilson",
-      email: "amanda.wilson@example.com",
-      status: "Active",
-      tags: ["Lead", "Webinar"],
-      dateAdded: "2025-03-22",
-      engagement: 81,
-      lastActive: "2025-04-15",
-      source: "Webinar",
-      avatar: "https://ui-avatars.com/api/?name=Amanda+Wilson&background=6366f1&color=fff",
-      notes: "Interested in premium features"
-    }
-  ]);
-  
+  // Fetch contacts from API on mount
+  useEffect(() => {
+    const fetchContacts = async () => {
+      if (!clientId) {
+        console.log('No clientId available');
+        return;
+      }
+
+      try {
+        console.log('Fetching contacts for clientId:', clientId);
+        const response = await fetch(`/api/client/contacts?clientId=${clientId}`);
+        const data = await response.json();
+        console.log('Received contacts:', data);
+        setContacts(data);
+      } catch (error) {
+        console.error('Error fetching contacts:', error);
+        toast({
+          title: 'Error',
+          description: 'Failed to fetch contacts',
+          variant: 'destructive',
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchContacts();
+  }, [clientId, toast]);
+
   // All unique tags and statuses for filtering
-  const allTags = Array.from(new Set(contacts.flatMap(contact => contact.tags)));
+  const allTags = Array.from(new Set(contacts.flatMap(contact => contact.tags || [])));
   const allStatuses = Array.from(new Set(contacts.map(contact => contact.status)));
   const allSources = Array.from(new Set(contacts.map(contact => contact.source).filter(Boolean)));
   
@@ -226,8 +144,7 @@ const ClientContacts: React.FC<ClientContactsProps> = ({ onAddContact }) => {
     if (searchTerm) {
       const searchLower = searchTerm.toLowerCase();
       matchesSearch = 
-        contact.firstName.toLowerCase().includes(searchLower) ||
-        contact.lastName.toLowerCase().includes(searchLower) ||
+        contact.name.toLowerCase().includes(searchLower) ||
         contact.email.toLowerCase().includes(searchLower) ||
         (contact.notes ? contact.notes.toLowerCase().includes(searchLower) : false);
     }
@@ -239,14 +156,14 @@ const ClientContacts: React.FC<ClientContactsProps> = ({ onAddContact }) => {
     
     // Apply tag filter
     if (filterTag) {
-      matchesTag = contact.tags.includes(filterTag);
+      matchesTag = contact.tags?.includes(filterTag) || false;
     }
     
     // Apply date filter
     if (dateFilter === 'recent') {
       const thirtyDaysAgo = new Date();
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-      const contactDate = new Date(contact.dateAdded);
+      const contactDate = new Date(contact.createdAt);
       matchesDate = contactDate >= thirtyDaysAgo;
     }
     
@@ -257,9 +174,9 @@ const ClientContacts: React.FC<ClientContactsProps> = ({ onAddContact }) => {
   const sortedContacts = [...filteredContacts].sort((a, b) => {
     switch(sortBy) {
       case 'name':
-        return `${a.firstName} ${a.lastName}`.localeCompare(`${b.firstName} ${b.lastName}`);
+        return a.name.localeCompare(b.name);
       case 'date':
-        return new Date(b.dateAdded).getTime() - new Date(a.dateAdded).getTime();
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       case 'status':
         return a.status.localeCompare(b.status);
       case 'engagement':
@@ -291,6 +208,10 @@ const ClientContacts: React.FC<ClientContactsProps> = ({ onAddContact }) => {
   const handleViewContact = (id: number) => {
     setShowContactDetails(id);
   };
+
+  if (isLoading) {
+    return <div>Loading contacts...</div>;
+  }
 
   return (
     <div className="p-8 animate-fadeIn">
@@ -473,7 +394,7 @@ const ClientContacts: React.FC<ClientContactsProps> = ({ onAddContact }) => {
                 >
                   {tag}
                   <span className="ml-1 text-xs opacity-70">
-                    ({contacts.filter(c => c.tags.includes(tag)).length})
+                    ({contacts.filter(c => c.tags?.includes(tag)).length})
                   </span>
                 </button>
               ))}
@@ -488,10 +409,10 @@ const ClientContacts: React.FC<ClientContactsProps> = ({ onAddContact }) => {
                   .map(contact => (
                     <div key={`top-${contact.id}`} className="flex items-center gap-2">
                       <div className="h-7 w-7 rounded-full overflow-hidden">
-                        <img src={contact.avatar} alt={`${contact.firstName} ${contact.lastName}`} className="h-full w-full object-cover" />
+                        <img src={contact.avatar} alt={`${contact.name}`} className="h-full w-full object-cover" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-900 truncate">{contact.firstName} {contact.lastName}</p>
+                        <p className="text-sm font-medium text-gray-900 truncate">{contact.name}</p>
                         <p className="text-xs text-gray-500 truncate">{contact.email}</p>
                       </div>
                       <div className="h-2 w-16 bg-gray-200 rounded-full overflow-hidden">
@@ -721,11 +642,11 @@ const ClientContacts: React.FC<ClientContactsProps> = ({ onAddContact }) => {
                   <div className="p-5">
                     <div className="flex items-start mb-4">
                       <div className="h-10 w-10 rounded-full overflow-hidden mr-3 border border-gray-200">
-                        <img src={contact.avatar} alt={`${contact.firstName} ${contact.lastName}`} className="h-full w-full object-cover" />
+                        <img src={contact.avatar} alt={`${contact.name}`} className="h-full w-full object-cover" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <h3 className="text-lg font-semibold text-gray-900 truncate group-hover:text-indigo-700 transition-colors duration-200">
-                          {contact.firstName} {contact.lastName}
+                          {contact.name}
                         </h3>
                         <p className="text-sm text-gray-500 truncate">{contact.email}</p>
                       </div>
@@ -748,12 +669,12 @@ const ClientContacts: React.FC<ClientContactsProps> = ({ onAddContact }) => {
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusStyle.bg} ${statusStyle.text}`}>
                         {contact.status}
                       </span>
-                      {contact.tags.slice(0, 2).map((tag, idx) => (
+                      {contact.tags?.slice(0, 2).map((tag, idx) => (
                         <span key={idx} className="px-2 py-1 bg-indigo-100 text-indigo-800 rounded-full text-xs">
                           {tag}
                         </span>
                       ))}
-                      {contact.tags.length > 2 && (
+                      {contact.tags && contact.tags.length > 2 && (
                         <span className="px-2 py-1 bg-gray-100 text-gray-800 rounded-full text-xs">
                           +{contact.tags.length - 2}
                         </span>
@@ -765,7 +686,7 @@ const ClientContacts: React.FC<ClientContactsProps> = ({ onAddContact }) => {
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                         </svg>
-                        Added: {new Date(contact.dateAdded).toLocaleDateString()}
+                        Added: {new Date(contact.createdAt).toLocaleDateString()}
                       </div>
                       {contact.lastActive && (
                         <div className="flex items-center">
@@ -862,10 +783,10 @@ const ClientContacts: React.FC<ClientContactsProps> = ({ onAddContact }) => {
                         <td className="py-3 px-4">
                           <div className="flex items-center">
                             <div className="h-8 w-8 rounded-full overflow-hidden mr-3 border border-gray-200">
-                              <img src={contact.avatar} alt={`${contact.firstName} ${contact.lastName}`} className="h-full w-full object-cover" />
+                              <img src={contact.avatar} alt={`${contact.name}`} className="h-full w-full object-cover" />
                             </div>
                             <div>
-                              <div className="font-medium text-gray-900">{contact.firstName} {contact.lastName}</div>
+                              <div className="font-medium text-gray-900">{contact.name}</div>
                               {contact.source && <div className="text-xs text-gray-500">Source: {contact.source}</div>}
                             </div>
                           </div>
@@ -891,7 +812,7 @@ const ClientContacts: React.FC<ClientContactsProps> = ({ onAddContact }) => {
                         </td>
                         <td className="py-3 px-4">
                           <div className="flex flex-wrap gap-1">
-                            {contact.tags.map((tag, idx) => (
+                            {contact.tags?.map((tag, idx) => (
                               <span key={idx} className="px-2 py-1 bg-indigo-100 text-indigo-800 rounded-full text-xs">
                                 {tag}
                               </span>
@@ -899,7 +820,7 @@ const ClientContacts: React.FC<ClientContactsProps> = ({ onAddContact }) => {
                           </div>
                         </td>
                         <td className="py-3 px-4 text-gray-700 whitespace-nowrap">
-                          {new Date(contact.dateAdded).toLocaleDateString()}
+                          {new Date(contact.createdAt).toLocaleDateString()}
                         </td>
                         <td className="py-3 px-4 text-right">
                           <div className="flex items-center justify-end gap-2">
@@ -984,11 +905,11 @@ const ClientContacts: React.FC<ClientContactsProps> = ({ onAddContact }) => {
                   <div className="flex justify-between items-start mb-6">
                     <div className="flex items-center gap-4">
                       <div className="h-16 w-16 rounded-full overflow-hidden border border-gray-200">
-                        <img src={contact.avatar} alt={`${contact.firstName} ${contact.lastName}`} className="h-full w-full object-cover" />
+                        <img src={contact.avatar} alt={`${contact.name}`} className="h-full w-full object-cover" />
                       </div>
                       <div>
                         <h2 className="text-xl font-bold text-gray-900">
-                          {contact.firstName} {contact.lastName}
+                          {contact.name}
                         </h2>
                         <p className="text-gray-600">{contact.email}</p>
                         <div className="flex mt-2">
@@ -1022,7 +943,7 @@ const ClientContacts: React.FC<ClientContactsProps> = ({ onAddContact }) => {
                     </div>
                     <div>
                       <h3 className="text-sm font-medium text-gray-500 mb-2">Added On</h3>
-                      <p className="text-gray-900">{new Date(contact.dateAdded).toLocaleDateString()}</p>
+                      <p className="text-gray-900">{new Date(contact.createdAt).toLocaleDateString()}</p>
                     </div>
                     <div>
                       <h3 className="text-sm font-medium text-gray-500 mb-2">Last Active</h3>
@@ -1033,7 +954,7 @@ const ClientContacts: React.FC<ClientContactsProps> = ({ onAddContact }) => {
                   <div className="mb-6">
                     <h3 className="text-sm font-medium text-gray-500 mb-2">Tags</h3>
                     <div className="flex flex-wrap gap-2">
-                      {contact.tags.map((tag, idx) => (
+                      {contact.tags?.map((tag, idx) => (
                         <span key={idx} className="px-3 py-1 bg-indigo-100 text-indigo-800 rounded-full text-sm">
                           {tag}
                         </span>

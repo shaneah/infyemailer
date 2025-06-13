@@ -158,6 +158,7 @@ export const contacts = pgTable("contacts", {
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
   status: text("status").notNull().default("active"),
+  clientId: integer("client_id").references(() => clients.id),
   createdAt: timestamp("created_at").defaultNow(),
   metadata: json("metadata")
 });
