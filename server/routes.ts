@@ -1519,6 +1519,94 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get client-specific lists
+  app.get('/api/client/lists', async (req: Request, res: Response) => {
+    try {
+      const clientId = parseInt(req.query.clientId as string);
+      if (isNaN(clientId)) {
+        return res.status(400).json({ error: 'Invalid client ID' });
+      }
+
+      const lists = await storage.getClientLists(clientId);
+      // Get contact counts for each list
+      const listsWithCounts = await Promise.all(lists.map(async (list) => {
+        const contacts = await storage.getContactsByList(list.id);
+        return {
+          ...list,
+          contactCount: contacts.length
+        };
+      }));
+      res.json(listsWithCounts);
+    } catch (error) {
+      console.error('Error getting client lists:', error);
+      res.status(500).json({ error: 'Failed to get client lists' });
+    }
+  });
+
+  // Create client-specific list
+  app.post('/api/client/lists', async (req: Request, res: Response) => {
+    try {
+      const clientId = parseInt(req.query.clientId as string);
+      if (isNaN(clientId)) {
+        return res.status(400).json({ error: 'Invalid client ID' });
+      }
+
+      // Ensure the list data includes the client ID
+      const listData = {
+        ...req.body,
+        clientId
+      };
+
+      const list = await storage.createClientList(clientId, listData);
+      res.status(201).json(list);
+    } catch (error) {
+      console.error('Error creating client list:', error);
+      res.status(500).json({ error: 'Failed to create client list' });
+    }
+  });
+
+  // Update client-specific list
+  app.patch('/api/client/lists/:id', async (req: Request, res: Response) => {
+    try {
+      const clientId = parseInt(req.query.clientId as string);
+      const listId = parseInt(req.params.id);
+      
+      if (isNaN(clientId) || isNaN(listId)) {
+        return res.status(400).json({ error: 'Invalid client ID or list ID' });
+      }
+
+      const list = await storage.updateClientList(clientId, listId, req.body);
+      if (!list) {
+        return res.status(404).json({ error: 'List not found' });
+      }
+      res.json(list);
+    } catch (error) {
+      console.error('Error updating client list:', error);
+      res.status(500).json({ error: 'Failed to update client list' });
+    }
+  });
+
+  // Delete client-specific list
+  app.delete('/api/client/lists/:id', async (req: Request, res: Response) => {
+    try {
+      const clientId = parseInt(req.query.clientId as string);
+      const listId = parseInt(req.params.id);
+      
+      if (isNaN(clientId) || isNaN(listId)) {
+        return res.status(400).json({ error: 'Invalid client ID or list ID' });
+      }
+
+      const success = await storage.deleteClientList(clientId, listId);
+      if (!success) {
+        return res.status(404).json({ error: 'List not found' });
+      }
+      res.json({ message: 'List deleted successfully' });
+    } catch (error) {
+      console.error('Error deleting client list:', error);
+      res.status(500).json({ error: 'Failed to delete client list' });
+    }
+  });
+
   // Get list by ID
   app.get('/api/lists/:id', async (req: Request, res: Response) => {
     try {

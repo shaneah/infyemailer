@@ -285,9 +285,28 @@ const ClientCampaigns = ({
   );
 };
 
+// Add this above the ClientLists component
+interface List {
+  id: number;
+  name: string;
+  contactCount: number;
+  description: string;
+  lastUpdated: string;
+  tags: string[];
+  growthRate: number | null;
+  openRate: number | null;
+  clickRate: number | null;
+  unsubscribeRate: number | null;
+  color: string | null;
+  engagementScore: number | null;
+  lastCampaign: string | null;
+}
+
 const ClientLists = ({ onCreateList }: { onCreateList: () => void }) => {
   // State to manage lists data
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [lists, setLists] = useState<List[]>([]);
+  const [error, setError] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTag, setSelectedTag] = useState('');
@@ -296,102 +315,82 @@ const ClientLists = ({ onCreateList }: { onCreateList: () => void }) => {
   const [showAnalytics, setShowAnalytics] = useState(false);
   const [selectedList, setSelectedList] = useState<number | null>(null);
   
-  // Enhanced list data with more metrics
-  const [lists, setLists] = useState([
-    {
-      id: 1,
-      name: "Newsletter Subscribers",
-      contactCount: 1240,
-      description: "All active newsletter subscribers",
-      lastUpdated: "2025-03-15",
-      tags: ["Active", "Newsletter"],
-      growthRate: 12.4,
-      openRate: 24.8,
-      clickRate: 3.2,
-      unsubscribeRate: 0.7,
-      color: "indigo",
-      engagementScore: 83,
-      lastCampaign: "Monthly Update - March 2025"
-    },
-    {
-      id: 2,
-      name: "VIP Customers",
-      contactCount: 156,
-      description: "High-value customers with premium status",
-      lastUpdated: "2025-02-20",
-      tags: ["VIP", "Customer"],
-      growthRate: 3.6,
-      openRate: 42.5,
-      clickRate: 8.3,
-      unsubscribeRate: 0.2,
-      color: "rose",
-      engagementScore: 94,
-      lastCampaign: "Exclusive Offer - February 2025"
-    },
-    {
-      id: 3,
-      name: "Webinar Attendees - March 2025",
-      contactCount: 435,
-      description: "People who registered for our March webinar",
-      lastUpdated: "2025-03-10",
-      tags: ["Event", "Webinar"],
-      growthRate: 0,
-      openRate: 31.2,
-      clickRate: 5.7,
-      unsubscribeRate: 1.2,
-      color: "emerald",
-      engagementScore: 76,
-      lastCampaign: "Webinar Follow-up - March 2025"
-    },
-    {
-      id: 4,
-      name: "Product Launch Interests",
-      contactCount: 890,
-      description: "Contacts interested in our new product launch",
-      lastUpdated: "2025-02-05",
-      tags: ["Product Launch", "Marketing"],
-      growthRate: 8.7,
-      openRate: 29.4,
-      clickRate: 4.8,
-      unsubscribeRate: 0.9,
-      color: "amber",
-      engagementScore: 81,
-      lastCampaign: "Product Teaser - February 2025"
-    }
-  ]);
+  useEffect(() => {
+    const fetchLists = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        // First get the client ID from the session
+        const sessionResponse = await fetch('/api/client/session');
+        const session = await sessionResponse.json();
+        
+        if (!session.user?.clientId) {
+          throw new Error('Client not authenticated');
+        }
+
+        const response = await fetch(`/api/client/lists?clientId=${session.user.clientId}`, { 
+          credentials: 'include' 
+        });
+        if (!response.ok) throw new Error('Failed to fetch lists');
+        const data = await response.json();
+        // Transform the data to ensure all optional fields have null as default
+        const transformedData = data.map((list: any) => ({
+          ...list,
+          growthRate: list.growthRate ?? null,
+          openRate: list.openRate ?? null,
+          clickRate: list.clickRate ?? null,
+          unsubscribeRate: list.unsubscribeRate ?? null,
+          color: list.color ?? null,
+          engagementScore: list.engagementScore ?? null,
+          lastCampaign: list.lastCampaign ?? null,
+        }));
+        setLists(transformedData);
+      } catch (err: any) {
+        setError(err.message || 'Failed to fetch lists');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchLists();
+  }, []);
   
   // All unique tags from lists
-  const allTags = Array.from(new Set(lists.flatMap(list => list.tags)));
+  const allTags: string[] = Array.from(new Set((lists || []).flatMap(list => list.tags || [])));
   
   // Filter lists based on search and filters
-  const filteredLists = lists.filter(list => {
+  const filteredLists: List[] = (lists || []).filter(list => {
     let matchesSearch = true;
     let matchesTag = true;
-    
     if (searchTerm) {
-      matchesSearch = list.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                      list.description.toLowerCase().includes(searchTerm.toLowerCase());
+      matchesSearch = (list.name || '').toLowerCase().includes(searchTerm.toLowerCase()) || 
+                      (list.description || '').toLowerCase().includes(searchTerm.toLowerCase());
     }
-    
     if (selectedTag) {
-      matchesTag = list.tags.includes(selectedTag);
+      matchesTag = (list.tags || []).includes(selectedTag);
     }
-    
     return matchesSearch && matchesTag;
   });
   
-  // Sort lists
+  // Sort lists based on selected criteria
   const sortedLists = [...filteredLists].sort((a, b) => {
-    if (sortBy === 'name') {
-      return a.name.localeCompare(b.name);
-    } else if (sortBy === 'date') {
-      return new Date(b.lastUpdated).getTime() - new Date(a.lastUpdated).getTime();
-    } else if (sortBy === 'contacts') {
-      return b.contactCount - a.contactCount;
-    } else if (sortBy === 'engagement') {
-      return b.engagementScore - a.engagementScore;
+    switch (sortBy) {
+      case 'name':
+        return a.name.localeCompare(b.name);
+      case 'contacts':
+        return a.contactCount - b.contactCount;
+      case 'engagement':
+        const aScore = a.engagementScore ?? 0;
+        const bScore = b.engagementScore ?? 0;
+        return bScore - aScore;
+      case 'growth':
+        const aGrowth = a.growthRate ?? 0;
+        const bGrowth = b.growthRate ?? 0;
+        return bGrowth - aGrowth;
+      case 'lastUpdated':
+        return new Date(b.lastUpdated).getTime() - new Date(a.lastUpdated).getTime();
+      default:
+        return 0;
     }
-    return 0;
   });
   
   // Calculate growth indicators
@@ -802,7 +801,7 @@ const ClientLists = ({ onCreateList }: { onCreateList: () => void }) => {
                         <div className="bg-gray-50 rounded p-2">
                           <div className="flex justify-between items-center mb-1">
                             <span className="text-xs text-gray-500">Contacts</span>
-                            {list.growthRate > 0 && (
+                            {list.growthRate !== null && (
                               <span className="text-xs text-green-600 font-medium flex items-center">
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mr-0.5" viewBox="0 0 20 20" fill="currentColor">
                                   <path fillRule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clipRule="evenodd" />
@@ -816,7 +815,7 @@ const ClientLists = ({ onCreateList }: { onCreateList: () => void }) => {
                         
                         <div className="bg-gray-50 rounded p-2">
                           <span className="text-xs text-gray-500 block mb-1">Engagement</span>
-                          <div className="text-lg font-bold">{list.engagementScore}%</div>
+                          <div className="text-lg font-bold">{list.engagementScore !== null ? `${list.engagementScore}%` : 'N/A'}</div>
                         </div>
                       </div>
                       
@@ -892,7 +891,7 @@ const ClientLists = ({ onCreateList }: { onCreateList: () => void }) => {
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="flex items-center">
                               <span className="text-sm font-medium text-gray-900">{list.contactCount.toLocaleString()}</span>
-                              {list.growthRate > 0 && (
+                              {list.growthRate !== null && (
                                 <span className="text-xs text-green-600 ml-2 flex items-center">
                                   <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mr-0.5" viewBox="0 0 20 20" fill="currentColor">
                                     <path fillRule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clipRule="evenodd" />
@@ -904,15 +903,15 @@ const ClientLists = ({ onCreateList }: { onCreateList: () => void }) => {
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="w-full bg-gray-200 rounded-full h-2.5 mb-1 max-w-[100px]">
-                              <div className={`h-2.5 rounded-full bg-gradient-to-r ${colorClasses.gradient}`} style={{ width: `${list.engagementScore}%` }}></div>
+                              <div className={`h-2.5 rounded-full bg-gradient-to-r ${colorClasses.gradient}`} style={{ width: `${list.engagementScore !== null ? list.engagementScore : 0}%` }}></div>
                             </div>
-                            <span className="text-xs text-gray-500">{list.engagementScore}% score</span>
+                            <span className="text-xs text-gray-500">{list.engagementScore !== null ? `${list.engagementScore}%` : 'N/A'} score</span>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                             {new Date(list.lastUpdated).toLocaleDateString()}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                            {list.openRate}%
+                            {list.openRate !== null ? `${list.openRate}%` : 'N/A'}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                             <div className="flex items-center justify-end gap-2">

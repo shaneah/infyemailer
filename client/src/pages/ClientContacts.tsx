@@ -1,27 +1,40 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useClientSession } from '@/hooks/use-client-session';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 // Define Contact type
-type Contact = {
+interface Contact {
   id: number;
   name: string;
   email: string;
-  status: string;
-  clientId: number;
-  createdAt: string;
-  metadata?: any;
+  status?: {
+    label: string;
+    color: string;
+    value: string;
+  };
+  lists?: Array<{
+    id: number;
+    name: string;
+  }>;
+  addedOn?: string;
   tags?: string[];
   source?: string;
   notes?: string;
   engagement?: number;
-  avatar?: string;
+  createdAt?: string;
   lastActive?: string;
-};
+  avatar?: string;
+  metadata?: {
+    phone?: string;
+    company?: string;
+    [key: string]: any;
+  };
+}
 
 // Define Props type
 interface ClientContactsProps {
-  onAddContact: () => void;
+  onAddContact?: (contact: Contact) => void;
 }
 
 const ClientContacts: React.FC<ClientContactsProps> = ({ onAddContact }) => {
@@ -39,7 +52,13 @@ const ClientContacts: React.FC<ClientContactsProps> = ({ onAddContact }) => {
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const [dateFilter, setDateFilter] = useState('all');
   const [showContactDetails, setShowContactDetails] = useState<number | null>(null);
+  const [listDialogOpen, setListDialogOpen] = useState(false);
+  const [newListName, setNewListName] = useState('');
+  const [newListDescription, setNewListDescription] = useState('');
+  const [deleteListDialogOpen, setDeleteListDialogOpen] = useState(false);
+  const [listToDelete, setListToDelete] = useState<{ id: number, name: string } | null>(null);
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   // Fetch contacts from API on mount
   useEffect(() => {
@@ -70,17 +89,87 @@ const ClientContacts: React.FC<ClientContactsProps> = ({ onAddContact }) => {
     fetchContacts();
   }, [clientId, toast]);
 
+  // Fetch lists for this client
+  const { data: lists = [], isLoading: isLoadingLists } = useQuery({
+    queryKey: ['client-lists', clientId],
+    queryFn: async () => {
+      if (!clientId) return [];
+      const response = await fetch(`/api/client/lists?clientId=${clientId}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch lists');
+      }
+      return response.json();
+    },
+    enabled: !!clientId
+  });
+
+  // Create list mutation
+  const createListMutation = useMutation({
+    mutationFn: (values: { name: string; description?: string }) => {
+      return fetch(`/api/client/lists?clientId=${clientId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(values),
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['client-lists', clientId] });
+      toast({
+        title: "List created",
+        description: "The contact list has been created successfully.",
+      });
+      setListDialogOpen(false);
+      setNewListName('');
+      setNewListDescription('');
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: `Failed to create list: ${error.message}`,
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Delete list mutation
+  const deleteListMutation = useMutation({
+    mutationFn: (id: number) => {
+      return fetch(`/api/client/lists/${id}?clientId=${clientId}`, {
+        method: 'DELETE',
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['client-lists', clientId] });
+      queryClient.invalidateQueries({ queryKey: ['client-contacts', clientId] });
+      toast({
+        title: "List deleted",
+        description: "The contact list and its associations have been deleted successfully.",
+      });
+      setDeleteListDialogOpen(false);
+      setListToDelete(null);
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: `Failed to delete list: ${error.message}`,
+        variant: "destructive",
+      });
+    },
+  });
+
   // All unique tags and statuses for filtering
   const allTags = Array.from(new Set(contacts.flatMap(contact => contact.tags || [])));
-  const allStatuses = Array.from(new Set(contacts.map(contact => contact.status)));
+  const allStatuses = Array.from(new Set(contacts.map(contact => contact.status?.value)));
   const allSources = Array.from(new Set(contacts.map(contact => contact.source).filter(Boolean)));
   
   // Contact metrics
   const totalContacts = contacts.length;
-  const activeContacts = contacts.filter(c => c.status === 'Active').length;
-  const inactiveContacts = contacts.filter(c => c.status === 'Inactive').length;
-  const bouncedContacts = contacts.filter(c => c.status === 'Bounced').length;
-  const unsubscribedContacts = contacts.filter(c => c.status === 'Unsubscribed').length;
+  const activeContacts = contacts.filter(c => c.status?.value === 'Active').length;
+  const inactiveContacts = contacts.filter(c => c.status?.value === 'Inactive').length;
+  const bouncedContacts = contacts.filter(c => c.status?.value === 'Bounced').length;
+  const unsubscribedContacts = contacts.filter(c => c.status?.value === 'Unsubscribed').length;
 
   // Custom color mappings for statuses and tags
   const statusColors = {
@@ -151,7 +240,7 @@ const ClientContacts: React.FC<ClientContactsProps> = ({ onAddContact }) => {
     
     // Apply status filter
     if (filterStatus) {
-      matchesStatus = contact.status === filterStatus;
+      matchesStatus = contact.status?.value === filterStatus;
     }
     
     // Apply tag filter
@@ -170,17 +259,25 @@ const ClientContacts: React.FC<ClientContactsProps> = ({ onAddContact }) => {
     return matchesSearch && matchesStatus && matchesTag && matchesDate;
   });
   
-  // Sort filtered contacts
-  const sortedContacts = [...filteredContacts].sort((a, b) => {
-    switch(sortBy) {
+  // Sort contacts
+  const sortedContacts = [...contacts].sort((a, b) => {
+    switch (sortBy) {
       case 'name':
         return a.name.localeCompare(b.name);
+      case 'email':
+        return a.email.localeCompare(b.email);
       case 'date':
-        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        return dateB - dateA;
       case 'status':
-        return a.status.localeCompare(b.status);
+        const statusA = a.status?.value || '';
+        const statusB = b.status?.value || '';
+        return statusA.localeCompare(statusB);
       case 'engagement':
-        return (b.engagement || 0) - (a.engagement || 0);
+        const engagementA = a.engagement || 0;
+        const engagementB = b.engagement || 0;
+        return engagementB - engagementA;
       default:
         return 0;
     }
@@ -204,9 +301,52 @@ const ClientContacts: React.FC<ClientContactsProps> = ({ onAddContact }) => {
     }
   };
   
-  // Handle view contact details
-  const handleViewContact = (id: number) => {
-    setShowContactDetails(id);
+  // Handle view contact
+  const handleViewContact = (e: React.MouseEvent<HTMLButtonElement>, contact: Contact) => {
+    e.preventDefault();
+    setShowContactDetails(contact.id);
+  };
+
+  // Handle add contact
+  const handleAddContact = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    if (onAddContact) {
+      // Create a new contact object
+      const newContact: Contact = {
+        id: Date.now(), // Temporary ID
+        name: '',
+        email: '',
+        status: {
+          label: 'Active',
+          color: 'success',
+          value: 'active'
+        }
+      };
+      onAddContact(newContact);
+    }
+  };
+
+  // Handle date formatting
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return 'N/A';
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return 'Invalid Date';
+      return date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric'
+      });
+    } catch (error) {
+      return 'Invalid Date';
+    }
+  };
+
+  // Handle date comparison
+  const compareDates = (dateA?: string, dateB?: string) => {
+    const timeA = dateA ? new Date(dateA).getTime() : 0;
+    const timeB = dateB ? new Date(dateB).getTime() : 0;
+    return timeB - timeA;
   };
 
   if (isLoading) {
@@ -294,7 +434,7 @@ const ClientContacts: React.FC<ClientContactsProps> = ({ onAddContact }) => {
             </div>
             
             <button 
-              onClick={onAddContact}
+              onClick={handleAddContact}
               className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:from-purple-700 hover:to-indigo-700 transition-all shadow-md hover:shadow-lg"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -611,7 +751,7 @@ const ClientContacts: React.FC<ClientContactsProps> = ({ onAddContact }) => {
                   "No contacts match your current search criteria. Try adjusting your filters or search terms." : 
                   "You haven't added any contacts yet. Import existing contacts or add them manually."}
               </p>
-              <button onClick={onAddContact} className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg shadow-md hover:from-purple-700 hover:to-indigo-700 transition-all">
+              <button onClick={handleAddContact} className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg shadow-md hover:from-purple-700 hover:to-indigo-700 transition-all">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
                 </svg>
@@ -620,7 +760,7 @@ const ClientContacts: React.FC<ClientContactsProps> = ({ onAddContact }) => {
             </div>
           ) : (
             sortedContacts.map(contact => {
-              const statusStyle = statusColors[contact.status as keyof typeof statusColors] || statusColors.Inactive;
+              const statusStyle = statusColors[contact.status?.value as keyof typeof statusColors] || statusColors.Inactive;
               
               return (
                 <div key={contact.id} className="group bg-white rounded-lg shadow-md border border-gray-100 hover:shadow-lg transition-all duration-200 overflow-hidden">
@@ -667,7 +807,7 @@ const ClientContacts: React.FC<ClientContactsProps> = ({ onAddContact }) => {
                     
                     <div className="flex flex-wrap gap-1.5 mb-4">
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusStyle.bg} ${statusStyle.text}`}>
-                        {contact.status}
+                        {contact.status?.value}
                       </span>
                       {contact.tags?.slice(0, 2).map((tag, idx) => (
                         <span key={idx} className="px-2 py-1 bg-indigo-100 text-indigo-800 rounded-full text-xs">
@@ -686,14 +826,14 @@ const ClientContacts: React.FC<ClientContactsProps> = ({ onAddContact }) => {
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                         </svg>
-                        Added: {new Date(contact.createdAt).toLocaleDateString()}
+                        Added: {formatDate(contact.createdAt)}
                       </div>
                       {contact.lastActive && (
                         <div className="flex items-center">
                           <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                           </svg>
-                          Last active: {new Date(contact.lastActive).toLocaleDateString()}
+                          Last active: {formatDate(contact.lastActive)}
                         </div>
                       )}
                     </div>
@@ -702,7 +842,7 @@ const ClientContacts: React.FC<ClientContactsProps> = ({ onAddContact }) => {
                   <div className="border-t border-gray-100 px-5 py-3 bg-gray-50 flex justify-between">
                     <button 
                       className="text-sm font-medium text-indigo-600 hover:text-indigo-800"
-                      onClick={() => handleViewContact(contact.id)}
+                      onClick={(e) => handleViewContact(e, contact)}
                     >
                       View Details
                     </button>
@@ -768,7 +908,7 @@ const ClientContacts: React.FC<ClientContactsProps> = ({ onAddContact }) => {
                   </tr>
                 ) : (
                   sortedContacts.map(contact => {
-                    const statusStyle = statusColors[contact.status as keyof typeof statusColors] || statusColors.Inactive;
+                    const statusStyle = statusColors[contact.status?.value as keyof typeof statusColors] || statusColors.Inactive;
                     
                     return (
                       <tr key={contact.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
@@ -796,7 +936,7 @@ const ClientContacts: React.FC<ClientContactsProps> = ({ onAddContact }) => {
                         </td>
                         <td className="py-3 px-4">
                           <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${statusStyle.bg} ${statusStyle.text}`}>
-                            {contact.status}
+                            {contact.status?.value}
                           </span>
                         </td>
                         <td className="py-3 px-4">
@@ -820,13 +960,13 @@ const ClientContacts: React.FC<ClientContactsProps> = ({ onAddContact }) => {
                           </div>
                         </td>
                         <td className="py-3 px-4 text-gray-700 whitespace-nowrap">
-                          {new Date(contact.createdAt).toLocaleDateString()}
+                          {formatDate(contact.createdAt)}
                         </td>
                         <td className="py-3 px-4 text-right">
                           <div className="flex items-center justify-end gap-2">
                             <button 
                               className="text-indigo-600 hover:text-indigo-900 p-1 rounded hover:bg-indigo-50"
-                              onClick={() => handleViewContact(contact.id)}
+                              onClick={(e) => handleViewContact(e, contact)}
                             >
                               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -898,7 +1038,7 @@ const ClientContacts: React.FC<ClientContactsProps> = ({ onAddContact }) => {
             onClick={(e) => e.stopPropagation()}
           >
             {contacts.filter(c => c.id === showContactDetails).map(contact => {
-              const statusStyle = statusColors[contact.status as keyof typeof statusColors] || statusColors.Inactive;
+              const statusStyle = statusColors[contact.status?.value as keyof typeof statusColors] || statusColors.Inactive;
               
               return (
                 <div key={contact.id} className="p-6">
@@ -914,7 +1054,7 @@ const ClientContacts: React.FC<ClientContactsProps> = ({ onAddContact }) => {
                         <p className="text-gray-600">{contact.email}</p>
                         <div className="flex mt-2">
                           <span className={`px-3 py-1 rounded-full text-xs font-medium ${statusStyle.bg} ${statusStyle.text}`}>
-                            {contact.status}
+                            {contact.status?.value}
                           </span>
                         </div>
                       </div>
@@ -943,11 +1083,11 @@ const ClientContacts: React.FC<ClientContactsProps> = ({ onAddContact }) => {
                     </div>
                     <div>
                       <h3 className="text-sm font-medium text-gray-500 mb-2">Added On</h3>
-                      <p className="text-gray-900">{new Date(contact.createdAt).toLocaleDateString()}</p>
+                      <p className="text-gray-900">{formatDate(contact.createdAt)}</p>
                     </div>
                     <div>
                       <h3 className="text-sm font-medium text-gray-500 mb-2">Last Active</h3>
-                      <p className="text-gray-900">{contact.lastActive ? new Date(contact.lastActive).toLocaleDateString() : 'Never'}</p>
+                      <p className="text-gray-900">{formatDate(contact.lastActive)}</p>
                     </div>
                   </div>
                   

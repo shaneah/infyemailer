@@ -33,7 +33,15 @@ const CreateListModal: React.FC<CreateListModalProps> = ({ isOpen, onClose }) =>
     mutationFn: async (data: Omit<ListFormData, 'tags'> & { tags: string[] }) => {
       console.log('Creating list with data:', data);
       try {
-        const response = await apiRequest('POST', '/api/lists', data);
+        // First get the client ID from the session
+        const sessionResponse = await fetch('/api/client/session');
+        const session = await sessionResponse.json();
+        
+        if (!session.user?.clientId) {
+          throw new Error('Client not authenticated');
+        }
+
+        const response = await apiRequest('POST', `/api/client/lists?clientId=${session.user.clientId}`, data);
         const result = await response.json();
         console.log('List created successfully:', result);
         return result;
@@ -46,7 +54,7 @@ const CreateListModal: React.FC<CreateListModalProps> = ({ isOpen, onClose }) =>
       console.log('Mutation success, invalidating queries');
       // Invalidate both the lists query and any list count queries
       Promise.all([
-        queryClient.invalidateQueries({ queryKey: ['/api/lists'] }),
+        queryClient.invalidateQueries({ queryKey: ['/api/client/lists'] }),
         queryClient.invalidateQueries({ queryKey: ['lists'] }),
         queryClient.invalidateQueries({ queryKey: ['listCounts'] })
       ]).then(() => {

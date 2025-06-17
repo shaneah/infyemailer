@@ -1660,6 +1660,37 @@ export class DbStorage implements IStorage {
       throw error;
     }
   }
+
+  // Client-specific list methods
+  async getClientLists(clientId: number) {
+    try {
+      return await db.select()
+        .from(schema.lists)
+        .where(sql`client_id = ${clientId}`)
+        .orderBy(desc(schema.lists.createdAt));
+    } catch (error) {
+      console.error('Error getting client lists:', error);
+      return [];
+    }
+  }
+
+  async createClientList(clientId: number, list: InsertList) {
+    try {
+      const now = new Date();
+      const [newList] = await db.insert(schema.lists)
+        .values({
+          ...list,
+          clientId,
+          createdAt: now,
+          updatedAt: now
+        })
+        .returning();
+      return newList;
+    } catch (error) {
+      console.error('Error creating client list:', error);
+      throw error;
+    }
+  }
 }
 
 // Create a singleton instance of the database storage

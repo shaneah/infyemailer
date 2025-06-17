@@ -172,6 +172,12 @@ export interface IStorage {
   updateList(id: number, list: Partial<List>): Promise<List | undefined>;
   deleteList(id: number): Promise<boolean>;
 
+  // Client-specific list methods
+  getClientLists(clientId: number): Promise<List[]>;
+  createClientList(clientId: number, list: InsertList): Promise<List>;
+  updateClientList(clientId: number, listId: number, list: Partial<List>): Promise<List | undefined>;
+  deleteClientList(clientId: number, listId: number): Promise<boolean>;
+
   // Contact-List methods
   getContactLists(): Promise<ContactList[]>;
   getContactListRelations(contactId: number, listId?: number): Promise<ContactList[]>;
@@ -1305,6 +1311,71 @@ export class MemStorage implements IStorage {
       // Also remove all contact-list relationships for this list
       for (const [clId, cl] of this.contactLists.entries()) {
         if (cl.listId === id) {
+          this.contactLists.delete(clId);
+        }
+      }
+      
+      // Save contact-list relationships to file for persistence
+      await ListPersistenceService.saveContactListsToFile(this.contactLists);
+    }
+    
+    return result;
+  }
+
+  // Client-specific list methods
+  async getClientLists(clientId: number): Promise<List[]> {
+    return Array.from(this.lists.values())
+      .filter(list => list.clientId === clientId);
+  }
+  
+  async createClientList(clientId: number, list: InsertList): Promise<List> {
+    const id = this.listId++;
+    const now = new Date();
+    const newList: List = {
+      ...list,
+      id,
+      createdAt: now,
+      updatedAt: now,
+      clientId
+    };
+    this.lists.set(id, newList);
+    
+    // Save lists to file for persistence
+    await ListPersistenceService.saveListsToFile(this.lists);
+    
+    return newList;
+  }
+  
+  async updateClientList(clientId: number, listId: number, list: Partial<List>): Promise<List | undefined> {
+    const existingList = this.lists.get(listId);
+    if (!existingList) return undefined;
+    
+    const updatedList = {
+      ...existingList,
+      ...list,
+      updatedAt: new Date()
+    };
+    this.lists.set(listId, updatedList);
+    
+    // Save lists to file for persistence
+    await ListPersistenceService.saveListsToFile(this.lists);
+    
+    return updatedList;
+  }
+  
+  async deleteClientList(clientId: number, listId: number): Promise<boolean> {
+    const existingList = this.lists.get(listId);
+    if (!existingList) return false;
+    
+    const result = this.lists.delete(listId);
+    
+    if (result) {
+      // Save lists to file for persistence
+      await ListPersistenceService.saveListsToFile(this.lists);
+      
+      // Also remove all contact-list relationships for this list
+      for (const [clId, cl] of this.contactLists.entries()) {
+        if (cl.listId === listId) {
           this.contactLists.delete(clId);
         }
       }
