@@ -2,6 +2,15 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useClientSession } from '@/hooks/use-client-session';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { apiRequest } from '@/lib/api';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 // Define Contact type
 interface Contact {
@@ -32,6 +41,22 @@ interface Contact {
   };
 }
 
+// Define contact form schema
+const contactFormSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  email: z.string().email("Invalid email address"),
+  phone: z.string().optional(),
+  status: z.string().optional(),
+  tags: z.string().optional(),
+  source: z.string().optional(),
+  company: z.string().optional(),
+  jobTitle: z.string().optional(),
+  notes: z.string().optional(),
+  lists: z.array(z.string()).optional(),
+});
+
+type ContactFormValues = z.infer<typeof contactFormSchema>;
+
 // Define Props type
 interface ClientContactsProps {
   onAddContact?: (contact: Contact) => void;
@@ -59,6 +84,23 @@ const ClientContacts: React.FC<ClientContactsProps> = ({ onAddContact }) => {
   const [listToDelete, setListToDelete] = useState<{ id: number, name: string } | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [showContactDialog, setShowContactDialog] = useState(false);
+  const [currentContact, setCurrentContact] = useState<Contact | null>(null);
+  const form = useForm<ContactFormValues>({
+    resolver: zodResolver(contactFormSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      phone: "",
+      status: "Active",
+      tags: "",
+      source: "",
+      company: "",
+      jobTitle: "",
+      notes: "",
+      lists: [],
+    },
+  });
 
   // Fetch contacts from API on mount
   useEffect(() => {
@@ -154,6 +196,31 @@ const ClientContacts: React.FC<ClientContactsProps> = ({ onAddContact }) => {
       toast({
         title: "Error",
         description: `Failed to delete list: ${error.message}`,
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Update contact mutation
+  const updateContactMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: number; data: any }) => {
+      const res = await apiRequest('PATCH', `/api/client/${clientId}/contacts/${id}`, data);
+      return await res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/client/contacts'] });
+      toast({
+        title: "Contact updated",
+        description: "Contact has been successfully updated.",
+      });
+      setShowContactDialog(false);
+      setCurrentContact(null);
+      form.reset();
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update contact.",
         variant: "destructive",
       });
     },
@@ -326,13 +393,13 @@ const ClientContacts: React.FC<ClientContactsProps> = ({ onAddContact }) => {
     }
   };
 
-  // Handle date formatting
-  const formatDate = (dateString?: string) => {
+  // Only one top-level definition for date formatting and comparison
+  const formatDate = (dateString: string) => {
     if (!dateString) return 'N/A';
     try {
-      const date = new Date(dateString);
-      if (isNaN(date.getTime())) return 'Invalid Date';
-      return date.toLocaleDateString('en-US', {
+      const parsedDate = new Date(dateString);
+      if (isNaN(parsedDate.getTime())) return 'Invalid Date';
+      return parsedDate.toLocaleDateString('en-US', {
         month: 'short',
         day: 'numeric',
         year: 'numeric'
@@ -342,11 +409,43 @@ const ClientContacts: React.FC<ClientContactsProps> = ({ onAddContact }) => {
     }
   };
 
-  // Handle date comparison
   const compareDates = (dateA?: string, dateB?: string) => {
-    const timeA = dateA ? new Date(dateA).getTime() : 0;
-    const timeB = dateB ? new Date(dateB).getTime() : 0;
+    const safeA = typeof dateA === 'string' ? dateA : '';
+    const safeB = typeof dateB === 'string' ? dateB : '';
+    const timeA = safeA ? new Date(safeA).getTime() : 0;
+    const timeB = safeB ? new Date(safeB).getTime() : 0;
     return timeB - timeA;
+  };
+
+  // Handle edit contact
+  const handleEditContact = (id: number) => {
+    const contact = contacts.find(c => c.id === id);
+    if (contact) {
+      setCurrentContact(contact);
+      form.reset({
+        name: contact.name || "",
+        email: contact.email || "",
+        phone: contact.metadata?.phone || "",
+        status: contact.status?.value || "Active",
+        tags: contact.tags?.join(", ") || "",
+        source: contact.source || "",
+        company: contact.metadata?.company || "",
+        jobTitle: contact.metadata?.jobTitle || "",
+        notes: contact.metadata?.notes || "",
+        lists: contact.lists?.map(list => list.id.toString()) || [],
+      });
+      setShowContactDialog(true);
+    }
+  };
+
+  // Handle form submission
+  const onSubmit = (values: ContactFormValues) => {
+    if (currentContact) {
+      updateContactMutation.mutate({
+        id: currentContact.id,
+        data: values,
+      });
+    }
   };
 
   if (isLoading) {
@@ -556,7 +655,7 @@ const ClientContacts: React.FC<ClientContactsProps> = ({ onAddContact }) => {
                         <p className="text-xs text-gray-500 truncate">{contact.email}</p>
                       </div>
                       <div className="h-2 w-16 bg-gray-200 rounded-full overflow-hidden">
-                        <div className={`h-full ${getEngagementColor(contact.engagement || 0)}`} style={{ width: `${contact.engagement}%` }}></div>
+                        <div className={`h-full ${getEngagementColor(contact.engagement || 0)}`} style={{ width: `${contact.engagement || 0}%` }}></div>
                       </div>
                     </div>
                   ))}
@@ -826,14 +925,14 @@ const ClientContacts: React.FC<ClientContactsProps> = ({ onAddContact }) => {
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                         </svg>
-                        Added: {formatDate(contact.createdAt)}
+                        Added: {formatDate(contact.createdAt || '')}
                       </div>
                       {contact.lastActive && (
                         <div className="flex items-center">
                           <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                           </svg>
-                          Last active: {formatDate(contact.lastActive)}
+                          Last active: {formatDate(contact.lastActive || '')}
                         </div>
                       )}
                     </div>
@@ -960,7 +1059,7 @@ const ClientContacts: React.FC<ClientContactsProps> = ({ onAddContact }) => {
                           </div>
                         </td>
                         <td className="py-3 px-4 text-gray-700 whitespace-nowrap">
-                          {formatDate(contact.createdAt)}
+                          {formatDate(contact.createdAt || '')}
                         </td>
                         <td className="py-3 px-4 text-right">
                           <div className="flex items-center justify-end gap-2">
@@ -1083,11 +1182,11 @@ const ClientContacts: React.FC<ClientContactsProps> = ({ onAddContact }) => {
                     </div>
                     <div>
                       <h3 className="text-sm font-medium text-gray-500 mb-2">Added On</h3>
-                      <p className="text-gray-900">{formatDate(contact.createdAt)}</p>
+                      <p className="text-gray-900">{formatDate(contact.createdAt || '')}</p>
                     </div>
                     <div>
                       <h3 className="text-sm font-medium text-gray-500 mb-2">Last Active</h3>
-                      <p className="text-gray-900">{formatDate(contact.lastActive)}</p>
+                      <p className="text-gray-900">{formatDate(contact.lastActive || '')}</p>
                     </div>
                   </div>
                   
@@ -1116,7 +1215,13 @@ const ClientContacts: React.FC<ClientContactsProps> = ({ onAddContact }) => {
                     >
                       Close
                     </button>
-                    <button className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 text-sm font-medium">
+                    <button 
+                      onClick={() => {
+                        setShowContactDetails(null);
+                        handleEditContact(contact.id);
+                      }}
+                      className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 text-sm font-medium"
+                    >
                       Edit Contact
                     </button>
                   </div>
@@ -1126,6 +1231,92 @@ const ClientContacts: React.FC<ClientContactsProps> = ({ onAddContact }) => {
           </div>
         </div>
       )}
+
+      {/* Edit Contact Dialog */}
+      <Dialog open={showContactDialog} onOpenChange={setShowContactDialog}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>{currentContact ? "Edit Contact" : "Add New Contact"}</DialogTitle>
+            <DialogDescription>
+              {currentContact ? "Update contact information" : "Fill in the details to add a new contact."}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Name</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Full name" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email</FormLabel>
+                      <FormControl>
+                        <Input type="email" placeholder="Email address" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <FormField
+                control={form.control}
+                name="lists"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Lists</FormLabel>
+                    <FormControl>
+                      <Select
+                        value={field.value?.[0] || ""}
+                        onValueChange={(value) => field.onChange([value])}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select lists" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {lists.map((list: { id: number; name: string }) => (
+                            <SelectItem key={list.id} value={list.id.toString()}>
+                              {list.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <DialogFooter>
+                <Button type="button" variant="outline" onClick={() => setShowContactDialog(false)}>
+                  Cancel
+                </Button>
+                <Button 
+                  type="submit" 
+                  disabled={updateContactMutation.isPending}
+                >
+                  {updateContactMutation.isPending ? "Saving..." : "Save Changes"}
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

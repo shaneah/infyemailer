@@ -5340,6 +5340,85 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ error: 'Failed to create campaign', details: error.message });
     }
   });
+
+  // Update a client contact
+  app.patch('/api/client/:clientId/contacts/:id', isClientAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const clientId = parseInt(req.params.clientId);
+      const contactId = parseInt(req.params.id);
+      
+      if (isNaN(clientId) || isNaN(contactId)) {
+        return res.status(400).json({ error: 'Invalid client ID or contact ID' });
+      }
+      
+      // Verify that the authenticated user has access to this client's contacts
+      if (req.clientUser?.clientId !== clientId) {
+        console.error('Access denied: User client ID', req.clientUser?.clientId, 'does not match requested client ID', clientId);
+        return res.status(403).json({ error: 'Access denied' });
+      }
+      
+      // Get the existing contact to verify ownership
+      const existingContact = await storage.getContact(contactId);
+      if (!existingContact) {
+        return res.status(404).json({ error: 'Contact not found' });
+      }
+      
+      // Verify the contact belongs to this client
+      if (existingContact.clientId !== clientId) {
+        return res.status(403).json({ error: 'Access denied: Contact does not belong to this client' });
+      }
+      
+      const { lists: incomingLists, ...updateData } = req.body;
+
+      // Update basic contact fields
+      const updatedContact = await storage.updateContact(contactId, {
+        ...updateData,
+        clientId // Ensure clientId is preserved
+      });
+
+      // Handle list updates
+      if (Array.isArray(incomingLists)) {
+        const currentLists = await storage.getListsByContact(contactId);
+        const currentListIds = currentLists.map(list => list.id);
+
+        const incomingListIds = incomingLists.map(id => parseInt(id, 10)).filter(id => !isNaN(id));
+
+        // Lists to add: in incoming but not in current
+        const listsToAdd = incomingListIds.filter(listId => !currentListIds.includes(listId));
+
+        // Lists to remove: in current but not in incoming
+        const listsToRemove = currentListIds.filter(listId => !incomingListIds.includes(listId));
+
+        // Add lists
+        for (const listId of listsToAdd) {
+          try {
+            await storage.addContactToList({ contactId, listId });
+          } catch (error) {
+            console.error(`Error adding contact ${contactId} to list ${listId}:`, error);
+          }
+        }
+
+        // Remove lists
+        for (const listId of listsToRemove) {
+          try {
+            await storage.removeContactFromList(contactId, listId);
+          } catch (error) {
+            console.error(`Error removing contact ${contactId} from list ${listId}:`, error);
+          }
+        }
+      }
+
+      // Fetch the contact again to include updated list information
+      const finalContact = await storage.getContact(contactId);
+      const finalContactLists = await storage.getListsByContact(contactId);
+      const contactWithLists = finalContact ? { ...finalContact, lists: finalContactLists } : undefined;
+
+      res.json(contactWithLists);
+    } catch (error) {
+      console.error('Update client contact error:', error);
+      res.status(500).json({ error: 'Failed to update contact' });
+    }
+  });
 }
       
 // Return the template HTML as a standalone page
