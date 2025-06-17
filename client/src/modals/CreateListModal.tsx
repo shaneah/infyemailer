@@ -36,12 +36,13 @@ const CreateListModal: React.FC<CreateListModalProps> = ({ isOpen, onClose }) =>
         // First get the client ID from the session
         const sessionResponse = await fetch('/api/client/session');
         const session = await sessionResponse.json();
-        
+        console.log('Session for list creation:', session);
         if (!session.user?.clientId) {
           throw new Error('Client not authenticated');
         }
-
-        const response = await apiRequest('POST', `/api/client/lists?clientId=${session.user.clientId}`, data);
+        // Ensure clientId is included in the request body as well
+        const payload = { ...data, clientId: session.user.clientId };
+        const response = await apiRequest('POST', `/api/client/lists?clientId=${session.user.clientId}`, payload);
         const result = await response.json();
         console.log('List created successfully:', result);
         return result;
@@ -112,10 +113,31 @@ const CreateListModal: React.FC<CreateListModalProps> = ({ isOpen, onClose }) =>
       .map(tag => tag.trim())
       .filter(tag => tag.length > 0);
 
-    createListMutation.mutate({
-      ...formData,
-      tags: tagsArray,
-    });
+    // Get client ID from session first
+    fetch('/api/client/session')
+      .then(response => response.json())
+      .then(session => {
+        if (!session.user?.clientId) {
+          throw new Error('Client not authenticated');
+        }
+        
+        // Include clientId in the list data
+        const listData = {
+          ...formData,
+          tags: tagsArray,
+          clientId: session.user.clientId
+        };
+
+        createListMutation.mutate(listData);
+      })
+      .catch(error => {
+        console.error('Error getting client session:', error);
+        toast({
+          title: 'Error',
+          description: 'Failed to get client session. Please try again.',
+          variant: 'destructive',
+        });
+      });
   };
 
   if (!isOpen) return null;
