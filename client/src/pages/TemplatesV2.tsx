@@ -763,28 +763,12 @@ export default function TemplatesV2() {
                         {/* Quick action overlay */}
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3 p-4">
                           <div className="absolute bottom-4 w-full flex justify-center gap-2">
-                            <Button 
-                              variant="secondary" 
-                              size="sm"
-                              className="shadow-md bg-white/90 backdrop-blur-sm hover:bg-white"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                window.open(`/preview-template?id=${template.id}`, '_blank');
-                              }}
-                            >
-                              <Eye className="h-3.5 w-3.5 mr-1" />
-                              Preview
+                            {/* Edit button commented out
+                            <Button variant="secondary" size="sm" className="shadow-md bg-white/90 backdrop-blur-sm hover:bg-white">
+                              <Pencil className="h-3.5 w-3.5 mr-1" />
+                              Edit
                             </Button>
-                            
-                            <Link 
-                              href={`/template-builder?id=${template.id}`}
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              <Button variant="secondary" size="sm" className="shadow-md bg-white/90 backdrop-blur-sm hover:bg-white">
-                                <Pencil className="h-3.5 w-3.5 mr-1" />
-                                Edit
-                              </Button>
-                            </Link>
+                            */}
                           </div>
                         </div>
 
@@ -945,14 +929,12 @@ export default function TemplatesV2() {
                                 <Eye className="h-4 w-4" />
                               </Button>
                               
-                              <Link 
-                                href={`/template-builder?id=${template.id}`}
-                                onClick={(e) => e.stopPropagation()}
-                              >
-                                <Button variant="ghost" size="sm" className="text-indigo-600 hover:text-indigo-900">
-                                  <Pencil className="h-4 w-4" />
-                                </Button>
-                              </Link>
+                              {/* Edit button commented out
+                              <Button variant="secondary" size="sm" className="shadow-md bg-white/90 backdrop-blur-sm hover:bg-white">
+                                <Pencil className="h-3.5 w-3.5 mr-1" />
+                                Edit
+                              </Button>
+                              */}
                               
                               <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
@@ -1134,13 +1116,6 @@ export default function TemplatesV2() {
                   <Pencil className="h-4 w-4 mr-2" />
                   Edit Template
                 </Button>
-                
-                <Link href={`/template-builder?id=${selectedTemplate?.id}`}>
-                  <Button className="bg-indigo-600 hover:bg-indigo-700">
-                    <FileCode className="h-4 w-4 mr-2" />
-                    Open in Builder
-                  </Button>
-                </Link>
               </div>
             </div>
           </DialogFooter>

@@ -374,21 +374,20 @@ export default function BasicTemplateBuilder({ isClientPortal = false }: BasicTe
         clientId: clientId // Include client ID in the request
       };
 
-      const url = isClientPortal ? `/api/client/${clientId}/templates` : '/api/templates';
-      console.log('Saving template to:', url, 'with data:', templateData);
-
-      const response = await fetch(url, {
-        method: isEditMode ? 'PATCH' : 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(templateData)
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to save template');
+      let url;
+      if (isClientPortal) {
+        url = isEditMode 
+          ? `/api/client/${clientId}/templates/${templateId}`
+          : `/api/client/${clientId}/templates`;
+      } else {
+        url = isEditMode 
+          ? `/api/templates/${templateId}`
+          : '/api/templates';
       }
 
+      console.log('Saving template to:', url, 'with data:', templateData);
+
+      const response = await apiRequest(isEditMode ? 'PATCH' : 'POST', url, templateData);
       const savedTemplate = await response.json();
       console.log('Template saved successfully:', savedTemplate);
 

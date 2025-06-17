@@ -2080,11 +2080,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // Create a new client template
-  app.post('/api/client/:clientId/templates', async (req: Request, res: Response) => {
+  app.post('/api/client/:clientId/templates', isClientAuthenticated, async (req: Request, res: Response) => {
     try {
       const clientId = parseInt(req.params.clientId);
       if (isNaN(clientId)) {
         return res.status(400).json({ error: 'Invalid client ID' });
+      }
+      
+      // Verify that the authenticated user has access to this client's templates
+      if (req.clientUser?.clientId !== clientId) {
+        console.error('Access denied: User client ID', req.clientUser?.clientId, 'does not match requested client ID', clientId);
+        return res.status(403).json({ error: 'Access denied' });
       }
       
       const { name, content, description, category, subject, metadata } = req.body;
@@ -2106,6 +2112,64 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error creating client template:', error);
       res.status(500).json({ error: 'Failed to create client template' });
+    }
+  });
+  
+  // Update a client template
+  app.patch('/api/client/:clientId/templates/:templateId', isClientAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const clientId = parseInt(req.params.clientId);
+      const templateId = parseInt(req.params.templateId);
+      
+      if (isNaN(clientId) || isNaN(templateId)) {
+        return res.status(400).json({ error: 'Invalid client ID or template ID' });
+      }
+      
+      // Verify that the authenticated user has access to this client's templates
+      if (req.clientUser?.clientId !== clientId) {
+        console.error('Access denied: User client ID', req.clientUser?.clientId, 'does not match requested client ID', clientId);
+        return res.status(403).json({ error: 'Access denied' });
+      }
+      
+      // Get the existing template to verify ownership
+      const existingTemplate = await storage.getTemplate(templateId);
+      if (!existingTemplate) {
+        return res.status(404).json({ error: 'Template not found' });
+      }
+      
+      // Verify the template belongs to this client
+      if (existingTemplate.clientId !== clientId) {
+        return res.status(403).json({ error: 'Access denied: Template does not belong to this client' });
+      }
+      
+      const { name, content, description, category, subject, metadata } = req.body;
+      
+      if (!name || !content) {
+        return res.status(400).json({ error: 'Name and content are required' });
+      }
+      
+      // Update the template
+      const updatedTemplate = await storage.updateTemplate(templateId, {
+        name,
+        content,
+        description: description || existingTemplate.description,
+        category: category || existingTemplate.category,
+        subject: subject || existingTemplate.subject,
+        metadata: {
+          ...(existingTemplate.metadata || {}),
+          ...(metadata || {}),
+          lastUpdated: new Date().toISOString()
+        }
+      });
+      
+      if (!updatedTemplate) {
+        return res.status(500).json({ error: 'Failed to update template' });
+      }
+      
+      res.json(updatedTemplate);
+    } catch (error) {
+      console.error('Error updating client template:', error);
+      res.status(500).json({ error: 'Failed to update client template' });
     }
   });
   

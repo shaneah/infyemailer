@@ -49,7 +49,26 @@ export async function apiRequest(
     });
 
     console.log(`API Response [${res.status}]:`, res);
-    await throwIfResNotOk(res);
+
+    if (!res.ok) {
+      // Try to parse the error response as JSON
+      let errorMessage = `HTTP error ${res.status}`;
+      try {
+        const errorData = await res.json();
+        errorMessage = errorData.error || errorData.message || errorMessage;
+      } catch (e) {
+        // If parsing as JSON fails, try to get the text
+        try {
+          const errorText = await res.text();
+          errorMessage = errorText || errorMessage;
+        } catch (e) {
+          // If all else fails, use the status text
+          errorMessage = res.statusText || errorMessage;
+        }
+      }
+      throw new Error(errorMessage);
+    }
+
     return res;
   } catch (error) {
     console.error('API Request Error:', error);
