@@ -41,6 +41,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { motion, AnimatePresence } from "framer-motion";
 import ComingSoonPage from '@/pages/ComingSoonPage';
 import EmailValidation from '@/pages/EmailValidation';
+import ClientNewCampaignModal from '@/modals/ClientNewCampaignModal';
 
 // Advanced Campaigns component with modern UI
 const ClientCampaigns = ({ 
@@ -1855,11 +1856,11 @@ export default function ClientRoutes() {
               onCreateCampaign={() => setShowCreateCampaignModal(true)}
               setShowCreateCampaignModal={setShowCreateCampaignModal}
             />
-            {showCreateCampaignModal && (
-              <CreateCampaignModal
+            {showCreateCampaignModal && clientUser && (
+              <ClientNewCampaignModal
                 open={showCreateCampaignModal}
                 onOpenChange={setShowCreateCampaignModal}
-                onSuccess={() => setShowCreateCampaignModal(false)}
+                clientId={clientUser.clientId}
               />
             )}
           </Route>

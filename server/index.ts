@@ -17,6 +17,7 @@ import memorystore from 'memorystore';
 import connectPgSimple from 'connect-pg-simple';
 import { pool } from './db';
 import passport from 'passport';
+import clientCampaignsRouter from './routes/clientCampaigns';
 
 // Add type declaration for WebSocket
 interface WebSocketConnection extends WebSocket {
@@ -124,6 +125,9 @@ app.use((req, res, next) => {
 
   next();
 });
+
+// Register the client campaigns route
+app.use(clientCampaignsRouter);
 
 // Initialize the application
 (async () => {

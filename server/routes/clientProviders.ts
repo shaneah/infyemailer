@@ -126,4 +126,25 @@ export function registerClientProviderRoutes(app: any) {
       });
     }
   });
+
+  // Get all lists assigned to a client
+  app.get('/api/clients/:clientId/lists', async (req: Request, res: Response) => {
+    try {
+      const storage = getStorage();
+      const clientId = parseInt(req.params.clientId, 10);
+      // Validate client exists
+      const client = await storage.getClient(clientId);
+      if (!client) {
+        return res.status(404).json({ error: 'Client not found' });
+      }
+      const lists = await storage.getClientLists(clientId);
+      res.json(lists);
+    } catch (error: any) {
+      console.error('Error getting client lists:', error);
+      res.status(500).json({ 
+        error: 'Failed to get client lists', 
+        details: error.message 
+      });
+    }
+  });
 }

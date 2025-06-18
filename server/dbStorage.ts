@@ -632,6 +632,7 @@ export class DbStorage implements IStorage {
 
   async createCampaign(campaign: Omit<schema.InsertCampaign, 'id'>) {
     try {
+      console.log('Creating campaign with data:', campaign);
       const [newCampaign] = await db.insert(schema.campaigns).values(campaign).returning();
       return newCampaign;
     } catch (error) {
