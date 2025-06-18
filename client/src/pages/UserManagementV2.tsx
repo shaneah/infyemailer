@@ -171,12 +171,14 @@ const UserCard = ({
   user, 
   role, 
   onRoleChange, 
-  onEdit 
+  onEdit, 
+  onManage
 }: { 
   user: User; 
   role: string; 
   onRoleChange: (userId: number, roleId: number) => void;
   onEdit: () => void;
+  onManage: () => void;
 }) => {
   return (
     <motion.div
@@ -227,10 +229,24 @@ const UserCard = ({
             <PencilIcon className="h-4 w-4 mr-1" />
             Edit
           </Button>
-          <Button variant="ghost" size="sm" className="text-gray-700">
-            <UserCog className="h-4 w-4 mr-1" />
-            Manage
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="text-gray-700">
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuItem onClick={onManage}>
+                <UserCog className="mr-2 h-4 w-4" />
+                Manage User
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={onEdit}>
+                <PencilIcon className="mr-2 h-4 w-4" />
+                Edit User
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </CardFooter>
       </Card>
     </motion.div>
@@ -399,6 +415,7 @@ const UserManagementV2 = () => {
   const [deleteUserDialogOpen, setDeleteUserDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isEditUserDialogOpen, setIsEditUserDialogOpen] = useState(false);
+  const [isManageUserDialogOpen, setIsManageUserDialogOpen] = useState(false);
   
   // Fetch users
   const {
@@ -798,6 +815,24 @@ const UserManagementV2 = () => {
     }
   };
 
+  // Add manage user function
+  const handleManageUser = (user: User) => {
+    console.log('handleManageUser called with user:', user);
+    try {
+      setSelectedUser(user);
+      console.log('Selected user for management:', user);
+      setIsManageUserDialogOpen(true);
+      console.log('Manage dialog opened');
+    } catch (error) {
+      console.error('Error in handleManageUser:', error);
+      toast({
+        title: "Error",
+        description: "Failed to open manage dialog",
+        variant: "destructive",
+      });
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[calc(100vh-200px)]">
@@ -976,7 +1011,7 @@ const UserManagementV2 = () => {
                         <Button type="submit" className="bg-indigo-600 hover:bg-indigo-700 text-white">
                           {createUserMutation.isPending ? (
                             <>
-                              <Loader2 className="mr-2 h-4 w-4 animate-spin" /> 
+                              <Loader2 className="mr-2 h-4 animate-spin" /> 
                               Creating...
                             </>
                           ) : (
@@ -1047,6 +1082,7 @@ const UserManagementV2 = () => {
                         role={getUserRole(user.id)}
                         onRoleChange={(userId, roleId) => handleUserRoleChange(userId, roleId)}
                         onEdit={() => handleEditUser(user)}
+                        onManage={() => handleManageUser(user)}
                       />
                     ))
                   )}
@@ -1142,10 +1178,22 @@ const UserManagementV2 = () => {
                                     onClick={(e) => {
                                       e.preventDefault();
                                       e.stopPropagation();
+                                      console.log('Manage clicked for user:', user);
+                                      handleManageUser(user);
+                                    }}
+                                  >
+                                    <UserCog className="mr-2 h-4 w-4" />
+                                    Manage User
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem 
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      e.stopPropagation();
                                       console.log('Edit clicked for user:', user);
                                       handleEditUser(user);
                                     }}
                                   >
+                                    <PencilIcon className="mr-2 h-4 w-4" />
                                     Edit User
                                   </DropdownMenuItem>
                                   <DropdownMenuSeparator />
@@ -1158,7 +1206,17 @@ const UserManagementV2 = () => {
                                       handleToggleUserStatus(user.id, user.status);
                                     }}
                                   >
-                                    {user.status === "active" ? "Deactivate" : "Activate"}
+                                    {user.status === "active" ? (
+                                      <>
+                                        <ShieldAlert className="mr-2 h-4 w-4" />
+                                        Deactivate
+                                      </>
+                                    ) : (
+                                      <>
+                                        <ShieldCheck className="mr-2 h-4 w-4" />
+                                        Activate
+                                      </>
+                                    )}
                                   </DropdownMenuItem>
                                   <DropdownMenuItem 
                                     className="text-destructive"
@@ -1169,6 +1227,7 @@ const UserManagementV2 = () => {
                                       handleDeleteUser(user.id);
                                     }}
                                   >
+                                    <Trash2 className="mr-2 h-4 w-4" />
                                     Delete User
                                   </DropdownMenuItem>
                                 </DropdownMenuContent>
@@ -1234,7 +1293,7 @@ const UserManagementV2 = () => {
                           >
                             {createRoleMutation.isPending ? (
                               <>
-                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                <Loader2 className="mr-2 h-4 animate-spin" />
                                 Creating...
                               </>
                             ) : (
@@ -1513,6 +1572,115 @@ const UserManagementV2 = () => {
               <p className="text-muted-foreground">No user selected for editing.</p>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Manage User Dialog */}
+      <Dialog 
+        open={isManageUserDialogOpen} 
+        onOpenChange={(open) => {
+          console.log('Manage dialog open state changing to:', open);
+          setIsManageUserDialogOpen(open);
+          if (!open) {
+            setSelectedUser(null);
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>Manage User</DialogTitle>
+            <DialogDescription>
+              Manage user roles, permissions, and settings.
+            </DialogDescription>
+          </DialogHeader>
+          {selectedUser ? (
+            <div className="space-y-6">
+              {/* User Info Section */}
+              <div className="space-y-4">
+                <div className="flex items-center space-x-4">
+                  <Avatar className="h-16 w-16">
+                    <AvatarFallback className="bg-gradient-to-r from-indigo-500 to-purple-500 text-white text-lg">
+                      {selectedUser.firstName && selectedUser.lastName 
+                        ? `${selectedUser.firstName.charAt(0)}${selectedUser.lastName.charAt(0)}`
+                        : selectedUser.username.substring(0, 2).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <h3 className="text-lg font-semibold">
+                      {selectedUser.firstName && selectedUser.lastName 
+                        ? `${selectedUser.firstName} ${selectedUser.lastName}`
+                        : selectedUser.username}
+                    </h3>
+                    <p className="text-sm text-muted-foreground">{selectedUser.email}</p>
+                    <Badge 
+                      variant={selectedUser.status === "active" ? "default" : "destructive"}
+                      className="mt-2"
+                    >
+                      {selectedUser.status}
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+
+              <Separator />
+
+              {/* Role Management Section */}
+              <div className="space-y-4">
+                <h4 className="font-medium">Role Management</h4>
+                <div className="space-y-2">
+                  <Label>Current Role</Label>
+                  <Select 
+                    defaultValue={userRoles.find(ur => ur.userId === selectedUser.id)?.roleId.toString() || ""}
+                    onValueChange={(value) => handleUserRoleChange(selectedUser.id, parseInt(value))}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a role" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {roles.map((role) => (
+                        <SelectItem key={role.id} value={role.id.toString()}>
+                          {role.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <Separator />
+
+              {/* User Activity Section */}
+              <div className="space-y-4">
+                <h4 className="font-medium">User Activity</h4>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <p className="text-sm text-muted-foreground">Created</p>
+                    <p className="font-medium">{formatDate(selectedUser.createdAt)}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-sm text-muted-foreground">Last Login</p>
+                    <p className="font-medium">{formatDate(selectedUser.lastLoginAt)}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="text-center py-4">
+              <p className="text-muted-foreground">No user selected for management.</p>
+            </div>
+          )}
+          <DialogFooter>
+            <Button 
+              variant="outline" 
+              onClick={() => {
+                console.log('Manage dialog closed');
+                setIsManageUserDialogOpen(false);
+                setSelectedUser(null);
+              }}
+            >
+              Close
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
