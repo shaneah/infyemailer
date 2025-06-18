@@ -398,6 +398,7 @@ const UserManagementV2 = () => {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [deleteUserDialogOpen, setDeleteUserDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isEditUserDialogOpen, setIsEditUserDialogOpen] = useState(false);
   
   // Fetch users
   const {
@@ -697,9 +698,61 @@ const UserManagementV2 = () => {
     togglePermissionMutation.mutate({ roleId, permissionId, currentlyAssigned });
   };
 
-  const handleDeleteUser = () => {
-    // Implementation for delete user would go here
-    setDeleteUserDialogOpen(false);
+  const handleToggleUserStatus = async (userId: number, currentStatus: string) => {
+    try {
+      const newStatus = currentStatus === "active" ? "inactive" : "active";
+      const response = await fetch(`/api/users/${userId}/status`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to update user status: ${response.statusText}`);
+      }
+
+      toast({
+        title: "Status updated",
+        description: `User status has been updated to ${newStatus}.`,
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/users"] });
+    } catch (error) {
+      console.error("Error updating user status:", error);
+      toast({
+        title: "Error updating status",
+        description: (error as Error).message || "There was an error updating the user status.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDeleteUser = async (userId: number) => {
+    if (!confirm("Are you sure you want to delete this user? This action cannot be undone.")) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/users/${userId}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to delete user: ${response.statusText}`);
+      }
+
+      toast({
+        title: "User deleted",
+        description: "The user has been deleted successfully.",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/users"] });
+    } catch (error) {
+      console.error("Error deleting user:", error);
+      toast({
+        title: "Error deleting user",
+        description: (error as Error).message || "There was an error deleting the user.",
+        variant: "destructive",
+      });
+    }
   };
 
   // Filter users based on search query
@@ -726,6 +779,24 @@ const UserManagementV2 = () => {
   const totalUsers = users.length;
   const totalRoles = roles.length;
   const totalPermissions = permissions.length;
+
+  // Add debug logging
+  const handleEditUser = (user: User) => {
+    console.log('handleEditUser called with user:', user);
+    try {
+      setSelectedUser(user);
+      console.log('Selected user set to:', user);
+      setIsEditUserDialogOpen(true);
+      console.log('Edit dialog opened');
+    } catch (error) {
+      console.error('Error in handleEditUser:', error);
+      toast({
+        title: "Error",
+        description: "Failed to open edit dialog",
+        variant: "destructive",
+      });
+    }
+  };
 
   if (isLoading) {
     return (
@@ -975,7 +1046,7 @@ const UserManagementV2 = () => {
                         user={user}
                         role={getUserRole(user.id)}
                         onRoleChange={(userId, roleId) => handleUserRoleChange(userId, roleId)}
-                        onEdit={() => setSelectedUser(user)}
+                        onEdit={() => handleEditUser(user)}
                       />
                     ))
                   )}
@@ -1053,27 +1124,52 @@ const UserManagementV2 = () => {
                             <TableCell className="text-right">
                               <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                  <Button variant="ghost" size="icon">
+                                  <Button 
+                                    variant="ghost" 
+                                    className="h-8 w-8 p-0"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      console.log('Dropdown trigger clicked');
+                                    }}
+                                  >
+                                    <span className="sr-only">Open menu</span>
                                     <MoreHorizontal className="h-4 w-4" />
                                   </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end">
                                   <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                  <DropdownMenuItem onClick={() => setSelectedUser(user)}>
-                                    <PencilIcon className="mr-2 h-4 w-4" />
-                                    Edit
-                                  </DropdownMenuItem>
-                                  <DropdownMenuItem onClick={() => {
-                                    setSelectedUser(user);
-                                    setDeleteUserDialogOpen(true);
-                                  }}>
-                                    <Trash2 className="mr-2 h-4 w-4" />
-                                    Delete
+                                  <DropdownMenuItem 
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                      console.log('Edit clicked for user:', user);
+                                      handleEditUser(user);
+                                    }}
+                                  >
+                                    Edit User
                                   </DropdownMenuItem>
                                   <DropdownMenuSeparator />
-                                  <DropdownMenuItem>
-                                    <FileLock2 className="mr-2 h-4 w-4" />
-                                    Reset Password
+                                  <DropdownMenuItem
+                                    className={user.status === "active" ? "text-destructive" : "text-green-600"}
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                      console.log('Status toggle clicked for user:', user);
+                                      handleToggleUserStatus(user.id, user.status);
+                                    }}
+                                  >
+                                    {user.status === "active" ? "Deactivate" : "Activate"}
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem 
+                                    className="text-destructive"
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                      console.log('Delete clicked for user:', user);
+                                      handleDeleteUser(user.id);
+                                    }}
+                                  >
+                                    Delete User
                                   </DropdownMenuItem>
                                 </DropdownMenuContent>
                               </DropdownMenu>
@@ -1270,7 +1366,10 @@ const UserManagementV2 = () => {
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction 
-              onClick={handleDeleteUser}
+              onClick={() => {
+                console.log('Delete clicked');
+                handleDeleteUser(selectedUser.id);
+              }}
               className="bg-red-600 hover:bg-red-700 text-white"
             >
               <Trash2 className="h-4 w-4 mr-2" />
@@ -1279,6 +1378,143 @@ const UserManagementV2 = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Edit User Dialog */}
+      <Dialog 
+        open={isEditUserDialogOpen} 
+        onOpenChange={(open) => {
+          console.log('Dialog open state changing to:', open);
+          setIsEditUserDialogOpen(open);
+          if (!open) {
+            setSelectedUser(null);
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Edit User</DialogTitle>
+            <DialogDescription>
+              Update the user details below.
+            </DialogDescription>
+          </DialogHeader>
+          {selectedUser ? (
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault();
+                console.log('Form submitted for user:', selectedUser);
+                try {
+                  const formData = new FormData(e.currentTarget);
+                  const updatedUser = {
+                    firstName: formData.get("firstName"),
+                    lastName: formData.get("lastName"),
+                    email: formData.get("email"),
+                    username: formData.get("username"),
+                  };
+                  console.log('Sending update request with data:', updatedUser);
+
+                  const response = await fetch(`/api/users/${selectedUser.id}`, {
+                    method: "PATCH",
+                    headers: { 
+                      "Content-Type": "application/json",
+                      "Accept": "application/json"
+                    },
+                    body: JSON.stringify(updatedUser),
+                  });
+
+                  console.log('Response status:', response.status);
+                  const responseData = await response.json().catch(() => null);
+                  console.log('Response data:', responseData);
+
+                  if (!response.ok) {
+                    throw new Error(responseData?.error || `Failed to update user: ${response.statusText}`);
+                  }
+
+                  setIsEditUserDialogOpen(false);
+                  setSelectedUser(null);
+                  queryClient.invalidateQueries({ queryKey: ["/api/users"] });
+                  toast({ 
+                    title: "User updated",
+                    description: "User details have been updated successfully.",
+                  });
+                } catch (error) {
+                  console.error("Error updating user:", error);
+                  toast({ 
+                    title: "Error updating user",
+                    description: (error as Error).message || "There was an error updating the user.",
+                    variant: "destructive",
+                  });
+                }
+              }}
+            >
+              <div className="grid gap-4 py-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="firstName">First Name</Label>
+                    <Input 
+                      id="firstName" 
+                      name="firstName" 
+                      defaultValue={selectedUser.firstName || ""} 
+                      required 
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="lastName">Last Name</Label>
+                    <Input 
+                      id="lastName" 
+                      name="lastName" 
+                      defaultValue={selectedUser.lastName || ""} 
+                      required 
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input 
+                    id="email" 
+                    name="email" 
+                    type="email" 
+                    defaultValue={selectedUser.email} 
+                    required 
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="username">Username</Label>
+                  <Input 
+                    id="username" 
+                    name="username" 
+                    defaultValue={selectedUser.username} 
+                    required 
+                  />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button 
+                  variant="outline" 
+                  type="button" 
+                  className="border-[#d4af37]/30 text-[#1a3a5f] hover:bg-[#f5f0e1] hover:text-[#1a3a5f] hover:border-[#d4af37]"
+                  onClick={() => {
+                    console.log('Cancel clicked');
+                    setIsEditUserDialogOpen(false);
+                    setSelectedUser(null);
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  type="submit"
+                  className="bg-gradient-to-r from-[#1a3a5f] to-[#2c5a8f] text-white hover:from-[#1a3a5f]/90 hover:to-[#2c5a8f]/90 hover:shadow-md transition-all duration-300 border border-[#d4af37]/30 hover:border-[#d4af37]"
+                >
+                  <span className="bg-gradient-to-r from-white to-[#d4af37]/80 bg-clip-text text-transparent font-medium">Update User</span>
+                </Button>
+              </DialogFooter>
+            </form>
+          ) : (
+            <div className="text-center py-4">
+              <p className="text-muted-foreground">No user selected for editing.</p>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
