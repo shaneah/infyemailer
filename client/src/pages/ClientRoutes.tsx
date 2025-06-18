@@ -45,11 +45,9 @@ import EmailValidation from '@/pages/EmailValidation';
 // Advanced Campaigns component with modern UI
 const ClientCampaigns = ({ 
   onCreateCampaign,
-  showCreateCampaignModal,
   setShowCreateCampaignModal
 }: { 
   onCreateCampaign: () => void;
-  showCreateCampaignModal: boolean;
   setShowCreateCampaignModal: (show: boolean) => void;
 }) => {
   // State to manage campaign data and UI
@@ -289,16 +287,6 @@ const ClientCampaigns = ({
           </div>
         </div>
       )}
-
-      {/* Create Campaign Modal */}
-      <CreateCampaignModal
-        open={showCreateCampaignModal}
-        onOpenChange={setShowCreateCampaignModal}
-        onSuccess={() => {
-          fetchCampaigns();
-          if (onCreateCampaign) onCreateCampaign();
-        }}
-      />
     </div>
   );
 };
@@ -1865,9 +1853,15 @@ export default function ClientRoutes() {
           <Route path="/client-campaigns">
             <ClientCampaigns 
               onCreateCampaign={() => setShowCreateCampaignModal(true)}
-              showCreateCampaignModal={showCreateCampaignModal}
               setShowCreateCampaignModal={setShowCreateCampaignModal}
             />
+            {showCreateCampaignModal && (
+              <CreateCampaignModal
+                open={showCreateCampaignModal}
+                onOpenChange={setShowCreateCampaignModal}
+                onSuccess={() => setShowCreateCampaignModal(false)}
+              />
+            )}
           </Route>
           <Route path="/client-contacts">
             <ClientContacts onAddContact={() => setShowAddContactModal(true)} />

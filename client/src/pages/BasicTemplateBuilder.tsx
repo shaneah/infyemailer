@@ -404,7 +404,7 @@ export default function BasicTemplateBuilder({ isClientPortal = false }: BasicTe
         description: "Template saved successfully",
       });
       // Navigate back to templates list
-      navigate(isClientPortal ? '/client/templates' : '/templates');
+      navigate(isClientPortal ? '/client-templates' : '/templates');
     },
     onError: (error) => {
       console.error('Error saving template:', error);
@@ -447,7 +447,7 @@ export default function BasicTemplateBuilder({ isClientPortal = false }: BasicTe
         <Button 
           variant="ghost" 
           size="sm" 
-          onClick={() => navigate(isClientPortal ? '/client/templates' : '/templates')}
+          onClick={() => navigate(isClientPortal ? '/client-templates' : '/templates')}
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to Templates

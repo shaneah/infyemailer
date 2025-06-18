@@ -196,7 +196,16 @@ const CreateCampaignModal = ({ open, onOpenChange, onSuccess, initialTemplateId 
               </div>
             </div>
             <button 
-              onClick={() => onOpenChange(false)} 
+              onClick={() => {
+                onOpenChange(false);
+                form.reset();
+                setActiveTab("details");
+                setSendOption("schedule");
+                setSelectedTemplateId(null);
+                setSelectedLists([]);
+                setIsAbTesting(false);
+                setVariants([]);
+              }} 
               className="text-white/80 hover:text-white bg-white/10 hover:bg-white/20 p-2 rounded-full transition-all duration-200"
             >
               <X className="h-5 w-5" />
