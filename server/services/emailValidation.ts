@@ -70,18 +70,19 @@ export class EmailValidationService {
       'outloo.com': 'outlook.com',
       'outlok.com': 'outlook.com'
     };
-
+    const knownGoodDomains = [
+      'gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com', 'ymail.com',
+      'aol.com', 'icloud.com', 'protonmail.com', 'zoho.com', 'mail.com', 'gmx.com'
+    ];
     const domain = email.split('@')[1]?.toLowerCase();
     if (!domain) return { hasTypos: false };
-    
+    if (knownGoodDomains.includes(domain)) return { hasTypos: false };
     // Check for exact match in common typos
     if (domain in commonTypos) {
       const correctedEmail = email.replace(domain, commonTypos[domain]);
       return { hasTypos: true, suggestion: correctedEmail };
     }
-    
     // Check for close matches using Levenshtein distance (simplified)
-    // This could be enhanced with a full Levenshtein implementation
     for (const [typo, correction] of Object.entries(commonTypos)) {
       if (domain.length > 3 && 
          (typo.includes(domain) || domain.includes(typo)) && 
@@ -90,7 +91,6 @@ export class EmailValidationService {
         return { hasTypos: true, suggestion: correctedEmail };
       }
     }
-    
     return { hasTypos: false };
   }
 
@@ -103,10 +103,8 @@ export class EmailValidationService {
     if (!validationResult.isValid) {
       return validationResult;
     }
-
-    const normalizedEmail = validationResult.normalizedEmail!;
+    const normalizedEmail = validationResult.normalizedEmail!.trim().toLowerCase();
     const domain = normalizedEmail.split('@')[1];
-    
     // Check for typos and suggest corrections
     const typoCheck = this.checkForTypos(normalizedEmail);
     if (typoCheck.hasTypos && typoCheck.suggestion) {
@@ -116,7 +114,6 @@ export class EmailValidationService {
         error: `Possible typo in domain. Did you mean ${typoCheck.suggestion}?`
       };
     }
-    
     // Check if domain has MX records (optional, can be removed if performance is a concern)
     try {
       const hasMxRecords = await this.checkDomainMxRecords(domain);
@@ -131,12 +128,11 @@ export class EmailValidationService {
       // If MX check fails, we still consider the email valid
       console.error(`MX check failed for ${domain}:`, error);
     }
-
-    // Check if the email already exists in the database
+    // Check if the email already exists in the database (case-insensitive)
     try {
       const storage = getStorage();
       const existingContact = await storage.getContactByEmail(normalizedEmail);
-      if (existingContact) {
+      if (existingContact && existingContact.email.toLowerCase() === normalizedEmail) {
         return { 
           isValid: false, 
           normalizedEmail,
@@ -147,7 +143,6 @@ export class EmailValidationService {
       console.error("Database check failed:", error);
       // We still consider the email valid even if the DB check fails
     }
-
     return validationResult;
   }
 
