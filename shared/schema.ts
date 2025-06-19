@@ -1227,3 +1227,13 @@ export const audienceSegmentsRelations = defineRelations(audienceSegments, {
   persona: { relationName: "segment_to_persona", fields: [audienceSegments.personaId], references: [audiencePersonas.id] },
   client: { relationName: "segment_to_client", fields: [audienceSegments.clientId], references: [clients.id] }
 });
+
+export const securityEvents = pgTable("security_events", {
+  id: serial("id").primaryKey(),
+  type: text("type").notNull(),
+  severity: text("severity").notNull().default("info"),
+  description: text("description").notNull(),
+  source: text("source"),
+  metadata: json("metadata"),
+  createdAt: timestamp("created_at").defaultNow(),
+});

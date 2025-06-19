@@ -134,7 +134,7 @@ export default function AdminPanel() {
       return apiRequest('POST', `/api/system-credits/allocate-to-client/${clientId}`, { amount, reason });
     },
     onSuccess: () => {
-      const clientName = clients?.find(c => c.id === selectedClientId)?.name || "Selected client";
+      const clientName = clients?.find((c: any) => c.id === selectedClientId)?.name || "Selected client";
       toast({
         title: "Credits allocated successfully",
         description: `${allocateAmount} credits have been allocated to ${clientName}.`,
@@ -168,36 +168,13 @@ export default function AdminPanel() {
     }
   });
 
-  // Dummy alerts data
+  // Fetch real security events from backend
   const { data: systemAlerts, isLoading: isLoadingAlerts } = useQuery({
-    queryKey: ['/api/admin/alerts'],
+    queryKey: ['/api/security-events'],
     queryFn: async () => {
-      return [
-        { 
-          id: 1, 
-          severity: "critical", 
-          title: "Database CPU Usage High", 
-          description: "Database server CPU usage exceeded 85% for 15 minutes",
-          timestamp: "2025-04-02T10:23:45Z",
-          status: "active"
-        },
-        { 
-          id: 2, 
-          severity: "warning", 
-          title: "Email Queue Backup",
-          description: "Email sending queue has 10,000+ emails pending",
-          timestamp: "2025-04-02T09:15:22Z",
-          status: "active"
-        },
-        { 
-          id: 3, 
-          severity: "info", 
-          title: "System Update Available",
-          description: "New security patches are available for installation",
-          timestamp: "2025-04-01T22:45:12Z",
-          status: "resolved"
-        }
-      ];
+      const response = await fetch('/api/security-events?limit=10');
+      if (!response.ok) throw new Error('Failed to fetch security events');
+      return response.json();
     }
   });
 
@@ -220,7 +197,7 @@ export default function AdminPanel() {
 
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {systemStats?.map(stat => (
+        {systemStats?.map((stat: any) => (
           <Card key={stat.id}>
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
@@ -242,7 +219,7 @@ export default function AdminPanel() {
     );
   };
 
-  const renderAlerts = () => {
+  const renderSecurityEventsTable = () => {
     if (isLoadingAlerts) {
       return (
         <div className="space-y-2">
@@ -257,53 +234,42 @@ export default function AdminPanel() {
         </div>
       );
     }
-
-    const getSeverityColor = (severity: string) => {
-      switch (severity) {
-        case 'critical': return 'bg-red-100 text-red-800';
-        case 'warning': return 'bg-amber-100 text-amber-800';
-        case 'info': return 'bg-blue-100 text-blue-800';
-        default: return 'bg-gray-100 text-gray-800';
-      }
-    };
-
-    const getSeverityIcon = (severity: string) => {
-      switch (severity) {
-        case 'critical': return <AlertCircle className="h-4 w-4 text-red-600" />;
-        case 'warning': return <AlertCircle className="h-4 w-4 text-amber-600" />;
-        case 'info': return <CheckCircle className="h-4 w-4 text-blue-600" />;
-        default: return <CheckCircle className="h-4 w-4 text-gray-600" />;
-      }
-    };
-
+    if (!systemAlerts || systemAlerts.length === 0) {
+      return <div className="text-gray-500">No security events found.</div>;
+    }
     return (
-      <div className="space-y-2">
-        {systemAlerts?.map(alert => (
-          <Card key={alert.id} className={alert.status === 'active' ? 'border-l-4 border-l-red-500' : ''}>
-            <CardContent className="p-4">
-              <div className="flex justify-between items-start">
-                <div className="flex items-start gap-2">
-                  {getSeverityIcon(alert.severity)}
-                  <div>
-                    <h4 className="font-medium">{alert.title}</h4>
-                    <p className="text-sm text-gray-500">{alert.description}</p>
-                  </div>
-                </div>
-                <Badge className={getSeverityColor(alert.severity)}>
-                  {alert.severity.charAt(0).toUpperCase() + alert.severity.slice(1)}
-                </Badge>
-              </div>
-              <div className="mt-2 flex justify-between items-center">
-                <span className="text-xs text-gray-500">
-                  {new Date(alert.timestamp).toLocaleString()}
-                </span>
-                {alert.status === 'active' && (
-                  <Button variant="outline" size="sm">Resolve</Button>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+      <div className="rounded-md border overflow-x-auto">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Event</TableHead>
+              <TableHead>Source</TableHead>
+              <TableHead>Severity</TableHead>
+              <TableHead>Time</TableHead>
+              <TableHead>Status</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {systemAlerts.map((alert: any) => (
+              <TableRow key={alert.id}>
+                <TableCell>{alert.type || alert.description}</TableCell>
+                <TableCell>{alert.source || (alert.metadata?.usernameOrEmail || '')}</TableCell>
+                <TableCell>
+                  <Badge className={
+                    alert.severity === 'critical' ? 'bg-red-100 text-red-800' :
+                    alert.severity === 'warning' ? 'bg-amber-100 text-amber-800' :
+                    alert.severity === 'info' ? 'bg-blue-100 text-blue-800' :
+                    'bg-gray-100 text-gray-800'
+                  }>
+                    {alert.severity.charAt(0).toUpperCase() + alert.severity.slice(1)}
+                  </Badge>
+                </TableCell>
+                <TableCell>{new Date(alert.createdAt || alert.created_at).toLocaleString()}</TableCell>
+                <TableCell>{alert.status || ''}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       </div>
     );
   };
@@ -334,7 +300,7 @@ export default function AdminPanel() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div>
                 <h2 className="text-lg font-medium mb-4">Active Alerts</h2>
-                {renderAlerts()}
+                {renderSecurityEventsTable()}
               </div>
               
               <div>
@@ -512,49 +478,7 @@ export default function AdminPanel() {
                   </div>
                   
                   <h3 className="font-medium mt-4">Recent Security Events</h3>
-                  <div className="rounded-md border">
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Event</TableHead>
-                          <TableHead>Source</TableHead>
-                          <TableHead>Severity</TableHead>
-                          <TableHead>Time</TableHead>
-                          <TableHead>Status</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        <TableRow>
-                          <TableCell>Multiple failed login attempts</TableCell>
-                          <TableCell>IP: 203.0.113.42</TableCell>
-                          <TableCell><Badge className="bg-amber-100 text-amber-800">Medium</Badge></TableCell>
-                          <TableCell>10:23 AM</TableCell>
-                          <TableCell>Blocked</TableCell>
-                        </TableRow>
-                        <TableRow>
-                          <TableCell>API rate limit exceeded</TableCell>
-                          <TableCell>Client ID: 8723</TableCell>
-                          <TableCell><Badge className="bg-blue-100 text-blue-800">Low</Badge></TableCell>
-                          <TableCell>09:45 AM</TableCell>
-                          <TableCell>Throttled</TableCell>
-                        </TableRow>
-                        <TableRow>
-                          <TableCell>Admin password changed</TableCell>
-                          <TableCell>User: admin@example.com</TableCell>
-                          <TableCell><Badge className="bg-green-100 text-green-800">Info</Badge></TableCell>
-                          <TableCell>Yesterday</TableCell>
-                          <TableCell>Authorized</TableCell>
-                        </TableRow>
-                        <TableRow>
-                          <TableCell>Unusual API usage pattern</TableCell>
-                          <TableCell>Client ID: 5437</TableCell>
-                          <TableCell><Badge className="bg-red-100 text-red-800">High</Badge></TableCell>
-                          <TableCell>Yesterday</TableCell>
-                          <TableCell>Investigating</TableCell>
-                        </TableRow>
-                      </TableBody>
-                    </Table>
-                  </div>
+                  {renderSecurityEventsTable()}
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
                     <Card>
@@ -895,9 +819,9 @@ export default function AdminPanel() {
                                   <Loader2 className="h-4 w-4 animate-spin mx-auto" />
                                 </div>
                               ) : (
-                                clients?.map((client) => (
-                                  <SelectItem key={client.id} value={client.id.toString()}>
-                                    {client.name}
+                                clients?.map((c: any) => (
+                                  <SelectItem key={c.id} value={c.id.toString()}>
+                                    {c.name}
                                   </SelectItem>
                                 ))
                               )}
@@ -967,7 +891,7 @@ export default function AdminPanel() {
                       </TableHeader>
                       <TableBody>
                         {systemCreditsHistory?.length ? (
-                          systemCreditsHistory.map((history) => (
+                          systemCreditsHistory.map((history: any) => (
                             <TableRow key={history.id}>
                               <TableCell>
                                 {history.createdAt ? `${new Date(history.createdAt).toLocaleDateString()} ${new Date(history.createdAt).toLocaleTimeString()}` : 'N/A'}

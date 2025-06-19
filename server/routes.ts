@@ -120,6 +120,8 @@ function setupFallbackRoute(app: Express) {
   });
 }
 
+import { SecurityEventService } from './services/SecurityEventService';
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // Initialize storage first
   const storage = getStorage();
@@ -5417,6 +5419,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Update client contact error:', error);
       res.status(500).json({ error: 'Failed to update contact' });
+    }
+  });
+
+  // Fetch recent security events
+  app.get('/api/security-events', async (req: Request, res: Response) => {
+    try {
+      const limit = req.query.limit ? parseInt(req.query.limit as string) : 20;
+      const severity = req.query.severity as string | undefined;
+      const events = await SecurityEventService.getRecentEvents(limit, severity);
+      res.json(events);
+    } catch (error) {
+      console.error('Security events fetch error:', error);
+      res.status(500).json({ error: 'Failed to fetch security events' });
+    }
+  });
+
+  // Log a new security event (admin only)
+  app.post('/api/security-events', async (req: Request, res: Response) => {
+    try {
+      if (!req.isAuthenticated() || req.user.role !== 'admin') {
+        return res.status(403).json({ error: 'Unauthorized. Admin access required.' });
+      }
+      const { type, severity, description, source, metadata } = req.body;
+      if (!type || !severity || !description) {
+        return res.status(400).json({ error: 'Missing required fields' });
+      }
+      const event = await SecurityEventService.logEvent({ type, severity, description, source, metadata });
+      res.status(201).json(event);
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to log security event' });
     }
   });
 }

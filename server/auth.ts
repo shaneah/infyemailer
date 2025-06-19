@@ -8,6 +8,7 @@ import { getStorage } from "./storageManager";
 import memorystore from "memorystore";
 import { pool, isDatabaseAvailable } from "./db";
 import connectPgSimple from "connect-pg-simple";
+import { SecurityEventService } from './services/SecurityEventService';
 
 declare global {
   namespace Express {
@@ -91,6 +92,14 @@ export function setupAuth(app: Express) {
           
           if (!user) {
             console.log('User not found');
+            // Log failed login event
+            await SecurityEventService.logEvent({
+              type: 'login_failed',
+              severity: 'warning',
+              description: `Failed login attempt for username/email: ${usernameOrEmail}`,
+              source: undefined,
+              metadata: { usernameOrEmail }
+            });
             return done(null, false, { message: "Invalid username/email or password" });
           }
           
@@ -108,6 +117,14 @@ export function setupAuth(app: Express) {
           console.log(`Password comparison result: ${passwordCompareResult}`);
           
           if (!passwordCompareResult) {
+            // Log failed login event
+            await SecurityEventService.logEvent({
+              type: 'login_failed',
+              severity: 'warning',
+              description: `Failed login attempt for username/email: ${usernameOrEmail}`,
+              source: undefined,
+              metadata: { usernameOrEmail, userId: user.id }
+            });
             return done(null, false, { message: "Invalid username/email or password" });
           } else {
             return done(null, {
@@ -150,22 +167,28 @@ export function setupAuth(app: Express) {
   app.post("/api/register", async (req, res, next) => {
     try {
       const existingUser = await getStorage().getUserByUsername(req.body.username);
-      
       if (existingUser) {
         return res.status(400).json({ message: "Username already exists" });
       }
-
       const user = await getStorage().createUser({
         ...req.body,
         password: await hashPassword(req.body.password),
-        role: req.body.role || 'user', // Default to user role if not specified
+        role: req.body.role || 'user',
       });
-
-      req.login(user, (err) => {
+      req.login({ ...user, role: user.role || undefined }, (err) => {
         if (err) return next(err);
-        // Remove password from response
         const { password, ...userWithoutPassword } = user;
         res.status(201).json(userWithoutPassword);
+        // Log successful registration event after response
+        (async () => {
+          await SecurityEventService.logEvent({
+            type: 'user_registered',
+            severity: 'info',
+            description: `New user registered: ${user.username}`,
+            source: undefined,
+            metadata: { userId: user.id, email: user.email }
+          });
+        })();
       });
     } catch (error) {
       next(error);
@@ -237,5 +260,35 @@ export function setupAuth(app: Express) {
     // Remove password from response
     const { password, ...userWithoutPassword } = req.user;
     res.json(userWithoutPassword);
+  });
+
+  // Password change endpoint (example, add if not present)
+  app.post("/api/user/change-password", async (req, res) => {
+    if (!req.isAuthenticated() || !req.user) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+    const { currentPassword, newPassword } = req.body;
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ message: "Missing required fields" });
+    }
+    const user = await getStorage().getUser(req.user.id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    const passwordCompareResult = await comparePasswords(currentPassword, user.password);
+    if (!passwordCompareResult) {
+      return res.status(400).json({ message: "Current password is incorrect" });
+    }
+    const hashed = await hashPassword(newPassword);
+    await getStorage().updateUser(user.id, { password: hashed });
+    // Log password change event
+    await SecurityEventService.logEvent({
+      type: 'password_changed',
+      severity: 'info',
+      description: `User changed password: ${user.username}`,
+      source: undefined,
+      metadata: { userId: user.id, email: user.email }
+    });
+    res.json({ success: true });
   });
 }
