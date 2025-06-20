@@ -3268,14 +3268,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/clients/:clientId/users', async (req: Request, res: Response) => {
     try {
       const clientId = parseInt(req.params.clientId);
+      if (isNaN(clientId)) {
+        return res.status(400).json({ error: 'Invalid clientId' });
+      }
       const clientUsers = await storage.getClientUsersByClientId(clientId);
-      
-      // Don't send passwords back to client
+      // Remove passwords before sending to client
       const safeClientUsers = clientUsers.map(user => {
         const { password, ...userWithoutPassword } = user;
         return userWithoutPassword;
       });
-      
       res.json(safeClientUsers);
     } catch (error) {
       console.error('Error fetching client users:', error);

@@ -884,7 +884,15 @@ const ClientManagement = () => {
                         <Button className="w-full justify-start" variant="outline">
                           <Mail className="mr-2 h-4 w-4" /> Send Test Email
                         </Button>
-                        <Button className="w-full justify-start" variant="outline">
+                        <Button className="w-full justify-start" variant="outline" onClick={() => {
+                          setSelectedClient(selectedClient);
+                          setSelectedClientId(selectedClient.id);
+                          setActiveTab('client-details');
+                          setTimeout(() => {
+                            const usersTab = document.querySelector('[role="tab"][data-state][value="users"]');
+                            if (usersTab) (usersTab as HTMLElement).click();
+                          }, 0);
+                        }}>
                           <User className="mr-2 h-4 w-4" /> Manage Users
                         </Button>
                       </div>

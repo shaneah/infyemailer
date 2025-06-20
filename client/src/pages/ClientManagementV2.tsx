@@ -187,6 +187,7 @@ const StatsCard = ({ title, value, icon, description, trend, color = "blue" }: a
 
 // Client Card Component
 const ClientCard = ({ client, onEdit, onDelete, onManageUsers, onManageProviders, onManageCredits }: any) => {
+  console.log('Rendering ClientCard for client:', client);
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -310,6 +311,7 @@ const ClientCard = ({ client, onEdit, onDelete, onManageUsers, onManageProviders
 
 // Main component
 const ClientManagementV2 = () => {
+  console.log('Rendering ClientManagementV2');
   const [viewMode, setViewMode] = useState<"grid" | "table">("grid");
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('clients');
@@ -889,12 +891,14 @@ const ClientManagementV2 = () => {
 
   // Handle manage users for a client
   const handleManageUsers = (client: any) => {
-    console.log('handleManageUsers called with client:', client);
-    // Ensure we have the complete client data
-    const fullClient = clients.find((c: any) => c.id === client.id) || client;
-    console.log('Setting selectedClientForUsers to:', fullClient);
-    setSelectedClientForUsers(fullClient);
-    setActiveTab('users');
+    console.log('Clicked Users for client:', client);
+    toast({
+      title: 'Users Button Clicked',
+      description: `Selected client: ${client.name} (ID: ${client.id})`,
+      duration: 3000
+    });
+    setSelectedClientForUsers(client);
+    // Do NOT setActiveTab('users') here
   };
 
   // Handle edit user
@@ -1055,6 +1059,14 @@ const ClientManagementV2 = () => {
   useEffect(() => {
     if (selectedClientForUsers) {
       clientUserForm.setValue('clientId', selectedClientForUsers.id);
+    }
+  }, [selectedClientForUsers]);
+
+  useEffect(() => {
+    if (selectedClientForUsers) {
+      setActiveTab('users');
+      // Force refetch of users when switching to users tab for a client
+      refetchClientUsers();
     }
   }, [selectedClientForUsers]);
 
