@@ -11,6 +11,8 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { 
   AlertCircle, 
   CheckCircle, 
@@ -28,7 +30,10 @@ import {
   Share2, 
   Clock, 
   TrendingUp,
-  Loader2
+  Loader2,
+  QrCode,
+  Copy,
+  Key
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -40,6 +45,11 @@ export default function AdminPanel() {
   const [selectedClientId, setSelectedClientId] = useState<number | null>(null);
   const [allocateAmount, setAllocateAmount] = useState<number>(100);
   const [allocateReason, setAllocateReason] = useState<string>("");
+  const [show2faModal, setShow2faModal] = useState(false);
+  const [qrCode, setQrCode] = useState<string>("");
+  const [verificationCode, setVerificationCode] = useState("");
+  const [setupStep, setSetupStep] = useState<"initial" | "qr" | "verify">("initial");
+  const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   
   // System Credits data
@@ -177,6 +187,82 @@ export default function AdminPanel() {
       return response.json();
     }
   });
+
+  // 2FA setup mutation
+  const setup2faMutation = useMutation({
+    mutationFn: async () => {
+      const response = await fetch('/api/2fa/setup', {
+        method: 'POST',
+        credentials: 'include',
+      });
+      if (!response.ok) {
+        throw new Error('Failed to setup 2FA');
+      }
+      return response.json();
+    },
+    onSuccess: (data) => {
+      setQrCode(data.qr);
+      setSetupStep("qr");
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "2FA Setup Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  });
+
+  // 2FA verify mutation
+  const verify2faMutation = useMutation({
+    mutationFn: async (code: string) => {
+      const response = await fetch('/api/2fa/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ code })
+      });
+      if (!response.ok) {
+        throw new Error('Invalid verification code');
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "2FA Enabled",
+        description: "Two-factor authentication has been successfully enabled for your account.",
+        variant: "default",
+      });
+      setShow2faModal(false);
+      setSetupStep("initial");
+      setVerificationCode("");
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Verification Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  });
+
+  // Handle 2FA setup
+  const handleSetup2FA = async () => {
+    setup2faMutation.mutate();
+  };
+
+  // Handle 2FA verification
+  const handleVerify2FA = async () => {
+    if (!verificationCode) {
+      toast({
+        title: "Verification Failed",
+        description: "Please enter a verification code",
+        variant: "destructive",
+      });
+      return;
+    }
+    verify2faMutation.mutate(verificationCode);
+  };
 
   const renderSystemStats = () => {
     if (isLoadingStats) {
@@ -492,7 +578,7 @@ export default function AdminPanel() {
                               <h4 className="font-medium">Two-Factor Authentication</h4>
                               <p className="text-sm text-gray-500">Require 2FA for all admin accounts</p>
                             </div>
-                            <Button variant="outline" size="sm">Configure</Button>
+                            <Button variant="outline" size="sm" onClick={() => setShow2faModal(true)}>Configure</Button>
                           </div>
                           <div className="flex items-center justify-between">
                             <div>
@@ -1379,6 +1465,80 @@ export default function AdminPanel() {
           </div>
         </TabsContent>
       </Tabs>
+
+      {/* 2FA Configuration Modal */}
+      <Dialog open={show2faModal} onOpenChange={setShow2faModal}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Configure Two-Factor Authentication</DialogTitle>
+            <DialogDescription>
+              {setupStep === "initial" && "Set up 2FA to add an extra layer of security to your account."}
+              {setupStep === "qr" && "Scan the QR code with your authenticator app."}
+              {setupStep === "verify" && "Enter the verification code from your authenticator app."}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="py-4">
+            {setupStep === "initial" && (
+              <div className="space-y-4">
+                <div className="bg-muted rounded-lg p-4">
+                  <div className="flex items-start space-x-3">
+                    <Key className="h-5 w-5 text-muted-foreground mt-0.5" />
+                    <div className="space-y-1">
+                      <h4 className="font-medium leading-none">Enhanced Security</h4>
+                      <p className="text-sm text-muted-foreground">
+                        Two-factor authentication adds an extra layer of security to your account by requiring a verification code in addition to your password.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <Button onClick={handleSetup2FA} className="w-full">
+                  {setup2faMutation.isPending ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Setting up...
+                    </>
+                  ) : (
+                    <>
+                      <QrCode className="mr-2 h-4 w-4" />
+                      Set Up 2FA
+                    </>
+                  )}
+                </Button>
+              </div>
+            )}
+
+            {setupStep === "qr" && (
+              <div className="space-y-4">
+                <div className="flex justify-center">
+                  <img src={qrCode} alt="2FA QR Code" className="w-48 h-48" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="verification-code">Verification Code</Label>
+                  <Input
+                    id="verification-code"
+                    placeholder="Enter 6-digit code"
+                    value={verificationCode}
+                    onChange={(e) => setVerificationCode(e.target.value)}
+                    maxLength={6}
+                    pattern="[0-9]*"
+                  />
+                </div>
+                <Button onClick={handleVerify2FA} className="w-full">
+                  {verify2faMutation.isPending ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Verifying...
+                    </>
+                  ) : (
+                    "Verify & Enable 2FA"
+                  )}
+                </Button>
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

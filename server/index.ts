@@ -1,4 +1,5 @@
 // Import environment setup first to configure Vite optimization
+console.log('SERVER STARTED! THIS IS THE REAL CODE!');
 import "./env-setup";
 
 import express, { type Request, Response, NextFunction } from "express";
@@ -18,6 +19,7 @@ import connectPgSimple from 'connect-pg-simple';
 import { pool } from './db';
 import passport from 'passport';
 import clientCampaignsRouter from './routes/clientCampaigns';
+import cors from 'cors';
 
 // Add type declaration for WebSocket
 interface WebSocketConnection extends WebSocket {
@@ -27,6 +29,12 @@ interface WebSocketConnection extends WebSocket {
 
 const app = express();
 const server = createServer(app);
+
+// Add CORS middleware BEFORE session and routes
+app.use(cors({
+  origin: 'http://localhost:3000', // Change if your frontend runs elsewhere
+  credentials: true
+}));
 
 // Increase the JSON payload size limit to 50MB
 app.use(express.json({ limit: '50mb' }));

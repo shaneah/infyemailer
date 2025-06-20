@@ -52,7 +52,9 @@ export const users = pgTable("users", {
   lastLoginAt: timestamp("last_login_at"),
   createdAt: timestamp("created_at").defaultNow(),
   avatarUrl: text("avatar_url"),
-  metadata: json("metadata")
+  metadata: json("metadata"),
+  twofa_enabled: boolean("twofa_enabled").notNull().default(false),
+  twofa_secret: text("twofa_secret"),
 });
 
 export const insertUserSchema = createInsertSchema(users).pick({

@@ -121,6 +121,8 @@ function setupFallbackRoute(app: Express) {
 }
 
 import { SecurityEventService } from './services/SecurityEventService';
+import speakeasy from 'speakeasy';
+import qrcode from 'qrcode';
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Initialize storage first
@@ -2997,37 +2999,53 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   app.post('/api/login', async (req: Request, res: Response) => {
-    const validatedData = validate(userLoginSchema, req.body);
-    if ('error' in validatedData) {
-      return res.status(400).json({ error: validatedData.error });
+    console.log('LOGIN ROUTE HIT');
+    const { usernameOrEmail, password } = req.body;
+    const user = await getStorage().verifyUserLogin(usernameOrEmail, password);
+    if (!user) {
+      return res.status(401).json({ error: 'Invalid credentials' });
     }
-
-    try {
-      const { usernameOrEmail, password } = validatedData;
-      const user = await storage.verifyUserLogin(usernameOrEmail, password);
-      
-      if (!user) {
-        return res.status(401).json({ error: 'Invalid credentials' });
-      }
-      
-      // Store user in session
-      if (req.session) {
-        req.session.user = user;
-      }
-      
-      // Return the user without the password
-      const { password: _, ...userWithoutPassword } = user;
-      
-      res.json({ 
-        ...userWithoutPassword, 
-        lastLogin: new Date().toISOString() 
-      });
-    } catch (error) {
-      console.error('Login error:', error);
-      res.status(500).json({ error: 'Login failed. Please try again.' });
+    // Debug log for twofa_enabled
+    console.log('DEBUG twofa_enabled:', user.twofa_enabled, typeof user.twofa_enabled, JSON.stringify(user.twofa_enabled));
+    // Most robust 2FA check
+    const twofaEnabled = [true, 'true', 1, '1', 't', 'T'].includes(user.twofa_enabled);
+    if (twofaEnabled) {
+      // 2FA required, do not set session yet
+      return res.json({ require2fa: true, userId: user.id });
     }
+    // Normal login
+    req.session.user = user;
+    res.json({ user });
   });
-  
+
+  // 2FA login for admin
+  app.post('/api/2fa/login', async (req, res) => {
+    const { userId, code } = req.body;
+    const user = await getStorage().getUser(userId);
+    if (!user || !user.twofa_enabled || !user.twofa_secret) {
+      return res.status(400).json({ error: '2FA not enabled for this user' });
+    }
+    // Debug log for 2FA
+    console.log('2FA DEBUG', { userId, code, secret: user.twofa_secret, enabled: user.twofa_enabled });
+    const verified = speakeasy.totp.verify({
+      secret: user.twofa_secret,
+      encoding: 'base32',
+      token: code,
+      window: 1
+    });
+    console.log('2FA VERIFY RESULT', { verified });
+    if (!verified) return res.status(400).json({ error: 'Invalid 2FA code' });
+    req.login(user, (err) => {
+      if (err) {
+        console.error('Session save error after 2FA:', err);
+        return res.status(500).json({ error: 'Session error' });
+      }
+      // Set user in session for /api/campaigns
+      req.session.user = user;
+      res.json({ user });
+    });
+  });
+
   app.post('/api/logout', (req: Request, res: Response) => {
     // Clear the session
     if (req.session) {
@@ -3210,6 +3228,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error('Client login error:', error);
       res.status(500).json({ error: 'Login failed. Please try again.' });
     }
+  });
+
+  // 2FA login for client
+  app.post('/api/client-2fa/login', async (req, res) => {
+    const { userId, code } = req.body;
+    const user = await getStorage().getClientUserById(userId);
+    if (!user || !user.twofa_enabled || !user.twofa_secret) {
+      return res.status(400).json({ error: '2FA not enabled for this user' });
+    }
+    const verified = speakeasy.totp.verify({
+      secret: user.twofa_secret,
+      encoding: 'base32',
+      token: code,
+      window: 1
+    });
+    if (!verified) return res.status(400).json({ error: 'Invalid 2FA code' });
+    req.session.clientUser = user;
+    res.json({ user });
   });
   
   app.get('/api/client-users', async (req: Request, res: Response) => {
@@ -5450,6 +5486,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       res.status(500).json({ error: 'Failed to log security event' });
     }
+  });
+
+  // 2FA: Setup (generate secret and QR)
+  app.post('/api/2fa/setup', async (req, res) => {
+    if (!req.user) return res.status(401).json({ error: 'Not authenticated' });
+    const secret = speakeasy.generateSecret({ name: `Infyemailer (${req.user.email})` });
+    // Save secret temp in DB (do not enable yet)
+    await getStorage().updateUser(req.user.id, { twofa_secret: secret.base32 });
+    const otpauthUrl = secret.otpauth_url;
+    const qr = await qrcode.toDataURL(otpauthUrl);
+    res.json({ otpauthUrl, qr });
+  });
+
+  // 2FA: Verify and enable
+  app.post('/api/2fa/verify', async (req, res) => {
+    if (!req.user) return res.status(401).json({ error: 'Not authenticated' });
+    const { code } = req.body;
+    const user = await getStorage().getUser(req.user.id);
+    if (!user?.twofa_secret) return res.status(400).json({ error: 'No 2FA secret set up' });
+    const verified = speakeasy.totp.verify({
+      secret: user.twofa_secret,
+      encoding: 'base32',
+      token: code,
+      window: 1
+    });
+    if (!verified) return res.status(400).json({ error: 'Invalid code' });
+    await getStorage().updateUser(req.user.id, { twofa_enabled: true });
+    res.json({ success: true });
+  });
+
+  // 2FA: Disable
+  app.post('/api/2fa/disable', async (req, res) => {
+    if (!req.user) return res.status(401).json({ error: 'Not authenticated' });
+    await getStorage().updateUser(req.user.id, { twofa_enabled: false, twofa_secret: null });
+    res.json({ success: true });
   });
 }
       

@@ -196,6 +196,7 @@ export function setupAuth(app: Express) {
   });
 
   app.post("/api/login", (req, res, next) => {
+    console.log("LOGIN ROUTE HIT", req.body);
     console.log('Login request received:', {
       sessionID: req.sessionID,
       hasSession: !!req.session,
@@ -212,25 +213,31 @@ export function setupAuth(app: Express) {
         console.log('Login failed:', info?.message);
         return res.status(401).json({ message: info?.message || "Authentication failed" });
       }
+
+      // Debug log for twofa_enabled
+      console.log('DEBUG twofa_enabled:', user.twofa_enabled, typeof user.twofa_enabled, JSON.stringify(user.twofa_enabled));
+      // Most robust 2FA check
+      const twofaEnabled = [true, 'true', 1, '1', 't', 'T'].includes(user.twofa_enabled);
+      if (twofaEnabled) {
+        // 2FA required, do not set session yet
+        return res.json({ require2fa: true, userId: user.id });
+      }
       
       req.login(user, (err) => {
         if (err) {
           console.error('Session error:', err);
           return next(err);
         }
-        
         // Set user in session
         req.session.user = {
           ...user,
           role: user.role || undefined
         };
-        
         req.session.save((err) => {
           if (err) {
             console.error('Session save error:', err);
             return next(err);
           }
-          
           console.log('Login successful, session saved:', {
             sessionID: req.sessionID,
             user: {
@@ -239,10 +246,9 @@ export function setupAuth(app: Express) {
               role: user.role
             }
           });
-          
           // Remove password from response
           const { password, ...userWithoutPassword } = user;
-          res.json(userWithoutPassword);
+          res.json({ user: userWithoutPassword });
         });
       });
     })(req, res, next);

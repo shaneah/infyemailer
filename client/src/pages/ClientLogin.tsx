@@ -10,6 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Lock, Mail, Eye, EyeOff, ArrowRight, CheckCircle } from 'lucide-react';
 import LogoWhite from '@assets/Logo-white.png';
 import infinityLogo from '@assets/Infinity Tech Logo-06.png';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 // Form schema
 const formSchema = z.object({
@@ -25,6 +26,10 @@ const ClientLogin = () => {
   const [showPassword, setShowPassword] = useState(false);
   const { toast } = useToast();
   const [error, setError] = useState('');
+  const [show2fa, setShow2fa] = useState(false);
+  const [twofaUserId, setTwofaUserId] = useState<number|null>(null);
+  const [twofaCode, setTwofaCode] = useState('');
+  const [is2faLoading, setIs2faLoading] = useState(false);
 
   // Check if user is already logged in
   React.useEffect(() => {
@@ -56,7 +61,7 @@ const ClientLogin = () => {
           'Content-Type': 'application/json',
           'Accept': 'application/json'
         },
-        credentials: 'include', // Important for cookies/session
+        credentials: 'include',
         body: JSON.stringify({ 
           username: form.getValues('username'), 
           password: form.getValues('password') 
@@ -64,38 +69,53 @@ const ClientLogin = () => {
       });
 
       const data = await response.json();
-      console.log('Login response:', data);
-
       if (!response.ok) {
         throw new Error(data.error || 'Login failed');
       }
-
+      if (data.require2fa) {
+        setTwofaUserId(data.userId);
+        setShow2fa(true);
+        setIsLoading(false);
+        return;
+      }
       // Store user data in session storage
       if (data.user) {
         sessionStorage.setItem('clientUser', JSON.stringify(data.user));
-        
-        // Show success message
-        toast({
-          title: 'Welcome back!',
-          description: `Signed in as ${data.user.clientName || data.user.username}`,
-          variant: 'default'
-        });
-
-        // Redirect to client dashboard
+        toast({ title: 'Welcome back!', description: `Signed in as ${data.user.clientName || data.user.username}`, variant: 'default' });
         setLocation('/client-dashboard');
       } else {
         throw new Error('Invalid response format');
       }
     } catch (error) {
-      console.error('Login error:', error);
       setError(error instanceof Error ? error.message : 'Login failed');
-      toast({
-        title: 'Login failed',
-        description: error instanceof Error ? error.message : 'Please try again',
-        variant: 'destructive'
-      });
+      toast({ title: 'Login failed', description: error instanceof Error ? error.message : 'Please try again', variant: 'destructive' });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  // 2FA submit handler
+  const handle2faSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIs2faLoading(true);
+    try {
+      const response = await fetch('/api/client-2fa/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ userId: twofaUserId, code: twofaCode })
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Invalid 2FA code');
+      setShow2fa(false);
+      sessionStorage.setItem('clientUser', JSON.stringify(data.user));
+      toast({ title: '2FA successful', description: 'Welcome back!' });
+      setLocation('/client-dashboard');
+    } catch (err) {
+      toast({ title: '2FA failed', description: err instanceof Error ? err.message : 'Invalid code', variant: 'destructive' });
+    } finally {
+      setIs2faLoading(false);
+      setTwofaCode('');
     }
   };
 
@@ -358,6 +378,19 @@ const ClientLogin = () => {
       <div className="md:hidden text-center mt-6 mb-8 text-slate-400/80 text-xs">
         &copy; {new Date().getFullYear()} Infinity Tech • Premium Email Platform
       </div>
+
+      <Dialog open={show2fa} onOpenChange={setShow2fa}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Two-Factor Authentication</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handle2faSubmit} className="space-y-4">
+            <label htmlFor="twofa-code" className="text-sm font-medium">Enter 2FA Code</label>
+            <Input id="twofa-code" value={twofaCode} onChange={e => setTwofaCode(e.target.value)} autoFocus autoComplete="one-time-code" maxLength={6} pattern="[0-9]{6}" required />
+            <Button type="submit" disabled={is2faLoading}>{is2faLoading ? 'Verifying...' : 'Verify'}</Button>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

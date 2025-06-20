@@ -19,6 +19,10 @@ type AuthContextType = {
   isAuthenticated: boolean;
   isAdminUser: boolean;
   isClientUser: boolean;
+  pending2FAUserId: number | null;
+  setPending2FAUserId: React.Dispatch<React.SetStateAction<number | null>>;
+  show2FAPrompt: boolean;
+  setShow2FAPrompt: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 interface LoginData {
@@ -34,6 +38,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [isAdminUser, setIsAdminUser] = useState<boolean>(false);
   const [isClientUser, setIsClientUser] = useState<boolean>(false);
+  // 2FA states
+  const [pending2FAUserId, setPending2FAUserId] = useState<number|null>(null);
+  const [show2FAPrompt, setShow2FAPrompt] = useState(false);
 
   const {
     data: user,
@@ -95,15 +102,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         throw error;
       }
     },
-    onSuccess: (user: User) => {
-      queryClient.setQueryData(["/api/user"], user);
+    onSuccess: (data: any) => {
+      if (data.require2fa) {
+        setPending2FAUserId(data.userId);
+        setShow2FAPrompt(true);
+        toast({
+          title: "Two-Factor Authentication Required",
+          description: "Please enter your 2FA code.",
+        });
+        return;
+      }
+      // Normal login flow
+      queryClient.setQueryData(["/api/user"], data.user || data);
       setIsAuthenticated(true);
-      setIsAdminUser(user.role === 'admin');
-      setIsClientUser(user.role === 'client');
-      // Don't auto-redirect here - let the component handle navigation
+      setIsAdminUser((data.user || data).role === 'admin');
+      setIsClientUser((data.user || data).role === 'client');
       toast({
         title: "Login successful",
-        description: `Welcome back, ${user.username}!`,
+        description: `Welcome back, ${(data.user || data).username}!`,
       });
     },
     onError: (error: Error) => {
@@ -209,6 +225,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isAuthenticated,
         isAdminUser,
         isClientUser,
+        // 2FA
+        pending2FAUserId,
+        setPending2FAUserId,
+        show2FAPrompt,
+        setShow2FAPrompt,
       }}
     >
       {children}

@@ -14,6 +14,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useState, useEffect } from "react";
 import infyLogo from "@/assets/Logo-white.png";
 import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 // Admin login schema
 const adminLoginSchema = z.object({
@@ -42,6 +43,10 @@ export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [show2fa, setShow2fa] = useState(false);
+  const [twofaUserId, setTwofaUserId] = useState<number|null>(null);
+  const [twofaCode, setTwofaCode] = useState('');
+  const [is2faLoading, setIs2faLoading] = useState(false);
   
   // Check if user is already logged in by checking both storage and cookies
   useEffect(() => {
@@ -95,42 +100,29 @@ export default function Login() {
   // Admin login mutation
   const adminLoginMutation = useMutation({
     mutationFn: async (data: AdminLoginFormValues) => {
-      // Make sure we're using the proper credentials option
       const response = await fetch('/api/login', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
-        credentials: 'include',  // Important: This ensures cookies are sent with the request
+        credentials: 'include',
       });
-      
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || 'Authentication failed');
       }
-      
       return response.json();
     },
     onSuccess: (data) => {
-      toast({
-        title: "Login successful",
-        description: "Welcome back to the admin dashboard!"
-      });
-      // Store minimal user info for UI purposes only (not for authentication)
-      // Authentication will now use HTTP-only cookies
+      if (data.require2fa) {
+        setTwofaUserId(data.userId);
+        setShow2fa(true);
+        return;
+      }
+      toast({ title: "Login successful", description: "Welcome back to the admin dashboard!" });
       if (adminForm.getValues().rememberMe) {
-        localStorage.setItem('userInfo', JSON.stringify({
-          username: data.username,
-          role: data.role,
-          id: data.id
-        }));
+        localStorage.setItem('userInfo', JSON.stringify({ username: data.username, role: data.role, id: data.id }));
       } else {
-        sessionStorage.setItem('userInfo', JSON.stringify({
-          username: data.username,
-          role: data.role,
-          id: data.id
-        }));
+        sessionStorage.setItem('userInfo', JSON.stringify({ username: data.username, role: data.role, id: data.id }));
       }
       setLocation('/');
     },
@@ -239,6 +231,32 @@ export default function Login() {
     setIsClientLoading(true);
     clientLoginMutation.mutate(data);
   }
+
+  // 2FA submit handler
+  const handle2faSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIs2faLoading(true);
+    try {
+      const response = await fetch('/api/2fa/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ userId: twofaUserId, code: twofaCode })
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Invalid 2FA code');
+      setShow2fa(false);
+      toast({ title: '2FA successful', description: 'Welcome back!' });
+      // Store user info as before
+      localStorage.setItem('userInfo', JSON.stringify({ username: data.user.username, role: data.user.role, id: data.user.id }));
+      setLocation('/');
+    } catch (err) {
+      toast({ title: '2FA failed', description: err instanceof Error ? err.message : 'Invalid code', variant: 'destructive' });
+    } finally {
+      setIs2faLoading(false);
+      setTwofaCode('');
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -628,6 +646,18 @@ export default function Login() {
           </div>
         </div>
       </div>
+      <Dialog open={show2fa} onOpenChange={setShow2fa}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Two-Factor Authentication</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handle2faSubmit} className="space-y-4">
+            <Label htmlFor="twofa-code">Enter 2FA Code</Label>
+            <Input id="twofa-code" value={twofaCode} onChange={e => setTwofaCode(e.target.value)} autoFocus autoComplete="one-time-code" maxLength={6} pattern="[0-9]{6}" required />
+            <Button type="submit" disabled={is2faLoading}>{is2faLoading ? 'Verifying...' : 'Verify'}</Button>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
